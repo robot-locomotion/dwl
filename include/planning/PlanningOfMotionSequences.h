@@ -75,10 +75,4 @@ class PlanningOfMotionSequences
 } //@namespace dwl
 
 
-inline std::string dwl::planning::PlanningOfMotionSequences::getName()
-{
-	return name_;
-}
-
-
 #endif

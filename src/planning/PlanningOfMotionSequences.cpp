@@ -33,6 +33,12 @@ void PlanningOfMotionSequences::addCost(Cost* cost)
 }
 
 
+std::string dwl::planning::PlanningOfMotionSequences::getName()
+{
+	return name_;
+}
+
+
 } //@namespace planning
 
 } //@namespace dwl

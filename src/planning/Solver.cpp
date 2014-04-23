@@ -27,6 +27,12 @@ void Solver::addCost(Cost* cost)
 }
 
 
+std::string dwl::planning::Solver::getName()
+{
+	return name_;
+}
+
+
 } //@namespace planning
 
 } //@namespace dwl

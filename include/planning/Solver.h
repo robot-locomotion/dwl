@@ -46,10 +46,4 @@ class Solver
 } //@namespace dwl
 
 
-inline std::string dwl::planning::Solver::getName()
-{
-	return name_;
-}
-
-
 #endif
