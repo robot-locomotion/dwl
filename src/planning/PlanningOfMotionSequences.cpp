@@ -27,9 +27,22 @@ void PlanningOfMotionSequences::addConstraint(Constraint* constraint)
 	solver_->addConstraint(constraint);
 }
 
+
+void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
+{
+	solver_->removeConstraint(constraint_name);
+}
+
+
 void PlanningOfMotionSequences::addCost(Cost* cost)
 {
 	solver_->addCost(cost);
+}
+
+
+void PlanningOfMotionSequences::removeCost(std::string cost_name)
+{
+	solver_->removeCost(cost_name);
 }
 
 

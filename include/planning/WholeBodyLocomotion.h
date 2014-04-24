@@ -22,7 +22,11 @@ class WholeBodyLocomotion
 
 		void addConstraint(planning::Constraint* constraint);
 
+		void removeConstraint(std::string constraint_name);
+
 		void addCost(planning::Cost* cost);
+
+		void removeCost(std::string cost_name);
 
 		bool init();
 

@@ -26,9 +26,21 @@ void WholeBodyLocomotion::addConstraint(planning::Constraint* constraint)
 }
 
 
+void WholeBodyLocomotion::removeConstraint(std::string constraint_name)
+{
+	planner_->removeConstraint(constraint_name);
+}
+
+
 void WholeBodyLocomotion::addCost(planning::Cost* cost)
 {
 	planner_->addCost(cost);
+}
+
+
+void WholeBodyLocomotion::removeCost(std::string cost_name)
+{
+	planner_->removeCost(cost_name);
 }
 
 

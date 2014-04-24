@@ -43,7 +43,11 @@ class PlanningOfMotionSequences
 
 		void addConstraint(Constraint* constraint);
 
+		void removeConstraint(std::string constraint_name);
+
 		void addCost(Cost* cost);
+
+		void removeCost(std::string cost_name);
 
 		virtual bool init(std::vector<double> start, std::vector<double> goal) = 0;
 

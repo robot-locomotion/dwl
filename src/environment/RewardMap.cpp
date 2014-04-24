@@ -33,13 +33,13 @@ void RewardMap::removeFeature(std::string feature_name)
 		if (feature_name == features_[i]->getName().c_str()) {
 			printf(GREEN "Removing the %s feature\n" COLOR_RESET, features_[i]->getName().c_str());
 			features_.erase(features_.begin() + i);
+
+			return;
 		}
-		else if (features_.size() - 1 == i) {
+		else if (i == features_.size() - 1) {
 			printf(YELLOW "Could not remove the %s feature\n" COLOR_RESET, feature_name.c_str());
 		}
 	}
-	//printf(GREEN "Removing the %s feature\n" COLOR_RESET, features_[index]->getName().c_str());
-	//features_.erase(features_.begin() + index);
 }
 
 

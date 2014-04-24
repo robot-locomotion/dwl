@@ -28,7 +28,9 @@ class Solver
 		virtual bool compute(Eigen::MatrixXd& solution) = 0;
 
 		void addConstraint(Constraint* constraint);
+		void removeConstraint(std::string constraint_name);
 		void addCost(Cost* cost);
+		void removeCost(std::string cost_name);
 
 		std::string getName();
 
