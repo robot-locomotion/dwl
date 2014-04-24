@@ -18,6 +18,9 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/HierarchicalPlanning.cpp
 							src/planning/Solver.cpp
 							src/planning/DijkstrapAlgorithm.cpp
+							src/environment/RewardMap.cpp
+							src/environment/Feature.cpp
+							src/environment/SlopeFeature.cpp
 							src/hyq/KinematicConstraints.cpp
 							src/hyq/StateCost.cpp) 
 
