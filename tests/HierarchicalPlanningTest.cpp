@@ -5,6 +5,9 @@
 #include <hyq/StateCost.cpp>
 #include <Eigen/Dense>
 
+#include <environment/RewardMap.h>
+#include <environment/SlopeFeature.h>
+
 
 int main(int argc, char **argv)
 {
@@ -23,10 +26,24 @@ int main(int argc, char **argv)
 	locomotor.reset(planning_ptr);
 	locomotor.addConstraint(constraint_ptr);
 	locomotor.addCost(cost_ptr);
+	locomotor.removeConstraint("jodida");
+	locomotor.removeConstraint(constraint_ptr->getName());
+	locomotor.removeCost(cost_ptr->getName());
 
 	// Initizalization and computing of the whole-body locomotion problem
 	locomotor.init();
 	locomotor.computePlan();
+
+	printf("---------- RewardMap ------------\n");
+
+	// Setup of reward map
+	dwl::environment::RewardMap reward_map;
+
+	// Initialization of reward map algorithm
+	dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
+	reward_map.addFeature(slope_ptr);
+	reward_map.removeFeature("jode");
+
 
     return 0;
 }
