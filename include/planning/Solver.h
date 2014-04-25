@@ -19,10 +19,10 @@ class Solver
 {
 	public:
 		/** @brief Constructor function */
-		Solver() {};
+		Solver();
 
 		/** @brief Destructor function */
-		virtual ~Solver() {};
+		virtual ~Solver();
 
 		virtual bool init() = 0;
 		virtual bool compute(Eigen::MatrixXd& solution) = 0;
@@ -38,6 +38,7 @@ class Solver
 
 	protected:
 		std::string name_;
+		bool is_added_active_constraint_, is_added_inactive_constraint_, is_added_cost_;
 		std::vector<Constraint*> active_constraints_;
 		std::vector<Constraint*> inactive_constraints_;
 		std::vector<Cost*> costs_;

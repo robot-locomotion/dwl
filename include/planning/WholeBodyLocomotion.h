@@ -28,13 +28,14 @@ class WholeBodyLocomotion
 
 		void removeCost(std::string cost_name);
 
-		bool init();
+		bool init(std::vector<double> start, std::vector<double> goal);
 
 		bool computePlan();
 
 
 	private:
 		dwl::planning::PlanningOfMotionSequences* planner_;
+		bool is_settep_planner_;
 		bool is_learning_;
 
 	protected:

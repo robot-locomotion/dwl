@@ -17,11 +17,13 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/PlanningOfMotionSequences.cpp 
 							src/planning/HierarchicalPlanning.cpp
 							src/planning/Solver.cpp
+							src/planning/Constraint.cpp
 							src/planning/DijkstrapAlgorithm.cpp
 							src/environment/RewardMap.cpp
 							src/environment/Feature.cpp
 							src/environment/SlopeFeature.cpp
 							src/hyq/KinematicConstraints.cpp
+							src/hyq/StabilityConstraints.cpp
 							src/hyq/StateCost.cpp) 
 
 #set(${PROJECT_NAME}_HEADERS )

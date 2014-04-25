@@ -2,6 +2,7 @@
 #include <planning/HierarchicalPlanning.h>
 #include <planning/WholeBodyLocomotion.cpp>
 #include <hyq/KinematicConstraints.cpp>
+#include <hyq/StabilityConstraints.cpp>
 #include <hyq/StateCost.cpp>
 #include <Eigen/Dense>
 
@@ -19,21 +20,24 @@ int main(int argc, char **argv)
 	dwl::planning::PlanningOfMotionSequences* planning_ptr = new dwl::planning::HierarchicalPlanning();
 	planning_ptr->reset(solver_ptr);
 
-	dwl::planning::Constraint* constraint_ptr = new dwl::hyq::KinematicConstraints();
+	dwl::planning::Constraint* kin_constraint_ptr = new dwl::hyq::KinematicConstraints();
+	dwl::planning::Constraint* stab_constraint_ptr = new dwl::hyq::StabilityConstraints();
 	dwl::planning::Cost* cost_ptr = new dwl::hyq::StateCost();
 
 	// Setting up the planner algorithm in the locomotion approach
 	locomotor.reset(planning_ptr);
-	locomotor.addConstraint(constraint_ptr);
+	locomotor.addConstraint(kin_constraint_ptr);
+	locomotor.addConstraint(stab_constraint_ptr);
 	locomotor.addCost(cost_ptr);
-	locomotor.removeConstraint("jodida");
-	locomotor.removeConstraint(constraint_ptr->getName());
+	locomotor.removeConstraint("fake");
+	locomotor.removeConstraint(kin_constraint_ptr->getName());
 	locomotor.removeCost(cost_ptr->getName());
 
 	// Initizalization and computing of the whole-body locomotion problem
-	locomotor.init();
+	std::vector<double> start, goal;
+	locomotor.init(start, goal);
 	locomotor.computePlan();
-
+/*
 	printf("---------- RewardMap ------------\n");
 
 	// Setup of reward map
@@ -42,8 +46,8 @@ int main(int argc, char **argv)
 	// Initialization of reward map algorithm
 	dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
 	reward_map.addFeature(slope_ptr);
-	reward_map.removeFeature("jode");
-
+	reward_map.removeFeature("fake");
+*/
 
     return 0;
 }

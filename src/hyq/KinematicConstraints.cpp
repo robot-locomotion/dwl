@@ -15,7 +15,7 @@ KinematicConstraints::KinematicConstraints()
 
 KinematicConstraints::~KinematicConstraints()
 {
-
+	printf("Destroying kinematic constraint\n");
 }
 
 void KinematicConstraints::get(Eigen::VectorXd& constraint, Eigen::VectorXd state)

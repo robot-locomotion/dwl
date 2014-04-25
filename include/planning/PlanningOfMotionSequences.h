@@ -49,7 +49,11 @@ class PlanningOfMotionSequences
 
 		void removeCost(std::string cost_name);
 
+		bool initPlan(std::vector<double> start, std::vector<double> goal);
+
 		virtual bool init(std::vector<double> start, std::vector<double> goal) = 0;
+
+		bool computePlan();
 
 		virtual bool compute() = 0;
 
@@ -60,6 +64,7 @@ class PlanningOfMotionSequences
 
 
 	private:
+		bool is_settep_solver_;
 		/** @brief Initial state of the robot */
 		std::vector<double> initial_state_;
 

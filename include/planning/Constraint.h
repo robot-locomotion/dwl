@@ -38,17 +38,6 @@ class Constraint
 }; //@class Constraint
 
 
-inline std::string Constraint::getName()
-{
-	return name_;
-}
-
-inline bool Constraint::isActive()
-{
-	return is_active_constraint_;
-}
-
-
 } //@namespace planning
 
 } //@namespace dwl
