@@ -6,7 +6,7 @@ project(dwl)
 find_package(Eigen REQUIRED)
 include_directories(${EIGEN_INCLUDE_DIRS})
 
-set(DWL_VERSION 0.0.1)
+set(DWL_VERSION 0.0.1 CACHE STRING "DWL version")
 message("Compiling the version ${DWL_VERSION} of Dynamic Whole-Body Locomotion (DWL) library")
 
 
@@ -34,3 +34,6 @@ add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
 
 add_executable(my_planner tests/HierarchicalPlanningTest.cpp)
 target_link_libraries(my_planner ${PROJECT_NAME})
+
+
+
