@@ -8,7 +8,7 @@ namespace planning
 {
 
 
-PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), is_settep_solver_(false)
+PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), is_settep_solver_(false), is_initialized_planning_(false)
 {
 
 }
@@ -66,6 +66,7 @@ bool PlanningOfMotionSequences::initPlan(std::vector<double> start, std::vector<
 
 			return false;
 		}
+		is_initialized_planning_ = true;
 	}
 	else {
 		printf(YELLOW "Could not initialize the %s planning because has not been setted the solver\n" COLOR_RESET, name_.c_str());
@@ -79,15 +80,22 @@ bool PlanningOfMotionSequences::initPlan(std::vector<double> start, std::vector<
 
 bool PlanningOfMotionSequences::computePlan()
 {
-	if (is_settep_solver_) {
-		if (!compute()) {
-			printf(RED "Could not compute the %s planning algorithm\n" COLOR_RESET, name_.c_str());
+	if (is_initialized_planning_) {
+		if (is_settep_solver_) {
+			if (!compute()) {
+				printf(RED "Could not compute the %s planning algorithm\n" COLOR_RESET, name_.c_str());
+
+				return false;
+			}
+		}
+		else {
+			printf(YELLOW "Could not execute the %s planning because has not been setted the solver\n" COLOR_RESET, name_.c_str());
 
 			return false;
 		}
 	}
 	else {
-		printf(YELLOW "Could not execute the %s planning because has not been setted the solver\n" COLOR_RESET, name_.c_str());
+		printf(YELLOW "Could not execute the %s planning because has not been initialized\n" COLOR_RESET, name_.c_str());
 
 		return false;
 	}
@@ -96,7 +104,16 @@ bool PlanningOfMotionSequences::computePlan()
 }
 
 
-std::string dwl::planning::PlanningOfMotionSequences::getName()
+void PlanningOfMotionSequences::changeGoal(std::vector<double> goal)
+{
+	printf(GREEN "Changed the goal state\n" COLOR_RESET);
+	pthread_mutex_lock(&planning_lock_);
+	goal_state_ = goal;
+	pthread_mutex_unlock(&planning_lock_);
+}
+
+
+std::string PlanningOfMotionSequences::getName()
 {
 	return name_;
 }

@@ -32,6 +32,8 @@ class WholeBodyLocomotion
 
 		bool computePlan();
 
+		void changeGoal(std::vector<double> goal);
+
 
 	private:
 		dwl::planning::PlanningOfMotionSequences* planner_;

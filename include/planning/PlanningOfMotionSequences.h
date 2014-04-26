@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <utils/macros.h>
+#include <pthread.h>
 
 
 namespace dwl
@@ -57,20 +58,22 @@ class PlanningOfMotionSequences
 
 		virtual bool compute() = 0;
 
-
-		void setGoal(std::vector<double> goal);
+		void changeGoal(std::vector<double> goal);
 
 		std::string getName();
 
 
 	private:
 		bool is_settep_solver_;
+		bool is_initialized_planning_;
+
 		/** @brief Initial state of the robot */
 		std::vector<double> initial_state_;
 
 		/** @brief Goal state of the robot */
 		std::vector<double> goal_state_;
 
+		pthread_mutex_t planning_lock_;
 
 	protected:
 		std::string name_;

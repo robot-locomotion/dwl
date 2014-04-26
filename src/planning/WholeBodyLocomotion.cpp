@@ -96,4 +96,13 @@ bool WholeBodyLocomotion::computePlan()
 }
 
 
+void WholeBodyLocomotion::changeGoal(std::vector<double> goal)
+{
+	if (is_settep_planner_)
+		planner_->changeGoal(goal);
+	else
+		printf(YELLOW "Could not change the goal because has not been setted the planner\n" COLOR_RESET);
+}
+
+
 } //@namespace dwl

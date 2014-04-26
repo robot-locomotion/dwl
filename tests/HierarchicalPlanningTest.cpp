@@ -37,6 +37,8 @@ int main(int argc, char **argv)
 	std::vector<double> start, goal;
 	locomotor.init(start, goal);
 	locomotor.computePlan();
+	locomotor.changeGoal(goal);
+
 /*
 	printf("---------- RewardMap ------------\n");
 

@@ -3,10 +3,10 @@
 
 #include <planning/Constraint.h>
 #include <planning/Cost.h>
-//#include <iostream>
 #include <Eigen/Dense>
 #include <vector>
 #include <utils/macros.h>
+#include <pthread.h>
 
 
 namespace dwl
@@ -42,6 +42,7 @@ class Solver
 		std::vector<Constraint*> active_constraints_;
 		std::vector<Constraint*> inactive_constraints_;
 		std::vector<Cost*> costs_;
+		pthread_mutex_t solver_lock_;
 };
 
 } //@namespace planning

@@ -37,13 +37,21 @@ void Solver::addConstraint(Constraint* constraint)
 {
 	if (constraint->isActive()) {
 		printf(GREEN "Adding the active %s constraint\n" COLOR_RESET, constraint->getName().c_str());
+		pthread_mutex_lock(&solver_lock_);
 		active_constraints_.push_back(constraint);
-		is_added_active_constraint_ = true;
+		pthread_mutex_unlock(&solver_lock_);
+
+		if (!is_added_active_constraint_)
+			is_added_active_constraint_ = true;
 	}
 	else {
 		printf(GREEN "Adding the active %s constraint\n" COLOR_RESET, constraint->getName().c_str());
+		pthread_mutex_lock(&solver_lock_);
 		inactive_constraints_.push_back(constraint);
-		is_added_inactive_constraint_ = true;
+		pthread_mutex_unlock(&solver_lock_);
+
+		if (!is_added_inactive_constraint_)
+			is_added_inactive_constraint_ = true;
 	}
 }
 
@@ -71,8 +79,10 @@ void Solver::removeConstraint(std::string constraint_name)
 				if (i < active_constraints_.size()) {
 					if (constraint_name == active_constraints_[i]->getName().c_str()) {
 						printf(GREEN "Removing the active %s constraint\n" COLOR_RESET, active_constraints_[i]->getName().c_str());
+						pthread_mutex_lock(&solver_lock_);
 						delete active_constraints_.at(i);
 						active_constraints_.erase(active_constraints_.begin() + i);
+						pthread_mutex_unlock(&solver_lock_);
 
 						return;
 					}
@@ -83,8 +93,10 @@ void Solver::removeConstraint(std::string constraint_name)
 				if (i < inactive_constraints_.size()) {
 					if (constraint_name == inactive_constraints_[i]->getName().c_str()) {
 						printf(GREEN "Removing the inactive %s constraint\n" COLOR_RESET, inactive_constraints_[i]->getName().c_str());
+						pthread_mutex_lock(&solver_lock_);
 						delete inactive_constraints_.at(i);
 						inactive_constraints_.erase(inactive_constraints_.begin() + i);
+						pthread_mutex_unlock(&solver_lock_);
 
 						return;
 					}
@@ -102,7 +114,9 @@ void Solver::removeConstraint(std::string constraint_name)
 void Solver::addCost(Cost* cost)
 {
 	printf(GREEN "Adding the %s cost\n" COLOR_RESET, cost->getName().c_str());
+	pthread_mutex_lock(&solver_lock_);
 	costs_.push_back(cost);
+	pthread_mutex_lock(&solver_lock_);
 	is_added_cost_ = true;
 }
 
