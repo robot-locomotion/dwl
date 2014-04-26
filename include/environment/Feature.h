@@ -10,6 +10,7 @@ namespace dwl
 namespace environment
 {
 
+
 class Feature
 {
 	public:
@@ -24,6 +25,7 @@ class Feature
 		std::string name_;
 
 }; //@class Feature
+
 
 } //@namespace environment
 

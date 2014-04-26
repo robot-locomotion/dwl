@@ -4,6 +4,7 @@
 #include <environment/Feature.h>
 #include <vector>
 #include <utils/macros.h>
+//#include <octomap/OcTree.h>
 
 
 namespace dwl
@@ -11,6 +12,7 @@ namespace dwl
 
 namespace environment
 {
+
 
 class RewardMap
 {
@@ -22,16 +24,17 @@ class RewardMap
 
 		void removeFeature(std::string feature_name);//{features_}
 
-		virtual void compute() {};
+		virtual void compute() = 0;
 
 	protected:
 		std::vector<Feature*> features_;
-
+		pthread_mutex_t environment_lock_;
 
 
 
 
 };
+
 
 } //@namespace environment
 
