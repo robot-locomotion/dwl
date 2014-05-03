@@ -20,6 +20,7 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/Constraint.cpp
 							src/planning/DijkstrapAlgorithm.cpp
 							src/environment/RewardMap.cpp
+							src/environment/RewardOctoMap.cpp
 							src/environment/Feature.cpp
 							src/environment/SlopeFeature.cpp
 							src/hyq/KinematicConstraints.cpp
