@@ -8,19 +8,11 @@
 
   <maintainer email="carlos.mastalli@iit.it">Carlos Mastalli</maintainer>
 
-
-  <!-- One license tag required, multiple allowed, one license per tag -->
-  <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
   <license>TODO</license>
 
-
-  <!-- Url tags are optional, but mutiple are allowed, one per tag -->
-  <!-- Optional attribute type can be: website, bugtracker, or repository -->
-  <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/dwl</url> -->
-
-
+<!-- <url type="website">http://dwl.github.io</url>
+  <url type="bugtracker">https://github.com/DWL/dwl/issues</url>   -->
 
   <!-- The *_depend tags are used to specify dependencies -->
   <!-- Dependencies can be catkin packages or system dependencies -->
@@ -30,28 +22,26 @@
   <!-- Use buildtool_depend for build tool packages: -->
   <!--   <buildtool_depend>catkin</buildtool_depend> -->
   <!-- Use run_depend for packages you need at runtime: -->
-  <!--   <run_depend>message_runtime</run_depend> -->
+  
+  <buildtool_depend>cmake</buildtool_depend>
+  
+<!-- <build_depend>octomap</build_depend>
+  <build_depend>eigen</build_depend>   -->
+  
+  <run_depend>catkin</run_depend>
+<!-- <run_depend>octomap</run_depend>
+  <run_depend>eigen</run_depend>   -->
+
+  
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
-  <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>octomap</build_depend>
-  <build_depend>eigen</build_depend>
-<!--  <build_depend>octomap_msgs</build_depend>-->
-    
-  <run_depend>roscpp</run_depend>
-  <run_depend>octomap</run_depend>
-  <run_depend>eigen</run_depend>
+  <!-- <build_depend>roscpp</build_depend> --> 
+<!--  <build_depend>octomap_msgs</build_depend> -->
+<!--  <run_depend>roscpp</run_depend> -->
 <!--  <run_depend>octomap_msgs</run_depend>-->
   
 
-
-  <!-- The export tag contains other, unspecified, tags -->
   <export>
-    <!-- You can specify that this package is a metapackage here: -->
-    <!-- <metapackage/> -->
-
-    <!-- Other tools can request additional information be placed here -->
-
+	<build_type>cmake</build_type>
   </export>
 </package>
