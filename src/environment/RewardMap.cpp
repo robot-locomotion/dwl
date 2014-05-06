@@ -8,7 +8,7 @@ namespace environment
 {
 
 
-RewardMap::RewardMap()
+RewardMap::RewardMap() : is_added_feature_(false)
 {
 
 }
@@ -26,6 +26,7 @@ void RewardMap::addFeature(Feature* feature)
 	pthread_mutex_lock(&environment_lock_);
 	features_.push_back(feature);
 	pthread_mutex_unlock(&environment_lock_);
+	is_added_feature_ = true;
 }
 
 
@@ -45,6 +46,19 @@ void RewardMap::removeFeature(std::string feature_name)
 		}
 	}
 }
+
+
+void RewardMap::setSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_size)
+{
+	search_area_.min_x = min_x;
+	search_area_.max_x = max_x;
+	search_area_.min_y = min_y;
+	search_area_.max_y = max_y;
+	search_area_.min_z = min_z;
+	search_area_.max_z = max_z;
+	search_area_.grid_size = grid_size;
+}
+
 
 
 } //@namepace dwl

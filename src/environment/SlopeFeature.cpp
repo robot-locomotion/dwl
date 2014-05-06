@@ -1,4 +1,5 @@
 #include <environment/SlopeFeature.h>
+#include <Eigen/Dense>
 
 
 namespace dwl
@@ -18,9 +19,12 @@ SlopeFeature::~SlopeFeature()
 
 }
 
-void SlopeFeature::compute()
+void SlopeFeature::computeReward(double& reward_value, Terrain terrain_info)
 {
 	printf("Computing the slope feature\n");
+	double slope = fabs(acos((double) terrain_info.surface_normal(2)));
+
+	reward_value = slope;
 }
 
 

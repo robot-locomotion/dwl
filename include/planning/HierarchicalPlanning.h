@@ -25,6 +25,8 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		bool init(std::vector<double> start, std::vector<double> goal);
 		bool compute();
 
+		//TODO: I think that for Hierarchical Planner we can implement a method for setting the reward map
+
 	private:
 
 		std::vector<Eigen::Vector3d> body_path_;

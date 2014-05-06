@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(dwl)
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-message("${CMAKE_MODULE_PATH} test")
+#set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(Eigen REQUIRED)
 find_package(octomap REQUIRED)
@@ -23,6 +22,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BASE_DIR}/bin)
 set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")
 include_directories(${INCLUDE_DIRS})
 include_directories(src)
+include_directories(${OCTOMAP_INCLUDE_DIRS})
+
 
 set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/PlanningOfMotionSequences.cpp 
@@ -45,11 +46,11 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 
 
 add_executable(my_planner tests/HierarchicalPlanningTest.cpp)
-target_link_libraries(my_planner ${PROJECT_NAME})
+target_link_libraries(my_planner ${PROJECT_NAME} ${OCTOMAP_LIBRARIES})
 
 
 
-# Install catkin package.xml
+# Install catkin package.xml and dw-config.cmake
 install(FILES package.xml DESTINATION share/dwl)
 install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" DESTINATION share/dwl/cmake)
 
@@ -61,10 +62,9 @@ export(PACKAGE dwl)
 set(DWL_INCLUDE_DIRS "${INCLUDE_DIRS}")
 set(DWL_LIB_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 # not used right now (export depends?)
-#set(OCTOMAP_CMAKE_DIR "${PROJECT_BINARY_DIR}")
+#set(DWL_CMAKE_DIR "${PROJECT_BINARY_DIR}")
 configure_file(dwl-config.cmake.in
   "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" @ONLY)
-
 #configure_file(octomap-config-version.cmake.in
 #  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/octomap/octomap-config-version.cmake" @ONLY)
 

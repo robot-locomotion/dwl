@@ -18,7 +18,7 @@ class SlopeFeature : public Feature
 		SlopeFeature();
 		~SlopeFeature();
 
-		void compute();
+		void computeReward(double& reward_value, Terrain terrain_info);
 };
 
 
