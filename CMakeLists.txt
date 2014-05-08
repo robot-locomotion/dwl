@@ -37,7 +37,8 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/environment/SlopeFeature.cpp
 							src/hyq/KinematicConstraints.cpp
 							src/hyq/StabilityConstraints.cpp
-							src/hyq/StateCost.cpp) 
+							src/hyq/StateCost.cpp
+							src//utils/Math.cpp) 
 
 #set(${PROJECT_NAME}_HEADERS )
 
