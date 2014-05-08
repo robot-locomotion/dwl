@@ -3,6 +3,7 @@
 
 #include <environment/RewardMap.h>
 #include <octomap/octomap.h>
+#include <utils/Math.h>
 #include <utils/macros.h>
 
 
@@ -19,19 +20,18 @@ class RewardOctoMap : public RewardMap
 		RewardOctoMap();
 		~RewardOctoMap();
 
-		void compute(Modeler model);
-		bool computeRewards(std::vector<octomap::point3d> cloud, Eigen::Vector3d &normal_vector, float &curvature);
-
-		unsigned int computeMeanAndCovarianceMatrix(std::vector<octomap::point3d> cloud,
-														  Eigen::Matrix3d &covariance_matrix, Eigen::Vector3d &mean);
-		void solvePlaneParameters(const Eigen::Matrix3d &covariance_matrix,	Eigen::Vector3d &normal_vector, float &curvature);
-		void computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots);
-		void computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scalar& c, Eigen::Vector3d& roots);
+		void compute(Modeler model, Eigen::Vector2d robot_position);
+		bool computeFeaturesAndRewards(octomap::OcTree* octomap, octomap::OcTreeKey heightmap_key);
+		bool computeRewards(std::vector<Eigen::Vector3f> cloud);
 
 		std::vector<Pose> getNormals();
 
 	private:
+		std::vector<octomap::OcTreeKey> occupied_voxels_;
+		dwl::utils::Math math_;
+		bool is_first_computation_;
 		std::vector<Pose> normals_;
+
 };
 
 

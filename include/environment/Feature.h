@@ -2,6 +2,7 @@
 #define DWL_Feature_H
 
 #include <Eigen/Dense>
+#include <vector>
 #include <string>
 
 
@@ -11,6 +12,14 @@ namespace dwl
 namespace environment
 {
 
+
+struct Cell
+{
+	Eigen::Vector3d position;
+	//int key;
+	double reward;
+	int policy;
+};
 
 struct Terrain
 {
@@ -27,11 +36,14 @@ class Feature
 
 		virtual void computeReward(double& reward_value, Terrain terrain_info) = 0;
 
+		void addCellToRewardMap(double reward, Terrain terrain_info);
+
 		std::string getName();
+
 
 	protected:
 		std::string name_;
-		std::vector<double> reward_gridmap_;//TODO: to think in reward_gridmap data
+		std::vector<Cell> reward_gridmap_;
 
 }; //@class Feature
 

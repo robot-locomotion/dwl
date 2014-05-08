@@ -24,7 +24,7 @@ struct Pose
 struct Modeler
 {
 	octomap::OcTree* octomap;
-	//TODO: other modeler like HeightMap
+	//TODO: To integrate others modeler like HeightMap
 };
 
 struct SearchArea
@@ -33,6 +33,13 @@ struct SearchArea
 	double min_y, max_y;
 	double min_z, max_z;
 	double grid_size;
+};
+
+struct NeighboringArea
+{
+	int min_x, max_x;
+	int min_y, max_y;
+	int min_z, max_z;
 };
 
 class RewardMap
@@ -45,9 +52,11 @@ class RewardMap
 
 		void removeFeature(std::string feature_name);
 
-		virtual void compute(Modeler model) = 0;
+		virtual void compute(Modeler model, Eigen::Vector2d robot_position) = 0;
 
-		void setSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_size);
+		void addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_size);
+
+		void setNeighboringArea(int min_x, int max_x, int min_y, int max_y, int min_z, int max_z);
 
 
 
@@ -57,8 +66,10 @@ class RewardMap
 
 	protected:
 		std::vector<Feature*> features_;
-		SearchArea search_area_;
+		std::vector<SearchArea> search_areas_;
+		NeighboringArea neighboring_area_;
 		bool is_added_feature_;
+		bool is_added_search_area_;
 
 		pthread_mutex_t environment_lock_;
 

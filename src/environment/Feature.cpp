@@ -20,6 +20,14 @@ Feature::~Feature()
 }
 
 
+void Feature::addCellToRewardMap(double reward, Terrain terrain_info)
+{
+	Cell cell;
+	cell.position = terrain_info.position;
+	cell.reward = reward;
+	reward_gridmap_.push_back(cell);
+}
+
 std::string Feature::getName()
 {
 	return name_;
