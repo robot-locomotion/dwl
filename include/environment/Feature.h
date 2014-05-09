@@ -13,14 +13,6 @@ namespace environment
 {
 
 
-struct Cell
-{
-	Eigen::Vector3d position;
-	//int key;
-	double reward;
-	int policy;
-};
-
 struct Terrain
 {
 	Eigen::Vector3d position;
@@ -36,14 +28,11 @@ class Feature
 
 		virtual void computeReward(double& reward_value, Terrain terrain_info) = 0;
 
-		void addCellToRewardMap(double reward, Terrain terrain_info);
-
 		std::string getName();
 
 
 	protected:
 		std::string name_;
-		std::vector<Cell> reward_gridmap_;
 
 }; //@class Feature
 

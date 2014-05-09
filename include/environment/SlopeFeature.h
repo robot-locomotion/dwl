@@ -19,6 +19,10 @@ class SlopeFeature : public Feature
 		~SlopeFeature();
 
 		void computeReward(double& reward_value, Terrain terrain_info);
+
+	private:
+		double flat_threshold_;
+		double bad_threshold_;
 };
 
 

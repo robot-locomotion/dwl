@@ -38,22 +38,40 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector2d robot_position)
 	}
 
 	// Computing reward map for several search areas
-	for (int i = 0; i < search_areas_.size(); i++) {
-		// Computing rewards in a gripmap defined by the search area
-		for (double y = search_areas_[i].min_y + robot_position(1); y <= search_areas_[i].max_y + robot_position(1); y += search_areas_[i].grid_size) {
-			for (double x = search_areas_[i].min_x + robot_position(0); x <= search_areas_[i].max_x + robot_position(0); x += search_areas_[i].grid_size) {
+	for (int n = 0; n < search_areas_.size(); n++) {
+		// Computing the boundaring of the gripmap
+		Eigen::Vector2d coord;
+		Key min_grid, max_grid;
+		coord(0) = search_areas_[n].min_x + robot_position(0);
+		coord(1) = search_areas_[n].min_y + robot_position(1);
+		gridmap_.coordToKeyChecked(coord, min_grid);
+		coord(0) = search_areas_[n].max_x + robot_position(0);
+		coord(1) = search_areas_[n].max_y + robot_position(1);
+		gridmap_.coordToKeyChecked(coord, max_grid);
+
+		int search_step = round(search_areas_[n].grid_resolution / gridmap_.getResolution());
+		if (search_step == 0)
+			search_step = 1;
+
+		for (unsigned short int j = min_grid.key[1]; j < max_grid.key[1]; j += search_step) {
+			double y = gridmap_.keyToCoord(j);
+			for (unsigned short int i = min_grid.key[0]; i < max_grid.key[0]; i += search_step) {
+				double x = gridmap_.keyToCoord(i);
+
+				std::cout << "key = " << i << " " << j << std::endl;
+
 				// Checking if the voxel belongs to dimensions of the map, and also getting the key of this voxel
-				double z = search_areas_[i].max_z;
+				double z = search_areas_[n].max_z;
 				octomap::OcTreeKey init_key;
 				if (!octomap->coordToKeyChecked(x, y, z, 16, init_key)) {
-					printf(RED "Voxel out of bounds" COLOR_RESET);
+					printf(RED "Voxel out of bounds\n" COLOR_RESET);
 
 					return;
 				}
 
 				// Finding the voxel of the surface
 				int r = 0;
-				while (z >= search_areas_[i].min_z) {
+				while (z >= search_areas_[n].min_z) {
 					octomap::OcTreeKey heightmap_key;
 					octomap::OcTreeNode* heightmap_node = octomap->search(init_key);
 					heightmap_key[0] = init_key[0];
@@ -72,8 +90,8 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector2d robot_position)
 									occupied_voxels_.push_back(heightmap_key);
 							} else {
 								bool new_status = true;
-								for (int j = 0; j < occupied_voxels_.size(); j++) {
-									if (occupied_voxels_[j] == heightmap_key) {
+								for (int k = 0; k < occupied_voxels_.size(); k++) {
+									if (occupied_voxels_[k] == heightmap_key) {
 										new_status = false;
 
 										break;
@@ -138,18 +156,32 @@ bool RewardOctoMap::computeFeaturesAndRewards(octomap::OcTree* octomap, octomap:
 
 bool RewardOctoMap::computeRewards(std::vector<Eigen::Vector3f> cloud)
 {
+	// Computing terrain info
 	Terrain terrain_info;
-
 	EIGEN_ALIGN16 Eigen::Matrix3d covariance_matrix;
 	if (cloud.size() < 3 || math_.computeMeanAndCovarianceMatrix(cloud, covariance_matrix, terrain_info.position) == 0)
 		return false;
 
 	math_.solvePlaneParameters(covariance_matrix, terrain_info.surface_normal, terrain_info.curvature);
 
-	double slope = fabs(acos((double) terrain_info.surface_normal(2)));
+	// Computing the reward
+	if (is_added_feature_) {
+		double reward_value;
+		for (int i = 0; i < features_.size(); i++) {
+			features_[i]->computeReward(reward_value, terrain_info);
+			//std::cout << features_[i]->getName() << " value = " << reward_value << std::endl;
+		}
+		addCellToRewardMap(reward_value, terrain_info);
+		std::cout << "grid size = " << reward_gridmap_.size() << std::endl;
+	}
+	else {
+		printf(YELLOW "Could not compute the reward of the features because it is necessary to add at least one\n" COLOR_RESET);
+		return false;
+	}
 
 
-	// record data
+
+	//------------------------ record data
 	Eigen::Vector3d origin_vector = Eigen::Vector3d::Zero();
 	origin_vector(0) = 1;
 	Eigen::Quaternion<double> orientation;
@@ -163,19 +195,6 @@ bool RewardOctoMap::computeRewards(std::vector<Eigen::Vector3f> cloud)
 	pose.orientation(3) = orientation.w();
 	normals_.push_back(pose);
 
-
-
-	if (is_added_feature_) {
-		double reward_value;
-		for (int i = 0; i < features_.size(); i++) {
-			features_[i]->computeReward(reward_value, terrain_info);
-			//std::cout << features_[i]->getName() << " value = " << reward_value << std::endl;
-		}
-	}
-	else {
-		printf(YELLOW "Could not compute the reward of the features because it is necessary to add at least one\n" COLOR_RESET);
-		return false;
-	}
 
 	return true;
 }

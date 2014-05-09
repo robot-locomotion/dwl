@@ -32,6 +32,7 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/Constraint.cpp
 							src/planning/DijkstrapAlgorithm.cpp
 							src/environment/RewardMap.cpp
+							src/environment/PlaneGrid.cpp
 							src/environment/RewardOctoMap.cpp
 							src/environment/Feature.cpp
 							src/environment/SlopeFeature.cpp
@@ -49,6 +50,9 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 add_executable(my_planner tests/HierarchicalPlanningTest.cpp)
 target_link_libraries(my_planner ${PROJECT_NAME} ${OCTOMAP_LIBRARIES})
 
+
+add_executable(dikstrap_algorithm tests/DijkstraExample.cpp)
+add_executable(boost_dikstrap_algorithm tests/DijkstraExampleBoost.cpp)
 
 
 # Install catkin package.xml and dw-config.cmake

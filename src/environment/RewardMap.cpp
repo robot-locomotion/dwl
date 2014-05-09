@@ -8,7 +8,7 @@ namespace environment
 {
 
 
-RewardMap::RewardMap() : is_added_feature_(false), is_added_search_area_(false)
+RewardMap::RewardMap() : gridmap_(0.04), is_added_feature_(false), is_added_search_area_(false)
 {
 
 }
@@ -51,7 +51,16 @@ void RewardMap::removeFeature(std::string feature_name)
 }
 
 
-void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_size)
+void RewardMap::addCellToRewardMap(double reward, Terrain terrain_info)
+{
+	Cell cell;
+	cell.position = terrain_info.position;
+	cell.reward = reward;
+	reward_gridmap_.push_back(cell);
+}
+
+
+void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_resolution)
 {
 	SearchArea search_area;
 	search_area.min_x = min_x;
@@ -60,9 +69,13 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 	search_area.max_y = max_y;
 	search_area.min_z = min_z;
 	search_area.max_z = max_z;
-	search_area.grid_size = grid_size;
+	search_area.grid_resolution = grid_resolution;
 
 	search_areas_.push_back(search_area);
+
+	if (grid_resolution < gridmap_.getResolution())
+		gridmap_.setResolution(grid_resolution);
+
 	is_added_search_area_ = true;
 }
 

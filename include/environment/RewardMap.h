@@ -1,6 +1,7 @@
 #ifndef DWL_RewardMap_H
 #define DWL_RewardMap_H
 
+#include <environment/PlaneGrid.h>
 #include <environment/Feature.h>
 #include <octomap/octomap.h>
 #include <Eigen/Dense>
@@ -14,11 +15,20 @@ namespace dwl
 namespace environment
 {
 
-
+// TODO: Pose struct temporaly, only for testing
 struct Pose
 {
 	Eigen::Vector3d position;
 	Eigen::Vector4d orientation;
+};
+
+struct Cell
+{
+	Eigen::Vector3d position;
+	int id;
+	double reward;
+	std::vector<int> neighbors;
+	int policy;
 };
 
 struct Modeler
@@ -32,7 +42,7 @@ struct SearchArea
 	double min_x, max_x;
 	double min_y, max_y;
 	double min_z, max_z;
-	double grid_size;
+	double grid_resolution;
 };
 
 struct NeighboringArea
@@ -49,15 +59,15 @@ class RewardMap
 		virtual ~RewardMap();
 
 		void addFeature(Feature* feature);
-
 		void removeFeature(std::string feature_name);
 
+
 		virtual void compute(Modeler model, Eigen::Vector2d robot_position) = 0;
+		void addCellToRewardMap(double reward, Terrain terrain_info);
+
 
 		void addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_size);
-
 		void setNeighboringArea(int min_x, int max_x, int min_y, int max_y, int min_z, int max_z);
-
 
 
 
@@ -65,7 +75,9 @@ class RewardMap
 
 
 	protected:
+		PlaneGrid gridmap_;
 		std::vector<Feature*> features_;
+		std::vector<Cell> reward_gridmap_;
 		std::vector<SearchArea> search_areas_;
 		NeighboringArea neighboring_area_;
 		bool is_added_feature_;
