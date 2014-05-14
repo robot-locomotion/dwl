@@ -1,0 +1,12 @@
+
+<library path="libreward_map_rviz_plugin">
+
+	<class name="reward_map_rviz_plugin/RewardMap"
+           type="reward_map_rviz_plugin::RewardMapDisplay"
+           base_class_type="rviz::Display">
+	<description>
+		Displays 3D occupancy grids generated from compressed octomap messages.
+	</description>
+	</class>
+	
+</library>
