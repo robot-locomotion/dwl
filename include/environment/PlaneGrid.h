@@ -34,7 +34,7 @@ class PlaneGrid
 		bool coordToKeyChecked(double coordinate, unsigned short int& keyval) const;
 
 		/// Converts from a single coordinate into a discrete key
-		inline unsigned short int coordToKey(double coordinate) const;
+		unsigned short int coordToKey(double coordinate) const;
 
 		/// converts from a discrete key at the lowest tree level into a coordinate
 		/// corresponding to the key's center

@@ -22,13 +22,17 @@ struct Pose
 	Eigen::Vector4d orientation;
 };
 
+struct CellKey
+{
+	Key grid_id;
+	unsigned short int height_id;
+};
+
 struct Cell
 {
-	Eigen::Vector3d position;
-	int id;
+	CellKey cell_key;
 	double reward;
-	std::vector<int> neighbors;
-	int policy;
+	double size;
 };
 
 struct Modeler
@@ -63,13 +67,18 @@ class RewardMap
 
 
 		virtual void compute(Modeler model, Eigen::Vector2d robot_position) = 0;
-		void addCellToRewardMap(double reward, Terrain terrain_info);
+
+		void getCell(Cell &cell, double reward, Terrain terrain_info);
+		void getCell(CellKey& cell_key, Eigen::Vector3d position);
+
+		void addCellToRewardMap(Cell cell);
+		void removeCellToRewardMap(CellKey cell);
 
 
 		void addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_size);
 		void setNeighboringArea(int min_x, int max_x, int min_y, int max_y, int min_z, int max_z);
 
-
+		std::vector<Cell> getRewardMap();
 
 		virtual std::vector<Pose> getNormals() = 0;
 
@@ -79,15 +88,12 @@ class RewardMap
 		std::vector<Feature*> features_;
 		std::vector<Cell> reward_gridmap_;
 		std::vector<SearchArea> search_areas_;
+		double cell_size_;
 		NeighboringArea neighboring_area_;
 		bool is_added_feature_;
 		bool is_added_search_area_;
 
 		pthread_mutex_t environment_lock_;
-
-
-
-
 };
 
 

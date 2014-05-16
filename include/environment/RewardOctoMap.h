@@ -24,13 +24,15 @@ class RewardOctoMap : public RewardMap
 		bool computeFeaturesAndRewards(octomap::OcTree* octomap, octomap::OcTreeKey heightmap_key);
 		bool computeRewards(std::vector<Eigen::Vector3f> cloud);
 
-		std::vector<Pose> getNormals();
+		std::vector<Pose> getNormals(); //TODO
 
 	private:
-		std::vector<octomap::OcTreeKey> occupied_voxels_;
+		std::vector<CellKey> occupied_voxels_;
 		dwl::utils::Math math_;
 		bool is_first_computation_;
-		std::vector<Pose> normals_;
+		bool using_cloud_mean_;
+
+		std::vector<Pose> normals_; //TODO
 
 };
 

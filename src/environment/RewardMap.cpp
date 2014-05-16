@@ -8,7 +8,7 @@ namespace environment
 {
 
 
-RewardMap::RewardMap() : gridmap_(0.04), is_added_feature_(false), is_added_search_area_(false)
+RewardMap::RewardMap() : gridmap_(0.04), is_added_feature_(false), is_added_search_area_(false), cell_size_(0.04)
 {
 
 }
@@ -38,9 +38,9 @@ void RewardMap::removeFeature(std::string feature_name)
 	for (int i = 0; i < features_.size(); i++) {
 		if (feature_name == features_[i]->getName().c_str()) {
 			printf(GREEN "Removing the %s feature\n" COLOR_RESET, features_[i]->getName().c_str());
-			pthread_mutex_lock(&environment_lock_);
+			//pthread_mutex_lock(&environment_lock_);
 			features_.erase(features_.begin() + i);
-			pthread_mutex_unlock(&environment_lock_);
+			//pthread_mutex_unlock(&environment_lock_);
 
 			return;
 		}
@@ -51,12 +51,50 @@ void RewardMap::removeFeature(std::string feature_name)
 }
 
 
-void RewardMap::addCellToRewardMap(double reward, Terrain terrain_info)
+void RewardMap::getCell(Cell& cell, double reward, Terrain terrain_info)
 {
-	Cell cell;
-	cell.position = terrain_info.position;
+	Key grip_key;
+	Eigen::Vector2d cell_position;
+	cell_position(0) = terrain_info.position(0);
+	cell_position(1) = terrain_info.position(1);
+	gridmap_.coordToKeyChecked(cell_position, grip_key);
+
+	cell.cell_key.grid_id = grip_key;
+	cell.cell_key.height_id = gridmap_.coordToKey((double) terrain_info.position(2));
 	cell.reward = reward;
+	cell.size = cell_size_;
+}
+
+
+void RewardMap::getCell(CellKey& cell_key, Eigen::Vector3d position)
+{
+	Key grid_key;
+	gridmap_.coordToKeyChecked(position.block(0,0,2,2), grid_key);
+
+	cell_key.grid_id = grid_key;
+	cell_key.height_id = gridmap_.coordToKey((double) position(2));
+}
+
+
+void RewardMap::addCellToRewardMap(Cell cell)
+{
 	reward_gridmap_.push_back(cell);
+}
+
+
+void RewardMap::removeCellToRewardMap(CellKey cell)
+{
+	int index;
+	for (int i = 0; reward_gridmap_.size(); i++) {
+		//Key grid_id = reward_gridmap_[i].key;
+		if (reward_gridmap_[i].cell_key.grid_id.key[0] == cell.grid_id.key[0] && reward_gridmap_[i].cell_key.grid_id.key[1] == cell.grid_id.key[1]
+		&& reward_gridmap_[i].cell_key.height_id == cell.height_id) {
+			index = i;
+
+			break;
+		}
+	}
+	reward_gridmap_.erase(reward_gridmap_.begin() + index);
 }
 
 
@@ -88,6 +126,12 @@ void RewardMap::setNeighboringArea(int min_x, int max_x, int min_y, int max_y, i
 	neighboring_area_.max_y = max_y;
 	neighboring_area_.min_z = min_z;
 	neighboring_area_.max_z = max_z;
+}
+
+
+std::vector<Cell> RewardMap::getRewardMap()
+{
+	return reward_gridmap_;
 }
 
 

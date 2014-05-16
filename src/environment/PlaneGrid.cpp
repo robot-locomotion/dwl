@@ -39,7 +39,7 @@ bool PlaneGrid::coordToKeyChecked(double coordinate, unsigned short int& keyval)
 }
 
 
-inline unsigned short int PlaneGrid::coordToKey(double coordinate) const
+unsigned short int PlaneGrid::coordToKey(double coordinate) const
 {
 	return ((int) floor(resolution_factor_ * coordinate)) + tree_max_val_;
 }
