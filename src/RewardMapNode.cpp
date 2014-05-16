@@ -127,9 +127,9 @@ void RewardMapServer::publishRewardMap()
 	reward_map_->getRewardMap().swap(reward_gridmap);
 	reward_map_server::RewardCell cell;
 	for (int i = 0; i < reward_gridmap.size(); i++) {
-		cell.key_x = reward_gridmap[i].id.key[0];
-		cell.key_y = reward_gridmap[i].id.key[1];
-		cell.key_z = reward_gridmap[i].height_id;
+		cell.key_x = reward_gridmap[i].cell_key.grid_id.key[0];
+		cell.key_y = reward_gridmap[i].cell_key.grid_id.key[1];
+		cell.key_z = reward_gridmap[i].cell_key.height_id;
 		cell.reward = reward_gridmap[i].reward;
 		cell.cell_size = reward_gridmap[i].size;
 
