@@ -29,6 +29,7 @@
 									<listOptionValue builtIn="false" value="/opt/ros/hydro/include"/>
 									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/src/dwl/include"/>
 									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/reward_map_server/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/QtCore"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.11371985" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>

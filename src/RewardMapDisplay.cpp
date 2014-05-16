@@ -197,16 +197,14 @@ void RewardMapDisplay::incomingMessageCallback(const reward_map_server::RewardMa
 
 
 	// Getting reward values and size of the pixel
-	double cell_size;
+	double cell_size = 0;
 	dwl::environment::PlaneGrid gridmap(0.04); //TODO
-	areas_count_ = 0;
+	areas_count_ = 1;
 	for (int i = 0; i < msg->cell.size(); i++) {
 		if (i == 0) {
 			cell_size = msg->cell[0].cell_size;
 			box_size_buf_.push_back(cell_size);
-		}
-
-		if (cell_size != msg->cell[i].cell_size) {
+		} else if (cell_size != msg->cell[i].cell_size) {
 			cell_size = msg->cell[i].cell_size;
 			box_size_buf_.push_back(cell_size);
 
@@ -219,17 +217,17 @@ void RewardMapDisplay::incomingMessageCallback(const reward_map_server::RewardMa
 		new_point.position.y = gridmap.keyToCoord(msg->cell[i].key_y);
 		new_point.position.z = gridmap.keyToCoord(msg->cell[i].key_z);
 
+		// Setting the color of the cell acording the reward value
 		setColor(msg->cell[i].reward, min_reward, max_reward, color_factor_, new_point);
 
-		point_buf_[areas_count_].push_back(new_point);
+		point_buf_[areas_count_ - 1].push_back(new_point);
 	}
 
 	// Recording the data from the buffers
 	boost::mutex::scoped_lock lock(mutex_);
-	if (areas_count_) {
-		for (size_t i = 0; i < areas_count_ + 1; ++i)
-			new_points_[i].swap(point_buf_[i]);
-	}
+	for (size_t i = 0; i < areas_count_; ++i)
+		new_points_[i].swap(point_buf_[i]);
+
 	box_size_.swap(box_size_buf_);
 
 	new_points_received_ = true;
