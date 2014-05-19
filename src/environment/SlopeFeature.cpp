@@ -9,7 +9,7 @@ namespace environment
 {
 
 
-SlopeFeature::SlopeFeature() : flat_threshold_(0.0 * (M_PI / 180.0)), bad_threshold_(70.0 * (M_PI / 180.0))
+SlopeFeature::SlopeFeature() : flat_threshold_(0.0 * (M_PI / 180.0)), steep_threshold_(70.0 * (M_PI / 180.0))
 {
 	name_ = "slope";
 }
@@ -27,7 +27,7 @@ void SlopeFeature::computeReward(double& reward_value, Terrain terrain_info)
 	if (slope < flat_threshold_)
 		reward_value = 0.0;
 	else {
-		double p = (bad_threshold_ - slope) / (bad_threshold_ - flat_threshold_);
+		double p = (steep_threshold_ - slope) / (steep_threshold_ - flat_threshold_);
 		if (p < 0.01)
 			p = 0.01;
 		reward_value = log(p);

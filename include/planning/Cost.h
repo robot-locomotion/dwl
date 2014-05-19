@@ -11,6 +11,10 @@ namespace dwl
 namespace planning
 {
 
+/**
+ * @class Cost
+ * @brief Abstract class for computing the cost of the planning of motion sequence problem (optimization problem)
+ */
 class Cost
 {
 	public:
@@ -20,11 +24,21 @@ class Cost
 		/** @brief Destructor function */
 		virtual ~Cost() {}
 
+		/**
+		 * @brief Abstract method for getting the cost value given a certain state
+		 * @param double cost Cost value
+		 * @param Eigen::VectorXd state State value
+		 */
 		virtual void get(double cost, Eigen::VectorXd state) = 0;
 
+		/**
+		 * @brief Get the name of the cost
+		 * @return std::string Return the name of the cost
+		 */
 		std::string getName();
 
 	protected:
+		/** @brief Name of the cost */
 		std::string name_;
 
 };

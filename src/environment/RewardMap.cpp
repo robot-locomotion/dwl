@@ -118,14 +118,14 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 }
 
 
-void RewardMap::setNeighboringArea(int min_x, int max_x, int min_y, int max_y, int min_z, int max_z)
+void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors, int right_neighbors, int bottom_neighbors, int top_neighbors)
 {
-	neighboring_area_.min_x = min_x;
-	neighboring_area_.max_x = max_x;
-	neighboring_area_.min_y = min_y;
-	neighboring_area_.max_y = max_y;
-	neighboring_area_.min_z = min_z;
-	neighboring_area_.max_z = max_z;
+	neighboring_area_.min_x = back_neighbors;
+	neighboring_area_.max_x = front_neighbors;
+	neighboring_area_.min_y = left_neighbors;
+	neighboring_area_.max_y = right_neighbors;
+	neighboring_area_.min_z = bottom_neighbors;
+	neighboring_area_.max_z = top_neighbors;
 }
 
 

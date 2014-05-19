@@ -11,8 +11,10 @@ namespace dwl
 namespace planning
 {
 
-
-/* Derived class: HierarchicalPlanning */
+/**
+ * @class HierarchicalPlanning
+ * @brief Class for solving the problem of planning of motion sequences using a hierarchical approach
+ */
 class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 {
 	public:
@@ -22,13 +24,22 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		/** @brief Destructor function */
 		~HierarchicalPlanning() {}
 
+		/**
+		 * @brief Initialize the hierarchical planning given a start and goal state
+		 * @param std::vector<double> start Start state
+		 * @param std::vector<double> goal Goal state
+		 */
 		bool init(std::vector<double> start, std::vector<double> goal);
+
+		/**
+		 * @brief Compute a whole-body motion plan
+		 */
 		bool compute();
 
 		//TODO: I think that for Hierarchical Planner we can implement a method for setting the reward map
 
 	private:
-
+		/** @brief Trajectory of body */
 		std::vector<Eigen::Vector3d> body_path_;
 
 
