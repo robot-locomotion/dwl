@@ -21,7 +21,7 @@ RewardOctoMap::~RewardOctoMap()
 }
 
 
-void RewardOctoMap::compute(Modeler model, Eigen::Vector2d robot_position)
+void RewardOctoMap::compute(Modeler model, Eigen::Vector3d robot_position)
 {
 	octomap::OcTree* octomap = model.octomap;
 
@@ -61,7 +61,7 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector2d robot_position)
 				double x = gridmap_.keyToCoord(i);
 
 				// Checking if the voxel belongs to dimensions of the map, and also getting the key of this voxel
-				double z = search_areas_[n].max_z;
+				double z = search_areas_[n].max_z + robot_position(2);
 				octomap::OcTreeKey init_key;
 				if (!octomap->coordToKeyChecked(x, y, z, 16, init_key)) {
 					printf(RED "Voxel out of bounds\n" COLOR_RESET);
@@ -71,7 +71,7 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector2d robot_position)
 
 				// Finding the voxel of the surface
 				int r = 0;
-				while (z >= search_areas_[n].min_z) {
+				while (z >= search_areas_[n].min_z + robot_position(2)) {
 					octomap::OcTreeKey heightmap_key;
 					octomap::OcTreeNode* heightmap_node = octomap->search(init_key);
 					heightmap_key[0] = init_key[0];
@@ -82,8 +82,6 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector2d robot_position)
 					octomap::point3d height_point = octomap->keyToCoord(heightmap_key);
 					z = height_point(2);
 
-
-
 					if (heightmap_node) {
 						// Computation of the features if it is found the surface voxel
 						if (octomap->isNodeOccupied(heightmap_node)) {
@@ -93,24 +91,22 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector2d robot_position)
 							cell_position(0) = height_point(0);
 							cell_position(1) = height_point(1);
 							cell_position(2) = height_point(2);
-							getCell(cell_key, cell_position); //TODO
 
+							getCell(cell_key, cell_position); //TODO
 
 							if (is_first_computation_) {
 								if (computeFeaturesAndRewards(octomap, heightmap_key))
-
-									occupied_voxels_.push_back(cell_key);
+									occupied_cells_.push_back(cell_key);
 							} else {
 								bool new_status = true;
-								for (int k = 0; k < occupied_voxels_.size(); k++) {
-									if (occupied_voxels_[k].grid_id.key[0] == cell_key.grid_id.key[0] && occupied_voxels_[k].grid_id.key[1] == cell_key.grid_id.key[1]) {
+								for (int k = 0; k < occupied_cells_.size(); k++) {//TODO improve the search around the percepcion region. possible?
+									if (occupied_cells_[k].grid_id.key[0] == cell_key.grid_id.key[0] && occupied_cells_[k].grid_id.key[1] == cell_key.grid_id.key[1]) {
 										// Deleting the occupied voxel and cell of the reward map information
-										CellKey occupied_cell_key = occupied_voxels_[k];
-										if (occupied_voxels_[k].height_id != cell_key.height_id) {
+										CellKey occupied_cell_key = occupied_cells_[k];
+										if (occupied_cells_[k].height_id != cell_key.height_id) {
 											removeCellToRewardMap(occupied_cell_key);
-											occupied_voxels_.erase(occupied_voxels_.begin() + k);
+											occupied_cells_.erase(occupied_cells_.begin() + k);
 										}
-
 
 										new_status = false;
 										break;
@@ -118,7 +114,7 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector2d robot_position)
 								}
 								if (new_status) {
 									if (computeFeaturesAndRewards(octomap, heightmap_key))
-										occupied_voxels_.push_back(cell_key);
+										occupied_cells_.push_back(cell_key);
 								}
 							}
 							break;
@@ -157,6 +153,7 @@ bool RewardOctoMap::computeFeaturesAndRewards(octomap::OcTree* octomap, octomap:
 				neighbor_key[1] = heightmap_key[1] + j;
 				neighbor_key[2] = heightmap_key[2] + i;
 				neighbor_node = octomap->search(neighbor_key);
+
 				if (neighbor_node) {
 					Eigen::Vector3f neighbor_position;
 					octomap::point3d neighbor_point;

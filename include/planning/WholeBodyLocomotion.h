@@ -7,7 +7,10 @@
 namespace dwl
 {
 
-
+/**
+ * @class WholeBodyLocomotion
+ * @brief Abstract class for solving the whole-body locomotion problem
+ */
 class WholeBodyLocomotion
 {
 
@@ -18,26 +21,64 @@ class WholeBodyLocomotion
 		/** @brief Destructor function */
 		~WholeBodyLocomotion() {}
 
-		void reset(dwl::planning::PlanningOfMotionSequences* planner);
+		/**
+		 * @brief Resets the planning of motion sequences algorithm
+		 * @param dwl::planning::PlanningOfMotionSequences* planner Pointer to the planner
+		 */
+		void reset(planning::PlanningOfMotionSequences* planner);
 
+		/**
+		 * @brief Adds a constraint to the locomotor
+		 * @param dwl::planning::Constraint* constraint Pointer to the constraint class
+		 */
 		void addConstraint(planning::Constraint* constraint);
 
+		/**
+		 * @brief Removes a constraint to the locomotor
+		 * @param std::string constraint_name Name of the constraint
+		 */
 		void removeConstraint(std::string constraint_name);
 
+		/**
+		 * @brief Adds a cost to the locomotor
+		 * @param dwl::planning::Cost* cost Pointer to the cost class
+		 */
 		void addCost(planning::Cost* cost);
 
+		/**
+		 * @brief Removes a cost to the locomotor
+		 * @param std::string cost_name Name of the cost
+		 */
 		void removeCost(std::string cost_name);
 
+		/**
+		 * @brief Initializes a locomotion algorithm
+		 * @param std::vector<double> start Initial state
+		 * @param std::vector<double> goal Goal state
+		 */
 		bool init(std::vector<double> start, std::vector<double> goal);
 
+		/**
+		 * @brief Computes a locomotion plan
+		 * @return bool Return true if was found a locomotion plan
+		 */
 		bool computePlan();
 
+		/**
+		 * @brief Changes the goal
+		 * @param std::vector<double> goal Goal state
+		 */
 		void changeGoal(std::vector<double> goal);
 
 
 	private:
-		dwl::planning::PlanningOfMotionSequences* planner_;
+		/** @brief Pointer to the planner class */
+		planning::PlanningOfMotionSequences* planner_;
+
+		/** @brief Indicates if it was settep the planner algorithm */
 		bool is_settep_planner_;
+
+		/** @brief Indicates if it is using a lerning technique */
 		bool is_learning_;
 
 	protected:

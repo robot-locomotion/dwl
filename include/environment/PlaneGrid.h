@@ -58,12 +58,12 @@ class PlaneGrid
 		double keyToCoord(unsigned short int key_value) const;
 
 		/*
-		 * @brief Get the resolution of the gridmap
+		 * @brief Gets the resolution of the gridmap
 		 */
 		double getResolution();
 
 		/**
-		 * @brief Set the resolution of the gridmap
+		 * @brief Sets the resolution of the gridmap
 		 */
 		void setResolution(double resolution);
 

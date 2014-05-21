@@ -24,13 +24,13 @@ class DijkstrapAlgorithm : public dwl::planning::Solver
 		~DijkstrapAlgorithm();
 
 		/**
-		 * @brief Initialize the Dijkstrap algorithm
+		 * @brief Initializes the Dijkstrap algorithm
 		 * @return bool Return true if Dijkstrap algorithm was initialized
 		 */
 		bool init();
 
 		/**
-		 * @brief Compute the shortest-path according to Dijkstrap algorithm
+		 * @brief Computes the shortest-path according to Dijkstrap algorithm
 		 */
 		bool compute(Eigen::MatrixXd& solution);
 };

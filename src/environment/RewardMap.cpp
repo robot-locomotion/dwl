@@ -69,7 +69,10 @@ void RewardMap::getCell(Cell& cell, double reward, Terrain terrain_info)
 void RewardMap::getCell(CellKey& cell_key, Eigen::Vector3d position)
 {
 	Key grid_key;
-	gridmap_.coordToKeyChecked(position.block(0,0,2,2), grid_key);
+	Eigen::Vector2d cell_position;
+	cell_position(0) = position(0);
+	cell_position(1) = position(1);
+	gridmap_.coordToKeyChecked(cell_position, grid_key);
 
 	cell_key.grid_id = grid_key;
 	cell_key.height_id = gridmap_.coordToKey((double) position(2));
@@ -86,7 +89,6 @@ void RewardMap::removeCellToRewardMap(CellKey cell)
 {
 	int index;
 	for (int i = 0; reward_gridmap_.size(); i++) {
-		//Key grid_id = reward_gridmap_[i].key;
 		if (reward_gridmap_[i].cell_key.grid_id.key[0] == cell.grid_id.key[0] && reward_gridmap_[i].cell_key.grid_id.key[1] == cell.grid_id.key[1]
 		&& reward_gridmap_[i].cell_key.height_id == cell.height_id) {
 			index = i;
@@ -131,6 +133,7 @@ void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int 
 
 std::vector<Cell> RewardMap::getRewardMap()
 {
+	std::cout << "RewardMapSize = " << reward_gridmap_.size() << std::endl;
 	return reward_gridmap_;
 }
 

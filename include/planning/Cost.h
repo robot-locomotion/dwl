@@ -32,7 +32,7 @@ class Cost
 		virtual void get(double cost, Eigen::VectorXd state) = 0;
 
 		/**
-		 * @brief Get the name of the cost
+		 * @brief Gets the name of the cost
 		 * @return std::string Return the name of the cost
 		 */
 		std::string getName();

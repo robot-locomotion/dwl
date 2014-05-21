@@ -86,13 +86,13 @@ class RewardMap
 		virtual ~RewardMap();
 
 		/**
-		 * @brief Add a feature of the reward map
+		 * @brief Adds a feature of the reward map
 		 * @param dwl::environment::Feature* feature the pointer of the feature to add
 		 */
 		void addFeature(Feature* feature);
 
 		/**
-		 * @brief Remove a feature of the reward map
+		 * @brief Removes a feature of the reward map
 		 * @param std::string feature_name the name of the feature to remove
 		 */
 		void removeFeature(std::string feature_name);
@@ -100,12 +100,12 @@ class RewardMap
 		/**
 		 * @brief Abstract method for computing the reward map according the robot position and model of the terrain
 		 * @param dwl::environment::Modeler model Define the model of the environment
-		 * @param Eigen::Vector2d robot_position Define the position of the robot
+		 * @param Eigen::Vector3d robot_position Define the position of the robot
 		 */
-		virtual void compute(Modeler model, Eigen::Vector2d robot_position) = 0;
+		virtual void compute(Modeler model, Eigen::Vector3d robot_position) = 0;
 
 		/**
-		 * @brief Get the properties of the cell
+		 * @brief Gets the properties of the cell
 		 * @param dwl::environment::Cell& cell Values of the cell
 		 * @param double reward Reward value of the cell
 		 * @param dwl::environment::Terrain terrain_info Information of the terrain in the specific cell
@@ -113,26 +113,26 @@ class RewardMap
 		void getCell(Cell& cell, double reward, Terrain terrain_info);
 
 		/**
-		 * @brief Get the properties of the cell
+		 * @brief Gets the properties of the cell
 		 * @param dwl::environment::CellKey& cell_key Key of the cell
 		 * @param Eigen::Vector3d position Cartesian position of the cell
 		 */
 		void getCell(CellKey& cell_key, Eigen::Vector3d position);
 
 		/**
-		 * @brief Add a cell to the reward map
+		 * @brief Adds a cell to the reward map
 		 * @param dwl::environment::Cell cell Cell values for adding to the reward map
 		 */
 		void addCellToRewardMap(Cell cell);
 
 		/**
-		 * @brief Remove the cel to the reward map
+		 * @brief Removes the cel to the reward map
 		 * @param CellKey cell Cell key for removing to the reward map
 		 */
 		void removeCellToRewardMap(CellKey cell);
 
 		/**
-		 * @brief Add a new search area around the current position of the robot
+		 * @brief Adds a new search area around the current position of the robot
 		 * @param double min_x Minimun cartesian position along the x-axis
 		 * @param double max_x Maximun cartesian position along the x-axis
 		 * @param double min_y Minimun cartesian position along the y-axis
@@ -144,7 +144,7 @@ class RewardMap
 		void addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_size);
 
 		/**
-		 * @brief Set the neighboring area for computing phisycal properties of the terrain
+		 * @brief Sets the neighboring area for computing phisycal properties of the terrain
 		 * @param int back_neighbors Number of left neighbors
 		 * @param int front_neighbors Number of right neighbors
 		 * @param int left_neighbors Number of left neighbors
@@ -155,7 +155,7 @@ class RewardMap
 		void setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors, int right_neighbors, int bottom_neighbors, int top_neighbors);
 
 		/**
-		 * @brief Get the reward map
+		 * @brief Gets the reward map
 		 * @return std::vector<dwl::environment::Cell> Return the reward value per every cell of the map
 		 */
 		std::vector<Cell> getRewardMap();
@@ -184,10 +184,10 @@ class RewardMap
 		/** @brief Object of the NeighboringArea struct that defines the neighboring area */
 		NeighboringArea neighboring_area_;
 
-		/** @brief Define if it was added a feature */
+		/** @brief Indicates if it was added a feature */
 		bool is_added_feature_;
 
-		/** @brief Define if it was added a search area */
+		/** @brief Indicates if it was added a search area */
 		bool is_added_search_area_;
 
 

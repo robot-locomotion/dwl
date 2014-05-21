@@ -37,15 +37,15 @@ class Feature
 		virtual ~Feature();
 
 		/**
-		 * @brief Virtual method to compute reward value according some terrain information
+		 * @brief Abstract method to compute reward value according some terrain information
 		 * @param double& reward_value Reference of the reward variable
 		 * @param dwl::environment::Terrain terrain_info Information about the terrain, i.e. position, surface and curvature
 		 */
 		virtual void computeReward(double& reward_value, Terrain terrain_info) = 0;
 
 		/**
-		 * @brief Function for getting the name of the feature
-		 * @return std::string Name of the feature
+		 * @brief Gets the name of the feature
+		 * @return std::string Return the name of the feature
 		 */
 		std::string getName();
 

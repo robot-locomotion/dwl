@@ -31,7 +31,7 @@ class RewardOctoMap : public RewardMap
 		 * @param dwl::environment::Modeler model Define the model of the environment
 		 * @param Eigen::Vector2d robot_position Define the position of the robot
 		 */
-		void compute(Modeler model, Eigen::Vector2d robot_position);
+		void compute(Modeler model, Eigen::Vector3d robot_position);
 
 		/**
 		 * @brief Compute the features and reward of the terrain given the octomap model and the key of the topmost cell of a certain position of the grid
@@ -51,7 +51,7 @@ class RewardOctoMap : public RewardMap
 
 	private:
 		/** @brief Vector of occupied cell's key */
-		std::vector<CellKey> occupied_voxels_;
+		std::vector<CellKey> occupied_cells_;
 
 		/** @brief Object of the Math class for the definition of math routines */
 		dwl::utils::Math math_;

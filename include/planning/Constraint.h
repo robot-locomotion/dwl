@@ -33,13 +33,13 @@ class Constraint
 		virtual void get(Eigen::VectorXd& constraint, Eigen::VectorXd state) = 0;
 
 		/**
-		 * @brief Indicate if the constraint is active [g(x) = 0] or inactive [g(x) > 0]
+		 * @brief Indicates if the constraint is active [g(x) = 0] or inactive [g(x) > 0]
 		 * @return Bool Return true for active constraints, and false for inactive one
 		 */
 		bool isActive();
 
 		/**
-		 * @brief Get the name of the constraint
+		 * @brief Gets the name of the constraint
 		 * @return std::string Retunr the name of the constraint
 		 */
 		std::string getName();
@@ -48,7 +48,7 @@ class Constraint
 		/** @brief Name of the constraint */
 		std::string name_;
 
-		/** @brief Indicate if the constraint is active */
+		/** @brief Indicates if the constraint is active */
 		bool is_active_constraint_;
 
 		/** @brief Vector of the state */
