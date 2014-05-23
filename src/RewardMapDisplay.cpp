@@ -2,9 +2,6 @@
 
 #include <reward_map_rviz_plugin/RewardMapDisplay.h>
 
-//#include <boost/bind.hpp>
-//#include <boost/shared_ptr.hpp>
-
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>
 
@@ -25,7 +22,8 @@ namespace reward_map_rviz_plugin
 {
 
 
-RewardMapDisplay::RewardMapDisplay() : rviz::Display(), messages_received_(0), max_tree_areas_(10), areas_count_(1), color_factor_(0.8)
+RewardMapDisplay::RewardMapDisplay() : rviz::Display(), messages_received_(0), color_factor_(0.8),
+		grid_size_(std::numeric_limits<double>::max())
 {
 	rewardmap_topic_property_ = new RosTopicProperty( "Topic",
 	                                                  "",
@@ -49,8 +47,7 @@ RewardMapDisplay::~RewardMapDisplay()
 {
 	unsubscribe();
 
-	for (std::vector<rviz::PointCloud*>::iterator it = cloud_.begin(); it != cloud_.end(); ++it)
-		delete *(it);
+	delete cloud_;
 
 	if (scene_node_)
 		scene_node_->detachAllObjects();
@@ -61,17 +58,11 @@ void RewardMapDisplay::update(float wall_dt, float ros_dt)
 {
 	if (new_points_received_) {
 		boost::mutex::scoped_lock lock(mutex_);
+		cloud_->clear();
+		cloud_->setDimensions(grid_size_, grid_size_, height_size_);
+		cloud_->addPoints(&new_points_.front(), new_points_.size());
 
-		for (size_t i = 0; i < max_tree_areas_; ++i) {
-			double size = box_size_[i];
-
-			cloud_[i]->clear();
-			cloud_[i]->setDimensions(size, size, 0.04);
-
-			cloud_[i]->addPoints(&new_points_[i].front(), new_points_[i].size());
-			new_points_[i].clear();
-		}
-		box_size_.clear();
+		new_points_.clear();
 
 		new_points_received_ = false;
 	}
@@ -90,20 +81,12 @@ void RewardMapDisplay::onInitialize()
 {
 	boost::mutex::scoped_lock lock(mutex_);
 
-	box_size_.resize(max_tree_areas_);
-	box_size_buf_.resize(max_tree_areas_);
-	cloud_.resize(max_tree_areas_);
-	point_buf_.resize(max_tree_areas_);
-	new_points_.resize(max_tree_areas_);
-
-	for (std::size_t i = 0; i < max_tree_areas_; ++i) {
-		std::stringstream sname;
-		sname << "PointCloud Nr." << i;
-		cloud_[i] = new rviz::PointCloud();
-		cloud_[i]->setName(sname.str());
-		cloud_[i]->setRenderMode(rviz::PointCloud::RM_BOXES);
-		scene_node_->attachObject(cloud_[i]);
-	}
+	std::stringstream sname;
+	sname << "PointCloud Nr.";// << i;
+	cloud_ = new rviz::PointCloud();
+	cloud_->setName(sname.str());
+	cloud_->setRenderMode(rviz::PointCloud::RM_BOXES);
+	scene_node_->attachObject(cloud_);
 }
 
 
@@ -180,10 +163,7 @@ void RewardMapDisplay::incomingMessageCallback(const reward_map_server::RewardMa
 	scene_node_->setPosition(position);
 
 	// Clearing the old data of the buffers
-	for (std::size_t i = 0; i < max_tree_areas_; ++i) {
-		point_buf_[i].clear();
-	}
-	box_size_buf_.clear();
+	point_buf_.clear();
 
 	// Computing the maximum and minumum reward of the map
 	double min_reward, max_reward = 0;
@@ -194,47 +174,37 @@ void RewardMapDisplay::incomingMessageCallback(const reward_map_server::RewardMa
 		if (max_reward < msg->cell[i].reward)
 			max_reward = msg->cell[i].reward;
 	}
+	grid_size_ = msg->cell_size;
+	height_size_ = msg->modeler_size;
 
 
 	// Getting reward values and size of the pixel
 	double cell_size = 0;
-	dwl::environment::PlaneGrid gridmap(0.04); //TODO
-	areas_count_ = 1;
+	dwl::environment::PlaneGrid gridmap(grid_size_, height_size_); //TODO
 	for (int i = 0; i < msg->cell.size(); i++) {
-		if (i == 0) {
-			cell_size = msg->cell[0].cell_size;
-			box_size_buf_.push_back(cell_size);
-		} else if (cell_size != msg->cell[i].cell_size) {
-			cell_size = msg->cell[i].cell_size;
-			box_size_buf_.push_back(cell_size);
-
-			++areas_count_;
-		}
-
 		// Getting cartesian information of the reward map
 		PointCloud::Point new_point;
-		new_point.position.x = gridmap.keyToCoord(msg->cell[i].key_x);
-		new_point.position.y = gridmap.keyToCoord(msg->cell[i].key_y);
-		new_point.position.z = gridmap.keyToCoord(msg->cell[i].key_z);
+		new_point.position.x = gridmap.keyToCoord(msg->cell[i].key_x, true);
+		new_point.position.y = gridmap.keyToCoord(msg->cell[i].key_y, true);
+		new_point.position.z = gridmap.keyToCoord(msg->cell[i].key_z, false);
 
 		// Setting the color of the cell acording the reward value
 		setColor(msg->cell[i].reward, min_reward, max_reward, color_factor_, new_point);
 
-		point_buf_[areas_count_ - 1].push_back(new_point);
+		point_buf_.push_back(new_point);
 	}
 
 	// Recording the data from the buffers
 	boost::mutex::scoped_lock lock(mutex_);
-	for (size_t i = 0; i < areas_count_; ++i)
-		new_points_[i].swap(point_buf_[i]);
 
-	box_size_.swap(box_size_buf_);
+	new_points_.swap(point_buf_);
+	//box_size_ = box_size_buf_;
 
 	new_points_received_ = true;
 }
 
 
-void RewardMapDisplay::setColor(double z_pos, double min_z, double max_z, double color_factor, rviz::PointCloud::Point& point)
+void RewardMapDisplay::setColor(double reward_value, double min_reward, double max_reward, double color_factor, rviz::PointCloud::Point& point)
 {
 	int i;
 	double m, n, f;
@@ -242,10 +212,10 @@ void RewardMapDisplay::setColor(double z_pos, double min_z, double max_z, double
 	double s = 1.0;
 	double v = 1.0;
 
-	double h = (1.0 - std::min(std::max((z_pos - min_z) / (max_z - min_z), 0.0), 1.0)) * color_factor;
+	double h = (1.0 - std::min(std::max((reward_value - min_reward) / (max_reward - min_reward), 0.0), 1.0)) * color_factor;
 
 	h -= floor(h);
-	h *= 6;
+	h *= 4;
 	i = floor(h);
 	f = h - i;
 	if (!(i & 1))
@@ -254,28 +224,21 @@ void RewardMapDisplay::setColor(double z_pos, double min_z, double max_z, double
 	n = v * (1 - s * f);
 
 	switch (i) {
-    	case 6:
-    	case 0:
-    		point.setColor(v, n, m);
-    		break;
-    	case 1:
-    		point.setColor(n, v, m);
-    		break;
-    	case 2:
-    		point.setColor(m, v, n);
-    		break;
-    	case 3:
-    		point.setColor(m, n, v);
-    		break;
-    	case 4:
-    		point.setColor(n, m, v);
-    		break;
-    	case 5:
-    		point.setColor(v, m, n);
-    		break;
-    	default:
-    		point.setColor(1, 0.5, 0.5);
-    		break;
+		case 0:
+			point.setColor(m, n, v);
+			break;
+		case 1:
+			point.setColor(m, v, 1-n);
+			break;
+		case 2:
+			point.setColor(n, v, m);
+			break;
+		case 3:
+			point.setColor(v, 1-n, m);
+			break;
+		default:
+			point.setColor(1, 0.5, 0.5);
+			break;
 	}
 }
 
@@ -284,10 +247,7 @@ void RewardMapDisplay::clear()
 {
 	boost::mutex::scoped_lock lock(mutex_);
 
-	// reset rviz pointcloud boxes
-	for (size_t i = 0; i < cloud_.size(); ++i) {
-		cloud_[i]->clear();
-	}
+	cloud_->clear();
 }
 
 
@@ -317,107 +277,3 @@ void RewardMapDisplay::updateTopic()
 PLUGINLIB_EXPORT_CLASS(reward_map_rviz_plugin::RewardMapDisplay, rviz::Display)
 
 
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // reset rviz pointcloud classes
-/*  for (std::size_t i = 0; i < max_octree_depth_; ++i)
-  {
-    point_buf_[i].clear();
-    box_size_[i] = octomap->getNodeSize(i + 1);
-  }
-
-  size_t pointCount = 0;
-  {
-    // traverse all leafs in the tree:
-    unsigned int treeDepth = std::min<unsigned int>(tree_depth_property_->getInt(), octomap->getTreeDepth());
-    for (octomap::OcTree::iterator it = octomap->begin(treeDepth), end = octomap->end(); it != end; ++it)
-    {
-
-      if (octomap->isNodeOccupied(*it))
-      {
-
-        int render_mode_mask = octree_render_property_->getOptionInt();
-
-        bool display_voxel = false;
-
-        // the left part evaluates to 1 for free voxels and 2 for occupied voxels
-        if (((int)octomap->isNodeOccupied(*it) + 1) & render_mode_mask)
-        {
-          // check if current voxel has neighbors on all sides -> no need to be displayed
-          bool allNeighborsFound = true;
-
-          octomap::OcTreeKey key;
-          octomap::OcTreeKey nKey = it.getKey();
-
-          for (key[2] = nKey[2] - 1; allNeighborsFound && key[2] <= nKey[2] + 1; ++key[2])
-          {
-            for (key[1] = nKey[1] - 1; allNeighborsFound && key[1] <= nKey[1] + 1; ++key[1])
-            {
-              for (key[0] = nKey[0] - 1; allNeighborsFound && key[0] <= nKey[0] + 1; ++key[0])
-              {
-                if (key != nKey)
-                {
-                  octomap::OcTreeNode* node = octomap->search(key);
-
-                  // the left part evaluates to 1 for free voxels and 2 for occupied voxels
-                  if (!(node && (((int)octomap->isNodeOccupied(node)) + 1) & render_mode_mask))
-                  {
-                    // we do not have a neighbor => break!
-                    allNeighborsFound = false;
-                  }
-                }
-              }
-            }
-          }
-
-          display_voxel |= !allNeighborsFound;
-        }
-
-
-        if (display_voxel)
-        {
-          PointCloud::Point newPoint;
-
-          newPoint.position.x = it.getX();
-          newPoint.position.y = it.getY();
-          newPoint.position.z = it.getZ();
-
-          float cell_probability;
-
-          OctreeVoxelColorMode octree_color_mode = static_cast<OctreeVoxelColorMode>(octree_coloring_property_->getOptionInt());
-
-          switch (octree_color_mode)
-          {
-            case OCTOMAP_Z_AXIS_COLOR:
-              setColor(newPoint.position.z, minZ, maxZ, color_factor_, newPoint);
-              break;
-            case OCTOMAP_PROBABLILTY_COLOR:
-              cell_probability = it->getOccupancy();
-              newPoint.setColor((1.0f-cell_probability), cell_probability, 0.0);
-              break;
-            default:
-              break;
-          }
-
-          // push to point vectors
-          unsigned int depth = it.getDepth();
-          point_buf_[depth - 1].push_back(newPoint);
-
-          ++pointCount;
-        }
-      }
-    }
-  }
-
-  if (pointCount)
-  {
-    boost::mutex::scoped_lock lock(mutex_);
-
-    new_points_received_ = true;
-
-    for (size_t i = 0; i < max_octree_depth_; ++i)
-      new_points_[i].swap(point_buf_[i]);
-
-  }
-  delete octomap;*/
