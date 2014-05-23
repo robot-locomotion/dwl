@@ -3,7 +3,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = "Dinamic Whole-body Locomotion (DWL)"
+PROJECT_NAME           = "Dynamic Whole-body Locomotion (DWL)"
 PROJECT_NUMBER         = 0.0.1
 PROJECT_BRIEF          = Synopsis
 PROJECT_LOGO           = iit_advr.png
