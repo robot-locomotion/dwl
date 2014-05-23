@@ -99,10 +99,25 @@ class RewardMap
 
 		/**
 		 * @brief Abstract method for computing the reward map according the robot position and model of the terrain
-		 * @param dwl::environment::Modeler model Define the model of the environment
-		 * @param Eigen::Vector3d robot_position Define the position of the robot
+		 * @param dwl::environment::Modeler model The model of the environment
+		 * @param Eigen::Vector4d robot_state The position of the robot and the yaw angle
 		 */
-		virtual void compute(Modeler model, Eigen::Vector3d robot_position) = 0;
+		virtual void compute(Modeler model, Eigen::Vector4d robot_state) = 0;
+
+		/**
+		 * @brief Removes reward values outside the interest region
+		 * @param Eigen::Vector3d robot_state State of the robot, i.e. 3D position and yaw orientation
+		 */
+		void removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state);
+
+		/**
+		 * @brief Sets a interest region
+		 * @param double min_x Minimun cartesian position along the x-axis
+		 * @param double max_x Maximun cartesian position along the x-axis
+		 * @param double min_y Minimun cartesian position along the y-axis
+		 * @param double max_x Maximun cartesian position along the y-axis
+		 */
+		void setInterestRegion(double min_x, double max_x, double min_y, double max_y);
 
 		/**
 		 * @brief Gets the properties of the cell
@@ -155,6 +170,19 @@ class RewardMap
 		void setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors, int right_neighbors, int bottom_neighbors, int top_neighbors);
 
 		/**
+		 * @brief Gets the gridmap or height resolution of the reward map
+		 * @param bool gridmap
+		 */
+		double getResolution(bool gridmap);
+
+
+		/**
+		 * @brief Sets the resolution of the modeler
+		 * @ double resolution Resolution
+		 */
+		void setModelerResolution(double resolution);
+
+		/**
 		 * @brief Gets the reward map
 		 * @return std::vector<dwl::environment::Cell> Return the reward value per every cell of the map
 		 */
@@ -177,6 +205,9 @@ class RewardMap
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> search_areas_;
+
+		/** @brief Interest area */
+		SearchArea interest_area_;
 
 		/** @brief Cell size */
 		double cell_size_;

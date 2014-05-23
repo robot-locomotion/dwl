@@ -27,14 +27,14 @@ class RewardOctoMap : public RewardMap
 		~RewardOctoMap();
 
 		/**
-		 * @brief Implemented method for computing the reward map according the robot position and octomap model of the terrain
-		 * @param dwl::environment::Modeler model Define the model of the environment
-		 * @param Eigen::Vector2d robot_position Define the position of the robot
+		 * @brief Abstract method for computing the reward map according the robot position and octomap model of the terrain
+		 * @param dwl::environment::Modeler model The model of the environment
+		 * @param Eigen::Vector4d robot_state The position of the robot and the yaw angle
 		 */
-		void compute(Modeler model, Eigen::Vector3d robot_position);
+		void compute(Modeler model, Eigen::Vector4d robot_state);
 
 		/**
-		 * @brief Compute the features and reward of the terrain given the octomap model and the key of the topmost cell of a certain position of the grid
+		 * @brief Computes the features and reward of the terrain given the octomap model and the key of the topmost cell of a certain position of the grid
 		 * @param octomap::OcTree* octomap Pointer to the octomap model of the environment
 		 * @param octomap::OcTreeKey heighmap_key The key of the topmost cell of a certain position of the grid
 		 * return bool Indicate if it could be computed the features and reward of the cell
@@ -42,7 +42,7 @@ class RewardOctoMap : public RewardMap
 		bool computeFeaturesAndRewards(octomap::OcTree* octomap, octomap::OcTreeKey heightmap_key);
 
 		/**
-		 * @brief Compute the rewards of point cloud of neighboring og the cell
+		 * @brief Computes the rewards of point cloud of neighboring og the cell
 		 */
 		bool computeRewards(std::vector<Eigen::Vector3f> cloud);
 
@@ -50,16 +50,13 @@ class RewardOctoMap : public RewardMap
 		std::vector<Pose> getNormals(); //TODO
 
 	private:
-		/** @brief Vector of occupied cell's key */
-		std::vector<CellKey> occupied_cells_;
-
 		/** @brief Object of the Math class for the definition of math routines */
 		dwl::utils::Math math_;
 
-		/** @brief Indicate if it the first computation */
+		/** @brief Indicates if it the first computation */
 		bool is_first_computation_;
 
-		/** @brief Define if it is using the mean of the cloud */
+		/** @brief Defines if it is using the mean of the cloud */
 		bool using_cloud_mean_;
 
 		std::vector<Pose> normals_; //TODO

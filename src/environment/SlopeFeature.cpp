@@ -21,7 +21,6 @@ SlopeFeature::~SlopeFeature()
 
 void SlopeFeature::computeReward(double& reward_value, Terrain terrain_info)
 {
-//	printf("Computing the slope feature\n");
 	double slope = fabs(acos((double) terrain_info.surface_normal(2)));
 
 	if (slope < flat_threshold_)

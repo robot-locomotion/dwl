@@ -1,5 +1,5 @@
-#ifndef DWL_SlopeFeature_H
-#define DWL_SlopeFeature_H
+#ifndef DWL_CurvatureFeature_H
+#define DWL_CurvatureFeature_H
 
 #include <environment/Feature.h>
 
@@ -11,17 +11,17 @@ namespace environment
 {
 
 /**
- * @class SlopeFeature
- * @brief Class for computing the reward value of the slope feature
+ * @class CurvatureFeature
+ * @brief Class for computing the reward value of the curvature feature
  */
-class SlopeFeature : public Feature
+class CurvatureFeature : public Feature
 {
 	public:
 		/** @brief Constructor function */
-		SlopeFeature();
+		CurvatureFeature();
 
 		/** @brief Destructor function */
-		~SlopeFeature();
+		~CurvatureFeature();
 
 		/**
 		 * @brief Compute the reward value given a terrain information
@@ -31,11 +31,11 @@ class SlopeFeature : public Feature
 		void computeReward(double& reward_value, Terrain terrain_info);
 
 	private:
-		/** @brief Threshold that specify the flat condition */
-		double flat_threshold_;
+		/** @brief Threshold that specify the positive condition */
+		double positive_threshold_;
 
-		/** @brief Threshold that indicates a very (bad) steep condition */
-		double steep_threshold_;
+		/** @brief Threshold that indicates a very (bad) condition */
+		double negative_threshold_;
 };
 
 

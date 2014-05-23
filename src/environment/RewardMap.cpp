@@ -8,9 +8,13 @@ namespace environment
 {
 
 
-RewardMap::RewardMap() : gridmap_(0.04), is_added_feature_(false), is_added_search_area_(false), cell_size_(0.04)
+RewardMap::RewardMap() : gridmap_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()), is_added_feature_(false),
+		is_added_search_area_(false), cell_size_(0.04)
 {
-
+	interest_area_.max_x = std::numeric_limits<double>::max();
+	interest_area_.min_x = -std::numeric_limits<double>::max();
+	interest_area_.max_y = std::numeric_limits<double>::max();
+	interest_area_.min_y = -std::numeric_limits<double>::max();
 }
 
 
@@ -51,6 +55,42 @@ void RewardMap::removeFeature(std::string feature_name)
 }
 
 
+void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
+{
+	Eigen::Vector2d point;
+	Key key;
+	for (std::vector<Cell>::iterator it = reward_gridmap_.begin(); it != reward_gridmap_.end();) {
+		key = it->cell_key.grid_id;
+		point(0) = gridmap_.keyToCoord(key.key[0], true);
+		point(1) = gridmap_.keyToCoord(key.key[1], true);
+
+		double xc = point(0) - robot_state(0);
+		double yc = point(1) - robot_state(1);
+		double yaw = robot_state(2);
+		if (xc * cos(yaw) + yc * sin(yaw) >= 0.0) {
+			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(5.5, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(1.5, 2) > 1)
+				reward_gridmap_.erase(it);
+			else
+				++it;
+		} else {
+			if (pow(xc, 2) + pow(yc, 2) > pow(1.5, 2))
+				reward_gridmap_.erase(it);
+			else
+				++it;
+		}
+	}
+}
+
+
+void RewardMap::setInterestRegion(double min_x, double max_x, double min_y, double max_y)
+{
+	interest_area_.min_x = min_x;
+	interest_area_.max_x = max_x;
+	interest_area_.min_y = min_y;
+	interest_area_.max_y = max_y;
+}
+
+
 void RewardMap::getCell(Cell& cell, double reward, Terrain terrain_info)
 {
 	Key grip_key;
@@ -60,7 +100,7 @@ void RewardMap::getCell(Cell& cell, double reward, Terrain terrain_info)
 	gridmap_.coordToKeyChecked(cell_position, grip_key);
 
 	cell.cell_key.grid_id = grip_key;
-	cell.cell_key.height_id = gridmap_.coordToKey((double) terrain_info.position(2));
+	cell.cell_key.height_id = gridmap_.coordToKey((double) terrain_info.position(2), false);
 	cell.reward = reward;
 	cell.size = cell_size_;
 }
@@ -75,7 +115,7 @@ void RewardMap::getCell(CellKey& cell_key, Eigen::Vector3d position)
 	gridmap_.coordToKeyChecked(cell_position, grid_key);
 
 	cell_key.grid_id = grid_key;
-	cell_key.height_id = gridmap_.coordToKey((double) position(2));
+	cell_key.height_id = gridmap_.coordToKey((double) position(2), false);
 }
 
 
@@ -113,8 +153,8 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 
 	search_areas_.push_back(search_area);
 
-	if (grid_resolution < gridmap_.getResolution())
-		gridmap_.setResolution(grid_resolution);
+	if (grid_resolution < gridmap_.getResolution(true))
+		gridmap_.setResolution(grid_resolution, true);
 
 	is_added_search_area_ = true;
 }
@@ -131,9 +171,20 @@ void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int 
 }
 
 
+double RewardMap::getResolution(bool gridmap)
+{
+	return gridmap_.getResolution(gridmap);
+}
+
+
+void RewardMap::setModelerResolution(double resolution)
+{
+	gridmap_.setResolution(resolution, false);
+}
+
+
 std::vector<Cell> RewardMap::getRewardMap()
 {
-	std::cout << "RewardMapSize = " << reward_gridmap_.size() << std::endl;
 	return reward_gridmap_;
 }
 
