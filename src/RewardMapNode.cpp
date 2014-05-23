@@ -16,7 +16,12 @@
 #include <reward_map_server/RewardMap.h>
 #include <reward_map_server/RewardCell.h>
 
-#include <pthread.h>
+#include <tf/transform_datatypes.h>
+#include <tf/transform_listener.h>
+#include <tf/message_filter.h>
+#include <message_filters/subscriber.h>
+
+//#include <pthread.h>
 
 
 
@@ -36,56 +41,74 @@ class RewardMapServer
 		ros::NodeHandle node_;
 		dwl::environment::RewardMap* reward_map_;
 		ros::Publisher reward_pub_;
-		//ros::Publisher normal_pub_;
-		ros::Subscriber octomap_sub_;
+		//ros::Subscriber octomap_sub_;
+		message_filters::Subscriber<octomap_msgs::Octomap>* octomap_sub_;
+		tf::MessageFilter<octomap_msgs::Octomap>* tf_octomap_sub_;
 		reward_map_server::RewardMap reward_map_msg_;
+		tf::TransformListener tf_listener_;
+		//double last_reward_gridmap_size_;
 
 
-
+		//ros::Publisher normal_pub_;
 		//geometry_msgs::PoseArray normals_;
 		//pthread_mutex_t reward_lock_;
-		Eigen::Vector3d origin_vector_;
-
-
+		//Eigen::Vector3d origin_vector_;
 };
 
 #endif
 
 
 
-RewardMapServer::RewardMapServer()
+RewardMapServer::RewardMapServer() //: last_reward_gridmap_size_(0)
 {
-	origin_vector_ = Eigen::Vector3d::Zero();
-	//normals_.poses.resize(2500);
-	origin_vector_(0) = 1;
-
 	reward_map_ = new dwl::environment::RewardOctoMap();
 
+	// Adding the search areas
 	// High resolution
-	reward_map_->addSearchArea(0.5, 3.0, -0.75, 0.75, -0.77, -0.4, 0.04);
+	reward_map_->addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.8, -0.2, 0.04);
 	// Low resolution
-	reward_map_->addSearchArea(3.0, 4.0, -1.0, 1.0, -0.77, -0.4, 0.16);
+	reward_map_->addSearchArea(2.5, 3.0, -0.85, 0.85, -0.8, -0.2, 0.08);
+	reward_map_->addSearchArea(-0.75, -0.5, -0.85, 0.85, -0.8, -0.2, 0.08);
+	reward_map_->addSearchArea(-0.75, 3.0, -1.25, -0.85, -0.8, -0.2, 0.08);
+	reward_map_->addSearchArea(-0.75, 3.0, 0.85, 1.25, -0.8, -0.2, 0.08);
+	reward_map_->setInterestRegion(-0.5, 3.0, -3.0, 3.0);
 
-	//reward_map_->addSearchArea(2.9, 3.0, -0.05, 0.05, -0.77, -0.4, 0.04);
-	//reward_map_->addSearchArea(3.2, 3.5, -0.2, 0.2, -0.77, -0.4, 0.16);
-
+	// Adding the features
 	dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
 	reward_map_->addFeature(slope_ptr);
 
-	octomap_sub_ = node_.subscribe("octomap_full", 1, &RewardMapServer::octomapCallback, this);
+	//octomap_sub_ = node_.subscribe("octomap_full", 1, &RewardMapServer::octomapCallback, this);
+	octomap_sub_ = new message_filters::Subscriber<octomap_msgs::Octomap> (node_, "octomap_binary", 5);
+	tf_octomap_sub_ = new tf::MessageFilter<octomap_msgs::Octomap> (*octomap_sub_, tf_listener_, "world", 5);
+	tf_octomap_sub_->registerCallback(boost::bind(&RewardMapServer::octomapCallback, this, _1));
+
 	reward_pub_ = node_.advertise<reward_map_server::RewardMap>("reward_map", 1);
 
-	reward_map_msg_.header.frame_id = "base_footprint";
+	reward_map_msg_.header.frame_id = "world"; //"base_footprint";
 
+
+	//normals_.poses.resize(2500);
 	//normal_pub_ = node_.advertise<geometry_msgs::PoseArray>("normal", 1);
 	//normals_.header.frame_id = "base_footprint";
+	//origin_vector_ = Eigen::Vector3d::Zero();
+	//origin_vector_(0) = 1;
 }
 
 
 RewardMapServer::~RewardMapServer()
 {
 	delete reward_map_;
-	octomap_sub_.shutdown();
+	//octomap_sub_.shutdown();
+
+	if (tf_octomap_sub_){
+		delete tf_octomap_sub_;
+		tf_octomap_sub_ = NULL;
+	}
+
+	if (octomap_sub_){
+		delete octomap_sub_;
+		octomap_sub_ = NULL;
+	}
 }
 
 
@@ -106,9 +129,21 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 
 	dwl::environment::Modeler model;
 	model.octomap = octomap;
+	reward_map_->setModelerResolution(octomap->getResolution());
 
-	Eigen::Vector2d robot_position = Eigen::Vector2d::Zero();
-	robot_position(0) = 0;
+	tf::StampedTransform tf_transform;
+	try {
+		tf_listener_.lookupTransform("world", "base_footprint", msg->header.stamp, tf_transform);
+	} catch (tf::TransformException& ex) {
+		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
+		return;
+	}
+
+	Eigen::Vector4d robot_position = Eigen::Vector4d::Zero();
+	robot_position(0) = tf_transform.getOrigin()[0];
+	robot_position(1) = tf_transform.getOrigin()[1];
+	robot_position(2) = tf_transform.getOrigin()[2];
+	robot_position(3) = tf_transform.getRotation().getAngle();
 
 	timespec start_rt, end_rt;
 	clock_gettime(CLOCK_REALTIME, &start_rt);
@@ -125,18 +160,31 @@ void RewardMapServer::publishRewardMap()
 
 	std::vector<dwl::environment::Cell> reward_gridmap;
 	reward_map_->getRewardMap().swap(reward_gridmap);
+
+/*	if (reward_gridmap.size() == last_reward_gridmap_size_) {
+		std::cout << "no pub" << std::endl;
+		return;
+	}
+
+	last_reward_gridmap_size_ = reward_gridmap.size();*/
+
 	reward_map_server::RewardCell cell;
+	reward_map_msg_.cell_size = reward_map_->getResolution(true);
+	reward_map_msg_.modeler_size = reward_map_->getResolution(false);
 	for (int i = 0; i < reward_gridmap.size(); i++) {
 		cell.key_x = reward_gridmap[i].cell_key.grid_id.key[0];
 		cell.key_y = reward_gridmap[i].cell_key.grid_id.key[1];
 		cell.key_z = reward_gridmap[i].cell_key.height_id;
 		cell.reward = reward_gridmap[i].reward;
-		cell.cell_size = reward_gridmap[i].size;
+		//cell.cell_size = reward_gridmap[i].size;
 
 		reward_map_msg_.cell.push_back(cell);
 	}
 	reward_pub_.publish(reward_map_msg_);
 	reward_map_msg_.cell.clear();
+
+
+
 
 	/*
 	std::vector<dwl::environment::Pose> poses;
@@ -163,7 +211,7 @@ void RewardMapServer::publishRewardMap()
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "dwl_reward_map_node");
+	ros::init(argc, argv, "reward_map_node");
 
 
 	RewardMapServer octomap_modeler;
@@ -171,7 +219,7 @@ int main(int argc, char **argv)
 
 
 	try {
-		ros::Rate loop_rate(10);
+		ros::Rate loop_rate(30);
 		while(ros::ok()) {
 			octomap_modeler.publishRewardMap();
 			ros::spinOnce();

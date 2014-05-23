@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(reward_map_server)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   octomap_msgs
-  message_generation)
+  message_generation
+  tf
+  tf_conversions)
 
 find_package(dwl REQUIRED)
 find_package(octomap REQUIRED)
@@ -52,8 +52,7 @@ find_package(Eigen REQUIRED)
 add_message_files(
   FILES
   RewardCell.msg
-  RewardMap.msg
-)
+  RewardMap.msg)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -72,8 +71,7 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  std_msgs  # Or other packages containing msgs
-)
+  std_msgs)
 
 ###################################
 ## catkin specific configuration ##
@@ -88,8 +86,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS roscpp octomap_msgs message_runtime
-  DEPENDS system_lib eigen
-)
+  DEPENDS system_lib eigen)
 
 ###########
 ## Build ##
