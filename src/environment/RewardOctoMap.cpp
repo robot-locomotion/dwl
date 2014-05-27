@@ -51,6 +51,7 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector4d robot_state)
 
 		for (double y = boundary_min(1); y < boundary_max(1); y += search_areas_[n].grid_resolution) {
 			for (double x = boundary_min(0); x < boundary_max(0); x += search_areas_[n].grid_resolution) {
+				// Computing the rotated coordinate of the point inside the search area
 				double xr = (x - robot_state(0)) * cos(yaw) - (y - robot_state(1)) * sin(yaw) + robot_state(0);
 				double yr = (x - robot_state(0)) * sin(yaw) + (y - robot_state(1)) * cos(yaw) + robot_state(1);
 

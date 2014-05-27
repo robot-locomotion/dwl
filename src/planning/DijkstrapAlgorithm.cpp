@@ -10,6 +10,7 @@ namespace planning
 DijkstrapAlgorithm::DijkstrapAlgorithm()
 {
 	name_ = "dijkstrap";
+	is_graph_searching_algorithm_ = true;
 }
 
 
@@ -26,20 +27,90 @@ bool DijkstrapAlgorithm::init()
 }
 
 
-bool DijkstrapAlgorithm::compute(Eigen::MatrixXd& solution)
+bool DijkstrapAlgorithm::compute(SolverInterface solver_interface)
 {
 	printf("Computing the Dijkstrap algorithm\n");
 
-	Eigen::VectorXd constraint_value, state_value;
+/*	Eigen::VectorXd constraint_value, state_value;
 	if (active_constraints_.size() > 0) {
 		for (int i = 0; i < active_constraints_.size(); i++)
 			active_constraints_[i]->get(constraint_value, state_value);
 	}
 
-	double cost;
-//	costs_[0]->get(cost, state_value);
+	double cost = costs_[0]->get(state_value);*/
+
+
+	GraphSearching solver = solver_interface.searcher;
+	VertexCost min_cost;
+	PreviousVertex previous;
+
+
+	bool cost_map = false;
+	AdjacencyMap adjacency_map;
+	Eigen::VectorXd state;
+	for (int i = 0; i < costs_.size(); i++) {
+		if (costs_[i]->isCostMap()) {
+			costs_[i]->get(adjacency_map);
+
+			cost_map = true;
+			break;
+		}
+	}
+	if (!cost_map) {
+		printf(RED "Could not computed the Dijkstrap algorithm because it was not defined a cost map (adjacency map)\n" COLOR_RESET);
+		return false;
+	}
+
+	// Computing the path according to Dijkstrap algorithm
+	DijkstraComputePath(solver.source, adjacency_map, min_cost, previous);
+	previous_ = previous;
+	total_cost_ = min_cost[solver.target];
 
 	return true;
+}
+
+
+void DijkstrapAlgorithm::DijkstraComputePath(Vertex source, AdjacencyMap& adjacency_map, VertexCost& min_cost, PreviousVertex& previous)
+{
+	for (AdjacencyMap::iterator vertex_iter = adjacency_map.begin();
+		vertex_iter != adjacency_map.end();
+		vertex_iter++)
+	{
+			Vertex v = vertex_iter->first;
+			min_cost[v] = std::numeric_limits<double>::infinity();
+	}
+
+	min_cost[source] = 0;
+	std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > vertex_queue;
+	for (AdjacencyMap::iterator vertex_iter = adjacency_map.begin();
+		vertex_iter != adjacency_map.end();
+		vertex_iter++)
+	{
+		Vertex v = vertex_iter->first;
+		vertex_queue.insert(std::pair<Weight, Vertex>(min_cost[v], v));
+	}
+
+	while (!vertex_queue.empty()) {
+		Vertex u = vertex_queue.begin()->second;
+		vertex_queue.erase(vertex_queue.begin());
+
+		// Visit each edge exiting u
+		for (std::list<Edge>::iterator edge_iter = adjacency_map[u].begin();
+			edge_iter != adjacency_map[u].end();
+			edge_iter++)
+		{
+			Vertex v = edge_iter->target;
+			Weight weight = edge_iter->weight;
+			Weight distance_through_u = min_cost[u] + weight;
+			if (distance_through_u < min_cost[v]) {
+				vertex_queue.erase(std::pair<Weight, Vertex>(min_cost[v], v));
+
+				min_cost[v] = distance_through_u;
+				previous[v] = u;
+				vertex_queue.insert(std::pair<Weight, Vertex>(min_cost[v], v));
+			}
+		}
+	}
 }
 
 
@@ -48,125 +119,32 @@ bool DijkstrapAlgorithm::compute(Eigen::MatrixXd& solution)
 } //@namespace dwl
 
 
+
+
+
 /*
-#include <iostream>
-#include <vector>
-#include <string>
-#include <list>
-
-#include <limits> // for numeric_limits
-
-#include <set>
-#include <utility> // for pair
-#include <algorithm>
-#include <iterator>
-
-
-typedef int vertex_t;
-typedef double weight_t;
-
-const weight_t max_weight = std::numeric_limits<double>::infinity();
-
-struct neighbor {
-    vertex_t target;
-    weight_t weight;
-    neighbor(vertex_t arg_target, weight_t arg_weight)
-        : target(arg_target), weight(arg_weight) { }
+const int num_nodes = 5;
+enum nodes { A, B, C, D, E };
+char name[] = "ABCDE";
+edge edge_array[] = { edge(A, C), edge(B, B), edge(B, D), edge(B, E),
+    edge(C, B), edge(C, D), edge(D, E), edge(E, A), edge(E, B)
 };
+int weights[] = { 1, 2, 1, 2, 7, 3, 1, 1, 1 };
+int num_arcs = sizeof(edge_array) / sizeof(edge);
 
-typedef std::vector<std::vector<neighbor> > adjacency_list_t;
+// Defining the dijkstrap graph
+graph dijkstrap_graph(edge_array, edge_array + num_arcs, weights, num_nodes);
 
+// Defining the weight map
+boost::property_map<graph, boost::edge_weight_t>::type weightmap = get(boost::edge_weight, dijkstrap_graph);
 
-void DijkstraComputePaths(vertex_t source,
-                          const adjacency_list_t &adjacency_list,
-                          std::vector<weight_t> &min_distance,
-                          std::vector<vertex_t> &previous)
-{
-    int n = adjacency_list.size();
-    min_distance.clear();
-    min_distance.resize(n, max_weight);
-    min_distance[source] = 0;
-    previous.clear();
-    previous.resize(n, -1);
-    std::set<std::pair<weight_t, vertex_t> > vertex_queue;
-    vertex_queue.insert(std::make_pair(min_distance[source], source));
+std::vector<vertex_descriptor> parent_vertex(num_vertices(dijkstrap_graph));
+std::vector<int> cost_from_source(num_vertices(dijkstrap_graph));
+vertex_descriptor source_vertex = vertex(A, dijkstrap_graph);
 
-    while (!vertex_queue.empty())
-    {
-        weight_t dist = vertex_queue.begin()->first;
-        vertex_t u = vertex_queue.begin()->second;
-        vertex_queue.erase(vertex_queue.begin());
-
-        // Visit each edge exiting u
-	const std::vector<neighbor> &neighbors = adjacency_list[u];
-        for (std::vector<neighbor>::const_iterator neighbor_iter = neighbors.begin();
-             neighbor_iter != neighbors.end();
-             neighbor_iter++)
-        {
-            vertex_t v = neighbor_iter->target;
-            weight_t weight = neighbor_iter->weight;
-            weight_t distance_through_u = dist + weight;
-	    if (distance_through_u < min_distance[v]) {
-	        vertex_queue.erase(std::make_pair(min_distance[v], v));
-
-	        min_distance[v] = distance_through_u;
-	        previous[v] = u;
-	        vertex_queue.insert(std::make_pair(min_distance[v], v));
-
-	    }
-
-        }
-    }
-}
+dijkstra_shortest_paths(dijkstrap_graph, source_vertex,
+						predecessor_map(boost::make_iterator_property_map(parent_vertex.begin(), get(boost::vertex_index, dijkstrap_graph))).
+						distance_map(boost::make_iterator_property_map(cost_from_source.begin(), get(boost::vertex_index, dijkstrap_graph))));
 
 
-std::list<vertex_t> DijkstraGetShortestPathTo(
-    vertex_t vertex, const std::vector<vertex_t> &previous)
-{
-    std::list<vertex_t> path;
-    for ( ; vertex != -1; vertex = previous[vertex])
-        path.push_front(vertex);
-    return path;
-}
-
-
-int main()
-{
-    // remember to insert edges both ways for an undirected graph
-    adjacency_list_t adjacency_list(6);
-    // 0 = a
-    adjacency_list[0].push_back(neighbor(1, 7));
-    adjacency_list[0].push_back(neighbor(2, 9));
-    adjacency_list[0].push_back(neighbor(5, 14));
-    // 1 = b
-    adjacency_list[1].push_back(neighbor(0, 7));
-    adjacency_list[1].push_back(neighbor(2, 10));
-    adjacency_list[1].push_back(neighbor(3, 15));
-    // 2 = c
-    adjacency_list[2].push_back(neighbor(0, 9));
-    adjacency_list[2].push_back(neighbor(1, 10));
-    adjacency_list[2].push_back(neighbor(3, 11));
-    adjacency_list[2].push_back(neighbor(5, 2));
-    // 3 = d
-    adjacency_list[3].push_back(neighbor(1, 15));
-    adjacency_list[3].push_back(neighbor(2, 11));
-    adjacency_list[3].push_back(neighbor(4, 6));
-    // 4 = e
-    adjacency_list[4].push_back(neighbor(3, 6));
-    adjacency_list[4].push_back(neighbor(5, 9));
-    // 5 = f
-    adjacency_list[5].push_back(neighbor(0, 14));
-    adjacency_list[5].push_back(neighbor(2, 2));
-    adjacency_list[5].push_back(neighbor(4, 9));
-
-    std::vector<weight_t> min_distance;
-    std::vector<vertex_t> previous;
-    DijkstraComputePaths(0, adjacency_list, min_distance, previous);
-    std::cout << "Distance from 0 to 4: " << min_distance[4] << std::endl;
-    std::list<vertex_t> path = DijkstraGetShortestPathTo(4, previous);
-    std::cout << "Path : ";
-    std::copy(path.begin(), path.end(), std::ostream_iterator<vertex_t>(std::cout, " "));
-    std::cout << std::endl;
-
-    return 0;
-}*/
+std::cout << "Distance(" << name[4] << ") = " << cost_from_source[4] << ",  Parent(" << name[4] << ") = " << name[parent_vertex[4]] << std::endl;*/

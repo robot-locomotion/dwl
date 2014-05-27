@@ -40,17 +40,24 @@ class PlaneGrid
 		 * @brief Converts a 2D coordinate into a 2D Key at a certain depth, with boundary checking.
 		 * @param Eigen::Vector2d& coord 2d coordinate of a point
 		 * @param dwl::environment::Key& key values that will be computed, an array of fixed size 2.
-		 * @param bool gridmap Indicates if it is the gridmap
 		 * @return true if point is within the planetree (valid), false otherwise
 		 */
 		bool coordToKeyChecked(const Eigen::Vector2d& coord, Key& key) const;
 
-		bool coordToKeyChecked(double coordinate, unsigned short int& keyval, bool gridmap) const;
+		/**
+		 * @brief Converts a coordinate into a Key at a certain depth, with boundary checking.
+		 * @param unsigned short int& key_value Key value that will be computed
+		 * @param double coordinate Coordinate of a point
+		 * @param bool gridmap Indicates if it is the gridmap
+		 * @return true if point is within the planetree (valid), false otherwise
+		 */
+		bool coordToKeyChecked(unsigned short int& key_value, double coordinate, bool gridmap) const;
 
 		/**
 		 * @brief Converts from a single coordinate into a discrete key
 		 * @param double coordinate Cartesian coordinate of the cell
 		 * @param bool gridmap Indicates if it is the gridmap
+		 * @return unsigned short int Return the key of the coordinate
 		 */
 		unsigned short int coordToKey(double coordinate, bool gridmap) const;
 
@@ -58,17 +65,34 @@ class PlaneGrid
 		 * @brief Converts from a discrete key at the lowest tree level into a coordinate corresponding to the key's center
 		 * @param unsigned short int key_value The value of the key
 		 * @param bool gridmap Indicates if it is the gridmap
+		 * @return double Return the coordinate of the key
 		 */
 		double keyToCoord(unsigned short int key_value, bool gridmap) const;
 
+		/**
+		 * @brief Converts the key of a gridmap to a vertex id
+		 * @param dwl::environment::Key gridmap_key Gridmap key
+		 * @return unsigned long int Return the vertex id
+		 */
+		unsigned long int gridmapKeyToVertex(Key gridmap_key) const;
+
+		/**
+		 * @brief Converts the vertex id to gridmap key
+		 * @param dwl::environment::Key& gridmap_key Gridmap key
+		 * @param unsigned long int vertex Vertex id
+		 */
+		void vertexToGridmapKey(Key& gridmap_key, unsigned long int vertex) const;
+
 		/*
-		 * @brief Gets the resolution of the gridmap
+		 * @brief Gets the resolution of the gridmap or the height
 		 * @param bool gridmap Indicates if it is the gridmap
+		 * @return double Return the resolution of the gridmap or height
 		 */
 		double getResolution(bool gridmap);
 
 		/**
-		 * @brief Sets the resolution of the gridmap
+		 * @brief Sets the resolution of the gridmap or the height
+		 * @param double resolution Resolution
 		 * @param bool gridmap Indicates if it is the gridmap
 		 */
 		void setResolution(double resolution, bool gridmap);

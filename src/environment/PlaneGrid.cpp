@@ -18,23 +18,23 @@ PlaneGrid::PlaneGrid(double gridmap_resolution, double height_resolution) : grid
 
 bool PlaneGrid::coordToKeyChecked(const Eigen::Vector2d& coord, Key& key) const
 {
-	if (!coordToKeyChecked( (double) coord(0), key.key[0], true))
+	if (!coordToKeyChecked(key.key[0], (double) coord(0), true))
 		return false;
-	if (!coordToKeyChecked( (double) coord(1), key.key[1], true))
+	if (!coordToKeyChecked(key.key[1], (double) coord(1), true))
 		return false;
 
 	return true;
 }
 
 
-bool PlaneGrid::coordToKeyChecked(double coordinate, unsigned short int& keyval, bool gridmap) const
+bool PlaneGrid::coordToKeyChecked(unsigned short int& key_value, double coordinate, bool gridmap) const
 {
 	// scale to resolution and shift center for tree_max_val
 	int scaled_coord = coordToKey(coordinate, gridmap);
 
 	// keyval within range of tree?
 	if (( scaled_coord >= 0) && (((unsigned int) scaled_coord) < (2 * tree_max_val_))) {
-    	keyval = scaled_coord;
+		key_value = scaled_coord;
     	return true;
 	}
 	return false;
@@ -62,6 +62,19 @@ double PlaneGrid::keyToCoord(unsigned short int key_value, bool gridmap) const
 		coord = ((double) ((int) key_value - (int) this->tree_max_val_) + 0.5) * this->height_resolution_;
 
 	return coord;
+}
+
+
+unsigned long int PlaneGrid::gridmapKeyToVertex(Key gridmap_key) const
+{
+	return (unsigned long int) (gridmap_key.key[1] + std::numeric_limits<unsigned short int>::max() * gridmap_key.key[0]);
+}
+
+
+void PlaneGrid::vertexToGridmapKey(Key& gridmap_key, unsigned long int vertex) const
+{
+	gridmap_key.key[0] = floor(vertex / std::numeric_limits<unsigned short int>::max());
+	gridmap_key.key[1] = vertex - (gridmap_key.key[0] + 1) * std::numeric_limits<unsigned short int>::max();
 }
 
 

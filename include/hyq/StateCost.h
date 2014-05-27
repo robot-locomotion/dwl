@@ -11,17 +11,20 @@ namespace dwl
 namespace hyq
 {
 
-class StateCost : public dwl::planning::Cost
+class StateCost : public planning::Cost
 {
 	public:
 		/** @brief Constructor function */
 		StateCost();
 
 		/** @brief Destructor function */
-		~StateCost() {}
+		virtual ~StateCost();
 
-		void get(double cost, Eigen::VectorXd state);
+		//virtual void setCostMap() {}
 
+		virtual double get(Eigen::VectorXd state);
+
+		//virtual void get(planning::AdjacencyMap& adjacency_map) {}
 };
 
 } //@namespace hyq

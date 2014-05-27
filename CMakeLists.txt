@@ -29,8 +29,10 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/PlanningOfMotionSequences.cpp 
 							src/planning/HierarchicalPlanning.cpp
 							src/planning/Solver.cpp
+							src/planning/Cost.cpp
 							src/planning/Constraint.cpp
 							src/planning/DijkstrapAlgorithm.cpp
+							src/planning/CostMap.cpp
 							src/environment/RewardMap.cpp
 							src/environment/PlaneGrid.cpp
 							src/environment/RewardOctoMap.cpp

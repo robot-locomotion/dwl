@@ -1,8 +1,14 @@
 #ifndef DWL_Cost_H
 #define DWL_Cost_H
 
+//#include <planning/definitions.h>
+#include <environment/PlaneGrid.h>
 #include <Eigen/Dense>
 #include <utils/macros.h>
+
+#include <map>
+#include <list>
+#include <set>
 
 
 namespace dwl
@@ -10,6 +16,31 @@ namespace dwl
 
 namespace planning
 {
+
+/** Defines a vertex for graph-searching algorithms */
+typedef int Vertex;
+
+/** Defines a weight for graph-searching algorithms */
+typedef double Weight;
+
+/**
+ * @brief Defines a edge for graph-searching algorithms
+ */
+struct Edge
+{
+	Vertex target;
+	Weight weight;
+	Edge(Vertex arg_target, Weight arg_weight) : target(arg_target), weight(arg_weight) { }
+};
+
+/** Defines an adjacency map for graph-searching algorithms */
+typedef std::map<Vertex, std::list<Edge> > AdjacencyMap;
+
+/** Defines the cost of a vertex for graph-searching algorithms */
+typedef std::map<Vertex, Weight> VertexCost;
+
+/** Defines a previous vertex for graph-searching algorithms */
+typedef std::map<Vertex, Vertex> PreviousVertex;
 
 /**
  * @class Cost
@@ -19,17 +50,35 @@ class Cost
 {
 	public:
 		/** @brief Constructor function */
-		Cost() {}
+		Cost();
 
 		/** @brief Destructor function */
-		virtual ~Cost() {}
+		virtual ~Cost();
+
+		/**
+		 *
+		 */
+		virtual void setCostMap();
 
 		/**
 		 * @brief Abstract method for getting the cost value given a certain state
-		 * @param double cost Cost value
 		 * @param Eigen::VectorXd state State value
+		 * @return double Return the cost at defined state
 		 */
-		virtual void get(double cost, Eigen::VectorXd state) = 0;
+		virtual double get(Eigen::VectorXd state);
+
+		/**
+		 * @brief Abstract method for getting the cost value given a certain node
+		 * @param int node Node value
+		 * @return double Return the cost at defined node
+		 */
+		virtual void get(AdjacencyMap& adjacency_map);
+
+		/**
+		 * @brief Indicates if it was defined a cost map in this class
+		 * @return bool Return true it was defined a cost map
+		 */
+		bool isCostMap();
 
 		/**
 		 * @brief Gets the name of the cost
@@ -37,9 +86,16 @@ class Cost
 		 */
 		std::string getName();
 
+
 	protected:
+		/** @brief Object of the PlaneGrid class for defining the grid routines */
+		environment::PlaneGrid gridmap_;
+
 		/** @brief Name of the cost */
 		std::string name_;
+
+		/** @brief Indicates if it is a cost map */
+		bool is_cost_map_;
 
 };
 

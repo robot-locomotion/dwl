@@ -13,9 +13,18 @@ StateCost::StateCost()
 }
 
 
-void StateCost::get(double cost, Eigen::VectorXd state)
+StateCost::~StateCost()
+{
+
+}
+
+
+double StateCost::get(Eigen::VectorXd state)
 {
 	printf("Getting state cost\n");
+	double cost = 0;
+
+	return cost;
 }
 
 } //@namespace hyq

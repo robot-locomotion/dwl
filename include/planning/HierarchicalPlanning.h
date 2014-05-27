@@ -25,11 +25,11 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		~HierarchicalPlanning() {}
 
 		/**
-		 * @brief Initializes the hierarchical planning given a start and goal state
-		 * @param std::vector<double> start Start state
-		 * @param std::vector<double> goal Goal state
+		 * @brief Abstract method for initialization of a plan
+		 * @param std::vector<double> start Initial state
+		 * @param std::vector<double> goal Goal state to arrive
 		 */
-		bool init(std::vector<double> start, std::vector<double> goal);
+		virtual bool init(BodyPose start, BodyPose goal);
 
 		/**
 		 * @brief Computes a whole-body motion plan

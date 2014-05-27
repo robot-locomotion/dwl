@@ -76,16 +76,11 @@ class PlanningOfMotionSequences
 		void removeCost(std::string cost_name);
 
 		/**
-		 * @brief Initializes a plan computation
+		 * @brief Abstract method for initialization of a plan
 		 * @param std::vector<double> start Initial state
 		 * @param std::vector<double> goal Goal state to arrive
 		 */
-		bool initPlan(std::vector<double> start, std::vector<double> goal);
-
-		/**
-		 * @brief Abstract method for initialization of the planning algorithm
-		 */
-		virtual bool init(std::vector<double> start, std::vector<double> goal) = 0;
+		virtual bool init(BodyPose start, BodyPose goal) = 0;
 
 		/**
 		 * @brief Computes a motion plan according to added constraints and costs in the optimization problem

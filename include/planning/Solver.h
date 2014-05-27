@@ -6,7 +6,8 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <utils/macros.h>
-#include <pthread.h>
+
+//#include <pthread.h>
 
 
 namespace dwl
@@ -14,6 +15,24 @@ namespace dwl
 
 namespace planning
 {
+
+/**
+ * @brief Struct that defines the graph-searching interface
+ */
+struct GraphSearching
+{
+	Vertex source;
+	Vertex target;
+};
+
+/**
+ * @brief Struct that defines the different solver interfaces
+ */
+struct SolverInterface
+{
+	GraphSearching searcher; /**< Graph-searching algorithms */
+	//Optimization optimizer;
+};
 
 /**
  * @class Solver
@@ -36,10 +55,10 @@ class Solver
 
 		/**
 		 * @brief Abstract method for computing a solution
-		 * @param Eigen::MatrixXd& solution Solution of the problem
+		 * @param SolverInterface& solver_interface Interface for the applied solver
 		 * @return bool Return true if it was computed a solution
 		 */
-		virtual bool compute(Eigen::MatrixXd& solution) = 0;
+		virtual bool compute(SolverInterface solver_interface) = 0;
 
 		/**
 		 * @brief Adds a constraint in the solver
@@ -66,6 +85,18 @@ class Solver
 		void removeCost(std::string cost_name);
 
 		/**
+		 * @brief Get the shortes path only for graph searching algorithms
+		 * @param dwl::planning::Vertex target Target vertex
+		 * @return std::list<Vertex> Returns the path as a list of vertex
+		 */
+		std::list<Vertex> getShortestPath(Vertex target);
+
+		/**
+		 *
+		 */
+		double getMinimumCost();
+
+		/**
 		 * @brief Gets the name of the solver
 		 * @return std::string Return the name of the solver
 		 */
@@ -73,9 +104,14 @@ class Solver
 
 	private:
 
+
+
 	protected:
 		/** @brief Name of the solver */
 		std::string name_;
+
+		/** @brief Indicates if it a graph-searching algorithm */
+		bool is_graph_searching_algorithm_;
 
 		/** @brief Indicates if it was added an active constraint in the solver */
 		bool is_added_active_constraint_;
@@ -95,8 +131,11 @@ class Solver
 		/** @brief Vector of costs pointers */
 		std::vector<Cost*> costs_;
 
+		PreviousVertex previous_;
 
-		pthread_mutex_t solver_lock_;
+		double total_cost_;
+
+//		pthread_mutex_t solver_lock_;
 };
 
 } //@namespace planning
