@@ -1,6 +1,5 @@
 #include <planning/CostMap.h>
 #include <planning/Solver.h>
-#include <environment/RewardMap.h>
 
 
 namespace dwl
@@ -22,40 +21,40 @@ CostMap::~CostMap()
 }
 
 
-void CostMap::setCostMap()
+void CostMap::setCostMap(std::vector<dwl::environment::Cell> reward_map)
 {
-	dwl::environment::Cell c;
-	std::vector<dwl::environment::Cell> cell;
+/*	dwl::environment::Cell c;
+	std::vector<dwl::environment::Cell> reward_map;
 	c.cell_key.grid_id.key[0] = 1000;
 	c.cell_key.grid_id.key[1] = 1000;
 	c.reward = -1.5;
 	std::cout << "vertex = " << gridmap_.gridmapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	cell.push_back(c);
+	reward_map.push_back(c);
 	c.cell_key.grid_id.key[0] = 1001;
 	c.cell_key.grid_id.key[1] = 1000;
 	c.reward = -2;
 	std::cout << "vertex = " << gridmap_.gridmapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	cell.push_back(c);
+	reward_map.push_back(c);
 	c.cell_key.grid_id.key[0] = 999;
 	c.cell_key.grid_id.key[1] = 1000;
 	c.reward = -3;
 	std::cout << "vertex = " << gridmap_.gridmapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	cell.push_back(c);
+	reward_map.push_back(c);
 	c.cell_key.grid_id.key[0] = 1000;
 	c.cell_key.grid_id.key[1] = 1001;
 	c.reward = -4;
 	std::cout << "vertex = " << gridmap_.gridmapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	cell.push_back(c);
+	reward_map.push_back(c);
 	c.cell_key.grid_id.key[0] = 1000;
 	c.cell_key.grid_id.key[1] = 999;
 	c.reward = -5;
 	std::cout << "vertex = " << gridmap_.gridmapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	cell.push_back(c);
+	reward_map.push_back(c);
 	c.cell_key.grid_id.key[0] = 1000;
 	c.cell_key.grid_id.key[1] = 998;
 	c.reward = -6;
 	std::cout << "vertex = " << gridmap_.gridmapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	cell.push_back(c);
+	reward_map.push_back(c);*/
 
 
 
@@ -64,24 +63,22 @@ void CostMap::setCostMap()
 
 	unsigned long int vertex_id, edge_id;
 	double cost;
-	for (int i = 0; i < cell.size(); i++) {
-		vertex_id = gridmap_.gridmapKeyToVertex(cell[i].cell_key.grid_id);
-		unsigned short int vertex_x = cell[i].cell_key.grid_id.key[0];
-		unsigned short int vertex_y = cell[i].cell_key.grid_id.key[1];
+	for (int i = 0; i < reward_map.size(); i++) {
+		vertex_id = gridmap_.gridmapKeyToVertex(reward_map[i].cell_key.grid_id);
+		unsigned short int vertex_x = reward_map[i].cell_key.grid_id.key[0];
+		unsigned short int vertex_y = reward_map[i].cell_key.grid_id.key[1];
 
 		// Searching the closed neighbors around 5-neighboring area
 		bool is_found_neighbour_positive_x = false, is_found_neighbour_negative_x = false;
 		bool is_found_neighbour_positive_y = false, is_found_neighbour_negative_y = false;
 		for (int r = 1; r <= 3; r++) {
-			for (int j = 0; j < cell.size(); j++) {
-				unsigned short int edge_x = cell[j].cell_key.grid_id.key[0];
-				unsigned short int edge_y = cell[j].cell_key.grid_id.key[1];
+			for (int j = 0; j < reward_map.size(); j++) {
+				unsigned short int edge_x = reward_map[j].cell_key.grid_id.key[0];
+				unsigned short int edge_y = reward_map[j].cell_key.grid_id.key[1];
 
 				// Getting the values of the edge
-				edge_id = gridmap_.gridmapKeyToVertex(cell[j].cell_key.grid_id);
-				cost = - cell[j].reward;
-
-
+				edge_id = gridmap_.gridmapKeyToVertex(reward_map[j].cell_key.grid_id);
+				cost = - reward_map[j].reward;
 
 				// Searching the neighbour in the positive x-axis
 				if ((vertex_x + r == edge_x) && (vertex_y == edge_y) && (!is_found_neighbour_positive_x)) {
@@ -113,28 +110,6 @@ void CostMap::setCostMap()
 			}
 		}
 	}
-
-
-
-
-
-
-/*
-	cost_map_[-1].push_back(Edge(1,  79.83));
-	cost_map_[-1].push_back(Edge(5,  81.15));
-	cost_map_[1].push_back(Edge(-1,  79.75));
-	cost_map_[1].push_back(Edge(2,  39.42));
-	cost_map_[1].push_back(Edge(3, 103.00));
-	cost_map_[2].push_back(Edge(1,  38.65));
-	cost_map_[3].push_back(Edge(1, 102.53));
-	cost_map_[3].push_back(Edge(5,  61.44));
-	cost_map_[3].push_back(Edge(6,  96.79));
-	cost_map_[4].push_back(Edge(5, 133.04));
-	cost_map_[5].push_back(Edge(-1,  81.77));
-	cost_map_[5].push_back(Edge(3,  62.05));
-	cost_map_[5].push_back(Edge(4, 134.47));
-	cost_map_[5].push_back(Edge(6,  91.63));
-	cost_map_[6].push_back(Edge(3,  97.24));*/
 }
 
 

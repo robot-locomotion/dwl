@@ -1,11 +1,12 @@
 #ifndef DWL_Cost_H
 #define DWL_Cost_H
 
-//#include <planning/definitions.h>
+#include <environment/RewardMap.h>
 #include <environment/PlaneGrid.h>
 #include <Eigen/Dense>
 #include <utils/macros.h>
 
+#include <vector>
 #include <map>
 #include <list>
 #include <set>
@@ -56,9 +57,10 @@ class Cost
 		virtual ~Cost();
 
 		/**
-		 *
+		 * @brief Sets the cost map only for Cost that representing the terrain (or map)
+		 * @param std::vector<dwl::environment::Cell> reward_map Reward map
 		 */
-		virtual void setCostMap();
+		virtual void setCostMap(std::vector<dwl::environment::Cell> reward_map);
 
 		/**
 		 * @brief Abstract method for getting the cost value given a certain state
@@ -69,8 +71,7 @@ class Cost
 
 		/**
 		 * @brief Abstract method for getting the cost value given a certain node
-		 * @param int node Node value
-		 * @return double Return the cost at defined node
+		 * @param dwl::planning::AdjacencyMap& adjacency_map Adjacency map required for graph-searching algorithms
 		 */
 		virtual void get(AdjacencyMap& adjacency_map);
 
@@ -102,6 +103,7 @@ class Cost
 } //@namespace planning
 
 } //@namespace dwl
+
 
 inline std::string dwl::planning::Cost::getName()
 {

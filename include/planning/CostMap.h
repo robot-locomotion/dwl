@@ -17,14 +17,13 @@ class CostMap : public Cost
 		CostMap();
 		virtual ~CostMap();
 
-		virtual void setCostMap();
+		virtual void setCostMap(std::vector<dwl::environment::Cell> reward_map);
 
 		virtual void get(AdjacencyMap& state);
 
-		//virtual double get(Eigen::VectorXd state) {return 0;};
 
 	private:
-		//std::map<int, std::list<int> > adjacency_node_;
+		/** @brief Adjacency map that defines a cost map of the environment */
 		AdjacencyMap cost_map_;
 
 }; //@class CostMap
