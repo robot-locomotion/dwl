@@ -82,28 +82,28 @@ void CostMap::setCostMap(std::vector<dwl::environment::Cell> reward_map)
 
 				// Searching the neighbour in the positive x-axis
 				if ((vertex_x + r == edge_x) && (vertex_y == edge_y) && (!is_found_neighbour_positive_x)) {
-					std::cout << "v=" << vertex_id << " | e=" << edge_id << " x+ | r=" << r << std::endl;
+//					std::cout << "v=" << vertex_id << " | e=" << edge_id << " x+ | r=" << r << std::endl;
 					cost_map_[vertex_id].push_back(Edge(edge_id, cost));
 					is_found_neighbour_positive_x = true;
 				}
 
 				// Searching the neighbour in the negative x-axis
 				if ((vertex_x - r == edge_x) && (vertex_y == edge_y) && (!is_found_neighbour_negative_x)) {
-					std::cout << "v=" << vertex_id << " | e=" << edge_id << " x- | r=" << r << std::endl;
+//					std::cout << "v=" << vertex_id << " | e=" << edge_id << " x- | r=" << r << std::endl;
 					cost_map_[vertex_id].push_back(Edge(edge_id, cost));
 					is_found_neighbour_negative_x = true;
 				}
 
 				// Searching the neighbour in the positive y-axis
 				if ((vertex_y + r == edge_y) && (vertex_x == edge_x) && (!is_found_neighbour_positive_y)) {
-					std::cout << "v=" << vertex_id << " | e=" << edge_id << " y+ | r=" << r << std::endl;
+//					std::cout << "v=" << vertex_id << " | e=" << edge_id << " y+ | r=" << r << std::endl;
 					cost_map_[vertex_id].push_back(Edge(edge_id, cost));
 					is_found_neighbour_positive_y = true;
 				}
 
 				// Searching the neighbour in the negative y-axis
 				if ((vertex_y - r == edge_y) && (vertex_x == edge_x) && (!is_found_neighbour_negative_y)) {
-					std::cout << "v=" << vertex_id << " | e=" << edge_id << " y- | r=" << r << std::endl;
+//					std::cout << "v=" << vertex_id << " | e=" << edge_id << " y- | r=" << r << std::endl;
 					cost_map_[vertex_id].push_back(Edge(edge_id, cost));
 					is_found_neighbour_negative_y = true;
 				}
