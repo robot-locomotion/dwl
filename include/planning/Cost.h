@@ -19,7 +19,7 @@ namespace planning
 {
 
 /** Defines a vertex for graph-searching algorithms */
-typedef int Vertex;
+typedef unsigned int Vertex;
 
 /** Defines a weight for graph-searching algorithms */
 typedef double Weight;

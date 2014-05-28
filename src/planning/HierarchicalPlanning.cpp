@@ -43,24 +43,43 @@ void HierarchicalPlanning::update(BodyPose start, BodyPose goal)
 
 bool HierarchicalPlanning::compute()
 {
-	printf("Computing the HierarchicalPlanning algorithm\n");
-
 	SolverInterface solver;
-
 
 	solver.searcher.source = source_id_;
 	solver.searcher.target = target_id_;
-
 	solver_->compute(solver);
 
 	std::list<Vertex> path = solver_->getShortestPath(target_id_);
-	std::cout << "Total cost to " << target_id_ << " from " << source_id_ << ": " << solver_->getMinimumCost() << std::endl;
 
-	//std::cout << "Total cost to " << vertex_names[6] << ": " << solver_->getMinimumCost() << std::endl;
+
+	//TODO only for debugging
+	dwl::environment::Key key;
+	gridmap_.vertexToGridmapKey(key, source_id_);
+	double x = gridmap_.keyToCoord((unsigned short int) key.key[0], true);
+	double y = gridmap_.keyToCoord((unsigned short int) key.key[1], true);
+	gridmap_.vertexToGridmapKey(key, target_id_);
+	double x_t = gridmap_.keyToCoord((unsigned short int) key.key[0], true);
+	double y_t = gridmap_.keyToCoord((unsigned short int) key.key[1], true);
+	std::cout << "Total cost to [" << x_t << " " << y_t << "] from [" << x << " " << y << "]: " << solver_->getMinimumCost() << std::endl;
+
+	//TODO Some line for debugging
 	std::list<Vertex>::iterator path_iter = path.begin();
 	std::cout << "Path: ";
 	for( ; path_iter != path.end(); path_iter++) {
-		std::cout << *path_iter << " "; //vertex_names[*path_iter] << " ";
+		Eigen::Vector3d body_path = Eigen::Vector3d::Zero();
+
+		dwl::environment::Key path_key;
+		gridmap_.vertexToGridmapKey(path_key, *path_iter);
+		double x = gridmap_.keyToCoord(path_key.key[0], true);
+		double y = gridmap_.keyToCoord(path_key.key[1], true);
+
+		body_path[0] = x;
+		body_path[1] = y;
+		body_path[2] = 0;
+
+		body_path_.push_back(body_path);
+
+		std::cout << "[" << x << " " << y << "] | ";
 	}
 	std::cout << std::endl;
 

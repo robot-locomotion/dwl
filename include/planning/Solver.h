@@ -92,7 +92,8 @@ class Solver
 		std::list<Vertex> getShortestPath(Vertex target);
 
 		/**
-		 *
+		 * @brief Gets the minimum cost (total cost) for the computed solution
+		 * @return double Return the total cost
 		 */
 		double getMinimumCost();
 

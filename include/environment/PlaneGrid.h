@@ -74,7 +74,7 @@ class PlaneGrid
 		 * @param dwl::environment::Key gridmap_key Gridmap key
 		 * @return unsigned long int Return the vertex id
 		 */
-		unsigned long int gridmapKeyToVertex(Key gridmap_key) const;
+		unsigned int gridmapKeyToVertex(Key gridmap_key) const;
 
 		/**
 		 * @brief Converts the vertex id to gridmap key
