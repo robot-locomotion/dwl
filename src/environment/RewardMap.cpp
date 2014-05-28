@@ -97,7 +97,7 @@ void RewardMap::getCell(Cell& cell, double reward, Terrain terrain_info)
 	Eigen::Vector2d cell_position;
 	cell_position(0) = terrain_info.position(0);
 	cell_position(1) = terrain_info.position(1);
-	gridmap_.coordToKeyChecked(cell_position, grip_key);
+	gridmap_.coordToKeyChecked(grip_key, cell_position);
 
 	cell.cell_key.grid_id = grip_key;
 	cell.cell_key.height_id = gridmap_.coordToKey((double) terrain_info.position(2), false);
@@ -112,7 +112,7 @@ void RewardMap::getCell(CellKey& cell_key, Eigen::Vector3d position)
 	Eigen::Vector2d cell_position;
 	cell_position(0) = position(0);
 	cell_position(1) = position(1);
-	gridmap_.coordToKeyChecked(cell_position, grid_key);
+	gridmap_.coordToKeyChecked(grid_key, cell_position);
 
 	cell_key.grid_id = grid_key;
 	cell_key.height_id = gridmap_.coordToKey((double) position(2), false);
