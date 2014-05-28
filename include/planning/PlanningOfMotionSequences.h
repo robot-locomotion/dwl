@@ -76,15 +76,28 @@ class PlanningOfMotionSequences
 		void removeCost(std::string cost_name);
 
 		/**
+		 * @brief Initialized the planner
+		 * @param bool Return true if it was initialized the planner
+		 */
+		bool initPlan();
+
+		/**
 		 * @brief Abstract method for initialization of a plan
 		 * @param std::vector<double> start Initial state
 		 * @param std::vector<double> goal Goal state to arrive
 		 */
-		virtual bool init(BodyPose start, BodyPose goal) = 0;
+		virtual bool init() = 0;
 
 		/**
-		 * @brief Computes a motion plan according to added constraints and costs in the optimization problem
-		 * @return bool Return true if it was found a plan
+		 * @brief Updates the start and goal pose of the robot
+		 * @param dwl::planning::BodyPose start Start pose
+		 * @param dwl::planning::BodyPose goal Goal pose
+		 */
+		virtual void update(BodyPose start, BodyPose goal) = 0;
+
+		/**
+		 * @brief Computes the motion planning
+		 * @return bool Return true if it was computed the plan
 		 */
 		bool computePlan();
 
@@ -98,7 +111,7 @@ class PlanningOfMotionSequences
 		 * @brief Changes the goal state
 		 * @param std::vector<double> goal New goal state
 		 */
-		void changeGoal(std::vector<double> goal);
+		void changeGoal(BodyPose goal);
 
 		/**
 		 * @brief Gets the name of the planner
@@ -114,13 +127,14 @@ class PlanningOfMotionSequences
 		/** @brief Indicates it was initialized the planning algorithm */
 		bool is_initialized_planning_;
 
-		/** @brief Initial state of the robot */
-		std::vector<double> initial_state_;
+		/** @brief Initial pose of the robot */
+		BodyPose initial_pose_;
 
-		/** @brief Goal state of the robot */
-		std::vector<double> goal_state_;
+		/** @brief Goal pose of the robot */
+		BodyPose goal_pose_;
 
-		pthread_mutex_t planning_lock_;
+		//pthread_mutex_t planning_lock_;
+
 
 	protected:
 		/** @brief Name of the planner */

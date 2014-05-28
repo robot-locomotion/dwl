@@ -12,6 +12,12 @@ WholeBodyLocomotion::WholeBodyLocomotion() : planner_(NULL), is_settep_planner_(
 }
 
 
+WholeBodyLocomotion::~WholeBodyLocomotion()
+{
+
+}
+
+
 void WholeBodyLocomotion::reset(dwl::planning::PlanningOfMotionSequences* planner)
 {
 	printf(BLUE "Setting the %s planner\n" COLOR_RESET, planner->getName().c_str());
@@ -60,10 +66,10 @@ void WholeBodyLocomotion::removeCost(std::string cost_name)
 }
 
 
-bool WholeBodyLocomotion::init(std::vector<double> start, std::vector<double> goal)
+bool WholeBodyLocomotion::init()
 {
 	if (is_settep_planner_) {
-		if (!planner_->initPlan(start, goal)) {
+		if (!planner_->initPlan()) {
 			//printf(RED "Could not initiliazed the %s planner\n" COLOR_RESET, planner_->getName().c_str());
 			return false;
 		}
@@ -80,11 +86,17 @@ bool WholeBodyLocomotion::init(std::vector<double> start, std::vector<double> go
 }
 
 
-bool WholeBodyLocomotion::computePlan()
+void WholeBodyLocomotion::update(planning::BodyPose start, planning::BodyPose goal)
+{
+	if (is_settep_planner_)
+		planner_->update(start, goal);
+}
+
+
+bool WholeBodyLocomotion::compute()
 {
 	if (is_settep_planner_) {
 		if (!planner_->computePlan()) {
-
 			return false;
 		}
 	}
@@ -96,7 +108,7 @@ bool WholeBodyLocomotion::computePlan()
 }
 
 
-void WholeBodyLocomotion::changeGoal(std::vector<double> goal)
+void WholeBodyLocomotion::changeGoal(planning::BodyPose goal)
 {
 	if (is_settep_planner_)
 		planner_->changeGoal(goal);

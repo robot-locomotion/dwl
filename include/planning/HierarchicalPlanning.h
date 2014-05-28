@@ -1,8 +1,9 @@
 #ifndef DWL_HierarchicalPlanning_H
 #define DWL_HierarchicalPlanning_H
 
-
 #include <planning/PlanningOfMotionSequences.h>
+#include <environment/RewardMap.h>
+#include <environment/PlaneGrid.h>
 
 
 namespace dwl
@@ -22,17 +23,24 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		HierarchicalPlanning();
 
 		/** @brief Destructor function */
-		~HierarchicalPlanning() {}
+		~HierarchicalPlanning();
 
 		/**
-		 * @brief Abstract method for initialization of a plan
-		 * @param std::vector<double> start Initial state
-		 * @param std::vector<double> goal Goal state to arrive
+		 * @brief Initializes of the hierarchical planning
+		 * @return bool Return true if was initialized the hierarchical planning
 		 */
-		virtual bool init(BodyPose start, BodyPose goal);
+		virtual bool init();
 
 		/**
-		 * @brief Computes a whole-body motion plan
+		 * @brief Updates the start and goal body pose for hierarchical planning
+		 * @param dwl::planning::BodyPose start Start pose
+		 * @param dwl::planning::BodyPose goal Goal pose
+		 */
+		virtual void update(BodyPose start, BodyPose goal);
+
+		/**
+		 * @brief Computes a whole-body motion provided for the hierarchical planning
+		 * @return bool Return true if it was computed the plan
 		 */
 		bool compute();
 
@@ -41,6 +49,15 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 	private:
 		/** @brief Trajectory of body */
 		std::vector<Eigen::Vector3d> body_path_;
+
+		/** @brief Gridmap representation */
+		environment::PlaneGrid gridmap_;
+
+		/** @brief The id of the start vertex */
+		unsigned long int source_id_;
+
+		/** @brief The id of the goal vertex */
+		unsigned long int target_id_;
 
 
 }; //@class HierarchicalPlanning

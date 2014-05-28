@@ -58,10 +58,10 @@ void PlanningOfMotionSequences::removeCost(std::string cost_name)
 }
 
 
-bool PlanningOfMotionSequences::initPlan(std::vector<double> start, std::vector<double> goal)
+bool PlanningOfMotionSequences::initPlan()
 {
 	if (is_settep_solver_) {
-		if (!init(start, goal)) {
+		if (!init()) {
 			printf(RED "Could not initialized the %s planning algorithm\n" COLOR_RESET, name_.c_str());
 
 			return false;
@@ -84,19 +84,16 @@ bool PlanningOfMotionSequences::computePlan()
 		if (is_settep_solver_) {
 			if (!compute()) {
 				printf(RED "Could not computed the %s planning algorithm\n" COLOR_RESET, name_.c_str());
-
 				return false;
 			}
 		}
 		else {
 			printf(YELLOW "Could not executed the %s planning because has not been setted the solver\n" COLOR_RESET, name_.c_str());
-
 			return false;
 		}
 	}
 	else {
 		printf(YELLOW "Could not executed the %s planning because has not been initialized\n" COLOR_RESET, name_.c_str());
-
 		return false;
 	}
 
@@ -104,12 +101,12 @@ bool PlanningOfMotionSequences::computePlan()
 }
 
 
-void PlanningOfMotionSequences::changeGoal(std::vector<double> goal)
+void PlanningOfMotionSequences::changeGoal(BodyPose goal)
 {
 	printf(GREEN "Changed the goal state\n" COLOR_RESET);
-	pthread_mutex_lock(&planning_lock_);
-	goal_state_ = goal;
-	pthread_mutex_unlock(&planning_lock_);
+	//pthread_mutex_lock(&planning_lock_);
+	goal_pose_ = goal;
+	//pthread_mutex_unlock(&planning_lock_);
 }
 
 

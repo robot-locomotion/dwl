@@ -9,7 +9,7 @@ namespace dwl
 
 /**
  * @class WholeBodyLocomotion
- * @brief Abstract class for solving the whole-body locomotion problem
+ * @brief Class for solving the whole-body locomotion problem
  */
 class WholeBodyLocomotion
 {
@@ -19,7 +19,7 @@ class WholeBodyLocomotion
 		WholeBodyLocomotion();
 
 		/** @brief Destructor function */
-		~WholeBodyLocomotion() {}
+		~WholeBodyLocomotion();
 
 		/**
 		 * @brief Resets the planning of motion sequences algorithm
@@ -53,22 +53,27 @@ class WholeBodyLocomotion
 
 		/**
 		 * @brief Initializes a locomotion algorithm
-		 * @param std::vector<double> start Initial state
-		 * @param std::vector<double> goal Goal state
 		 */
-		bool init(std::vector<double> start, std::vector<double> goal);
+		bool init();
+
+		/**
+		 * @brief Updates the start and goal pose of the robot for making a receding horizon planning
+		 * @param dwl::planning::BodyPose start Start pose
+		 * @param dwl::planning::BodyPose goal Goal pose
+		 */
+		void update(planning::BodyPose start, planning::BodyPose goal);
 
 		/**
 		 * @brief Computes a locomotion plan
 		 * @return bool Return true if was found a locomotion plan
 		 */
-		bool computePlan();
+		bool compute();
 
 		/**
 		 * @brief Changes the goal
-		 * @param std::vector<double> goal Goal state
+		 * @param dwl::planning::BodyPose goal Goal state
 		 */
-		void changeGoal(std::vector<double> goal);
+		void changeGoal(planning::BodyPose goal);
 
 
 	private:
