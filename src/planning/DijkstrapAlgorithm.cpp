@@ -44,25 +44,8 @@ bool DijkstrapAlgorithm::compute(SolverInterface solver_interface)
 	VertexCost min_cost;
 	PreviousVertex previous;
 
-
-	bool cost_map = false;
-	AdjacencyMap adjacency_map;
-	Eigen::VectorXd state;
-	for (int i = 0; i < costs_.size(); i++) {
-		if (costs_[i]->isCostMap()) {
-			costs_[i]->get(adjacency_map);
-
-			cost_map = true;
-			break;
-		}
-	}
-	if (!cost_map) {
-		printf(RED "Could not computed the Dijkstrap algorithm because it was not defined a cost map (adjacency map)\n" COLOR_RESET);
-		return false;
-	}
-
 	// Computing the path according to Dijkstrap algorithm
-	DijkstraComputePath(solver.source, adjacency_map, min_cost, previous);
+	DijkstraComputePath(solver.source, solver.adjacency_map, min_cost, previous);
 	previous_ = previous;
 	total_cost_ = min_cost[solver.target];
 

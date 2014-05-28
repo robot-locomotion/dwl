@@ -23,6 +23,7 @@ struct GraphSearching
 {
 	Vertex source;
 	Vertex target;
+	AdjacencyMap adjacency_map;
 };
 
 /**
@@ -61,30 +62,6 @@ class Solver
 		virtual bool compute(SolverInterface solver_interface) = 0;
 
 		/**
-		 * @brief Adds a constraint in the solver
-		 * @param dwl::planning::Constraint* Pointer to the constraint class
-		 */
-		void addConstraint(Constraint* constraint);
-
-		/**
-		 * @brief Removes a constraint in the solver
-		 * @param std::string constraint_name Name of the constraint
-		 */
-		void removeConstraint(std::string constraint_name);
-
-		/**
-		 * @brief Adds a cost in the solver
-		 * @param dwl::planning::Cost* Pointer to the cost class
-		 */
-		void addCost(Cost* cost);
-
-		/**
-		 * @brief Removes a cost in the solver
-		 * @param std::string cost_name Name of the cost
-		 */
-		void removeCost(std::string cost_name);
-
-		/**
 		 * @brief Get the shortes path only for graph searching algorithms
 		 * @param dwl::planning::Vertex target Target vertex
 		 * @return std::list<Vertex> Returns the path as a list of vertex
@@ -113,24 +90,6 @@ class Solver
 
 		/** @brief Indicates if it a graph-searching algorithm */
 		bool is_graph_searching_algorithm_;
-
-		/** @brief Indicates if it was added an active constraint in the solver */
-		bool is_added_active_constraint_;
-
-		/** @brief Indicates if it was added an inactive constraint in the solver */
-		bool is_added_inactive_constraint_;
-
-		/** @brief Indicates if it was added a cost in the solver */
-		bool is_added_cost_;
-
-		/** @brief Vector of active constraints pointers */
-		std::vector<Constraint*> active_constraints_;
-
-		/** @brief Vector of inactive constraints pointers */
-		std::vector<Constraint*> inactive_constraints_;
-
-		/** @brief Vector of costs pointers */
-		std::vector<Cost*> costs_;
 
 		PreviousVertex previous_;
 

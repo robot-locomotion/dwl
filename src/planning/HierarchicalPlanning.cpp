@@ -47,9 +47,27 @@ bool HierarchicalPlanning::compute()
 
 	solver.searcher.source = source_id_;
 	solver.searcher.target = target_id_;
-	solver_->compute(solver);
 
+	bool cost_map = false;
+	Eigen::VectorXd state;
+	for (int i = 0; i < costs_.size(); i++) {
+		if (costs_[i]->isCostMap()) {
+			costs_[i]->get(solver.searcher.adjacency_map);
+
+			cost_map = true;
+			break;
+		}
+	}
+	if (!cost_map) {
+		printf(RED "Could not computed the Dijkstrap algorithm because it was not defined a cost map (adjacency map)\n" COLOR_RESET);
+		return false;
+	}
+
+	solver_->compute(solver);
 	std::list<Vertex> path = solver_->getShortestPath(target_id_);
+
+
+
 
 
 	//TODO only for debugging

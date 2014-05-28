@@ -43,7 +43,7 @@ class PlanningOfMotionSequences
 		PlanningOfMotionSequences();
 
 		/** @brief Destructor function */
-		virtual ~PlanningOfMotionSequences() {}
+		virtual ~PlanningOfMotionSequences();
 
 		/**
 		 * @brief Function to specify the settings of all variables within the Planning of Motion Sequences problem (solver algorithmn)
@@ -121,17 +121,26 @@ class PlanningOfMotionSequences
 
 
 	private:
+		/** @brief Initial pose of the robot */
+		BodyPose initial_pose_;
+
+		/** @brief Goal pose of the robot */
+		BodyPose goal_pose_;
+
 		/** @brief Indicates if it was settep a solver algorithm for the computation of a plan */
 		bool is_settep_solver_;
 
 		/** @brief Indicates it was initialized the planning algorithm */
 		bool is_initialized_planning_;
 
-		/** @brief Initial pose of the robot */
-		BodyPose initial_pose_;
+		/** @brief Indicates if it was added an active constraint in the solver */
+		bool is_added_active_constraint_;
 
-		/** @brief Goal pose of the robot */
-		BodyPose goal_pose_;
+		/** @brief Indicates if it was added an inactive constraint in the solver */
+		bool is_added_inactive_constraint_;
+
+		/** @brief Indicates if it was added a cost in the solver */
+		bool is_added_cost_;
 
 		//pthread_mutex_t planning_lock_;
 
@@ -142,6 +151,15 @@ class PlanningOfMotionSequences
 
 		/** @brief Pointer to the solver algorithm */
 		Solver* solver_;
+
+		/** @brief Vector of active constraints pointers */
+		std::vector<Constraint*> active_constraints_;
+
+		/** @brief Vector of inactive constraints pointers */
+		std::vector<Constraint*> inactive_constraints_;
+
+		/** @brief Vector of costs pointers */
+		std::vector<Cost*> costs_;
 
 		/** @brief Vector of contact points */
 		std::vector<Contact> contacts_sequence_;
