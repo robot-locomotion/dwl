@@ -38,11 +38,11 @@ class PlaneGrid
 
 		/**
 		 * @brief Converts a 2D coordinate into a 2D Key at a certain depth, with boundary checking.
-		 * @param Eigen::Vector2d& coord 2d coordinate of a point
 		 * @param dwl::environment::Key& key values that will be computed, an array of fixed size 2.
+		 * @param Eigen::Vector2d& coord 2d coordinate of a point
 		 * @return true if point is within the planetree (valid), false otherwise
 		 */
-		bool coordToKeyChecked(const Eigen::Vector2d& coord, Key& key) const;
+		bool coordToKeyChecked(Key& key, Eigen::Vector2d coordinate) const;
 
 		/**
 		 * @brief Converts a coordinate into a Key at a certain depth, with boundary checking.

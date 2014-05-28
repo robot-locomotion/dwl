@@ -16,11 +16,11 @@ PlaneGrid::PlaneGrid(double gridmap_resolution, double height_resolution) : grid
 }
 
 
-bool PlaneGrid::coordToKeyChecked(const Eigen::Vector2d& coord, Key& key) const
+bool PlaneGrid::coordToKeyChecked(Key& key, Eigen::Vector2d coordinate) const
 {
-	if (!coordToKeyChecked(key.key[0], (double) coord(0), true))
+	if (!coordToKeyChecked(key.key[0], (double) coordinate(0), true))
 		return false;
-	if (!coordToKeyChecked(key.key[1], (double) coord(1), true))
+	if (!coordToKeyChecked(key.key[1], (double) coordinate(1), true))
 		return false;
 
 	return true;
