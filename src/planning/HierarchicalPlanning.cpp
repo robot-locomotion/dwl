@@ -8,9 +8,9 @@ namespace planning
 {
 
 
-HierarchicalPlanning::HierarchicalPlanning() : gridmap_(0.04, 0.02), source_id_(0), target_id_(0)
+HierarchicalPlanning::HierarchicalPlanning() : source_id_(0), target_id_(0)
 {
-	name_ = "hierarchical";
+	name_ = "Hierarchical";
 }
 
 
@@ -34,6 +34,7 @@ void HierarchicalPlanning::update(BodyPose start, BodyPose goal)
 {
 	// Converting the start and goal position to vertex ids
 	dwl::environment::Key start_key, goal_key;
+
 	gridmap_.coordToKeyChecked(start_key, (Eigen::Vector2d) start.position.head(2));
 	gridmap_.coordToKeyChecked(goal_key, (Eigen::Vector2d) goal.position.head(2));
 	source_id_ = gridmap_.gridmapKeyToVertex(start_key);
@@ -73,11 +74,11 @@ bool HierarchicalPlanning::compute()
 	//TODO only for debugging
 	dwl::environment::Key key;
 	gridmap_.vertexToGridmapKey(key, source_id_);
-	double x = gridmap_.keyToCoord((unsigned short int) key.key[0], true);
-	double y = gridmap_.keyToCoord((unsigned short int) key.key[1], true);
+	double x = gridmap_.keyToCoord(key.key[0], true);
+	double y = gridmap_.keyToCoord(key.key[1], true);
 	gridmap_.vertexToGridmapKey(key, target_id_);
-	double x_t = gridmap_.keyToCoord((unsigned short int) key.key[0], true);
-	double y_t = gridmap_.keyToCoord((unsigned short int) key.key[1], true);
+	double x_t = gridmap_.keyToCoord(key.key[0], true);
+	double y_t = gridmap_.keyToCoord(key.key[1], true);
 	std::cout << "Total cost to [" << x_t << " " << y_t << "] from [" << x << " " << y << "]: " << solver_->getMinimumCost() << std::endl;
 
 	//TODO Some line for debugging

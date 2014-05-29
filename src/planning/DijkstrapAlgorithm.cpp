@@ -9,7 +9,7 @@ namespace planning
 
 DijkstrapAlgorithm::DijkstrapAlgorithm()
 {
-	name_ = "dijkstrap";
+	name_ = "Dijkstrap";
 	is_graph_searching_algorithm_ = true;
 }
 

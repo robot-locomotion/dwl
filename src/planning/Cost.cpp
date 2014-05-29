@@ -39,6 +39,14 @@ void Cost::get(AdjacencyMap& adjacency_map)
 }
 
 
+void Cost::setGridMapResolution(double resolution)
+{
+	// Setting the gridmap resolution
+	gridmap_.setResolution(resolution, true);
+	gridmap_.setResolution(resolution, false);
+}
+
+
 bool Cost::isCostMap()
 {
 	return is_cost_map_;

@@ -41,7 +41,7 @@ void WholeBodyLocomotion::removeConstraint(std::string constraint_name)
 	if (is_settep_planner_)
 		planner_->removeConstraint(constraint_name);
 	else {
-		printf(YELLOW "Could not remove the %s constraint because has not been setted the planner\n" COLOR_RESET, constraint_name.c_str());
+		printf(YELLOW "Could not removed the %s constraint because has not been setted the planner\n" COLOR_RESET, constraint_name.c_str());
 	}
 }
 
@@ -61,7 +61,7 @@ void WholeBodyLocomotion::removeCost(std::string cost_name)
 	if (is_settep_planner_)
 		planner_->removeCost(cost_name);
 	else {
-		printf(YELLOW "Could not remove the %s cost because has not been setted the planner\n" COLOR_RESET, cost_name.c_str());
+		printf(YELLOW "Could not removed the %s cost because has not been setted the planner\n" COLOR_RESET, cost_name.c_str());
 	}
 }
 
@@ -75,9 +75,8 @@ bool WholeBodyLocomotion::init()
 		}
 		if (is_learning_)
 			printf("WholeBodyLocomotion is using a learning component\n");
-	}
-	else {
-		printf(YELLOW "Could not initialize the whole-body locomotor because has not been setted the planner\n" COLOR_RESET);
+	} else {
+		printf(YELLOW "Could not initialized the whole-body locomotor because has not been setted the planner\n" COLOR_RESET);
 
 		return false;
 	}
@@ -99,12 +98,20 @@ bool WholeBodyLocomotion::compute()
 		if (!planner_->computePlan()) {
 			return false;
 		}
-	}
-	else {
-		printf(YELLOW "Could not compute the plan because has not been setted the planner\n" COLOR_RESET);
+	} else {
+		printf(YELLOW "Could not computed the plan because has not been setted the planner\n" COLOR_RESET);
 	}
 
 	return true;
+}
+
+
+void WholeBodyLocomotion::setGridMapResolution(double resolution)
+{
+	if (is_settep_planner_) {
+		planner_->setGridMapResolution(resolution);
+	} else
+		printf(YELLOW "Could not setted the gridmap resolution because has not been setted the planner\n" COLOR_RESET);
 }
 
 
@@ -113,7 +120,7 @@ void WholeBodyLocomotion::changeGoal(planning::BodyPose goal)
 	if (is_settep_planner_)
 		planner_->changeGoal(goal);
 	else
-		printf(YELLOW "Could not change the goal because has not been setted the planner\n" COLOR_RESET);
+		printf(YELLOW "Could not changed the goal because has not been setted the planner\n" COLOR_RESET);
 }
 
 

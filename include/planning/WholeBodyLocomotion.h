@@ -70,6 +70,12 @@ class WholeBodyLocomotion
 		bool compute();
 
 		/**
+		 * @brief Sets the gridmap resolution
+		 * @param double resolution Resolution of the gridmap
+		 */
+		void setGridMapResolution(double resolution);
+
+		/**
 		 * @brief Changes the goal
 		 * @param dwl::planning::BodyPose goal Goal state
 		 */

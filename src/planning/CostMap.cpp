@@ -8,9 +8,9 @@ namespace dwl
 namespace planning
 {
 
-CostMap::CostMap()
+CostMap::CostMap() : is_first_update_(true)
 {
-	name_ = "cost map";
+	name_ = "CostMap";
 	is_cost_map_ = true;
 }
 
@@ -58,23 +58,34 @@ void CostMap::setCostMap(std::vector<dwl::environment::Cell> reward_map)
 
 
 
+	// Setting the resolution of the gridmap
+/*	if (is_first_update_) {
+		std::cout << "Res0 = " << gridmap_resolution_ << std::endl;
+		for (int i = 0; i < reward_map.size(); i++) {
+			if (gridmap_resolution_ > reward_map[i].size)
+				gridmap_resolution_ = reward_map[i].size;
+		}
+		std::cout << "Res = " << gridmap_resolution_ << std::endl;
+		gridmap_.setResolution(gridmap_resolution_, true);
+		is_first_update_ = false;
+	}*/
 
 
-
-	unsigned long int vertex_id, edge_id;
+	// Converting the reward map message to an adjacency map, which is required for graph-searching algorithms
+	unsigned int vertex_id, edge_id;
 	double cost;
 	for (int i = 0; i < reward_map.size(); i++) {
 		vertex_id = gridmap_.gridmapKeyToVertex(reward_map[i].cell_key.grid_id);
-		unsigned short int vertex_x = reward_map[i].cell_key.grid_id.key[0];
-		unsigned short int vertex_y = reward_map[i].cell_key.grid_id.key[1];
+		Vertex vertex_x = reward_map[i].cell_key.grid_id.key[0];
+		Vertex vertex_y = reward_map[i].cell_key.grid_id.key[1];
 
 		// Searching the closed neighbors around 5-neighboring area
 		bool is_found_neighbour_positive_x = false, is_found_neighbour_negative_x = false;
 		bool is_found_neighbour_positive_y = false, is_found_neighbour_negative_y = false;
 		for (int r = 1; r <= 3; r++) {
 			for (int j = 0; j < reward_map.size(); j++) {
-				unsigned short int edge_x = reward_map[j].cell_key.grid_id.key[0];
-				unsigned short int edge_y = reward_map[j].cell_key.grid_id.key[1];
+				Vertex edge_x = reward_map[j].cell_key.grid_id.key[0];
+				Vertex edge_y = reward_map[j].cell_key.grid_id.key[1];
 
 				// Getting the values of the edge
 				edge_id = gridmap_.gridmapKeyToVertex(reward_map[j].cell_key.grid_id);
@@ -82,28 +93,24 @@ void CostMap::setCostMap(std::vector<dwl::environment::Cell> reward_map)
 
 				// Searching the neighbour in the positive x-axis
 				if ((vertex_x + r == edge_x) && (vertex_y == edge_y) && (!is_found_neighbour_positive_x)) {
-//					std::cout << "v=" << vertex_id << " | e=" << edge_id << " x+ | r=" << r << std::endl;
 					cost_map_[vertex_id].push_back(Edge(edge_id, cost));
 					is_found_neighbour_positive_x = true;
 				}
 
 				// Searching the neighbour in the negative x-axis
 				if ((vertex_x - r == edge_x) && (vertex_y == edge_y) && (!is_found_neighbour_negative_x)) {
-//					std::cout << "v=" << vertex_id << " | e=" << edge_id << " x- | r=" << r << std::endl;
 					cost_map_[vertex_id].push_back(Edge(edge_id, cost));
 					is_found_neighbour_negative_x = true;
 				}
 
 				// Searching the neighbour in the positive y-axis
 				if ((vertex_y + r == edge_y) && (vertex_x == edge_x) && (!is_found_neighbour_positive_y)) {
-//					std::cout << "v=" << vertex_id << " | e=" << edge_id << " y+ | r=" << r << std::endl;
 					cost_map_[vertex_id].push_back(Edge(edge_id, cost));
 					is_found_neighbour_positive_y = true;
 				}
 
 				// Searching the neighbour in the negative y-axis
 				if ((vertex_y - r == edge_y) && (vertex_x == edge_x) && (!is_found_neighbour_negative_y)) {
-//					std::cout << "v=" << vertex_id << " | e=" << edge_id << " y- | r=" << r << std::endl;
 					cost_map_[vertex_id].push_back(Edge(edge_id, cost));
 					is_found_neighbour_negative_y = true;
 				}

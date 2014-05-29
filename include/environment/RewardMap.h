@@ -201,7 +201,7 @@ class RewardMap
 		std::vector<Feature*> features_;
 
 		/** @brief Vector of the reward values of the cell */
-		std::vector<Cell> reward_gridmap_;
+		std::vector<Cell> reward_gridmap_; //TODO use std::map for ordering the cell using a vertex id (To think in this)
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> search_areas_;

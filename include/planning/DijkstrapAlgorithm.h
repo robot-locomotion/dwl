@@ -3,11 +3,12 @@
 
 #include <planning/Solver.h>
 
+/*
 #include <boost/config.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
-#include <boost/property_map/property_map.hpp>
+#include <boost/property_map/property_map.hpp>*/
 
 
 namespace dwl
@@ -15,18 +16,6 @@ namespace dwl
 
 namespace planning
 {
-
-/**
- * @brief Template struct that orders vertex
- */
-template <typename Weight, typename Vertex>
-struct pair_first_less
-{
-    bool operator()(std::pair<Weight,Vertex> vertex_1, std::pair<Weight,Vertex> vertex_2)
-    {
-        return vertex_1.first < vertex_2.first;
-    }
-};
 
 /**
  * @class DijkstrapAlgorithm

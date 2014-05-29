@@ -1,12 +1,14 @@
 #ifndef DWL_Solver_H
 #define DWL_Solver_H
 
-#include <planning/Constraint.h>
-#include <planning/Cost.h>
 #include <Eigen/Dense>
-#include <vector>
-#include <utils/macros.h>
 
+#include <vector>
+#include <map>
+#include <list>
+#include <set>
+
+#include <utils/macros.h>
 //#include <pthread.h>
 
 
@@ -15,6 +17,43 @@ namespace dwl
 
 namespace planning
 {
+
+/** Defines a vertex for graph-searching algorithms */
+typedef unsigned int Vertex;
+
+/** Defines a weight for graph-searching algorithms */
+typedef double Weight;
+
+/**
+ * @brief Defines a edge for graph-searching algorithms
+ */
+struct Edge
+{
+	Vertex target;
+	Weight weight;
+	Edge(Vertex arg_target, Weight arg_weight) : target(arg_target), weight(arg_weight) { }
+};
+
+/** Defines an adjacency map for graph-searching algorithms */
+typedef std::map<Vertex, std::list<Edge> > AdjacencyMap;
+
+/** Defines the cost of a vertex for graph-searching algorithms */
+typedef std::map<Vertex, Weight> VertexCost;
+
+/** Defines a previous vertex for graph-searching algorithms */
+typedef std::map<Vertex, Vertex> PreviousVertex;
+
+/**
+ * @brief Template struct that orders vertex
+ */
+template <typename Weight, typename Vertex>
+struct pair_first_less
+{
+    bool operator()(std::pair<Weight,Vertex> vertex_1, std::pair<Weight,Vertex> vertex_2)
+    {
+        return vertex_1.first < vertex_2.first;
+    }
+};
 
 /**
  * @brief Struct that defines the graph-searching interface

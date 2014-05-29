@@ -2,10 +2,16 @@
 #define DWL_PlanningOfMotionSequences_H
 
 #include <planning/Solver.h>
+#include <planning/Constraint.h>
+#include <planning/Cost.h>
+#include <environment/PlaneGrid.h>
+
 #include <Eigen/Dense>
 #include <vector>
+
 #include <utils/macros.h>
-#include <pthread.h>
+
+//#include <pthread.h>
 
 
 namespace dwl
@@ -114,6 +120,12 @@ class PlanningOfMotionSequences
 		void changeGoal(BodyPose goal);
 
 		/**
+		 * @brief Sets the gridmap resolution
+		 * @param double resolution Resolution of the gridmap
+		 */
+		void setGridMapResolution(double resolution);
+
+		/**
 		 * @brief Gets the name of the planner
 		 * @return std::string Return the name of the planner
 		 */
@@ -160,6 +172,9 @@ class PlanningOfMotionSequences
 
 		/** @brief Vector of costs pointers */
 		std::vector<Cost*> costs_;
+
+		/** @brief Gridmap representation */
+		environment::PlaneGrid gridmap_;
 
 		/** @brief Vector of contact points */
 		std::vector<Contact> contacts_sequence_;

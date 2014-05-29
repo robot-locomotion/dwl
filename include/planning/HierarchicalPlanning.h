@@ -3,7 +3,6 @@
 
 #include <planning/PlanningOfMotionSequences.h>
 #include <environment/RewardMap.h>
-#include <environment/PlaneGrid.h>
 
 
 namespace dwl
@@ -44,25 +43,27 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		 */
 		bool compute();
 
+
+
 		//TODO: I think that for Hierarchical Planner we can implement a method for setting the reward map
+
 
 	private:
 		/** @brief Trajectory of body */
 		std::vector<Eigen::Vector3d> body_path_;
 
-		/** @brief Gridmap representation */
-		environment::PlaneGrid gridmap_;
-
 		/** @brief The id of the start vertex */
-		unsigned long int source_id_;
+		Vertex source_id_;
 
 		/** @brief The id of the goal vertex */
-		unsigned long int target_id_;
+		Vertex target_id_;
 
 
 }; //@class HierarchicalPlanning
 
+} //@namespace planning
+
 } //@namespace dwl
-}
+
 
 #endif

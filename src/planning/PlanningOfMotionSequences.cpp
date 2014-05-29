@@ -8,7 +8,7 @@ namespace planning
 {
 
 
-PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), is_added_active_constraint_(false), is_added_inactive_constraint_(false),
+PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), gridmap_(0.04, 0.02), is_added_active_constraint_(false), is_added_inactive_constraint_(false),
 		is_added_cost_(false), is_settep_solver_(false), is_initialized_planning_(false)
 {
 
@@ -44,18 +44,18 @@ void PlanningOfMotionSequences::addConstraint(Constraint* constraint)
 {
 	if (constraint->isActive()) {
 		printf(GREEN "Adding the active %s constraint\n" COLOR_RESET, constraint->getName().c_str());
-//		pthread_mutex_lock(&solver_lock_);
+//		pthread_mutex_lock(&planning_lock_);
 		active_constraints_.push_back(constraint);
-//		pthread_mutex_unlock(&solver_lock_);
+//		pthread_mutex_unlock(&planning_lock_);
 
 		if (!is_added_active_constraint_)
 			is_added_active_constraint_ = true;
 	}
 	else {
 		printf(GREEN "Adding the active %s constraint\n" COLOR_RESET, constraint->getName().c_str());
-//		pthread_mutex_lock(&solver_lock_);
+//		pthread_mutex_lock(&planning_lock_);
 		inactive_constraints_.push_back(constraint);
-//		pthread_mutex_unlock(&solver_lock_);
+//		pthread_mutex_unlock(&planning_lock_);
 
 		if (!is_added_inactive_constraint_)
 			is_added_inactive_constraint_ = true;
@@ -86,10 +86,10 @@ void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
 				if (i < active_constraints_.size()) {
 					if (constraint_name == active_constraints_[i]->getName().c_str()) {
 						printf(GREEN "Removing the active %s constraint\n" COLOR_RESET, active_constraints_[i]->getName().c_str());
-//						pthread_mutex_lock(&solver_lock_);
+//						pthread_mutex_lock(&planning_lock_);
 						delete active_constraints_.at(i);
 						active_constraints_.erase(active_constraints_.begin() + i);
-//						pthread_mutex_unlock(&solver_lock_);
+//						pthread_mutex_unlock(&planning_lock_);
 
 						return;
 					}
@@ -100,10 +100,10 @@ void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
 				if (i < inactive_constraints_.size()) {
 					if (constraint_name == inactive_constraints_[i]->getName().c_str()) {
 						printf(GREEN "Removing the inactive %s constraint\n" COLOR_RESET, inactive_constraints_[i]->getName().c_str());
-//						pthread_mutex_lock(&solver_lock_);
+//						pthread_mutex_lock(&planning_lock_);
 						delete inactive_constraints_.at(i);
 						inactive_constraints_.erase(inactive_constraints_.begin() + i);
-//						pthread_mutex_unlock(&solver_lock_);
+//						pthread_mutex_unlock(&planning_lock_);
 
 						return;
 					}
@@ -121,9 +121,9 @@ void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
 void PlanningOfMotionSequences::addCost(Cost* cost)
 {
 	printf(GREEN "Adding the %s cost\n" COLOR_RESET, cost->getName().c_str());
-//	pthread_mutex_lock(&solver_lock_);
+//	pthread_mutex_lock(&planning_lock_);
 	costs_.push_back(cost);
-//	pthread_mutex_lock(&solver_lock_);
+//	pthread_mutex_lock(&planning_lock_);
 	is_added_cost_ = true;
 }
 
@@ -202,6 +202,23 @@ void PlanningOfMotionSequences::changeGoal(BodyPose goal)
 	//pthread_mutex_lock(&planning_lock_);
 	goal_pose_ = goal;
 	//pthread_mutex_unlock(&planning_lock_);
+}
+
+
+void PlanningOfMotionSequences::setGridMapResolution(double resolution)
+{
+	// Setting the resolution of the gridmap instantiation of this class
+	gridmap_.setResolution(resolution, true);
+	gridmap_.setResolution(resolution, false);
+
+	// Setting the resolution of the gridmap cost class
+	for (int i = 0; i < costs_.size(); i++) {
+		if (costs_[i]->isCostMap()) {
+			costs_[i]->setGridMapResolution(resolution);
+
+			break;
+		}
+	}
 }
 
 

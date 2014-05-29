@@ -1,15 +1,13 @@
 #ifndef DWL_Cost_H
 #define DWL_Cost_H
 
+#include <planning/Solver.h>
 #include <environment/RewardMap.h>
-#include <environment/PlaneGrid.h>
-#include <Eigen/Dense>
-#include <utils/macros.h>
 
+#include <Eigen/Dense>
 #include <vector>
-#include <map>
-#include <list>
-#include <set>
+
+#include <utils/macros.h>
 
 
 namespace dwl
@@ -17,31 +15,6 @@ namespace dwl
 
 namespace planning
 {
-
-/** Defines a vertex for graph-searching algorithms */
-typedef unsigned int Vertex;
-
-/** Defines a weight for graph-searching algorithms */
-typedef double Weight;
-
-/**
- * @brief Defines a edge for graph-searching algorithms
- */
-struct Edge
-{
-	Vertex target;
-	Weight weight;
-	Edge(Vertex arg_target, Weight arg_weight) : target(arg_target), weight(arg_weight) { }
-};
-
-/** Defines an adjacency map for graph-searching algorithms */
-typedef std::map<Vertex, std::list<Edge> > AdjacencyMap;
-
-/** Defines the cost of a vertex for graph-searching algorithms */
-typedef std::map<Vertex, Weight> VertexCost;
-
-/** Defines a previous vertex for graph-searching algorithms */
-typedef std::map<Vertex, Vertex> PreviousVertex;
 
 /**
  * @class Cost
@@ -76,6 +49,11 @@ class Cost
 		virtual void get(AdjacencyMap& adjacency_map);
 
 		/**
+		 * @brief
+		 */
+		void setGridMapResolution(double resolution);
+
+		/**
 		 * @brief Indicates if it was defined a cost map in this class
 		 * @return bool Return true it was defined a cost map
 		 */
@@ -89,14 +67,14 @@ class Cost
 
 
 	protected:
-		/** @brief Object of the PlaneGrid class for defining the grid routines */
-		environment::PlaneGrid gridmap_;
-
 		/** @brief Name of the cost */
 		std::string name_;
 
 		/** @brief Indicates if it is a cost map */
 		bool is_cost_map_;
+
+		/** @brief Object of the PlaneGrid class for defining the grid routines */
+		environment::PlaneGrid gridmap_;
 
 };
 
