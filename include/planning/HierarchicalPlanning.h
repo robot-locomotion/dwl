@@ -43,6 +43,12 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		 */
 		bool compute();
 
+		/**
+		 * @brief Checks if the start and goal vertex belongs to the adjacency map, and then they are add if it is necessary
+		 * @param dwl::planning::AdjacencyMap& adjacency_map Adjacency map
+		 */
+		void checkStartAndGoalVertex(AdjacencyMap& adjacency_map);
+
 
 
 		//TODO: I think that for Hierarchical Planner we can implement a method for setting the reward map
@@ -53,10 +59,10 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		std::vector<Eigen::Vector3d> body_path_;
 
 		/** @brief The id of the start vertex */
-		Vertex source_id_;
+		Vertex start_id_;
 
 		/** @brief The id of the goal vertex */
-		Vertex target_id_;
+		Vertex goal_id_;
 
 
 }; //@class HierarchicalPlanning

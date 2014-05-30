@@ -59,8 +59,8 @@ void DijkstrapAlgorithm::DijkstraComputePath(Vertex source, AdjacencyMap& adjace
 		vertex_iter != adjacency_map.end();
 		vertex_iter++)
 	{
-			Vertex v = vertex_iter->first;
-			min_cost[v] = std::numeric_limits<double>::infinity();
+		Vertex v = vertex_iter->first;
+		min_cost[v] = std::numeric_limits<double>::infinity();
 	}
 
 	min_cost[source] = 0;

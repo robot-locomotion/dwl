@@ -75,7 +75,7 @@ void CostMap::setCostMap(std::vector<dwl::environment::Cell> reward_map)
 	unsigned int vertex_id, edge_id;
 	double cost;
 	for (int i = 0; i < reward_map.size(); i++) {
-		vertex_id = gridmap_.gridmapKeyToVertex(reward_map[i].cell_key.grid_id);
+		vertex_id = gridmap_.gridMapKeyToVertex(reward_map[i].cell_key.grid_id);
 		Vertex vertex_x = reward_map[i].cell_key.grid_id.key[0];
 		Vertex vertex_y = reward_map[i].cell_key.grid_id.key[1];
 
@@ -88,7 +88,7 @@ void CostMap::setCostMap(std::vector<dwl::environment::Cell> reward_map)
 				Vertex edge_y = reward_map[j].cell_key.grid_id.key[1];
 
 				// Getting the values of the edge
-				edge_id = gridmap_.gridmapKeyToVertex(reward_map[j].cell_key.grid_id);
+				edge_id = gridmap_.gridMapKeyToVertex(reward_map[j].cell_key.grid_id);
 				cost = - reward_map[j].reward;
 
 				// Searching the neighbour in the positive x-axis

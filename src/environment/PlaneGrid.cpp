@@ -66,16 +66,38 @@ double PlaneGrid::keyToCoord(unsigned short int key_value, bool gridmap) const
 }
 
 
-unsigned int PlaneGrid::gridmapKeyToVertex(Key gridmap_key) const
+unsigned int PlaneGrid::gridMapKeyToVertex(Key gridmap_key) const
 {
 	return (unsigned int) (gridmap_key.key[1] + std::numeric_limits<unsigned short int>::max() * gridmap_key.key[0]);
 }
 
 
-void PlaneGrid::vertexToGridmapKey(Key& gridmap_key, unsigned long int vertex) const
+Key PlaneGrid::vertexToGridMapKey(unsigned int vertex) const
 {
+	Key gridmap_key;
 	gridmap_key.key[0] = floor(vertex / std::numeric_limits<unsigned short int>::max());
 	gridmap_key.key[1] = vertex - (gridmap_key.key[0] + 1) * std::numeric_limits<unsigned short int>::max() - 1;
+
+	return gridmap_key;
+}
+
+unsigned int PlaneGrid::coordToVertex(Eigen::Vector2d coordinate) const
+{
+	Key key;
+	coordToKeyChecked(key, coordinate);
+
+	return gridMapKeyToVertex(key);
+}
+
+Eigen::Vector2d PlaneGrid::vertexToCoord(unsigned int vertex) const
+{
+	Key key = vertexToGridMapKey(vertex);
+
+	Eigen::Vector2d coordinate;
+	coordinate(0) = keyToCoord(key.key[0], true);
+	coordinate(1) = keyToCoord(key.key[1], true);
+
+	return coordinate;
 }
 
 

@@ -74,14 +74,28 @@ class PlaneGrid
 		 * @param dwl::environment::Key gridmap_key Gridmap key
 		 * @return unsigned long int Return the vertex id
 		 */
-		unsigned int gridmapKeyToVertex(Key gridmap_key) const;
+		unsigned int gridMapKeyToVertex(Key gridmap_key) const;
 
 		/**
 		 * @brief Converts the vertex id to gridmap key
-		 * @param dwl::environment::Key& gridmap_key Gridmap key
 		 * @param unsigned long int vertex Vertex id
+		 * @return dwl::environment::Key Return the gridmap key
 		 */
-		void vertexToGridmapKey(Key& gridmap_key, unsigned long int vertex) const;
+		Key vertexToGridMapKey(unsigned int vertex) const;
+
+		/**
+		 * @brief Converts 2d coordinate to vertex id
+		 * @param Eigen::Vectir2d coordinate 2D coordinate
+		 * @return unsigned int Return the vertex id
+		 */
+		unsigned int coordToVertex(Eigen::Vector2d coordinate) const;
+
+		/**
+		 * @brief Converts vertex id to coordinate
+		 * @param unsigned int vertex Vertex id
+		 * @return Eigen::Vectir2d Return the 2D coordinate
+		 */
+		Eigen::Vector2d vertexToCoord(unsigned int vertex) const;
 
 		/*
 		 * @brief Gets the resolution of the gridmap or the height
