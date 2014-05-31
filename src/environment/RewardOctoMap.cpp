@@ -37,13 +37,13 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector4d robot_state)
 		is_added_search_area_ = true;
 	}
 
-	double yaw = robot_state(3);//45 * 3.1416 /180; //TODO Elimites
+	double yaw = robot_state(3);
 
 	// Computing reward map for several search areas
 	for (int n = 0; n < search_areas_.size(); n++) {
 		// Computing the boundary of the gridmap
 		Eigen::Vector2d boundary_min, boundary_max;
-		Key min_grid, max_grid;
+		//Key min_grid, max_grid; //TODO
 		boundary_min(0) = search_areas_[n].min_x + robot_state(0);
 		boundary_min(1) = search_areas_[n].min_y + robot_state(1);
 		boundary_max(0) = search_areas_[n].max_x + robot_state(0);

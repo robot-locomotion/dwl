@@ -10,6 +10,14 @@
 #include <environment/RewardMap.h>
 #include <environment/SlopeFeature.h>
 
+template <typename Weight, typename Vertex>
+struct pair_first_less
+{
+    bool operator()(std::pair<Weight,Vertex> vertex_1, std::pair<Weight,Vertex> vertex_2)
+    {
+        return vertex_1.first < vertex_2.first;
+    }
+};
 
 int main(int argc, char **argv)
 {
@@ -40,6 +48,8 @@ int main(int argc, char **argv)
 	dwl::planning::BodyPose start, goal;
 	std::vector<dwl::environment::Cell> reward_map;
 	locomotor.init();
+
+	Eigen::Vector3d robot_state = Eigen::Vector3d::Zero();
 	cost_map_ptr->setCostMap(reward_map);
 	locomotor.compute();
 	locomotor.changeGoal(goal);
@@ -55,6 +65,43 @@ int main(int argc, char **argv)
 	reward_map.addFeature(slope_ptr);
 	reward_map.removeFeature("fake");
 */
+	std::set< std::pair<double, int>, pair_first_less<double, int> > vertex_queue;
+	vertex_queue.insert(std::pair<double, int>(5, 1));
+	vertex_queue.insert(std::pair<double, int>(2.5, 2));
+	vertex_queue.insert(std::pair<double, int>(0.5, 3));
+	vertex_queue.insert(std::pair<double, int>(0.25, 4));
+	vertex_queue.insert(std::pair<double, int>(5.5, 5));
+//	while (!vertex_queue.empty()) {
+	for (int i = 0; i < 2; i++) {
+		int u = vertex_queue.begin()->second;
+		double weight = vertex_queue.begin()->first;
+		vertex_queue.erase(vertex_queue.begin());
+
+		std::cout << "Weight = " << weight << " ";
+	}
+
+
+
+	std::map<char,int> mymap;
+	  std::map<char,int>::iterator it;
+
+	  mymap['a']=50;
+	  mymap['b']=100;
+	  mymap['c']=150;
+	  mymap['d']=200;
+
+	  it=mymap.find('b');
+	  mymap.erase (it);
+	  mymap.erase (mymap.find('d'));
+
+	  // print content:
+	  std::cout << "elements in mymap:" << '\n';
+	  std::cout << "a => " << mymap.find('a')->second << '\n';
+	  std::cout << "c => " << mymap.find('c')->second << '\n';
+	  std::cout << "z => " << mymap.find('z')->second << '\n';
+
+	  if (mymap.find('a')->first == 'a')
+		  std::cout << "Detect!" << std::endl;
 
     return 0;
 }

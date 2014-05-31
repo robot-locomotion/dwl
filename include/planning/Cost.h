@@ -45,11 +45,14 @@ class Cost
 		/**
 		 * @brief Abstract method for getting the cost value given a certain node
 		 * @param dwl::planning::AdjacencyMap& adjacency_map Adjacency map required for graph-searching algorithms
+		 * @param Eigen::Vector3d robot_state 2D position and yaw orientation of the robot
+		 * @param bool terrain_cost Defines if we want to ge the terrain cost or body cost
 		 */
-		virtual void get(AdjacencyMap& adjacency_map);
+		virtual void get(AdjacencyMap& adjacency_map, Eigen::Vector3d robot_state, bool terrain_cost);
 
 		/**
-		 * @brief
+		 * @brief Sets the resolution of the gridmap
+		 * @param double resolution Resolution
 		 */
 		void setGridMapResolution(double resolution);
 

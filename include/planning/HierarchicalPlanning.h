@@ -44,6 +44,11 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		bool compute();
 
 		/**
+		 * @brief
+		 */
+		//void computeBody
+
+		/**
 		 * @brief Checks if the start and goal vertex belongs to the adjacency map, and then they are add if it is necessary
 		 * @param dwl::planning::AdjacencyMap& adjacency_map Adjacency map
 		 */

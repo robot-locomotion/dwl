@@ -33,7 +33,7 @@ double Cost::get(Eigen::VectorXd state)
 }
 
 
-void Cost::get(AdjacencyMap& adjacency_map)
+void Cost::get(AdjacencyMap& adjacency_map, Eigen::Vector3d robot_state, bool terrain_cost)
 {
 	printf(YELLOW "Could not getted the cost because this was not defined\n" COLOR_RESET);
 }

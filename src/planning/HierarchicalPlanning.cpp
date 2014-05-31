@@ -42,35 +42,40 @@ void HierarchicalPlanning::update(BodyPose start, BodyPose goal)
 
 bool HierarchicalPlanning::compute()
 {
-	AdjacencyMap adjacency_map;
+	AdjacencyMap terrain_adjacency_map, body_adjacency_map;
+	Eigen::Vector3d robot_state = Eigen::Vector3d::Zero();
+	//robot_state(0) = 1.5;
 
-	// Getting the adjacency map
+	// Getting the adjacency map for the terrain and body
 	bool cost_map = false;
 	Eigen::VectorXd state;
 	for (int i = 0; i < costs_.size(); i++) {
 		if (costs_[i]->isCostMap()) {
-			costs_[i]->get(adjacency_map);
+			costs_[i]->get(terrain_adjacency_map, robot_state, true);
+			costs_[i]->get(body_adjacency_map, robot_state, false);
 
 			cost_map = true;
 			break;
 		}
 	}
 	if (!cost_map) {
-		printf(RED "Could not computed the Dijkstrap algorithm because it was not defined a cost map (adjacency map)\n" COLOR_RESET);
+		printf(RED "Could not computed the Dijkstrap algorithm because it was not defined a cost-map (adjacency map)\n" COLOR_RESET);
 		return false;
 	}
 
+	body_adjacency_map = terrain_adjacency_map; //TODO
+
 	// Check if the start and goal position belong to the adjacency map, in negative case, these are added to the adjacency map
-	checkStartAndGoalVertex(adjacency_map);
+	checkStartAndGoalVertex(body_adjacency_map);
 
 
 	SolverInterface solver;
 	solver.searcher.source = start_id_;
 	solver.searcher.target = goal_id_;
-	solver.searcher.adjacency_map = adjacency_map;
+	solver.searcher.adjacency_map = body_adjacency_map;
 
 
-	// computing a body path
+	// Computing a body path
 	solver_->compute(solver);
 	std::list<Vertex> path = solver_->getShortestPath(goal_id_);
 

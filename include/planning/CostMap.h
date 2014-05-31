@@ -31,19 +31,40 @@ class CostMap : public Cost
 		virtual void setCostMap(std::vector<dwl::environment::Cell> reward_map);
 
 		/**
-		 * @brief Abstract method for getting the cost value given a certain state
-		 * @param Eigen::VectorXd state State value
-		 * @return double Return the cost at defined state
+		 * @brief Gets the cost value given a certain state
+		 * @param Eigen::VectorXd adjacency_map State value
+		 * @param Eigen::Vector3d robot_state 2D position and yaw orientation of the robot
+		 * @param bool terrain_cost Defines if we want to ge the terrain cost or body cost
 		 */
-		virtual void get(AdjacencyMap& state);
+		virtual void get(AdjacencyMap& adjacency_map, Eigen::Vector3d robot_state, bool terrain_cost);
+
+		/**
+		 * @brief Computes the body cost-map
+		 * @param Eigen::Vector3d robot_state 2D position and yaw orientation of the robot
+		 */
+		void computeBodyCostMap(Eigen::Vector3d robot_state);
 
 
 	private:
-		/** @brief Adjacency map that defines a cost map of the environment */
-		AdjacencyMap cost_map_;
+		/**
+		 * @brief
+		 */
+		void addCostToAdjacencyVertex(AdjacencyMap& adjacency_map, Vertex vertex_id, double cost);
+
+		/** @brief Adjacency map that defines a terrain cost map of the environment */
+		AdjacencyMap terrain_cost_map_;
+
+		/** @brief Adjacency map that defines a body cost map of the environment */
+		AdjacencyMap body_cost_map_;
+
+		/** @brief Gathers the cost values that are mapped using the vertex id */
+		std::map<Vertex, Weight> costmap_;
 
 		/** @brief Indicates if it the first cost-map message */
 		bool is_first_update_;
+
+		/** @brief Vector of search areas */
+		std::vector<environment::SearchArea> stance_areas_;
 
 
 }; //@class CostMap
