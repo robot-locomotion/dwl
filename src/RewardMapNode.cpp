@@ -19,11 +19,12 @@ RewardMapServer::RewardMapServer()
 	dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
 	reward_map_->addFeature(slope_ptr);
 
-	//octomap_sub_ = node_.subscribe("octomap_full", 1, &RewardMapServer::octomapCallback, this);
+	// Declaring the subscriber to octomap and tf messages
 	octomap_sub_ = new message_filters::Subscriber<octomap_msgs::Octomap> (node_, "octomap_binary", 5);
 	tf_octomap_sub_ = new tf::MessageFilter<octomap_msgs::Octomap> (*octomap_sub_, tf_listener_, "world", 5);
 	tf_octomap_sub_->registerCallback(boost::bind(&RewardMapServer::octomapCallback, this, _1));
 
+	// Declaring the publisher of reward map
 	reward_pub_ = node_.advertise<reward_map_server::RewardMap>("reward_map", 1);
 
 	reward_map_msg_.header.frame_id = "world"; //"base_footprint";
@@ -56,7 +57,7 @@ RewardMapServer::~RewardMapServer()
 
 void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg)
 {
-	// creating octree
+	// Creating a octree
 	octomap::OcTree* octomap = NULL;
 	octomap::AbstractOcTree* tree = octomap_msgs::msgToMap(*msg);
 
@@ -71,8 +72,11 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 
 	dwl::environment::Modeler model;
 	model.octomap = octomap;
+
+	// Setting the resolution of the gridmap
 	reward_map_->setModelerResolution(octomap->getResolution());
 
+	// Getting the transformation between the world to robot frame
 	tf::StampedTransform tf_transform;
 	try {
 		tf_listener_.lookupTransform("world", "base_footprint", msg->header.stamp, tf_transform);
@@ -81,12 +85,14 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 		return;
 	}
 
+	// Getting the robot state (3D position and yaw angle)
 	Eigen::Vector4d robot_position = Eigen::Vector4d::Zero();
 	robot_position(0) = tf_transform.getOrigin()[0];
 	robot_position(1) = tf_transform.getOrigin()[1];
 	robot_position(2) = tf_transform.getOrigin()[2];
 	robot_position(3) = tf_transform.getRotation().getAngle();
 
+	// Computing the reward map
 	timespec start_rt, end_rt;
 	clock_gettime(CLOCK_REALTIME, &start_rt);
 	reward_map_->compute(model, robot_position);
@@ -107,6 +113,7 @@ void RewardMapServer::publishRewardMap()
 	reward_map_msg_.cell_size = reward_map_->getResolution(true);
 	reward_map_msg_.modeler_size = reward_map_->getResolution(false);
 
+	// Converting the vertexs into a cell message
 	for (std::map<Vertex, dwl::environment::Cell>::iterator vertex_iter = reward_gridmap.begin();
 			vertex_iter != reward_gridmap.end();
 			vertex_iter++)
@@ -121,7 +128,12 @@ void RewardMapServer::publishRewardMap()
 
 		reward_map_msg_.cell.push_back(cell);
 	}
-	reward_pub_.publish(reward_map_msg_);
+
+	// Publishing the reward map if there is at least one subscriber
+	if (reward_pub_.getNumSubscribers() > 0)
+		reward_pub_.publish(reward_map_msg_);
+
+	// Deleting old information
 	reward_map_msg_.cell.clear();
 
 

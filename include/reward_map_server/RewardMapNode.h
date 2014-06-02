@@ -58,8 +58,6 @@ class RewardMapServer
 		/** @brief Reward map publisher */
 		ros::Publisher reward_pub_;
 
-		//ros::Subscriber octomap_sub_;
-
 		/** @brief Octomap subcriber */
 		message_filters::Subscriber<octomap_msgs::Octomap>* octomap_sub_;
 
@@ -72,8 +70,6 @@ class RewardMapServer
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;
 
-
-		//double last_reward_gridmap_size_;
 
 
 		//ros::Publisher normal_pub_;
