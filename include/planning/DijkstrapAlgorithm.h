@@ -44,10 +44,10 @@ class DijkstrapAlgorithm : public dwl::planning::Solver
 
 		/**
 		 * @brief Compute the minimun cost and previous vertex according to Dijkstrap algorithm
-		 * @param dwl::planning::Vertex source Source vertex
-		 * @param dwl::planning::AdjacencyMap& adjacency_map Adjacency map
-		 * @param dwl::VertexCost& min_cost Minimum cost of the vertex
-		 * @param dwl::planning::PreviousVertex& Previous vertex
+		 * @param Vertex source Source vertex
+		 * @param AdjacencyMap& adjacency_map Adjacency map
+		 * @param VertexCost& min_cost Minimum cost of the vertex
+		 * @param PreviousVertex& Previous vertex
 		 */
 		void DijkstraComputePath(Vertex source, AdjacencyMap& adjacency_map, VertexCost& min_cost, PreviousVertex& previous);
 

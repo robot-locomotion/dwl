@@ -9,7 +9,7 @@
 #include <Eigen/Dense>
 #include <vector>
 
-#include <utils/macros.h>
+#include <utils/utils.h>
 
 //#include <pthread.h>
 

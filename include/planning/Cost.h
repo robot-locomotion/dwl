@@ -7,7 +7,7 @@
 #include <Eigen/Dense>
 #include <vector>
 
-#include <utils/macros.h>
+#include <utils/utils.h>
 
 
 namespace dwl
@@ -44,7 +44,7 @@ class Cost
 
 		/**
 		 * @brief Abstract method for getting the cost value given a certain node
-		 * @param dwl::planning::AdjacencyMap& adjacency_map Adjacency map required for graph-searching algorithms
+		 * @param AdjacencyMap& adjacency_map Adjacency map required for graph-searching algorithms
 		 * @param Eigen::Vector3d robot_state 2D position and yaw orientation of the robot
 		 * @param bool terrain_cost Defines if we want to ge the terrain cost or body cost
 		 */

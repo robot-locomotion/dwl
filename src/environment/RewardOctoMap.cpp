@@ -87,22 +87,24 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector4d robot_state)
 							cell_position(2) = height_point(2);
 							getCell(cell_key, cell_position);
 
+							///////////
+							Vertex vertex_id = gridmap_.gridMapKeyToVertex(cell_key.grid_id);
+							/////////
+
 							if (is_first_computation_)
 								computeFeaturesAndRewards(octomap, heightmap_key);
 							else {
 								bool new_status = true;
-								for (int k = 0; k < reward_gridmap_.size(); k++) {//TODO improve the search around the percepcion region. possible?
-									if (reward_gridmap_[k].cell_key.grid_id.key[0] == cell_key.grid_id.key[0] &&
-											reward_gridmap_[k].cell_key.grid_id.key[1] == cell_key.grid_id.key[1]) {
+								if ((reward_gridmap_.find(vertex_id)->first == vertex_id)) {
+									Cell reward_cell = reward_gridmap_.find(vertex_id)->second;
 
-										CellKey occupied_cell_key = reward_gridmap_[k].cell_key;
-										if (reward_gridmap_[k].cell_key.height_id != cell_key.height_id)
-											removeCellToRewardMap(occupied_cell_key);
+									if (reward_cell.cell_key.height_id != cell_key.height_id)
+										removeCellToRewardMap(reward_cell.cell_key);
 
-										new_status = false;
-										break;
-									}
+									new_status = false;
+									break;
 								}
+
 								if (new_status)
 									computeFeaturesAndRewards(octomap, heightmap_key);
 							}
@@ -194,7 +196,6 @@ bool RewardOctoMap::computeRewards(std::vector<Eigen::Vector3f> cloud)
 		double reward_value;
 		for (int i = 0; i < features_.size(); i++) {
 			features_[i]->computeReward(reward_value, terrain_info);
-			//std::cout << features_[i]->getName() << " value = " << reward_value << std::endl;
 		}
 
 		Cell cell;

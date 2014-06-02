@@ -1,8 +1,9 @@
-#ifndef DWL_PlaneTree_H
-#define DWL_PlaneTree_H
+#ifndef DWL_PlaneGrid_H
+#define DWL_PlaneGrid_H
 
 #include <Eigen/Dense>
 #include <math.h>
+#include <utils/utils.h>
 
 
 namespace dwl
@@ -34,7 +35,7 @@ class PlaneGrid
 		PlaneGrid(double gridmap_resolution, double height_resolution);
 
 		/** @brief Destructor function **/
-		~PlaneGrid() {}
+		~PlaneGrid();
 
 		/**
 		 * @brief Converts a 2D coordinate into a 2D Key at a certain depth, with boundary checking.
@@ -72,30 +73,30 @@ class PlaneGrid
 		/**
 		 * @brief Converts the key of a gridmap to a vertex id
 		 * @param dwl::environment::Key gridmap_key Gridmap key
-		 * @return unsigned long int Return the vertex id
+		 * @return Vertex Return the vertex id
 		 */
-		unsigned int gridMapKeyToVertex(Key gridmap_key) const;
+		Vertex gridMapKeyToVertex(Key gridmap_key) const;
 
 		/**
 		 * @brief Converts the vertex id to gridmap key
-		 * @param unsigned long int vertex Vertex id
+		 * @param Vertex vertex Vertex id
 		 * @return dwl::environment::Key Return the gridmap key
 		 */
-		Key vertexToGridMapKey(unsigned int vertex) const;
+		Key vertexToGridMapKey(Vertex vertex) const;
 
 		/**
 		 * @brief Converts 2d coordinate to vertex id
 		 * @param Eigen::Vectir2d coordinate 2D coordinate
-		 * @return unsigned int Return the vertex id
+		 * @return Vertex Return the vertex id
 		 */
-		unsigned int coordToVertex(Eigen::Vector2d coordinate) const;
+		Vertex coordToVertex(Eigen::Vector2d coordinate) const;
 
 		/**
 		 * @brief Converts vertex id to coordinate
-		 * @param unsigned int vertex Vertex id
+		 * @param Vertex vertex Vertex id
 		 * @return Eigen::Vectir2d Return the 2D coordinate
 		 */
-		Eigen::Vector2d vertexToCoord(unsigned int vertex) const;
+		Eigen::Vector2d vertexToCoord(Vertex vertex) const;
 
 		/*
 		 * @brief Gets the resolution of the gridmap or the height

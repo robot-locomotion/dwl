@@ -47,9 +47,12 @@ class CostMap : public Cost
 
 	private:
 		/**
-		 * @brief
+		 * @brief Adds the cost to adjacent vertexs
+		 * @param AdjacencyMap& adjacency_map Adjacency map
+		 * @param Vertex vertex_id Vertex id
+		 * @param double cost Cost value
 		 */
-		void addCostToAdjacencyVertex(AdjacencyMap& adjacency_map, Vertex vertex_id, double cost);
+		void addCostToAdjacentVertexs(AdjacencyMap& adjacency_map, Vertex vertex_id, double cost);
 
 		/** @brief Adjacency map that defines a terrain cost map of the environment */
 		AdjacencyMap terrain_cost_map_;

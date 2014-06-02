@@ -2,7 +2,6 @@
 #define DWL_HierarchicalPlanning_H
 
 #include <planning/PlanningOfMotionSequences.h>
-#include <environment/RewardMap.h>
 
 
 namespace dwl
@@ -50,7 +49,7 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 
 		/**
 		 * @brief Checks if the start and goal vertex belongs to the adjacency map, and then they are add if it is necessary
-		 * @param dwl::planning::AdjacencyMap& adjacency_map Adjacency map
+		 * @param AdjacencyMap& adjacency_map Adjacency map
 		 */
 		void checkStartAndGoalVertex(AdjacencyMap& adjacency_map);
 

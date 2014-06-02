@@ -63,7 +63,7 @@ bool HierarchicalPlanning::compute()
 		return false;
 	}
 
-	body_adjacency_map = terrain_adjacency_map; //TODO
+	//body_adjacency_map = terrain_adjacency_map; //TODO
 
 	// Check if the start and goal position belong to the adjacency map, in negative case, these are added to the adjacency map
 	checkStartAndGoalVertex(body_adjacency_map);

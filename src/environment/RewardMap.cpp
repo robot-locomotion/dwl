@@ -9,12 +9,10 @@ namespace environment
 
 
 RewardMap::RewardMap() : gridmap_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()), is_added_feature_(false),
-		is_added_search_area_(false), cell_size_(0.04)
+		is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()), interest_radius_y_(std::numeric_limits<double>::max()),
+		cell_size_(0.04)
 {
-	interest_area_.max_x = std::numeric_limits<double>::max();
-	interest_area_.min_x = -std::numeric_limits<double>::max();
-	interest_area_.max_y = std::numeric_limits<double>::max();
-	interest_area_.min_y = -std::numeric_limits<double>::max();
+
 }
 
 
@@ -54,40 +52,33 @@ void RewardMap::removeFeature(std::string feature_name)
 	}
 }
 
-
 void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 {
-	Eigen::Vector2d point;
-	Key key;
-	for (std::vector<Cell>::iterator it = reward_gridmap_.begin(); it != reward_gridmap_.end();) {
-		key = it->cell_key.grid_id;
-		point(0) = gridmap_.keyToCoord(key.key[0], true);
-		point(1) = gridmap_.keyToCoord(key.key[1], true);
+	for (std::map<Vertex, Cell>::iterator vertex_iter = reward_gridmap_.begin();
+			vertex_iter != reward_gridmap_.end();
+			vertex_iter++)
+	{
+		Vertex v = vertex_iter->first;
+		Eigen::Vector2d point = gridmap_.vertexToCoord(v);
 
 		double xc = point(0) - robot_state(0);
 		double yc = point(1) - robot_state(1);
 		double yaw = robot_state(2);
 		if (xc * cos(yaw) + yc * sin(yaw) >= 0.0) {
-			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(5.5, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(1.5, 2) > 1)
-				reward_gridmap_.erase(it);
-			else
-				++it;
+			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1)
+				reward_gridmap_.erase(v);
 		} else {
 			if (pow(xc, 2) + pow(yc, 2) > pow(1.5, 2))
-				reward_gridmap_.erase(it);
-			else
-				++it;
+				reward_gridmap_.erase(v);
 		}
 	}
 }
 
 
-void RewardMap::setInterestRegion(double min_x, double max_x, double min_y, double max_y)
+void RewardMap::setInterestRegion(double radius_x, double radius_y)
 {
-	interest_area_.min_x = min_x;
-	interest_area_.max_x = max_x;
-	interest_area_.min_y = min_y;
-	interest_area_.max_y = max_y;
+	interest_radius_x_ = radius_x;
+	interest_radius_y_ = radius_y;
 }
 
 
@@ -121,22 +112,15 @@ void RewardMap::getCell(CellKey& cell_key, Eigen::Vector3d position)
 
 void RewardMap::addCellToRewardMap(Cell cell)
 {
-	reward_gridmap_.push_back(cell);
+	Vertex vertex_id = gridmap_.gridMapKeyToVertex(cell.cell_key.grid_id);
+	reward_gridmap_[vertex_id] = cell;
 }
 
 
 void RewardMap::removeCellToRewardMap(CellKey cell)
 {
-	int index;
-	for (int i = 0; reward_gridmap_.size(); i++) {
-		if (reward_gridmap_[i].cell_key.grid_id.key[0] == cell.grid_id.key[0] && reward_gridmap_[i].cell_key.grid_id.key[1] == cell.grid_id.key[1]
-		&& reward_gridmap_[i].cell_key.height_id == cell.height_id) {
-			index = i;
-
-			break;
-		}
-	}
-	reward_gridmap_.erase(reward_gridmap_.begin() + index);
+	Vertex v = gridmap_.gridMapKeyToVertex(cell.grid_id);
+	reward_gridmap_.erase(v);
 }
 
 
@@ -183,12 +167,10 @@ void RewardMap::setModelerResolution(double resolution)
 }
 
 
-std::vector<Cell> RewardMap::getRewardMap()
+std::map<Vertex, Cell> RewardMap::getRewardMap()
 {
 	return reward_gridmap_;
 }
 
-
 } //@namepace dwl
-
 } //@namespace environment

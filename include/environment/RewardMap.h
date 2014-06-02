@@ -3,10 +3,13 @@
 
 #include <environment/PlaneGrid.h>
 #include <environment/Feature.h>
+
 #include <octomap/octomap.h>
+
 #include <Eigen/Dense>
 #include <vector>
-#include <utils/macros.h>
+
+#include <utils/utils.h>
 
 
 namespace dwl
@@ -112,12 +115,10 @@ class RewardMap
 
 		/**
 		 * @brief Sets a interest region
-		 * @param double min_x Minimun cartesian position along the x-axis
-		 * @param double max_x Maximun cartesian position along the x-axis
-		 * @param double min_y Minimun cartesian position along the y-axis
-		 * @param double max_x Maximun cartesian position along the y-axis
+		 * @param double radius_x Radius along the x-axis
+		 * @param double radius_y Radius along the x-axis
 		 */
-		void setInterestRegion(double min_x, double max_x, double min_y, double max_y);
+		void setInterestRegion(double radius_x, double radius_y);
 
 		/**
 		 * @brief Gets the properties of the cell
@@ -184,9 +185,9 @@ class RewardMap
 
 		/**
 		 * @brief Gets the reward map
-		 * @return std::vector<dwl::environment::Cell> Return the reward value per every cell of the map
+		 * @return std::map<Vertex,dwl::environment::Cell> Return the cell value per each vertex
 		 */
-		std::vector<Cell> getRewardMap();
+		std::map<Vertex,Cell> getRewardMap();
 
 
 
@@ -201,13 +202,14 @@ class RewardMap
 		std::vector<Feature*> features_;
 
 		/** @brief Vector of the reward values of the cell */
-		std::vector<Cell> reward_gridmap_; //TODO use std::map for ordering the cell using a vertex id (To think in this)
+		//std::vector<Cell> reward_gridmap_; //TODO use std::map for ordering the cell using a vertex id (To think in this)
+		std::map<Vertex,Cell> reward_gridmap_;
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> search_areas_;
 
 		/** @brief Interest area */
-		SearchArea interest_area_;
+		double interest_radius_x_, interest_radius_y_;
 
 		/** @brief Cell size */
 		double cell_size_;
