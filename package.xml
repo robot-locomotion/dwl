@@ -35,7 +35,4 @@
   <run_depend>octomap</run_depend>
   <run_depend>octomap_msgs</run_depend>
   
-
-  <export>
-  </export>
 </package>

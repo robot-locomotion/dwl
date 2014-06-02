@@ -1,65 +1,7 @@
-#ifndef DWL_RewardMapServer_H
-#define DWL_RewardMapServer_H
-
-#include <ros/ros.h>
-#include <octomap_msgs/Octomap.h>
-#include <octomap/octomap.h>
-#include <octomap_msgs/conversions.h>
-#include <octomap/math/Utils.h>
-
-#include <environment/RewardOctoMap.h>
-#include <environment/SlopeFeature.h>
-
-#include <Eigen/Dense>
-#include <vector>
-#include <geometry_msgs/PoseArray.h>
-#include <reward_map_server/RewardMap.h>
-#include <reward_map_server/RewardCell.h>
-
-#include <tf/transform_datatypes.h>
-#include <tf/transform_listener.h>
-#include <tf/message_filter.h>
-#include <message_filters/subscriber.h>
-
-//#include <pthread.h>
+#include <reward_map_server/RewardMapNode.h>
 
 
-
-class RewardMapServer
-{
-	public:
-		RewardMapServer();
-		~RewardMapServer();
-
-		void addFeacture() {}
-		void compute() {}
-
-		void octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg);
-		void publishRewardMap();
-
-	private:
-		ros::NodeHandle node_;
-		dwl::environment::RewardMap* reward_map_;
-		ros::Publisher reward_pub_;
-		//ros::Subscriber octomap_sub_;
-		message_filters::Subscriber<octomap_msgs::Octomap>* octomap_sub_;
-		tf::MessageFilter<octomap_msgs::Octomap>* tf_octomap_sub_;
-		reward_map_server::RewardMap reward_map_msg_;
-		tf::TransformListener tf_listener_;
-		//double last_reward_gridmap_size_;
-
-
-		//ros::Publisher normal_pub_;
-		//geometry_msgs::PoseArray normals_;
-		//pthread_mutex_t reward_lock_;
-		//Eigen::Vector3d origin_vector_;
-};
-
-#endif
-
-
-
-RewardMapServer::RewardMapServer() //: last_reward_gridmap_size_(0)
+RewardMapServer::RewardMapServer()
 {
 	reward_map_ = new dwl::environment::RewardOctoMap();
 
@@ -71,7 +13,7 @@ RewardMapServer::RewardMapServer() //: last_reward_gridmap_size_(0)
 	reward_map_->addSearchArea(-0.75, -0.5, -0.85, 0.85, -0.8, -0.2, 0.08);
 	reward_map_->addSearchArea(-0.75, 3.0, -1.25, -0.85, -0.8, -0.2, 0.08);
 	reward_map_->addSearchArea(-0.75, 3.0, 0.85, 1.25, -0.8, -0.2, 0.08);
-	reward_map_->setInterestRegion(-0.5, 3.0, -3.0, 3.0);
+	reward_map_->setInterestRegion(1.5, 5.5);
 
 	// Adding the features
 	dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
@@ -158,30 +100,31 @@ void RewardMapServer::publishRewardMap()
 {
 	reward_map_msg_.header.stamp = ros::Time::now();
 
-	std::vector<dwl::environment::Cell> reward_gridmap;
+	std::map<Vertex, dwl::environment::Cell> reward_gridmap;
 	reward_map_->getRewardMap().swap(reward_gridmap);
-
-/*	if (reward_gridmap.size() == last_reward_gridmap_size_) {
-		std::cout << "no pub" << std::endl;
-		return;
-	}
-
-	last_reward_gridmap_size_ = reward_gridmap.size();*/
 
 	reward_map_server::RewardCell cell;
 	reward_map_msg_.cell_size = reward_map_->getResolution(true);
 	reward_map_msg_.modeler_size = reward_map_->getResolution(false);
-	for (int i = 0; i < reward_gridmap.size(); i++) {
-		cell.key_x = reward_gridmap[i].cell_key.grid_id.key[0];
-		cell.key_y = reward_gridmap[i].cell_key.grid_id.key[1];
-		cell.key_z = reward_gridmap[i].cell_key.height_id;
-		cell.reward = reward_gridmap[i].reward;
-		//cell.cell_size = reward_gridmap[i].size;
+
+	for (std::map<Vertex, dwl::environment::Cell>::iterator vertex_iter = reward_gridmap.begin();
+			vertex_iter != reward_gridmap.end();
+			vertex_iter++)
+	{
+		Vertex v = vertex_iter->first;
+		dwl::environment::Cell reward_cell = vertex_iter->second;
+
+		cell.key_x = reward_cell.cell_key.grid_id.key[0];
+		cell.key_y = reward_cell.cell_key.grid_id.key[1];
+		cell.key_z = reward_cell.cell_key.height_id;
+		cell.reward = reward_cell.reward;
 
 		reward_map_msg_.cell.push_back(cell);
 	}
 	reward_pub_.publish(reward_map_msg_);
 	reward_map_msg_.cell.clear();
+
+
 
 
 
