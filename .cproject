@@ -30,6 +30,7 @@
 									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/src/dwl/include"/>
 									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/hyq_controllers/include"/>
 									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/reward_map_server/include"/>
+									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/dwl_planners/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1840831180" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
