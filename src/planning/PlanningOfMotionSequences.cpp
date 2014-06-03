@@ -173,11 +173,11 @@ bool PlanningOfMotionSequences::initPlan()
 }
 
 
-bool PlanningOfMotionSequences::computePlan()
+bool PlanningOfMotionSequences::computePlan(Pose robot_state)
 {
 	if (is_initialized_planning_) {
 		if (is_settep_solver_) {
-			if (!compute()) {
+			if (!compute(robot_state)) {
 				printf(RED "Could not computed the %s planning algorithm\n" COLOR_RESET, name_.c_str());
 				return false;
 			}
@@ -196,7 +196,7 @@ bool PlanningOfMotionSequences::computePlan()
 }
 
 
-void PlanningOfMotionSequences::changeGoal(BodyPose goal)
+void PlanningOfMotionSequences::changeGoal(Pose goal)
 {
 	printf(GREEN "Changed the goal state\n" COLOR_RESET);
 	//pthread_mutex_lock(&planning_lock_);
@@ -219,6 +219,12 @@ void PlanningOfMotionSequences::setGridMapResolution(double resolution)
 			break;
 		}
 	}
+}
+
+
+std::vector<Pose> PlanningOfMotionSequences::getBodyPath()
+{
+	return body_trajectory_;
 }
 
 

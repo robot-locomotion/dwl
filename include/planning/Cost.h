@@ -31,9 +31,9 @@ class Cost
 
 		/**
 		 * @brief Sets the cost map only for Cost that representing the terrain (or map)
-		 * @param std::vector<dwl::environment::Cell> reward_map Reward map
+		 * @param std::vector<dwl::Cell> reward_map Reward map
 		 */
-		virtual void setCostMap(std::vector<dwl::environment::Cell> reward_map);
+		virtual void setCostMap(std::vector<Cell> reward_map);
 
 		/**
 		 * @brief Abstract method for getting the cost value given a certain state

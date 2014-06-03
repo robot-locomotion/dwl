@@ -30,29 +30,32 @@ bool HierarchicalPlanning::init()
 }
 
 
-void HierarchicalPlanning::update(BodyPose start, BodyPose goal)
+void HierarchicalPlanning::update(Pose start, Pose goal)
 {
 	// Converting the start and goal position to vertex ids
-	dwl::environment::Key start_key, goal_key;
+	Key start_key, goal_key;
 
 	start_id_ = gridmap_.coordToVertex((Eigen::Vector2d) start.position.head(2));
 	goal_id_ = gridmap_.coordToVertex((Eigen::Vector2d) goal.position.head(2));
 }
 
 
-bool HierarchicalPlanning::compute()
+bool HierarchicalPlanning::compute(Pose robot_state)
 {
+	// Cleaning global variables
+	std::vector<Pose> empty_body_trajectory;
+	body_trajectory_.swap(empty_body_trajectory);
+
+
 	AdjacencyMap terrain_adjacency_map, body_adjacency_map;
-	Eigen::Vector3d robot_state = Eigen::Vector3d::Zero();
-	//robot_state(0) = 1.5;
 
 	// Getting the adjacency map for the terrain and body
 	bool cost_map = false;
 	Eigen::VectorXd state;
 	for (int i = 0; i < costs_.size(); i++) {
 		if (costs_[i]->isCostMap()) {
-			costs_[i]->get(terrain_adjacency_map, robot_state, true);
-			costs_[i]->get(body_adjacency_map, robot_state, false);
+			costs_[i]->get(terrain_adjacency_map, robot_state.position, true);
+			costs_[i]->get(body_adjacency_map, robot_state.position, false);
 
 			cost_map = true;
 			break;
@@ -77,7 +80,7 @@ bool HierarchicalPlanning::compute()
 
 	// Computing a body path
 	solver_->compute(solver);
-	std::list<Vertex> path = solver_->getShortestPath(goal_id_);
+	std::list<Vertex> shortest_path = solver_->getShortestPath(goal_id_);
 
 
 
@@ -90,22 +93,22 @@ bool HierarchicalPlanning::compute()
 	std::cout << "Total cost to [" << goal_position(0) << " " << goal_position(1) << "] from [" << start_position(0);
 	std::cout << " " << (double) start_position(1) << "]: " << solver_->getMinimumCost() << std::endl;
 
-	//TODO Some line for debugging
-	std::list<Vertex>::iterator path_iter = path.begin();
-	std::cout << "Path: ";
-	for( ; path_iter != path.end(); path_iter++) {
-		Eigen::Vector3d body_path = Eigen::Vector3d::Zero();
+
+
+
+
+	// Recording the body path
+	std::list<Vertex>::iterator path_iter = shortest_path.begin();
+	for(; path_iter != shortest_path.end(); path_iter++) {
+		Pose body_path;
+		body_path.position = Eigen::Vector3d::Zero();
+		body_path.orientation = Eigen::Vector4d::Zero();
 
 		Eigen::Vector2d path = gridmap_.vertexToCoord(*path_iter);
-		body_path(0) = path(0);
-		body_path(1) = path(1);
-		body_path(2) = 0;
+		body_path.position.head(2) = path;
 
-		body_path_.push_back(body_path);
-
-		std::cout << "[" << path(0) << " " << path(1) << "] | ";
+		body_trajectory_.push_back(body_path);
 	}
-	std::cout << std::endl;
 
 
 	return true;
@@ -114,7 +117,7 @@ bool HierarchicalPlanning::compute()
 
 void HierarchicalPlanning::checkStartAndGoalVertex(AdjacencyMap& adjacency_map)
 {
-	dwl::environment::Key key;
+	Key key;
 
 	// Checking if the start and goal vertex are part of the adjacency map
 	bool is_there_start_vertex, is_there_goal_vertex = false;

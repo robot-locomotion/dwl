@@ -19,7 +19,7 @@ Cost::~Cost()
 }
 
 
-void Cost::setCostMap(std::vector<dwl::environment::Cell> reward_map)
+void Cost::setCostMap(std::vector<Cell> reward_map)
 {
 	printf(YELLOW "Could not setted the cost map because this is not cost map class\n" COLOR_RESET);
 }

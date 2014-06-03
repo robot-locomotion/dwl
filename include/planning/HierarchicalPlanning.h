@@ -31,21 +31,17 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 
 		/**
 		 * @brief Updates the start and goal body pose for hierarchical planning
-		 * @param dwl::planning::BodyPose start Start pose
-		 * @param dwl::planning::BodyPose goal Goal pose
+		 * @param dwl::planning::Pose start Start pose
+		 * @param dwl::planning::Pose goal Goal pose
 		 */
-		virtual void update(BodyPose start, BodyPose goal);
+		virtual void update(Pose start, Pose goal);
 
 		/**
 		 * @brief Computes a whole-body motion provided for the hierarchical planning
+		 * @param dwl::planning::Pose robot_state Robot pose
 		 * @return bool Return true if it was computed the plan
 		 */
-		bool compute();
-
-		/**
-		 * @brief
-		 */
-		//void computeBody
+		bool compute(Pose robot_state);
 
 		/**
 		 * @brief Checks if the start and goal vertex belongs to the adjacency map, and then they are add if it is necessary
@@ -54,14 +50,7 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		void checkStartAndGoalVertex(AdjacencyMap& adjacency_map);
 
 
-
-		//TODO: I think that for Hierarchical Planner we can implement a method for setting the reward map
-
-
 	private:
-		/** @brief Trajectory of body */
-		std::vector<Eigen::Vector3d> body_path_;
-
 		/** @brief The id of the start vertex */
 		Vertex start_id_;
 

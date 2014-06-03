@@ -45,13 +45,13 @@ int main(int argc, char **argv)
 	//locomotor.removeCost(cost_ptr->getName());
 
 	// Initizalization and computing of the whole-body locomotion problem
-	dwl::planning::BodyPose start, goal;
-	std::vector<dwl::environment::Cell> reward_map;
+	dwl::Pose start, goal, current;
+	std::vector<dwl::Cell> reward_map;
 	locomotor.init();
 
 	Eigen::Vector3d robot_state = Eigen::Vector3d::Zero();
 	cost_map_ptr->setCostMap(reward_map);
-	locomotor.compute();
+	locomotor.compute(current);
 	locomotor.changeGoal(goal);
 
 /*

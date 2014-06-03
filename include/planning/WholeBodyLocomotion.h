@@ -58,16 +58,17 @@ class WholeBodyLocomotion
 
 		/**
 		 * @brief Updates the start and goal pose of the robot for making a receding horizon planning
-		 * @param dwl::planning::BodyPose start Start pose
-		 * @param dwl::planning::BodyPose goal Goal pose
+		 * @param dwl::Pose start Start pose
+		 * @param dwl::Pose goal Goal pose
 		 */
-		void update(planning::BodyPose start, planning::BodyPose goal);
+		void update(Pose start, Pose goal);
 
 		/**
 		 * @brief Computes a locomotion plan
+		 * @param dwl::Pose robot_state Robot pose
 		 * @return bool Return true if was found a locomotion plan
 		 */
-		bool compute();
+		bool compute(Pose robot_state);
 
 		/**
 		 * @brief Sets the gridmap resolution
@@ -77,9 +78,15 @@ class WholeBodyLocomotion
 
 		/**
 		 * @brief Changes the goal
-		 * @param dwl::planning::BodyPose goal Goal state
+		 * @param dwl::Pose goal Goal state
 		 */
-		void changeGoal(planning::BodyPose goal);
+		void changeGoal(Pose goal);
+
+		/**
+		 * @brief Gets the approximated body path
+		 * @return std::vector<dwl::Pose> Return the approximated body path
+		 */
+		std::vector<Pose> getBodyPath();
 
 
 	private:
@@ -91,6 +98,7 @@ class WholeBodyLocomotion
 
 		/** @brief Indicates if it is using a lerning technique */
 		bool is_learning_;
+
 
 	protected:
 	

@@ -30,15 +30,6 @@ struct Contact
 };
 
 /**
- * @brief Struct that defines the body pose
- */
-struct BodyPose
-{
-	Eigen::Vector3d position;
-	Eigen::Vector3d orientation;
-};
-
-/**
  * @class PlanningOfMotionSequences
  * @brief Abstract class for solving the planning of motion sequence problem (optimization problem)
  */
@@ -96,34 +87,42 @@ class PlanningOfMotionSequences
 
 		/**
 		 * @brief Updates the start and goal pose of the robot
-		 * @param dwl::planning::BodyPose start Start pose
-		 * @param dwl::planning::BodyPose goal Goal pose
+		 * @param dwl::planning::Pose start Start pose
+		 * @param dwl::planning::Pose goal Goal pose
 		 */
-		virtual void update(BodyPose start, BodyPose goal) = 0;
+		virtual void update(Pose start, Pose goal) = 0;
 
 		/**
 		 * @brief Computes the motion planning
+		 * @param dwl::planning::Pose robot_state Robot pose
 		 * @return bool Return true if it was computed the plan
 		 */
-		bool computePlan();
+		bool computePlan(Pose robot_state);
 
 		/**
 		 * @brief Abstract method for the computation a motion plan according to added constraints and costs in the optimization problem
+		 * @param dwl::planning::Pose robot_state Robot pose
 		 * @return bool Return true if it was found a plan
 		 */
-		virtual bool compute() = 0;
+		virtual bool compute(Pose robot_state) = 0;
 
 		/**
-		 * @brief Changes the goal state
-		 * @param std::vector<double> goal New goal state
+		 * @brief Changes the goal pose
+		 * @param dwl::planning::Pose goal New goal pose
 		 */
-		void changeGoal(BodyPose goal);
+		void changeGoal(Pose goal);
 
 		/**
 		 * @brief Sets the gridmap resolution
 		 * @param double resolution Resolution of the gridmap
 		 */
 		void setGridMapResolution(double resolution);
+
+		/**
+		 * @brief Gets the approximated body path
+		 * @return std::vector<Pose> Return the approximated body path
+		 */
+		std::vector<Pose> getBodyPath();
 
 		/**
 		 * @brief Gets the name of the planner
@@ -134,10 +133,10 @@ class PlanningOfMotionSequences
 
 	private:
 		/** @brief Initial pose of the robot */
-		BodyPose initial_pose_;
+		Pose initial_pose_;
 
 		/** @brief Goal pose of the robot */
-		BodyPose goal_pose_;
+		Pose goal_pose_;
 
 		/** @brief Indicates if it was settep a solver algorithm for the computation of a plan */
 		bool is_settep_solver_;
@@ -180,7 +179,7 @@ class PlanningOfMotionSequences
 		std::vector<Contact> contacts_sequence_;
 
 		/** @brief Vector of body position */
-		std::vector<BodyPose> pose_trajectory_;
+		std::vector<Pose> body_trajectory_;
 };
 
 } //@namespace planning

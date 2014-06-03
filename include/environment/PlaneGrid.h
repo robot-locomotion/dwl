@@ -13,14 +13,6 @@ namespace environment
 {
 
 /**
- * @brief Struct that defines the id (key) of a certain cell
- */
-struct Key
-{
-	unsigned short int key[2];
-};
-
-/**
  * @class PlaneGrid
  * @brief Class for defining the gridmap required for computing a reward map of the terrain
  */
