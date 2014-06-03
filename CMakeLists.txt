@@ -5,7 +5,9 @@ project(dwl_planners)
 find_package(catkin REQUIRED COMPONENTS
   dwl
 #  reward_map_server
-  roscpp)
+  roscpp
+  tf
+  tf_conversions)
 
 find_package(dwl REQUIRED)
 #find_package(reward_map_server REQUIRED)

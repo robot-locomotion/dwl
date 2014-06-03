@@ -6,7 +6,14 @@ namespace dwl_planners
 
 HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), solver_ptr_(NULL), cost_map_ptr_(NULL)
 {
+	reward_sub_ = new message_filters::Subscriber<reward_map_server::RewardMap> (node_, "reward_map", 5);
+	tf_reward_sub_ = new tf::MessageFilter<reward_map_server::RewardMap> (*reward_sub_, tf_listener_, "world", 5);
+	tf_reward_sub_->registerCallback(boost::bind(&HierarchicalPlanners::rewardMapCallback, this, _1));
 
+	// Declaring the publisher of approximated body path
+	body_path_pub_ = node_.advertise<nav_msgs::Path>("approximated_body_path", 1);
+
+	body_path_msg_.header.frame_id = "world";
 }
 
 
@@ -19,7 +26,7 @@ HierarchicalPlanners::~HierarchicalPlanners()
 void HierarchicalPlanners::init()
 {
 	// Setting the subscription to the reward_map message
-	reward_sub_ = node_.subscribe("reward_map", 1, &HierarchicalPlanners::rewardMapCallback, this);
+	//reward_sub_ = node_.subscribe("reward_map", 1, &HierarchicalPlanners::rewardMapCallback, this);
 
 	//  Setup of the locomotion approach
 	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
@@ -35,23 +42,48 @@ void HierarchicalPlanners::init()
 	locomotor_.addCost(cost_map_ptr_);
 
 	locomotor_.init();
-
-	dwl::planning::BodyPose start_pose, goal_pose;
-	start_pose.position[0] = -1.5;
-	start_pose.position[1] = 0.0;
-	goal_pose.position[0] = 5.0;
-	goal_pose.position[1] = 0.0;
-	locomotor_.update(start_pose, goal_pose);
 }
 
 
 void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapConstPtr& msg)
 {
-	std::vector<dwl::environment::Cell> reward_map;
+	// Getting the transformation between the world to robot frame
+	tf::StampedTransform tf_transform;
+	try {
+		tf_listener_.lookupTransform("world", "base_footprint", msg->header.stamp, tf_transform);
+	} catch (tf::TransformException& ex) {
+		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
+		return;
+	}
+
+	// Getting the robot state (3D position and yaw angle)
+	Eigen::Vector3d robot_position;
+	robot_position(0) = tf_transform.getOrigin()[0];
+	robot_position(1) = tf_transform.getOrigin()[1];
+	robot_position(2) = tf_transform.getOrigin()[2];
+	Eigen::Vector4d robot_orientation;
+	robot_orientation(0) = tf_transform.getRotation().getX();
+	robot_orientation(1) = tf_transform.getRotation().getY();
+	robot_orientation(2) = tf_transform.getRotation().getZ();
+	robot_orientation(3) = tf_transform.getRotation().getW();
+	dwl::Pose robot_state;
+	robot_state.position = robot_position;
+	robot_state.orientation = robot_orientation;
+
+	dwl::Pose start_pose, goal_pose;
+	start_pose.position[0] = robot_position(0);
+	start_pose.position[1] = robot_position(1);
+	goal_pose.position[0] = 5.0;
+	goal_pose.position[1] = 0.0;
+	locomotor_.update(start_pose, goal_pose);
+
+
+
+	std::vector<dwl::Cell> reward_map;
 	locomotor_.setGridMapResolution(msg->cell_size);
 
 	// Converting the messages to reward_map format
-	dwl::environment::Cell reward_cell;
+	dwl::Cell reward_cell;
 	for (int i = 0; i < msg->cell.size(); i++) {
 		// Filling the reward per every cell
 		reward_cell.cell_key.grid_id.key[0] = msg->cell[i].key_x;
@@ -64,11 +96,38 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	}
 
 	// Adding the cost map
-	Eigen::Vector3d robot_state = Eigen::Vector3d::Zero();
 	cost_map_ptr_->setCostMap(reward_map);
 
 	// Computing the locomotion plan
-	locomotor_.compute();
+	timespec start_rt, end_rt;
+	clock_gettime(CLOCK_REALTIME, &start_rt);
+	locomotor_.compute(robot_state);
+	clock_gettime(CLOCK_REALTIME, &end_rt);
+	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9*(end_rt.tv_nsec - start_rt.tv_nsec);
+	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
+
+
+	body_path_ = locomotor_.getBodyPath();
+	for (int i = 0; i < body_path_.size(); i++) {
+		dwl::Pose path = body_path_[i];
+	}
+}
+
+
+void HierarchicalPlanners::publishBodyPath()
+{
+	body_path_msg_.header.stamp = ros::Time::now();
+	body_path_msg_.poses.resize(body_path_.size());
+
+	for (int i = 0; i < body_path_.size(); i++) {
+		body_path_msg_.poses[i].pose.position.x = body_path_[i].position(0);
+		body_path_msg_.poses[i].pose.position.y = body_path_[i].position(1);
+		body_path_msg_.poses[i].pose.position.z = body_path_[i].position(2);
+	}
+	body_path_pub_.publish(body_path_msg_);
+
+	std::vector<dwl::Pose> empty_body_path_;
+	body_path_.swap(empty_body_path_);
 }
 
 } //@namespace dwl_planners
@@ -83,33 +142,19 @@ int main(int argc, char **argv)
 	dwl_planners::HierarchicalPlanners planner(node);
 
 	planner.init();
-	ros::spin();
-
-
-
-
-	// Initizalization and computing of the whole-body locomotion problem
-	//dwl::planning::BodyPose start, goal;
-
-
-
-
-/*
-	RewardMapServer octomap_modeler;
 	ros::spinOnce();
 
-
 	try {
-		ros::Rate loop_rate(30);
+		ros::Rate loop_rate(100);
 		while(ros::ok()) {
-			octomap_modeler.publishRewardMap();
+			planner.publishBodyPath();
 			ros::spinOnce();
 			loop_rate.sleep();
 		}
 	} catch(std::runtime_error& e) {
-		ROS_ERROR("octomap_server exception: %s", e.what());
+		ROS_ERROR("hierarchical_planner exception: %s", e.what());
 		return -1;
 	}
-*/
+
 	return 0;
 }
