@@ -48,6 +48,7 @@ class RewardMapServer
 		 */
 		void publishRewardMap();
 
+
 	private:
 		/** @brief ROS node handle */
 		ros::NodeHandle node_;

@@ -106,7 +106,7 @@ void RewardMapServer::publishRewardMap()
 {
 	reward_map_msg_.header.stamp = ros::Time::now();
 
-	std::map<Vertex, dwl::environment::Cell> reward_gridmap;
+	std::map<dwl::Vertex, dwl::Cell> reward_gridmap;
 	reward_map_->getRewardMap().swap(reward_gridmap);
 
 	reward_map_server::RewardCell cell;
@@ -114,12 +114,12 @@ void RewardMapServer::publishRewardMap()
 	reward_map_msg_.modeler_size = reward_map_->getResolution(false);
 
 	// Converting the vertexs into a cell message
-	for (std::map<Vertex, dwl::environment::Cell>::iterator vertex_iter = reward_gridmap.begin();
+	for (std::map<dwl::Vertex, dwl::Cell>::iterator vertex_iter = reward_gridmap.begin();
 			vertex_iter != reward_gridmap.end();
 			vertex_iter++)
 	{
-		Vertex v = vertex_iter->first;
-		dwl::environment::Cell reward_cell = vertex_iter->second;
+		dwl::Vertex v = vertex_iter->first;
+		dwl::Cell reward_cell = vertex_iter->second;
 
 		cell.key_x = reward_cell.cell_key.grid_id.key[0];
 		cell.key_y = reward_cell.cell_key.grid_id.key[1];
