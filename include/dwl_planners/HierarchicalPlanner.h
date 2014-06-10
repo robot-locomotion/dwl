@@ -6,6 +6,7 @@
 #include <planning/WholeBodyLocomotion.h>
 #include <planning/HierarchicalPlanning.h>
 #include <planning/DijkstrapAlgorithm.h>
+#include <planning/AStart.h>
 #include <planning/CostMap.h>
 
 #include <reward_map_server/RewardMap.h>
@@ -82,6 +83,9 @@ class HierarchicalPlanners
 
 		/** @brief Approximated body path */
 		std::vector<dwl::Pose> body_path_;
+
+		/** @brief Robot pose */
+		dwl::Pose robot_pose_;
 
 };
 

@@ -32,7 +32,7 @@ void HierarchicalPlanners::init()
 	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
 
 	// Initialization of planning algorithm, which includes the initizalization and setup of solver algorithm
-	solver_ptr_ = new dwl::planning::DijkstrapAlgorithm();
+	solver_ptr_ = new dwl::planning::AStart();//new dwl::planning::DijkstrapAlgorithm();
 	planning_ptr_->reset(solver_ptr_);
 
 	cost_map_ptr_ = new dwl::planning::CostMap();
@@ -66,9 +66,9 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	robot_orientation(1) = tf_transform.getRotation().getY();
 	robot_orientation(2) = tf_transform.getRotation().getZ();
 	robot_orientation(3) = tf_transform.getRotation().getW();
-	dwl::Pose robot_state;
-	robot_state.position = robot_position;
-	robot_state.orientation = robot_orientation;
+
+	robot_pose_.position = robot_position;
+	robot_pose_.orientation = robot_orientation;
 
 	dwl::Pose start_pose, goal_pose;
 	start_pose.position[0] = robot_position(0);
@@ -101,16 +101,17 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	// Computing the locomotion plan
 	timespec start_rt, end_rt;
 	clock_gettime(CLOCK_REALTIME, &start_rt);
-	locomotor_.compute(robot_state);
+	locomotor_.compute(robot_pose_);
 	clock_gettime(CLOCK_REALTIME, &end_rt);
 	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9*(end_rt.tv_nsec - start_rt.tv_nsec);
 	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
 
 
-	body_path_ = locomotor_.getBodyPath();
-	for (int i = 0; i < body_path_.size(); i++) {
+	locomotor_.getBodyPath().swap(body_path_);
+
+/*	for (int i = 0; i < body_path_.size(); i++) {
 		dwl::Pose path = body_path_[i];
-	}
+	}*/
 }
 
 
@@ -122,7 +123,7 @@ void HierarchicalPlanners::publishBodyPath()
 	for (int i = 0; i < body_path_.size(); i++) {
 		body_path_msg_.poses[i].pose.position.x = body_path_[i].position(0);
 		body_path_msg_.poses[i].pose.position.y = body_path_[i].position(1);
-		body_path_msg_.poses[i].pose.position.z = body_path_[i].position(2);
+		body_path_msg_.poses[i].pose.position.z = robot_pose_.position(2);//;body_path_[i].position(2);
 	}
 	body_path_pub_.publish(body_path_msg_);
 
