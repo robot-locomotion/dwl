@@ -12,7 +12,7 @@ namespace planning
 {
 
 /**
- * @class CostMAp
+ * @class CostMap
  * @brief Class for implementing the cost of the map
  */
 class CostMap : public Cost
@@ -68,6 +68,9 @@ class CostMap : public Cost
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> stance_areas_;
+
+		/** @brief Average cost which is used for unknown areas */
+		double average_cost_;
 
 
 }; //@class CostMap

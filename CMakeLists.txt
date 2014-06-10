@@ -32,12 +32,14 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/Cost.cpp
 							src/planning/Constraint.cpp
 							src/planning/DijkstrapAlgorithm.cpp
+							src/planning/AStart.cpp
 							src/planning/CostMap.cpp
 							src/environment/RewardMap.cpp
 							src/environment/PlaneGrid.cpp
 							src/environment/RewardOctoMap.cpp
 							src/environment/Feature.cpp
 							src/environment/SlopeFeature.cpp
+							src/environment/HeightDeviationFeature.cpp
 							src/hyq/KinematicConstraints.cpp
 							src/hyq/StabilityConstraints.cpp
 							src/hyq/StateCost.cpp

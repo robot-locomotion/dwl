@@ -43,13 +43,13 @@ class DijkstrapAlgorithm : public dwl::planning::Solver
 		virtual bool compute(SolverInterface solver_interface);
 
 		/**
-		 * @brief Compute the minimun cost and previous vertex according to Dijkstrap algorithm
+		 * @brief Compute the minimun cost and previous vertex according to the shortest Dijkstrap path
 		 * @param Vertex source Source vertex
-		 * @param AdjacencyMap& adjacency_map Adjacency map
+		 * @param AdjacencyMap adjacency_map Adjacency map
 		 * @param VertexCost& min_cost Minimum cost of the vertex
 		 * @param PreviousVertex& Previous vertex
 		 */
-		void DijkstraComputePath(Vertex source, AdjacencyMap& adjacency_map, VertexCost& min_cost, PreviousVertex& previous);
+		void findShortestPath(Vertex source, AdjacencyMap adjacency_map, VertexCost& min_cost, PreviousVertex& previous);
 
 
 	private:

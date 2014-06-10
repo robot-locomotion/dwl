@@ -28,26 +28,18 @@ class RewardOctoMap : public RewardMap
 
 		/**
 		 * @brief Abstract method for computing the reward map according the robot position and octomap model of the terrain
-		 * @param dwl::environment::Modeler model The model of the environment
+		 * @param dwl::TerrainModel model The model of the environment
 		 * @param Eigen::Vector4d robot_state The position of the robot and the yaw angle
 		 */
-		void compute(Modeler model, Eigen::Vector4d robot_state);
+		void compute(TerrainModel model, Eigen::Vector4d robot_state);
 
 		/**
 		 * @brief Computes the features and reward of the terrain given the octomap model and the key of the topmost cell of a certain position of the grid
 		 * @param octomap::OcTree* octomap Pointer to the octomap model of the environment
 		 * @param octomap::OcTreeKey heighmap_key The key of the topmost cell of a certain position of the grid
-		 * return bool Indicate if it could be computed the features and reward of the cell
 		 */
-		bool computeFeaturesAndRewards(octomap::OcTree* octomap, octomap::OcTreeKey heightmap_key);
+		void computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey heightmap_key);
 
-		/**
-		 * @brief Computes the rewards of point cloud of neighboring og the cell
-		 */
-		bool computeRewards(std::vector<Eigen::Vector3f> cloud);
-
-
-		std::vector<Pose> getNormals(); //TODO
 
 	private:
 		/** @brief Object of the Math class for the definition of math routines */
@@ -58,8 +50,6 @@ class RewardOctoMap : public RewardMap
 
 		/** @brief Defines if it is using the mean of the cloud */
 		bool using_cloud_mean_;
-
-		std::vector<Pose> normals_; //TODO
 
 };
 

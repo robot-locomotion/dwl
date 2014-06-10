@@ -5,6 +5,8 @@
 #include <list>
 #include <set>
 
+#include <octomap/octomap.h>
+
 
 namespace dwl
 {
@@ -90,6 +92,28 @@ struct NeighboringArea
 	int min_x, max_x;
 	int min_y, max_y;
 	int min_z, max_z;
+};
+
+/**
+ * @brief Struct that defines the models of the terrain
+ */
+struct TerrainModel
+{
+	octomap::OcTree* octomap;
+	//TODO: To integrate others modeler like HeightMap
+};
+
+/**
+ * @struct Terrain
+ * @brief Struct to define the relevant information of the terrain for computing reward
+ */
+struct Terrain
+{
+	Eigen::Vector3d position;
+	Eigen::Vector3d surface_normal;
+	double curvature;
+	std::map<Vertex, double> height_map;
+	double gridmap_resolution;
 };
 
 } //@namespace dwl

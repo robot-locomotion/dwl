@@ -45,7 +45,7 @@ bool DijkstrapAlgorithm::compute(SolverInterface solver_interface)
 	PreviousVertex previous;
 
 	// Computing the path according to Dijkstrap algorithm
-	DijkstraComputePath(solver.source, solver.adjacency_map, min_cost, previous);
+	findShortestPath(solver.source, solver.adjacency_map, min_cost, previous);
 	previous_ = previous;
 	total_cost_ = min_cost[solver.target];
 
@@ -53,7 +53,7 @@ bool DijkstrapAlgorithm::compute(SolverInterface solver_interface)
 }
 
 
-void DijkstrapAlgorithm::DijkstraComputePath(Vertex source, AdjacencyMap& adjacency_map, VertexCost& min_cost, PreviousVertex& previous)
+void DijkstrapAlgorithm::findShortestPath(Vertex source, AdjacencyMap adjacency_map, VertexCost& min_cost, PreviousVertex& previous)
 {
 	for (AdjacencyMap::iterator vertex_iter = adjacency_map.begin();
 		vertex_iter != adjacency_map.end();

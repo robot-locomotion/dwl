@@ -21,13 +21,9 @@ RewardOctoMap::~RewardOctoMap()
 }
 
 
-void RewardOctoMap::compute(Modeler model, Eigen::Vector4d robot_state)
+void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 {
 	octomap::OcTree* octomap = model.octomap;
-
-	// To ensure memory reallocation
-//	std::vector<Pose> empty;
-//	normals_.swap(empty);
 
 	if (!is_added_search_area_) {
 		printf(YELLOW "Warning: adding a default search area" COLOR_RESET);
@@ -43,7 +39,7 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector4d robot_state)
 	for (int n = 0; n < search_areas_.size(); n++) {
 		// Computing the boundary of the gridmap
 		Eigen::Vector2d boundary_min, boundary_max;
-		//Key min_grid, max_grid; //TODO
+
 		boundary_min(0) = search_areas_[n].min_x + robot_state(0);
 		boundary_min(1) = search_areas_[n].min_y + robot_state(1);
 		boundary_max(0) = search_areas_[n].max_x + robot_state(0);
@@ -77,36 +73,32 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector4d robot_state)
 					octomap::point3d height_point = octomap->keyToCoord(heightmap_key);
 					z = height_point(2);
 					if (heightmap_node) {
-						// Computation of the features if it is found the surface cell
+						// Computation of the heightmap
 						if (octomap->isNodeOccupied(heightmap_node)) {
-							CellKey cell_key;
 							// Getting position of the occupied cell
+							CellKey cell_key;
 							Eigen::Vector3d cell_position;
 							cell_position(0) = height_point(0);
 							cell_position(1) = height_point(1);
 							cell_position(2) = height_point(2);
 							getCell(cell_key, cell_position);
 
-							///////////
 							Vertex vertex_id = gridmap_.gridMapKeyToVertex(cell_key.grid_id);
-							/////////
-
 							if (is_first_computation_)
-								computeFeaturesAndRewards(octomap, heightmap_key);
+								addCellToTerrainHeightMap(cell_key);
 							else {
 								bool new_status = true;
 								if ((reward_gridmap_.find(vertex_id)->first == vertex_id)) {
+									// Evaluating if it changed status (height)
 									Cell reward_cell = reward_gridmap_.find(vertex_id)->second;
-
-									if (reward_cell.cell_key.height_id != cell_key.height_id)
-										removeCellToRewardMap(reward_cell.cell_key);
-
-									new_status = false;
-									break;
+									if (reward_cell.cell_key.height_id != cell_key.height_id) {
+										removeCellToTerrainHeightMap(reward_cell.cell_key);
+									} else
+										new_status = false;
 								}
 
 								if (new_status)
-									computeFeaturesAndRewards(octomap, heightmap_key);
+									addCellToTerrainHeightMap(cell_key);
 							}
 							break;
 						}
@@ -118,6 +110,44 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector4d robot_state)
 	}
 	is_first_computation_ = false;
 
+
+	// Computing the total reward
+	std::map<Vertex, double> terrain_heightmap = terrain_heightmap_;
+	for (std::map<Vertex, double>::iterator terrain_iter = terrain_heightmap.begin();
+			terrain_iter != terrain_heightmap.end();
+			terrain_iter++)
+	{
+		octomap::OcTreeKey heightmap_key;
+		Vertex v = terrain_iter->first;
+		Eigen::Vector2d xy_coord = gridmap_.vertexToCoord(v);
+		double height = terrain_iter->second;
+		octomap::point3d terrain_point;
+		terrain_point(0) = xy_coord(0);
+		terrain_point(1) = xy_coord(1);
+		terrain_point(2) = height;
+		heightmap_key = octomap->coordToKey(terrain_point);
+
+		// Converting the key to a vertex id
+		Vertex vertex_id = terrain_iter->first;
+		if (is_first_computation_)
+			computeRewards(octomap, heightmap_key);
+		else {
+			bool new_status = true;
+			if (reward_gridmap_.find(vertex_id)->first == vertex_id) {
+				// Evaluating if it changed status (height)
+				Cell reward_cell = reward_gridmap_.find(vertex_id)->second;
+				if (reward_cell.cell_key.height_id != heightmap_key[2]) {
+					removeCellToRewardMap(reward_cell.cell_key);
+					removeCellToTerrainHeightMap(reward_cell.cell_key);
+				} else
+					new_status = false;
+			}
+
+			if (new_status)
+				computeRewards(octomap, heightmap_key);
+		}
+	}
+
 	// Removing the points that doesn't belong to interest area
 	Eigen::Vector3d robot_2dpose;
 	robot_2dpose(0) = robot_state(0);
@@ -127,8 +157,10 @@ void RewardOctoMap::compute(Modeler model, Eigen::Vector4d robot_state)
 }
 
 
-bool RewardOctoMap::computeFeaturesAndRewards(octomap::OcTree* octomap, octomap::OcTreeKey heightmap_key)
+void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey heightmap_key)
 {
+	Terrain terrain_info;
+
 	std::vector<Eigen::Vector3f> neighbors_position;
 	octomap::OcTreeNode* heightmap_node = octomap->search(heightmap_key);
 
@@ -140,7 +172,7 @@ bool RewardOctoMap::computeFeaturesAndRewards(octomap::OcTree* octomap, octomap:
 	heightmap_position(2) = heightmap_point(2);
 	neighbors_position.push_back(heightmap_position);
 
-	// Iterate over the 8 neighboring sets
+	// Iterates over the 8 neighboring sets
 	octomap::OcTreeKey neighbor_key;
 	octomap::OcTreeNode* neighbor_node = heightmap_node;
 	bool is_there_neighboring = false;
@@ -168,28 +200,24 @@ bool RewardOctoMap::computeFeaturesAndRewards(octomap::OcTree* octomap, octomap:
 			}
 		}
 	}
-	if (is_there_neighboring)
-		return computeRewards(neighbors_position);
 
-	return false;
-}
+	if (is_there_neighboring) {
+		// Computing terrain info
+		EIGEN_ALIGN16 Eigen::Matrix3d covariance_matrix;
+		if (neighbors_position.size() < 3 || math_.computeMeanAndCovarianceMatrix(neighbors_position, covariance_matrix, terrain_info.position) == 0)
+			return;
 
+			if (!using_cloud_mean_) {
+				terrain_info.position(0) = neighbors_position[0](0);
+				terrain_info.position(1) = neighbors_position[0](1);
+				terrain_info.position(2) = neighbors_position[0](2);
+			}
 
-bool RewardOctoMap::computeRewards(std::vector<Eigen::Vector3f> cloud)
-{
-	// Computing terrain info
-	Terrain terrain_info;
-	EIGEN_ALIGN16 Eigen::Matrix3d covariance_matrix;
-	if (cloud.size() < 3 || math_.computeMeanAndCovarianceMatrix(cloud, covariance_matrix, terrain_info.position) == 0)
-		return false;
-
-	if (!using_cloud_mean_) {
-		terrain_info.position(0) = cloud[0](0);
-		terrain_info.position(1) = cloud[0](1);
-		terrain_info.position(2) = cloud[0](2);
+			math_.solvePlaneParameters(covariance_matrix, terrain_info.surface_normal, terrain_info.curvature);
 	}
 
-	math_.solvePlaneParameters(covariance_matrix, terrain_info.surface_normal, terrain_info.curvature);
+	terrain_info.height_map = terrain_heightmap_;
+	terrain_info.gridmap_resolution = gridmap_.getResolution(true);
 
 	// Computing the reward
 	if (is_added_feature_) {
@@ -204,33 +232,7 @@ bool RewardOctoMap::computeRewards(std::vector<Eigen::Vector3f> cloud)
 	}
 	else {
 		printf(YELLOW "Could not compute the reward of the features because it is necessary to add at least one\n" COLOR_RESET);
-		return false;
 	}
-
-
-
-	//------------------------ record data
-/*	Eigen::Vector3d origin_vector = Eigen::Vector3d::Zero();
-	origin_vector(0) = 1;
-	Eigen::Quaternion<double> orientation;
-	orientation.setFromTwoVectors(origin_vector, terrain_info.surface_normal);
-
-	Pose pose;
-	pose.position = terrain_info.position;
-	pose.orientation(0) = orientation.x();
-	pose.orientation(1) = orientation.y();
-	pose.orientation(2) = orientation.z();
-	pose.orientation(3) = orientation.w();
-	normals_.push_back(pose);*/
-
-
-	return true;
-}
-
-
-std::vector<Pose> RewardOctoMap::getNormals()
-{
-	return normals_;
 }
 
 

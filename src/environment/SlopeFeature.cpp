@@ -19,6 +19,7 @@ SlopeFeature::~SlopeFeature()
 
 }
 
+
 void SlopeFeature::computeReward(double& reward_value, Terrain terrain_info)
 {
 	double slope = fabs(acos((double) terrain_info.surface_normal(2)));

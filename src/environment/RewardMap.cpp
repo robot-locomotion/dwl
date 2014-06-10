@@ -52,6 +52,7 @@ void RewardMap::removeFeature(std::string feature_name)
 	}
 }
 
+
 void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 {
 	for (std::map<Vertex, Cell>::iterator vertex_iter = reward_gridmap_.begin();
@@ -65,11 +66,15 @@ void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 		double yc = point(1) - robot_state(1);
 		double yaw = robot_state(2);
 		if (xc * cos(yaw) + yc * sin(yaw) >= 0.0) {
-			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1)
+			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1) {
 				reward_gridmap_.erase(v);
+				terrain_heightmap_.erase(v);
+			}
 		} else {
-			if (pow(xc, 2) + pow(yc, 2) > pow(1.5, 2))
+			if (pow(xc, 2) + pow(yc, 2) > pow(1.5, 2)) {
 				reward_gridmap_.erase(v);
+				terrain_heightmap_.erase(v);
+			}
 		}
 	}
 }
@@ -124,6 +129,21 @@ void RewardMap::removeCellToRewardMap(CellKey cell)
 }
 
 
+void RewardMap::addCellToTerrainHeightMap(CellKey cell)
+{
+	Vertex v = gridmap_.gridMapKeyToVertex(cell.grid_id);
+	double height = gridmap_.keyToCoord(cell.height_id, false);
+	terrain_heightmap_[v] = height;
+}
+
+
+void RewardMap::removeCellToTerrainHeightMap(CellKey cell)
+{
+	Vertex v = gridmap_.gridMapKeyToVertex(cell.grid_id);
+	terrain_heightmap_.erase(v);
+}
+
+
 void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_resolution)
 {
 	SearchArea search_area;
@@ -173,4 +193,5 @@ std::map<Vertex, Cell> RewardMap::getRewardMap()
 }
 
 } //@namepace dwl
+
 } //@namespace environment

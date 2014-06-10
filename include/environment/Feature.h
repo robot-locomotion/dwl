@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <string>
+#include <utils/utils.h>
 
 
 namespace dwl
@@ -11,17 +12,6 @@ namespace dwl
 
 namespace environment
 {
-
-/**
- * @struct Terrain
- * @brief Struct to define the relevant information of the terrain for computing reward
- */
-struct Terrain
-{
-	Eigen::Vector3d position;
-	Eigen::Vector3d surface_normal;
-	double curvature;
-};
 
 /**
  * @class Feature

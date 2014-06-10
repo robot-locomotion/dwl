@@ -19,15 +19,6 @@ namespace environment
 {
 
 /**
- * @brief Struct that defines the models of the environment
- */
-struct Modeler
-{
-	octomap::OcTree* octomap;
-	//TODO: To integrate others modeler like HeightMap
-};
-
-/**
  * @class RewardMap
  * @brief Abstract class for computing the reward map of the terrain
  */
@@ -54,10 +45,10 @@ class RewardMap
 
 		/**
 		 * @brief Abstract method for computing the reward map according the robot position and model of the terrain
-		 * @param dwl::environment::Modeler model The model of the environment
+		 * @param dwl::TerrainModel model The model of the environment
 		 * @param Eigen::Vector4d robot_state The position of the robot and the yaw angle
 		 */
-		virtual void compute(Modeler model, Eigen::Vector4d robot_state) = 0;
+		virtual void compute(TerrainModel model, Eigen::Vector4d robot_state) = 0;
 
 		/**
 		 * @brief Removes reward values outside the interest region
@@ -98,6 +89,18 @@ class RewardMap
 		 * @param dwl::CellKey cell Cell key for removing to the reward map
 		 */
 		void removeCellToRewardMap(CellKey cell);
+
+		/**
+		 * @brief Adds a cell to the height map
+		 * @param dwl::CellKey cell Cell key for adding to the height map
+		 */
+		void addCellToTerrainHeightMap(CellKey cell);
+
+		/**
+		 * @brief Removes a cell to the height map
+		 * @para dwl::CellKey cell Cell key for removing to the height map
+		 */
+		void removeCellToTerrainHeightMap(CellKey cell);
 
 		/**
 		 * @brief Adds a new search area around the current position of the robot
@@ -142,10 +145,6 @@ class RewardMap
 		std::map<Vertex,Cell> getRewardMap();
 
 
-
-		virtual std::vector<Pose> getNormals() = 0;
-
-
 	protected:
 		/** @brief Object of the PlaneGrid class for defining the grid routines */
 		PlaneGrid gridmap_;
@@ -155,6 +154,9 @@ class RewardMap
 
 		/** @brief Reward values mapped using vertex id */
 		std::map<Vertex,Cell> reward_gridmap_;
+
+		/** @brief Terrain height map */
+		std::map<Vertex, double> terrain_heightmap_;
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> search_areas_;

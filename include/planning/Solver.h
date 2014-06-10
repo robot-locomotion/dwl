@@ -94,6 +94,7 @@ class Solver
 		 */
 		std::string getName();
 
+
 	private:
 
 

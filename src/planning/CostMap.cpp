@@ -8,7 +8,7 @@ namespace dwl
 namespace planning
 {
 
-CostMap::CostMap() : is_first_update_(true)
+CostMap::CostMap() : is_first_update_(true), average_cost_(0)
 {
 	name_ = "CostMap";
 	is_cost_map_ = true;
@@ -81,11 +81,14 @@ void CostMap::setCostMap(std::vector<Cell> reward_map)
 
 
 	// Storing the cost-map data according the vertex id
+	average_cost_ = 0;
 	unsigned int vertex_id;
 	for (int i = 0; i < reward_map.size(); i++) {
 		vertex_id = gridmap_.gridMapKeyToVertex(reward_map[i].cell_key.grid_id);
 		costmap_[vertex_id] = - reward_map[i].reward;
+		average_cost_ += - reward_map[i].reward;
 	}
+	average_cost_ /= reward_map.size();
 
 	//  Converting the reward map message to a terrain adjacency map (cost-map), which is required for graph-searching algorithms
 	double cost = 0;
@@ -101,7 +104,8 @@ void CostMap::setCostMap(std::vector<Cell> reward_map)
 
 
 void CostMap::get(AdjacencyMap& adjacency_map, Eigen::Vector3d robot_state, bool terrain_cost)
-{
+{//TODO: When it's eliminated information, non-connectivity in the adjacency map, the algorithm doesn't response. Probably the way to fix it, it's adding to conditional sentence
+	// in the astart algorithm
 	if (terrain_cost) {
 		adjacency_map = terrain_cost_map_;
 
@@ -153,7 +157,8 @@ void CostMap::computeBodyCostMap(Eigen::Vector3d robot_state) //TODO
 					Vertex point = gridmap_.coordToVertex(point_position);
 
 					// Insert the element in an organized vertex queue, according to the maximun value
-					stance_cost_queue.insert(std::pair<Weight, Vertex>(costmap_.find(point)->second, point));
+					if (costmap_.find(point)->first == point)
+						stance_cost_queue.insert(std::pair<Weight, Vertex>(costmap_.find(point)->second, point));
 				}
 			}
 
@@ -162,11 +167,18 @@ void CostMap::computeBodyCostMap(Eigen::Vector3d robot_state) //TODO
 			if (stance_cost_queue.size() < number_top_reward)
 				number_top_reward = stance_cost_queue.size();
 
-			for (int i = 0; i < number_top_reward; i++) {
-				stance_cost += stance_cost_queue.begin()->first;
-				stance_cost_queue.erase(stance_cost_queue.begin());
+			if (number_top_reward == 0) {
+				double uncertainty_factor = 1.15;
+				stance_cost += uncertainty_factor * average_cost_;
+			} else {
+				for (int i = 0; i < number_top_reward; i++) {
+					stance_cost += stance_cost_queue.begin()->first;
+					stance_cost_queue.erase(stance_cost_queue.begin());
+				}
+
+				stance_cost /= number_top_reward;
 			}
-			stance_cost /= number_top_reward;
+
 			//std::cout << "Stance cost = " << stance_cost << std::endl;
 
 			body_cost += stance_cost;
