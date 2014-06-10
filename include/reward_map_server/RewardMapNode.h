@@ -9,6 +9,7 @@
 
 #include <environment/RewardOctoMap.h>
 #include <environment/SlopeFeature.h>
+#include <environment/HeightDeviationFeature.h>
 
 #include <Eigen/Dense>
 #include <vector>
@@ -71,12 +72,6 @@ class RewardMapServer
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;
 
-
-
-		//ros::Publisher normal_pub_;
-		//geometry_msgs::PoseArray normals_;
-		//pthread_mutex_t reward_lock_;
-		//Eigen::Vector3d origin_vector_;
 };
 
 #endif

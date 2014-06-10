@@ -17,7 +17,9 @@ RewardMapServer::RewardMapServer()
 
 	// Adding the features
 	dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
-	reward_map_->addFeature(slope_ptr);
+	dwl::environment::Feature* height_dev_ptr = new dwl::environment::HeightDeviationFeature();
+	//reward_map_->addFeature(slope_ptr);
+	reward_map_->addFeature(height_dev_ptr);
 
 	// Declaring the subscriber to octomap and tf messages
 	octomap_sub_ = new message_filters::Subscriber<octomap_msgs::Octomap> (node_, "octomap_binary", 5);
@@ -28,13 +30,6 @@ RewardMapServer::RewardMapServer()
 	reward_pub_ = node_.advertise<reward_map_server::RewardMap>("reward_map", 1);
 
 	reward_map_msg_.header.frame_id = "world"; //"base_footprint";
-
-
-	//normals_.poses.resize(2500);
-	//normal_pub_ = node_.advertise<geometry_msgs::PoseArray>("normal", 1);
-	//normals_.header.frame_id = "base_footprint";
-	//origin_vector_ = Eigen::Vector3d::Zero();
-	//origin_vector_(0) = 1;
 }
 
 
@@ -70,7 +65,7 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 		return;
 	}
 
-	dwl::environment::Modeler model;
+	dwl::TerrainModel model;
 	model.octomap = octomap;
 
 	// Setting the resolution of the gridmap
@@ -135,27 +130,6 @@ void RewardMapServer::publishRewardMap()
 
 	// Deleting old information
 	reward_map_msg_.cell.clear();
-
-
-
-
-
-
-	/*
-	std::vector<dwl::environment::Pose> poses;
-	reward_map_->getNormals().swap(poses);
-	normals_.header.stamp = ros::Time::now();
-	for (int i = 0; i < poses.size(); i++) {
-		normals_.poses[i].position.x = poses[i].position(0);
-		normals_.poses[i].position.y = poses[i].position(1);
-		normals_.poses[i].position.z = poses[i].position(2);
-		normals_.poses[i].orientation.x = poses[i].orientation(0);
-		normals_.poses[i].orientation.y = poses[i].orientation(1);
-		normals_.poses[i].orientation.z = poses[i].orientation(2);
-		normals_.poses[i].orientation.w = poses[i].orientation(3);
-	}
-
-	normal_pub_.publish(normals_);*/
 }
 
 
