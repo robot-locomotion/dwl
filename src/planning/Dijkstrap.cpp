@@ -1,4 +1,4 @@
-#include <planning/DijkstrapAlgorithm.h>
+#include <planning/Dijkstrap.h>
 
 
 namespace dwl
@@ -7,27 +7,27 @@ namespace dwl
 namespace planning
 {
 
-DijkstrapAlgorithm::DijkstrapAlgorithm()
+Dijkstrap::Dijkstrap()
 {
 	name_ = "Dijkstrap";
 	is_graph_searching_algorithm_ = true;
 }
 
 
-DijkstrapAlgorithm::~DijkstrapAlgorithm()
+Dijkstrap::~Dijkstrap()
 {
 
 }
 
 
-bool DijkstrapAlgorithm::init()
+bool Dijkstrap::init()
 {
 	printf("Initialized the Dijkstrap algortihm\n");
 	return true;
 }
 
 
-bool DijkstrapAlgorithm::compute(SolverInterface solver_interface)
+bool Dijkstrap::compute(SolverInterface solver_interface)
 {
 	printf("Computing the Dijkstrap algorithm\n");
 
@@ -53,7 +53,7 @@ bool DijkstrapAlgorithm::compute(SolverInterface solver_interface)
 }
 
 
-void DijkstrapAlgorithm::findShortestPath(Vertex source, AdjacencyMap adjacency_map, VertexCost& min_cost, PreviousVertex& previous)
+void Dijkstrap::findShortestPath(Vertex source, AdjacencyMap adjacency_map, VertexCost& min_cost, PreviousVertex& previous)
 {
 	for (AdjacencyMap::iterator vertex_iter = adjacency_map.begin();
 		vertex_iter != adjacency_map.end();

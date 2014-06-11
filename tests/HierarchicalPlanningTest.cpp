@@ -1,4 +1,4 @@
-#include <planning/DijkstrapAlgorithm.h>
+#include <planning/Dijkstrap.h>
 #include <planning/HierarchicalPlanning.h>
 #include <planning/WholeBodyLocomotion.cpp>
 #include <planning/CostMap.cpp>
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	dwl::WholeBodyLocomotion locomotor;
 
 	// Initialization of planning algorithm, which includes the initizalization and setup of solver algorithm
-	dwl::planning::Solver* solver_ptr = new dwl::planning::DijkstrapAlgorithm();
+	dwl::planning::Solver* solver_ptr = new dwl::planning::Dijkstrap();
 	dwl::planning::PlanningOfMotionSequences* planning_ptr = new dwl::planning::HierarchicalPlanning();
 	planning_ptr->reset(solver_ptr);
 

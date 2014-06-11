@@ -1,5 +1,5 @@
-#ifndef DWL_DijktraAlgorithm_H
-#define DWL_DijktraAlgorithm_H
+#ifndef DWL_Dijktra_H
+#define DWL_Dijktra_H
 
 #include <planning/Solver.h>
 
@@ -18,17 +18,17 @@ namespace planning
 {
 
 /**
- * @class DijkstrapAlgorithm
+ * @class Dijkstrap
  * @brief Class for solving a shortest-search problem using the Dijkstrap algorithm
  */
-class DijkstrapAlgorithm : public dwl::planning::Solver
+class Dijkstrap : public dwl::planning::Solver
 {
 	public:
 		/** @brief Constructor function */
-		DijkstrapAlgorithm();
+		Dijkstrap();
 
 		/** @brief Destructor function */
-		~DijkstrapAlgorithm();
+		~Dijkstrap();
 
 		/**
 		 * @brief Initializes the Dijkstrap algorithm
@@ -37,13 +37,13 @@ class DijkstrapAlgorithm : public dwl::planning::Solver
 		bool init();
 
 		/**
-		 * @brief Abstract method for computing the shortest-path according to Dijkstrap algorithm
+		 * @brief Computes the shortest-path according to Dijkstrap algorithm
 		 * @param SolverInterface& solver_interface Interface for the applied solver
 		 */
-		virtual bool compute(SolverInterface solver_interface);
+		bool compute(SolverInterface solver_interface);
 
 		/**
-		 * @brief Compute the minimun cost and previous vertex according to the shortest Dijkstrap path
+		 * @brief Computes the minimun cost and previous vertex according to the shortest Dijkstrap path
 		 * @param Vertex source Source vertex
 		 * @param AdjacencyMap adjacency_map Adjacency map
 		 * @param VertexCost& min_cost Minimum cost of the vertex

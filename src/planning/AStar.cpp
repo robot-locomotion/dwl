@@ -1,4 +1,4 @@
-#include <planning/AStart.h>
+#include <planning/AStar.h>
 
 
 namespace dwl
@@ -8,26 +8,26 @@ namespace planning
 {
 
 
-AStart::AStart()
+AStar::AStar()
 {
 	name_ = "A-start";
 	is_graph_searching_algorithm_ = true;
 }
 
 
-AStart::~AStart()
+AStar::~AStar()
 {
 
 }
 
 
-bool AStart::init()
+bool AStar::init()
 {
 	return true;
 }
 
 
-bool AStart::compute(SolverInterface solver_interface)
+bool AStar::compute(SolverInterface solver_interface)
 {
 	GraphSearching solver = solver_interface.searcher;
 	VertexCost min_cost;
@@ -42,7 +42,7 @@ bool AStart::compute(SolverInterface solver_interface)
 }
 
 
-void AStart::findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacency_map, VertexCost& g_cost, PreviousVertex& previous)
+void AStar::findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacency_map, VertexCost& g_cost, PreviousVertex& previous)
 {
 	VertexCost f_cost;
 
@@ -103,7 +103,7 @@ void AStart::findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacen
 }
 
 
-double AStart::heuristicCostEstimate(Vertex source, Vertex target)
+double AStar::heuristicCostEstimate(Vertex source, Vertex target)
 {
 	environment::PlaneGrid gridmap(0.04, 0.04);
 	Eigen::Vector2d source_position = gridmap.vertexToCoord(source);

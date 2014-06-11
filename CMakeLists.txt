@@ -31,8 +31,8 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/Solver.cpp
 							src/planning/Cost.cpp
 							src/planning/Constraint.cpp
-							src/planning/DijkstrapAlgorithm.cpp
-							src/planning/AStart.cpp
+							src/planning/Dijkstrap.cpp
+							src/planning/AStar.cpp
 							src/planning/CostMap.cpp
 							src/environment/RewardMap.cpp
 							src/environment/PlaneGrid.cpp
