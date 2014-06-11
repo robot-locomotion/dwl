@@ -5,8 +5,8 @@
 
 #include <planning/WholeBodyLocomotion.h>
 #include <planning/HierarchicalPlanning.h>
-#include <planning/DijkstrapAlgorithm.h>
-#include <planning/AStart.h>
+#include <planning/Dijkstrap.h>
+#include <planning/AStar.h>
 #include <planning/CostMap.h>
 
 #include <reward_map_server/RewardMap.h>

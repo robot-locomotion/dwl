@@ -32,7 +32,7 @@ void HierarchicalPlanners::init()
 	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
 
 	// Initialization of planning algorithm, which includes the initizalization and setup of solver algorithm
-	solver_ptr_ = new dwl::planning::AStart();//new dwl::planning::DijkstrapAlgorithm();
+	solver_ptr_ = new dwl::planning::AStar();//new dwl::planning::Dijkstrap();
 	planning_ptr_->reset(solver_ptr_);
 
 	cost_map_ptr_ = new dwl::planning::CostMap();
