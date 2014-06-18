@@ -1,4 +1,5 @@
 #include <planning/HierarchicalPlanning.h>
+#include <utils/Orientation.h>
 
 
 namespace dwl
@@ -46,52 +47,25 @@ bool HierarchicalPlanning::compute(Pose robot_state)
 	std::vector<Pose> empty_body_trajectory;
 	body_trajectory_.swap(empty_body_trajectory);
 
-
-	AdjacencyMap terrain_adjacency_map, body_adjacency_map;
-
-	// Getting the adjacency map for the terrain and body
-	bool cost_map = false;
-	Eigen::VectorXd state;
-	for (int i = 0; i < costs_.size(); i++) {
-		if (costs_[i]->isCostMap()) {
-			costs_[i]->get(terrain_adjacency_map, robot_state.position, true);
-			costs_[i]->get(body_adjacency_map, robot_state.position, false);
-
-			cost_map = true;
-			break;
-		}
-	}
-	if (!cost_map) {
-		printf(RED "Could not computed the Dijkstrap algorithm because it was not defined a cost-map (adjacency map)\n" COLOR_RESET);
-		return false;
-	}
-
-	//body_adjacency_map = terrain_adjacency_map; //TODO
-
-	// Check if the start and goal position belong to the adjacency map, in negative case, these are added to the adjacency map
-	checkStartAndGoalVertex(body_adjacency_map);
-
-
+	// Computing a body path
 	SolverInterface solver;
 	solver.searcher.source = start_id_;
 	solver.searcher.target = goal_id_;
-	solver.searcher.adjacency_map = body_adjacency_map;
 
+	// Converting quaternion to roll, pitch and yaw angles
+	double roll, pitch, yaw;
+	Orientation orientation(robot_state.orientation);
+	orientation.getRPY(roll, pitch, yaw);
 
-	// Computing a body path
+	// Setting the 3d position of the robot
+	solver.searcher.position(0) = robot_state.position(0);
+	solver.searcher.position(1) = robot_state.position(1);
+	solver.searcher.position(2) = yaw;
+
+	// Computing the body path using a graph searching algorithm
 	solver_->compute(solver);
 	std::list<Vertex> shortest_path = solver_->getShortestPath(goal_id_);
 
-
-
-
-
-	//TODO only for debugging
-	Eigen::Vector2d start_position, goal_position;
-	start_position = gridmap_.vertexToCoord(start_id_);
-	goal_position = gridmap_.vertexToCoord(goal_id_);
-	std::cout << "Total cost to [" << goal_position(0) << " " << goal_position(1) << "] from [" << start_position(0);
-	std::cout << " " << (double) start_position(1) << "]: " << solver_->getMinimumCost() << std::endl;
 
 
 

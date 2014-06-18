@@ -33,8 +33,10 @@ class HeightDeviationFeature : public Feature
 
 
 	private:
+		/** @brief Area for computing the average of the height map */
 		SearchArea average_area_;
 
+		/** @brief Object of the PlaneGrid class for defining the grid routines */
 		PlaneGrid gridmap_;
 
 };

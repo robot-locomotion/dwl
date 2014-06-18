@@ -40,10 +40,10 @@ class AStar : public dwl::planning::Solver
 		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path
 		 * @param Vertex source Source vertex
 		 * @param AdjacencyMap adjacency_map Adjacency map
-		 * @param VertexCost& min_cost Minimum cost of the vertex
+		 * @param CostMap& min_cost Minimum cost of the vertex
 		 * @param PreviousVertex& Previous vertex
 		 */
-		void findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacency_map, VertexCost& min_cost, PreviousVertex& previous);
+		void findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacency_map, CostMap& min_cost, PreviousVertex& previous);
 
 		/**
 		 * @brief Estimates the heuristic cost from a source to a target vertex

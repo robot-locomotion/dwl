@@ -33,17 +33,20 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/Constraint.cpp
 							src/planning/Dijkstrap.cpp
 							src/planning/AStar.cpp
-							src/planning/CostMap.cpp
+							#src/planning/CostMap.cpp
+							src/environment/AdjacencyEnvironment.cpp
+							src/environment/GridBasedBodyAdjacency.cpp
 							src/environment/RewardMap.cpp
-							src/environment/PlaneGrid.cpp
 							src/environment/RewardOctoMap.cpp
+							src/environment/PlaneGrid.cpp
 							src/environment/Feature.cpp
 							src/environment/SlopeFeature.cpp
 							src/environment/HeightDeviationFeature.cpp
 							src/hyq/KinematicConstraints.cpp
 							src/hyq/StabilityConstraints.cpp
 							src/hyq/StateCost.cpp
-							src//utils/Math.cpp) 
+							src//utils/Math.cpp
+							src/utils/Orientation.cpp) 
 
 #set(${PROJECT_NAME}_HEADERS )
 

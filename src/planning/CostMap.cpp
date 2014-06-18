@@ -42,44 +42,6 @@ CostMap::~CostMap()
 
 void CostMap::setCostMap(std::vector<Cell> reward_map)
 {
-/*	dwl::environment::Cell c;
-	std::vector<dwl::environment::Cell> reward_map;
-	c.cell_key.grid_id.key[0] = 1000;
-	c.cell_key.grid_id.key[1] = 1000;
-	c.reward = -1.5;
-	std::cout << "vertex = " << gridmap_.gridMapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	reward_map.push_back(c);
-	c.cell_key.grid_id.key[0] = 1001;
-	c.cell_key.grid_id.key[1] = 1000;
-	c.reward = -2;
-	std::cout << "vertex = " << gridmap_.gridMapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	reward_map.push_back(c);
-	c.cell_key.grid_id.key[0] = 999;
-	c.cell_key.grid_id.key[1] = 1000;
-	c.reward = -3;
-	std::cout << "vertex = " << gridmap_.gridMapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	reward_map.push_back(c);
-	c.cell_key.grid_id.key[0] = 1000;
-	c.cell_key.grid_id.key[1] = 1001;
-	c.reward = -4;
-	std::cout << "vertex = " << gridmap_.gridMapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	reward_map.push_back(c);
-	c.cell_key.grid_id.key[0] = 1000;
-	c.cell_key.grid_id.key[1] = 999;
-	c.reward = -5;
-	std::cout << "vertex = " << gridmap_.gridMapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	reward_map.push_back(c);
-	c.cell_key.grid_id.key[0] = 1000;
-	c.cell_key.grid_id.key[1] = 998;
-	c.reward = -6;
-	std::cout << "vertex = " << gridmap_.gridMapKeyToVertex(c.cell_key.grid_id) << std::endl;
-	reward_map.push_back(c);*/
-
-
-
-
-
-
 	// Storing the cost-map data according the vertex id
 	average_cost_ = 0;
 	unsigned int vertex_id;

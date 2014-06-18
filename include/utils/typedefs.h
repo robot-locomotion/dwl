@@ -18,10 +18,22 @@ typedef unsigned int Vertex;
 typedef double Weight;
 
 /** Defines the cost of a vertex for graph-searching algorithms */
-typedef std::map<Vertex, Weight> VertexCost;
+typedef std::map<Vertex, Weight> CostMap;
 
 /** Defines a previous vertex for graph-searching algorithms */
 typedef std::map<Vertex, Vertex> PreviousVertex;
+
+/**
+ * @brief Template struct that orders vertex
+ */
+template <typename Weight, typename Vertex>
+struct pair_first_less
+{
+    bool operator()(std::pair<Weight,Vertex> vertex_1, std::pair<Weight,Vertex> vertex_2)
+    {
+        return vertex_1.first < vertex_2.first;
+    }
+};
 
 /**
  * @brief Defines a edge for graph-searching algorithms
@@ -42,7 +54,7 @@ typedef std::map<Vertex, std::list<Edge> > AdjacencyMap;
 struct Pose
 {
 	Eigen::Vector3d position;
-	Eigen::Vector4d orientation; // Quaternion
+	Eigen::Quaterniond orientation; // Quaternion
 };
 
 /**

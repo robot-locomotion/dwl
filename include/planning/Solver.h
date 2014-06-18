@@ -1,12 +1,11 @@
 #ifndef DWL_Solver_H
 #define DWL_Solver_H
 
+#include <environment/AdjacencyEnvironment.h>
+
 #include <Eigen/Dense>
 
 #include <vector>
-#include <map>
-#include <list>
-#include <set>
 
 #include <utils/utils.h>
 //#include <pthread.h>
@@ -19,25 +18,13 @@ namespace planning
 {
 
 /**
- * @brief Template struct that orders vertex
- */
-template <typename Weight, typename Vertex>
-struct pair_first_less
-{
-    bool operator()(std::pair<Weight,Vertex> vertex_1, std::pair<Weight,Vertex> vertex_2)
-    {
-        return vertex_1.first < vertex_2.first;
-    }
-};
-
-/**
  * @brief Struct that defines the graph-searching interface
  */
 struct GraphSearching
 {
 	Vertex source;
 	Vertex target;
-	AdjacencyMap adjacency_map;
+	Eigen::Vector3d position;
 };
 
 /**
@@ -67,6 +54,18 @@ class Solver
 		 * @return bool Return true if was initialized
 		 */
 		virtual bool init() = 0;
+
+		/**
+		 * @brief Sets terrain information, specially in the reward map of the terrain that is converting to a cost map
+		 * @param std::vector<Cell> reward_map Reward map to set in the cost map
+		 */
+		void setTerrainInformation(std::vector<Cell> reward_map);
+
+		/**
+		 * @brief Sets the adjacency model that is used for graph-searchin solvers, i.e. path-planning problems
+		 * @param dwl::environment::AdjacencyEnvironment* adjacency_model Adjacency model
+		 */
+		void setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_model);
 
 		/**
 		 * @brief Abstract method for computing a solution
@@ -103,12 +102,16 @@ class Solver
 		/** @brief Name of the solver */
 		std::string name_;
 
+		environment::AdjacencyEnvironment* environment_;
+
 		/** @brief Indicates if it a graph-searching algorithm */
 		bool is_graph_searching_algorithm_;
 
 		PreviousVertex previous_;
 
 		double total_cost_;
+
+		bool is_settep_adjacency_model_;
 
 //		pthread_mutex_t solver_lock_;
 };

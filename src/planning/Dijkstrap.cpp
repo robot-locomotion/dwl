@@ -29,31 +29,32 @@ bool Dijkstrap::init()
 
 bool Dijkstrap::compute(SolverInterface solver_interface)
 {
-	printf("Computing the Dijkstrap algorithm\n");
-
-/*	Eigen::VectorXd constraint_value, state_value;
-	if (active_constraints_.size() > 0) {
-		for (int i = 0; i < active_constraints_.size(); i++)
-			active_constraints_[i]->get(constraint_value, state_value);
-	}
-
-	double cost = costs_[0]->get(state_value);*/
-
-
 	GraphSearching solver = solver_interface.searcher;
-	VertexCost min_cost;
-	PreviousVertex previous;
 
-	// Computing the path according to Dijkstrap algorithm
-	findShortestPath(solver.source, solver.adjacency_map, min_cost, previous);
-	previous_ = previous;
-	total_cost_ = min_cost[solver.target];
+	if (is_settep_adjacency_model_) {
+		// Computing adjacency map
+		AdjacencyMap adjacency_map;
+		environment_->computeAdjacencyMap(adjacency_map, solver.position);
+
+		// Check if the start and goal position belong to the adjacency map, in negative case, these are added to the adjacency map
+		environment_->checkStartAndGoalVertex(adjacency_map, solver.source, solver.target);
+
+		// Computing the path according to Dijkstrap algorithm
+		CostMap min_cost;
+		PreviousVertex previous;
+		findShortestPath(solver.source, adjacency_map, min_cost, previous);
+		previous_ = previous;
+		total_cost_ = min_cost[solver.target];
+	} else {
+		printf(RED "Could not compute the shortest path because it is required to defined an adjacency model \n" COLOR_RESET);
+		return false;
+	}
 
 	return true;
 }
 
 
-void Dijkstrap::findShortestPath(Vertex source, AdjacencyMap adjacency_map, VertexCost& min_cost, PreviousVertex& previous)
+void Dijkstrap::findShortestPath(Vertex source, AdjacencyMap adjacency_map, CostMap& min_cost, PreviousVertex& previous)
 {
 	for (AdjacencyMap::iterator vertex_iter = adjacency_map.begin();
 		vertex_iter != adjacency_map.end();

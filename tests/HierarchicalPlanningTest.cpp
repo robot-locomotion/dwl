@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 	//  Setup of the locomotion approach
 	dwl::WholeBodyLocomotion locomotor;
 
-	// Initialization of planning algorithm, which includes the initizalization and setup of solver algorithm
+	// Initialization of planning algorithm, which includes the initialization and setup of solver algorithm
 	dwl::planning::Solver* solver_ptr = new dwl::planning::Dijkstrap();
 	dwl::planning::PlanningOfMotionSequences* planning_ptr = new dwl::planning::HierarchicalPlanning();
 	planning_ptr->reset(solver_ptr);
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 	locomotor.removeConstraint(kin_constraint_ptr->getName());
 	//locomotor.removeCost(cost_ptr->getName());
 
-	// Initizalization and computing of the whole-body locomotion problem
+	// Initialization and computing of the whole-body locomotion problem
 	dwl::Pose start, goal, current;
 	std::vector<dwl::Cell> reward_map;
 	locomotor.init();

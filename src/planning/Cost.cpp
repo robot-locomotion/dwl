@@ -7,7 +7,7 @@ namespace dwl
 namespace planning
 {
 
-Cost::Cost() : is_cost_map_(false), gridmap_(0.04, 0.02)
+Cost::Cost() : is_cost_map_(false), gridmap_(0.04, 0.02) //TODO
 {
 
 }

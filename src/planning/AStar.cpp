@@ -30,21 +30,33 @@ bool AStar::init()
 bool AStar::compute(SolverInterface solver_interface)
 {
 	GraphSearching solver = solver_interface.searcher;
-	VertexCost min_cost;
-	PreviousVertex previous;
 
-	// Computing the path according to Dijkstrap algorithm
-	findShortestPath(solver.source, solver.target, solver.adjacency_map, min_cost, previous);
-	previous_ = previous;
-	total_cost_ = min_cost[solver.target];
+	if (is_settep_adjacency_model_) {
+		// Computing adjacency map
+		AdjacencyMap adjacency_map;
+		environment_->computeAdjacencyMap(adjacency_map, solver.position);
+
+		// Check if the start and goal position belong to the adjacency map, in negative case, these are added to the adjacency map
+		environment_->checkStartAndGoalVertex(adjacency_map, solver.source, solver.target);
+
+		// Computing the path according to A-star algorithm
+		CostMap min_cost;
+		PreviousVertex previous;
+		findShortestPath(solver.source, solver.target, adjacency_map, min_cost, previous);
+		previous_ = previous;
+		total_cost_ = min_cost[solver.target];
+	} else {
+		printf(RED "Could not compute the shortest path because it is required to defined an adjacency model \n" COLOR_RESET);
+		return false;
+	}
 
 	return true;
 }
 
 
-void AStar::findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacency_map, VertexCost& g_cost, PreviousVertex& previous)
+void AStar::findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacency_map, CostMap& g_cost, PreviousVertex& previous)
 {
-	VertexCost f_cost;
+	CostMap f_cost;
 
 	// Definiting the set of nodes already evaluated (openset), the set of tentative nodes to be evaluated (openset), and ordered openset queue
 	std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > openset_queue;

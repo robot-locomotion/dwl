@@ -77,7 +77,7 @@ class Cost
 		bool is_cost_map_;
 
 		/** @brief Object of the PlaneGrid class for defining the grid routines */
-		environment::PlaneGrid gridmap_;
+		environment::PlaneGrid gridmap_; //TODO Delete
 
 };
 
