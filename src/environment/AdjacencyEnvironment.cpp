@@ -39,22 +39,41 @@ void AdjacencyEnvironment::setEnvironmentInformation(std::vector<Cell> reward_ma
 }
 
 
-void AdjacencyEnvironment::checkStartAndGoalVertex(AdjacencyMap& adjacency_map, Vertex source, Vertex target)
+void AdjacencyEnvironment::setResolution(double resolution, bool gridmap)
 {
-	// Checking if the start and goal vertex are part of the adjacency map
+	gridmap_.setResolution(resolution, gridmap);
+}
+
+
+void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_source, Vertex& closest_target, Vertex source, Vertex target)
+{
+	// Checking if the start and goal vertex are part of the terrain information
 	bool is_there_start_vertex, is_there_goal_vertex = false;
 	std::vector<Vertex> vertex_map;
-	for (AdjacencyMap::iterator vertex_iter = adjacency_map.begin();
-			vertex_iter != adjacency_map.end();
-			vertex_iter++)
-	{
-		if (source == vertex_iter->first)
-			is_there_start_vertex = true;
+	if (is_there_terrain_information_) {
+		for (CostMap::iterator vertex_iter = terrain_cost_map_.begin();
+				vertex_iter != terrain_cost_map_.end();
+				vertex_iter++)
+		{
+			Vertex current_vertex = vertex_iter->first;
+			if (source == current_vertex) {
+				is_there_start_vertex = true;
+				closest_source = current_vertex;
+			}
 
-		if (target == vertex_iter->first)
-			is_there_goal_vertex = true;
+			if (target == current_vertex) {
+				is_there_goal_vertex = true;
+				closest_target = current_vertex;
+			}
 
-		vertex_map.push_back(vertex_iter->first);
+			if ((is_there_start_vertex) && (is_there_goal_vertex))
+				return;
+
+			vertex_map.push_back(vertex_iter->first);
+		}
+	} else {
+		printf(RED "Couldn't get the closest start and goal vertex because there isn't terrain information \n" COLOR_RESET);
+		return;
 	}
 
 	// Start and goal position
@@ -62,9 +81,8 @@ void AdjacencyEnvironment::checkStartAndGoalVertex(AdjacencyMap& adjacency_map, 
 	start_position = gridmap_.vertexToCoord(source);
 	goal_position = gridmap_.vertexToCoord(target);
 
-
-	double start_closest_distant = std::numeric_limits<double>::max();
-	double goal_closest_distant = std::numeric_limits<double>::max();
+	double closest_source_distant = std::numeric_limits<double>::max();
+	double closest_target_distant = std::numeric_limits<double>::max();
 	Vertex start_closest_vertex, goal_closest_vertex;
 	if ((!is_there_start_vertex) && (!is_there_goal_vertex)) {
 		for (int i = 0; i < vertex_map.size(); i++) {
@@ -76,23 +94,21 @@ void AdjacencyEnvironment::checkStartAndGoalVertex(AdjacencyMap& adjacency_map, 
 			double goal_distant = (goal_position - vertex_position).norm();
 
 			// Recording the closest vertex from the start position
-			if (start_distant < start_closest_distant) {
+			if (start_distant < closest_source_distant) {
 				start_closest_vertex = vertex_map[i];
-				start_closest_distant = start_distant;
+				closest_source_distant = start_distant;
 			}
 
 			// Recording the closest vertex from the goal position
-			if (goal_distant < goal_closest_distant) {
+			if (goal_distant < closest_target_distant) {
 				goal_closest_vertex = vertex_map[i];
-				goal_closest_distant = goal_distant;
+				closest_target_distant = goal_distant;
 			}
 		}
 
 		// Adding the goal to the adjacency map
-		adjacency_map[source].push_back(Edge(start_closest_vertex, 0.0));
-		adjacency_map[start_closest_vertex].push_back(Edge(source, 0.0));
-		adjacency_map[target].push_back(Edge(goal_closest_vertex, 0.0));
-		adjacency_map[goal_closest_vertex].push_back(Edge(target, 0.0));
+		closest_source = start_closest_vertex;
+		closest_target = goal_closest_vertex;
 
 	} else if (!is_there_start_vertex) {
 		for (int i = 0; i < vertex_map.size(); i++) {
@@ -103,15 +119,14 @@ void AdjacencyEnvironment::checkStartAndGoalVertex(AdjacencyMap& adjacency_map, 
 			double start_distant = (start_position - vertex_position).norm();
 
 			// Recording the closest vertex from the start position
-			if (start_distant < start_closest_distant) {
+			if (start_distant < closest_source_distant) {
 				start_closest_vertex = vertex_map[i];
-				start_closest_distant = start_distant;
+				closest_source_distant = start_distant;
 			}
 		}
 
 		// Adding the start to the adjacency map
-		adjacency_map[source].push_back(Edge(start_closest_vertex, 0.0));
-		adjacency_map[start_closest_vertex].push_back(Edge(source, 0.0));
+		closest_source = start_closest_vertex;
 
 	} else if (!is_there_goal_vertex) {
 		for (int i = 0; i < vertex_map.size(); i++) {
@@ -122,15 +137,60 @@ void AdjacencyEnvironment::checkStartAndGoalVertex(AdjacencyMap& adjacency_map, 
 			double goal_distant = (goal_position - vertex_position).norm();
 
 			// Recording the closest vertex from the goal position
-			if (goal_distant < goal_closest_distant) {
+			if (goal_distant < closest_target_distant) {
 				goal_closest_vertex = vertex_map[i];
-				goal_closest_distant = goal_distant;
+				closest_target_distant = goal_distant;
 			}
 		}
 
 		// Adding the goal to the adjacency map
-		adjacency_map[target].push_back(Edge(goal_closest_vertex, 0.0));
-		adjacency_map[goal_closest_vertex].push_back(Edge(target, 0.0));
+		closest_target = goal_closest_vertex;
+	}
+}
+
+
+void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex vertex)
+{
+	// Checking if the  vertex is part of the terrain information
+	bool is_there_vertex = false;
+	std::vector<Vertex> vertex_map;
+	if (is_there_terrain_information_) {
+		for (CostMap::iterator vertex_iter = terrain_cost_map_.begin();
+				vertex_iter != terrain_cost_map_.end();
+				vertex_iter++)
+		{
+			Vertex current_vertex = vertex_iter->first;
+			if (vertex == current_vertex) {
+				is_there_vertex = true;
+				closest_vertex = current_vertex;
+
+				return;
+			}
+
+			vertex_map.push_back(vertex_iter->first);
+		}
+	} else {
+		printf(RED "Couldn't get the closest start and goal vertex because there isn't terrain information \n" COLOR_RESET);
+		return;
+	}
+
+	// Start and goal position
+	Eigen::Vector2d vertex_position;
+	vertex_position = gridmap_.vertexToCoord(vertex);
+
+	double closest_distant = std::numeric_limits<double>::max();
+	for (int i = 0; i < vertex_map.size(); i++) {
+		// Calculating the vertex position
+		Eigen::Vector2d current_vertex_position = gridmap_.vertexToCoord(vertex_map[i]);
+
+		// Calculating the distant to the current vertex
+		double start_distant = (vertex_position - current_vertex_position).norm();
+
+		// Recording the closest vertex from the start position
+		if (start_distant < closest_distant) {
+			closest_vertex = vertex_map[i];
+			closest_distant = start_distant;
+		}
 	}
 }
 

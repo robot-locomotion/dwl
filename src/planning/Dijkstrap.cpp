@@ -34,14 +34,24 @@ bool Dijkstrap::compute(SolverInterface solver_interface)
 	if (is_settep_adjacency_model_) {
 		// Computing adjacency map
 		AdjacencyMap adjacency_map;
-		environment_->computeAdjacencyMap(adjacency_map, solver.position);
+		environment_->computeAdjacencyMap(adjacency_map, solver.source, solver.target, solver.position);
 
-		// Check if the start and goal position belong to the adjacency map, in negative case, these are added to the adjacency map
-		environment_->checkStartAndGoalVertex(adjacency_map, solver.source, solver.target);
-
-		// Computing the path according to Dijkstrap algorithm
 		CostMap min_cost;
 		PreviousVertex previous;
+
+		// Check if the start and goal position belong to the terrain information, in negative case, the closest points will added to the computed path
+		Vertex closest_source, closest_target;
+		environment_->getTheClosestStartAndGoalVertex(closest_source, closest_target, solver.source, solver.target);
+		if (closest_source != solver.source) {
+			previous[closest_source] = solver.source;
+			min_cost[solver.source] = 0;
+		}
+		if (closest_target != solver.target) {
+			previous[solver.target] = closest_target;
+			min_cost[solver.target] = 0;
+		}
+
+		// Computing the path according to Dijkstrap algorithm
 		findShortestPath(solver.source, adjacency_map, min_cost, previous);
 		previous_ = previous;
 		total_cost_ = min_cost[solver.target];

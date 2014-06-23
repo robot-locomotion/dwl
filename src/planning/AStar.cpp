@@ -34,15 +34,25 @@ bool AStar::compute(SolverInterface solver_interface)
 	if (is_settep_adjacency_model_) {
 		// Computing adjacency map
 		AdjacencyMap adjacency_map;
-		environment_->computeAdjacencyMap(adjacency_map, solver.position);
+		environment_->computeAdjacencyMap(adjacency_map, solver.source, solver.target, solver.position);
 
-		// Check if the start and goal position belong to the adjacency map, in negative case, these are added to the adjacency map
-		environment_->checkStartAndGoalVertex(adjacency_map, solver.source, solver.target);
-
-		// Computing the path according to A-star algorithm
 		CostMap min_cost;
 		PreviousVertex previous;
-		findShortestPath(solver.source, solver.target, adjacency_map, min_cost, previous);
+
+		// Check if the start and goal position belong to the terrain information, in negative case, the closest points will added to the computed path
+		/*Vertex closest_source, closest_target;
+		environment_->getTheClosestStartAndGoalVertex(closest_source, closest_target, solver.source, solver.target);
+		if (closest_source != solver.source) {
+			previous[closest_source] = solver.source;
+			min_cost[solver.source] = 0;
+		}
+		if (closest_target != solver.target) {
+			previous[solver.target] = closest_target;
+			min_cost[solver.target] = 0;
+		}*/
+
+		// Computing the path according to A-star algorithm
+		findShortestPath(min_cost, previous, solver.source, solver.target, (double) solver.position(2), adjacency_map);
 		previous_ = previous;
 		total_cost_ = min_cost[solver.target];
 	} else {
@@ -54,7 +64,7 @@ bool AStar::compute(SolverInterface solver_interface)
 }
 
 
-void AStar::findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacency_map, CostMap& g_cost, PreviousVertex& previous)
+void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, double orientation, AdjacencyMap adjacency_map)
 {
 	CostMap f_cost;
 
@@ -78,7 +88,7 @@ void AStar::findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacenc
 
 		// Checking if it is getted the target
 		if (current == target) {
-			// reconstruct path //TODO
+			// Reconstructing path
 			break;
 		}
 
@@ -90,6 +100,11 @@ void AStar::findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacenc
 		closedset[current] = true;
 
 		// Visit each edge exiting in the current vertex
+		/*std::list<Edge> successors;
+		environment_->getSuccessors(successors, current, orientation);
+		for (std::list<Edge>::iterator edge_iter = successors.begin();
+						edge_iter != successors.end();
+						edge_iter++)*/
 		for (std::list<Edge>::iterator edge_iter = adjacency_map[current].begin();
 				edge_iter != adjacency_map[current].end();
 				edge_iter++)
