@@ -4,7 +4,7 @@
 namespace dwl_planners
 {
 
-HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), solver_ptr_(NULL), cost_map_ptr_(NULL)
+HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), solver_ptr_(NULL)
 {
 	reward_sub_ = new message_filters::Subscriber<reward_map_server::RewardMap> (node_, "reward_map", 5);
 	tf_reward_sub_ = new tf::MessageFilter<reward_map_server::RewardMap> (*reward_sub_, tf_listener_, "world", 5);
@@ -33,13 +33,12 @@ void HierarchicalPlanners::init()
 
 	// Initialization of planning algorithm, which includes the initizalization and setup of solver algorithm
 	solver_ptr_ = new dwl::planning::AStar();//new dwl::planning::Dijkstrap();
+	dwl::environment::AdjacencyEnvironment* adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();
+	solver_ptr_->setAdjacencyModel(adjacency_ptr);
 	planning_ptr_->reset(solver_ptr_);
-
-	cost_map_ptr_ = new dwl::planning::CostMap();
 
 	// Setting up the planner algorithm in the locomotion approach
 	locomotor_.reset(planning_ptr_);
-	locomotor_.addCost(cost_map_ptr_);
 
 	locomotor_.init();
 }
@@ -96,7 +95,7 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	}
 
 	// Adding the cost map
-	cost_map_ptr_->setCostMap(reward_map);
+	solver_ptr_->setTerrainInformation(reward_map);
 
 	// Computing the locomotion plan
 	timespec start_rt, end_rt;
@@ -108,10 +107,6 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 
 
 	locomotor_.getBodyPath().swap(body_path_);
-
-/*	for (int i = 0; i < body_path_.size(); i++) {
-		dwl::Pose path = body_path_[i];
-	}*/
 }
 
 

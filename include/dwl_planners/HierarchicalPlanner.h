@@ -7,7 +7,8 @@
 #include <planning/HierarchicalPlanning.h>
 #include <planning/Dijkstrap.h>
 #include <planning/AStar.h>
-#include <planning/CostMap.h>
+#include <environment/AdjacencyEnvironment.h>
+#include <environment/GridBasedBodyAdjacency.h>
 
 #include <reward_map_server/RewardMap.h>
 #include <nav_msgs/Path.h>
@@ -21,6 +22,10 @@
 namespace dwl_planners
 {
 
+/**
+ * @class HierarchicalPlanners
+ * @brief Class for solving legged motion planning by approaching as a hierarchical planner
+ */
 class HierarchicalPlanners
 {
 	public:
@@ -74,9 +79,6 @@ class HierarchicalPlanners
 
 		/** @brief Solver pointer */
 		dwl::planning::Solver* solver_ptr_;
-
-		/** @brief Cost-map pointer */
-		dwl::planning::Cost* cost_map_ptr_;
 
 		/** @brief Approximated body path message */
 		nav_msgs::Path body_path_msg_;
