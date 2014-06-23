@@ -1,10 +1,10 @@
-#include <hyq/StabilityConstraints.h>
+#include <robot/StabilityConstraints.h>
 
 
 namespace dwl
 {
 
-namespace hyq
+namespace robot
 {
 
 

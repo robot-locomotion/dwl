@@ -2,9 +2,9 @@
 #include <planning/HierarchicalPlanning.h>
 #include <planning/WholeBodyLocomotion.cpp>
 
-#include <hyq/KinematicConstraints.cpp>
-#include <hyq/StabilityConstraints.cpp>
-#include <hyq/StateCost.cpp>
+#include <robot/KinematicConstraints.cpp>
+#include <robot/StabilityConstraints.cpp>
+#include <robot/StateCost.cpp>
 #include <Eigen/Dense>
 
 #include <environment/RewardMap.h>
@@ -29,9 +29,9 @@ int main(int argc, char **argv)
 	dwl::planning::PlanningOfMotionSequences* planning_ptr = new dwl::planning::HierarchicalPlanning();
 	planning_ptr->reset(solver_ptr);
 
-	dwl::planning::Constraint* kin_constraint_ptr = new dwl::hyq::KinematicConstraints();
-	dwl::planning::Constraint* stab_constraint_ptr = new dwl::hyq::StabilityConstraints();
-	dwl::planning::Cost* state_cost_ptr = new dwl::hyq::StateCost();
+	dwl::planning::Constraint* kin_constraint_ptr = new dwl::robot::KinematicConstraints();
+	dwl::planning::Constraint* stab_constraint_ptr = new dwl::robot::StabilityConstraints();
+	dwl::planning::Cost* state_cost_ptr = new dwl::robot::StateCost();
 
 	// Setting up the planner algorithm in the locomotion approach
 	locomotor.reset(planning_ptr);

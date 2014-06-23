@@ -21,7 +21,7 @@ namespace planning
  * @class Dijkstrap
  * @brief Class for solving a shortest-search problem using the Dijkstrap algorithm
  */
-class Dijkstrap : public dwl::planning::Solver
+class Dijkstrap : public Solver
 {
 	public:
 		/** @brief Constructor function */

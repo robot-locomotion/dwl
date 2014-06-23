@@ -1,10 +1,10 @@
-#include <hyq/StateCost.h>
+#include <robot/StateCost.h>
 
 
 namespace dwl
 {
 
-namespace hyq
+namespace robot
 {
 
 StateCost::StateCost()

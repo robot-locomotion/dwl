@@ -5,6 +5,8 @@
 #include <list>
 #include <set>
 
+#include <Eigen/Dense>
+
 #include <octomap/octomap.h>
 
 

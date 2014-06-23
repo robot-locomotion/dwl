@@ -1,10 +1,10 @@
-#include <hyq/KinematicConstraints.h>
+#include <robot/KinematicConstraints.h>
 
 
 namespace dwl
 {
 
-namespace hyq
+namespace robot
 {
 
 KinematicConstraints::KinematicConstraints()

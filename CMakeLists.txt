@@ -41,9 +41,10 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/environment/Feature.cpp
 							src/environment/SlopeFeature.cpp
 							src/environment/HeightDeviationFeature.cpp
-							src/hyq/KinematicConstraints.cpp
-							src/hyq/StabilityConstraints.cpp
-							src/hyq/StateCost.cpp
+							src/robot/Robot.cpp
+							src/robot/KinematicConstraints.cpp
+							src/robot/StabilityConstraints.cpp
+							src/robot/StateCost.cpp
 							src//utils/Math.cpp
 							src/utils/Orientation.cpp) 
 

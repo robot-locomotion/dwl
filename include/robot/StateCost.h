@@ -1,5 +1,5 @@
-#ifndef DWL_HyQ_StateCost_H
-#define DWL_HyQ_StateCost_H
+#ifndef DWL_StateCost_H
+#define DWL_StateCost_H
 
 #include <planning/Cost.h>
 
@@ -8,7 +8,7 @@
 namespace dwl
 {
 
-namespace hyq
+namespace robot
 {
 
 class StateCost : public planning::Cost

@@ -116,7 +116,7 @@ class Solver
 //		pthread_mutex_t solver_lock_;
 };
 
-} //@namespace planning
+} //@namespace solver
 
 } //@namespace dwl
 

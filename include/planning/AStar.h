@@ -15,7 +15,7 @@ namespace planning
  * @class AStar
  * @brief Class for solving a shortest-search problem using the A* algorithm
  */
-class AStar : public dwl::planning::Solver
+class AStar : public Solver
 {
 	public:
 		/** @brief Constructor function */

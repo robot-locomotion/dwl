@@ -12,6 +12,7 @@ GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true), n
 	name_ = "grid-based body";
 
 	//TODO stance area
+	stance_areas_ = robot_.getStanceAreas();
 }
 
 

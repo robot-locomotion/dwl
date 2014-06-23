@@ -2,7 +2,7 @@
 #define DWL_AdjacencyEnvironment_H
 
 #include <environment/PlaneGrid.h>
-#include <hyq/Robot.h>
+#include <robot/Robot.h>
 #include <utils/utils.h>
 
 
@@ -89,7 +89,7 @@ class AdjacencyEnvironment
 		CostMap terrain_cost_map_;
 
 		/** @brief Odject of the Robot class for defining robot properties */
-		robot::Robot* robot_;
+		robot::Robot robot_;
 
 		/** @brief Average cost which is used for unknown areas */
 		double average_cost_;

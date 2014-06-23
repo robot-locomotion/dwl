@@ -1,5 +1,5 @@
-#ifndef DWL_HyQ_KinematicConstraints_H
-#define DWL_HyQ_KinematicConstraints_H
+#ifndef DWL_StabilityConstraints_H
+#define DWL_StabilityConstraints_H
 
 #include <planning/Constraint.h>
 
@@ -7,22 +7,22 @@
 namespace dwl
 {
 
-namespace hyq
+namespace robot
 {
 
-class KinematicConstraints : public planning::Constraint
+class StabilityConstraints : public planning::Constraint
 {
 	public:
 		/** @brief Constructor function */
-		KinematicConstraints();
+		StabilityConstraints();
 
 		/** @brief Destructor function */
-		~KinematicConstraints();
+		~StabilityConstraints();
 
 		void get(Eigen::VectorXd& constraint, Eigen::VectorXd state);
 
 
-}; //@class KinematicConstraint
+};
 
 } //@namespace hyq
 

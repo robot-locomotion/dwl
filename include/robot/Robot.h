@@ -14,13 +14,15 @@ class Robot
 {
 	public:
 		Robot();
-		virtual ~Robot();
+		~Robot();
 
 		/**
-		 * @brief Abstract method for setting the stance areas for computing the body adjacency map
+		 * @brief Sets the stance areas for computing the body adjacency map
 		 * @param std::vector<SearchArea> stance_areas Stance areas
 		 */
-		virtual void setStanceAreas(std::vector<SearchArea> stance_areas) = 0;
+		void setStanceAreas(std::vector<SearchArea> stance_areas); //TODO Re-write this method for general settings
+
+		std::vector<SearchArea> getStanceAreas();
 
 
 	protected:
