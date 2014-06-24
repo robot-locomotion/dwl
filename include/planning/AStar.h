@@ -2,7 +2,6 @@
 #define DWL_AStar_H
 
 #include <planning/Solver.h>
-#include <environment/PlaneGrid.h>
 
 
 namespace dwl
@@ -36,25 +35,29 @@ class AStar : public Solver
 		 */
 		bool compute(SolverInterface solver_interface);
 
+
+	private:
 		/**
 		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path //TODO
-		 * @param Vertex source Source vertex
-		 * @param AdjacencyMap adjacency_map Adjacency map
 		 * @param CostMap& min_cost Minimum cost of the vertex
 		 * @param PreviousVertex& Previous vertex
+		 * @param Vertex source Source vertex
+		 * @param Vertex target Target vertex
+		 * @param AdjacencyMap adjacency_map Adjacency map
 		 */
 		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, double orientation, AdjacencyMap adjacency_map);
 
 		/**
-		 * @brief Estimates the heuristic cost from a source to a target vertex
+		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path //TODO
+		 * @param CostMap& min_cost Minimum cost of the vertex
+		 * @param PreviousVertex& Previous vertex
 		 * @param Vertex source Source vertex
 		 * @param Vertex target Target vertex
 		 */
-		double heuristicCostEstimate(Vertex source, Vertex target);
+		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, double orientation);
 
-
-	private:
-
+		/** @brief Indicates if it's computed a whole adjacency map before the searching */
+		bool compute_whole_adjacency_map_;
 
 };
 

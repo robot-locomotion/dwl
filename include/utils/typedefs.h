@@ -4,6 +4,7 @@
 #include <map>
 #include <list>
 #include <set>
+#include <vector>
 
 #include <Eigen/Dense>
 
@@ -57,6 +58,15 @@ struct Pose
 {
 	Eigen::Vector3d position;
 	Eigen::Quaterniond orientation; // Quaternion
+};
+
+/**
+ * @brief Struct that defines the 2d pose, i.e. (x,y) and yaw angle
+ */
+struct Pose3d
+{
+	Eigen::Vector2d position;
+	double orientation;
 };
 
 /**

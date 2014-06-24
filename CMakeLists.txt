@@ -33,8 +33,10 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/Constraint.cpp
 							src/planning/Dijkstrap.cpp
 							src/planning/AStar.cpp
+							src/behavior/BodyMotorPrimitives.cpp
 							src/environment/AdjacencyEnvironment.cpp
 							src/environment/GridBasedBodyAdjacency.cpp
+							src/environment/LatticeBasedBodyAdjacency.cpp
 							src/environment/RewardMap.cpp
 							src/environment/RewardOctoMap.cpp
 							src/environment/PlaneGrid.cpp

@@ -36,23 +36,10 @@ bool Dijkstrap::compute(SolverInterface solver_interface)
 		AdjacencyMap adjacency_map;
 		environment_->computeAdjacencyMap(adjacency_map, solver.source, solver.target, solver.position);
 
+		// Computing the path according to Dijkstrap algorithm
 		CostMap min_cost;
 		PreviousVertex previous;
-
-		// Check if the start and goal position belong to the terrain information, in negative case, the closest points will added to the computed path
-		Vertex closest_source, closest_target;
-		environment_->getTheClosestStartAndGoalVertex(closest_source, closest_target, solver.source, solver.target);
-		if (closest_source != solver.source) {
-			previous[closest_source] = solver.source;
-			min_cost[solver.source] = 0;
-		}
-		if (closest_target != solver.target) {
-			previous[solver.target] = closest_target;
-			min_cost[solver.target] = 0;
-		}
-
-		// Computing the path according to Dijkstrap algorithm
-		findShortestPath(solver.source, adjacency_map, min_cost, previous);
+		findShortestPath(min_cost, previous, solver.source, adjacency_map);
 		previous_ = previous;
 		total_cost_ = min_cost[solver.target];
 	} else {
@@ -64,7 +51,7 @@ bool Dijkstrap::compute(SolverInterface solver_interface)
 }
 
 
-void Dijkstrap::findShortestPath(Vertex source, AdjacencyMap adjacency_map, CostMap& min_cost, PreviousVertex& previous)
+void Dijkstrap::findShortestPath(CostMap& min_cost, PreviousVertex& previous, Vertex source, AdjacencyMap adjacency_map)
 {
 	for (AdjacencyMap::iterator vertex_iter = adjacency_map.begin();
 		vertex_iter != adjacency_map.end();
@@ -111,34 +98,3 @@ void Dijkstrap::findShortestPath(Vertex source, AdjacencyMap adjacency_map, Cost
 } //@namespace planning
 
 } //@namespace dwl
-
-
-
-
-
-/*
-const int num_nodes = 5;
-enum nodes { A, B, C, D, E };
-char name[] = "ABCDE";
-edge edge_array[] = { edge(A, C), edge(B, B), edge(B, D), edge(B, E),
-    edge(C, B), edge(C, D), edge(D, E), edge(E, A), edge(E, B)
-};
-int weights[] = { 1, 2, 1, 2, 7, 3, 1, 1, 1 };
-int num_arcs = sizeof(edge_array) / sizeof(edge);
-
-// Defining the dijkstrap graph
-graph dijkstrap_graph(edge_array, edge_array + num_arcs, weights, num_nodes);
-
-// Defining the weight map
-boost::property_map<graph, boost::edge_weight_t>::type weightmap = get(boost::edge_weight, dijkstrap_graph);
-
-std::vector<vertex_descriptor> parent_vertex(num_vertices(dijkstrap_graph));
-std::vector<int> cost_from_source(num_vertices(dijkstrap_graph));
-vertex_descriptor source_vertex = vertex(A, dijkstrap_graph);
-
-dijkstra_shortest_paths(dijkstrap_graph, source_vertex,
-						predecessor_map(boost::make_iterator_property_map(parent_vertex.begin(), get(boost::vertex_index, dijkstrap_graph))).
-						distance_map(boost::make_iterator_property_map(cost_from_source.begin(), get(boost::vertex_index, dijkstrap_graph))));
-
-
-std::cout << "Distance(" << name[4] << ") = " << cost_from_source[4] << ",  Parent(" << name[4] << ") = " << name[parent_vertex[4]] << std::endl;*/

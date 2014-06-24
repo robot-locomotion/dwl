@@ -10,6 +10,7 @@ namespace environment
 GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true), neighboring_definition_(3), number_top_reward_(5), uncertainty_factor_(1.15)
 {
 	name_ = "grid-based body";
+	is_lattice_ = false;
 
 	//TODO stance area
 	stance_areas_ = robot_.getStanceAreas();
@@ -20,6 +21,7 @@ GridBasedBodyAdjacency::~GridBasedBodyAdjacency()
 {
 
 }
+
 
 void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, Eigen::Vector3d position)
 {
@@ -93,85 +95,85 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbors, Ver
 	Key vertex_key = gridmap_.vertexToGridMapKey(vertex_id);
 
 	// Searching the closed neighbors around 3-neighboring area
-	bool is_found_neighbour_positive_x = false, is_found_neighbour_negative_x = false;
-	bool is_found_neighbour_positive_y = false, is_found_neighbour_negative_y = false;
-	bool is_found_neighbour_positive_xy = false, is_found_neighbour_negative_xy = false;
-	bool is_found_neighbour_positive_yx = false, is_found_neighbour_negative_yx = false;
+	bool is_found_neighbor_positive_x = false, is_found_neighbor_negative_x = false;
+	bool is_found_neighbor_positive_y = false, is_found_neighbor_negative_y = false;
+	bool is_found_neighbor_positive_xy = false, is_found_neighbor_negative_xy = false;
+	bool is_found_neighbor_positive_yx = false, is_found_neighbor_negative_yx = false;
 	if (is_there_terrain_information_) {
 		for (int r = 1; r <= neighboring_definition_; r++) {
 			Key searching_key;
-			Vertex neighbour_vertex;
+			Vertex neighbor_vertex;
 
 			// Searching the neighbour in the positive x-axis
 			searching_key.key[0] = vertex_key.key[0] + r;
 			searching_key.key[1] = vertex_key.key[1];
-			neighbour_vertex = gridmap_.gridMapKeyToVertex(searching_key);
-			if ((terrain_cost_map_.find(neighbour_vertex)->first == neighbour_vertex) && (!is_found_neighbour_positive_x)) {
-				neighbors.push_back(neighbour_vertex);
-				is_found_neighbour_positive_x = true;
+			neighbor_vertex = gridmap_.gridMapKeyToVertex(searching_key);
+			if ((terrain_cost_map_.find(neighbor_vertex)->first == neighbor_vertex) && (!is_found_neighbor_positive_x)) {
+				neighbors.push_back(neighbor_vertex);
+				is_found_neighbor_positive_x = true;
 			}
 
 			// Searching the neighbour in the negative x-axis
 			searching_key.key[0] = vertex_key.key[0] - r;
 			searching_key.key[1] = vertex_key.key[1];
-			neighbour_vertex = gridmap_.gridMapKeyToVertex(searching_key);
-			if ((terrain_cost_map_.find(neighbour_vertex)->first == neighbour_vertex) && (!is_found_neighbour_negative_x)) {
-				neighbors.push_back(neighbour_vertex);
-				is_found_neighbour_negative_x = true;
+			neighbor_vertex = gridmap_.gridMapKeyToVertex(searching_key);
+			if ((terrain_cost_map_.find(neighbor_vertex)->first == neighbor_vertex) && (!is_found_neighbor_negative_x)) {
+				neighbors.push_back(neighbor_vertex);
+				is_found_neighbor_negative_x = true;
 			}
 
 			// Searching the neighbour in the positive y-axis
 			searching_key.key[0] = vertex_key.key[0];
 			searching_key.key[1] = vertex_key.key[1] + r;
-			neighbour_vertex = gridmap_.gridMapKeyToVertex(searching_key);
-			if ((terrain_cost_map_.find(neighbour_vertex)->first == neighbour_vertex) && (!is_found_neighbour_positive_y)) {
-				neighbors.push_back(neighbour_vertex);
-				is_found_neighbour_positive_y = true;
+			neighbor_vertex = gridmap_.gridMapKeyToVertex(searching_key);
+			if ((terrain_cost_map_.find(neighbor_vertex)->first == neighbor_vertex) && (!is_found_neighbor_positive_y)) {
+				neighbors.push_back(neighbor_vertex);
+				is_found_neighbor_positive_y = true;
 			}
 
 			// Searching the neighbour in the negative y-axis
 			searching_key.key[0] = vertex_key.key[0];
 			searching_key.key[1] = vertex_key.key[1] - r;
-			neighbour_vertex = gridmap_.gridMapKeyToVertex(searching_key);
-			if ((terrain_cost_map_.find(neighbour_vertex)->first == neighbour_vertex) && (!is_found_neighbour_negative_y)) {
-				neighbors.push_back(neighbour_vertex);
-				is_found_neighbour_negative_y = true;
+			neighbor_vertex = gridmap_.gridMapKeyToVertex(searching_key);
+			if ((terrain_cost_map_.find(neighbor_vertex)->first == neighbor_vertex) && (!is_found_neighbor_negative_y)) {
+				neighbors.push_back(neighbor_vertex);
+				is_found_neighbor_negative_y = true;
 			}
 
 			// Searching the neighbour in the positive xy-axis
 			searching_key.key[0] = vertex_key.key[0] + r;
 			searching_key.key[1] = vertex_key.key[1] + r;
-			neighbour_vertex = gridmap_.gridMapKeyToVertex(searching_key);
-			if ((terrain_cost_map_.find(neighbour_vertex)->first == neighbour_vertex) && (!is_found_neighbour_positive_xy)) {
-				neighbors.push_back(neighbour_vertex);
-				is_found_neighbour_positive_xy = true;
+			neighbor_vertex = gridmap_.gridMapKeyToVertex(searching_key);
+			if ((terrain_cost_map_.find(neighbor_vertex)->first == neighbor_vertex) && (!is_found_neighbor_positive_xy)) {
+				neighbors.push_back(neighbor_vertex);
+				is_found_neighbor_positive_xy = true;
 			}
 
 			// Searching the neighbour in the negative xy-axis
 			searching_key.key[0] = vertex_key.key[0] - r;
 			searching_key.key[1] = vertex_key.key[1] - r;
-			neighbour_vertex = gridmap_.gridMapKeyToVertex(searching_key);
-			if ((terrain_cost_map_.find(neighbour_vertex)->first == neighbour_vertex) && (!is_found_neighbour_negative_xy)) {
-				neighbors.push_back(neighbour_vertex);
-				is_found_neighbour_negative_xy = true;
+			neighbor_vertex = gridmap_.gridMapKeyToVertex(searching_key);
+			if ((terrain_cost_map_.find(neighbor_vertex)->first == neighbor_vertex) && (!is_found_neighbor_negative_xy)) {
+				neighbors.push_back(neighbor_vertex);
+				is_found_neighbor_negative_xy = true;
 			}
 
 			// Searching the neighbour in the positive yx-axis
 			searching_key.key[0] = vertex_key.key[0] - r;
 			searching_key.key[1] = vertex_key.key[1] + r;
-			neighbour_vertex = gridmap_.gridMapKeyToVertex(searching_key);
-			if ((terrain_cost_map_.find(neighbour_vertex)->first == neighbour_vertex) && (!is_found_neighbour_positive_yx)) {
-				neighbors.push_back(neighbour_vertex);
-				is_found_neighbour_positive_yx = true;
+			neighbor_vertex = gridmap_.gridMapKeyToVertex(searching_key);
+			if ((terrain_cost_map_.find(neighbor_vertex)->first == neighbor_vertex) && (!is_found_neighbor_positive_yx)) {
+				neighbors.push_back(neighbor_vertex);
+				is_found_neighbor_positive_yx = true;
 			}
 
 			// Searching the neighbour in the negative yx-axis
 			searching_key.key[0] = vertex_key.key[0] + r;
 			searching_key.key[1] = vertex_key.key[1] - r;
-			neighbour_vertex = gridmap_.gridMapKeyToVertex(searching_key);
-			if ((terrain_cost_map_.find(neighbour_vertex)->first == neighbour_vertex) && (!is_found_neighbour_negative_yx)) {
-				neighbors.push_back(neighbour_vertex);
-				is_found_neighbour_negative_yx = true;
+			neighbor_vertex = gridmap_.gridMapKeyToVertex(searching_key);
+			if ((terrain_cost_map_.find(neighbor_vertex)->first == neighbor_vertex) && (!is_found_neighbor_negative_yx)) {
+				neighbors.push_back(neighbor_vertex);
+				is_found_neighbor_negative_yx = true;
 			}
 		}
 	} else

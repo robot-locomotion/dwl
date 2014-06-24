@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-AdjacencyEnvironment::AdjacencyEnvironment() : average_cost_(0), gridmap_(0.04, 0.02), is_there_terrain_information_(false)
+AdjacencyEnvironment::AdjacencyEnvironment() : average_cost_(0), gridmap_(0.04, 0.02), is_there_terrain_information_(false), is_lattice_(false)
 {
 
 }
@@ -192,6 +192,55 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 			closest_distant = start_distant;
 		}
 	}
+}
+
+
+double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target) //TODO
+{
+	Eigen::Vector2d source_position = getPosition(source);
+	Eigen::Vector2d target_position = getPosition(target);
+
+	double distance = (target_position - source_position).squaredNorm();
+	double dy = target_position(1) - source_position(1);
+	//double dx = target_position(0) - source_position(0);
+	//double heading = abs(atan(dy / dx));
+
+
+	return 0.5 * (0.8 * distance + 0.2 * abs(dy));
+}
+
+
+bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
+{
+	if (isLatticeRepresentation()) {
+		double epsilon = 0.1; //TODO
+		Eigen::Vector2d current_position = getPosition(current);
+		Eigen::Vector2d target_position = getPosition(target);
+		double distant = (target_position - current_position).squaredNorm();
+		if (distant < epsilon) {
+			// Reconstructing path
+			std::cout << "Reached goal = " << current_position(0) << " " << current_position(1) << " | Goal = " << target_position(0) << " " << target_position(1) << " | dist = " << distant << std::endl;
+			return true;
+		}
+	} else {
+		if (current == target) {
+			// Reconstructing path
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+bool AdjacencyEnvironment::isLatticeRepresentation()
+{
+	return is_lattice_;
+}
+
+Eigen::Vector2d AdjacencyEnvironment::getPosition(Vertex vertex)
+{
+	return gridmap_.vertexToCoord(vertex);
 }
 
 

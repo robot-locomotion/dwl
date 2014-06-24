@@ -2,11 +2,6 @@
 #define DWL_Solver_H
 
 #include <environment/AdjacencyEnvironment.h>
-
-#include <Eigen/Dense>
-
-#include <vector>
-
 #include <utils/utils.h>
 //#include <pthread.h>
 
@@ -38,7 +33,7 @@ struct SolverInterface
 
 /**
  * @class Solver
- * @brief Abstract class for computation of a solution
+ * @brief Abstract class for solving graph-searching or optimization problems
  */
 class Solver
 {
@@ -75,7 +70,7 @@ class Solver
 		virtual bool compute(SolverInterface solver_interface) = 0;
 
 		/**
-		 * @brief Get the shortes path only for graph searching algorithms
+		 * @brief Gets the shortest-path only for graph searching algorithms
 		 * @param Vertex target Target vertex
 		 * @return std::list<Vertex> Returns the path as a list of vertex
 		 */
@@ -102,6 +97,7 @@ class Solver
 		/** @brief Name of the solver */
 		std::string name_;
 
+		/** @brief Adjacency model of the environment */
 		environment::AdjacencyEnvironment* environment_;
 
 		/** @brief Indicates if it a graph-searching algorithm */
@@ -116,7 +112,7 @@ class Solver
 //		pthread_mutex_t solver_lock_;
 };
 
-} //@namespace solver
+} //@namespace planning
 
 } //@namespace dwl
 

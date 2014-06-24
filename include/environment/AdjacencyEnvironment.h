@@ -72,6 +72,24 @@ class AdjacencyEnvironment
 		void getTheClosestVertex(Vertex& closest_vertex, Vertex vertex);
 
 		/**
+		 * @brief Estimates the heuristic cost from a source to a target vertex
+		 * @param Vertex source Source vertex
+		 * @param Vertex target Target vertex
+		 */
+		virtual double heuristicCostEstimate(Vertex source, Vertex target);
+
+		bool isReachedGoal(Vertex target, Vertex current);
+
+		bool isLatticeRepresentation();
+
+		/**
+		 * @brief Gets the 2d position of the current vertex
+		 * @param dwl::Vertex vertex Current vertex
+		 * @return Eigen::Vector2d Return the 2d position
+		 */
+		Eigen::Vector2d getPosition(Vertex vertex);
+
+		/**
 		 * @brief Gets the name of the adjacency model
 		 * @return std::string Return the name of the adjacency model
 		 */
@@ -95,6 +113,8 @@ class AdjacencyEnvironment
 		double average_cost_;
 
 		bool is_there_terrain_information_;
+
+		bool is_lattice_;
 
 
 	private:

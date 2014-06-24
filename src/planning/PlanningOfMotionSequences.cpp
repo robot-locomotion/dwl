@@ -213,11 +213,11 @@ void PlanningOfMotionSequences::setGridMapResolution(double resolution)
 
 	// Setting the resolution of the gridmap cost class
 	for (int i = 0; i < costs_.size(); i++) {
-		if (costs_[i]->isCostMap()) {
+		/*if (costs_[i]->isCostMap()) {
 			costs_[i]->setGridMapResolution(resolution);
 
 			break;
-		}
+		}*/
 	}
 }
 
