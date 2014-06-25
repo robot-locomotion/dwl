@@ -2,7 +2,7 @@
 #define DWL_LatticeBasedBodyAdjacency_H
 
 #include <environment/AdjacencyEnvironment.h>
-#include <behavior/BodyMotorPrimitives.h>
+#include <behavior/MotorPrimitives.h>
 
 
 namespace dwl
@@ -64,7 +64,7 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> stance_areas_;
 
-		behavior::BodyMotorPrimitives behavior_;
+		behavior::MotorPrimitives* behavior_;
 
 		/** @brief Number of top reward for computing the stance cost */
 		int number_top_reward_;

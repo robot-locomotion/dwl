@@ -18,7 +18,7 @@ BodyMotorPrimitives::~BodyMotorPrimitives()
 }
 
 
-void BodyMotorPrimitives::computeAction(std::vector<Pose3d>& actions, Pose3d state)
+void BodyMotorPrimitives::generateActions(std::vector<Pose3d>& actions, Pose3d state)
 {
 	double delta_x[] = {0.0,  0.0, 0.3, -0.2, 0.15,  0.15, -0.15, -0.15};
 	double delta_y[] = {0.1, -0.1, 0.0,  0.0, 0.1, -0.1,  0.1,  0.1};
