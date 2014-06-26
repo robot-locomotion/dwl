@@ -121,9 +121,8 @@ void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
 void PlanningOfMotionSequences::addCost(Cost* cost)
 {
 	printf(GREEN "Adding the %s cost\n" COLOR_RESET, cost->getName().c_str());
-//	pthread_mutex_lock(&planning_lock_);
+
 	costs_.push_back(cost);
-//	pthread_mutex_lock(&planning_lock_);
 	is_added_cost_ = true;
 }
 
@@ -199,32 +198,22 @@ bool PlanningOfMotionSequences::computePlan(Pose robot_state)
 void PlanningOfMotionSequences::changeGoal(Pose goal)
 {
 	printf(GREEN "Changed the goal state\n" COLOR_RESET);
-	//pthread_mutex_lock(&planning_lock_);
+
 	goal_pose_ = goal;
-	//pthread_mutex_unlock(&planning_lock_);
 }
 
-
+/*
 void PlanningOfMotionSequences::setGridMapResolution(double resolution)
 {
 	// Setting the resolution of the gridmap instantiation of this class
 	gridmap_.setResolution(resolution, true);
 	gridmap_.setResolution(resolution, false);
-
-	// Setting the resolution of the gridmap cost class
-	for (int i = 0; i < costs_.size(); i++) {
-		/*if (costs_[i]->isCostMap()) {
-			costs_[i]->setGridMapResolution(resolution);
-
-			break;
-		}*/
-	}
-}
+}*/
 
 
 std::vector<Pose> PlanningOfMotionSequences::getBodyPath()
 {
-	return body_trajectory_;
+	return body_path_;
 }
 
 

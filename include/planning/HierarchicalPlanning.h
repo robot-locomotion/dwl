@@ -31,31 +31,23 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 
 		/**
 		 * @brief Updates the start and goal body pose for hierarchical planning
-		 * @param dwl::planning::Pose start Start pose
-		 * @param dwl::planning::Pose goal Goal pose
+		 * @param dwl::Pose goal Goal pose
 		 */
-		virtual void update(Pose start, Pose goal);
+		virtual void resetGoal(Pose goal);
 
 		/**
 		 * @brief Computes a whole-body motion provided for the hierarchical planning
-		 * @param dwl::planning::Pose robot_state Robot pose
+		 * @param dwl::Pose current_pose Current pose
 		 * @return bool Return true if it was computed the plan
 		 */
-		bool compute(Pose robot_state);
-
-		/**
-		 * @brief Checks if the start and goal vertex belongs to the adjacency map, and then they are add if it is necessary
-		 * @param AdjacencyMap& adjacency_map Adjacency map
-		 */
-		void checkStartAndGoalVertex(AdjacencyMap& adjacency_map);
+		bool compute(Pose current_pose);
 
 
 	private:
-		/** @brief The id of the start vertex */
-		Vertex start_id_;
+		std::vector<Pose> recordBodyPath();
 
 		/** @brief The id of the goal vertex */
-		Vertex goal_id_;
+		Vertex goal_vertex_;
 
 
 }; //@class HierarchicalPlanning

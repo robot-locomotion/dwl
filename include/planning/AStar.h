@@ -30,10 +30,13 @@ class AStar : public Solver
 		bool init();
 
 		/**
-		 * @brief Computes the shortest-path according to A* algorithm
-		 * @param SolverInterface& solver_interface Interface for the applied solver
+		 * @brief Computes a shortest-path using A* algorithm
+		 * @param dwl::Vertex source Source vertex
+		 * @param dwl::Vertex target Target vertex
+		 * @param double orientation Orientation of the body
+		 * @return bool Return true if it was computed a solution
 		 */
-		bool compute(SolverInterface solver_interface);
+		bool compute(Vertex source, Vertex target, double orientation);
 
 
 	private:

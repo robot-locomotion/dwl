@@ -23,7 +23,7 @@ GridBasedBodyAdjacency::~GridBasedBodyAdjacency()
 }
 
 
-void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, Eigen::Vector3d position)
+void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, double orientation)
 {
 	if (is_there_terrain_information_) {
 		// Adding the source and target vertex if it is outside the information terrain
@@ -54,8 +54,8 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Ve
 			} else {
 				// Computing the body cost
 				double body_cost;
-				double yaw = position(2);
-				computeBodyCost(body_cost, vertex, yaw);
+				//double yaw = position(2);
+				computeBodyCost(body_cost, vertex, orientation);
 
 				// Searching the neighbours
 				std::vector<Vertex> neighbors;

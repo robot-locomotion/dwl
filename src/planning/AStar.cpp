@@ -27,41 +27,38 @@ bool AStar::init()
 }
 
 
-bool AStar::compute(SolverInterface solver_interface)
+bool AStar::compute(Vertex source, Vertex target, double orientation)
 {
-	GraphSearching solver = solver_interface.searcher;
-
 	if (is_settep_adjacency_model_) {
 		// Computing the shortest path
 		CostMap min_cost;
 		PreviousVertex previous;
-		double orientation = solver.position(2);
 		if (compute_whole_adjacency_map_) {
 			// Computing adjacency map
 			AdjacencyMap adjacency_map;
-			environment_->computeAdjacencyMap(adjacency_map, solver.source, solver.target, solver.position);
+			environment_->computeAdjacencyMap(adjacency_map, source, target, orientation);
 
 			// Computing the path according to A-star algorithm
-			findShortestPath(min_cost, previous, solver.source, solver.target, orientation, adjacency_map);
+			findShortestPath(min_cost, previous, source, target, orientation, adjacency_map);
 		} else {
 			// Check if the start and goal position belong to the terrain information, in negative case, the closest points will added to the computed path
 			Vertex closest_source, closest_target;
-			environment_->getTheClosestStartAndGoalVertex(closest_source, closest_target, solver.source, solver.target);
-			if (closest_source != solver.source) {
-				previous[closest_source] = solver.source;
-				min_cost[solver.source] = 0;
+			environment_->getTheClosestStartAndGoalVertex(closest_source, closest_target, source, target);
+			if (closest_source != source) {
+				previous[closest_source] = source;
+				min_cost[source] = 0;
 			}
-			if (closest_target != solver.target) {
-				previous[solver.target] = closest_target;
-				min_cost[solver.target] = 0;
+			if (closest_target != target) {
+				previous[target] = closest_target;
+				min_cost[target] = 0;
 			}
 			findShortestPath(min_cost, previous, closest_source, closest_target, orientation);
 		}
 
 		previous_ = previous;
-		total_cost_ = min_cost[solver.target];
+		total_cost_ = min_cost[target];
 	} else {
-		printf(RED "Could not compute the shortest path because it is required to defined an adjacency model \n" COLOR_RESET);
+		printf(RED "Could not compute the shortest path because it is required to defined an adjacency model\n" COLOR_RESET);
 		return false;
 	}
 

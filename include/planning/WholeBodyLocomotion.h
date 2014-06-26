@@ -58,23 +58,22 @@ class WholeBodyLocomotion
 
 		/**
 		 * @brief Updates the start and goal pose of the robot for making a receding horizon planning
-		 * @param dwl::Pose start Start pose
 		 * @param dwl::Pose goal Goal pose
 		 */
-		void update(Pose start, Pose goal);
+		void resetGoal(Pose goal);
 
 		/**
 		 * @brief Computes a locomotion plan
-		 * @param dwl::Pose robot_state Robot pose
+		 * @param dwl::Pose current_pose Current pose
 		 * @return bool Return true if was found a locomotion plan
 		 */
-		bool compute(Pose robot_state);
+		bool compute(Pose current_pose);
 
 		/**
 		 * @brief Sets the gridmap resolution
 		 * @param double resolution Resolution of the gridmap
 		 */
-		void setGridMapResolution(double resolution);
+		//void setGridMapResolution(double resolution);
 
 		/**
 		 * @brief Changes the goal

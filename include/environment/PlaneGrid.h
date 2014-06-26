@@ -1,7 +1,6 @@
 #ifndef DWL_PlaneGrid_H
 #define DWL_PlaneGrid_H
 
-#include <Eigen/Dense>
 #include <math.h>
 #include <utils/utils.h>
 

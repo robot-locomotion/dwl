@@ -27,21 +27,19 @@ bool Dijkstrap::init()
 }
 
 
-bool Dijkstrap::compute(SolverInterface solver_interface)
+bool Dijkstrap::compute(Vertex source, Vertex target, double orientation)
 {
-	GraphSearching solver = solver_interface.searcher;
-
 	if (is_settep_adjacency_model_) {
 		// Computing adjacency map
 		AdjacencyMap adjacency_map;
-		environment_->computeAdjacencyMap(adjacency_map, solver.source, solver.target, solver.position);
+		environment_->computeAdjacencyMap(adjacency_map, source, target, orientation);
 
 		// Computing the path according to Dijkstrap algorithm
 		CostMap min_cost;
 		PreviousVertex previous;
-		findShortestPath(min_cost, previous, solver.source, adjacency_map);
+		findShortestPath(min_cost, previous, source, adjacency_map);
 		previous_ = previous;
-		total_cost_ = min_cost[solver.target];
+		total_cost_ = min_cost[target];
 	} else {
 		printf(RED "Could not compute the shortest path because it is required to defined an adjacency model \n" COLOR_RESET);
 		return false;

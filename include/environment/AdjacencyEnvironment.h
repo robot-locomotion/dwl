@@ -45,7 +45,7 @@ class AdjacencyEnvironment
 		 * @param dwl::Vertex target Target vertex
 		 * @param Eigen::Vector3d position 2D position and orientation
 		 */
-		virtual void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, Eigen::Vector3d position) = 0;
+		virtual void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, double orientation);//Eigen::Vector3d position);
 
 		/**
 		 * @brief Abstract method that gets the successors of a certain vertex
@@ -53,7 +53,7 @@ class AdjacencyEnvironment
 		 * @param dwl::Vertex Current vertex
 		 * @param double orientation Current orientation
 		 */
-		virtual void getSuccessors(std::list<Edge>& successors, Vertex vertex, double orientation) = 0;
+		virtual void getSuccessors(std::list<Edge>& successors, Vertex vertex, double orientation);
 
 		/**
 		 * @brief Gets the closest start and goal vertex if it is not belong to the terrain information
@@ -78,8 +78,18 @@ class AdjacencyEnvironment
 		 */
 		virtual double heuristicCostEstimate(Vertex source, Vertex target);
 
+		/**
+		 * @brief Indicates if it is reached the goal
+		 * @param dwl::Vertex target Goal vertex
+		 * @param dwl::Vertex current Current vertex
+		 * @return bool Return true if it is reache the goal and false otherwise
+		 */
 		bool isReachedGoal(Vertex target, Vertex current);
 
+		/**
+		 * @brief Indicates if it is a lattice representation of the environment
+		 * @return bool Return true if it is a lattice representation and false otherwise
+		 */
 		bool isLatticeRepresentation();
 
 		/**
@@ -88,6 +98,8 @@ class AdjacencyEnvironment
 		 * @return Eigen::Vector2d Return the 2d position
 		 */
 		Eigen::Vector2d getPosition(Vertex vertex);
+
+		Vertex getVertex(Pose pose);//TODO
 
 		/**
 		 * @brief Gets the name of the adjacency model

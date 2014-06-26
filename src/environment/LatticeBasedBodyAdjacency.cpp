@@ -21,53 +21,7 @@ LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : behavior_(NULL), is_sta
 
 LatticeBasedBodyAdjacency::~LatticeBasedBodyAdjacency()
 {
-
-}
-
-
-void LatticeBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, Eigen::Vector3d position)
-{
-	if (is_there_terrain_information_) {
-		// Adding the source and target vertex if it is outside the information terrain
-		Vertex closest_source, closest_target;
-		getTheClosestStartAndGoalVertex(closest_source, closest_target, source, target);
-		if (closest_source != source) {
-			adjacency_map[source].push_back(Edge(closest_source, 0));
-		}
-		if (closest_target != target) {
-			adjacency_map[closest_target].push_back(Edge(target, 0));
-		}
-
-		// Computing the adjacency map given the terrain information
-/*		for (CostMap::iterator vertex_iter = terrain_cost_map_.begin();
-				vertex_iter != terrain_cost_map_.end();
-				vertex_iter++)
-		{
-			Vertex vertex = vertex_iter->first;
-
-			if (!isStanceAdjacency()) {
-				double terrain_cost = vertex_iter->second;
-
-				// Searching the neighbours
-				std::vector<Vertex> neighbors;
-				searchNeighbors(neighbors, vertex);
-				for (int i = 0; i < neighbors.size(); i++)
-					adjacency_map[neighbors[i]].push_back(Edge(vertex, terrain_cost));
-			} else {
-				// Computing the body cost
-				double body_cost;
-				double yaw = position(2);
-				computeBodyCost(body_cost, vertex, yaw);
-
-				// Searching the neighbours
-				std::vector<Vertex> neighbors;
-				searchNeighbors(neighbors, vertex);
-				for (int i = 0; i < neighbors.size(); i++)
-					adjacency_map[neighbors[i]].push_back(Edge(vertex, body_cost));
-			}
-		}*/
-	} else
-		printf(RED "Couldn't compute the adjacency map because there isn't terrain information \n" COLOR_RESET);
+	delete behavior_;
 }
 
 

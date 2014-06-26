@@ -13,25 +13,6 @@ namespace planning
 {
 
 /**
- * @brief Struct that defines the graph-searching interface
- */
-struct GraphSearching
-{
-	Vertex source;
-	Vertex target;
-	Eigen::Vector3d position;
-};
-
-/**
- * @brief Struct that defines the different solver interfaces
- */
-struct SolverInterface
-{
-	GraphSearching searcher; /**< Graph-searching algorithms */
-	//Optimization optimizer;
-};
-
-/**
  * @class Solver
  * @brief Abstract class for solving graph-searching or optimization problems
  */
@@ -63,11 +44,14 @@ class Solver
 		void setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_model);
 
 		/**
-		 * @brief Abstract method for computing a solution
-		 * @param SolverInterface& solver_interface Interface for the applied solver
+		 * @brief Abstract method for computing a shortest-path using graph search algorithms such as A* or Dijkstrap
+		 * @param dwl::Vertex source Source vertex
+		 * @param dwl::Vertex target Target vertex
+		 * @param double orientation Orientation of the body
 		 * @return bool Return true if it was computed a solution
 		 */
-		virtual bool compute(SolverInterface solver_interface) = 0;
+		virtual bool compute(Vertex source, Vertex target, double orientation);
+
 
 		/**
 		 * @brief Gets the shortest-path only for graph searching algorithms

@@ -11,6 +11,10 @@ namespace dwl
 namespace environment
 {
 
+/**
+ * @class LatticeBasedBodyAdjacency
+ * @brief Class for building a lattice-based adjacency map of the environment
+ */
 class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 {
 	public:
@@ -19,15 +23,6 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 
 		/** @brief Destructor function */
 		~LatticeBasedBodyAdjacency();
-
-		/**
-		 * @brief Computes the whole adjacency map
-		 * @param dwl::AdjacencyMap& adjacency_map Adjacency map
-		 * @param dwl::Vertex source Source vertex
-		 * @param dwl::Vertex target Target vertex
-		 * @param Eigen::Vector3d position 2D position and orientation
-		 */
-		void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, Eigen::Vector3d position);
 
 		/**
 		 * @brief Gets the successors of the current vertex
@@ -58,13 +53,14 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		 */
 		bool isStanceAdjacency();
 
+		/** @brief Pointer to the motor primitives */
+		behavior::MotorPrimitives* behavior_;
+
 		/** @brief Indicates it was requested a stance or terrain adjacency */
 		bool is_stance_adjacency_;
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> stance_areas_;
-
-		behavior::MotorPrimitives* behavior_;
 
 		/** @brief Number of top reward for computing the stance cost */
 		int number_top_reward_;

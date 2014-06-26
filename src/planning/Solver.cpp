@@ -37,6 +37,17 @@ void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_mode
 }
 
 
+bool Solver::compute(Vertex source, Vertex target, double orientation)
+{
+	if (is_graph_searching_algorithm_)
+		printf(YELLOW "Could not compute the shortest-path because the %s is not defined an algorithm\n" COLOR_RESET, name_.c_str());
+	else
+		printf(YELLOW "Could not compute the shortest-path because the %s is not a graph-searchin algorithm\n" COLOR_RESET, name_.c_str());
+
+	return false;
+}
+
+
 std::list<Vertex> Solver::getShortestPath(Vertex target)
 {
 	std::list<Vertex> path;

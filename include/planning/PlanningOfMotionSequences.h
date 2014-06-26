@@ -87,10 +87,9 @@ class PlanningOfMotionSequences
 
 		/**
 		 * @brief Updates the start and goal pose of the robot
-		 * @param dwl::planning::Pose start Start pose
-		 * @param dwl::planning::Pose goal Goal pose
+		 * @param dwl::Pose goal Goal pose
 		 */
-		virtual void update(Pose start, Pose goal) = 0;
+		virtual void resetGoal(Pose goal) = 0;
 
 		/**
 		 * @brief Computes the motion planning
@@ -179,7 +178,7 @@ class PlanningOfMotionSequences
 		std::vector<Contact> contacts_sequence_;
 
 		/** @brief Vector of body position */
-		std::vector<Pose> body_trajectory_;
+		std::vector<Pose> body_path_;
 };
 
 } //@namespace planning

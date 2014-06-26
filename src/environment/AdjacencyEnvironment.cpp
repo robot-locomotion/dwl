@@ -7,6 +7,7 @@ namespace dwl
 namespace environment
 {
 
+
 AdjacencyEnvironment::AdjacencyEnvironment() : average_cost_(0), gridmap_(0.04, 0.02), is_there_terrain_information_(false), is_lattice_(false)
 {
 
@@ -21,19 +22,27 @@ AdjacencyEnvironment::~AdjacencyEnvironment()
 
 void AdjacencyEnvironment::setEnvironmentInformation(std::vector<Cell> reward_map)
 {
-	// Cleaning old information
+	// Cleaning the old information
 	std::map<Vertex, Weight> empty_terrain_cost_per_vertex;
 	terrain_cost_map_.swap(empty_terrain_cost_per_vertex);
 	average_cost_ = 0;
 
 	// Storing the cost-map data according the vertex id
 	unsigned int vertex_id;
+	double resolution = std::numeric_limits<double>::max();
 	for (int i = 0; i < reward_map.size(); i++) {
 		vertex_id = gridmap_.gridMapKeyToVertex(reward_map[i].cell_key.grid_id);
 		terrain_cost_map_[vertex_id] = - reward_map[i].reward;
 		average_cost_ += - reward_map[i].reward;
+		if (reward_map[i].size < resolution) {
+			resolution = reward_map[i].size;
+		}
 	}
 	average_cost_ /= reward_map.size();
+
+	// Setting the resolution of the environment
+	setResolution(resolution, true);
+	setResolution(resolution, false);
 
 	is_there_terrain_information_ = true;
 }
@@ -42,6 +51,18 @@ void AdjacencyEnvironment::setEnvironmentInformation(std::vector<Cell> reward_ma
 void AdjacencyEnvironment::setResolution(double resolution, bool gridmap)
 {
 	gridmap_.setResolution(resolution, gridmap);
+}
+
+
+void AdjacencyEnvironment::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, double orientation)//Eigen::Vector3d position)
+{
+	printf(YELLOW "Could compute the whole adjacency map because it was not defined an adjacency model\n" COLOR_RESET);
+}
+
+
+void AdjacencyEnvironment::getSuccessors(std::list<Edge>& successors, Vertex vertex, double orientation)
+{
+	printf(YELLOW "Could get the successors because it was not defined an adjacency model\n" COLOR_RESET);
 }
 
 
@@ -205,7 +226,6 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 	//double dx = target_position(0) - source_position(0);
 	//double heading = abs(atan(dy / dx));
 
-
 	return 0.5 * (0.8 * distance + 0.2 * abs(dy));
 }
 
@@ -241,6 +261,12 @@ bool AdjacencyEnvironment::isLatticeRepresentation()
 Eigen::Vector2d AdjacencyEnvironment::getPosition(Vertex vertex)
 {
 	return gridmap_.vertexToCoord(vertex);
+}
+
+
+Vertex AdjacencyEnvironment::getVertex(Pose pose)
+{
+	return gridmap_.coordToVertex((Eigen::Vector2d) pose.position.head(2));
 }
 
 

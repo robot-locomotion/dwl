@@ -85,17 +85,17 @@ bool WholeBodyLocomotion::init()
 }
 
 
-void WholeBodyLocomotion::update(Pose start, Pose goal)
+void WholeBodyLocomotion::resetGoal(Pose goal)
 {
 	if (is_settep_planner_)
-		planner_->update(start, goal);
+		planner_->resetGoal(goal);
 }
 
 
-bool WholeBodyLocomotion::compute(Pose robot_state)
+bool WholeBodyLocomotion::compute(Pose current_pose)
 {
 	if (is_settep_planner_) {
-		if (!planner_->computePlan(robot_state)) {
+		if (!planner_->computePlan(current_pose)) {
 			return false;
 		}
 	} else {
@@ -105,14 +105,14 @@ bool WholeBodyLocomotion::compute(Pose robot_state)
 	return true;
 }
 
-
+/*
 void WholeBodyLocomotion::setGridMapResolution(double resolution)
 {
 	if (is_settep_planner_) {
 		planner_->setGridMapResolution(resolution);
 	} else
 		printf(YELLOW "Could not setted the gridmap resolution because has not been setted the planner\n" COLOR_RESET);
-}
+}*/
 
 
 void WholeBodyLocomotion::changeGoal(Pose goal)

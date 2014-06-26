@@ -28,9 +28,9 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 		 * @param dwl::AdjacencyMap& adjacency_map Adjacency map
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
-		 * @param Eigen::Vector3d position 2D position and orientation
+		 * @param double orientation Body orientation
 		 */
-		void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, Eigen::Vector3d position);
+		void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, double orientation);
 
 		/**
 		 * @brief Gets the successors of the current vertex
