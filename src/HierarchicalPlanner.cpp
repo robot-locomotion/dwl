@@ -25,16 +25,15 @@ HierarchicalPlanners::~HierarchicalPlanners()
 
 void HierarchicalPlanners::init()
 {
-	// Setting the subscription to the reward_map message
-	//reward_sub_ = node_.subscribe("reward_map", 1, &HierarchicalPlanners::rewardMapCallback, this);
-
 	//  Setup of the locomotion approach
 	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
 
 	// Initialization of planning algorithm, which includes the initizalization and setup of solver algorithm
 	solver_ptr_ = new dwl::planning::AStar();//new dwl::planning::Dijkstrap();
-	dwl::environment::AdjacencyEnvironment* adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();
-	solver_ptr_->setAdjacencyModel(adjacency_ptr);
+	dwl::environment::AdjacencyEnvironment* grid_adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();
+	dwl::environment::AdjacencyEnvironment* lattice_adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
+	//solver_ptr_->setAdjacencyModel(grid_adjacency_ptr);
+	solver_ptr_->setAdjacencyModel(lattice_adjacency_ptr);
 	planning_ptr_->reset(solver_ptr_);
 
 	// Setting up the planner algorithm in the locomotion approach
@@ -74,12 +73,12 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	start_pose.position[1] = robot_position(1);
 	goal_pose.position[0] = 5.0;
 	goal_pose.position[1] = 0.0;
-	locomotor_.update(start_pose, goal_pose);
+	locomotor_.resetGoal(goal_pose);
 
 
 
 	std::vector<dwl::Cell> reward_map;
-	locomotor_.setGridMapResolution(msg->cell_size);
+	//locomotor_.setGridMapResolution(msg->cell_size);
 
 	// Converting the messages to reward_map format
 	dwl::Cell reward_cell;
@@ -89,6 +88,7 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 		reward_cell.cell_key.grid_id.key[1] = msg->cell[i].key_y;
 		reward_cell.cell_key.height_id = msg->cell[i].key_z;
 		reward_cell.reward = msg->cell[i].reward;
+		reward_cell.size = msg->cell_size;
 
 		// Adding the reward cell to the queue
 		reward_map.push_back(reward_cell);

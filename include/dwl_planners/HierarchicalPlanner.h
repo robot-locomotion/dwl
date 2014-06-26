@@ -9,6 +9,7 @@
 #include <planning/AStar.h>
 #include <environment/AdjacencyEnvironment.h>
 #include <environment/GridBasedBodyAdjacency.h>
+#include <environment/LatticeBasedBodyAdjacency.h>
 
 #include <reward_map_server/RewardMap.h>
 #include <nav_msgs/Path.h>
