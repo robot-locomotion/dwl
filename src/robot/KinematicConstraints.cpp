@@ -13,16 +13,17 @@ KinematicConstraints::KinematicConstraints()
 	is_active_constraint_ = true;
 }
 
+
 KinematicConstraints::~KinematicConstraints()
 {
 	printf("Destroying kinematic constraint\n");
 }
 
+
 void KinematicConstraints::get(Eigen::VectorXd& constraint, Eigen::VectorXd state)
 {
 	printf("Getting kinematic constraints\n");
 }
-
 
 } //@namespace hyq
 } //@namespace dwl

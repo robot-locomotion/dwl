@@ -19,6 +19,7 @@ LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : behavior_(NULL), is_sta
 	stance_areas_ = robot_.getStanceAreas();
 }
 
+
 LatticeBasedBodyAdjacency::~LatticeBasedBodyAdjacency()
 {
 	delete behavior_;
@@ -29,19 +30,21 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 {
 	std::vector<Pose3d> actions;
 	Pose3d state;
-	state.position = gridmap_.vertexToCoord(vertex);
+	state.position = environment_->getGridModel().vertexToCoord(vertex);
 	state.orientation = orientation;
 
-	//TODO get actions
+	// Gets actions according the defined motor primitives of the body
 	behavior_->generateActions(actions, state);
 
-	if (is_there_terrain_information_) {
+	if (environment_->isTerrainInformation()) {
+		CostMap terrain_costmap;
+		environment_->getTerrainCostMap(terrain_costmap);
 		for (int i = 0; i < actions.size(); i++) {
 			// Converting the action to vertex
-			Vertex current = gridmap_.coordToVertex(actions[i].position);
+			Vertex current = environment_->getGridModel().coordToVertex(actions[i].position);
 
 			if (!isStanceAdjacency()) {
-				double terrain_cost = terrain_cost_map_.find(current)->second;
+				double terrain_cost = terrain_costmap.find(current)->second;
 				successors.push_back(Edge(current, terrain_cost));
 			} else {
 				// Computing the body cost
@@ -57,7 +60,9 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 
 void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Vertex vertex, double orientation)
 {
-	Eigen::Vector2d vertex_position = gridmap_.vertexToCoord(vertex);
+	Eigen::Vector2d vertex_position = environment_->getGridModel().vertexToCoord(vertex);
+	CostMap terrain_costmap;
+	environment_->getTerrainCostMap(terrain_costmap);
 
 	double body_cost;
 	for (int n = 0; n < stance_areas_.size(); n++) {
@@ -77,11 +82,11 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Vertex vertex, dou
 				point_position(0) = (x - vertex_position(0)) * cos(orientation) - (y - vertex_position(1)) * sin(orientation) + vertex_position(0);
 				point_position(1) = (x - vertex_position(0)) * sin(orientation) + (y - vertex_position(1)) * cos(orientation) + vertex_position(1);
 
-				Vertex point = gridmap_.coordToVertex(point_position);
+				Vertex point = environment_->getGridModel().coordToVertex(point_position);
 
 				// Inserts the element in an organized vertex queue, according to the maximun value
-				if (terrain_cost_map_.find(point)->first == point)
-					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_cost_map_.find(point)->second, point));
+				if (terrain_costmap.find(point)->first == point)
+					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(point)->second, point));
 			}
 		}
 
@@ -91,7 +96,7 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Vertex vertex, dou
 			number_top_reward = stance_cost_queue.size();
 
 		if (number_top_reward == 0) {
-			stance_cost += uncertainty_factor_ * average_cost_;
+			stance_cost += uncertainty_factor_ * environment_->getAverageCostOfTerrain();
 		} else {
 			for (int i = 0; i < number_top_reward; i++) {
 				stance_cost += stance_cost_queue.begin()->first;

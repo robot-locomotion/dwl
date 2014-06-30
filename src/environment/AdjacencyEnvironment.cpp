@@ -8,7 +8,7 @@ namespace environment
 {
 
 
-AdjacencyEnvironment::AdjacencyEnvironment() : average_cost_(0), gridmap_(0.04, 0.02), is_there_terrain_information_(false), is_lattice_(false)
+AdjacencyEnvironment::AdjacencyEnvironment() : environment_(NULL), is_lattice_(false)
 {
 
 }
@@ -16,41 +16,13 @@ AdjacencyEnvironment::AdjacencyEnvironment() : average_cost_(0), gridmap_(0.04, 
 
 AdjacencyEnvironment::~AdjacencyEnvironment()
 {
-
+	delete environment_;
 }
 
 
-void AdjacencyEnvironment::setEnvironmentInformation(std::vector<Cell> reward_map)
+void AdjacencyEnvironment::reset(EnvironmentInformation* environment)
 {
-	// Cleaning the old information
-	std::map<Vertex, Weight> empty_terrain_cost_per_vertex;
-	terrain_cost_map_.swap(empty_terrain_cost_per_vertex);
-	average_cost_ = 0;
-
-	// Storing the cost-map data according the vertex id
-	unsigned int vertex_id;
-	double resolution = std::numeric_limits<double>::max();
-	for (int i = 0; i < reward_map.size(); i++) {
-		vertex_id = gridmap_.gridMapKeyToVertex(reward_map[i].cell_key.grid_id);
-		terrain_cost_map_[vertex_id] = - reward_map[i].reward;
-		average_cost_ += - reward_map[i].reward;
-		if (reward_map[i].size < resolution) {
-			resolution = reward_map[i].size;
-		}
-	}
-	average_cost_ /= reward_map.size();
-
-	// Setting the resolution of the environment
-	setResolution(resolution, true);
-	setResolution(resolution, false);
-
-	is_there_terrain_information_ = true;
-}
-
-
-void AdjacencyEnvironment::setResolution(double resolution, bool gridmap)
-{
-	gridmap_.setResolution(resolution, gridmap);
+	environment_ = environment;
 }
 
 
@@ -71,9 +43,11 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 	// Checking if the start and goal vertex are part of the terrain information
 	bool is_there_start_vertex, is_there_goal_vertex = false;
 	std::vector<Vertex> vertex_map;
-	if (is_there_terrain_information_) {
-		for (CostMap::iterator vertex_iter = terrain_cost_map_.begin();
-				vertex_iter != terrain_cost_map_.end();
+	if (environment_->isTerrainInformation()) {
+		CostMap terrain_costmap;
+		environment_->getTerrainCostMap(terrain_costmap);
+		for (CostMap::iterator vertex_iter = terrain_costmap.begin();
+				vertex_iter != terrain_costmap.end();
 				vertex_iter++)
 		{
 			Vertex current_vertex = vertex_iter->first;
@@ -81,7 +55,6 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 				is_there_start_vertex = true;
 				closest_source = current_vertex;
 			}
-
 			if (target == current_vertex) {
 				is_there_goal_vertex = true;
 				closest_target = current_vertex;
@@ -99,8 +72,8 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 
 	// Start and goal position
 	Eigen::Vector2d start_position, goal_position;
-	start_position = gridmap_.vertexToCoord(source);
-	goal_position = gridmap_.vertexToCoord(target);
+	start_position = environment_->getGridModel().vertexToCoord(source);
+	goal_position = environment_->getGridModel().vertexToCoord(target);
 
 	double closest_source_distant = std::numeric_limits<double>::max();
 	double closest_target_distant = std::numeric_limits<double>::max();
@@ -108,7 +81,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 	if ((!is_there_start_vertex) && (!is_there_goal_vertex)) {
 		for (int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
-			Eigen::Vector2d vertex_position = gridmap_.vertexToCoord(vertex_map[i]);
+			Eigen::Vector2d vertex_position = environment_->getGridModel().vertexToCoord(vertex_map[i]);
 
 			// Calculating the distant to the vertex from start and goal positions
 			double start_distant = (start_position - vertex_position).norm();
@@ -134,7 +107,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 	} else if (!is_there_start_vertex) {
 		for (int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
-			Eigen::Vector2d vertex_position = gridmap_.vertexToCoord(vertex_map[i]);
+			Eigen::Vector2d vertex_position = environment_->getGridModel().vertexToCoord(vertex_map[i]);
 
 			// Calculating the distant to the vertex from start position
 			double start_distant = (start_position - vertex_position).norm();
@@ -152,7 +125,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 	} else if (!is_there_goal_vertex) {
 		for (int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
-			Eigen::Vector2d vertex_position = gridmap_.vertexToCoord(vertex_map[i]);
+			Eigen::Vector2d vertex_position = environment_->getGridModel().vertexToCoord(vertex_map[i]);
 
 			// Calculating the distant to the vertex from goal position
 			double goal_distant = (goal_position - vertex_position).norm();
@@ -175,9 +148,11 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 	// Checking if the  vertex is part of the terrain information
 	bool is_there_vertex = false;
 	std::vector<Vertex> vertex_map;
-	if (is_there_terrain_information_) {
-		for (CostMap::iterator vertex_iter = terrain_cost_map_.begin();
-				vertex_iter != terrain_cost_map_.end();
+	if (environment_->isTerrainInformation()) {
+		CostMap terrain_costmap;
+		environment_->getTerrainCostMap(terrain_costmap);
+		for (CostMap::iterator vertex_iter = terrain_costmap.begin();
+				vertex_iter != terrain_costmap.end();
 				vertex_iter++)
 		{
 			Vertex current_vertex = vertex_iter->first;
@@ -191,18 +166,18 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 			vertex_map.push_back(vertex_iter->first);
 		}
 	} else {
-		printf(RED "Couldn't get the closest start and goal vertex because there isn't terrain information \n" COLOR_RESET);
+		printf(RED "Could not get the closest start and goal vertex because there is not terrain information \n" COLOR_RESET);
 		return;
 	}
 
 	// Start and goal position
 	Eigen::Vector2d vertex_position;
-	vertex_position = gridmap_.vertexToCoord(vertex);
+	vertex_position = environment_->getGridModel().vertexToCoord(vertex);
 
 	double closest_distant = std::numeric_limits<double>::max();
 	for (int i = 0; i < vertex_map.size(); i++) {
 		// Calculating the vertex position
-		Eigen::Vector2d current_vertex_position = gridmap_.vertexToCoord(vertex_map[i]);
+		Eigen::Vector2d current_vertex_position = environment_->getGridModel().vertexToCoord(vertex_map[i]);
 
 		// Calculating the distant to the current vertex
 		double start_distant = (vertex_position - current_vertex_position).norm();
@@ -258,15 +233,16 @@ bool AdjacencyEnvironment::isLatticeRepresentation()
 	return is_lattice_;
 }
 
+
 Eigen::Vector2d AdjacencyEnvironment::getPosition(Vertex vertex)
 {
-	return gridmap_.vertexToCoord(vertex);
+	return environment_->getGridModel().vertexToCoord(vertex);
 }
 
 
 Vertex AdjacencyEnvironment::getVertex(Pose pose)
 {
-	return gridmap_.coordToVertex((Eigen::Vector2d) pose.position.head(2));
+	return environment_->getGridModel().coordToVertex((Eigen::Vector2d) pose.position.head(2));
 }
 
 
@@ -275,6 +251,6 @@ std::string AdjacencyEnvironment::getName()
 	return name_;
 }
 
-} //@namespace environment
 
+} //@namespace environment
 } //@namespace dwl

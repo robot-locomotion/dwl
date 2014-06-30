@@ -9,7 +9,7 @@ namespace environment
 
 HeightDeviationFeature::HeightDeviationFeature() : gridmap_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max())
 {
-	name_ = "height_deviation";
+	name_ = "Height Deviation";
 
 	average_area_.max_x = 0.1;
 	average_area_.min_x = -0.1;
@@ -77,5 +77,4 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 }
 
 } //@namespace environment
-
 } //@namespace dwl

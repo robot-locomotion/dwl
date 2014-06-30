@@ -30,64 +30,64 @@ class PlaneGrid
 
 		/**
 		 * @brief Converts a 2D coordinate into a 2D Key at a certain depth, with boundary checking.
-		 * @param dwl::environment::Key& key values that will be computed, an array of fixed size 2.
-		 * @param Eigen::Vector2d& coord 2d coordinate of a point
+		 * @param dwl::Key& key values that will be computed, an array of fixed size 2.
+		 * @param const Eigen::Vector2d& coord 2d coordinate of a point
 		 * @return true if point is within the planetree (valid), false otherwise
 		 */
-		bool coordToKeyChecked(Key& key, Eigen::Vector2d coordinate) const;
+		bool coordToKeyChecked(Key& key, const Eigen::Vector2d coordinate) const;
 
 		/**
 		 * @brief Converts a coordinate into a Key at a certain depth, with boundary checking.
 		 * @param unsigned short int& key_value Key value that will be computed
-		 * @param double coordinate Coordinate of a point
-		 * @param bool gridmap Indicates if it is the gridmap
+		 * @param const double coordinate Coordinate of a point
+		 * @param const bool gridmap Indicates if it is the gridmap
 		 * @return true if point is within the planetree (valid), false otherwise
 		 */
-		bool coordToKeyChecked(unsigned short int& key_value, double coordinate, bool gridmap) const;
+		bool coordToKeyChecked(unsigned short int& key_value, const double coordinate, const bool gridmap) const;
 
 		/**
 		 * @brief Converts from a single coordinate into a discrete key
-		 * @param double coordinate Cartesian coordinate of the cell
-		 * @param bool gridmap Indicates if it is the gridmap
+		 * @param const double coordinate Cartesian coordinate of the cell
+		 * @param const bool gridmap Indicates if it is the gridmap
 		 * @return unsigned short int Return the key of the coordinate
 		 */
-		unsigned short int coordToKey(double coordinate, bool gridmap) const;
+		unsigned short int coordToKey(const double coordinate, const bool gridmap) const;
 
 		/**
 		 * @brief Converts from a discrete key at the lowest tree level into a coordinate corresponding to the key's center
-		 * @param unsigned short int key_value The value of the key
-		 * @param bool gridmap Indicates if it is the gridmap
+		 * @param const unsigned short int key_value The value of the key
+		 * @param const bool gridmap Indicates if it is the gridmap
 		 * @return double Return the coordinate of the key
 		 */
-		double keyToCoord(unsigned short int key_value, bool gridmap) const;
+		double keyToCoord(const unsigned short int key_value, const bool gridmap) const;
 
 		/**
 		 * @brief Converts the key of a gridmap to a vertex id
-		 * @param dwl::environment::Key gridmap_key Gridmap key
-		 * @return Vertex Return the vertex id
+		 * @param const dwl::Key gridmap_key Gridmap key
+		 * @return dwl::Vertex Return the vertex id
 		 */
-		Vertex gridMapKeyToVertex(Key gridmap_key) const;
+		Vertex gridMapKeyToVertex(const Key gridmap_key) const;
 
 		/**
 		 * @brief Converts the vertex id to gridmap key
-		 * @param Vertex vertex Vertex id
-		 * @return dwl::environment::Key Return the gridmap key
+		 * @param const dwl::Vertex vertex Vertex id
+		 * @return dwl::Key Return the gridmap key
 		 */
-		Key vertexToGridMapKey(Vertex vertex) const;
+		Key vertexToGridMapKey(const Vertex vertex) const;
 
 		/**
 		 * @brief Converts 2d coordinate to vertex id
-		 * @param Eigen::Vectir2d coordinate 2D coordinate
-		 * @return Vertex Return the vertex id
+		 * @param const Eigen::Vectir2d coordinate 2D coordinate
+		 * @return dwl::Vertex Return the vertex id
 		 */
-		Vertex coordToVertex(Eigen::Vector2d coordinate) const;
+		Vertex coordToVertex(const Eigen::Vector2d coordinate) const;
 
 		/**
 		 * @brief Converts vertex id to coordinate
-		 * @param Vertex vertex Vertex id
-		 * @return Eigen::Vectir2d Return the 2D coordinate
+		 * @param const dwl::Vertex vertex Vertex id
+		 * @return Eigen::Vector2d Return the 2D coordinate
 		 */
-		Eigen::Vector2d vertexToCoord(Vertex vertex) const;
+		Eigen::Vector2d vertexToCoord(const Vertex vertex) const;
 
 		/*
 		 * @brief Gets the resolution of the gridmap or the height
@@ -121,8 +121,8 @@ class PlaneGrid
 		double height_resolution_factor_;
 };
 
-} //@namespace environment
 
+} //@namespace environment
 } //@namespace dwl
 
 

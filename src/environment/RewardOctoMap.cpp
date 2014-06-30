@@ -237,5 +237,4 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 
 
 } //@namespace environment
-
 } //@namespace dwl

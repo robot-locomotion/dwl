@@ -7,6 +7,17 @@ namespace dwl
 namespace planning
 {
 
+Constraint::Constraint() : is_active_constraint_(false)
+{
+
+}
+
+
+Constraint::~Constraint()
+{
+
+}
+
 
 std::string Constraint::getName()
 {
@@ -20,5 +31,4 @@ bool Constraint::isActive()
 
 
 } //@namespace planning
-
 } //@namespace dwl

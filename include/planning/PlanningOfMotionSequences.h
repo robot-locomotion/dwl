@@ -2,16 +2,11 @@
 #define DWL_PlanningOfMotionSequences_H
 
 #include <planning/Solver.h>
+#include <environment/EnvironmentInformation.h>
 #include <planning/Constraint.h>
 #include <planning/Cost.h>
-#include <environment/PlaneGrid.h>
-
-#include <Eigen/Dense>
-#include <vector>
 
 #include <utils/utils.h>
-
-//#include <pthread.h>
 
 
 namespace dwl
@@ -43,10 +38,11 @@ class PlanningOfMotionSequences
 		virtual ~PlanningOfMotionSequences();
 
 		/**
-		 * @brief Function to specify the settings of all variables within the Planning of Motion Sequences problem (solver algorithmn)
-		 * @param dwl::planning::Solver *solver	Pointer to the solver of the motion planning algorithm
+		 * @brief Specifies the settings of all components within the Planning of Motion Sequences problem
+		 * @param dwl::planning::Solver* solver	Pointer to the solver of the motion planning algorithm
+		 * @param dwl::environment::EnvironmentInformation* environment Pointer to the class that encapsulates all the information of the environment
 		 */
-		void reset(Solver* solver);
+		void reset(Solver* solver, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Adds an active or inactive constraints to the planning algorithm
@@ -106,16 +102,16 @@ class PlanningOfMotionSequences
 		virtual bool compute(Pose robot_state) = 0;
 
 		/**
-		 * @brief Changes the goal pose
-		 * @param dwl::planning::Pose goal New goal pose
+		 * @brief Sets the reward information of the environment inside of the pointer of the EnvironmentInformation object, which could be used for differents solvers
+		 * @param std::vector<Cell> reward_map Reward map of the environment
 		 */
-		void changeGoal(Pose goal);
+		void setEnvironmentInformation(std::vector<Cell> reward_map);
 
 		/**
-		 * @brief Sets the gridmap resolution
-		 * @param double resolution Resolution of the gridmap
+		 * @brief Changes the goal pose
+		 * @param dwl::Pose goal New goal pose
 		 */
-		void setGridMapResolution(double resolution);
+		void changeGoal(Pose goal);
 
 		/**
 		 * @brief Gets the approximated body path
@@ -162,6 +158,9 @@ class PlanningOfMotionSequences
 		/** @brief Pointer to the solver algorithm */
 		Solver* solver_;
 
+		/** @brief Pointer to the environment information */
+		environment::EnvironmentInformation* environment_;
+
 		/** @brief Vector of active constraints pointers */
 		std::vector<Constraint*> active_constraints_;
 
@@ -171,18 +170,16 @@ class PlanningOfMotionSequences
 		/** @brief Vector of costs pointers */
 		std::vector<Cost*> costs_;
 
-		/** @brief Gridmap representation */
-		environment::PlaneGrid gridmap_;
-
 		/** @brief Vector of contact points */
 		std::vector<Contact> contacts_sequence_;
 
 		/** @brief Vector of body position */
 		std::vector<Pose> body_path_;
+
 };
 
-} //@namespace planning
 
+} //@namespace planning
 } //@namespace dwl
 
 

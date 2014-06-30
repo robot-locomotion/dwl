@@ -3,7 +3,6 @@
 
 #include <environment/AdjacencyEnvironment.h>
 #include <utils/utils.h>
-//#include <pthread.h>
 
 
 namespace dwl
@@ -27,15 +26,15 @@ class Solver
 
 		/**
 		 * @brief Abstract method for initialization of the solver
-		 * @return bool Return true if was initialized
+		 * @return bool Returns true if was initialized
 		 */
 		virtual bool init() = 0;
 
 		/**
-		 * @brief Sets terrain information, specially in the reward map of the terrain that is converting to a cost map
-		 * @param std::vector<Cell> reward_map Reward map to set in the cost map
+		 * @brief Specifies the settings of all components within Solver class
+		 * @param dwl::environment::EnvironmentInformation* environment Pointer to object that defines the environment
 		 */
-		void setTerrainInformation(std::vector<Cell> reward_map);
+		void reset(environment::EnvironmentInformation* environment); //TODO virtual method
 
 		/**
 		 * @brief Sets the adjacency model that is used for graph-searchin solvers, i.e. path-planning problems
@@ -48,7 +47,7 @@ class Solver
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
 		 * @param double orientation Orientation of the body
-		 * @return bool Return true if it was computed a solution
+		 * @return bool Returns true if it was computed a solution
 		 */
 		virtual bool compute(Vertex source, Vertex target, double orientation);
 
@@ -62,13 +61,13 @@ class Solver
 
 		/**
 		 * @brief Gets the minimum cost (total cost) for the computed solution
-		 * @return double Return the total cost
+		 * @return double Returns the total cost
 		 */
 		double getMinimumCost();
 
 		/**
 		 * @brief Gets the name of the solver
-		 * @return std::string Return the name of the solver
+		 * @return std::string Returns the name of the solver
 		 */
 		std::string getName();
 
@@ -76,28 +75,27 @@ class Solver
 	private:
 
 
-
 	protected:
 		/** @brief Name of the solver */
 		std::string name_;
 
 		/** @brief Adjacency model of the environment */
-		environment::AdjacencyEnvironment* environment_;
+		environment::AdjacencyEnvironment* adjacency_;
 
 		/** @brief Indicates if it a graph-searching algorithm */
 		bool is_graph_searching_algorithm_;
 
+		/** @brief Shortest previous vertex */
 		PreviousVertex previous_;
 
+		/** @brief Total cost of the path */
 		double total_cost_;
 
+		/** @brief Indicates if it was settep an adjacency model */
 		bool is_settep_adjacency_model_;
-
-//		pthread_mutex_t solver_lock_;
 };
 
 } //@namespace planning
-
 } //@namespace dwl
 
 

@@ -65,7 +65,6 @@ class AStar : public Solver
 };
 
 } //@namespace planning
-
 } //@namespace dwl
 
 

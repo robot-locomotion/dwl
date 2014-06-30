@@ -55,7 +55,6 @@ class RewardOctoMap : public RewardMap
 
 
 } //@namespace environment
-
 } //@namespace dwl
 
 

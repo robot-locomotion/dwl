@@ -1,9 +1,6 @@
 #ifndef DWL_Feature_H
 #define DWL_Feature_H
 
-#include <Eigen/Dense>
-#include <vector>
-#include <string>
 #include <utils/utils.h>
 
 
@@ -48,8 +45,6 @@ class Feature
 
 
 } //@namespace environment
-
 } //@namespace dwl
-
 
 #endif

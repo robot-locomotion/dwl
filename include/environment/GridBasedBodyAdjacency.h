@@ -79,7 +79,6 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 };
 
 } //@namespace hyq
-
 } //@namespace dwl
 
 #endif

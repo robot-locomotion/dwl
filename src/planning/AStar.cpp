@@ -36,14 +36,14 @@ bool AStar::compute(Vertex source, Vertex target, double orientation)
 		if (compute_whole_adjacency_map_) {
 			// Computing adjacency map
 			AdjacencyMap adjacency_map;
-			environment_->computeAdjacencyMap(adjacency_map, source, target, orientation);
+			adjacency_->computeAdjacencyMap(adjacency_map, source, target, orientation);
 
 			// Computing the path according to A-star algorithm
 			findShortestPath(min_cost, previous, source, target, orientation, adjacency_map);
 		} else {
 			// Check if the start and goal position belong to the terrain information, in negative case, the closest points will added to the computed path
 			Vertex closest_source, closest_target;
-			environment_->getTheClosestStartAndGoalVertex(closest_source, closest_target, source, target);
+			adjacency_->getTheClosestStartAndGoalVertex(closest_source, closest_target, source, target);
 			if (closest_source != source) {
 				previous[closest_source] = source;
 				min_cost[source] = 0;
@@ -79,7 +79,7 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 	g_cost[source] = 0;
 
 	// Estimated total cost from start to goal
-	f_cost[source] = g_cost[source] + environment_->heuristicCostEstimate(source, target);
+	f_cost[source] = g_cost[source] + adjacency_->heuristicCostEstimate(source, target);
 
 	// Adding the start vertex to the openset
 	openset_queue.insert(std::pair<Weight, Vertex>(f_cost[source], source));
@@ -115,7 +115,7 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 			if ((openset.find(neighbor)->second == false) || (tentative_g_cost < g_cost[neighbor])) {
 				previous[neighbor] = current;
 				g_cost[neighbor] = tentative_g_cost;
-				f_cost[neighbor] = g_cost[neighbor] + environment_->heuristicCostEstimate(neighbor, target);
+				f_cost[neighbor] = g_cost[neighbor] + adjacency_->heuristicCostEstimate(neighbor, target);
 
 				if (openset.find(neighbor)->second == false) {
 					openset[neighbor] = true;
@@ -140,7 +140,7 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 	g_cost[source] = 0;
 
 	// Estimated total cost from start to goal
-	f_cost[source] = g_cost[source] + environment_->heuristicCostEstimate(source, target);
+	f_cost[source] = g_cost[source] + adjacency_->heuristicCostEstimate(source, target);
 
 	// Adding the start vertex to the openset
 	openset_queue.insert(std::pair<Weight, Vertex>(f_cost[source], source));
@@ -150,7 +150,7 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 		Vertex current = openset_queue.begin()->second;
 
 		// Checking if it is getted the target
-		if (environment_->isReachedGoal(target, current)) {
+		if (adjacency_->isReachedGoal(target, current)) {
 			previous[target] = current;
 			g_cost[target] = 0;
 			break;
@@ -165,7 +165,7 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 
 		// Visit each edge exiting in the current vertex
 		std::list<Edge> successors;
-		environment_->getSuccessors(successors, current, orientation);
+		adjacency_->getSuccessors(successors, current, orientation);
 		for (std::list<Edge>::iterator edge_iter = successors.begin();
 						edge_iter != successors.end();
 						edge_iter++)
@@ -179,7 +179,7 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 			if ((openset.find(neighbor)->second == false) || (tentative_g_cost < g_cost[neighbor])) {
 				previous[neighbor] = current;
 				g_cost[neighbor] = tentative_g_cost;
-				f_cost[neighbor] = g_cost[neighbor] + environment_->heuristicCostEstimate(neighbor, target);
+				f_cost[neighbor] = g_cost[neighbor] + adjacency_->heuristicCostEstimate(neighbor, target);
 
 				if (openset.find(neighbor)->second == false) {
 					openset[neighbor] = true;
@@ -192,6 +192,5 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 
 
 } //@namespace planning
-
 } //@namespace dwl
 

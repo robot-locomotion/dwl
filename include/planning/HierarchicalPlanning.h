@@ -52,8 +52,8 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 
 }; //@class HierarchicalPlanning
 
-} //@namespace planning
 
+} //@namespace planning
 } //@namespace dwl
 
 

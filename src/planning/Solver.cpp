@@ -8,7 +8,7 @@ namespace planning
 {
 
 
-Solver::Solver() : environment_(NULL), is_graph_searching_algorithm_(false), total_cost_(0), is_settep_adjacency_model_(false)
+Solver::Solver() : adjacency_(NULL), is_graph_searching_algorithm_(false), total_cost_(0), is_settep_adjacency_model_(false)
 {
 
 }
@@ -16,16 +16,13 @@ Solver::Solver() : environment_(NULL), is_graph_searching_algorithm_(false), tot
 
 Solver::~Solver()
 {
-
+	delete adjacency_;
 }
 
 
-void Solver::setTerrainInformation(std::vector<Cell> reward_map)
+void Solver::reset(environment::EnvironmentInformation* environment)
 {
-	if (is_settep_adjacency_model_) {
-		environment_->setEnvironmentInformation(reward_map);
-	} else
-		printf(RED "Could not set the terriain information because it is required to defined an adjacency model \n" COLOR_RESET);
+	adjacency_->reset(environment);
 }
 
 
@@ -33,7 +30,7 @@ void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_mode
 {
 	printf(BLUE "Setting the %s adjacency model \n" COLOR_RESET, adjacency_model->getName().c_str());
 	is_settep_adjacency_model_ = true;
-	environment_ = adjacency_model;
+	adjacency_ = adjacency_model;
 }
 
 
@@ -80,5 +77,4 @@ std::string dwl::planning::Solver::getName()
 
 
 } //@namespace planning
-
 } //@namespace dwl

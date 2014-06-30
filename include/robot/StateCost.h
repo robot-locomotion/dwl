@@ -4,7 +4,6 @@
 #include <planning/Cost.h>
 
 
-
 namespace dwl
 {
 
@@ -28,7 +27,6 @@ class StateCost : public planning::Cost
 };
 
 } //@namespace hyq
-
 } //@namespace dwl
 
 

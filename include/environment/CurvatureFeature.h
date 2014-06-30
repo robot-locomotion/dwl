@@ -40,7 +40,6 @@ class CurvatureFeature : public Feature
 
 
 } //@namespace environment
-
 } //@namespace dwl
 
 #endif

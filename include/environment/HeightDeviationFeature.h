@@ -42,7 +42,6 @@ class HeightDeviationFeature : public Feature
 };
 
 } //@namespace environment
-
 } //@namespace dwl
 
 #endif

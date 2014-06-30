@@ -47,5 +47,4 @@ std::vector<SearchArea> Robot::getStanceAreas()
 
 
 } //@namespace robot
-
 } //@namespace dwl

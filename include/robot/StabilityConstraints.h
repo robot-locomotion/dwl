@@ -21,11 +21,9 @@ class StabilityConstraints : public planning::Constraint
 
 		void get(Eigen::VectorXd& constraint, Eigen::VectorXd state);
 
-
 };
 
 } //@namespace hyq
-
 } //@namespace dwl
 
 #endif

@@ -25,7 +25,7 @@ class Dijkstrap : public Solver
 
 		/**
 		 * @brief Initializes the Dijkstrap algorithm
-		 * @return bool Return true if Dijkstrap algorithm was initialized
+		 * @return bool Returns true if Dijkstrap algorithm was initialized
 		 */
 		bool init();
 
@@ -34,7 +34,7 @@ class Dijkstrap : public Solver
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
 		 * @param double orientation Orientation of the body
-		 * @return bool Return true if it was computed a solution
+		 * @return bool Returns true if it was computed a solution
 		 */
 		bool compute(Vertex source, Vertex target, double orientation);
 
@@ -52,7 +52,6 @@ class Dijkstrap : public Solver
 };
 
 } //@namespace planning
-
 } //@namespace dwl
 
 #endif

@@ -7,6 +7,7 @@
 #include <robot/StateCost.cpp>
 #include <Eigen/Dense>
 
+#include <environment/EnvironmentInformation.h>
 #include <environment/RewardMap.h>
 #include <environment/SlopeFeature.h>
 
@@ -27,7 +28,8 @@ int main(int argc, char **argv)
 	// Initialization of planning algorithm, which includes the initialization and setup of solver algorithm
 	dwl::planning::Solver* solver_ptr = new dwl::planning::Dijkstrap();
 	dwl::planning::PlanningOfMotionSequences* planning_ptr = new dwl::planning::HierarchicalPlanning();
-	planning_ptr->reset(solver_ptr);
+	dwl::environment::EnvironmentInformation* environment_ptr;
+	planning_ptr->reset(solver_ptr, environment_ptr);
 
 	dwl::planning::Constraint* kin_constraint_ptr = new dwl::robot::KinematicConstraints();
 	dwl::planning::Constraint* stab_constraint_ptr = new dwl::robot::StabilityConstraints();

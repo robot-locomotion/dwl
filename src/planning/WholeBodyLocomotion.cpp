@@ -105,14 +105,14 @@ bool WholeBodyLocomotion::compute(Pose current_pose)
 	return true;
 }
 
-/*
-void WholeBodyLocomotion::setGridMapResolution(double resolution)
+
+void WholeBodyLocomotion::setTerrainInformation(std::vector<Cell> reward_map)
 {
 	if (is_settep_planner_) {
-		planner_->setGridMapResolution(resolution);
+		planner_->setEnvironmentInformation(reward_map);
 	} else
-		printf(YELLOW "Could not setted the gridmap resolution because has not been setted the planner\n" COLOR_RESET);
-}*/
+		printf(YELLOW "Could not setted the terrain information because has not been setted the planner\n" COLOR_RESET);
+}
 
 
 void WholeBodyLocomotion::changeGoal(Pose goal)

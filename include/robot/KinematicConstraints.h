@@ -25,7 +25,6 @@ class KinematicConstraints : public planning::Constraint
 };
 
 } //@namespace hyq
-
 } //@namespace dwl
 
 #endif

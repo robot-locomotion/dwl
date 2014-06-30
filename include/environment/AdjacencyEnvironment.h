@@ -1,7 +1,8 @@
 #ifndef DWL_AdjacencyEnvironment_H
 #define DWL_AdjacencyEnvironment_H
 
-#include <environment/PlaneGrid.h>
+#include <environment/EnvironmentInformation.h>
+//#include <environment/PlaneGrid.h>
 #include <robot/Robot.h>
 #include <utils/utils.h>
 
@@ -26,17 +27,10 @@ class AdjacencyEnvironment
 		virtual ~AdjacencyEnvironment();
 
 		/**
-		 * @brief Sets the terrain cost map from the reward map information
-		 * @param std::vector<dwl::Cell> reward_map Reward map
+		 * @brief Specifies the settings of all components within AdjacencyEnvironment class
+		 * @param dwl::environment::EnvironmentInformation* environment Pointer to object that defines the environment
 		 */
-		void setEnvironmentInformation(std::vector<Cell> reward_map);
-
-		/**
-		 * @brief Abstract the sets the resolution of the height or grid
-		 * @param double resolution Resolution value
-		 * @param bool gridmap Defines the resolution to set, i.e. gridmap (true) or height (false)
-		 */
-		void setResolution(double resolution, bool gridmap); //TODO check that I'm setting this resolution from locomotion class
+		void reset(EnvironmentInformation* environment);
 
 		/**
 		 * @brief Abstract method that computes the whole adjancecy map, which is required by some algorithms such as Dijkstrap
@@ -112,20 +106,13 @@ class AdjacencyEnvironment
 		/** @brief Name of the adjacency model */
 		std::string name_;
 
-		/** @brief Object of the PlaneGrid class for defining the grid routines */
-		environment::PlaneGrid gridmap_;
-
-		/** @brief Gathers the cost values that are mapped using the vertex id */
-		CostMap terrain_cost_map_;
+		/** @brief Pointer of the EnvironmentInformation object which describes the environment */
+		EnvironmentInformation* environment_;
 
 		/** @brief Odject of the Robot class for defining robot properties */
 		robot::Robot robot_;
 
-		/** @brief Average cost which is used for unknown areas */
-		double average_cost_;
-
-		bool is_there_terrain_information_;
-
+		/** @brief Indicates if it is a lattice-based graph */
 		bool is_lattice_;
 
 
@@ -135,7 +122,6 @@ class AdjacencyEnvironment
 
 
 } //@namespace environment
-
 } //@namespace dwl
 
 

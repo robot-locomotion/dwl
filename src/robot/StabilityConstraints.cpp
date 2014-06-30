@@ -7,7 +7,6 @@ namespace dwl
 namespace robot
 {
 
-
 StabilityConstraints::StabilityConstraints()
 {
 	name_ = "stability";
@@ -26,7 +25,5 @@ void StabilityConstraints::get(Eigen::VectorXd& constraint, Eigen::VectorXd stat
 	printf("Getting stability constraints\n");
 }
 
-
 } //@namespace hyq
-
 } //@namespace dwl

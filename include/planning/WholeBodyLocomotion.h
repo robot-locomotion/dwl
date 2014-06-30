@@ -70,10 +70,10 @@ class WholeBodyLocomotion
 		bool compute(Pose current_pose);
 
 		/**
-		 * @brief Sets the gridmap resolution
-		 * @param double resolution Resolution of the gridmap
+		 * @brief Sets the reward map of the terrain
+		 * @param std::vector<dwl::Cell> reward_map Reward map of the terrain
 		 */
-		//void setGridMapResolution(double resolution);
+		void setTerrainInformation(std::vector<Cell> reward_map);
 
 		/**
 		 * @brief Changes the goal
@@ -101,8 +101,7 @@ class WholeBodyLocomotion
 
 	protected:
 	
-	
-}; //@class WholeBodyLocomotion
+};
 
 } //@namespace dwl
 

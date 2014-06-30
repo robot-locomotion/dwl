@@ -23,7 +23,7 @@ PlaneGrid::~PlaneGrid()
 }
 
 
-bool PlaneGrid::coordToKeyChecked(Key& key, Eigen::Vector2d coordinate) const
+bool PlaneGrid::coordToKeyChecked(Key& key, const Eigen::Vector2d coordinate) const
 {
 	if (!coordToKeyChecked(key.key[0], (double) coordinate(0), true))
 		return false;
@@ -34,7 +34,7 @@ bool PlaneGrid::coordToKeyChecked(Key& key, Eigen::Vector2d coordinate) const
 }
 
 
-bool PlaneGrid::coordToKeyChecked(unsigned short int& key_value, double coordinate, bool gridmap) const
+bool PlaneGrid::coordToKeyChecked(unsigned short int& key_value, const double coordinate, const bool gridmap) const
 {
 	// scale to resolution and shift center for tree_max_val
 	int scaled_coord = coordToKey(coordinate, gridmap);
@@ -48,7 +48,7 @@ bool PlaneGrid::coordToKeyChecked(unsigned short int& key_value, double coordina
 }
 
 
-unsigned short int PlaneGrid::coordToKey(double coordinate, bool gridmap) const
+unsigned short int PlaneGrid::coordToKey(const double coordinate, const bool gridmap) const
 {
 	int key;
 	if (gridmap)
@@ -60,7 +60,7 @@ unsigned short int PlaneGrid::coordToKey(double coordinate, bool gridmap) const
 }
 
 
-double PlaneGrid::keyToCoord(unsigned short int key_value, bool gridmap) const
+double PlaneGrid::keyToCoord(const unsigned short int key_value, const bool gridmap) const
 {
 	double coord;
 	if (gridmap)
@@ -72,13 +72,13 @@ double PlaneGrid::keyToCoord(unsigned short int key_value, bool gridmap) const
 }
 
 
-unsigned int PlaneGrid::gridMapKeyToVertex(Key gridmap_key) const
+unsigned int PlaneGrid::gridMapKeyToVertex(const Key gridmap_key) const
 {
 	return (unsigned int) (gridmap_key.key[1] + std::numeric_limits<unsigned short int>::max() * gridmap_key.key[0]);
 }
 
 
-Key PlaneGrid::vertexToGridMapKey(Vertex vertex) const
+Key PlaneGrid::vertexToGridMapKey(const Vertex vertex) const
 {
 	Key gridmap_key;
 	gridmap_key.key[0] = floor(vertex / std::numeric_limits<unsigned short int>::max());
@@ -88,7 +88,7 @@ Key PlaneGrid::vertexToGridMapKey(Vertex vertex) const
 }
 
 
-Vertex PlaneGrid::coordToVertex(Eigen::Vector2d coordinate) const
+Vertex PlaneGrid::coordToVertex(const Eigen::Vector2d coordinate) const
 {
 	Key key;
 	coordToKeyChecked(key, coordinate);
@@ -97,7 +97,7 @@ Vertex PlaneGrid::coordToVertex(Eigen::Vector2d coordinate) const
 }
 
 
-Eigen::Vector2d PlaneGrid::vertexToCoord(Vertex vertex) const
+Eigen::Vector2d PlaneGrid::vertexToCoord(const Vertex vertex) const
 {
 	Key key = vertexToGridMapKey(vertex);
 

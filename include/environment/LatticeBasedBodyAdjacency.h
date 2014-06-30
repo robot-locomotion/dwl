@@ -49,7 +49,8 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		void computeBodyCost(double& cost, Vertex vertex, double orientation);
 
 		/**
-		 * @brief Ask if it is requested a stance adjacency
+		 * @brief Indicates if it is requested a stance adjacency
+		 * @return Returns true it is requested a stance adjacency (body cost), false otherwise
 		 */
 		bool isStanceAdjacency();
 

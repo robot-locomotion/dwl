@@ -1,8 +1,6 @@
 #ifndef DWL_Constraint_H
 #define DWL_Constraint_H
 
-#include <Eigen/Dense>
-//#include <iostream>
 #include <utils/utils.h>
 
 
@@ -20,10 +18,10 @@ class Constraint
 {
 	public:
 		/** @brief Constructor function */
-		Constraint() : is_active_constraint_(false) {}
+		Constraint();
 
 		/** @brief Destructor function */
-		virtual ~Constraint() {}
+		virtual ~Constraint();
 
 		/**
 		 * @brief Abstract method for getting the constraint vector given a certain state
@@ -44,6 +42,7 @@ class Constraint
 		 */
 		std::string getName();
 
+
 	protected:
 		/** @brief Name of the constraint */
 		std::string name_;
@@ -57,15 +56,9 @@ class Constraint
 		/** @brief Vector of the values of the constraint */
 		Eigen::VectorXd constraint_value_;
 
-
-}; //@class Constraint
-
+};
 
 } //@namespace planning
-
 } //@namespace dwl
-
-
-
 
 #endif

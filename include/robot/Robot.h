@@ -10,10 +10,17 @@ namespace dwl
 namespace robot
 {
 
+/**
+ * @class Robot
+ * @brief Class for defining the properties of the robot
+ */
 class Robot
 {
 	public:
+		/** @brief Constructor function */
 		Robot();
+
+		/** @brief Destructor function */
 		~Robot();
 
 		/**
@@ -22,6 +29,10 @@ class Robot
 		 */
 		void setStanceAreas(std::vector<SearchArea> stance_areas); //TODO Re-write this method for general settings
 
+		/**
+		 * @brief Gets the stance areas
+		 * @return std::vector<SearchArea> Returns the stance areas
+		 */
 		std::vector<SearchArea> getStanceAreas();
 
 
@@ -30,8 +41,8 @@ class Robot
 		std::vector<SearchArea> stance_areas_;
 };
 
-} //@namespace robot
 
+} //@namespace robot
 } //@namespace dwl
 
 #endif

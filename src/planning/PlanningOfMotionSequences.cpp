@@ -8,8 +8,8 @@ namespace planning
 {
 
 
-PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), gridmap_(0.04, 0.02), is_added_active_constraint_(false), is_added_inactive_constraint_(false),
-		is_added_cost_(false), is_settep_solver_(false), is_initialized_planning_(false)
+PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), environment_(NULL), is_added_active_constraint_(false), is_added_inactive_constraint_(false),
+		is_added_cost_(false), is_settep_solver_(false), is_initialized_planning_(false) //gridmap_(0.04, 0.02),
 {
 
 }
@@ -29,14 +29,20 @@ PlanningOfMotionSequences::~PlanningOfMotionSequences()
 		for (std::vector<Cost*>::iterator i = costs_.begin(); i != costs_.end(); i++)
 			delete *i;
 	}
+
+	delete solver_;
+	delete environment_;
 }
 
 
-void PlanningOfMotionSequences::reset(Solver* solver)
+void PlanningOfMotionSequences::reset(Solver* solver, environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the %s solver\n" COLOR_RESET, solver->getName().c_str());
 	is_settep_solver_ = true;
 	solver_ = solver;
+	solver_->reset(environment);
+
+	environment_ = environment;
 }
 
 
@@ -44,18 +50,14 @@ void PlanningOfMotionSequences::addConstraint(Constraint* constraint)
 {
 	if (constraint->isActive()) {
 		printf(GREEN "Adding the active %s constraint\n" COLOR_RESET, constraint->getName().c_str());
-//		pthread_mutex_lock(&planning_lock_);
 		active_constraints_.push_back(constraint);
-//		pthread_mutex_unlock(&planning_lock_);
 
 		if (!is_added_active_constraint_)
 			is_added_active_constraint_ = true;
 	}
 	else {
 		printf(GREEN "Adding the active %s constraint\n" COLOR_RESET, constraint->getName().c_str());
-//		pthread_mutex_lock(&planning_lock_);
 		inactive_constraints_.push_back(constraint);
-//		pthread_mutex_unlock(&planning_lock_);
 
 		if (!is_added_inactive_constraint_)
 			is_added_inactive_constraint_ = true;
@@ -86,10 +88,8 @@ void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
 				if (i < active_constraints_.size()) {
 					if (constraint_name == active_constraints_[i]->getName().c_str()) {
 						printf(GREEN "Removing the active %s constraint\n" COLOR_RESET, active_constraints_[i]->getName().c_str());
-//						pthread_mutex_lock(&planning_lock_);
 						delete active_constraints_.at(i);
 						active_constraints_.erase(active_constraints_.begin() + i);
-//						pthread_mutex_unlock(&planning_lock_);
 
 						return;
 					}
@@ -202,6 +202,12 @@ void PlanningOfMotionSequences::changeGoal(Pose goal)
 	goal_pose_ = goal;
 }
 
+
+void PlanningOfMotionSequences::setEnvironmentInformation(std::vector<Cell> reward_map)
+{
+	environment_->setEnvironmentInformation(reward_map);
+}
+
 /*
 void PlanningOfMotionSequences::setGridMapResolution(double resolution)
 {
@@ -224,5 +230,4 @@ std::string PlanningOfMotionSequences::getName()
 
 
 } //@namespace planning
-
 } //@namespace dwl

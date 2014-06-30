@@ -3,13 +3,9 @@
 
 #include <environment/PlaneGrid.h>
 #include <environment/Feature.h>
+#include <utils/utils.h>
 
 #include <octomap/octomap.h>
-
-#include <Eigen/Dense>
-#include <vector>
-
-#include <utils/utils.h>
 
 
 namespace dwl
@@ -128,6 +124,7 @@ class RewardMap
 		/**
 		 * @brief Gets the gridmap or height resolution of the reward map
 		 * @param bool gridmap
+		 * @param double Returns the resolution of the gridmap or height
 		 */
 		double getResolution(bool gridmap);
 
@@ -140,7 +137,7 @@ class RewardMap
 
 		/**
 		 * @brief Gets the reward map
-		 * @return std::map<Vertex,dwl::environment::Cell> Return the cell value per each vertex
+		 * @return std::map<Vertex,dwl::environment::Cell> Returns the cell value per each vertex
 		 */
 		std::map<Vertex,Cell> getRewardMap();
 
@@ -178,7 +175,7 @@ class RewardMap
 
 
 
-		pthread_mutex_t environment_lock_;
+//		pthread_mutex_t environment_lock_;
 };
 
 

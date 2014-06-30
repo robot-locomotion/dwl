@@ -7,7 +7,7 @@ namespace dwl
 namespace planning
 {
 
-Cost::Cost() : is_cost_map_(false), gridmap_(0.04, 0.02) //TODO
+Cost::Cost() : is_cost_map_(false)
 {
 
 }
@@ -39,19 +39,15 @@ void Cost::get(AdjacencyMap& adjacency_map, Eigen::Vector3d robot_state, bool te
 }
 
 
-void Cost::setGridMapResolution(double resolution)
-{
-	// Setting the gridmap resolution
-	gridmap_.setResolution(resolution, true);
-	gridmap_.setResolution(resolution, false);
-}
-
-
 bool Cost::isCostMap()
 {
 	return is_cost_map_;
 }
 
-} //@namespace planning
+std::string dwl::planning::Cost::getName()
+{
+	return name_;
+}
 
+} //@namespace planning
 } //@namespace dwl

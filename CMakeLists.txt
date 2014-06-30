@@ -35,6 +35,7 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/AStar.cpp
 							src/behavior/MotorPrimitives.cpp
 							src/behavior/BodyMotorPrimitives.cpp
+							src/environment/EnvironmentInformation.cpp
 							src/environment/AdjacencyEnvironment.cpp
 							src/environment/GridBasedBodyAdjacency.cpp
 							src/environment/LatticeBasedBodyAdjacency.cpp
