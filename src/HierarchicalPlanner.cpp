@@ -34,7 +34,8 @@ void HierarchicalPlanners::init()
 	dwl::environment::AdjacencyEnvironment* lattice_adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
 	//solver_ptr_->setAdjacencyModel(grid_adjacency_ptr);
 	solver_ptr_->setAdjacencyModel(lattice_adjacency_ptr);
-	planning_ptr_->reset(solver_ptr_);
+
+	planning_ptr_->reset(solver_ptr_, &environment_ptr_);
 
 	// Setting up the planner algorithm in the locomotion approach
 	locomotor_.reset(planning_ptr_);
@@ -54,31 +55,7 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 		return;
 	}
 
-	// Getting the robot state (3D position and yaw angle)
-	Eigen::Vector3d robot_position;
-	robot_position(0) = tf_transform.getOrigin()[0];
-	robot_position(1) = tf_transform.getOrigin()[1];
-	robot_position(2) = tf_transform.getOrigin()[2];
-	Eigen::Vector4d robot_orientation;
-	robot_orientation(0) = tf_transform.getRotation().getX();
-	robot_orientation(1) = tf_transform.getRotation().getY();
-	robot_orientation(2) = tf_transform.getRotation().getZ();
-	robot_orientation(3) = tf_transform.getRotation().getW();
-
-	robot_pose_.position = robot_position;
-	robot_pose_.orientation = robot_orientation;
-
-	dwl::Pose start_pose, goal_pose;
-	start_pose.position[0] = robot_position(0);
-	start_pose.position[1] = robot_position(1);
-	goal_pose.position[0] = 5.0;
-	goal_pose.position[1] = 0.0;
-	locomotor_.resetGoal(goal_pose);
-
-
-
 	std::vector<dwl::Cell> reward_map;
-	//locomotor_.setGridMapResolution(msg->cell_size);
 
 	// Converting the messages to reward_map format
 	dwl::Cell reward_cell;
@@ -95,16 +72,38 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	}
 
 	// Adding the cost map
-	solver_ptr_->setTerrainInformation(reward_map);
+	locomotor_.setTerrainInformation(reward_map);
+
+
+	// Getting the robot state (3D position and yaw angle)
+	Eigen::Vector3d robot_position;
+	robot_position(0) = tf_transform.getOrigin()[0];
+	robot_position(1) = tf_transform.getOrigin()[1];
+	robot_position(2) = tf_transform.getOrigin()[2];
+	Eigen::Vector4d robot_orientation;
+	robot_orientation(0) = tf_transform.getRotation().getX();
+	robot_orientation(1) = tf_transform.getRotation().getY();
+	robot_orientation(2) = tf_transform.getRotation().getZ();
+	robot_orientation(3) = tf_transform.getRotation().getW();
+
+	robot_pose_.position = robot_position;
+	robot_pose_.orientation = robot_orientation;
+
+	dwl::Pose start_pose, goal_pose;
+//	start_pose.position[0] = robot_position(0);
+//	start_pose.position[1] = robot_position(1);
+	goal_pose.position[0] = 5.0;
+	goal_pose.position[1] = 0.0;
+	locomotor_.resetGoal(goal_pose);
+
 
 	// Computing the locomotion plan
 	timespec start_rt, end_rt;
 	clock_gettime(CLOCK_REALTIME, &start_rt);
 	locomotor_.compute(robot_pose_);
 	clock_gettime(CLOCK_REALTIME, &end_rt);
-	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9*(end_rt.tv_nsec - start_rt.tv_nsec);
+	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
 	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
-
 
 	locomotor_.getBodyPath().swap(body_path_);
 }
@@ -118,7 +117,7 @@ void HierarchicalPlanners::publishBodyPath()
 	for (int i = 0; i < body_path_.size(); i++) {
 		body_path_msg_.poses[i].pose.position.x = body_path_[i].position(0);
 		body_path_msg_.poses[i].pose.position.y = body_path_[i].position(1);
-		body_path_msg_.poses[i].pose.position.z = robot_pose_.position(2);//;body_path_[i].position(2);
+		body_path_msg_.poses[i].pose.position.z = robot_pose_.position(2);
 	}
 	body_path_pub_.publish(body_path_msg_);
 

@@ -7,6 +7,7 @@
 #include <planning/HierarchicalPlanning.h>
 #include <planning/Dijkstrap.h>
 #include <planning/AStar.h>
+#include <environment/EnvironmentInformation.h>
 #include <environment/AdjacencyEnvironment.h>
 #include <environment/GridBasedBodyAdjacency.h>
 #include <environment/LatticeBasedBodyAdjacency.h>
@@ -18,6 +19,7 @@
 #include <tf/transform_listener.h>
 #include <tf/message_filter.h>
 #include <message_filters/subscriber.h>
+
 
 
 namespace dwl_planners
@@ -77,6 +79,10 @@ class HierarchicalPlanners
 
 		/** @brief Planning of motion sequences pointer */
 		dwl::planning::PlanningOfMotionSequences* planning_ptr_;
+
+		dwl::environment::EnvironmentInformation environment_ptr_;
+
+		//dwl::environment::EnvironmentInformation* environment_ptr_;
 
 		/** @brief Solver pointer */
 		dwl::planning::Solver* solver_ptr_;
