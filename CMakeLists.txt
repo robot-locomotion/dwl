@@ -67,7 +67,7 @@ link_directories(${catkin_LIBRARY_DIRS}
 # )
 
 ## Declare a cpp executable
-add_executable(reward_map_server src/RewardMapNode.cpp)
+add_executable(reward_map_server src/RewardMapServer.cpp)
 
 
 target_link_libraries(reward_map_server

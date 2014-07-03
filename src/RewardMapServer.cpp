@@ -1,4 +1,4 @@
-#include <reward_map_server/RewardMapNode.h>
+#include <reward_map_server/RewardMapServer.h>
 
 
 RewardMapServer::RewardMapServer()
