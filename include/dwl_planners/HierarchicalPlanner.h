@@ -5,6 +5,8 @@
 
 #include <planning/WholeBodyLocomotion.h>
 #include <planning/HierarchicalPlanning.h>
+#include <planning/BodyPlanner.h>
+#include <planning/ContactPlanner.h>
 #include <planning/Dijkstrap.h>
 #include <planning/AStar.h>
 #include <environment/EnvironmentInformation.h>
@@ -14,6 +16,7 @@
 
 #include <reward_map_server/RewardMap.h>
 #include <nav_msgs/Path.h>
+#include <visualization_msgs/Marker.h>
 
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
@@ -57,6 +60,8 @@ class HierarchicalPlanners
 		 */
 		void publishBodyPath();
 
+		void publishContactSequence();
+
 
 	private:
 		/** @brief ROS node handle */
@@ -74,13 +79,19 @@ class HierarchicalPlanners
 		/** @brief Approximated body path publisher */
 		ros::Publisher body_path_pub_;
 
+		ros::Publisher contact_sequence_pub_;
+
 		/** @brief Locomotion algorithm */
 		dwl::WholeBodyLocomotion locomotor_;
 
 		/** @brief Planning of motion sequences pointer */
 		dwl::planning::PlanningOfMotionSequences* planning_ptr_;
 
-		dwl::environment::EnvironmentInformation environment_ptr_;
+		dwl::planning::BodyPlanner body_planner_;
+
+		dwl::planning::ContactPlanner footstep_planner_;
+
+		dwl::environment::EnvironmentInformation environment_;
 
 		//dwl::environment::EnvironmentInformation* environment_ptr_;
 
@@ -90,8 +101,12 @@ class HierarchicalPlanners
 		/** @brief Approximated body path message */
 		nav_msgs::Path body_path_msg_;
 
+		visualization_msgs::Marker contact_sequence_msg_;
+
 		/** @brief Approximated body path */
 		std::vector<dwl::Pose> body_path_;
+
+		std::vector<dwl::Contact> contact_sequence_;
 
 		/** @brief Robot pose */
 		dwl::Pose robot_pose_;

@@ -12,14 +12,16 @@ HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), 
 
 	// Declaring the publisher of approximated body path
 	body_path_pub_ = node_.advertise<nav_msgs::Path>("approximated_body_path", 1);
+	contact_sequence_pub_ = node_.advertise<visualization_msgs::Marker>("contact_sequence", 1);
 
 	body_path_msg_.header.frame_id = "world";
+	contact_sequence_msg_.header.frame_id = "world";
 }
 
 
 HierarchicalPlanners::~HierarchicalPlanners()
 {
-
+	delete planning_ptr_, solver_ptr_;
 }
 
 
@@ -32,10 +34,9 @@ void HierarchicalPlanners::init()
 	solver_ptr_ = new dwl::planning::AStar();//new dwl::planning::Dijkstrap();
 	dwl::environment::AdjacencyEnvironment* grid_adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();
 	dwl::environment::AdjacencyEnvironment* lattice_adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
-	//solver_ptr_->setAdjacencyModel(grid_adjacency_ptr);
-	solver_ptr_->setAdjacencyModel(lattice_adjacency_ptr);
-
-	planning_ptr_->reset(solver_ptr_, &environment_ptr_);
+	solver_ptr_->setAdjacencyModel(lattice_adjacency_ptr);//solver_ptr_->setAdjacencyModel(grid_adjacency_ptr);
+	body_planner_.reset(solver_ptr_);
+	planning_ptr_->reset(&body_planner_, &footstep_planner_, &environment_);//(solver_ptr_, &environment_);
 
 	// Setting up the planner algorithm in the locomotion approach
 	locomotor_.reset(planning_ptr_);
@@ -96,7 +97,6 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	goal_pose.position[1] = 0.0;
 	locomotor_.resetGoal(goal_pose);
 
-
 	// Computing the locomotion plan
 	timespec start_rt, end_rt;
 	clock_gettime(CLOCK_REALTIME, &start_rt);
@@ -106,6 +106,7 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
 
 	locomotor_.getBodyPath().swap(body_path_);
+	locomotor_.getContactSequence().swap(contact_sequence_);
 }
 
 
@@ -121,8 +122,62 @@ void HierarchicalPlanners::publishBodyPath()
 	}
 	body_path_pub_.publish(body_path_msg_);
 
-	std::vector<dwl::Pose> empty_body_path_;
-	body_path_.swap(empty_body_path_);
+	std::vector<dwl::Pose> empty_body_path;
+	body_path_.swap(empty_body_path);
+}
+
+
+void HierarchicalPlanners::publishContactSequence()
+{
+	contact_sequence_msg_.header.stamp = ros::Time::now();
+	contact_sequence_msg_.type = visualization_msgs::Marker::SPHERE_LIST;
+	contact_sequence_msg_.ns = "contact_points";
+	contact_sequence_msg_.id = 0;
+	contact_sequence_msg_.scale.x = 0.05;
+	contact_sequence_msg_.scale.y = 0.05;
+	contact_sequence_msg_.scale.z = 0.05;
+	contact_sequence_msg_.action = visualization_msgs::Marker::ADD;
+
+	contact_sequence_msg_.points.resize(contact_sequence_.size());
+	contact_sequence_msg_.colors.resize(contact_sequence_.size());
+	for (int i = 0; i < contact_sequence_.size(); i++) {
+		contact_sequence_msg_.points[i].x = contact_sequence_[i].position(0);
+		contact_sequence_msg_.points[i].y = contact_sequence_[i].position(1);
+		contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2);
+
+		int end_effector = contact_sequence_[i].end_effector;
+		if (end_effector == 0) {
+			contact_sequence_msg_.colors[i].r = 1.0f;
+			contact_sequence_msg_.colors[i].g = 0.0f;
+			contact_sequence_msg_.colors[i].b = 0.0f;
+			contact_sequence_msg_.colors[i].a = 1.0;
+		} else if (end_effector == 1) {
+			contact_sequence_msg_.colors[i].r = 0.0f;
+			contact_sequence_msg_.colors[i].g = 1.0f;
+			contact_sequence_msg_.colors[i].b = 0.0f;
+			contact_sequence_msg_.colors[i].a = 1.0;
+		} else if (end_effector == 2) {
+			contact_sequence_msg_.colors[i].r = 0.0f;
+			contact_sequence_msg_.colors[i].g = 0.0f;
+			contact_sequence_msg_.colors[i].b = 1.0f;
+			contact_sequence_msg_.colors[i].a = 1.0;
+		} else if (end_effector == 3) {
+			contact_sequence_msg_.colors[i].r = 1.0f;
+			contact_sequence_msg_.colors[i].g = 1.0f;
+			contact_sequence_msg_.colors[i].b = 0.0f;
+			contact_sequence_msg_.colors[i].a = 1.0;
+		} else {
+			contact_sequence_msg_.colors[i].r = 0.0f;
+			contact_sequence_msg_.colors[i].g = 1.0f;
+			contact_sequence_msg_.colors[i].b = 1.0f;
+			contact_sequence_msg_.colors[i].a = 1.0;
+		}
+		//contact_sequence_msg_.lifetime = 0;//ros::Duration();
+	}
+	contact_sequence_pub_.publish(contact_sequence_msg_);
+
+	std::vector<dwl::Contact> empty_contact_squence;
+	contact_sequence_.swap(empty_contact_squence);
 }
 
 } //@namespace dwl_planners
@@ -143,6 +198,7 @@ int main(int argc, char **argv)
 		ros::Rate loop_rate(100);
 		while(ros::ok()) {
 			planner.publishBodyPath();
+			planner.publishContactSequence();
 			ros::spinOnce();
 			loop_rate.sleep();
 		}
