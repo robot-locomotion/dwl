@@ -8,8 +8,8 @@ namespace planning
 {
 
 
-PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), environment_(NULL), is_added_active_constraint_(false), is_added_inactive_constraint_(false),
-		is_added_cost_(false), is_settep_solver_(false), is_initialized_planning_(false) //gridmap_(0.04, 0.02),
+PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), body_planner_(NULL), footstep_planner_(NULL), environment_(NULL),
+		is_added_active_constraint_(false), is_added_inactive_constraint_(false),	is_added_cost_(false), is_settep_solver_(false), is_initialized_planning_(false)
 {
 
 }
@@ -30,8 +30,10 @@ PlanningOfMotionSequences::~PlanningOfMotionSequences()
 			delete *i;
 	}
 
-	delete solver_;
-	delete environment_;
+	//delete solver_;
+	//delete body_planner_;
+	//delete footstep_planner_;
+	//delete environment_;
 }
 
 
@@ -42,6 +44,21 @@ void PlanningOfMotionSequences::reset(Solver* solver, environment::EnvironmentIn
 	solver_ = solver;
 	solver_->reset(environment);
 
+	printf(BLUE "Setting the environment information\n" COLOR_RESET);
+	environment_ = environment;
+}
+
+
+void PlanningOfMotionSequences::reset(BodyPlanner* body_planner, ContactPlanner* footstep_planner, environment::EnvironmentInformation* environment)
+{
+	body_planner_ = body_planner;
+	body_planner_->reset(environment);
+
+	footstep_planner_ = footstep_planner;
+	footstep_planner_->reset(environment);
+	is_settep_solver_ = true;
+
+	printf(BLUE "Setting the environment information in the planner\n" COLOR_RESET);
 	environment_ = environment;
 }
 
@@ -208,18 +225,16 @@ void PlanningOfMotionSequences::setEnvironmentInformation(std::vector<Cell> rewa
 	environment_->setEnvironmentInformation(reward_map);
 }
 
-/*
-void PlanningOfMotionSequences::setGridMapResolution(double resolution)
-{
-	// Setting the resolution of the gridmap instantiation of this class
-	gridmap_.setResolution(resolution, true);
-	gridmap_.setResolution(resolution, false);
-}*/
-
 
 std::vector<Pose> PlanningOfMotionSequences::getBodyPath()
 {
 	return body_path_;
+}
+
+
+std::vector<Contact> PlanningOfMotionSequences::getContactSequence()
+{
+	return contacts_sequence_;
 }
 
 

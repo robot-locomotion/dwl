@@ -130,4 +130,9 @@ std::vector<Pose> WholeBodyLocomotion::getBodyPath()
 }
 
 
+std::vector<Contact> WholeBodyLocomotion::getContactSequence()
+{
+	return planner_->getContactSequence();
+}
+
 } //@namespace dwl

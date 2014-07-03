@@ -109,7 +109,8 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Vertex vertex, dou
 		body_cost += stance_cost;
 	}
 	body_cost /= stance_areas_.size();
-	cost = body_cost;
+
+	cost = body_cost;//TODO compute cost assoacited to support triangle and other features
 }
 
 

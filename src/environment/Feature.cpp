@@ -8,7 +8,7 @@ namespace environment
 {
 
 
-Feature::Feature()
+Feature::Feature() : weight_(1)
 {
 
 }
@@ -25,6 +25,17 @@ std::string Feature::getName()
 	return name_;
 }
 
+
+void Feature::setWeight(double weight)
+{
+	weight_ = weight;
+}
+
+
+void Feature::getWeight(double& weight)
+{
+	weight = weight_;
+}
 
 } //@namespace environment
 

@@ -32,6 +32,7 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> reward_
 	for (int i = 0; i < reward_map.size(); i++) {
 		// Setting the resolution of the environment
 		if (i == 0) {
+			printf("Setting the grid resolution to %f\n m", reward_map[i].size);
 			setResolution(reward_map[i].size, true);
 			setResolution(reward_map[i].size, false);
 		}

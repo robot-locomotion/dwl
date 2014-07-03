@@ -7,10 +7,9 @@ namespace dwl
 namespace planning
 {
 
-
 AStar::AStar() : compute_whole_adjacency_map_(false)
 {
-	name_ = "A-start";
+	name_ = "A-star";
 	is_graph_searching_algorithm_ = true;
 }
 
@@ -44,6 +43,7 @@ bool AStar::compute(Vertex source, Vertex target, double orientation)
 			// Check if the start and goal position belong to the terrain information, in negative case, the closest points will added to the computed path
 			Vertex closest_source, closest_target;
 			adjacency_->getTheClosestStartAndGoalVertex(closest_source, closest_target, source, target);
+
 			if (closest_source != source) {
 				previous[closest_source] = source;
 				min_cost[source] = 0;
@@ -189,7 +189,6 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 		}
 	}
 }
-
 
 } //@namespace planning
 } //@namespace dwl

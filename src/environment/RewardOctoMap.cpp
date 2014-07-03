@@ -221,13 +221,15 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 
 	// Computing the reward
 	if (is_added_feature_) {
-		double reward_value;
+		double reward_value, weight, total_reward = 0;
 		for (int i = 0; i < features_.size(); i++) {
 			features_[i]->computeReward(reward_value, terrain_info);
+			features_[i]->getWeight(weight);
+			total_reward += weight * reward_value;
 		}
 
 		Cell cell;
-		getCell(cell, reward_value, terrain_info);
+		getCell(cell, total_reward, terrain_info);
 		addCellToRewardMap(cell);
 	}
 	else {

@@ -7,8 +7,7 @@ namespace dwl
 namespace planning
 {
 
-
-Solver::Solver() : adjacency_(NULL), is_graph_searching_algorithm_(false), total_cost_(0), is_settep_adjacency_model_(false)
+Solver::Solver() : adjacency_(NULL), is_graph_searching_algorithm_(false), is_optimization_algorithm_(false), total_cost_(0), is_settep_adjacency_model_(false)
 {
 
 }
@@ -22,13 +21,14 @@ Solver::~Solver()
 
 void Solver::reset(environment::EnvironmentInformation* environment)
 {
+	printf(BLUE "Setting the environment information in the adjacency model in the %s solver\n" COLOR_RESET, getName().c_str());
 	adjacency_->reset(environment);
 }
 
 
 void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_model)
 {
-	printf(BLUE "Setting the %s adjacency model \n" COLOR_RESET, adjacency_model->getName().c_str());
+	printf(BLUE "Setting the %s adjacency model in the %s solver\n" COLOR_RESET, adjacency_model->getName().c_str(), getName().c_str());
 	is_settep_adjacency_model_ = true;
 	adjacency_ = adjacency_model;
 }
@@ -37,9 +37,21 @@ void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_mode
 bool Solver::compute(Vertex source, Vertex target, double orientation)
 {
 	if (is_graph_searching_algorithm_)
-		printf(YELLOW "Could not compute the shortest-path because the %s is not defined an algorithm\n" COLOR_RESET, name_.c_str());
+		printf(YELLOW "Could not compute the shortest-path because the %s was not defined an algorithm\n" COLOR_RESET, name_.c_str());
 	else
 		printf(YELLOW "Could not compute the shortest-path because the %s is not a graph-searchin algorithm\n" COLOR_RESET, name_.c_str());
+
+	return false;
+}
+
+
+bool Solver::compute(Eigen::MatrixXd hessian, Eigen::VectorXd gradient, Eigen::MatrixXd constraint, Eigen::VectorXd low_bound,
+				Eigen::VectorXd upper_bound, Eigen::VectorXd low_constraint, Eigen::VectorXd upper_constraint)
+{
+	if (is_optimization_algorithm_)
+			printf(YELLOW "Could not compute the optimal solution because the %s was not defined an algorithm\n" COLOR_RESET, name_.c_str());
+		else
+			printf(YELLOW "Could not compute the optimal solution the %s is not a graph-searchin algorithm\n" COLOR_RESET, name_.c_str());
 
 	return false;
 }
@@ -74,7 +86,6 @@ std::string dwl::planning::Solver::getName()
 {
 	return name_;
 }
-
 
 } //@namespace planning
 } //@namespace dwl

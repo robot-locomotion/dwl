@@ -140,6 +140,15 @@ struct Terrain
 	double gridmap_resolution;
 };
 
+/**
+ * @brief Struct that defines a contact
+ */
+struct Contact
+{
+	int end_effector;
+	Eigen::Vector3d position;
+};
+
 } //@namespace dwl
 
 

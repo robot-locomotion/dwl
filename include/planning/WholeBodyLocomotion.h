@@ -87,6 +87,8 @@ class WholeBodyLocomotion
 		 */
 		std::vector<Pose> getBodyPath();
 
+		std::vector<Contact> getContactSequence();
+
 
 	private:
 		/** @brief Pointer to the planner class */

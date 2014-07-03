@@ -30,6 +30,10 @@ class Feature
 		 */
 		virtual void computeReward(double& reward_value, Terrain terrain_info) = 0;
 
+		void setWeight(double weight);
+
+		void getWeight(double& weight);
+
 		/**
 		 * @brief Gets the name of the feature
 		 * @return std::string Return the name of the feature
@@ -40,6 +44,8 @@ class Feature
 	protected:
 		/** @brief Name of the feature **/
 		std::string name_;
+
+		double weight_;
 
 }; //@class Feature
 

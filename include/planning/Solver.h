@@ -31,8 +31,8 @@ class Solver
 		virtual bool init() = 0;
 
 		/**
-		 * @brief Specifies the settings of all components within Solver class
-		 * @param dwl::environment::EnvironmentInformation* environment Pointer to object that defines the environment
+		 * @brief Specifies the environment information
+		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
 		void reset(environment::EnvironmentInformation* environment); //TODO virtual method
 
@@ -51,6 +51,19 @@ class Solver
 		 */
 		virtual bool compute(Vertex source, Vertex target, double orientation);
 
+		/**
+		 * @brief Abstract method for computing a solution of an optimization problem
+		 * @param Eigen::MatrixXd hessian Hessian matrix
+		 * @param Eigen::VectorXd gradient Gradient vector
+		 * @param Eigen::MatrixXd constraint Constraint matrix
+		 * @param Eigen::VectorXd low_bound Low bound
+		 * @param Eigen::VectorXd upper_bound Upper bound
+		 * @param Eigen::VectorXd low_constraint Low constraint
+		 * @param Eigen::VectorXd upper_constraint Upper constraint
+		 * @return bool Returns true if it was computed a solution
+		 */
+		virtual bool compute(Eigen::MatrixXd hessian, Eigen::VectorXd gradient, Eigen::MatrixXd constraint, Eigen::VectorXd low_bound,
+				Eigen::VectorXd upper_bound, Eigen::VectorXd low_constraint, Eigen::VectorXd upper_constraint); //TODO represents as active, inactive and bound
 
 		/**
 		 * @brief Gets the shortest-path only for graph searching algorithms
@@ -82,8 +95,11 @@ class Solver
 		/** @brief Adjacency model of the environment */
 		environment::AdjacencyEnvironment* adjacency_;
 
-		/** @brief Indicates if it a graph-searching algorithm */
+		/** @brief Indicates if it is a graph-searching algorithm */
 		bool is_graph_searching_algorithm_;
+
+		/** @brief Indicates if it is an optimization problem */
+		bool is_optimization_algorithm_;
 
 		/** @brief Shortest previous vertex */
 		PreviousVertex previous_;

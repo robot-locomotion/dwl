@@ -16,7 +16,7 @@ AdjacencyEnvironment::AdjacencyEnvironment() : environment_(NULL), is_lattice_(f
 
 AdjacencyEnvironment::~AdjacencyEnvironment()
 {
-	delete environment_;
+	//delete environment_;
 }
 
 

@@ -1,10 +1,12 @@
 #ifndef DWL_PlanningOfMotionSequences_H
 #define DWL_PlanningOfMotionSequences_H
 
+#include <planning/BodyPlanner.h>
+#include <planning/ContactPlanner.h>
 #include <planning/Solver.h>
-#include <environment/EnvironmentInformation.h>
 #include <planning/Constraint.h>
 #include <planning/Cost.h>
+#include <environment/EnvironmentInformation.h>
 
 #include <utils/utils.h>
 
@@ -14,15 +16,6 @@ namespace dwl
 
 namespace planning
 {
-
-/**
- * @brief Struct that defines a contact
- */
-struct Contact
-{
-	int end_effector;
-	Eigen::Vector3d position;
-};
 
 /**
  * @class PlanningOfMotionSequences
@@ -38,11 +31,19 @@ class PlanningOfMotionSequences
 		virtual ~PlanningOfMotionSequences();
 
 		/**
-		 * @brief Specifies the settings of all components within the Planning of Motion Sequences problem
-		 * @param dwl::planning::Solver* solver	Pointer to the solver of the motion planning algorithm
-		 * @param dwl::environment::EnvironmentInformation* environment Pointer to the class that encapsulates all the information of the environment
+		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem
+		 * @param dwl::planning::Solver* solver	The solver computes a solution of the motion planning problem which depends of the algorithm, i.e. graph-searching or optimization problems
+		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
 		void reset(Solver* solver, environment::EnvironmentInformation* environment);
+
+		/**
+		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem
+		 * @param dwl::planning::BodyPlanner* body_planner The body planner computes body path and trajectory, and pose
+		 * @param dwl::planning::ContactPlanner* footstep_planner The footstep planner computes the footholds
+		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
+		 */
+		void reset(BodyPlanner* body_planner, ContactPlanner* footstep_planner, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Adds an active or inactive constraints to the planning algorithm
@@ -119,6 +120,8 @@ class PlanningOfMotionSequences
 		 */
 		std::vector<Pose> getBodyPath();
 
+		std::vector<Contact> getContactSequence();
+
 		/**
 		 * @brief Gets the name of the planner
 		 * @return std::string Return the name of the planner
@@ -127,12 +130,6 @@ class PlanningOfMotionSequences
 
 
 	private:
-		/** @brief Initial pose of the robot */
-		Pose initial_pose_;
-
-		/** @brief Goal pose of the robot */
-		Pose goal_pose_;
-
 		/** @brief Indicates if it was settep a solver algorithm for the computation of a plan */
 		bool is_settep_solver_;
 
@@ -155,6 +152,12 @@ class PlanningOfMotionSequences
 		/** @brief Name of the planner */
 		std::string name_;
 
+		/** @brief Pointer to the body planner */
+		BodyPlanner* body_planner_;
+
+		/** @brief Pointer to the footstep planner */
+		ContactPlanner* footstep_planner_;
+
 		/** @brief Pointer to the solver algorithm */
 		Solver* solver_;
 
@@ -169,6 +172,12 @@ class PlanningOfMotionSequences
 
 		/** @brief Vector of costs pointers */
 		std::vector<Cost*> costs_;
+
+		/** @brief Initial pose of the robot */
+		Pose initial_pose_;
+
+		/** @brief Goal pose of the robot */
+		Pose goal_pose_;
 
 		/** @brief Vector of contact points */
 		std::vector<Contact> contacts_sequence_;

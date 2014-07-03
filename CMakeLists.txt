@@ -28,6 +28,8 @@ include_directories(${OCTOMAP_INCLUDE_DIRS})
 set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/PlanningOfMotionSequences.cpp 
 							src/planning/HierarchicalPlanning.cpp
+							src/planning/BodyPlanner.cpp
+							src/planning/ContactPlanner.cpp
 							src/planning/Solver.cpp
 							src/planning/Cost.cpp
 							src/planning/Constraint.cpp
@@ -44,6 +46,7 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/environment/PlaneGrid.cpp
 							src/environment/Feature.cpp
 							src/environment/SlopeFeature.cpp
+							src/environment/CurvatureFeature.cpp
 							src/environment/HeightDeviationFeature.cpp
 							src/robot/Robot.cpp
 							src/robot/KinematicConstraints.cpp

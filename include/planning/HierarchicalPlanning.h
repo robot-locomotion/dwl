@@ -44,8 +44,6 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 
 
 	private:
-		std::vector<Pose> recordBodyPath();
-
 		/** @brief The id of the goal vertex */
 		Vertex goal_vertex_;
 
