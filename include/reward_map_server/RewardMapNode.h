@@ -10,6 +10,7 @@
 #include <environment/RewardOctoMap.h>
 #include <environment/SlopeFeature.h>
 #include <environment/HeightDeviationFeature.h>
+#include <environment/CurvatureFeature.h>
 
 #include <Eigen/Dense>
 #include <vector>

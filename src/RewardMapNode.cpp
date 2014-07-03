@@ -18,8 +18,10 @@ RewardMapServer::RewardMapServer()
 	// Adding the features
 	dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
 	dwl::environment::Feature* height_dev_ptr = new dwl::environment::HeightDeviationFeature();
-	//reward_map_->addFeature(slope_ptr);
+	dwl::environment::Feature* curvature_ptr = new dwl::environment::CurvatureFeature();
+	reward_map_->addFeature(slope_ptr);
 	reward_map_->addFeature(height_dev_ptr);
+	reward_map_->addFeature(curvature_ptr);
 
 	// Declaring the subscriber to octomap and tf messages
 	octomap_sub_ = new message_filters::Subscriber<octomap_msgs::Octomap> (node_, "octomap_binary", 5);
