@@ -7,7 +7,6 @@ namespace dwl
 namespace planning
 {
 
-
 PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), body_planner_(NULL), footstep_planner_(NULL), environment_(NULL),
 		is_added_active_constraint_(false), is_added_inactive_constraint_(false),	is_added_cost_(false), is_settep_solver_(false), is_initialized_planning_(false)
 {
@@ -242,7 +241,6 @@ std::string PlanningOfMotionSequences::getName()
 {
 	return name_;
 }
-
 
 } //@namespace planning
 } //@namespace dwl

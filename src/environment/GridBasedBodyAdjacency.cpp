@@ -23,7 +23,7 @@ GridBasedBodyAdjacency::~GridBasedBodyAdjacency()
 }
 
 
-void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, double orientation)
+void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target)
 {
 	if (environment_->isTerrainInformation()) {
 		// Adding the source and target vertex if it is outside the information terrain
@@ -56,8 +56,12 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Ve
 			} else {
 				// Computing the body cost
 				double body_cost;
-				//double yaw = position(2);
-				computeBodyCost(body_cost, vertex, orientation);
+				// Adding the initial orientation
+				// Converting quaternion to roll, pitch and yaw angles
+				double roll, pitch, yaw;
+				Orientation orientation(current_pose_.orientation);
+				orientation.getRPY(roll, pitch, yaw);
+				computeBodyCost(body_cost, vertex, yaw);
 
 				// Searching the neighbours
 				std::vector<Vertex> neighbors;
@@ -71,14 +75,42 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Ve
 }
 
 
-void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex vertex, double orientation)
+void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex vertex)
 {
+	// Getting the 3d pose for generating the actions
+	std::vector<Pose3d> actions;
+	Pose3d state;
+	state.position = environment_->getGridModel().vertexToCoord(vertex);
+	if (orientations_.find(vertex)->first == vertex) {
+		// Adding the orientation of the action
+		state.orientation = orientations_.find(vertex)->second;
+	} else {
+		// Adding the initial orientation
+		// Converting quaternion to roll, pitch and yaw angles
+		double roll, pitch, yaw;
+		Orientation orientation(current_pose_.orientation);
+		orientation.getRPY(roll, pitch, yaw);
+		state.orientation = yaw;
+	}
+
 	std::vector<Vertex> neighbors;
 	searchNeighbors(neighbors, vertex);
 	if (environment_->isTerrainInformation()) {
+		// Getting the terrain costmap
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
+
+		// Computing the vertex position
+		Eigen::Vector2d vertex_position = environment_->getGridModel().vertexToCoord(vertex);
+
 		for (int i = 0; i < neighbors.size(); i++) {
+			// Computing the orientation between the current vertex and its neighbors
+			Eigen::Vector2d neighbor_position = environment_->getGridModel().vertexToCoord(neighbors[i]);
+			double delta_x = neighbor_position(0) - vertex_position(0);
+			double delta_y = neighbor_position(1) - vertex_position(1);
+			double orientation = atan2(delta_y, delta_x);
+			orientations_[neighbors[i]] = orientation;
+
 			if (!isStanceAdjacency()) {
 				double terrain_cost = terrain_costmap.find(neighbors[i])->second;
 				successors.push_back(Edge(neighbors[i], terrain_cost));

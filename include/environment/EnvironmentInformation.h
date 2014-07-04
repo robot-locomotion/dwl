@@ -35,13 +35,19 @@ class EnvironmentInformation
 		 * @param double resolution Resolution value
 		 * @param bool gridmap Defines the resolution to set, i.e. gridmap (true) or height (false)
 		 */
-		void setResolution(double resolution, bool gridmap); //TODO check that I'm setting this resolution from locomotion class
+		void setResolution(double resolution, bool gridmap);
 
 		/**
 		 * @brief Gets the terrain cost-map (using vertex id)
 		 * @param dwl::CostMap& costmap Cost map of the terrain
 		 */
 		void getTerrainCostMap(CostMap& costmap);
+
+		/**
+		 * @brief Gets the terrain height-map (using vertex id)
+		 * @param dwl::HeightMap& heightmap Height map of the terrain
+		 */
+		void getTerrainHeightMap(HeightMap& heightmap);
 
 		/**
 		 * @brief Gets the average cost of the terrain
@@ -69,13 +75,15 @@ class EnvironmentInformation
 		/** @brief Gathers the cost values that are mapped using the vertex id */
 		CostMap terrain_cost_map_;
 
+		/** @brief Gathers the height values that are mapperd using the vertex id */
+		HeightMap terrain_height_map_;
+
 		/** @brief Average cost which is used for unknown areas */
 		double average_cost_;
 
 		/** @brief Indicates if it was defined terrain information */
 		bool terrain_information_;
 };
-
 
 } //@namespace environment
 } //@namespace dwl

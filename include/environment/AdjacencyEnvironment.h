@@ -5,6 +5,7 @@
 //#include <environment/PlaneGrid.h>
 #include <robot/Robot.h>
 #include <utils/utils.h>
+#include <utils/Orientation.h>
 
 
 namespace dwl
@@ -32,22 +33,22 @@ class AdjacencyEnvironment
 		 */
 		void reset(EnvironmentInformation* environment);
 
+		void setCurrentPose(Pose current_pose);
+
 		/**
 		 * @brief Abstract method that computes the whole adjancecy map, which is required by some algorithms such as Dijkstrap
 		 * @param dwl::AdjacencyMap& adjacency_map Adjacency map
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
-		 * @param Eigen::Vector3d position 2D position and orientation
 		 */
-		virtual void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, double orientation);//Eigen::Vector3d position);
+		virtual void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target);
 
 		/**
 		 * @brief Abstract method that gets the successors of a certain vertex
 		 * @param std::list<Edge>& successors The successors of a certain vertex
 		 * @param dwl::Vertex Current vertex
-		 * @param double orientation Current orientation
 		 */
-		virtual void getSuccessors(std::list<Edge>& successors, Vertex vertex, double orientation);
+		virtual void getSuccessors(std::list<Edge>& successors, Vertex vertex);
 
 		/**
 		 * @brief Gets the closest start and goal vertex if it is not belong to the terrain information
@@ -95,6 +96,8 @@ class AdjacencyEnvironment
 
 		Vertex getVertex(Pose pose);//TODO
 
+		const std::map<Vertex, double>& getOrientations() const;
+
 		/**
 		 * @brief Gets the name of the adjacency model
 		 * @return std::string Return the name of the adjacency model
@@ -114,6 +117,13 @@ class AdjacencyEnvironment
 
 		/** @brief Indicates if it is a lattice-based graph */
 		bool is_lattice_;
+
+		/** @brief Uncertainty factor which is applicated in un-perceived environment */
+		double uncertainty_factor_; // For unknown (non-perceive) areas
+
+		std::map<Vertex, double> orientations_;
+
+		Pose current_pose_;
 
 
 	private:

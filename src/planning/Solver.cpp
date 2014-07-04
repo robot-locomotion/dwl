@@ -26,6 +26,12 @@ void Solver::reset(environment::EnvironmentInformation* environment)
 }
 
 
+void Solver::setCurrentPose(Pose current_pose)
+{
+	adjacency_->setCurrentPose(current_pose);
+}
+
+
 void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_model)
 {
 	printf(BLUE "Setting the %s adjacency model in the %s solver\n" COLOR_RESET, adjacency_model->getName().c_str(), getName().c_str());
@@ -34,7 +40,7 @@ void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_mode
 }
 
 
-bool Solver::compute(Vertex source, Vertex target, double orientation)
+bool Solver::compute(Vertex source, Vertex target)
 {
 	if (is_graph_searching_algorithm_)
 		printf(YELLOW "Could not compute the shortest-path because the %s was not defined an algorithm\n" COLOR_RESET, name_.c_str());

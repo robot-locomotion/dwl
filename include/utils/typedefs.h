@@ -23,6 +23,8 @@ typedef double Weight;
 /** Defines the cost of a vertex for graph-searching algorithms */
 typedef std::map<Vertex, Weight> CostMap;
 
+typedef std::map<Vertex, double> HeightMap;
+
 /** Defines a previous vertex for graph-searching algorithms */
 typedef std::map<Vertex, Vertex> PreviousVertex;
 
@@ -61,12 +63,21 @@ struct Pose
 };
 
 /**
- * @brief Struct that defines the 2d pose, i.e. (x,y) and yaw angle
+ * @brief Struct that defines the 3d pose, i.e. (x,y) and yaw angle
  */
 struct Pose3d
 {
 	Eigen::Vector2d position;
 	double orientation;
+};
+
+/**
+ * @brief Struct that defines the 3d actions, i.e. 3d pose and cost for action
+ */
+struct Action3d
+{
+	Pose3d pose;
+	Weight cost;
 };
 
 /**

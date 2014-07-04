@@ -26,10 +26,10 @@ class BodyMotorPrimitives : public MotorPrimitives
 
 		/**
 		 * @brief Abstract method for generation 3D actions
-		 * @param std::vector<dwl::Pose3d>& actions Set of actions
-		 * @param dwl::Pose3d state Current 3D pose
+		 * @param std::vector<dwl::Action3d>& actions Set of actions
+		 * @param dwl::Action3d state Current 3D pose
 		 */
-		void generateActions(std::vector<Pose3d>& actions, Pose3d state);
+		void generateActions(std::vector<Action3d>& actions, Pose3d state);
 
 
 	private:

@@ -33,10 +33,9 @@ class Dijkstrap : public Solver
 		 * @brief Computes a shortest-path using Dijkstrap algorithm
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
-		 * @param double orientation Orientation of the body
 		 * @return bool Returns true if it was computed a solution
 		 */
-		bool compute(Vertex source, Vertex target, double orientation);
+		bool compute(Vertex source, Vertex target);
 
 
 	private:

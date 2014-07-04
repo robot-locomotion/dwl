@@ -1,6 +1,5 @@
 #include <planning/HierarchicalPlanning.h>
-#include <utils/Orientation.h>
-
+#include <utils/Orientation.h> //TODO
 
 namespace dwl
 {
@@ -52,18 +51,19 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 		std::vector<Contact> empty_contacts_sequence;
 		contacts_sequence_.swap(empty_contacts_sequence);
 
-		// Converting quaternion to roll, pitch and yaw angles
-		double roll, pitch, yaw;
-		Orientation orientation(current_pose.orientation);
-		orientation.getRPY(roll, pitch, yaw);
+		std::cout << "Current position = " << current_pose.position(0) << " " << current_pose.position(1) << std::endl;
 
 		// Computing the body path using a graph searching algorithm
 		if (!body_planner_->computeBodyPath(body_path_, current_pose, goal_pose_)) {
 			printf(YELLOW "Could not found an approximated body path\n" COLOR_RESET);
 			return false;
 		}
-		for (int i = 1; i < body_path_.size() - 1; i++) {
-			if (!footstep_planner_->computeFootholds(contacts_sequence_, body_path_[i])) {//current_pose
+		for (int i = 1; i < body_path_.size(); i++) {
+			/*Orientation orientation(body_path_[i].orientation);
+			double roll, pitch, yaw;
+			orientation.getRPY(roll, pitch, yaw);
+			std::cout << "Plan = " << body_path_[i].position(0) << " " << body_path_[i].position(1) << " " << yaw << std::endl;*/
+			if (!footstep_planner_->computeFootholds(contacts_sequence_, body_path_[i])) {
 				printf(YELLOW "Could not computed the footholds\n" COLOR_RESET);
 				return false;
 			}

@@ -26,7 +26,7 @@ bool AStar::init()
 }
 
 
-bool AStar::compute(Vertex source, Vertex target, double orientation)
+bool AStar::compute(Vertex source, Vertex target)
 {
 	if (is_settep_adjacency_model_) {
 		// Computing the shortest path
@@ -35,14 +35,14 @@ bool AStar::compute(Vertex source, Vertex target, double orientation)
 		if (compute_whole_adjacency_map_) {
 			// Computing adjacency map
 			AdjacencyMap adjacency_map;
-			adjacency_->computeAdjacencyMap(adjacency_map, source, target, orientation);
+			adjacency_->computeAdjacencyMap(adjacency_map, source, target);
 
 			// Computing the path according to A-star algorithm
-			findShortestPath(min_cost, previous, source, target, orientation, adjacency_map);
+			findShortestPath(min_cost, previous, source, target, adjacency_map);
 		} else {
 			// Check if the start and goal position belong to the terrain information, in negative case, the closest points will added to the computed path
 			Vertex closest_source, closest_target;
-			adjacency_->getTheClosestStartAndGoalVertex(closest_source, closest_target, source, target);
+			/*adjacency_->getTheClosestStartAndGoalVertex(closest_source, closest_target, source, target);
 
 			if (closest_source != source) {
 				previous[closest_source] = source;
@@ -51,8 +51,8 @@ bool AStar::compute(Vertex source, Vertex target, double orientation)
 			if (closest_target != target) {
 				previous[target] = closest_target;
 				min_cost[target] = 0;
-			}
-			findShortestPath(min_cost, previous, closest_source, closest_target, orientation);
+			}*/
+			findShortestPath(min_cost, previous, source, target);
 		}
 
 		previous_ = previous;
@@ -66,7 +66,7 @@ bool AStar::compute(Vertex source, Vertex target, double orientation)
 }
 
 
-void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, double orientation, AdjacencyMap adjacency_map)
+void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, AdjacencyMap adjacency_map)
 {
 	CostMap f_cost;
 
@@ -84,7 +84,6 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 	// Adding the start vertex to the openset
 	openset_queue.insert(std::pair<Weight, Vertex>(f_cost[source], source));
 	openset[source] = true;
-
 	while (!openset.empty()) {
 		Vertex current = openset_queue.begin()->second;
 
@@ -127,7 +126,7 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 }
 
 
-void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, double orientation)
+void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target)
 {
 	CostMap f_cost;
 
@@ -145,12 +144,12 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 	// Adding the start vertex to the openset
 	openset_queue.insert(std::pair<Weight, Vertex>(f_cost[source], source));
 	openset[source] = true;
-
+	int expansions = 0;
 	while (!openset.empty()) {
 		Vertex current = openset_queue.begin()->second;
 
 		// Checking if it is getted the target
-		if (adjacency_->isReachedGoal(target, current)) {
+		if (adjacency_->isReachedGoal(target, current)) { //TODO Think how to add orientation
 			previous[target] = current;
 			g_cost[target] = 0;
 			break;
@@ -165,7 +164,7 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 
 		// Visit each edge exiting in the current vertex
 		std::list<Edge> successors;
-		adjacency_->getSuccessors(successors, current, orientation);
+		adjacency_->getSuccessors(successors, current);//TODO
 		for (std::list<Edge>::iterator edge_iter = successors.begin();
 						edge_iter != successors.end();
 						edge_iter++)
@@ -187,7 +186,9 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 				}
 			}
 		}
+		expansions++;
 	}
+	std::cout << "Expansions = " << expansions << std::endl;
 }
 
 } //@namespace planning

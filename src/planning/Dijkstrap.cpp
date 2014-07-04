@@ -27,12 +27,12 @@ bool Dijkstrap::init()
 }
 
 
-bool Dijkstrap::compute(Vertex source, Vertex target, double orientation)
+bool Dijkstrap::compute(Vertex source, Vertex target)
 {
 	if (is_settep_adjacency_model_) {
 		// Computing adjacency map
 		AdjacencyMap adjacency_map;
-		adjacency_->computeAdjacencyMap(adjacency_map, source, target, orientation);
+		adjacency_->computeAdjacencyMap(adjacency_map, source, target);
 
 		// Computing the path according to Dijkstrap algorithm
 		CostMap min_cost;

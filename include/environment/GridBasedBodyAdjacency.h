@@ -28,17 +28,15 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 		 * @param dwl::AdjacencyMap& adjacency_map Adjacency map
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
-		 * @param double orientation Body orientation
 		 */
-		void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, double orientation);
+		void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target);
 
 		/**
 		 * @brief Gets the successors of the current vertex
 		 * @param std::list<Edge>& successors List of successors
 		 * @param dwl::Vertex vertex Current vertex
-		 * @param double orientation Current orientation
 		 */
-		void getSuccessors(std::list<Edge>& successors, Vertex vertex, double orientation);
+		void getSuccessors(std::list<Edge>& successors, Vertex vertex);
 
 
 	private:

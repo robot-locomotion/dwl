@@ -28,9 +28,8 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		 * @brief Gets the successors of the current vertex
 		 * @param std::list<Edge>& successors List of successors
 		 * @param dwl::Vertex vertex Current vertex
-		 * @param double orientation Current orientation
 		 */
-		void getSuccessors(std::list<Edge>& successors, Vertex vertex, double orientation);
+		void getSuccessors(std::list<Edge>& successors, Vertex vertex);
 
 
 	private:
@@ -65,9 +64,6 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 
 		/** @brief Number of top reward for computing the stance cost */
 		int number_top_reward_;
-
-		/** @brief Uncertainty factor which is applicated in un-perceived environment */
-		double uncertainty_factor_; // For unknown (non-perceive) areas
 };
 
 } //@namespace environmet

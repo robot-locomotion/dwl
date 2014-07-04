@@ -42,19 +42,18 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 	Vertex start_vertex = environment_->getGridModel().coordToVertex((Eigen::Vector2d) start_pose.position.head(2));
 	Vertex goal_vertex = environment_->getGridModel().coordToVertex((Eigen::Vector2d) goal_pose.position.head(2));
 
-	// Converting quaternion to roll, pitch and yaw angles
-	double roll, pitch, yaw;
-	Orientation orientation(start_pose.orientation);
-	orientation.getRPY(roll, pitch, yaw);
+	// Setting the current pose to solver
+	path_solver_->setCurrentPose(start_pose);
 
 	// Computing the body path using a graph searching algorithm
-	if (!path_solver_->compute(start_vertex, goal_vertex, yaw))
+	if (!path_solver_->compute(start_vertex, goal_vertex))
 		return false;
 
 	// Getting the shortest path
 	std::list<Vertex> shortest_path = path_solver_->getShortestPath(goal_vertex);
 
 	std::list<Vertex>::iterator path_iter = shortest_path.begin();
+	Eigen::Vector2d old_point = Eigen::Vector2d::Zero();
 	for(; path_iter != shortest_path.end(); path_iter++) {
 		Pose body_pose;
 		body_pose.position = Eigen::Vector3d::Zero();
@@ -63,7 +62,17 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 		Eigen::Vector2d path = environment_->getGridModel().vertexToCoord(*path_iter);
 		body_pose.position.head(2) = path;
 
+		// Computing the roll, pitch and yaw angles
+		double roll = 0;
+		double pitch = 0;
+		double yaw = atan2((double) (path(1) - old_point(1)), (double) (path(0) - old_point(0)));
+
+		// Converting rpy angles to quaternion
+		Orientation orientation(roll, pitch, yaw);
+		orientation.getQuaternion(body_pose.orientation);
+
 		body_path.push_back(body_pose);
+		old_point = path;
 	}
 
 	return true;

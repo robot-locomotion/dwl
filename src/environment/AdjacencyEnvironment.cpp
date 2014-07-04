@@ -7,8 +7,7 @@ namespace dwl
 namespace environment
 {
 
-
-AdjacencyEnvironment::AdjacencyEnvironment() : environment_(NULL), is_lattice_(false)
+AdjacencyEnvironment::AdjacencyEnvironment() : environment_(NULL), is_lattice_(false), uncertainty_factor_(1.15)
 {
 
 }
@@ -26,13 +25,19 @@ void AdjacencyEnvironment::reset(EnvironmentInformation* environment)
 }
 
 
-void AdjacencyEnvironment::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target, double orientation)//Eigen::Vector3d position)
+void AdjacencyEnvironment::setCurrentPose(Pose current_pose)
+{
+	current_pose_ = current_pose;
+}
+
+
+void AdjacencyEnvironment::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target)
 {
 	printf(YELLOW "Could compute the whole adjacency map because it was not defined an adjacency model\n" COLOR_RESET);
 }
 
 
-void AdjacencyEnvironment::getSuccessors(std::list<Edge>& successors, Vertex vertex, double orientation)
+void AdjacencyEnvironment::getSuccessors(std::list<Edge>& successors, Vertex vertex)
 {
 	printf(YELLOW "Could get the successors because it was not defined an adjacency model\n" COLOR_RESET);
 }
@@ -140,6 +145,9 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		// Adding the goal to the adjacency map
 		closest_target = goal_closest_vertex;
 	}
+
+	std::cout << "Closest source point = " << environment_->getGridModel().vertexToCoord(closest_source) << std::endl;
+	std::cout << "Closest target point = " << environment_->getGridModel().vertexToCoord(closest_target) << std::endl;
 }
 
 
@@ -201,7 +209,7 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 	//double dx = target_position(0) - source_position(0);
 	//double heading = abs(atan(dy / dx));
 
-	return 0.5 * (0.8 * distance + 0.2 * abs(dy));
+	return 3 * (0.8 * distance + 0.3 * abs(dy)) * uncertainty_factor_ * environment_->getAverageCostOfTerrain();
 }
 
 
@@ -246,11 +254,16 @@ Vertex AdjacencyEnvironment::getVertex(Pose pose)
 }
 
 
+const std::map<Vertex, double>& AdjacencyEnvironment::getOrientations() const
+{
+	return orientations_;
+}
+
+
 std::string AdjacencyEnvironment::getName()
 {
 	return name_;
 }
-
 
 } //@namespace environment
 } //@namespace dwl

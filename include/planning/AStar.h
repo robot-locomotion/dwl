@@ -33,10 +33,9 @@ class AStar : public Solver
 		 * @brief Computes a shortest-path using A* algorithm
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
-		 * @param double orientation Orientation of the body
 		 * @return bool Return true if it was computed a solution
 		 */
-		bool compute(Vertex source, Vertex target, double orientation);
+		bool compute(Vertex source, Vertex target);
 
 
 	private:
@@ -48,7 +47,7 @@ class AStar : public Solver
 		 * @param Vertex target Target vertex
 		 * @param AdjacencyMap adjacency_map Adjacency map
 		 */
-		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, double orientation, AdjacencyMap adjacency_map);
+		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, AdjacencyMap adjacency_map);
 
 		/**
 		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path //TODO
@@ -57,7 +56,7 @@ class AStar : public Solver
 		 * @param Vertex source Source vertex
 		 * @param Vertex target Target vertex
 		 */
-		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, double orientation);
+		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target);
 
 		/** @brief Indicates if it's computed a whole adjacency map before the searching */
 		bool compute_whole_adjacency_map_;

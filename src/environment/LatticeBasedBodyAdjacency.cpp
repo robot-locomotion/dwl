@@ -8,7 +8,7 @@ namespace dwl
 namespace environment
 {
 
-LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : behavior_(NULL), is_stance_adjacency_(true), number_top_reward_(5), uncertainty_factor_(1.15)
+LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : behavior_(NULL), is_stance_adjacency_(true), number_top_reward_(5)
 {
 	name_ = "lattice-based body";
 	is_lattice_ = true;
@@ -26,12 +26,23 @@ LatticeBasedBodyAdjacency::~LatticeBasedBodyAdjacency()
 }
 
 
-void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex vertex, double orientation)
+void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex vertex)
 {
-	std::vector<Pose3d> actions;
+	// Getting the 3d pose for generating the actions
+	std::vector<Action3d> actions;
 	Pose3d state;
 	state.position = environment_->getGridModel().vertexToCoord(vertex);
-	state.orientation = orientation;
+	if (orientations_.find(vertex)->first == vertex) {
+		// Adding the orientation of the action
+		state.orientation = orientations_.find(vertex)->second;
+	} else {
+		// Adding the initial orientation
+		// Converting quaternion to roll, pitch and yaw angles
+		double roll, pitch, yaw;
+		Orientation orientation(current_pose_.orientation);
+		orientation.getRPY(roll, pitch, yaw);
+		state.orientation = yaw;
+	}
 
 	// Gets actions according the defined motor primitives of the body
 	behavior_->generateActions(actions, state);
@@ -41,20 +52,32 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 		environment_->getTerrainCostMap(terrain_costmap);
 		for (int i = 0; i < actions.size(); i++) {
 			// Converting the action to vertex
-			Vertex current = environment_->getGridModel().coordToVertex(actions[i].position);
+			Vertex current = environment_->getGridModel().coordToVertex(actions[i].pose.position);
+
+			// Recording orientations of the actions
+			orientations_[current] = actions[i].pose.orientation;
 
 			if (!isStanceAdjacency()) {
-				double terrain_cost = terrain_costmap.find(current)->second;
+				double terrain_cost;
+				if (terrain_costmap.find(current)->first != current)
+					terrain_cost = uncertainty_factor_ * environment_->getAverageCostOfTerrain();
+				else
+					terrain_cost = terrain_costmap.find(current)->second;
+
 				successors.push_back(Edge(current, terrain_cost));
 			} else {
 				// Computing the body cost
 				double body_cost;
-				computeBodyCost(body_cost, current, orientation);
+				computeBodyCost(body_cost, current, actions[i].pose.orientation);
+				body_cost += actions[i].cost;
 				successors.push_back(Edge(current, body_cost));
+				std::cout << "Succesors (vertex | position | cost) = " << current << " | " << actions[i].pose.position(0) << " " << actions[i].pose.position(1) << " | " << body_cost << std::endl;
 			}
 		}
 	} else
 		printf(RED "Couldn't compute the successors because there isn't terrain information \n" COLOR_RESET);
+
+	std::cout << "----------------------------------------------------------" << std::endl;
 }
 
 
@@ -102,12 +125,12 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Vertex vertex, dou
 				stance_cost += stance_cost_queue.begin()->first;
 				stance_cost_queue.erase(stance_cost_queue.begin());
 			}
-
 			stance_cost /= number_top_reward;
 		}
 
 		body_cost += stance_cost;
 	}
+
 	body_cost /= stance_areas_.size();
 
 	cost = body_cost;//TODO compute cost assoacited to support triangle and other features

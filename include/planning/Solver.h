@@ -36,6 +36,8 @@ class Solver
 		 */
 		void reset(environment::EnvironmentInformation* environment); //TODO virtual method
 
+		void setCurrentPose(Pose current_pose);
+
 		/**
 		 * @brief Sets the adjacency model that is used for graph-searchin solvers, i.e. path-planning problems
 		 * @param dwl::environment::AdjacencyEnvironment* adjacency_model Adjacency model
@@ -46,10 +48,10 @@ class Solver
 		 * @brief Abstract method for computing a shortest-path using graph search algorithms such as A* or Dijkstrap
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
-		 * @param double orientation Orientation of the body
+		 * @param Eigen::Vector4d orientation Orientation of the body in quaternion
 		 * @return bool Returns true if it was computed a solution
 		 */
-		virtual bool compute(Vertex source, Vertex target, double orientation);
+		virtual bool compute(Vertex source, Vertex target);
 
 		/**
 		 * @brief Abstract method for computing a solution of an optimization problem

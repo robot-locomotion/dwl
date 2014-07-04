@@ -35,11 +35,16 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 	// Getting the vertex position
 	Eigen::Vector2d vertex_position = current_pose.position.head(2);
 
-	std::cout << "Current position = " << current_pose.position(0) << " " << current_pose.position(1) << " " << current_pose.position(2) << std::endl;
 	for (int i = 0; i < robot_.getNumberOfLegs(); i++) {
 		int current_leg_id = robot_.getNextLeg(i);
+
+		// Getting the terrain cost map information
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
+
+		// Getting the terrain height map information
+		HeightMap terrain_heightmap;
+		environment_->getTerrainHeightMap(terrain_heightmap);
 
 		double body_cost;
 		// Computing the boundary of stance area
@@ -68,13 +73,13 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 
 		Contact foothold;
 		foothold.end_effector = current_leg_id;
+		Vertex foothold_vertex = stance_cost_queue.begin()->second;
 		if (stance_cost_queue.size() > 0)
-			foothold.position << environment_->getGridModel().vertexToCoord(stance_cost_queue.begin()->second), 0.0;
+			foothold.position << environment_->getGridModel().vertexToCoord(foothold_vertex), terrain_heightmap.find(foothold_vertex)->second;
 		else
 			foothold.position << robot_.getStancePosition()[current_leg_id] + vertex_position, 0.0;
 
 		footholds.push_back(foothold);
-		std::cout << "Footholds: leg = " << foothold.end_effector << " and position = " << foothold.position(0) << " " << foothold.position(1) << " " << foothold.position(2) << std::endl;
 	}
 
 	return true;
