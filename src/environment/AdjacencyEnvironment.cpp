@@ -209,7 +209,9 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 	//double dx = target_position(0) - source_position(0);
 	//double heading = abs(atan(dy / dx));
 
-	return 3 * (0.8 * distance + 0.3 * abs(dy)) * uncertainty_factor_ * environment_->getAverageCostOfTerrain();
+	double heuristic = 2.5 * distance * uncertainty_factor_ * environment_->getAverageCostOfTerrain(); //TODO
+
+	return heuristic;
 }
 
 
@@ -251,6 +253,13 @@ Eigen::Vector2d AdjacencyEnvironment::getPosition(Vertex vertex)
 Vertex AdjacencyEnvironment::getVertex(Pose pose)
 {
 	return environment_->getGridModel().coordToVertex((Eigen::Vector2d) pose.position.head(2));
+}
+
+Pose AdjacencyEnvironment::getPose(Vertex vertex)
+{
+	Pose pose;
+	pose.position.head(2) = environment_->getGridModel().vertexToCoord(vertex);
+	return pose;
 }
 
 

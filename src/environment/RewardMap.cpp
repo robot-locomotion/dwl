@@ -121,7 +121,9 @@ void RewardMap::addCellToRewardMap(Cell cell)
 void RewardMap::removeCellToRewardMap(CellKey cell)
 {
 	Vertex v = gridmap_.gridMapKeyToVertex(cell.grid_id);
-	reward_gridmap_.erase(v);
+	if (reward_gridmap_.find(v)->first == v) {
+		reward_gridmap_.erase(v);
+	}
 }
 
 
@@ -183,7 +185,7 @@ void RewardMap::setModelerResolution(double resolution)
 }
 
 
-std::map<Vertex, Cell> RewardMap::getRewardMap()
+const std::map<Vertex,Cell>& RewardMap::getRewardMap() const
 {
 	return reward_gridmap_;
 }

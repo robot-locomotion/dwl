@@ -40,7 +40,7 @@ void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_mode
 }
 
 
-bool Solver::compute(Vertex source, Vertex target)
+bool Solver::compute(Vertex source, Vertex target, double computation_time)
 {
 	if (is_graph_searching_algorithm_)
 		printf(YELLOW "Could not compute the shortest-path because the %s was not defined an algorithm\n" COLOR_RESET, name_.c_str());
@@ -63,16 +63,18 @@ bool Solver::compute(Eigen::MatrixXd hessian, Eigen::VectorXd gradient, Eigen::M
 }
 
 
-std::list<Vertex> Solver::getShortestPath(Vertex target)
+std::list<Vertex> Solver::getShortestPath(Vertex source, Vertex target)
 {
 	std::list<Vertex> path;
 	if (is_graph_searching_algorithm_) {
 		PreviousVertex::iterator prev;
 		Vertex vertex = target;
 		path.push_front(vertex);
-		while((prev = previous_.find(vertex)) != previous_.end()) {
+		while ((prev = previous_.find(vertex)) != previous_.end()) {
 			vertex = prev->second;
 			path.push_front(vertex);
+			if (vertex == source)
+				break;
 		}
 	} else {
 		printf(YELLOW "Could not get the shortest path because the %s is not a graph-searchin algorithm\n" COLOR_RESET, name_.c_str());

@@ -33,9 +33,10 @@ class AStar : public Solver
 		 * @brief Computes a shortest-path using A* algorithm
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
+		 * @param double computation_time Allowed time for computing a solution (in seconds)
 		 * @return bool Return true if it was computed a solution
 		 */
-		bool compute(Vertex source, Vertex target);
+		bool compute(Vertex source, Vertex target, double computation_time = std::numeric_limits<double>::max());
 
 
 	private:

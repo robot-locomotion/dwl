@@ -14,18 +14,19 @@
 namespace dwl
 {
 
-/** Defines a vertex for graph-searching algorithms */
+/** @brief Defines a vertex for graph-searching algorithms */
 typedef unsigned int Vertex;
 
-/** Defines a weight for graph-searching algorithms */
+/** @brief Defines a weight for graph-searching algorithms */
 typedef double Weight;
 
-/** Defines the cost of a vertex for graph-searching algorithms */
+/** @brief Defines the cost of a vertex for graph-searching algorithms */
 typedef std::map<Vertex, Weight> CostMap;
 
+/** @brief Defines the height map of the environment */
 typedef std::map<Vertex, double> HeightMap;
 
-/** Defines a previous vertex for graph-searching algorithms */
+/** @brief Defines a previous vertex for graph-searching algorithms */
 typedef std::map<Vertex, Vertex> PreviousVertex;
 
 /**

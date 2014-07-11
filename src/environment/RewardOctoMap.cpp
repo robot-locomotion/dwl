@@ -92,6 +92,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 									// Evaluating if it changed status (height)
 									Cell reward_cell = reward_gridmap_.find(vertex_id)->second;
 									if (reward_cell.cell_key.height_id != cell_key.height_id) {
+										removeCellToRewardMap(reward_cell.cell_key);
 										removeCellToTerrainHeightMap(reward_cell.cell_key);
 									} else
 										new_status = false;

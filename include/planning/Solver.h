@@ -48,10 +48,10 @@ class Solver
 		 * @brief Abstract method for computing a shortest-path using graph search algorithms such as A* or Dijkstrap
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
-		 * @param Eigen::Vector4d orientation Orientation of the body in quaternion
+		 * @param double computation_time Allowed time for computing a solution (in seconds)
 		 * @return bool Returns true if it was computed a solution
 		 */
-		virtual bool compute(Vertex source, Vertex target);
+		virtual bool compute(Vertex source, Vertex target, double computation_time = std::numeric_limits<double>::max());
 
 		/**
 		 * @brief Abstract method for computing a solution of an optimization problem
@@ -72,7 +72,7 @@ class Solver
 		 * @param Vertex target Target vertex
 		 * @return std::list<Vertex> Returns the path as a list of vertex
 		 */
-		std::list<Vertex> getShortestPath(Vertex target);
+		std::list<Vertex> getShortestPath(Vertex source, Vertex target);
 
 		/**
 		 * @brief Gets the minimum cost (total cost) for the computed solution
@@ -105,6 +105,9 @@ class Solver
 
 		/** @brief Shortest previous vertex */
 		PreviousVertex previous_;
+
+		/** @brief Initial time of computation */
+		clock_t time_started_;
 
 		/** @brief Total cost of the path */
 		double total_cost_;

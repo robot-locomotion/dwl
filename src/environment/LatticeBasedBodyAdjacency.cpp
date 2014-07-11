@@ -69,15 +69,15 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 				// Computing the body cost
 				double body_cost;
 				computeBodyCost(body_cost, current, actions[i].pose.orientation);
-				body_cost += actions[i].cost;
+				body_cost += actions[i].cost * 0; //TODO
 				successors.push_back(Edge(current, body_cost));
-				std::cout << "Succesors (vertex | position | cost) = " << current << " | " << actions[i].pose.position(0) << " " << actions[i].pose.position(1) << " | " << body_cost << std::endl;
+				//std::cout << "Succesors (vertex | position | cost) = " << current << " | " << actions[i].pose.position(0) << " " << actions[i].pose.position(1) << " | " << body_cost << std::endl;
 			}
 		}
 	} else
-		printf(RED "Couldn't compute the successors because there isn't terrain information \n" COLOR_RESET);
+		printf(RED "Could not computed the successors because there isn't terrain information \n" COLOR_RESET);
 
-	std::cout << "----------------------------------------------------------" << std::endl;
+	//std::cout << "----------------------------------------------------------" << std::endl;
 }
 
 

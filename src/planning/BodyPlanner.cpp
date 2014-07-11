@@ -46,11 +46,13 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 	path_solver_->setCurrentPose(start_pose);
 
 	// Computing the body path using a graph searching algorithm
-	if (!path_solver_->compute(start_vertex, goal_vertex))
+	double computation_time = 0.55;
+	if (!path_solver_->compute(start_vertex, goal_vertex, computation_time))
 		return false;
 
 	// Getting the shortest path
-	std::list<Vertex> shortest_path = path_solver_->getShortestPath(goal_vertex);
+	std::list<Vertex> shortest_path = path_solver_->getShortestPath(start_vertex, goal_vertex);
+	std::cout << "Size of path = " << shortest_path.size() << std::endl; //TODO
 
 	std::list<Vertex>::iterator path_iter = shortest_path.begin();
 	Eigen::Vector2d old_point = Eigen::Vector2d::Zero();

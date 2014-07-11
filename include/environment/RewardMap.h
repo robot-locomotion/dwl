@@ -139,7 +139,7 @@ class RewardMap
 		 * @brief Gets the reward map
 		 * @return std::map<Vertex,dwl::environment::Cell> Returns the cell value per each vertex
 		 */
-		std::map<Vertex,Cell> getRewardMap();
+		const std::map<Vertex,Cell>& getRewardMap() const;
 
 
 	protected:

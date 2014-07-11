@@ -51,7 +51,10 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 		std::vector<Contact> empty_contacts_sequence;
 		contacts_sequence_.swap(empty_contacts_sequence);
 
-		std::cout << "Current position = " << current_pose.position(0) << " " << current_pose.position(1) << std::endl;
+		double roll, pitch, yaw;
+		Orientation orientation(current_pose.orientation);
+		orientation.getRPY(roll, pitch, yaw);
+		std::cout << "Current position = " << current_pose.position(0) << " " << current_pose.position(1) << " " << yaw << std::endl;
 
 		// Computing the body path using a graph searching algorithm
 		if (!body_planner_->computeBodyPath(body_path_, current_pose, goal_pose_)) {
@@ -63,10 +66,10 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 			double roll, pitch, yaw;
 			orientation.getRPY(roll, pitch, yaw);
 			std::cout << "Plan = " << body_path_[i].position(0) << " " << body_path_[i].position(1) << " " << yaw << std::endl;*/
-			if (!footstep_planner_->computeFootholds(contacts_sequence_, body_path_[i])) {
+			/*if (!footstep_planner_->computeFootholds(contacts_sequence_, body_path_[i])) {
 				printf(YELLOW "Could not computed the footholds\n" COLOR_RESET);
 				return false;
-			}
+			}*/
 		}
 	} else {
 		printf(YELLOW "Could not computed a locomotion plan because there is not terrain information\n" COLOR_RESET);

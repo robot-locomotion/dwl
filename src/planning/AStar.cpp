@@ -26,7 +26,7 @@ bool AStar::init()
 }
 
 
-bool AStar::compute(Vertex source, Vertex target)
+bool AStar::compute(Vertex source, Vertex target, double computation_time)
 {
 	if (is_settep_adjacency_model_) {
 		// Computing the shortest path
@@ -40,25 +40,14 @@ bool AStar::compute(Vertex source, Vertex target)
 			// Computing the path according to A-star algorithm
 			findShortestPath(min_cost, previous, source, target, adjacency_map);
 		} else {
-			// Check if the start and goal position belong to the terrain information, in negative case, the closest points will added to the computed path
-			Vertex closest_source, closest_target;
-			/*adjacency_->getTheClosestStartAndGoalVertex(closest_source, closest_target, source, target);
-
-			if (closest_source != source) {
-				previous[closest_source] = source;
-				min_cost[source] = 0;
-			}
-			if (closest_target != target) {
-				previous[target] = closest_target;
-				min_cost[target] = 0;
-			}*/
 			findShortestPath(min_cost, previous, source, target);
 		}
 
 		previous_ = previous;
 		total_cost_ = min_cost[target];
+		std::cout << "Total cost = " << total_cost_ << std::endl;
 	} else {
-		printf(RED "Could not compute the shortest path because it is required to defined an adjacency model\n" COLOR_RESET);
+		printf(RED "Could not computed the shortest path because it is required to defined an adjacency model\n" COLOR_RESET);
 		return false;
 	}
 
@@ -70,7 +59,7 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 {
 	CostMap f_cost;
 
-	// Definiting the set of nodes already evaluated (openset), the set of tentative nodes to be evaluated (openset), and ordered openset queue
+	// Defining the set of nodes already evaluated (openset), the set of tentative nodes to be evaluated (openset), and ordered openset queue
 	std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > openset_queue;
 	std::map<Vertex, bool> openset;
 	std::map<Vertex, bool> closedset;
@@ -149,22 +138,22 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 		Vertex current = openset_queue.begin()->second;
 
 		// Checking if it is getted the target
-		if (adjacency_->isReachedGoal(target, current)) { //TODO Think how to add orientation
+		if (adjacency_->isReachedGoal(target, current)) {
 			previous[target] = current;
-			g_cost[target] = 0;
+			g_cost[target] = g_cost[current];
 			break;
 		}
 
 		// Deleting the current vertex to the openset list
 		openset_queue.erase(openset_queue.begin());
-		openset.erase(source);
+		openset.erase(current);
 
 		// Adding the current vertex to the closedset
 		closedset[current] = true;
 
 		// Visit each edge exiting in the current vertex
 		std::list<Edge> successors;
-		adjacency_->getSuccessors(successors, current);//TODO
+		adjacency_->getSuccessors(successors, current);
 		for (std::list<Edge>::iterator edge_iter = successors.begin();
 						edge_iter != successors.end();
 						edge_iter++)

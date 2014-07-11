@@ -12,6 +12,7 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 
 }
 
+
 BodyMotorPrimitives::~BodyMotorPrimitives()
 {
 
@@ -54,12 +55,12 @@ void BodyMotorPrimitives::generateActions(std::vector<Action3d>& actions, Pose3d
 		actions.push_back(current_action);
 	}
 
-	Action3d current_action;
+	/*Action3d current_action;
 	current_action.pose.position = state.position;
 	current_action.pose.orientation = 0.25;
 	actions.push_back(current_action);
 	current_action.pose.orientation = -0.25;
-	actions.push_back(current_action);
+	actions.push_back(current_action);*/
 }
 
 } //@namespace behavior

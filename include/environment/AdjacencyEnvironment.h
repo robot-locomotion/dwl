@@ -96,6 +96,8 @@ class AdjacencyEnvironment
 
 		Vertex getVertex(Pose pose);//TODO
 
+		Pose getPose(Vertex vertex);
+
 		const std::map<Vertex, double>& getOrientations() const;
 
 		/**

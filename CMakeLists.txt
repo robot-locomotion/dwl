@@ -35,6 +35,7 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/Constraint.cpp
 							src/planning/Dijkstrap.cpp
 							src/planning/AStar.cpp
+							src/planning/AnytimeRepairingAStar.cpp
 							src/behavior/MotorPrimitives.cpp
 							src/behavior/BodyMotorPrimitives.cpp
 							src/environment/EnvironmentInformation.cpp
