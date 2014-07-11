@@ -31,7 +31,7 @@ void HierarchicalPlanners::init()
 	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
 
 	// Initialization of planning algorithm, which includes the initizalization and setup of solver algorithm
-	solver_ptr_ = new dwl::planning::AStar();//new dwl::planning::Dijkstrap();
+	solver_ptr_ = new dwl::planning::AnytimeRepairingAStar();//new dwl::planning::AStar();//new dwl::planning::Dijkstrap();
 	dwl::environment::AdjacencyEnvironment* grid_adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();
 	dwl::environment::AdjacencyEnvironment* lattice_adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
 	solver_ptr_->setAdjacencyModel(lattice_adjacency_ptr);//solver_ptr_->setAdjacencyModel(grid_adjacency_ptr);
@@ -93,8 +93,8 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	dwl::Pose start_pose, goal_pose;
 //	start_pose.position[0] = robot_position(0);
 //	start_pose.position[1] = robot_position(1);
-	goal_pose.position[0] = 5.0;
-	goal_pose.position[1] = 0.0;
+	goal_pose.position[0] = 5.50;
+	goal_pose.position[1] = -0.85;
 	locomotor_.resetGoal(goal_pose);
 
 	// Computing the locomotion plan
@@ -105,8 +105,8 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
 	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
 
-	locomotor_.getBodyPath().swap(body_path_);
-	locomotor_.getContactSequence().swap(contact_sequence_);
+	body_path_ = locomotor_.getBodyPath();
+	contact_sequence_ = locomotor_.getContactSequence();
 }
 
 
@@ -115,15 +115,21 @@ void HierarchicalPlanners::publishBodyPath()
 	body_path_msg_.header.stamp = ros::Time::now();
 	body_path_msg_.poses.resize(body_path_.size());
 
-	for (int i = 0; i < body_path_.size(); i++) {
-		body_path_msg_.poses[i].pose.position.x = body_path_[i].position(0);
-		body_path_msg_.poses[i].pose.position.y = body_path_[i].position(1);
-		body_path_msg_.poses[i].pose.position.z = robot_pose_.position(2);
-	}
-	body_path_pub_.publish(body_path_msg_);
+	if (body_path_.size() != 0) {
+		for (int i = 0; i < body_path_.size(); i++) {
+			body_path_msg_.poses[i].pose.position.x = body_path_[i].position(0);
+			body_path_msg_.poses[i].pose.position.y = body_path_[i].position(1);
+			body_path_msg_.poses[i].pose.position.z = robot_pose_.position(2);
+			body_path_msg_.poses[i].pose.orientation.w = body_path_[i].orientation.w();
+			body_path_msg_.poses[i].pose.orientation.x = body_path_[i].orientation.x();
+			body_path_msg_.poses[i].pose.orientation.y = body_path_[i].orientation.y();
+			body_path_msg_.poses[i].pose.orientation.z = body_path_[i].orientation.z();
+		}
+		body_path_pub_.publish(body_path_msg_);
 
-	std::vector<dwl::Pose> empty_body_path;
-	body_path_.swap(empty_body_path);
+		std::vector<dwl::Pose> empty_body_path;
+		body_path_.swap(empty_body_path);
+	}
 }
 
 
@@ -140,44 +146,46 @@ void HierarchicalPlanners::publishContactSequence()
 
 	contact_sequence_msg_.points.resize(contact_sequence_.size());
 	contact_sequence_msg_.colors.resize(contact_sequence_.size());
-	for (int i = 0; i < contact_sequence_.size(); i++) {
-		contact_sequence_msg_.points[i].x = contact_sequence_[i].position(0);
-		contact_sequence_msg_.points[i].y = contact_sequence_[i].position(1);
-		contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2);
+	if (contact_sequence_.size() != 0) {
+		for (int i = 0; i < contact_sequence_.size(); i++) {
+			contact_sequence_msg_.points[i].x = contact_sequence_[i].position(0);
+			contact_sequence_msg_.points[i].y = contact_sequence_[i].position(1);
+			contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2) + 0.0275;
 
-		int end_effector = contact_sequence_[i].end_effector;
-		if (end_effector == 0) {
-			contact_sequence_msg_.colors[i].r = 1.0f;
-			contact_sequence_msg_.colors[i].g = 0.0f;
-			contact_sequence_msg_.colors[i].b = 0.0f;
-			contact_sequence_msg_.colors[i].a = 1.0;
-		} else if (end_effector == 1) {
-			contact_sequence_msg_.colors[i].r = 0.0f;
-			contact_sequence_msg_.colors[i].g = 1.0f;
-			contact_sequence_msg_.colors[i].b = 0.0f;
-			contact_sequence_msg_.colors[i].a = 1.0;
-		} else if (end_effector == 2) {
-			contact_sequence_msg_.colors[i].r = 0.0f;
-			contact_sequence_msg_.colors[i].g = 0.0f;
-			contact_sequence_msg_.colors[i].b = 1.0f;
-			contact_sequence_msg_.colors[i].a = 1.0;
-		} else if (end_effector == 3) {
-			contact_sequence_msg_.colors[i].r = 1.0f;
-			contact_sequence_msg_.colors[i].g = 1.0f;
-			contact_sequence_msg_.colors[i].b = 0.0f;
-			contact_sequence_msg_.colors[i].a = 1.0;
-		} else {
-			contact_sequence_msg_.colors[i].r = 0.0f;
-			contact_sequence_msg_.colors[i].g = 1.0f;
-			contact_sequence_msg_.colors[i].b = 1.0f;
-			contact_sequence_msg_.colors[i].a = 1.0;
+			int end_effector = contact_sequence_[i].end_effector;
+			if (end_effector == 0) {
+				contact_sequence_msg_.colors[i].r = 1.0f;
+				contact_sequence_msg_.colors[i].g = 0.0f;
+				contact_sequence_msg_.colors[i].b = 0.0f;
+				contact_sequence_msg_.colors[i].a = 1.0;
+			} else if (end_effector == 1) {
+				contact_sequence_msg_.colors[i].r = 0.0f;
+				contact_sequence_msg_.colors[i].g = 1.0f;
+				contact_sequence_msg_.colors[i].b = 0.0f;
+				contact_sequence_msg_.colors[i].a = 1.0;
+			} else if (end_effector == 2) {
+				contact_sequence_msg_.colors[i].r = 0.0f;
+				contact_sequence_msg_.colors[i].g = 0.0f;
+				contact_sequence_msg_.colors[i].b = 1.0f;
+				contact_sequence_msg_.colors[i].a = 1.0;
+			} else if (end_effector == 3) {
+				contact_sequence_msg_.colors[i].r = 1.0f;
+				contact_sequence_msg_.colors[i].g = 1.0f;
+				contact_sequence_msg_.colors[i].b = 0.0f;
+				contact_sequence_msg_.colors[i].a = 1.0;
+			} else {
+				contact_sequence_msg_.colors[i].r = 0.0f;
+				contact_sequence_msg_.colors[i].g = 1.0f;
+				contact_sequence_msg_.colors[i].b = 1.0f;
+				contact_sequence_msg_.colors[i].a = 1.0;
+			}
+			//contact_sequence_msg_.lifetime = 0;//ros::Duration();
 		}
-		//contact_sequence_msg_.lifetime = 0;//ros::Duration();
-	}
-	contact_sequence_pub_.publish(contact_sequence_msg_);
+		contact_sequence_pub_.publish(contact_sequence_msg_);
 
-	std::vector<dwl::Contact> empty_contact_squence;
-	contact_sequence_.swap(empty_contact_squence);
+		std::vector<dwl::Contact> empty_contact_squence;
+		contact_sequence_.swap(empty_contact_squence);
+	}
 }
 
 } //@namespace dwl_planners
@@ -195,7 +203,7 @@ int main(int argc, char **argv)
 	ros::spinOnce();
 
 	try {
-		ros::Rate loop_rate(100);
+		ros::Rate loop_rate(1000);
 		while(ros::ok()) {
 			planner.publishBodyPath();
 			planner.publishContactSequence();

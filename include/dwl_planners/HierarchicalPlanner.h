@@ -9,6 +9,7 @@
 #include <planning/ContactPlanner.h>
 #include <planning/Dijkstrap.h>
 #include <planning/AStar.h>
+#include <planning/AnytimeRepairingAStar.h>
 #include <environment/EnvironmentInformation.h>
 #include <environment/AdjacencyEnvironment.h>
 #include <environment/GridBasedBodyAdjacency.h>
@@ -79,6 +80,7 @@ class HierarchicalPlanners
 		/** @brief Approximated body path publisher */
 		ros::Publisher body_path_pub_;
 
+		/** @brief Contact sequence publisher */
 		ros::Publisher contact_sequence_pub_;
 
 		/** @brief Locomotion algorithm */
