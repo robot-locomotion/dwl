@@ -87,7 +87,13 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 	robot_position(0) = tf_transform.getOrigin()[0];
 	robot_position(1) = tf_transform.getOrigin()[1];
 	robot_position(2) = tf_transform.getOrigin()[2];
-	robot_position(3) = tf_transform.getRotation().getAngle();
+
+	// Computing the yaw angle
+	tf::Quaternion q = tf_transform.getRotation();
+	dwl::Orientation orientation(q.getX(), q.getY(), q.getZ(), q.getW());
+	double roll, pitch, yaw;
+	orientation.getRPY(roll, pitch, yaw);
+	robot_position(3) = yaw;
 
 	// Computing the reward map
 	timespec start_rt, end_rt;
@@ -104,7 +110,7 @@ void RewardMapServer::publishRewardMap()
 	reward_map_msg_.header.stamp = ros::Time::now();
 
 	std::map<dwl::Vertex, dwl::Cell> reward_gridmap;
-	reward_map_->getRewardMap().swap(reward_gridmap);
+	reward_gridmap = reward_map_->getRewardMap();
 
 	reward_map_server::RewardCell cell;
 	reward_map_msg_.cell_size = reward_map_->getResolution(true);
@@ -122,7 +128,6 @@ void RewardMapServer::publishRewardMap()
 		cell.key_y = reward_cell.cell_key.grid_id.key[1];
 		cell.key_z = reward_cell.cell_key.height_id;
 		cell.reward = reward_cell.reward;
-
 		reward_map_msg_.cell.push_back(cell);
 	}
 
@@ -136,18 +141,12 @@ void RewardMapServer::publishRewardMap()
 
 
 
-
-
-
-
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "reward_map_node");
 
-
 	RewardMapServer octomap_modeler;
 	ros::spinOnce();
-
 
 	try {
 		ros::Rate loop_rate(30);
