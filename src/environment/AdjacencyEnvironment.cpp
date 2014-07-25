@@ -76,21 +76,22 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 	}
 
 	// Start and goal position
-	Eigen::Vector2d start_position, goal_position;
-	start_position = environment_->getGridModel().vertexToCoord(source);
-	goal_position = environment_->getGridModel().vertexToCoord(target);
+	Eigen::Vector3d start_state, goal_state;
+	environment_->getSpaceModel().vertexToState(start_state, source);
+	environment_->getSpaceModel().vertexToCoord(goal_state, target);
 
 	double closest_source_distant = std::numeric_limits<double>::max();
 	double closest_target_distant = std::numeric_limits<double>::max();
 	Vertex start_closest_vertex, goal_closest_vertex;
 	if ((!is_there_start_vertex) && (!is_there_goal_vertex)) {
+		Eigen::Vector3d current_state;
 		for (int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
-			Eigen::Vector2d vertex_position = environment_->getGridModel().vertexToCoord(vertex_map[i]);
+			environment_->getSpaceModel().vertexToState(current_state, vertex_map[i]);
 
 			// Calculating the distant to the vertex from start and goal positions
-			double start_distant = (start_position - vertex_position).norm();
-			double goal_distant = (goal_position - vertex_position).norm();
+			double start_distant = (start_state.head(2) - current_state.head(2)).norm();
+			double goal_distant = (goal_state.head(2) - current_state.head(2)).norm();
 
 			// Recording the closest vertex from the start position
 			if (start_distant < closest_source_distant) {
@@ -110,12 +111,13 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		closest_target = goal_closest_vertex;
 
 	} else if (!is_there_start_vertex) {
+		Eigen::Vector3d current_state;
 		for (int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
-			Eigen::Vector2d vertex_position = environment_->getGridModel().vertexToCoord(vertex_map[i]);
+			environment_->getSpaceModel().vertexToState(current_state, vertex_map[i]);
 
 			// Calculating the distant to the vertex from start position
-			double start_distant = (start_position - vertex_position).norm();
+			double start_distant = (start_state.head(2) - current_state.head(2)).norm();
 
 			// Recording the closest vertex from the start position
 			if (start_distant < closest_source_distant) {
@@ -128,12 +130,13 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		closest_source = start_closest_vertex;
 
 	} else if (!is_there_goal_vertex) {
+		Eigen::Vector3d current_state;
 		for (int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
-			Eigen::Vector2d vertex_position = environment_->getGridModel().vertexToCoord(vertex_map[i]);
+			environment_->getSpaceModel().vertexToState(current_state, vertex_map[i]);
 
 			// Calculating the distant to the vertex from goal position
-			double goal_distant = (goal_position - vertex_position).norm();
+			double goal_distant = (goal_state.head(2) - current_state.head(2)).norm();
 
 			// Recording the closest vertex from the goal position
 			if (goal_distant < closest_target_distant) {
@@ -146,8 +149,9 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		closest_target = goal_closest_vertex;
 	}
 
-	std::cout << "Closest source point = " << environment_->getGridModel().vertexToCoord(closest_source) << std::endl;
-	std::cout << "Closest target point = " << environment_->getGridModel().vertexToCoord(closest_target) << std::endl;
+	//TODO
+/*	std::cout << "Closest source point = " << environment_->getGridModel().vertexToCoord(closest_source) << std::endl;
+	std::cout << "Closest target point = " << environment_->getGridModel().vertexToCoord(closest_target) << std::endl;*/
 }
 
 
@@ -179,16 +183,17 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 	}
 
 	// Start and goal position
-	Eigen::Vector2d vertex_position;
-	vertex_position = environment_->getGridModel().vertexToCoord(vertex);
+	Eigen::Vector3d state_vertex;
+	environment_->getSpaceModel().vertexToState(state_vertex, vertex);
 
 	double closest_distant = std::numeric_limits<double>::max();
+	Eigen::Vector3d current_state_vertex;
 	for (int i = 0; i < vertex_map.size(); i++) {
 		// Calculating the vertex position
-		Eigen::Vector2d current_vertex_position = environment_->getGridModel().vertexToCoord(vertex_map[i]);
+		environment_->getSpaceModel().vertexToState(current_state_vertex, vertex_map[i]);//TODO
 
 		// Calculating the distant to the current vertex
-		double start_distant = (vertex_position - current_vertex_position).norm();
+		double start_distant = (state_vertex.head(2) - current_state_vertex.head(2)).norm();
 
 		// Recording the closest vertex from the start position
 		if (start_distant < closest_distant) {
@@ -201,8 +206,8 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 
 double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target) //TODO
 {
-	Eigen::Vector2d source_position = getPosition(source);
-	Eigen::Vector2d target_position = getPosition(target);
+	Eigen::Vector3d source_position = getPosition(source);
+	Eigen::Vector3d target_position = getPosition(target);
 
 	double distance = (target_position - source_position).squaredNorm();
 	double dy = target_position(1) - source_position(1);
@@ -219,8 +224,10 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 {
 	if (isLatticeRepresentation()) {
 		double epsilon = 0.1; //TODO
-		Eigen::Vector2d current_position = getPosition(current);
-		Eigen::Vector2d target_position = getPosition(target);
+
+		//TODO
+		Eigen::Vector3d current_position = getPosition(current);
+		Eigen::Vector3d target_position = getPosition(target);
 		double distant = (target_position - current_position).squaredNorm();
 		if (distant < epsilon) {
 			// Reconstructing path
@@ -243,8 +250,9 @@ bool AdjacencyEnvironment::isLatticeRepresentation()
 	return is_lattice_;
 }
 
-
-Eigen::Vector2d AdjacencyEnvironment::getPosition(Vertex vertex)
+//TODO
+/*
+Eigen::Vector3d AdjacencyEnvironment::getPosition(Vertex vertex)
 {
 	return environment_->getGridModel().vertexToCoord(vertex);
 }
@@ -252,8 +260,9 @@ Eigen::Vector2d AdjacencyEnvironment::getPosition(Vertex vertex)
 
 Vertex AdjacencyEnvironment::getVertex(Pose pose)
 {
-	return environment_->getGridModel().coordToVertex((Eigen::Vector2d) pose.position.head(2));
+	return environment_->getGridModel().stateToVertex((Eigen::Vector2d) pose.position.head(2));//TODO
 }
+
 
 Pose AdjacencyEnvironment::getPose(Vertex vertex)
 {
@@ -266,7 +275,7 @@ Pose AdjacencyEnvironment::getPose(Vertex vertex)
 const std::map<Vertex, double>& AdjacencyEnvironment::getOrientations() const
 {
 	return orientations_;
-}
+}*/
 
 
 std::string AdjacencyEnvironment::getName()

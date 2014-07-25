@@ -7,9 +7,10 @@ namespace dwl
 namespace environment
 {
 
-EnvironmentInformation::EnvironmentInformation() : gridmap_(0.04, 0.02), average_cost_(0), terrain_information_(false)
+EnvironmentInformation::EnvironmentInformation() : space_discretization_(0.04, 0.04, M_PI / 24), average_cost_(0),
+		terrain_information_(false)
 {
-
+	//TODO Thinks about the setting the resolutions
 }
 
 
@@ -29,34 +30,41 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> reward_
 	average_cost_ = 0;
 
 	// Storing the cost-map data according the vertex id
-	unsigned int vertex_id;
+	Vertex vertex_2d;
 	double resolution = std::numeric_limits<double>::max();
 	for (int i = 0; i < reward_map.size(); i++) {
 		// Setting the resolution of the environment
 		if (i == 0) {
 			printf("Setting the grid resolution to %f\n", reward_map[i].size);
-			setResolution(reward_map[i].size, true);
-			setResolution(0.02, false);//reward_map[i]//TODO
+			setResolution(reward_map[i].size);
 		}
 
-		vertex_id = gridmap_.gridMapKeyToVertex(reward_map[i].cell_key.grid_id);
-		terrain_cost_map_[vertex_id] = - reward_map[i].reward;
-		terrain_height_map_[vertex_id] = gridmap_.keyToCoord(reward_map[i].cell_key.height_id, false);
-		average_cost_ += - reward_map[i].reward;
+		// Building a cost map for a every 3d vertex
+		space_discretization_.keyToVertex(vertex_2d, reward_map[i].key, true);
+		terrain_cost_map_[vertex_2d] = -reward_map[i].reward;
+
+		// Building a height map (3d vertex) according to certain 2d position (2d vertex)
+		double height;
+		space_discretization_.keyToCoord(height, reward_map[i].key.z);
+		terrain_height_map_[vertex_2d] = height;
+
+		average_cost_ += -reward_map[i].reward;
 
 		if (reward_map[i].size < resolution) {
 			resolution = reward_map[i].size;
 		}
 	}
+
+	// Computing the average cost of the terrain
 	average_cost_ /= reward_map.size();
 
 	terrain_information_ = true;
 }
 
 
-void EnvironmentInformation::setResolution(double resolution, bool gridmap)
+void EnvironmentInformation::setResolution(double resolution)
 {
-	gridmap_.setResolution(resolution, gridmap);
+	space_discretization_.setEnvironmentResolution(resolution);
 }
 
 
@@ -78,9 +86,9 @@ double EnvironmentInformation::getAverageCostOfTerrain()
 }
 
 
-const PlaneGrid& EnvironmentInformation::getGridModel() const
+const SpaceDiscretization& EnvironmentInformation::getSpaceModel() const
 {
-	return gridmap_;
+	return space_discretization_;
 }
 
 

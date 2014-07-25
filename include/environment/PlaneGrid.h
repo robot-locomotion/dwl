@@ -1,5 +1,5 @@
-#ifndef DWL_PlaneGrid_H
-#define DWL_PlaneGrid_H
+#ifndef DWL_SpaceDiscretization_H
+#define DWL_SpaceDiscretization_H
 
 #include <math.h>
 #include <utils/utils.h>
@@ -12,122 +12,205 @@ namespace environment
 {
 
 /**
- * @class PlaneGrid
- * @brief Class for defining the gridmap required for computing a reward map of the terrain
+ * @class SpaceDiscretization
+ * @brief Class for defining the discretization of environment and states
  */
-class PlaneGrid
+class SpaceDiscretization
 {
 	public:
 		/**
 		 * @brief Constructor function
-		 * @param double resolution Resolution of the gridmap
-		 * @param double resolution Resolution of the height
+		 * @param double environment_resolution Resolution of the environment
 		 */
-		PlaneGrid(double gridmap_resolution, double height_resolution);
+		SpaceDiscretization(double environment_resolution);
+
+		/**
+		 * @brief Constructor function
+		 * @param double environment_resolution Resolution of the environment
+		 * @param double position_resolution Resolution of the position variables of the state
+		 */
+		SpaceDiscretization(double environment_resolution, double position_resolution);
+
+		/**
+		 * @brief Constructor function
+		 * @param double environment_resolution Resolution of the environment
+		 * @param double position_resolution Resolution of the position variables of the state
+		 * @param double angular_resolution Resolution of the angular variables of the state
+		 */
+		SpaceDiscretization(double environment_resolution, double position_resolution, double angular_resolution);
 
 		/** @brief Destructor function **/
-		~PlaneGrid();
+		~SpaceDiscretization();
 
 		/**
-		 * @brief Converts a 2D coordinate into a 2D Key at a certain depth, with boundary checking.
-		 * @param dwl::Key& key values that will be computed, an array of fixed size 2.
-		 * @param const Eigen::Vector2d& coord 2d coordinate of a point
-		 * @return true if point is within the planetree (valid), false otherwise
+		 * @brief Converts a 3d coordinate into a 3d key with boundary checking.
+		 * @param dwl::Key& key values that represents a 3d position
+		 * @param const Eigen::Vector3d coordinate 3d cartesian coordinate of a point
+		 * @return bool Returns true if the point is within the boundaries of the environment (valid), false otherwise
 		 */
-		bool coordToKeyChecked(Key& key, const Eigen::Vector2d coordinate) const;
+		bool coordToKeyChecked(Key& key, const Eigen::Vector3d coordinate) const;
 
 		/**
-		 * @brief Converts a coordinate into a Key at a certain depth, with boundary checking.
-		 * @param unsigned short int& key_value Key value that will be computed
-		 * @param const double coordinate Coordinate of a point
-		 * @param const bool gridmap Indicates if it is the gridmap
-		 * @return true if point is within the planetree (valid), false otherwise
+		 * @brief Converts a coordinate into a key with boundary checking.
+		 * @param unsigned short int& key Key value of a single axis
+		 * @param const double coordinate Cartesian coordinate of a single axis
+		 * @return bool Returns true if the point is within the boundaries of the environment (valid), false otherwise
 		 */
-		bool coordToKeyChecked(unsigned short int& key_value, const double coordinate, const bool gridmap) const;
+		bool coordToKeyChecked(unsigned short int& key, const double coordinate) const;
 
 		/**
-		 * @brief Converts from a single coordinate into a discrete key
-		 * @param const double coordinate Cartesian coordinate of the cell
-		 * @param const bool gridmap Indicates if it is the gridmap
-		 * @return unsigned short int Return the key of the coordinate
+		 * @brief Converts a single coordinate into a key
+		 * @param unsigned short int& key Key
+		 * @param const double coordinate Cartesian coordinate of a single axis
 		 */
-		unsigned short int coordToKey(const double coordinate, const bool gridmap) const;
+		void coordToKey(unsigned short int& key, const double coordinate) const;
 
 		/**
-		 * @brief Converts from a discrete key at the lowest tree level into a coordinate corresponding to the key's center
-		 * @param const unsigned short int key_value The value of the key
-		 * @param const bool gridmap Indicates if it is the gridmap
-		 * @return double Return the coordinate of the key
+		 * @brief Converts a key into a single coordinate
+		 * @param double& coordinate Single coordinate
+		 * @param const unsigned short int key The value of the key
 		 */
-		double keyToCoord(const unsigned short int key_value, const bool gridmap) const;
+		void keyToCoord(double& coordinate, const unsigned short int key) const;
 
 		/**
-		 * @brief Converts the key of a gridmap to a vertex id
-		 * @param const dwl::Key gridmap_key Gridmap key
-		 * @return dwl::Vertex Return the vertex id
+		 * @brief Converts the key to vertex id
+		 * @param dwl::Vertex& vertex Vertex id
+		 * @param const dwl::Key key Key value
+		 * @param const bool plane Indicates if the key represents a plane (2d) or a volumen (3d)
 		 */
-		Vertex gridMapKeyToVertex(const Key gridmap_key) const;
+		void keyToVertex(Vertex& vertex, const Key key, const bool plane) const;
 
 		/**
-		 * @brief Converts the vertex id to gridmap key
+		 * @brief Converts the vertex id to key
+		 * @param dwl::Key& key Key
 		 * @param const dwl::Vertex vertex Vertex id
-		 * @return dwl::Key Return the gridmap key
+		 * @param const bool plane Indicates if the key represents a plane (2d) or a volumen (3d)
 		 */
-		Key vertexToGridMapKey(const Vertex vertex) const;
+		void vertexToKey(Key& key, const Vertex vertex, const bool plane) const;
 
 		/**
 		 * @brief Converts 2d coordinate to vertex id
-		 * @param const Eigen::Vectir2d coordinate 2D coordinate
-		 * @return dwl::Vertex Return the vertex id
+		 * @param dwl::Vertex& vertex Vertex id
+		 * @param const Eigen::Vector2d coordinate 2d coordinate
 		 */
-		Vertex coordToVertex(const Eigen::Vector2d coordinate) const;
+		void coordToVertex(Vertex& vertex, const Eigen::Vector2d coordinate) const;
 
 		/**
-		 * @brief Converts vertex id to coordinate
-		 * @param const dwl::Vertex vertex Vertex id
-		 * @return Eigen::Vector2d Return the 2D coordinate
+		 * @brief Converts 3d coordinate to vertex id
+		 * @param dwl::Vertex& vertex Vertex
+		 * @param const Eigen::Vector3d coordinate 3d coordinate
 		 */
-		Eigen::Vector2d vertexToCoord(const Vertex vertex) const;
+		void coordToVertex(Vertex& vertex, const Eigen::Vector3d coordinate) const;
+
+		/**
+		 * @brief Converts vertex id to 2d coordinate
+		 * @param Eigen::Vector2d& coordinate 2d coordinate
+		 * @param const dwl::Vertex vertex Vertex id
+		 */
+		void vertexToCoord(Eigen::Vector2d& coordinate, const Vertex vertex) const;
+
+		/**
+		 * @brief Converts vertex id to 3d coordinate
+		 * @param Eigen::Vector3d& coordinate Coordinate
+		 * @param const dwl::Vertex vertex Vertex id
+		 */
+		void vertexToCoord(Eigen::Vector3d& coordinate, const Vertex vertex) const;
+
+		/**
+		 * @brief Converts a state into a key
+		 * @param unsigned short int& key Key
+		 * @param const double state State value
+		 * @param const bool position Indicates if it's a position variable, or an angular variable
+		 */
+		void stateToKey(unsigned short int& key, const double state, const bool position) const;
+
+		/**
+		 * @brief Converts a key into a state value
+		 * @param double& state Single state
+		 * @param const unsigned short int key The value of the key
+		 * @param const bool position Indicates if it's a position variable, or an angular variable
+		 */
+		void keyToState(double& state, const unsigned short int key, const bool position) const;
+
+		/**
+		 * @brief Converts state (x,y) to a vertex
+		 * @param Vertex& vertex Vertex id
+		 * @param const Eigen::Vector2d state State
+		 */
+		void stateToVertex(Vertex& vertex, const Eigen::Vector2d state) const;
+
+		/**
+		 * @brief Converts state (x,y,yaw) to a vertex
+		 * @param Vertex& vertex Vertex id
+		 * @param const Eigen::Vector3d state State
+		 */
+		void stateToVertex(Vertex& vertex, const Eigen::Vector3d state) const;
+
+		/**
+		 * @brief Converts a vertex to a 2d state (x,y)
+		 * @param Eigen::Vector2d& state 2d state
+		 * @param const dwl::Vertex vertex Vertex id
+		 */
+		void vertexToState(Eigen::Vector2d& state, const Vertex vertex) const;
+
+		/**
+		 * @brief Converts a vertex to a 3d state (x,y,yaw)
+		 * @param Eigen::Vector3d& state 3d state
+		 * @param const dwl::Vertex vertex Vertex id
+		 */
+		void vertexToState(Eigen::Vector3d& state, const Vertex vertex) const;
+
+		/**
+		 * @brief Converts a state vertex to an environment vertex
+		 * @param dwl::Vertex& environment_vertex Environment vertex (x,y)
+		 * @param const dwl::Vertex state_vertex State vertex
+		 * @param State state Definition of the state, i.e. XY, XY_Y, etc.
+		 */
+		void stateVertexToEnvironmentVertex(Vertex& environment_vertex, const Vertex state_vertex, State state) const;
 
 		/*
-		 * @brief Gets the resolution of the gridmap or the height
-		 * @param bool gridmap Indicates if it is the gridmap
-		 * @return double Return the resolution of the gridmap or height
+		 * @brief Gets the resolution of the environment
+		 * @return double Returns the resolution of the environment
 		 */
-		double getResolution(bool gridmap);
+		double getEnvironmentResolution();
+
+		/*
+		 * @brief Gets the resolution of the state
+		 * @param bool position Indicates if it's a position or angular state
+		 * @return double Returns the resolution of the state
+		 */
+		double getStateResolution(bool position);
 
 		/**
-		 * @brief Sets the resolution of the gridmap or the height
-		 * @param double resolution Resolution
-		 * @param bool gridmap Indicates if it is the gridmap
+		 * @brief Sets the resolution of the environment
+		 * @param double resolution Resolution of the environment
 		 */
-		void setResolution(double resolution, bool gridmap);
+		void setEnvironmentResolution(double resolution);
+
+		/**
+		 * @brief Sets the resolution of the state
+		 * @param double position_resolution Resolution of the position's state
+		 * @param double angular_resolution Resolution of the angular's state
+		 */
+		void setStateResolution(double position_resolution, double angular_resolution = 0);
 
 
 	private:
-		/** @brief The maximun number of grid areas */
-		const unsigned int tree_max_val_;
+		/** @brief The maximun number of discreted key */
+		const unsigned short int max_key_val_;
 
-		/** @brief The resolution of the gridmap */
-		double gridmap_resolution_;  ///< in meters
+		/** @brief The resolution of the environment */
+		double environment_resolution_;  ///< in meters
 
-		/** @brief The resolution of the z-axis */
-		double height_resolution_;
+		/** @brief The resolution of the position's variables of the state */
+		double position_resolution_;  ///< in meters
 
-		/** @brief The factor resolution between the minimum resolution and resolutions of others gridmap areas */
-		double gridmap_resolution_factor_; ///< = 1. / resolution
-
-		/** @brief The factor resolution between the minimum resolution and resolutions of z-axis */
-		double height_resolution_factor_;
+		/** @brief The resolution of the angular's variables of the state */
+		double angular_resolution_;  ///< in radians
 };
-
 
 } //@namespace environment
 } //@namespace dwl
 
 
 #endif
-
-
-
-

@@ -36,14 +36,14 @@ void HierarchicalPlanning::resetGoal(Pose goal)
 	goal_pose_ =  goal;
 
 	if (environment_->isTerrainInformation())
-		goal_vertex_ = environment_->getGridModel().coordToVertex((Eigen::Vector2d) goal.position.head(2));
+		goal_vertex_ = environment_->getGridModel().stateToVertex((Eigen::Vector2d) goal.position.head(2));
 }
 
 
 bool HierarchicalPlanning::compute(Pose current_pose)
 {
 	if (environment_->isTerrainInformation()) {
-		Vertex current_vertex = environment_->getGridModel().coordToVertex((Eigen::Vector2d) current_pose.position.head(2));
+		Vertex current_vertex = environment_->getGridModel().stateToVertex((Eigen::Vector2d) current_pose.position.head(2));
 
 		// Cleaning global variables
 		std::vector<Pose> empty_body_trajectory;

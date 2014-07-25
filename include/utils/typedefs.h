@@ -15,7 +15,7 @@ namespace dwl
 {
 
 /** @brief Defines a vertex for graph-searching algorithms */
-typedef unsigned int Vertex;
+typedef unsigned long int Vertex;
 
 /** @brief Defines a weight for graph-searching algorithms */
 typedef double Weight;
@@ -28,6 +28,9 @@ typedef std::map<Vertex, double> HeightMap;
 
 /** @brief Defines a previous vertex for graph-searching algorithms */
 typedef std::map<Vertex, Vertex> PreviousVertex;
+
+
+enum State {XY, XY_Y, XYZ_RPY};
 
 /**
  * @brief Template struct that orders vertex
@@ -86,16 +89,9 @@ struct Action3d
  */
 struct Key
 {
-	unsigned short int key[2];
-};
-
-/**
- * @brief Struct that defines the id (key) of a certain cell
- */
-struct CellKey
-{
-	Key grid_id;
-	unsigned short int height_id;
+	unsigned short int x;
+	unsigned short int y;
+	unsigned short int z;
 };
 
 /**
@@ -103,7 +99,7 @@ struct CellKey
  */
 struct Cell
 {
-	CellKey cell_key;
+	Key key;
 	double reward;
 	double size;
 };
@@ -149,7 +145,7 @@ struct Terrain
 	Eigen::Vector3d surface_normal;
 	double curvature;
 	std::map<Vertex, double> height_map;
-	double gridmap_resolution;
+	double resolution;
 };
 
 /**

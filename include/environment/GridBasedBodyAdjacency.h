@@ -34,25 +34,24 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 		/**
 		 * @brief Gets the successors of the current vertex
 		 * @param std::list<Edge>& successors List of successors
-		 * @param dwl::Vertex vertex Current vertex
+		 * @param dwl::Vertex state_vertex Current state vertex
 		 */
-		void getSuccessors(std::list<Edge>& successors, Vertex vertex);
+		void getSuccessors(std::list<Edge>& successors, Vertex state_vertex);
 
 
 	private:
 		/**
 		 * @brief Searchs the neighbors of a current vertex
-		 * @param std::vector<Vertex>& neighbors The set of neighbors
-		 * @param dwl::Vertex vertex_id Current vertex
+		 * @param std::vector<Vertex>& neighbor_states The set of states neighbors
+		 * @param dwl::Vertex state_vertex Current state vertex
 		 */
-		void searchNeighbors(std::vector<Vertex>& neighbors, Vertex vertex_id);
+		void searchNeighbors(std::vector<Vertex>& neighbor_states, Vertex state_vertex);
 
 		/**
 		 * @brief Computes the body cost of a current vertex
-		 * @param dwl::Vertex vertex Current vertex
-		 * @param double orientation Current orientation
+		 * @param dwl::Vertex state_vertex Current state vertex
 		 */
-		void computeBodyCost(double& cost, Vertex vertex, double orientation);
+		void computeBodyCost(double& cost, Vertex state_vertex);
 
 		/**
 		 * @brief Ask if it is requested a stance adjacency

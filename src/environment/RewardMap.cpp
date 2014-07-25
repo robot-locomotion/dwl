@@ -56,7 +56,7 @@ void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 			vertex_iter++)
 	{
 		Vertex v = vertex_iter->first;
-		Eigen::Vector2d point = gridmap_.vertexToCoord(v);
+		Eigen::Vector3d point = gridmap_.vertexToCoord(v);
 
 		double xc = point(0) - robot_state(0);
 		double yc = point(1) - robot_state(1);
@@ -85,59 +85,46 @@ void RewardMap::setInterestRegion(double radius_x, double radius_y)
 
 void RewardMap::getCell(Cell& cell, double reward, Terrain terrain_info)
 {
-	Key grip_key;
-	Eigen::Vector2d cell_position;
-	cell_position(0) = terrain_info.position(0);
-	cell_position(1) = terrain_info.position(1);
-	gridmap_.coordToKeyChecked(grip_key, cell_position);
-
-	cell.cell_key.grid_id = grip_key;
-	cell.cell_key.height_id = gridmap_.coordToKey((double) terrain_info.position(2), false);
+	gridmap_.coordToKeyChecked(cell.key, terrain_info.position);
 	cell.reward = reward;
 	cell.size = cell_size_;
 }
 
 
-void RewardMap::getCell(CellKey& cell_key, Eigen::Vector3d position)
+void RewardMap::getCell(Key& key, Eigen::Vector3d position)
 {
 	Key grid_key;
-	Eigen::Vector2d cell_position;
-	cell_position(0) = position(0);
-	cell_position(1) = position(1);
-	gridmap_.coordToKeyChecked(grid_key, cell_position);
-
-	cell_key.grid_id = grid_key;
-	cell_key.height_id = gridmap_.coordToKey((double) position(2), false);
+	gridmap_.coordToKeyChecked(key, position);
 }
 
 
-void RewardMap::addCellToRewardMap(Cell cell)
+void RewardMap::addCellToRewardMap(Cell key)
 {
-	Vertex vertex_id = gridmap_.gridMapKeyToVertex(cell.cell_key.grid_id);
-	reward_gridmap_[vertex_id] = cell;
+	Vertex vertex_id = gridmap_.keyToVertex(key.key);
+	reward_gridmap_[vertex_id] = key;
 }
 
 
-void RewardMap::removeCellToRewardMap(CellKey cell)
+void RewardMap::removeCellToRewardMap(Key key)
 {
-	Vertex v = gridmap_.gridMapKeyToVertex(cell.grid_id);
+	Vertex v = gridmap_.keyToVertex(key);
 	if (reward_gridmap_.find(v)->first == v) {
 		reward_gridmap_.erase(v);
 	}
 }
 
 
-void RewardMap::addCellToTerrainHeightMap(CellKey cell)
+void RewardMap::addCellToTerrainHeightMap(Key key)
 {
-	Vertex v = gridmap_.gridMapKeyToVertex(cell.grid_id);
-	double height = gridmap_.keyToCoord(cell.height_id, false);
+	Vertex v = gridmap_.keyToVertex(key);
+	double height = gridmap_.keyToCoord(key.z);
 	terrain_heightmap_[v] = height;
 }
 
 
-void RewardMap::removeCellToTerrainHeightMap(CellKey cell)
+void RewardMap::removeCellToTerrainHeightMap(Key key)
 {
-	Vertex v = gridmap_.gridMapKeyToVertex(cell.grid_id);
+	Vertex v = gridmap_.keyToVertex(key);
 	terrain_heightmap_.erase(v);
 }
 
@@ -155,8 +142,8 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 
 	search_areas_.push_back(search_area);
 
-	if (grid_resolution < gridmap_.getResolution(true))
-		gridmap_.setResolution(grid_resolution, true);
+	if (grid_resolution < gridmap_.getEnvironmentResolution())
+		gridmap_.setEnvironmentResolution(grid_resolution);
 
 	is_added_search_area_ = true;
 }
@@ -173,15 +160,15 @@ void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int 
 }
 
 
-double RewardMap::getResolution(bool gridmap)
+double RewardMap::getResolution()
 {
-	return gridmap_.getResolution(gridmap);
+	return gridmap_.getEnvironmentResolution();
 }
 
 
-void RewardMap::setModelerResolution(double resolution)
+void RewardMap::setResolution(double resolution)
 {
-	gridmap_.setResolution(resolution, false);
+	gridmap_.setEnvironmentResolution(resolution);
 }
 
 

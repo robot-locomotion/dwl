@@ -69,10 +69,10 @@ class RewardMap
 
 		/**
 		 * @brief Gets the properties of the cell
-		 * @param dwl::CellKey& cell_key Key of the cell
+		 * @param dwl::Key& key Key of the cell
 		 * @param Eigen::Vector3d position Cartesian position of the cell
 		 */
-		void getCell(CellKey& cell_key, Eigen::Vector3d position);
+		void getCell(Key& key, Eigen::Vector3d position);
 
 		/**
 		 * @brief Adds a cell to the reward map
@@ -82,21 +82,21 @@ class RewardMap
 
 		/**
 		 * @brief Removes the cel to the reward map
-		 * @param dwl::CellKey cell Cell key for removing to the reward map
+		 * @param dwl::Key key Cell key for removing to the reward map
 		 */
-		void removeCellToRewardMap(CellKey cell);
+		void removeCellToRewardMap(Key key);
 
 		/**
 		 * @brief Adds a cell to the height map
-		 * @param dwl::CellKey cell Cell key for adding to the height map
+		 * @param dwl::Key key Cell key for adding to the height map
 		 */
-		void addCellToTerrainHeightMap(CellKey cell);
+		void addCellToTerrainHeightMap(Key key);
 
 		/**
 		 * @brief Removes a cell to the height map
-		 * @para dwl::CellKey cell Cell key for removing to the height map
+		 * @para dwl::Key key Cell key for removing to the height map
 		 */
-		void removeCellToTerrainHeightMap(CellKey cell);
+		void removeCellToTerrainHeightMap(Key key);
 
 		/**
 		 * @brief Adds a new search area around the current position of the robot
@@ -122,18 +122,16 @@ class RewardMap
 		void setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors, int right_neighbors, int bottom_neighbors, int top_neighbors);
 
 		/**
-		 * @brief Gets the gridmap or height resolution of the reward map
-		 * @param bool gridmap
+		 * @brief Gets the environment resolution of the reward map
 		 * @param double Returns the resolution of the gridmap or height
 		 */
-		double getResolution(bool gridmap);
-
+		double getResolution();
 
 		/**
-		 * @brief Sets the resolution of the modeler
-		 * @ double resolution Resolution
+		 * @brief Sets the resolution of the environment discretization
+		 * @ double resolution Resolution of the environment
 		 */
-		void setModelerResolution(double resolution);
+		void setResolution(double resolution);
 
 		/**
 		 * @brief Gets the reward map
@@ -178,9 +176,7 @@ class RewardMap
 //		pthread_mutex_t environment_lock_;
 };
 
-
 } //@namespace environment
-
 } //@namespace dwl
 
 

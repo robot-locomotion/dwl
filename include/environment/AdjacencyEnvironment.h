@@ -2,7 +2,6 @@
 #define DWL_AdjacencyEnvironment_H
 
 #include <environment/EnvironmentInformation.h>
-//#include <environment/PlaneGrid.h>
 #include <robot/Robot.h>
 #include <utils/utils.h>
 #include <utils/Orientation.h>
@@ -87,18 +86,21 @@ class AdjacencyEnvironment
 		 */
 		bool isLatticeRepresentation();
 
+
+		//TODO
 		/**
-		 * @brief Gets the 2d position of the current vertex
+		 * @brief Gets the 3d position of the current vertex
 		 * @param dwl::Vertex vertex Current vertex
-		 * @return Eigen::Vector2d Return the 2d position
+		 * @return Eigen::Vector3d Return the 3d position
 		 */
-		Eigen::Vector2d getPosition(Vertex vertex);
+		//Eigen::Vector3d getPosition(Vertex vertex);
 
-		Vertex getVertex(Pose pose);//TODO
+		//Vertex getVertex(Pose pose);//TODO
 
-		Pose getPose(Vertex vertex);
+		//Pose getPose(Vertex vertex);
 
-		const std::map<Vertex, double>& getOrientations() const;
+		//const std::map<Vertex, double>& getOrientations() const;
+
 
 		/**
 		 * @brief Gets the name of the adjacency model

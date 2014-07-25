@@ -2,7 +2,7 @@
 #define DWL_HeightDeviationFeature_H
 
 #include <environment/Feature.h>
-#include <environment/PlaneGrid.h>
+#include <environment/SpaceDiscretization.h>
 
 
 namespace dwl
@@ -36,8 +36,8 @@ class HeightDeviationFeature : public Feature
 		/** @brief Area for computing the average of the height map */
 		SearchArea average_area_;
 
-		/** @brief Object of the PlaneGrid class for defining the grid routines */
-		PlaneGrid gridmap_;
+		/** @brief Object of the SpaceDiscretization class for defining the space discretiization routines */
+		SpaceDiscretization space_discretization_;
 
 };
 

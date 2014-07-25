@@ -31,10 +31,10 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 	// Getting the 3d pose for generating the actions
 	std::vector<Action3d> actions;
 	Pose3d state;
-	state.position = environment_->getGridModel().vertexToCoord(vertex);
+	environment_->getSpaceModel().vertexToState(state.position, vertex);
 	if (orientations_.find(vertex)->first == vertex) {
 		// Adding the orientation of the action
-		state.orientation = orientations_.find(vertex)->second;
+		state.orientation = orientations_.find(vertex)->second;// TODO eliminated in the future
 	} else {
 		// Adding the initial orientation
 		// Converting quaternion to roll, pitch and yaw angles
@@ -51,8 +51,9 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
 		for (int i = 0; i < actions.size(); i++) {
-			// Converting the action to vertex
-			Vertex current = environment_->getGridModel().coordToVertex(actions[i].pose.position);
+			// Converting the action to current vertex
+			Vertex current;
+			environment_->getSpaceModel().stateToVertex(current, actions[i].pose.position);
 
 			// Recording orientations of the actions
 			orientations_[current] = actions[i].pose.orientation;
@@ -83,7 +84,8 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 
 void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Vertex vertex, double orientation)
 {
-	Eigen::Vector2d vertex_position = environment_->getGridModel().vertexToCoord(vertex);
+	Eigen::Vector2d vertex_position;
+	environment_->getSpaceModel().vertexToState(vertex_position, vertex);
 	CostMap terrain_costmap;
 	environment_->getTerrainCostMap(terrain_costmap);
 
@@ -105,7 +107,8 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Vertex vertex, dou
 				point_position(0) = (x - vertex_position(0)) * cos(orientation) - (y - vertex_position(1)) * sin(orientation) + vertex_position(0);
 				point_position(1) = (x - vertex_position(0)) * sin(orientation) + (y - vertex_position(1)) * cos(orientation) + vertex_position(1);
 
-				Vertex point = environment_->getGridModel().coordToVertex(point_position);
+				Vertex point;
+				environment_->getSpaceModel().stateToVertex(point, point_position);
 
 				// Inserts the element in an organized vertex queue, according to the maximun value
 				if (terrain_costmap.find(point)->first == point)

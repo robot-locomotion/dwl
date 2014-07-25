@@ -76,14 +76,14 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 						// Computation of the heightmap
 						if (octomap->isNodeOccupied(heightmap_node)) {
 							// Getting position of the occupied cell
-							CellKey cell_key;
+							Key cell_key;
 							Eigen::Vector3d cell_position;
 							cell_position(0) = height_point(0);
 							cell_position(1) = height_point(1);
 							cell_position(2) = height_point(2);
 							getCell(cell_key, cell_position);
 
-							Vertex vertex_id = gridmap_.gridMapKeyToVertex(cell_key.grid_id);
+							Vertex vertex_id = gridmap_.keyToVertex(cell_key);
 							if (is_first_computation_)
 								addCellToTerrainHeightMap(cell_key);
 							else {
@@ -91,9 +91,9 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 								if ((reward_gridmap_.find(vertex_id)->first == vertex_id)) {
 									// Evaluating if it changed status (height)
 									Cell reward_cell = reward_gridmap_.find(vertex_id)->second;
-									if (reward_cell.cell_key.height_id != cell_key.height_id) {
-										removeCellToRewardMap(reward_cell.cell_key);
-										removeCellToTerrainHeightMap(reward_cell.cell_key);
+									if (reward_cell.key.z != cell_key.z) {
+										removeCellToRewardMap(reward_cell.key);
+										removeCellToTerrainHeightMap(reward_cell.key);
 									} else
 										new_status = false;
 								}
@@ -120,7 +120,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 	{
 		octomap::OcTreeKey heightmap_key;
 		Vertex v = terrain_iter->first;
-		Eigen::Vector2d xy_coord = gridmap_.vertexToCoord(v);
+		Eigen::Vector3d xy_coord = gridmap_.vertexToCoord(v);//TODO
 		double height = terrain_iter->second;
 		octomap::point3d terrain_point;
 		terrain_point(0) = xy_coord(0);
@@ -135,11 +135,11 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 		else {
 			bool new_status = true;
 			if (reward_gridmap_.find(vertex_id)->first == vertex_id) {
-				// Evaluating if it changed status (height)
+				// Evaluating if it's changed status (height)
 				Cell reward_cell = reward_gridmap_.find(vertex_id)->second;
-				if (reward_cell.cell_key.height_id != heightmap_key[2]) {
-					removeCellToRewardMap(reward_cell.cell_key);
-					removeCellToTerrainHeightMap(reward_cell.cell_key);
+				if (reward_cell.key.z != heightmap_key[2]) {
+					removeCellToRewardMap(reward_cell.key);
+					removeCellToTerrainHeightMap(reward_cell.key);
 				} else
 					new_status = false;
 			}
@@ -218,7 +218,7 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 	}
 
 	terrain_info.height_map = terrain_heightmap_;
-	terrain_info.gridmap_resolution = gridmap_.getResolution(true);
+	terrain_info.gridmap_resolution = gridmap_.getEnvironmentResolution();
 
 	// Computing the reward
 	if (is_added_feature_) {

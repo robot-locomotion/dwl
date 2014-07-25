@@ -33,9 +33,8 @@ class EnvironmentInformation
 		/**
 		 * @brief Sets the resolution of the height or grid
 		 * @param double resolution Resolution value
-		 * @param bool gridmap Defines the resolution to set, i.e. gridmap (true) or height (false)
 		 */
-		void setResolution(double resolution, bool gridmap);
+		void setResolution(double resolution);
 
 		/**
 		 * @brief Gets the terrain cost-map (using vertex id)
@@ -59,7 +58,7 @@ class EnvironmentInformation
 		 * @brief Gets the defined grid model according the resolution of the environment
 		 * @return dwl::environment::PlaneGrid& Returns the reference of the environment object
 		 */
-		const PlaneGrid& getGridModel() const;
+		const SpaceDiscretization& getSpaceModel() const;
 
 		/**
 		 * @brief Indicates if it was defined terrain information
@@ -70,7 +69,7 @@ class EnvironmentInformation
 
 	private:
 		/** @brief Object of the PlaneGrid class for defining the grid routines */
-		environment::PlaneGrid gridmap_;
+		environment::SpaceDiscretization space_discretization_;
 
 		/** @brief Gathers the cost values that are mapped using the vertex id */
 		CostMap terrain_cost_map_;

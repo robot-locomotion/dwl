@@ -14,10 +14,17 @@ namespace dwl
 namespace planning
 {
 
+/**
+ * @class BodyPlanner
+ * @brief Class for implementing a body planner
+ */
 class BodyPlanner
 {
 	public:
+		/** @brief Constructor function */
 		BodyPlanner();
+
+		/** @brief Destructor function */
 		~BodyPlanner();
 
 		/**
@@ -28,15 +35,24 @@ class BodyPlanner
 
 		void reset(Solver* path_planner);
 
+		/**
+		 * @brief Computes the body path from goal pose
+		 * @param std::vector<dwl::Pose>& body_path Body path
+		 * @param dwl::Pose start_pose Start pose
+		 * @param dwl::Pose goal_pose Goal pose
+		 */
 		bool computeBodyPath(std::vector<Pose>& body_path, Pose start_pose, Pose goal_pose);
 
 		//void findPose();
 
 	protected:
+		/** @brief Pointer to the EnvironmentInformation object */
 		environment::EnvironmentInformation* environment_;
 
+		/** @brief Pointer to the path solver */
 		Solver* path_solver_;
 
+		/** @brief Pointer to the pose solver */
 		Solver* pose_solver_;
 };
 

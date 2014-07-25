@@ -63,7 +63,7 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 				point_position(0) = (x - vertex_position(0)) * cos(yaw) - (y - vertex_position(1)) * sin(yaw) + vertex_position(0);
 				point_position(1) = (x - vertex_position(0)) * sin(yaw) + (y - vertex_position(1)) * cos(yaw) + vertex_position(1);
 
-				Vertex point = environment_->getGridModel().coordToVertex(point_position);
+				Vertex point = environment_->getGridModel().stateToVertex(point_position);
 
 				// Inserts the element in an organized vertex queue, according to the maximun value
 				if (terrain_costmap.find(point)->first == point)

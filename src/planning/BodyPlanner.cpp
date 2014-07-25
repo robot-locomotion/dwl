@@ -38,9 +38,22 @@ void BodyPlanner::reset(Solver* path_solver)
 
 bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose, Pose goal_pose)
 {
-	// Converting pose to vertex
-	Vertex start_vertex = environment_->getGridModel().coordToVertex((Eigen::Vector2d) start_pose.position.head(2));
-	Vertex goal_vertex = environment_->getGridModel().coordToVertex((Eigen::Vector2d) goal_pose.position.head(2));
+	// Computing the yaw angle of the start and goal pose
+	double start_roll, goal_roll, start_pitch, goal_pitch, start_yaw, goal_yaw;
+	Orientation start_orientation(start_pose.orientation);
+	start_orientation.getRPY(start_roll, start_pitch, start_yaw);
+	Orientation goal_orientation(goal_pose.orientation);
+	goal_orientation.getRPY(goal_roll, goal_pitch, goal_yaw);
+
+	// Computing the start and goal state
+	Eigen::Vector3d start_state, goal_state;
+	start_state = start_pose.position.head(2), start_yaw;
+	goal_state = goal_pose.position.head(2), goal_yaw;
+
+	// Converting the states to vertexs
+	Vertex start_vertex, goal_vertex;
+	environment_->getSpaceModel().stateToVertex(start_vertex, start_state);
+	environment_->getSpaceModel().stateToVertex(goal_vertex, goal_state);
 
 	// Setting the current pose to solver
 	path_solver_->setCurrentPose(start_pose);
@@ -55,26 +68,25 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 	std::cout << "Size of path = " << shortest_path.size() << std::endl; //TODO
 
 	std::list<Vertex>::iterator path_iter = shortest_path.begin();
-	Eigen::Vector2d old_point = Eigen::Vector2d::Zero();
 	for(; path_iter != shortest_path.end(); path_iter++) {
 		Pose body_pose;
 		body_pose.position = Eigen::Vector3d::Zero();
 		body_pose.orientation = Eigen::Vector4d::Zero();
 
-		Eigen::Vector2d path = environment_->getGridModel().vertexToCoord(*path_iter);
-		body_pose.position.head(2) = path;
+		Eigen::Vector3d path;
+		environment_->getSpaceModel().vertexToState(path, *path_iter);
 
-		// Computing the roll, pitch and yaw angles
-		double roll = 0;
-		double pitch = 0;
-		double yaw = atan2((double) (path(1) - old_point(1)), (double) (path(0) - old_point(0)));
+		// Converting the yaw angle to quaternion
+		Eigen::Quaterniond q;
+		Orientation orientation(0, 0, path(2));
+		orientation.getQuaternion(q);
 
-		// Converting rpy angles to quaternion
-		Orientation orientation(roll, pitch, yaw);
-		orientation.getQuaternion(body_pose.orientation);
+		// Setting the planned body pose
+		body_pose.position.head(2) = path.head(2);
+		body_pose.orientation = q;
+
 
 		body_path.push_back(body_pose);
-		old_point = path;
 	}
 
 	return true;

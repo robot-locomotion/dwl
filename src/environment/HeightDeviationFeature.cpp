@@ -28,7 +28,7 @@ HeightDeviationFeature::~HeightDeviationFeature()
 void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain_info)
 {
 	// Setting the grid resolution of the gridmap
-	gridmap_.setResolution(terrain_info.gridmap_resolution, true);
+	space_discretization_.setEnvironmentResolution(terrain_info.resolution);
 
 	// Getting the cell position
 	Eigen::Vector3d cell_position = terrain_info.position;
@@ -47,10 +47,11 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 			Eigen::Vector2d coord;
 			coord(0) = x;
 			coord(1) = y;
-			Vertex v = gridmap_.coordToVertex(coord);
+			Vertex vertex_2d;
+			space_discretization_.coordToVertex(vertex_2d, coord);
 
-			if (terrain_info.height_map.find(v)->first == v) {
-				height_average += terrain_info.height_map.find(v)->second;
+			if (terrain_info.height_map.find(vertex_2d)->first == vertex_2d) {
+				height_average += terrain_info.height_map.find(vertex_2d)->second;
 				counter++;
 			}
 		}
@@ -60,13 +61,14 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 	// Computing the standard deviation of the height
 	for (double y = boundary_min(1); y < boundary_max(1); y += average_area_.grid_resolution) {
 		for (double x = boundary_min(0); x < boundary_max(0); x += average_area_.grid_resolution) {
-			Eigen::Vector2d coord;
+			Eigen::Vector2d coord; //TODO
 			coord(0) = x;
 			coord(1) = y;
-			Vertex v = gridmap_.coordToVertex(coord);
+			Vertex vertex_2d;
+			space_discretization_.coordToVertex(vertex_2d, coord);
 
-			if (terrain_info.height_map.find(v)->first == v) {
-				height_deviation += fabs(terrain_info.height_map.find(v)->second - height_average);
+			if (terrain_info.height_map.find(vertex_2d)->first == vertex_2d) {
+				height_deviation += fabs(terrain_info.height_map.find(vertex_2d)->second - height_average);
 			}
 		}
 	}
