@@ -25,6 +25,14 @@ GridBasedBodyAdjacency::~GridBasedBodyAdjacency()
 
 void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target)
 {
+	// Getting the body orientation
+	Eigen::Vector3d initial_state;
+	environment_->getSpaceModel().vertexToState(initial_state, source);
+	unsigned short int key_yaw;
+	environment_->getSpaceModel().stateToKey(key_yaw, (double) initial_state(2), false);
+	double yaw;
+	environment_->getSpaceModel().keyToState(yaw, key_yaw, false);
+
 	if (environment_->isTerrainInformation()) {
 		// Adding the source and target vertex if it is outside the information terrain
 		Vertex closest_source, closest_target;
@@ -44,34 +52,36 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Ve
 				vertex_iter++)
 		{
 			Vertex vertex = vertex_iter->first;
+			Eigen::Vector2d current_coord;
+
+			Vertex state_vertex;
+			environment_->getSpaceModel().vertexToCoord(current_coord, vertex);
+			Eigen::Vector3d current_state;
+			current_state << current_coord, yaw;
+			environment_->getSpaceModel().stateToVertex(state_vertex, current_state);
 
 			if (!isStanceAdjacency()) {
 				double terrain_cost = vertex_iter->second;
 
-				// Searching the neighbors
-				std::vector<Vertex> neighbors;
-				searchNeighbors(neighbors, vertex);
-				for (int i = 0; i < neighbors.size(); i++)
-					adjacency_map[neighbors[i]].push_back(Edge(vertex, terrain_cost));
+				// Searching the neighbor actions
+				std::vector<Vertex> neighbor_actions;
+				searchNeighbors(neighbor_actions, state_vertex);
+				for (int i = 0; i < neighbor_actions.size(); i++)
+					adjacency_map[neighbor_actions[i]].push_back(Edge(state_vertex, terrain_cost));
 			} else {
 				// Computing the body cost
 				double body_cost;
-				// Adding the initial orientation
-				// Converting quaternion to roll, pitch and yaw angles
-				double roll, pitch, yaw;
-				Orientation orientation(current_pose_.orientation);
-				orientation.getRPY(roll, pitch, yaw);
-				computeBodyCost(body_cost, vertex, yaw);
+				computeBodyCost(body_cost, state_vertex);
 
-				// Searching the neighbors
-				std::vector<Vertex> neighbors;
-				searchNeighbors(neighbors, vertex);
-				for (int i = 0; i < neighbors.size(); i++)
-					adjacency_map[neighbors[i]].push_back(Edge(vertex, body_cost));
+				// Searching the neighbor actions
+				std::vector<Vertex> neighbor_actions;
+				searchNeighbors(neighbor_actions, state_vertex);
+				for (int i = 0; i < neighbor_actions.size(); i++)
+					adjacency_map[neighbor_actions[i]].push_back(Edge(state_vertex, body_cost));
 			}
 		}
 	} else
-		printf(RED "Couldn't compute the adjacency map because there isn't terrain information \n" COLOR_RESET);
+		printf(RED "Could not computed the adjacency map because there is not terrain information \n" COLOR_RESET);
 }
 
 
@@ -103,7 +113,7 @@ void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex s
 			}
 		}
 	} else
-		printf(RED "Couldn't compute the successors because there isn't terrain information \n" COLOR_RESET);
+		printf(RED "Could not computed the successors because there is not terrain information \n" COLOR_RESET);
 }
 
 
@@ -146,8 +156,8 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 				// Getting the state vertex of the neighbor
 				environment_->getSpaceModel().keyToState(x, searching_key.x, true);
 				environment_->getSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getSpaceModel().keyToState(yaw, key_yaw, true);
-				state = x, y, yaw;
+				environment_->getSpaceModel().keyToState(yaw, key_yaw, false);
+				state << x, y, yaw;
 				environment_->getSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
@@ -162,8 +172,8 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 				// Getting the state vertex of the neighbor
 				environment_->getSpaceModel().keyToState(x, searching_key.x, true);
 				environment_->getSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getSpaceModel().keyToState(yaw, key_yaw, true);
-				state = x, y, yaw;
+				environment_->getSpaceModel().keyToState(yaw, key_yaw, false);
+				state << x, y, yaw;
 				environment_->getSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
@@ -178,8 +188,8 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 				// Getting the state vertex of the neighbor
 				environment_->getSpaceModel().keyToState(x, searching_key.x, true);
 				environment_->getSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getSpaceModel().keyToState(yaw, key_yaw, true);
-				state = x, y, yaw;
+				environment_->getSpaceModel().keyToState(yaw, key_yaw, false);
+				state << x, y, yaw;
 				environment_->getSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
@@ -194,8 +204,8 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 				// Getting the state vertex of the neighbor
 				environment_->getSpaceModel().keyToState(x, searching_key.x, true);
 				environment_->getSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getSpaceModel().keyToState(yaw, key_yaw, true);
-				state = x, y, yaw;
+				environment_->getSpaceModel().keyToState(yaw, key_yaw, false);
+				state << x, y, yaw;
 				environment_->getSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
@@ -210,8 +220,8 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 				// Getting the state vertex of the neighbor
 				environment_->getSpaceModel().keyToState(x, searching_key.x, true);
 				environment_->getSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getSpaceModel().keyToState(yaw, key_yaw, true);
-				state = x, y, yaw;
+				environment_->getSpaceModel().keyToState(yaw, key_yaw, false);
+				state << x, y, yaw;
 				environment_->getSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
@@ -226,8 +236,8 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 				// Getting the state vertex of the neighbor
 				environment_->getSpaceModel().keyToState(x, searching_key.x, true);
 				environment_->getSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getSpaceModel().keyToState(yaw, key_yaw, true);
-				state = x, y, yaw;
+				environment_->getSpaceModel().keyToState(yaw, key_yaw, false);
+				state << x, y, yaw;
 				environment_->getSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
@@ -242,8 +252,8 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 				// Getting the state vertex of the neighbor
 				environment_->getSpaceModel().keyToState(x, searching_key.x, true);
 				environment_->getSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getSpaceModel().keyToState(yaw, key_yaw, true);
-				state = x, y, yaw;
+				environment_->getSpaceModel().keyToState(yaw, key_yaw, false);
+				state << x, y, yaw;
 				environment_->getSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
@@ -258,8 +268,8 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 				// Getting the state vertex of the neighbor
 				environment_->getSpaceModel().keyToState(x, searching_key.x, true);
 				environment_->getSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getSpaceModel().keyToState(yaw, key_yaw, true);
-				state = x, y, yaw;
+				environment_->getSpaceModel().keyToState(yaw, key_yaw, false);
+				state << x, y, yaw;
 				environment_->getSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);

@@ -107,7 +107,7 @@ void SpaceDiscretization::coordToVertex(Vertex& vertex, const Eigen::Vector2d co
 {
 	Key key;
 	Eigen::Vector3d coord;
-	coord = coordinate, 0;
+	coord << coordinate, 0;
 	coordToKeyChecked(key, coord);
 
 	keyToVertex(vertex, key, true);
@@ -153,7 +153,7 @@ void SpaceDiscretization::vertexToCoord(Eigen::Vector3d& coordinate, const Verte
 }
 
 
-void SpaceDiscretization::stateToKey(unsigned short int& key, const double state, const bool position) const
+void SpaceDiscretization::stateToKey(unsigned short int& key, double state, const bool position) const
 {
 	if (position) {
 		if (position_resolution_ == 0)
@@ -256,17 +256,18 @@ void SpaceDiscretization::vertexToState(Eigen::Vector3d& state, Vertex vertex) c
 
 void SpaceDiscretization::stateVertexToEnvironmentVertex(Vertex& environment_vertex, const Vertex state_vertex, State state) const
 {
+	Eigen::Vector2d state_2d, coord;
+	Eigen::Vector3d state_3d;
+
 	switch (state) {
 		case XY:
-			Eigen::Vector2d state_2d;
 			vertexToState(state_2d, state_vertex);
 			coordToVertex(environment_vertex, state_2d);
 			break;
 
 		case XY_Y:
-			Eigen::Vector3d state_3d;
 			vertexToState(state_3d, state_vertex);
-			Eigen::Vector2d coord = state_3d.head(2);
+			coord = state_3d.head(2);
 			coordToVertex(environment_vertex, coord);
 			break;
 

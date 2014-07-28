@@ -27,9 +27,9 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		/**
 		 * @brief Gets the successors of the current vertex
 		 * @param std::list<Edge>& successors List of successors
-		 * @param dwl::Vertex vertex Current vertex
+		 * @param dwl::Vertex state_vertex Current state vertex
 		 */
-		void getSuccessors(std::list<Edge>& successors, Vertex vertex);
+		void getSuccessors(std::list<Edge>& successors, Vertex state_vertex);
 
 
 	private:
@@ -42,10 +42,9 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 
 		/**
 		 * @brief Computes the body cost of a current vertex
-		 * @param dwl::Vertex vertex Current vertex
-		 * @param double orientation Current orientation
+		 * @param dwl::Vertex state_vertex Current state vertex
 		 */
-		void computeBodyCost(double& cost, Vertex vertex, double orientation);
+		void computeBodyCost(double& cost, Vertex state_vertex);
 
 		/**
 		 * @brief Indicates if it is requested a stance adjacency

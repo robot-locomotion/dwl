@@ -7,7 +7,8 @@ namespace dwl
 namespace planning
 {
 
-Solver::Solver() : adjacency_(NULL), is_graph_searching_algorithm_(false), is_optimization_algorithm_(false), total_cost_(0), is_settep_adjacency_model_(false)
+Solver::Solver() : adjacency_(NULL), is_graph_searching_algorithm_(false), is_optimization_algorithm_(false), total_cost_(0),
+		time_started_(clock()), is_settep_adjacency_model_(false)
 {
 
 }
@@ -45,7 +46,7 @@ bool Solver::compute(Vertex source, Vertex target, double computation_time)
 	if (is_graph_searching_algorithm_)
 		printf(YELLOW "Could not compute the shortest-path because the %s was not defined an algorithm\n" COLOR_RESET, name_.c_str());
 	else
-		printf(YELLOW "Could not compute the shortest-path because the %s is not a graph-searchin algorithm\n" COLOR_RESET, name_.c_str());
+		printf(YELLOW "Could not compute the shortest-path because the %s is not a graph-searching algorithm\n" COLOR_RESET, name_.c_str());
 
 	return false;
 }

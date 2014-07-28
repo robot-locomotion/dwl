@@ -44,6 +44,13 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 
 
 	private:
+		/**
+		 * @brief Converts the pose to a 3d state (x,y,yaw)
+		 * @param Eigen::Vector3d& state State
+		 * @param dwl::Pose pose Pose
+		 */
+		void poseToState(Eigen::Vector3d& state, Pose pose);
+
 		/** @brief The id of the goal vertex */
 		Vertex goal_vertex_;
 

@@ -112,7 +112,7 @@ class Solver
 		/** @brief Total cost of the path */
 		double total_cost_;
 
-		/** @brief Indicates if it was settep an adjacency model */
+		/** @brief Indicates if it was set an adjacency model */
 		bool is_settep_adjacency_model_;
 };
 

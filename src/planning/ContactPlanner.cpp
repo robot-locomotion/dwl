@@ -59,23 +59,28 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 		for (double y = boundary_min(1); y < boundary_max(1); y += robot_.getStanceAreas()[current_leg_id].grid_resolution) {
 			for (double x = boundary_min(0); x < boundary_max(0); x += robot_.getStanceAreas()[current_leg_id].grid_resolution) {
 				// Computing the rotated coordinate of the point inside the search area
-				Eigen::Vector2d point_position;
-				point_position(0) = (x - vertex_position(0)) * cos(yaw) - (y - vertex_position(1)) * sin(yaw) + vertex_position(0);
-				point_position(1) = (x - vertex_position(0)) * sin(yaw) + (y - vertex_position(1)) * cos(yaw) + vertex_position(1);
+				Eigen::Vector2d current_state;
+				current_state(0) = (x - vertex_position(0)) * cos(yaw) - (y - vertex_position(1)) * sin(yaw) + vertex_position(0);
+				current_state(1) = (x - vertex_position(0)) * sin(yaw) + (y - vertex_position(1)) * cos(yaw) + vertex_position(1);
+				current_state(2) = yaw;
 
-				Vertex point = environment_->getGridModel().stateToVertex(point_position);
+				Vertex current_vertex;
+				environment_->getSpaceModel().stateToVertex(current_vertex, current_state);
 
 				// Inserts the element in an organized vertex queue, according to the maximun value
-				if (terrain_costmap.find(point)->first == point)
-					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(point)->second, point));
+				if (terrain_costmap.find(current_vertex)->first == current_vertex)
+					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(current_vertex)->second, current_vertex));
 			}
 		}
 
 		Contact foothold;
 		foothold.end_effector = current_leg_id;
 		Vertex foothold_vertex = stance_cost_queue.begin()->second;
-		if (stance_cost_queue.size() > 0)
-			foothold.position << environment_->getGridModel().vertexToCoord(foothold_vertex), terrain_heightmap.find(foothold_vertex)->second;
+		if (stance_cost_queue.size() > 0) {
+			Eigen::Vector2d coord;
+			environment_->getSpaceModel().vertexToCoord(coord, foothold_vertex);
+			foothold.position << coord, terrain_heightmap.find(foothold_vertex)->second;
+		}
 		else
 			foothold.position << robot_.getStancePosition()[current_leg_id] + vertex_position, 0.0;
 

@@ -37,7 +37,7 @@ void AdjacencyEnvironment::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vert
 }
 
 
-void AdjacencyEnvironment::getSuccessors(std::list<Edge>& successors, Vertex vertex)
+void AdjacencyEnvironment::getSuccessors(std::list<Edge>& successors, Vertex state_vertex)
 {
 	printf(YELLOW "Could get the successors because it was not defined an adjacency model\n" COLOR_RESET);
 }
@@ -75,10 +75,10 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		return;
 	}
 
-	// Start and goal position
+	// Start and goal state
 	Eigen::Vector3d start_state, goal_state;
 	environment_->getSpaceModel().vertexToState(start_state, source);
-	environment_->getSpaceModel().vertexToCoord(goal_state, target);
+	environment_->getSpaceModel().vertexToState(goal_state, target);
 
 	double closest_source_distant = std::numeric_limits<double>::max();
 	double closest_target_distant = std::numeric_limits<double>::max();
@@ -182,7 +182,7 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 		return;
 	}
 
-	// Start and goal position
+	// State
 	Eigen::Vector3d state_vertex;
 	environment_->getSpaceModel().vertexToState(state_vertex, vertex);
 
@@ -190,7 +190,7 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 	Eigen::Vector3d current_state_vertex;
 	for (int i = 0; i < vertex_map.size(); i++) {
 		// Calculating the vertex position
-		environment_->getSpaceModel().vertexToState(current_state_vertex, vertex_map[i]);//TODO
+		environment_->getSpaceModel().vertexToState(current_state_vertex, vertex_map[i]);
 
 		// Calculating the distant to the current vertex
 		double start_distant = (state_vertex.head(2) - current_state_vertex.head(2)).norm();
@@ -204,13 +204,14 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 }
 
 
-double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target) //TODO
+double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 {
-	Eigen::Vector3d source_position = getPosition(source);
-	Eigen::Vector3d target_position = getPosition(target);
+	Eigen::Vector3d source_state, target_state;
+	environment_->getSpaceModel().vertexToState(source_state, source);
+	environment_->getSpaceModel().vertexToState(target_state, target);
 
-	double distance = (target_position - source_position).squaredNorm();
-	double dy = target_position(1) - source_position(1);
+	double distance = (target_state.head(2) - source_state.head(2)).norm();
+	double dist_orientation = target_state(2) - source_state(2);
 	//double dx = target_position(0) - source_position(0);
 	//double heading = abs(atan(dy / dx));
 
@@ -225,13 +226,19 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 	if (isLatticeRepresentation()) {
 		double epsilon = 0.1; //TODO
 
+		Eigen::Vector3d current_state, target_state;
+		environment_->getSpaceModel().vertexToState(current_state, current);
+		environment_->getSpaceModel().vertexToState(target_state, target);
+
 		//TODO
-		Eigen::Vector3d current_position = getPosition(current);
-		Eigen::Vector3d target_position = getPosition(target);
-		double distant = (target_position - current_position).squaredNorm();
+		double distant = (target_state.head(2) - current_state.head(2)).norm();
 		if (distant < epsilon) {
-			// Reconstructing path
-			std::cout << "Reached goal = " << current_position(0) << " " << current_position(1) << " | Goal = " << target_position(0) << " " << target_position(1) << " | dist = " << distant << std::endl;
+			if (abs((double) target_state(2) - (double) current_state(2)) < epsilon) {
+				// Reconstructing path
+				std::cout << "Reached goal = " << current_state(0) << " " << current_state(1);
+				std::cout << " | Goal = " << target_state(0) << " " << target_state(1) << " | dist = " << distant << std::endl;
+			}
+
 			return true;
 		}
 	} else {
@@ -249,6 +256,7 @@ bool AdjacencyEnvironment::isLatticeRepresentation()
 {
 	return is_lattice_;
 }
+
 
 //TODO
 /*

@@ -141,8 +141,8 @@ class RewardMap
 
 
 	protected:
-		/** @brief Object of the PlaneGrid class for defining the grid routines */
-		PlaneGrid gridmap_;
+		/** @brief Object of the SpaceDiscretization class for defining the grid routines */
+		SpaceDiscretization space_discretization_;
 
 		/** @brief Vector of pointers to the Feature class */
 		std::vector<Feature*> features_;

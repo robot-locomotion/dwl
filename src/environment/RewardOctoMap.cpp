@@ -83,7 +83,8 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 							cell_position(2) = height_point(2);
 							getCell(cell_key, cell_position);
 
-							Vertex vertex_id = gridmap_.keyToVertex(cell_key);
+							Vertex vertex_id;
+							space_discretization_.keyToVertex(vertex_id, cell_key, true);
 							if (is_first_computation_)
 								addCellToTerrainHeightMap(cell_key);
 							else {
@@ -120,7 +121,8 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 	{
 		octomap::OcTreeKey heightmap_key;
 		Vertex v = terrain_iter->first;
-		Eigen::Vector3d xy_coord = gridmap_.vertexToCoord(v);//TODO
+		Eigen::Vector3d xy_coord;
+		space_discretization_.vertexToCoord(xy_coord, v);
 		double height = terrain_iter->second;
 		octomap::point3d terrain_point;
 		terrain_point(0) = xy_coord(0);
@@ -218,7 +220,7 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 	}
 
 	terrain_info.height_map = terrain_heightmap_;
-	terrain_info.gridmap_resolution = gridmap_.getEnvironmentResolution();
+	terrain_info.resolution = space_discretization_.getEnvironmentResolution();
 
 	// Computing the reward
 	if (is_added_feature_) {
@@ -237,7 +239,6 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 		printf(YELLOW "Could not compute the reward of the features because it is necessary to add at least one\n" COLOR_RESET);
 	}
 }
-
 
 } //@namespace environment
 } //@namespace dwl

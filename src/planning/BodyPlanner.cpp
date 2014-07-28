@@ -41,8 +41,8 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 	// Computing the yaw angle of the start and goal pose
 	double start_roll, goal_roll, start_pitch, goal_pitch, start_yaw, goal_yaw;
 	Orientation start_orientation(start_pose.orientation);
-	start_orientation.getRPY(start_roll, start_pitch, start_yaw);
 	Orientation goal_orientation(goal_pose.orientation);
+	start_orientation.getRPY(start_roll, start_pitch, start_yaw);
 	goal_orientation.getRPY(goal_roll, goal_pitch, goal_yaw);
 
 	// Computing the start and goal state

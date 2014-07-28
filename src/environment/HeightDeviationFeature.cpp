@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-HeightDeviationFeature::HeightDeviationFeature() : gridmap_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max())
+HeightDeviationFeature::HeightDeviationFeature() : space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max())
 {
 	name_ = "Height Deviation";
 

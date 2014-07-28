@@ -41,7 +41,7 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 
 	private:
 		/**
-		 * @brief Searchs the neighbors of a current vertex
+		 * @brief Searches the neighbors of a current vertex
 		 * @param std::vector<Vertex>& neighbor_states The set of states neighbors
 		 * @param dwl::Vertex state_vertex Current state vertex
 		 */
@@ -70,7 +70,7 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 		/** @brief Number of top reward for computing the stance cost */
 		int number_top_reward_;
 
-		/** @brief Uncertainty factor which is applicated in un-perceived environment */
+		/** @brief Uncertainty factor which is applicated in non-perceived environment */
 		double uncertainty_factor_; // For unknown (non-perceive) areas
 
 };

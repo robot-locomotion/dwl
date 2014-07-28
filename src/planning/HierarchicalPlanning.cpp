@@ -1,6 +1,7 @@
 #include <planning/HierarchicalPlanning.h>
 #include <utils/Orientation.h> //TODO
 
+
 namespace dwl
 {
 
@@ -35,15 +36,24 @@ void HierarchicalPlanning::resetGoal(Pose goal)
 /*	initial_pose_ = start;*/
 	goal_pose_ =  goal;
 
+	// Converting pose to 3d state (x,y,yaw)/
+	Eigen::Vector3d goal_state;
+	poseToState(goal_state, goal);
+
 	if (environment_->isTerrainInformation())
-		goal_vertex_ = environment_->getGridModel().stateToVertex((Eigen::Vector2d) goal.position.head(2));
+		environment_->getSpaceModel().stateToVertex(goal_vertex_, goal_state);
 }
 
 
 bool HierarchicalPlanning::compute(Pose current_pose)
 {
+	// Converting pose to 3d state (x,y,yaw)/
+	Eigen::Vector3d current_state;
+	poseToState(current_state, current_pose);
+
 	if (environment_->isTerrainInformation()) {
-		Vertex current_vertex = environment_->getGridModel().stateToVertex((Eigen::Vector2d) current_pose.position.head(2));
+		Vertex current_vertex;
+		environment_->getSpaceModel().stateToVertex(current_vertex, current_state);
 
 		// Cleaning global variables
 		std::vector<Pose> empty_body_trajectory;
@@ -76,8 +86,16 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 		return false;
 	}
 
-
 	return true;
+}
+
+
+void HierarchicalPlanning::poseToState(Eigen::Vector3d& state, Pose pose)
+{
+	double roll, pitch, yaw;
+	Orientation orientation(pose.orientation);
+	orientation.getRPY(roll, pitch, yaw);
+	state = pose.position.head(2), yaw;
 }
 
 } //@namespace planning

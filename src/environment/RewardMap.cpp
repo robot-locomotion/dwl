@@ -8,7 +8,7 @@ namespace environment
 {
 
 
-RewardMap::RewardMap() : gridmap_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()), is_added_feature_(false),
+RewardMap::RewardMap() : space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()), is_added_feature_(false),
 		is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()), interest_radius_y_(std::numeric_limits<double>::max()),
 		cell_size_(0.04)
 {
@@ -51,16 +51,19 @@ void RewardMap::removeFeature(std::string feature_name)
 
 void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 {
+	// Getting the orientation of the body
+	double yaw = robot_state(2);
+
 	for (std::map<Vertex, Cell>::iterator vertex_iter = reward_gridmap_.begin();
 			vertex_iter != reward_gridmap_.end();
 			vertex_iter++)
 	{
 		Vertex v = vertex_iter->first;
-		Eigen::Vector3d point = gridmap_.vertexToCoord(v);
+		Eigen::Vector3d point;
+		space_discretization_.vertexToCoord(point, v);
 
 		double xc = point(0) - robot_state(0);
 		double yc = point(1) - robot_state(1);
-		double yaw = robot_state(2);
 		if (xc * cos(yaw) + yc * sin(yaw) >= 0.0) {
 			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1) {
 				reward_gridmap_.erase(v);
@@ -85,7 +88,7 @@ void RewardMap::setInterestRegion(double radius_x, double radius_y)
 
 void RewardMap::getCell(Cell& cell, double reward, Terrain terrain_info)
 {
-	gridmap_.coordToKeyChecked(cell.key, terrain_info.position);
+	space_discretization_.coordToKeyChecked(cell.key, terrain_info.position);
 	cell.reward = reward;
 	cell.size = cell_size_;
 }
@@ -93,21 +96,22 @@ void RewardMap::getCell(Cell& cell, double reward, Terrain terrain_info)
 
 void RewardMap::getCell(Key& key, Eigen::Vector3d position)
 {
-	Key grid_key;
-	gridmap_.coordToKeyChecked(key, position);
+	space_discretization_.coordToKeyChecked(key, position);
 }
 
 
 void RewardMap::addCellToRewardMap(Cell key)
 {
-	Vertex vertex_id = gridmap_.keyToVertex(key.key);
+	Vertex vertex_id;
+	space_discretization_.keyToVertex(vertex_id, key.key, true);
 	reward_gridmap_[vertex_id] = key;
 }
 
 
 void RewardMap::removeCellToRewardMap(Key key)
 {
-	Vertex v = gridmap_.keyToVertex(key);
+	Vertex v;
+	space_discretization_.keyToVertex(v, key, true);
 	if (reward_gridmap_.find(v)->first == v) {
 		reward_gridmap_.erase(v);
 	}
@@ -116,15 +120,18 @@ void RewardMap::removeCellToRewardMap(Key key)
 
 void RewardMap::addCellToTerrainHeightMap(Key key)
 {
-	Vertex v = gridmap_.keyToVertex(key);
-	double height = gridmap_.keyToCoord(key.z);
+	Vertex v;
+	space_discretization_.keyToVertex(v, key, true);
+	double height;
+	space_discretization_.keyToCoord(height, key.z);
 	terrain_heightmap_[v] = height;
 }
 
 
 void RewardMap::removeCellToTerrainHeightMap(Key key)
 {
-	Vertex v = gridmap_.keyToVertex(key);
+	Vertex v;
+	space_discretization_.keyToVertex(v, key, true);
 	terrain_heightmap_.erase(v);
 }
 
@@ -142,8 +149,8 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 
 	search_areas_.push_back(search_area);
 
-	if (grid_resolution < gridmap_.getEnvironmentResolution())
-		gridmap_.setEnvironmentResolution(grid_resolution);
+	if (grid_resolution < space_discretization_.getEnvironmentResolution())
+		space_discretization_.setEnvironmentResolution(grid_resolution);
 
 	is_added_search_area_ = true;
 }
@@ -162,13 +169,13 @@ void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int 
 
 double RewardMap::getResolution()
 {
-	return gridmap_.getEnvironmentResolution();
+	return space_discretization_.getEnvironmentResolution();
 }
 
 
 void RewardMap::setResolution(double resolution)
 {
-	gridmap_.setEnvironmentResolution(resolution);
+	space_discretization_.setEnvironmentResolution(resolution);
 }
 
 

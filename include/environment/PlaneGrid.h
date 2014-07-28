@@ -119,10 +119,10 @@ class SpaceDiscretization
 		/**
 		 * @brief Converts a state into a key
 		 * @param unsigned short int& key Key
-		 * @param const double state State value
+		 * @param double state State value
 		 * @param const bool position Indicates if it's a position variable, or an angular variable
 		 */
-		void stateToKey(unsigned short int& key, const double state, const bool position) const;
+		void stateToKey(unsigned short int& key, double state, const bool position) const;
 
 		/**
 		 * @brief Converts a key into a state value

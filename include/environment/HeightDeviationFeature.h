@@ -2,7 +2,7 @@
 #define DWL_HeightDeviationFeature_H
 
 #include <environment/Feature.h>
-#include <environment/SpaceDiscretization.h>
+#include <environment/PlaneGrid.h>
 
 
 namespace dwl
