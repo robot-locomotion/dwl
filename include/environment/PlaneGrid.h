@@ -54,23 +54,26 @@ class SpaceDiscretization
 		 * @brief Converts a coordinate into a key with boundary checking.
 		 * @param unsigned short int& key Key value of a single axis
 		 * @param const double coordinate Cartesian coordinate of a single axis
+		 * @param const bool plane Indicates if the key represents a plane or a height
 		 * @return bool Returns true if the point is within the boundaries of the environment (valid), false otherwise
 		 */
-		bool coordToKeyChecked(unsigned short int& key, const double coordinate) const;
+		bool coordToKeyChecked(unsigned short int& key, const double coordinate, const bool plane) const;
 
 		/**
 		 * @brief Converts a single coordinate into a key
 		 * @param unsigned short int& key Key
 		 * @param const double coordinate Cartesian coordinate of a single axis
+		 * @param const bool plane Indicates if the key represents a plane or a height
 		 */
-		void coordToKey(unsigned short int& key, const double coordinate) const;
+		void coordToKey(unsigned short int& key, const double coordinate, const bool plane) const;
 
 		/**
 		 * @brief Converts a key into a single coordinate
 		 * @param double& coordinate Single coordinate
 		 * @param const unsigned short int key The value of the key
+		 * @param const bool plane Indicates if the key represents a plane or a height
 		 */
-		void keyToCoord(double& coordinate, const unsigned short int key) const;
+		void keyToCoord(double& coordinate, const unsigned short int key, const bool plane) const;
 
 		/**
 		 * @brief Converts the key to vertex id
@@ -170,9 +173,10 @@ class SpaceDiscretization
 
 		/*
 		 * @brief Gets the resolution of the environment
+		 * @param const bool plane Indicates if the key represents a plane or a height
 		 * @return double Returns the resolution of the environment
 		 */
-		double getEnvironmentResolution();
+		double getEnvironmentResolution(const bool plane);
 
 		/*
 		 * @brief Gets the resolution of the state
@@ -184,8 +188,9 @@ class SpaceDiscretization
 		/**
 		 * @brief Sets the resolution of the environment
 		 * @param double resolution Resolution of the environment
+		 * @param const bool plane Indicates if the key represents a plane or a height
 		 */
-		void setEnvironmentResolution(double resolution);
+		void setEnvironmentResolution(double resolution, const bool plane);
 
 		/**
 		 * @brief Sets the resolution of the state
@@ -199,8 +204,11 @@ class SpaceDiscretization
 		/** @brief The maximun number of discreted key */
 		const unsigned short int max_key_val_;
 
-		/** @brief The resolution of the environment */
-		double environment_resolution_;  ///< in meters
+		/** @brief The resolution of the plane of the environment */
+		double plane_environment_resolution_;  ///< in meters
+
+		/** @brief The resolution of the height of the environment */
+		double height_environment_resolution_;  ///< in meters
 
 		/** @brief The resolution of the position's variables of the state */
 		double position_resolution_;  ///< in meters

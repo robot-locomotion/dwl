@@ -71,6 +71,7 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 			printf(YELLOW "Could not found an approximated body path\n" COLOR_RESET);
 			return false;
 		}
+
 		for (int i = 1; i < body_path_.size(); i++) {
 			/*Orientation orientation(body_path_[i].orientation);
 			double roll, pitch, yaw;
@@ -95,7 +96,7 @@ void HierarchicalPlanning::poseToState(Eigen::Vector3d& state, Pose pose)
 	double roll, pitch, yaw;
 	Orientation orientation(pose.orientation);
 	orientation.getRPY(roll, pitch, yaw);
-	state = pose.position.head(2), yaw;
+	state << pose.position.head(2), yaw;
 }
 
 } //@namespace planning

@@ -33,8 +33,9 @@ class EnvironmentInformation
 		/**
 		 * @brief Sets the resolution of the height or grid
 		 * @param double resolution Resolution value
+		 * @param bool plane Indicates if the key represents a plane or a height
 		 */
-		void setResolution(double resolution);
+		void setResolution(double resolution, bool plane);
 
 		/**
 		 * @brief Gets the terrain cost-map (using vertex id)

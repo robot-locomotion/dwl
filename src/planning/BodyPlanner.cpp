@@ -40,15 +40,14 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 {
 	// Computing the yaw angle of the start and goal pose
 	double start_roll, goal_roll, start_pitch, goal_pitch, start_yaw, goal_yaw;
-	Orientation start_orientation(start_pose.orientation);
-	Orientation goal_orientation(goal_pose.orientation);
+	Orientation start_orientation(start_pose.orientation), goal_orientation(goal_pose.orientation);
 	start_orientation.getRPY(start_roll, start_pitch, start_yaw);
 	goal_orientation.getRPY(goal_roll, goal_pitch, goal_yaw);
 
 	// Computing the start and goal state
 	Eigen::Vector3d start_state, goal_state;
-	start_state = start_pose.position.head(2), start_yaw;
-	goal_state = goal_pose.position.head(2), goal_yaw;
+	start_state << start_pose.position.head(2), start_yaw;
+	goal_state << goal_pose.position.head(2), goal_yaw;
 
 	// Converting the states to vertexs
 	Vertex start_vertex, goal_vertex;
@@ -59,7 +58,7 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 	path_solver_->setCurrentPose(start_pose);
 
 	// Computing the body path using a graph searching algorithm
-	double computation_time = 0.55;
+	double computation_time = 2.55;
 	if (!path_solver_->compute(start_vertex, goal_vertex, computation_time))
 		return false;
 

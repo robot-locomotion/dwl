@@ -59,7 +59,7 @@ void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 			vertex_iter++)
 	{
 		Vertex v = vertex_iter->first;
-		Eigen::Vector3d point;
+		Eigen::Vector2d point;
 		space_discretization_.vertexToCoord(point, v);
 
 		double xc = point(0) - robot_state(0);
@@ -100,39 +100,29 @@ void RewardMap::getCell(Key& key, Eigen::Vector3d position)
 }
 
 
-void RewardMap::addCellToRewardMap(Cell key)
+void RewardMap::addCellToRewardMap(Cell cell)
 {
 	Vertex vertex_id;
-	space_discretization_.keyToVertex(vertex_id, key.key, true);
-	reward_gridmap_[vertex_id] = key;
+	space_discretization_.keyToVertex(vertex_id, cell.key, true);
+	reward_gridmap_[vertex_id] = cell;
 }
 
 
-void RewardMap::removeCellToRewardMap(Key key)
+void RewardMap::removeCellToRewardMap(Vertex cell_vertex)
 {
-	Vertex v;
-	space_discretization_.keyToVertex(v, key, true);
-	if (reward_gridmap_.find(v)->first == v) {
-		reward_gridmap_.erase(v);
-	}
+	reward_gridmap_.erase(cell_vertex);
 }
 
 
-void RewardMap::addCellToTerrainHeightMap(Key key)
+void RewardMap::addCellToTerrainHeightMap(Vertex cell_vertex, double height)
 {
-	Vertex v;
-	space_discretization_.keyToVertex(v, key, true);
-	double height;
-	space_discretization_.keyToCoord(height, key.z);
-	terrain_heightmap_[v] = height;
+	terrain_heightmap_[cell_vertex] = height;
 }
 
 
-void RewardMap::removeCellToTerrainHeightMap(Key key)
+void RewardMap::removeCellToTerrainHeightMap(Vertex cell_vertex)
 {
-	Vertex v;
-	space_discretization_.keyToVertex(v, key, true);
-	terrain_heightmap_.erase(v);
+	terrain_heightmap_.erase(cell_vertex);
 }
 
 
@@ -149,8 +139,8 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 
 	search_areas_.push_back(search_area);
 
-	if (grid_resolution < space_discretization_.getEnvironmentResolution())
-		space_discretization_.setEnvironmentResolution(grid_resolution);
+	if (grid_resolution < space_discretization_.getEnvironmentResolution(true))
+		space_discretization_.setEnvironmentResolution(grid_resolution, true);
 
 	is_added_search_area_ = true;
 }
@@ -167,15 +157,15 @@ void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int 
 }
 
 
-double RewardMap::getResolution()
+double RewardMap::getResolution(bool plane)
 {
-	return space_discretization_.getEnvironmentResolution();
+	return space_discretization_.getEnvironmentResolution(plane);
 }
 
 
-void RewardMap::setResolution(double resolution)
+void RewardMap::setResolution(double resolution, bool plane)
 {
-	space_discretization_.setEnvironmentResolution(resolution);
+	space_discretization_.setEnvironmentResolution(resolution, plane);
 }
 
 

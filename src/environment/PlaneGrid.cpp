@@ -9,7 +9,8 @@ namespace dwl
 namespace environment
 {
 
-SpaceDiscretization::SpaceDiscretization(double environment_resolution) : environment_resolution_(environment_resolution),
+SpaceDiscretization::SpaceDiscretization(double environment_resolution) :
+		plane_environment_resolution_(environment_resolution), height_environment_resolution_(environment_resolution),
 		position_resolution_(0), angular_resolution_(0), max_key_val_(32768)
 {
 
@@ -17,7 +18,7 @@ SpaceDiscretization::SpaceDiscretization(double environment_resolution) : enviro
 
 
 SpaceDiscretization::SpaceDiscretization(double environment_resolution, double position_resolution) :
-		environment_resolution_(environment_resolution), position_resolution_(position_resolution),
+		plane_environment_resolution_(environment_resolution), height_environment_resolution_(environment_resolution), position_resolution_(position_resolution),
 		angular_resolution_(0), max_key_val_(32768)
 {
 
@@ -25,7 +26,7 @@ SpaceDiscretization::SpaceDiscretization(double environment_resolution, double p
 
 
 SpaceDiscretization::SpaceDiscretization(double environment_resolution, double position_resolution, double angular_resolution) :
-		environment_resolution_(environment_resolution), position_resolution_(position_resolution),
+		plane_environment_resolution_(environment_resolution), height_environment_resolution_(environment_resolution), position_resolution_(position_resolution),
 		angular_resolution_(angular_resolution), max_key_val_(32768)
 {
 
@@ -40,22 +41,22 @@ SpaceDiscretization::~SpaceDiscretization()
 
 bool SpaceDiscretization::coordToKeyChecked(Key& key, const Eigen::Vector3d coordinate) const
 {
-	if (!coordToKeyChecked(key.x, (double) coordinate(0)))
+	if (!coordToKeyChecked(key.x, (double) coordinate(0), true))
 		return false;
-	if (!coordToKeyChecked(key.y, (double) coordinate(1)))
+	if (!coordToKeyChecked(key.y, (double) coordinate(1), true))
 		return false;
-	if (!coordToKeyChecked(key.z, (double) coordinate(2)))
+	if (!coordToKeyChecked(key.z, (double) coordinate(2), false))
 		return false;
 
 	return true;
 }
 
 
-bool SpaceDiscretization::coordToKeyChecked(unsigned short int& key, const double coordinate) const
+bool SpaceDiscretization::coordToKeyChecked(unsigned short int& key, const double coordinate, const bool plane) const
 {
 	// scale to resolution and shift center for tree_max_val
 	unsigned short int scaled_coord;
-	coordToKey(scaled_coord, coordinate);
+	coordToKey(scaled_coord, coordinate, plane);
 
 	// keyval within range of tree?
 	if (( scaled_coord >= 0) && (((unsigned int) scaled_coord) < (2 * max_key_val_))) {
@@ -67,15 +68,21 @@ bool SpaceDiscretization::coordToKeyChecked(unsigned short int& key, const doubl
 }
 
 
-void SpaceDiscretization::coordToKey(unsigned short int& key, const double coordinate) const
+void SpaceDiscretization::coordToKey(unsigned short int& key, const double coordinate, const bool plane) const
 {
-	key = (unsigned short int) (floor(coordinate / environment_resolution_) + max_key_val_);
+	if (plane)
+		key = (unsigned short int) (floor(coordinate / plane_environment_resolution_) + max_key_val_);
+	else
+		key = (unsigned short int) (floor(coordinate / height_environment_resolution_) + max_key_val_);
 }
 
 
-void SpaceDiscretization::keyToCoord(double& coordinate, const unsigned short int key) const
+void SpaceDiscretization::keyToCoord(double& coordinate, const unsigned short int key, const bool plane) const
 {
-	coordinate = ((key - max_key_val_) + 0.5) * environment_resolution_;
+	if (plane)
+		coordinate = ((key - max_key_val_) + 0.5) * plane_environment_resolution_;
+	else
+		coordinate = ((key - max_key_val_) + 0.5) * height_environment_resolution_;
 }
 
 
@@ -97,7 +104,7 @@ void SpaceDiscretization::vertexToKey(Key& key, const Vertex vertex, const bool 
 		key.y = vertex - max_count * key.x;
 	} else {
 		key.x = floor(vertex / (max_count * max_count));
-		key.y = floor(vertex / max_count) - max_count * max_count * key.x;
+		key.y = floor(vertex / max_count) - max_count * key.x;
 		key.z = vertex - max_count * key.y - max_count * max_count * key.x;
 	}
 }
@@ -129,8 +136,8 @@ void SpaceDiscretization::vertexToCoord(Eigen::Vector2d& coordinate, const Verte
 	vertexToKey(key, vertex, true);
 
 	double x, y;
-	keyToCoord(x, key.x);
-	keyToCoord(y, key.y);
+	keyToCoord(x, key.x, true);
+	keyToCoord(y, key.y, true);
 
 	coordinate(0) = x;
 	coordinate(1) = y;
@@ -143,9 +150,9 @@ void SpaceDiscretization::vertexToCoord(Eigen::Vector3d& coordinate, const Verte
 	vertexToKey(key, vertex, false);
 
 	double x, y, z;
-	keyToCoord(x, key.x);
-	keyToCoord(y, key.y);
-	keyToCoord(z, key.z);
+	keyToCoord(x, key.x, true);
+	keyToCoord(y, key.y, true);
+	keyToCoord(z, key.z, false);
 
 	coordinate(0) = x;
 	coordinate(1) = y;
@@ -157,13 +164,13 @@ void SpaceDiscretization::stateToKey(unsigned short int& key, double state, cons
 {
 	if (position) {
 		if (position_resolution_ == 0)
-			printf(RED "Could not the key because it was not defined the position resolution" COLOR_RESET);
+			printf(RED "Could not get the key because it was not defined the position resolution" COLOR_RESET);
 		else
 			key = (unsigned short int) (floor(state / position_resolution_) + max_key_val_);
 	}
 	else {
 		if (angular_resolution_ == 0)
-			printf(RED "Could not the key because it was not defined the angular resolution" COLOR_RESET);
+			printf(RED "Could not get the key because it was not defined the angular resolution" COLOR_RESET);
 		else {
 			if ((state >= (2 * M_PI)) || (state <= 0))
 				state -= floor(state / (2 * M_PI)) * (2 * M_PI);
@@ -199,9 +206,8 @@ void SpaceDiscretization::stateToVertex(Vertex& vertex, const Eigen::Vector2d st
 	stateToKey(key_y, (double) state(1), true);
 
 	unsigned long int max_position_count = std::numeric_limits<unsigned short int>::max() + 1;
-	unsigned long int max_yaw_count = ceil(2 * M_PI / angular_resolution_) + 1;
 
-	vertex = (unsigned long int) (key_y + (std::numeric_limits<unsigned short int>::max() + 1) * key_x);
+	vertex = (unsigned long int) (key_y + max_position_count * key_x);
 }
 
 
@@ -278,9 +284,15 @@ void SpaceDiscretization::stateVertexToEnvironmentVertex(Vertex& environment_ver
 }
 
 
-double SpaceDiscretization::getEnvironmentResolution()
+double SpaceDiscretization::getEnvironmentResolution(const bool plane)
 {
-	return environment_resolution_;
+	double resolution;
+	if (plane)
+		resolution = plane_environment_resolution_;
+	else
+		resolution = height_environment_resolution_;
+
+	return resolution;
 }
 
 
@@ -296,9 +308,12 @@ double SpaceDiscretization::getStateResolution(bool position)
 }
 
 
-void SpaceDiscretization::setEnvironmentResolution(double resolution)
+void SpaceDiscretization::setEnvironmentResolution(double resolution, const bool plane)
 {
-	environment_resolution_ = resolution;
+	if (plane)
+		plane_environment_resolution_ = resolution;
+	else
+		height_environment_resolution_ = resolution;
 }
 
 

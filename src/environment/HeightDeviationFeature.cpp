@@ -28,7 +28,7 @@ HeightDeviationFeature::~HeightDeviationFeature()
 void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain_info)
 {
 	// Setting the grid resolution of the gridmap
-	space_discretization_.setEnvironmentResolution(terrain_info.resolution);
+	space_discretization_.setEnvironmentResolution(terrain_info.resolution, true);
 
 	// Getting the cell position
 	Eigen::Vector3d cell_position = terrain_info.position;
@@ -56,12 +56,13 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 			}
 		}
 	}
-	height_average /= counter;
+	if (counter != 0)
+		height_average /= counter;
 
 	// Computing the standard deviation of the height
 	for (double y = boundary_min(1); y < boundary_max(1); y += average_area_.grid_resolution) {
 		for (double x = boundary_min(0); x < boundary_max(0); x += average_area_.grid_resolution) {
-			Eigen::Vector2d coord; //TODO
+			Eigen::Vector2d coord;
 			coord(0) = x;
 			coord(1) = y;
 			Vertex vertex_2d;

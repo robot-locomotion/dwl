@@ -36,7 +36,8 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> reward_
 		// Setting the resolution of the environment
 		if (i == 0) {
 			printf("Setting the grid resolution to %f\n", reward_map[i].size);
-			setResolution(reward_map[i].size);
+			setResolution(reward_map[i].size, true);
+			setResolution(0.02, false); //TODO reward map
 		}
 
 		// Building a cost map for a every 3d vertex
@@ -45,7 +46,7 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> reward_
 
 		// Building a height map (3d vertex) according to certain 2d position (2d vertex)
 		double height;
-		space_discretization_.keyToCoord(height, reward_map[i].key.z);
+		space_discretization_.keyToCoord(height, reward_map[i].key.z, false);
 		terrain_height_map_[vertex_2d] = height;
 
 		average_cost_ += -reward_map[i].reward;
@@ -62,9 +63,9 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> reward_
 }
 
 
-void EnvironmentInformation::setResolution(double resolution)
+void EnvironmentInformation::setResolution(double resolution, bool plane)
 {
-	space_discretization_.setEnvironmentResolution(resolution);
+	space_discretization_.setEnvironmentResolution(resolution, plane);
 }
 
 

@@ -82,21 +82,22 @@ class RewardMap
 
 		/**
 		 * @brief Removes the cel to the reward map
-		 * @param dwl::Key key Cell key for removing to the reward map
+		 * @param Vertex cell_vertex Cell vertex for removing to the reward map
 		 */
-		void removeCellToRewardMap(Key key);
+		void removeCellToRewardMap(Vertex cell_vertex);
 
 		/**
 		 * @brief Adds a cell to the height map
-		 * @param dwl::Key key Cell key for adding to the height map
+		 * @param Vertex vertex Cell vertex for adding to the height map
+		 * @param double height Height value
 		 */
-		void addCellToTerrainHeightMap(Key key);
+		void addCellToTerrainHeightMap(Vertex cell_vertex, double height);
 
 		/**
 		 * @brief Removes a cell to the height map
-		 * @para dwl::Key key Cell key for removing to the height map
+		 * @para Vertex cell_vertex Cell vertex for removing to the height map
 		 */
-		void removeCellToTerrainHeightMap(Key key);
+		void removeCellToTerrainHeightMap(Vertex cell_vertex);
 
 		/**
 		 * @brief Adds a new search area around the current position of the robot
@@ -124,14 +125,16 @@ class RewardMap
 		/**
 		 * @brief Gets the environment resolution of the reward map
 		 * @param double Returns the resolution of the gridmap or height
+		 * @param bool plane Indicates if the key represents a plane or a height
 		 */
-		double getResolution();
+		double getResolution(bool plane);
 
 		/**
 		 * @brief Sets the resolution of the environment discretization
 		 * @ double resolution Resolution of the environment
+		 * @param bool plane Indicates if the key represents a plane or a height
 		 */
-		void setResolution(double resolution);
+		void setResolution(double resolution, bool plane);
 
 		/**
 		 * @brief Gets the reward map
