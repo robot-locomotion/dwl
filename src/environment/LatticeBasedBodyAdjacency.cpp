@@ -39,8 +39,8 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 	current_pose.orientation = current_state(2);
 
 	// Gets actions according the defined motor primitives of the body
+	//std::cout << "----------------------------------" << std::endl;
 	behavior_->generateActions(actions, current_pose);
-
 	if (environment_->isTerrainInformation()) {
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
@@ -48,6 +48,7 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 			// Converting the action to current vertex
 			Eigen::Vector3d action_states;
 			action_states << actions[i].pose.position, actions[i].pose.orientation;
+			//std::cout << "Successor state = " << action_states(0) << " " << action_states(1) << " " << action_states(2) << std::endl;
 
 			Vertex current_action_vertex, environment_vertex;
 			environment_->getSpaceModel().stateToVertex(current_action_vertex, action_states);
@@ -68,13 +69,10 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 				computeBodyCost(body_cost, current_action_vertex);
 				body_cost += actions[i].cost * 0; //TODO
 				successors.push_back(Edge(current_action_vertex, body_cost));
-				//std::cout << "Succesors (vertex | position | cost) = " << current << " | " << actions[i].pose.position(0) << " " << actions[i].pose.position(1) << " | " << body_cost << std::endl;
 			}
 		}
 	} else
 		printf(RED "Could not computed the successors because there isn't terrain information \n" COLOR_RESET);
-
-	//std::cout << "----------------------------------------------------------" << std::endl;
 }
 
 

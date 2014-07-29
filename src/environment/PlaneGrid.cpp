@@ -175,7 +175,8 @@ void SpaceDiscretization::stateToKey(unsigned short int& key, double state, cons
 			if ((state >= (2 * M_PI)) || (state <= 0))
 				state -= floor(state / (2 * M_PI)) * (2 * M_PI);
 
-			key = (unsigned short int) (floor(state / angular_resolution_) + max_key_val_);
+			unsigned short int max_key_yaw_val_ = 0;//floor((ceil(2 * M_PI / angular_resolution_) + 1) / 2);//TODO
+			key = (unsigned short int) (floor(state / angular_resolution_) + max_key_yaw_val_);
 		}
 	}
 }
@@ -192,8 +193,10 @@ void SpaceDiscretization::keyToState(double& state, const unsigned short int key
 	else {
 		if (angular_resolution_ == 0)
 			printf(RED "Could not the state because it was not defined the angular resolution" COLOR_RESET);
-		else
-			state = ((double) ((int) key - (int) max_key_val_) + 0.5) * angular_resolution_;
+		else {
+			unsigned short int max_key_yaw_val_ = 0;//floor((ceil(2 * M_PI / angular_resolution_) + 1) / 2);//TODO
+			state = ((double) ((int) key - (int) max_key_yaw_val_) + 0.5) * angular_resolution_;
+		}
 	}
 }
 

@@ -212,10 +212,8 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 
 	double distance = (target_state.head(2) - source_state.head(2)).norm();
 	double dist_orientation = target_state(2) - source_state(2);
-	//double dx = target_position(0) - source_position(0);
-	//double heading = abs(atan(dy / dx));
 
-	double heuristic = 2.5 * distance * uncertainty_factor_ * environment_->getAverageCostOfTerrain(); //TODO
+	double heuristic = (2.5 * distance + 3.15 * dist_orientation) * uncertainty_factor_ * environment_->getAverageCostOfTerrain(); //TODO
 
 	return heuristic;
 }
@@ -233,13 +231,16 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 		//TODO
 		double distant = (target_state.head(2) - current_state.head(2)).norm();
 		if (distant < epsilon) {
-			if (abs((double) target_state(2) - (double) current_state(2)) < epsilon) {
+			double err = target_state(2) - current_state(2);
+			double ab = std::abs(err);
+			std::cout << "Angle diff = " << ab << " | target angle = " << target_state(2) << " | current angle = " << current_state(2) << std::endl;
+			if (std::abs((double) target_state(2) - (double) current_state(2)) < 0.5) {//TODO
 				// Reconstructing path
-				std::cout << "Reached goal = " << current_state(0) << " " << current_state(1);
-				std::cout << " | Goal = " << target_state(0) << " " << target_state(1) << " | dist = " << distant << std::endl;
-			}
+				std::cout << "Reached goal = " << current_state(0) << " " << current_state(1) << " " << current_state(2);
+				std::cout << " | Goal = " << target_state(0) << " " << target_state(1) << " " << target_state(2) << " | dist = " << distant << std::endl;
 
-			return true;
+				return true;
+			}
 		}
 	} else {
 		if (current == target) {

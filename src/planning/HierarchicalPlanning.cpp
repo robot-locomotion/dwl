@@ -8,7 +8,7 @@ namespace dwl
 namespace planning
 {
 
-HierarchicalPlanning::HierarchicalPlanning() : goal_vertex_(0)
+HierarchicalPlanning::HierarchicalPlanning()
 {
 	name_ = "Hierarchical";
 }
@@ -35,19 +35,12 @@ void HierarchicalPlanning::resetGoal(Pose goal)
 	// Converting the start and goal position to vertex ids
 /*	initial_pose_ = start;*/
 	goal_pose_ =  goal;
-
-	// Converting pose to 3d state (x,y,yaw)/
-	Eigen::Vector3d goal_state;
-	poseToState(goal_state, goal);
-
-	if (environment_->isTerrainInformation())
-		environment_->getSpaceModel().stateToVertex(goal_vertex_, goal_state);
 }
 
 
 bool HierarchicalPlanning::compute(Pose current_pose)
 {
-	// Converting pose to 3d state (x,y,yaw)/
+	// Converting pose to 3d state (x,y,yaw)
 	Eigen::Vector3d current_state;
 	poseToState(current_state, current_pose);
 

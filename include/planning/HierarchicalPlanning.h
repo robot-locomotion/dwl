@@ -51,10 +51,6 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		 */
 		void poseToState(Eigen::Vector3d& state, Pose pose);
 
-		/** @brief The id of the goal vertex */
-		Vertex goal_vertex_;
-
-
 }; //@class HierarchicalPlanning
 
 

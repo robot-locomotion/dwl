@@ -11,6 +11,12 @@ namespace dwl
 namespace behavior
 {
 
+struct BodyMotorPrimitive
+{
+	Eigen::Vector3d action;
+	double cost;
+};
+
 /**
  * @class BodyMotorPrimitives
  * @brief Class for generating body motor primitives
@@ -33,6 +39,7 @@ class BodyMotorPrimitives : public MotorPrimitives
 
 
 	private:
+		std::vector<BodyMotorPrimitive> actions_;
 
 };
 
