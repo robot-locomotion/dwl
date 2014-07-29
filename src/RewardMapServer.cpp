@@ -71,7 +71,7 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 	model.octomap = octomap;
 
 	// Setting the resolution of the gridmap
-	//reward_map_->setResolution(octomap->getResolution());
+	reward_map_->setResolution(octomap->getResolution(), false);
 
 	// Getting the transformation between the world to robot frame
 	tf::StampedTransform tf_transform;
@@ -113,8 +113,8 @@ void RewardMapServer::publishRewardMap()
 	reward_gridmap = reward_map_->getRewardMap();
 
 	reward_map_server::RewardCell cell;
-	reward_map_msg_.cell_size = reward_map_->getResolution();
-	reward_map_msg_.modeler_size = reward_map_->getResolution(); //TODO
+	reward_map_msg_.cell_size = reward_map_->getResolution(true);
+	reward_map_msg_.modeler_size = reward_map_->getResolution(false);
 
 	// Converting the vertexs into a cell message
 	for (std::map<dwl::Vertex, dwl::Cell>::iterator vertex_iter = reward_gridmap.begin();
