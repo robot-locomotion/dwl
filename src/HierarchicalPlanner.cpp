@@ -62,11 +62,12 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	dwl::Cell reward_cell;
 	for (int i = 0; i < msg->cell.size(); i++) {
 		// Filling the reward per every cell
-		reward_cell.cell_key.grid_id.key[0] = msg->cell[i].key_x;
-		reward_cell.cell_key.grid_id.key[1] = msg->cell[i].key_y;
-		reward_cell.cell_key.height_id = msg->cell[i].key_z;
+		reward_cell.key.x = msg->cell[i].key_x;
+		reward_cell.key.y = msg->cell[i].key_y;
+		reward_cell.key.z = msg->cell[i].key_z;
 		reward_cell.reward = msg->cell[i].reward;
-		reward_cell.size = msg->cell_size;
+		reward_cell.plane_size = msg->plane_size;
+		reward_cell.height_size = msg->height_size;
 
 		// Adding the reward cell to the queue
 		reward_map.push_back(reward_cell);
@@ -74,7 +75,6 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 
 	// Adding the cost map
 	locomotor_.setTerrainInformation(reward_map);
-
 
 	// Getting the robot state (3D position and yaw angle)
 	Eigen::Vector3d robot_position;
@@ -93,9 +93,14 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 	dwl::Pose start_pose, goal_pose;
 //	start_pose.position[0] = robot_position(0);
 //	start_pose.position[1] = robot_position(1);
-	goal_pose.position[0] = 5.50;
+	goal_pose.position[0] = 3.50;
 	goal_pose.position[1] = -0.85;
+	dwl::Orientation orientation(0, 0, 1.45);
+	Eigen::Quaterniond q;
+	orientation.getQuaternion(q);
+	goal_pose.orientation = q;
 	locomotor_.resetGoal(goal_pose);
+
 
 	// Computing the locomotion plan
 	timespec start_rt, end_rt;
