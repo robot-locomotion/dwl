@@ -9,8 +9,7 @@ namespace environment
 
 
 RewardMap::RewardMap() : space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()), is_added_feature_(false),
-		is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()), interest_radius_y_(std::numeric_limits<double>::max()),
-		cell_size_(0.04)
+		is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()), interest_radius_y_(std::numeric_limits<double>::max())
 {
 
 }
@@ -90,7 +89,8 @@ void RewardMap::getCell(Cell& cell, double reward, Terrain terrain_info)
 {
 	space_discretization_.coordToKeyChecked(cell.key, terrain_info.position);
 	cell.reward = reward;
-	cell.size = cell_size_;
+	cell.plane_size = space_discretization_.getEnvironmentResolution(true);
+	cell.height_size = space_discretization_.getEnvironmentResolution(false);
 }
 
 

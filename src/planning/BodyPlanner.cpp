@@ -58,7 +58,7 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 	path_solver_->setCurrentPose(start_pose);
 
 	// Computing the body path using a graph searching algorithm
-	double computation_time = 10.55;
+	double computation_time = 1.75;
 	if (!path_solver_->compute(start_vertex, goal_vertex, computation_time))
 		return false;
 

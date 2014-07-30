@@ -162,9 +162,6 @@ class RewardMap
 		/** @brief Interest area */
 		double interest_radius_x_, interest_radius_y_;
 
-		/** @brief Cell size */
-		double cell_size_;
-
 		/** @brief Object of the NeighboringArea struct that defines the neighboring area */
 		NeighboringArea neighboring_area_;
 

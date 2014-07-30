@@ -39,7 +39,6 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 	current_pose.orientation = current_state(2);
 
 	// Gets actions according the defined motor primitives of the body
-	//std::cout << "----------------------------------" << std::endl;
 	behavior_->generateActions(actions, current_pose);
 	if (environment_->isTerrainInformation()) {
 		CostMap terrain_costmap;
@@ -48,11 +47,10 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 			// Converting the action to current vertex
 			Eigen::Vector3d action_states;
 			action_states << actions[i].pose.position, actions[i].pose.orientation;
-			//std::cout << "Successor state = " << action_states(0) << " " << action_states(1) << " " << action_states(2) << std::endl;
-
 			Vertex current_action_vertex, environment_vertex;
 			environment_->getSpaceModel().stateToVertex(current_action_vertex, action_states);
 
+			// Converting state vertex to environment vertex
 			environment_->getSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, current_action_vertex, XY_Y);
 
 			if (!isStanceAdjacency()) {
@@ -67,7 +65,7 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 				// Computing the body cost
 				double body_cost;
 				computeBodyCost(body_cost, current_action_vertex);
-				body_cost += actions[i].cost * 0; //TODO
+				body_cost += actions[i].cost; //TODO
 				successors.push_back(Edge(current_action_vertex, body_cost));
 			}
 		}

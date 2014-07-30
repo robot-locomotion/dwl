@@ -49,7 +49,6 @@ class AnytimeRepairingAStar : public Solver
 		 */
 		bool improvePath(SetQueue& openset_queue, Set& visitedset, Vertex target, double computation_time);
 
-		//SetQueue openset_queue_;
 
 		double initial_inflation_;
 
@@ -59,7 +58,7 @@ class AnytimeRepairingAStar : public Solver
 		double decrease_inflation_rate_;
 
 		CostMap g_cost_;
-		CostMap f_cost_;
+
 		int expansions_;
 
 

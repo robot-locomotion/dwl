@@ -8,7 +8,7 @@ namespace dwl
 namespace planning
 {
 
-AnytimeRepairingAStar::AnytimeRepairingAStar() : initial_inflation_(50.0), satisfied_inflation_(1.0), expansions_(0), decrease_inflation_rate_(0.01)
+AnytimeRepairingAStar::AnytimeRepairingAStar() : initial_inflation_(100.0), satisfied_inflation_(1.0), expansions_(0), decrease_inflation_rate_(0.2)
 {
 	name_ = "Anytime Repairing A*";
 	is_graph_searching_algorithm_ = true;
@@ -17,7 +17,8 @@ AnytimeRepairingAStar::AnytimeRepairingAStar() : initial_inflation_(50.0), satis
 
 AnytimeRepairingAStar::~AnytimeRepairingAStar()
 {
-
+	previous_.clear();
+	g_cost_.clear();
 }
 
 
@@ -29,8 +30,6 @@ bool AnytimeRepairingAStar::init()
 
 bool AnytimeRepairingAStar::compute(Vertex source, Vertex target, double computation_time)
 {
-	//bool
-
 	// Definiting the set of nodes already evaluated (openset), the set of tentative nodes to be evaluated (openset), and ordered openset queue
 	SetQueue openset_queue;
 	Set openset, visitedset;
@@ -52,28 +51,31 @@ bool AnytimeRepairingAStar::compute(Vertex source, Vertex target, double computa
 	g_cost_[target] = std::numeric_limits<double>::max();
 
 	// Estimated total cost from start to goal
-	f_cost_[source] = g_cost_[source] + satisfied_inflation_ * adjacency_->heuristicCostEstimate(source, target);
+	double f_cost = g_cost_[source] + satisfied_inflation_ * adjacency_->heuristicCostEstimate(source, target);
 
 	// Adding the start vertex to the openset
-	openset_queue.insert(std::pair<Weight, Vertex>(f_cost_[source], source));
+	openset_queue.insert(std::pair<Weight, Vertex>(f_cost, source));
 	openset[source] = true;
 
 	while ((satisfied_inflation_ > 1) && ((clock() - time_started_) < allocated_time_secs)) {
 
 		// Computing a path with reuse of states values
 		if (improvePath(openset_queue, visitedset, target, computation_time)) {
+			// Decreasing the current inflation gain
+			double min_f_cost = openset_queue.begin()->first +
+					satisfied_inflation_ * adjacency_->heuristicCostEstimate(openset_queue.begin()->second, target);
+			double next_inflation = g_cost_[target] / min_f_cost;
+			if (current_inflation > next_inflation)
+				current_inflation = next_inflation;
+
+			if (current_inflation < 1)
+				current_inflation = 1;
 			satisfied_inflation_ = current_inflation;
 		}
 
-		// Decreasing the current inflation gain
-		if (fabs(satisfied_inflation_ - current_inflation) < 0.0000001) {
-			current_inflation *= (1 - decrease_inflation_rate_);
-			if (current_inflation < 1)
-				current_inflation = 1;
-		}
-
-		//std::cout << "Time of computation = " << (clock() - time_started_) / CLOCKS_PER_SEC << std::endl;
+		std::cout << "Time of computation = " << (clock() - time_started_) / (double) CLOCKS_PER_SEC << std::endl;
 		//std::cout << "epsilon = " << satisfied_inflation_ << std::endl;
+		//std::cout << g_cost_[target] << std::endl;
 	}
 
 	std::cout << "Expansions = " << expansions_ << std::endl;
@@ -87,18 +89,11 @@ bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue, Set& visitedset
 	Set closedset;
 	SetQueue inconsistentset_queue;
 
-	bool is_found_path = false;
 	double allocated_time_secs = computation_time * (double) CLOCKS_PER_SEC;
-	while ((!openset_queue.empty()) && ((clock() - time_started_) < allocated_time_secs) && (g_cost_[target] > openset_queue.begin()->first)) { // Note that f_cost[target] = g_cost[target]
+	double min_f_cost = openset_queue.begin()->first +
+			satisfied_inflation_ * adjacency_->heuristicCostEstimate(openset_queue.begin()->second, target);
+	while ((!openset_queue.empty()) && ((clock() - time_started_) < allocated_time_secs) && (g_cost_[target] > min_f_cost)) { // Note that f_cost[target] = g_cost[target]
 		Vertex current = openset_queue.begin()->second;
-
-		// Checking if it is getted the target
-		if (adjacency_->isReachedGoal(target, current)) {
-			previous_[target] = current;
-			g_cost_[target] = g_cost_[current];
-			is_found_path = true;
-			continue;
-		}
 
 		// Deleting the current vertex to the openset list
 		openset_queue.erase(openset_queue.begin());
@@ -125,12 +120,12 @@ bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue, Set& visitedset
 			if (tentative_g_cost < g_cost_[neighbor]) {
 				previous_[neighbor] = current;
 				g_cost_[neighbor] = tentative_g_cost;
-				f_cost_[neighbor] = g_cost_[neighbor] + satisfied_inflation_ * adjacency_->heuristicCostEstimate(neighbor, target);
+				double f_cost = g_cost_[neighbor] + satisfied_inflation_ * adjacency_->heuristicCostEstimate(neighbor, target);
 
 				if (closedset.find(neighbor)->second == false) {
-					openset_queue.insert(std::pair<Weight, Vertex>(f_cost_[neighbor], neighbor));
+					openset_queue.insert(std::pair<Weight, Vertex>(f_cost, neighbor));
 				} else {
-					inconsistentset_queue.insert(std::pair<Weight, Vertex>(f_cost_[neighbor], neighbor));
+					inconsistentset_queue.insert(std::pair<Weight, Vertex>(f_cost, neighbor));
 				}
 			}
 		}
@@ -143,11 +138,15 @@ bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue, Set& visitedset
 			incons_iter != inconsistentset_queue.end(); incons_iter++)
 	{
 		double f_cost = incons_iter->first;
-		double vertex = incons_iter->second;
+		Vertex vertex = incons_iter->second;
 		openset_queue.insert(std::pair<Weight, Vertex>(f_cost, vertex));
 	}
 
-	return is_found_path;
+	// Computing the new minimun f cost
+	min_f_cost = openset_queue.begin()->first +
+				satisfied_inflation_ * adjacency_->heuristicCostEstimate(openset_queue.begin()->second, target);
+
+	return true;
 }
 
 } //@namespace planning

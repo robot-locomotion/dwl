@@ -31,11 +31,18 @@ class EnvironmentInformation
 		void setEnvironmentInformation(std::vector<Cell> reward_map);
 
 		/**
-		 * @brief Sets the resolution of the height or grid
+		 * @brief Sets the environment resolution of the plane or height
 		 * @param double resolution Resolution value
 		 * @param bool plane Indicates if the key represents a plane or a height
 		 */
-		void setResolution(double resolution, bool plane);
+		void setEnvironmentResolution(double resolution, bool plane);
+
+		/**
+		 * @brief Sets the state resolution of the plane or height
+		 * @param double position_resolution Position resolution value
+		 * @param double angular_resolution Angular resolution value
+		 */
+		void setStateResolution(double position_resolution, double angular_resolution);
 
 		/**
 		 * @brief Gets the terrain cost-map (using vertex id)

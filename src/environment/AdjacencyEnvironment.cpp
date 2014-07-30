@@ -148,10 +148,6 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		// Adding the goal to the adjacency map
 		closest_target = goal_closest_vertex;
 	}
-
-	//TODO
-/*	std::cout << "Closest source point = " << environment_->getGridModel().vertexToCoord(closest_source) << std::endl;
-	std::cout << "Closest target point = " << environment_->getGridModel().vertexToCoord(closest_target) << std::endl;*/
 }
 
 
@@ -213,7 +209,7 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 	double distance = (target_state.head(2) - source_state.head(2)).norm();
 	double dist_orientation = target_state(2) - source_state(2);
 
-	double heuristic = (2.5 * distance + 3.15 * dist_orientation) * uncertainty_factor_ * environment_->getAverageCostOfTerrain(); //TODO
+	double heuristic = (2.5 * distance + 0 * 3.15 * dist_orientation) * uncertainty_factor_ * environment_->getAverageCostOfTerrain(); //TODO
 
 	return heuristic;
 }
@@ -228,16 +224,21 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 		environment_->getSpaceModel().vertexToState(current_state, current);
 		environment_->getSpaceModel().vertexToState(target_state, target);
 
+		// Converting the angles for a range of [0,pi]
+		if (current_state(2) > M_PI) {
+			current_state(2) = current_state(2) - 2 * M_PI;
+		}
+		if (target_state(2) > M_PI) {
+			target_state(2) = target_state(2) - 2 * M_PI;
+		}
+
 		//TODO
 		double distant = (target_state.head(2) - current_state.head(2)).norm();
 		if (distant < epsilon) {
-			double err = target_state(2) - current_state(2);
-			double ab = std::abs(err);
-			std::cout << "Angle diff = " << ab << " | target angle = " << target_state(2) << " | current angle = " << current_state(2) << std::endl;
-			if (std::abs((double) target_state(2) - (double) current_state(2)) < 0.5) {//TODO
+			double angular_error = target_state(2) - current_state(2);
+
+			if (std::abs(angular_error) < epsilon) {
 				// Reconstructing path
-				std::cout << "Reached goal = " << current_state(0) << " " << current_state(1) << " " << current_state(2);
-				std::cout << " | Goal = " << target_state(0) << " " << target_state(1) << " " << target_state(2) << " | dist = " << distant << std::endl;
 
 				return true;
 			}

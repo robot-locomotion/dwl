@@ -101,7 +101,8 @@ struct Cell
 {
 	Key key;
 	double reward;
-	double size;
+	double plane_size;
+	double height_size;
 };
 
 /**

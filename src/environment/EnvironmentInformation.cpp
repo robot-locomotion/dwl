@@ -10,7 +10,7 @@ namespace environment
 EnvironmentInformation::EnvironmentInformation() : space_discretization_(0.04, 0.04, M_PI / 24), average_cost_(0),
 		terrain_information_(false)
 {
-	//TODO Thinks about the setting the resolutions
+
 }
 
 
@@ -34,10 +34,12 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> reward_
 	double resolution = std::numeric_limits<double>::max();
 	for (int i = 0; i < reward_map.size(); i++) {
 		// Setting the resolution of the environment
-		if (i == 0) {
-			printf("Setting the grid resolution to %f\n", reward_map[i].size);
-			setResolution(reward_map[i].size, true);
-			setResolution(0.02, false); //TODO reward map
+		if ((reward_map[i].plane_size != space_discretization_.getEnvironmentResolution(true)) ||
+				(reward_map[i].height_size != space_discretization_.getEnvironmentResolution(false))) {
+			printf("Setting the plane resolution to %f\n", reward_map[i].plane_size);
+			printf("Setting the height resolution to %f\n", reward_map[i].height_size);
+			setEnvironmentResolution(reward_map[i].plane_size, true);
+			setEnvironmentResolution(reward_map[i].height_size, false);
 		}
 
 		// Building a cost map for a every 3d vertex
@@ -51,8 +53,8 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> reward_
 
 		average_cost_ += -reward_map[i].reward;
 
-		if (reward_map[i].size < resolution) {
-			resolution = reward_map[i].size;
+		if (reward_map[i].plane_size < resolution) {
+			resolution = reward_map[i].plane_size;
 		}
 	}
 
@@ -63,9 +65,15 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> reward_
 }
 
 
-void EnvironmentInformation::setResolution(double resolution, bool plane)
+void EnvironmentInformation::setEnvironmentResolution(double resolution, bool plane)
 {
 	space_discretization_.setEnvironmentResolution(resolution, plane);
+}
+
+
+void EnvironmentInformation::setStateResolution(double position_resolution, double angular_resolution)
+{
+	space_discretization_.setStateResolution(position_resolution, angular_resolution);
 }
 
 
