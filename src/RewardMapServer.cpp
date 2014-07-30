@@ -113,8 +113,8 @@ void RewardMapServer::publishRewardMap()
 	reward_gridmap = reward_map_->getRewardMap();
 
 	reward_map_server::RewardCell cell;
-	reward_map_msg_.cell_size = reward_map_->getResolution(true);
-	reward_map_msg_.modeler_size = reward_map_->getResolution(false);
+	reward_map_msg_.plane_size = reward_map_->getResolution(true);
+	reward_map_msg_.height_size = reward_map_->getResolution(false);
 
 	// Converting the vertexs into a cell message
 	for (std::map<dwl::Vertex, dwl::Cell>::iterator vertex_iter = reward_gridmap.begin();
