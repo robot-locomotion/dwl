@@ -174,19 +174,24 @@ void RewardMapDisplay::incomingMessageCallback(const reward_map_server::RewardMa
 		if (max_reward < msg->cell[i].reward)
 			max_reward = msg->cell[i].reward;
 	}
-	grid_size_ = msg->cell_size;
-	height_size_ = msg->modeler_size;
+	grid_size_ = msg->plane_size;
+	height_size_ = msg->height_size;
 
 
 	// Getting reward values and size of the pixel
 	double cell_size = 0;
-	dwl::environment::PlaneGrid gridmap(grid_size_, height_size_); //TODO
+	dwl::environment::SpaceDiscretization space_discretization(grid_size_);
+	space_discretization.setEnvironmentResolution(height_size_, false);
 	for (int i = 0; i < msg->cell.size(); i++) {
 		// Getting cartesian information of the reward map
 		PointCloud::Point new_point;
-		new_point.position.x = gridmap.keyToCoord(msg->cell[i].key_x, true);
-		new_point.position.y = gridmap.keyToCoord(msg->cell[i].key_y, true);
-		new_point.position.z = gridmap.keyToCoord(msg->cell[i].key_z, false);
+		double x, y, z;
+		space_discretization.keyToCoord(x, msg->cell[i].key_x, true);
+		space_discretization.keyToCoord(y, msg->cell[i].key_y, true);
+		space_discretization.keyToCoord(z, msg->cell[i].key_z, false);
+		new_point.position.x = x;
+		new_point.position.y = y;
+		new_point.position.z = z;
 
 		// Setting the color of the cell acording the reward value
 		setColor(msg->cell[i].reward, min_reward, max_reward, color_factor_, new_point);
