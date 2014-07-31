@@ -32,12 +32,16 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	frontal_actions.push_back(action);
 	action << 0.3, 0.0, 0.0;
 	frontal_actions.push_back(action);
+//	action << 0.325, 0.0, 0.0;
+//	frontal_actions.push_back(action);
 	action << -0.1, 0.0, 0.0;
 	frontal_actions.push_back(action);
 	action << -0.2, 0.0, 0.0;
 	frontal_actions.push_back(action);
 	action << -0.3, 0.0, 0.0;
 	frontal_actions.push_back(action);
+//	action << -0.325, 0.0, 0.0;
+//	frontal_actions.push_back(action);
 	motor_actions.push_back(frontal_actions);
 
 	// Lateral actions
@@ -46,13 +50,13 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	lateral_actions.push_back(action);
 	action << 0.0, 0.15, 0.0;
 	lateral_actions.push_back(action);
-	action << 0.0, 0.25, 0.0;
+	action << 0.0, 0.225, 0.0;
 	lateral_actions.push_back(action);
 	action << 0.0, -0.05, 0.0;
 	lateral_actions.push_back(action);
 	action << 0.0, -0.15, 0.0;
 	lateral_actions.push_back(action);
-	action << 0.0, -0.25, 0.0;
+	action << 0.0, -0.225, 0.0;
 	lateral_actions.push_back(action);
 	motor_actions.push_back(lateral_actions);
 
@@ -66,13 +70,23 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	diagonal_actions.push_back(action);
 	action << -0.1, -0.05, 0.4636;
 	diagonal_actions.push_back(action);
-	action << 0.1, 0.1, 0.7854;
+
+	action << 0.15, 0.075, 0.4636;
 	diagonal_actions.push_back(action);
-	action << 0.1, -0.1, -0.7854;
+	action << 0.15, -0.075, -0.4636;
 	diagonal_actions.push_back(action);
-	action << -0.1, 0.1, -0.7854;
+	action << -0.15, 0.075, -0.4636;
 	diagonal_actions.push_back(action);
-	action << -0.1, -0.1, 0.7854;
+	action << -0.15, -0.075, 0.4636;
+	diagonal_actions.push_back(action);
+
+	action << 0.175, 0.095, 0.4973;
+	diagonal_actions.push_back(action);
+	action << 0.175, -0.095, -0.4973;
+	diagonal_actions.push_back(action);
+	action << -0.175, 0.095, -0.4973;
+	diagonal_actions.push_back(action);
+	action << -0.175, -0.095, 0.4973;
 	diagonal_actions.push_back(action);
 
 	action << 0.2, 0.05, 0.2450;
@@ -83,13 +97,23 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	diagonal_actions.push_back(action);
 	action << -0.2, -0.05, 0.2450;
 	diagonal_actions.push_back(action);
-	action << 0.2, 0.1, 0.4636;
+
+	action << 0.25, 0.085, 0.3277;
 	diagonal_actions.push_back(action);
-	action << 0.2, -0.1, -0.4636;
+	action << 0.25, -0.085, -0.3277;
 	diagonal_actions.push_back(action);
-	action << -0.2, 0.1, -0.4636;
+	action << -0.25, 0.085, -0.3277;
 	diagonal_actions.push_back(action);
-	action << -0.2, -0.1, 0.4636;
+	action << -0.25, -0.085, 0.3277;
+	diagonal_actions.push_back(action);
+
+	action << 0.275, 0.105, 0.3647;
+	diagonal_actions.push_back(action);
+	action << 0.275, -0.105, -0.3647;
+	diagonal_actions.push_back(action);
+	action << -0.275, 0.105, -0.3647;
+	diagonal_actions.push_back(action);
+	action << -0.275, -0.105, 0.3647;
 	diagonal_actions.push_back(action);
 
 	action << 0.3, 0.05, 0.1651;
@@ -100,7 +124,37 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	diagonal_actions.push_back(action);
 	action << -0.3, -0.05, 0.1651;
 	diagonal_actions.push_back(action);
+
+	/*action << 0.3, 0.075, 0.2450;
+	diagonal_actions.push_back(action);
+	action << 0.3, -0.075, -0.2450;
+	diagonal_actions.push_back(action);
+	action << -0.3, 0.075, -0.2450;
+	diagonal_actions.push_back(action);
+	action << -0.3, -0.075, 0.2450;
+	diagonal_actions.push_back(action);*/
+
+/*	action << 0.35, 0.075, 0.2111;
+	diagonal_actions.push_back(action);
+	action << 0.35, -0.075, -0.2111;
+	diagonal_actions.push_back(action);
+	action << -0.35, 0.075, -0.2111;
+	diagonal_actions.push_back(action);
+	action << -0.35, -0.075, 0.2111;
+	diagonal_actions.push_back(action);*/
+
+	/*action << 0.35, 0.125, 0.3430;
+	diagonal_actions.push_back(action);
+	action << 0.35, -0.125, -0.3430;
+	diagonal_actions.push_back(action);
+	action << -0.35, 0.125, -0.3430;
+	diagonal_actions.push_back(action);
+	action << -0.35, -0.125, 0.3430;
+	diagonal_actions.push_back(action);*/
 	motor_actions.push_back(diagonal_actions);
+
+
+
 
 	// Twist actions
 	std::vector<Eigen::Vector3d> twist_actions;
@@ -124,7 +178,17 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 
 
 	for (int i = 0; i < motor_actions.size(); i++) {
+		std::cout << "Type of action = " << i << std::endl;
 		for (int j = 0; j < motor_actions[i].size(); j++) {
+			double current_x, next_x, current_y, next_y;
+			current_x = 0.4269;
+			current_y = 0.3886;
+			next_x = motor_actions[i][j](0) + (current_x * cos((double) motor_actions[i][j](2)) - current_y * sin((double) motor_actions[i][j](2)));
+			next_y = motor_actions[i][j](1) + (current_x * sin((double) motor_actions[i][j](2)) + current_y * cos((double) motor_actions[i][j](2)));
+
+			double distance = pow(pow(next_x - current_x, 2) + pow(next_y - current_y, 2), 0.5);
+			std::cout << "Distance of the action = " << distance << std::endl;
+
 			primitives.action = motor_actions[i][j];
 			primitives.cost = motor_costs[i];
 			actions_.push_back(primitives);

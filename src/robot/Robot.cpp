@@ -27,10 +27,10 @@ Robot::Robot() : number_legs_(4)
 
 	// Defining the search areas for the stance position of HyQ
 	for (int i = 0; i < number_legs_; i++) {
-		area.max_x = stance_position_[i][0] + 0.1;
-		area.min_x = stance_position_[i][0] - 0.1;
-		area.max_y = stance_position_[i][1] + 0.1;
-		area.min_y = stance_position_[i][1] - 0.1;
+		area.max_x = stance_position_[i](0) + 0.1;
+		area.min_x = stance_position_[i](0) - 0.1;
+		area.max_y = stance_position_[i](1) + 0.1;
+		area.min_y = stance_position_[i](1) - 0.1;
 		stance_areas_.push_back(area);
 	}
 }
@@ -58,6 +58,7 @@ const std::vector<Eigen::Vector2d>& Robot::getStancePosition() const
 {
 	return stance_position_;
 }
+
 
 int Robot::getNextLeg(int sequence) const
 {

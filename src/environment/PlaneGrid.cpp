@@ -1,6 +1,5 @@
 #include <environment/PlaneGrid.h>
 #include <iostream>
-#include <utils/macros.h>
 
 
 namespace dwl
@@ -13,7 +12,9 @@ SpaceDiscretization::SpaceDiscretization(double environment_resolution) :
 		plane_environment_resolution_(environment_resolution), height_environment_resolution_(environment_resolution),
 		position_resolution_(0), angular_resolution_(0), max_key_val_(32768)
 {
-
+	max_key_count_ = std::numeric_limits<unsigned short int>::max() + 1;
+	max_position_count_ = std::numeric_limits<unsigned short int>::max() + 1;
+	max_yaw_count_ = ceil(2 * M_PI / angular_resolution_) + 1;
 }
 
 
@@ -21,7 +22,9 @@ SpaceDiscretization::SpaceDiscretization(double environment_resolution, double p
 		plane_environment_resolution_(environment_resolution), height_environment_resolution_(environment_resolution), position_resolution_(position_resolution),
 		angular_resolution_(0), max_key_val_(32768)
 {
-
+	max_key_count_ = std::numeric_limits<unsigned short int>::max() + 1;
+	max_position_count_ = std::numeric_limits<unsigned short int>::max() + 1;
+	max_yaw_count_ = ceil(2 * M_PI / angular_resolution_) + 1;
 }
 
 
@@ -29,7 +32,9 @@ SpaceDiscretization::SpaceDiscretization(double environment_resolution, double p
 		plane_environment_resolution_(environment_resolution), height_environment_resolution_(environment_resolution), position_resolution_(position_resolution),
 		angular_resolution_(angular_resolution), max_key_val_(32768)
 {
-
+	max_key_count_ = std::numeric_limits<unsigned short int>::max() + 1;
+	max_position_count_ = std::numeric_limits<unsigned short int>::max() + 1;
+	max_yaw_count_ = ceil(2 * M_PI / angular_resolution_) + 1;
 }
 
 
@@ -59,7 +64,7 @@ bool SpaceDiscretization::coordToKeyChecked(unsigned short int& key, const doubl
 	coordToKey(scaled_coord, coordinate, plane);
 
 	// keyval within range of tree?
-	if (( scaled_coord >= 0) && (((unsigned int) scaled_coord) < (2 * max_key_val_))) {
+	if ((scaled_coord >= 0) && (((unsigned int) scaled_coord) < (2 * max_key_val_))) {
 		key = scaled_coord;
     	return true;
 	}
@@ -98,14 +103,13 @@ void SpaceDiscretization::keyToVertex(Vertex& vertex, const Key key, const bool 
 
 void SpaceDiscretization::vertexToKey(Key& key, const Vertex vertex, const bool plane) const
 {
-	unsigned long int max_count = std::numeric_limits<unsigned short int>::max() + 1;
 	if (plane) {
-		key.x = floor(vertex / max_count);
-		key.y = vertex - max_count * key.x;
+		key.x = floor(vertex / max_key_count_);
+		key.y = vertex - max_key_count_ * key.x;
 	} else {
-		key.x = floor(vertex / (max_count * max_count));
-		key.y = floor(vertex / max_count) - max_count * key.x;
-		key.z = vertex - max_count * key.y - max_count * max_count * key.x;
+		key.x = floor(vertex / (max_key_count_ * max_key_count_));
+		key.y = floor(vertex / max_key_count_) - max_key_count_ * key.x;
+		key.z = vertex - max_key_count_ * key.y - max_key_count_ * max_key_count_ * key.x;
 	}
 }
 
@@ -172,8 +176,8 @@ void SpaceDiscretization::stateToKey(unsigned short int& key, double state, cons
 		if (angular_resolution_ == 0)
 			printf(RED "Could not get the key because it was not defined the angular resolution" COLOR_RESET);
 		else {
-			if ((state >= (2 * M_PI)) || (state <= 0))
-				state -= floor(state / (2 * M_PI)) * (2 * M_PI);
+			utils::Math math;
+			math.normalizeAngle(state, ZeroTo2Pi);
 
 			unsigned short int max_key_yaw_val_ = 0;//floor((ceil(2 * M_PI / angular_resolution_) + 1) / 2);//TODO
 			key = (unsigned short int) (floor(state / angular_resolution_) + max_key_yaw_val_);
@@ -208,9 +212,7 @@ void SpaceDiscretization::stateToVertex(Vertex& vertex, const Eigen::Vector2d st
 	stateToKey(key_x, (double) state(0), true);
 	stateToKey(key_y, (double) state(1), true);
 
-	unsigned long int max_position_count = std::numeric_limits<unsigned short int>::max() + 1;
-
-	vertex = (unsigned long int) (key_y + max_position_count * key_x);
+	vertex = (unsigned long int) (key_y + max_position_count_ * key_x);
 }
 
 
@@ -222,10 +224,7 @@ void SpaceDiscretization::stateToVertex(Vertex& vertex, const Eigen::Vector3d st
 	stateToKey(key_y, (double) state(1), true);
 	stateToKey(key_yaw, (double) state(2), false);
 
-	unsigned long int max_position_count = std::numeric_limits<unsigned short int>::max() + 1;
-	unsigned long int max_yaw_count = ceil(2 * M_PI / angular_resolution_) + 1;
-
-	vertex = (unsigned long int) key_yaw + max_yaw_count * key_y + max_yaw_count * max_position_count * key_x;
+	vertex = (unsigned long int) key_yaw + max_yaw_count_ * key_y + max_yaw_count_ * max_position_count_ * key_x;
 }
 
 
@@ -246,11 +245,9 @@ void SpaceDiscretization::vertexToState(Eigen::Vector2d& state, Vertex vertex) c
 
 void SpaceDiscretization::vertexToState(Eigen::Vector3d& state, Vertex vertex) const
 {
-	unsigned long int max_position_count = std::numeric_limits<unsigned short int>::max() + 1;
-	unsigned int max_yaw_count = ceil(2 * M_PI / angular_resolution_) + 1;
-	unsigned short int key_x = floor(vertex / (max_position_count * max_yaw_count));
-	unsigned short int key_y = floor(vertex / max_yaw_count) - max_position_count * key_x;
-	unsigned short int key_yaw = vertex - max_yaw_count * key_y - max_yaw_count * max_position_count * key_x;
+	unsigned short int key_x = floor(vertex / (max_position_count_ * max_yaw_count_));
+	unsigned short int key_y = floor(vertex / max_yaw_count_) - max_position_count_ * key_x;
+	unsigned short int key_yaw = vertex - max_yaw_count_ * key_y - max_yaw_count_ * max_position_count_ * key_x;
 
 	double x, y, yaw;
 	keyToState(x, key_x, true);
@@ -323,8 +320,10 @@ void SpaceDiscretization::setEnvironmentResolution(double resolution, const bool
 void SpaceDiscretization::setStateResolution(double position_resolution, double angular_resolution)
 {
 	position_resolution_ = position_resolution;
-	if (angular_resolution != 0)
+	if (angular_resolution != 0) {
 		angular_resolution_ = angular_resolution;
+		max_yaw_count_ = ceil(2 * M_PI / angular_resolution_) + 1;
+	}
 }
 
 } //@namespace environment

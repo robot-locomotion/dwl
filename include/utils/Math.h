@@ -1,12 +1,15 @@
 #ifndef DWL_Math_H
 #define DWL_Math_H
 
+#include <utils/macros.h>
 #include <Eigen/Dense>
 #include <vector>
 
 
 namespace dwl
 {
+
+enum AngleRepresentation {ZeroTo2Pi, MinusPiToPi};
 
 namespace utils
 {
@@ -19,10 +22,12 @@ class Math
 {
 	public:
 		/** @brief Constructor function */
-		Math() {};
+		Math();
 
 		/** @brief Destructor function */
-		~Math() {};
+		~Math();
+
+		void normalizeAngle(double& angle, AngleRepresentation angle_notation);
 
 		/**
 		 * @brief Computes the mean and covariance of the cloud of 3D points
@@ -60,7 +65,6 @@ class Math
 };
 
 } //@namespace utils
-
 } //@namespace dwl
 
 

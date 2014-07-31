@@ -3,6 +3,7 @@
 
 #include <environment/EnvironmentInformation.h>
 #include <robot/Robot.h>
+#include <utils/Math.h>
 #include <utils/utils.h>
 #include <utils/Orientation.h>
 

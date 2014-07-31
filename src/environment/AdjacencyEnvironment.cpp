@@ -206,10 +206,19 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 	environment_->getSpaceModel().vertexToState(source_state, source);
 	environment_->getSpaceModel().vertexToState(target_state, target);
 
+	// Normalizing the angles for a range of [-pi,pi]
+	utils::Math math;
+	double current_angle, target_angle;
+	math.normalizeAngle(current_angle, MinusPiToPi);
+	math.normalizeAngle(target_angle, MinusPiToPi);
+	source_state(2) = current_angle;
+	target_state(2) = target_angle;
+
+	// Computing the distance
 	double distance = (target_state.head(2) - source_state.head(2)).norm();
 	double dist_orientation = target_state(2) - source_state(2);
 
-	double heuristic = (2.5 * distance + 0 * 3.15 * dist_orientation) * uncertainty_factor_ * environment_->getAverageCostOfTerrain(); //TODO
+	double heuristic = (2.5 * distance + 3.15 * dist_orientation) * uncertainty_factor_ * environment_->getAverageCostOfTerrain(); //TODO
 
 	return heuristic;
 }
@@ -224,13 +233,13 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 		environment_->getSpaceModel().vertexToState(current_state, current);
 		environment_->getSpaceModel().vertexToState(target_state, target);
 
-		// Converting the angles for a range of [0,pi]
-		if (current_state(2) > M_PI) {
-			current_state(2) = current_state(2) - 2 * M_PI;
-		}
-		if (target_state(2) > M_PI) {
-			target_state(2) = target_state(2) - 2 * M_PI;
-		}
+		// Normalizing the angles for a range of [-pi,pi] //TODO
+		utils::Math math;
+		double current_angle, target_angle;
+		math.normalizeAngle(current_angle, MinusPiToPi);
+		math.normalizeAngle(target_angle, MinusPiToPi);
+		current_state(2) = current_angle;
+		target_state(2) = target_angle;
 
 		//TODO
 		double distant = (target_state.head(2) - current_state.head(2)).norm();
@@ -258,34 +267,6 @@ bool AdjacencyEnvironment::isLatticeRepresentation()
 {
 	return is_lattice_;
 }
-
-
-//TODO
-/*
-Eigen::Vector3d AdjacencyEnvironment::getPosition(Vertex vertex)
-{
-	return environment_->getGridModel().vertexToCoord(vertex);
-}
-
-
-Vertex AdjacencyEnvironment::getVertex(Pose pose)
-{
-	return environment_->getGridModel().stateToVertex((Eigen::Vector2d) pose.position.head(2));//TODO
-}
-
-
-Pose AdjacencyEnvironment::getPose(Vertex vertex)
-{
-	Pose pose;
-	pose.position.head(2) = environment_->getGridModel().vertexToCoord(vertex);
-	return pose;
-}
-
-
-const std::map<Vertex, double>& AdjacencyEnvironment::getOrientations() const
-{
-	return orientations_;
-}*/
 
 
 std::string AdjacencyEnvironment::getName()

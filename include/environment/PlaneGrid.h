@@ -1,7 +1,7 @@
 #ifndef DWL_SpaceDiscretization_H
 #define DWL_SpaceDiscretization_H
 
-#include <math.h>
+#include <utils/Math.h>
 #include <utils/utils.h>
 
 
@@ -201,9 +201,6 @@ class SpaceDiscretization
 
 
 	private:
-		/** @brief The maximun number of discreted key */
-		const unsigned short int max_key_val_;
-
 		/** @brief The resolution of the plane of the environment */
 		double plane_environment_resolution_;  ///< in meters
 
@@ -215,6 +212,17 @@ class SpaceDiscretization
 
 		/** @brief The resolution of the angular's variables of the state */
 		double angular_resolution_;  ///< in radians
+
+		/** @brief The maximun number of discreted key */
+		const unsigned short int max_key_val_;
+
+		/** @brief Maximun count for key variables */
+		unsigned long int max_key_count_;
+		/** @brief Maximun count for angular state variables */
+		unsigned long int max_yaw_count_;
+
+		/** @brief Maximun count for position state variables */
+		unsigned long int max_position_count_;
 };
 
 } //@namespace environment

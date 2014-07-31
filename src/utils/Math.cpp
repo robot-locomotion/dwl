@@ -7,6 +7,43 @@ namespace dwl
 namespace utils
 {
 
+Math::Math()
+{
+
+}
+
+
+Math::~Math()
+{
+
+}
+
+
+void Math::normalizeAngle(double& angle, AngleRepresentation angle_notation)
+{
+	switch (angle_notation) {
+		case ZeroTo2Pi:
+			// Normalizing the angle between [0,2*pi]
+			if ((angle >= (2 * M_PI)) || (angle <= 0))
+				angle -= floor(angle / (2 * M_PI)) * (2 * M_PI);
+			break;
+
+		case MinusPiToPi:
+			// Normalizing the angle between [0,2*pi]
+			if ((angle >= (2 * M_PI)) || (angle <= 0))
+				angle -= floor(angle / (2 * M_PI)) * (2 * M_PI);
+
+			// Normalizing the angle between [0,pi]
+			if ((angle > M_PI) || (angle < (2 * M_PI)))
+				angle -= 2 * M_PI;
+			break;
+
+		default:
+			printf(YELLOW "Warning: it was not normalize the angle because the angle notation is incoherent \n" COLOR_RESET);
+			break;
+	}
+}
+
 
 unsigned int Math::computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> cloud, Eigen::Matrix3d &covariance_matrix, Eigen::Vector3d &mean)
 {
@@ -172,8 +209,5 @@ void Math::computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d
 	roots(1) = 0.5f * (b - sd);
 }
 
-
-
 } //@namespace utils
-
 } //@namespace dwl
