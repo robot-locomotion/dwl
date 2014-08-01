@@ -12,9 +12,9 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	// Defining the cost per movement class
 	std::vector<double> motor_costs;
 	double frontal_cost = 0.5;
-	double lateral_cost = 0.75;
+	double lateral_cost = 1.0;
 	double diagonal_cost = 0.5;
-	double twist_cost = 1;
+	double twist_cost = 1.0;
 	motor_costs.push_back(frontal_cost);
 	motor_costs.push_back(lateral_cost);
 	motor_costs.push_back(diagonal_cost);
@@ -48,113 +48,111 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	std::vector<Eigen::Vector3d> lateral_actions;
 	action << 0.0, 0.05, 0.0;
 	lateral_actions.push_back(action);
-	action << 0.0, 0.15, 0.0;
+	action << 0.0, 0.1, 0.0;
 	lateral_actions.push_back(action);
-	action << 0.0, 0.225, 0.0;
-	lateral_actions.push_back(action);
+//	action << 0.0, 0.225, 0.0;
+//	lateral_actions.push_back(action);
 	action << 0.0, -0.05, 0.0;
 	lateral_actions.push_back(action);
-	action << 0.0, -0.15, 0.0;
+	action << 0.0, -0.1, 0.0;
 	lateral_actions.push_back(action);
-	action << 0.0, -0.225, 0.0;
-	lateral_actions.push_back(action);
+//	action << 0.0, -0.225, 0.0;
+//	lateral_actions.push_back(action);
 	motor_actions.push_back(lateral_actions);
 
 	// Diagonal actions
 	std::vector<Eigen::Vector3d> diagonal_actions;
-	action << 0.1, 0.05, 0.4636;
+	action << 0.015, 0.01, 0.5880;
 	diagonal_actions.push_back(action);
-	action << 0.1, -0.05, -0.4636;
+	action << 0.015, -0.01, -0.5880;
 	diagonal_actions.push_back(action);
-	action << -0.1, 0.05, -0.4636;
+	action << -0.015, 0.01, -0.5880;
 	diagonal_actions.push_back(action);
-	action << -0.1, -0.05, 0.4636;
-	diagonal_actions.push_back(action);
-
-	action << 0.15, 0.075, 0.4636;
-	diagonal_actions.push_back(action);
-	action << 0.15, -0.075, -0.4636;
-	diagonal_actions.push_back(action);
-	action << -0.15, 0.075, -0.4636;
-	diagonal_actions.push_back(action);
-	action << -0.15, -0.075, 0.4636;
+	action << -0.015, -0.01, 0.5880;
 	diagonal_actions.push_back(action);
 
-	action << 0.175, 0.095, 0.4973;
+	action << 0.035, 0.02, 0.5191;
 	diagonal_actions.push_back(action);
-	action << 0.175, -0.095, -0.4973;
+	action << 0.035, -0.02, -0.5191;
 	diagonal_actions.push_back(action);
-	action << -0.175, 0.095, -0.4973;
+	action << -0.035, 0.02, -0.5191;
 	diagonal_actions.push_back(action);
-	action << -0.175, -0.095, 0.4973;
-	diagonal_actions.push_back(action);
-
-	action << 0.2, 0.05, 0.2450;
-	diagonal_actions.push_back(action);
-	action << 0.2, -0.05, -0.2450;
-	diagonal_actions.push_back(action);
-	action << -0.2, 0.05, -0.2450;
-	diagonal_actions.push_back(action);
-	action << -0.2, -0.05, 0.2450;
+	action << -0.035, -0.02, 0.5191;
 	diagonal_actions.push_back(action);
 
-	action << 0.25, 0.085, 0.3277;
+	action << 0.035, 0.017, 0.4522;
 	diagonal_actions.push_back(action);
-	action << 0.25, -0.085, -0.3277;
+	action << 0.035, -0.017, -0.4522;
 	diagonal_actions.push_back(action);
-	action << -0.25, 0.085, -0.3277;
+	action << -0.035, 0.017, -0.4522;
 	diagonal_actions.push_back(action);
-	action << -0.25, -0.085, 0.3277;
-	diagonal_actions.push_back(action);
-
-	action << 0.275, 0.105, 0.3647;
-	diagonal_actions.push_back(action);
-	action << 0.275, -0.105, -0.3647;
-	diagonal_actions.push_back(action);
-	action << -0.275, 0.105, -0.3647;
-	diagonal_actions.push_back(action);
-	action << -0.275, -0.105, 0.3647;
+	action << -0.035, -0.017, 0.4522;
 	diagonal_actions.push_back(action);
 
-	action << 0.3, 0.05, 0.1651;
+	action << 0.1, 0.035, 0.3367;
 	diagonal_actions.push_back(action);
-	action << 0.3, -0.05, -0.1651;
+	action << 0.1, -0.035, -0.3367;
 	diagonal_actions.push_back(action);
-	action << -0.3, 0.05, -0.1651;
+	action << -0.1, 0.035, -0.3367;
 	diagonal_actions.push_back(action);
-	action << -0.3, -0.05, 0.1651;
+	action << -0.1, -0.035, 0.3367;
 	diagonal_actions.push_back(action);
 
-	/*action << 0.3, 0.075, 0.2450;
+	action << 0.15, 0.055, 0.3514;
 	diagonal_actions.push_back(action);
-	action << 0.3, -0.075, -0.2450;
+	action << 0.15, -0.055, -0.3514;
 	diagonal_actions.push_back(action);
-	action << -0.3, 0.075, -0.2450;
+	action << -0.15, 0.055, -0.3514;
 	diagonal_actions.push_back(action);
-	action << -0.3, -0.075, 0.2450;
-	diagonal_actions.push_back(action);*/
+	action << -0.15, -0.055, 0.3514;
+	diagonal_actions.push_back(action);
 
-/*	action << 0.35, 0.075, 0.2111;
+	action << 0.175, 0.06, 0.3303;
 	diagonal_actions.push_back(action);
-	action << 0.35, -0.075, -0.2111;
+	action << 0.175, -0.06, -0.3303;
 	diagonal_actions.push_back(action);
-	action << -0.35, 0.075, -0.2111;
+	action << -0.175, 0.06, -0.3303;
 	diagonal_actions.push_back(action);
-	action << -0.35, -0.075, 0.2111;
-	diagonal_actions.push_back(action);*/
+	action << -0.175, -0.06, 0.3303;
+	diagonal_actions.push_back(action);
 
-	/*action << 0.35, 0.125, 0.3430;
+	action << 0.2, 0.04, 0.1973;
 	diagonal_actions.push_back(action);
-	action << 0.35, -0.125, -0.3430;
+	action << 0.2, -0.04, -0.1973;
 	diagonal_actions.push_back(action);
-	action << -0.35, 0.125, -0.3430;
+	action << -0.2, 0.04, -0.1973;
 	diagonal_actions.push_back(action);
-	action << -0.35, -0.125, 0.3430;
-	diagonal_actions.push_back(action);*/
+	action << -0.2, -0.04, 0.1973;
+	diagonal_actions.push_back(action);
+
+	action << 0.25, 0.05, 0.1974;
+	diagonal_actions.push_back(action);
+	action << 0.25, -0.05, -0.1974;
+	diagonal_actions.push_back(action);
+	action << -0.25, 0.05, -0.1974;
+	diagonal_actions.push_back(action);
+	action << -0.25, -0.05, 0.1974;
+	diagonal_actions.push_back(action);
+
+	action << 0.275, 0.05, 0.1799;
+	diagonal_actions.push_back(action);
+	action << 0.275, -0.05, -0.1799;
+	diagonal_actions.push_back(action);
+	action << -0.275, 0.05, -0.1799;
+	diagonal_actions.push_back(action);
+	action << -0.275, -0.05, 0.1799;
+	diagonal_actions.push_back(action);
+
+	action << 0.3, 0.035, 0.1161;
+	diagonal_actions.push_back(action);
+	action << 0.3, -0.035, -0.1161;
+	diagonal_actions.push_back(action);
+	action << -0.3, 0.035, -0.1161;
+	diagonal_actions.push_back(action);
+	action << -0.3, -0.035, 0.1161;
+	diagonal_actions.push_back(action);
+
 	motor_actions.push_back(diagonal_actions);
-
-
-
 
 	// Twist actions
 	std::vector<Eigen::Vector3d> twist_actions;
@@ -173,6 +171,10 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	action << 0.0, 0.0, 0.45;
 	twist_actions.push_back(action);
 	action << 0.0, 0.0, -0.45;
+	twist_actions.push_back(action);
+	action << 0.0, 0.0, 0.60;
+	twist_actions.push_back(action);
+	action << 0.0, 0.0, -0.60;
 	twist_actions.push_back(action);
 	motor_actions.push_back(twist_actions);
 

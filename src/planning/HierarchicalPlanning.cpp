@@ -65,11 +65,11 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 			return false;
 		}
 
-		for (int i = 1; i < 3; i++) {//body_path_.size(); i++) {
-			/*Orientation orientation(body_path_[i].orientation);
+		for (int i = 1; i < body_path_.size(); i++) {//3; i++) {
+			Orientation orientation(body_path_[i].orientation);
 			double roll, pitch, yaw;
 			orientation.getRPY(roll, pitch, yaw);
-			std::cout << "Plan = " << body_path_[i].position(0) << " " << body_path_[i].position(1) << " " << yaw << std::endl;*/
+			std::cout << "Plan = " << body_path_[i].position(0) << " " << body_path_[i].position(1) << " " << yaw << std::endl;
 			if (!footstep_planner_->computeFootholds(contacts_sequence_, body_path_[i])) {
 				printf(YELLOW "Could not computed the footholds \n" COLOR_RESET);
 				return false;

@@ -208,7 +208,7 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 
 	// Normalizing the angles for a range of [-pi,pi]
 	utils::Math math;
-	double current_angle, target_angle;
+	double current_angle = source_state(2), target_angle = target_state(2);
 	math.normalizeAngle(current_angle, MinusPiToPi);
 	math.normalizeAngle(target_angle, MinusPiToPi);
 	source_state(2) = current_angle;
@@ -216,9 +216,9 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 
 	// Computing the distance
 	double distance = (target_state.head(2) - source_state.head(2)).norm();
-	double dist_orientation = target_state(2) - source_state(2);
+	double dist_orientation = sqrt(pow(((double) target_state(2) - (double) source_state(2)), 2));
 
-	double heuristic = (2.5 * distance + 3.15 * dist_orientation) * uncertainty_factor_ * environment_->getAverageCostOfTerrain(); //TODO
+	double heuristic = (2.5 * distance + 0.35 * dist_orientation) * uncertainty_factor_ * environment_->getAverageCostOfTerrain(); //TODO
 
 	return heuristic;
 }

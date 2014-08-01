@@ -34,8 +34,9 @@ void Math::normalizeAngle(double& angle, AngleRepresentation angle_notation)
 				angle -= floor(angle / (2 * M_PI)) * (2 * M_PI);
 
 			// Normalizing the angle between [0,pi]
-			if ((angle > M_PI) || (angle < (2 * M_PI)))
+			if ((angle > M_PI) && (angle < (2 * M_PI))) {
 				angle -= 2 * M_PI;
+			}
 			break;
 
 		default:
