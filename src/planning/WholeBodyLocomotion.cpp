@@ -106,7 +106,7 @@ bool WholeBodyLocomotion::compute(Pose current_pose)
 }
 
 
-void WholeBodyLocomotion::setTerrainInformation(std::vector<Cell> reward_map)
+void WholeBodyLocomotion::setTerrainInformation(std::vector<RewardCell> reward_map)
 {
 	if (is_settep_planner_) {
 		planner_->setEnvironmentInformation(reward_map);

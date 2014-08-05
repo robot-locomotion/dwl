@@ -71,9 +71,9 @@ class WholeBodyLocomotion
 
 		/**
 		 * @brief Sets the reward map of the terrain
-		 * @param std::vector<dwl::Cell> reward_map Reward map of the terrain
+		 * @param std::vector<dwl::RewardCell> reward_map Reward map of the terrain
 		 */
-		void setTerrainInformation(std::vector<Cell> reward_map);
+		void setTerrainInformation(std::vector<RewardCell> reward_map);
 
 		/**
 		 * @brief Changes the goal

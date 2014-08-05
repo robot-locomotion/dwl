@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 
 	// Initialization and computing of the whole-body locomotion problem
 	dwl::Pose start, goal, current;
-	std::vector<dwl::Cell> reward_map;
+	std::vector<dwl::RewardCell> reward_map;
 	locomotor.init();
 
 	Eigen::Vector3d robot_state = Eigen::Vector3d::Zero();

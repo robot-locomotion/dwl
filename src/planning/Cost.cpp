@@ -19,7 +19,7 @@ Cost::~Cost()
 }
 
 
-void Cost::setCostMap(std::vector<Cell> reward_map)
+void Cost::setCostMap(std::vector<RewardCell> reward_map)
 {
 	printf(YELLOW "Could not setted the cost map because this is not cost map class\n" COLOR_RESET);
 }
@@ -43,6 +43,7 @@ bool Cost::isCostMap()
 {
 	return is_cost_map_;
 }
+
 
 std::string dwl::planning::Cost::getName()
 {

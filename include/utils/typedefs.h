@@ -95,9 +95,9 @@ struct Key
 };
 
 /**
- * @brief Struct that defines the information of the cell
+ * @brief Struct that defines the reward information of the cell
  */
-struct Cell
+struct RewardCell
 {
 	Key key;
 	double reward;

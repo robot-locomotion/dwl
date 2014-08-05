@@ -53,7 +53,7 @@ void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 	// Getting the orientation of the body
 	double yaw = robot_state(2);
 
-	for (std::map<Vertex, Cell>::iterator vertex_iter = reward_gridmap_.begin();
+	for (std::map<Vertex,RewardCell>::iterator vertex_iter = reward_gridmap_.begin();
 			vertex_iter != reward_gridmap_.end();
 			vertex_iter++)
 	{
@@ -85,7 +85,7 @@ void RewardMap::setInterestRegion(double radius_x, double radius_y)
 }
 
 
-void RewardMap::getCell(Cell& cell, double reward, Terrain terrain_info)
+void RewardMap::getCell(RewardCell& cell, double reward, Terrain terrain_info)
 {
 	space_discretization_.coordToKeyChecked(cell.key, terrain_info.position);
 	cell.reward = reward;
@@ -100,7 +100,7 @@ void RewardMap::getCell(Key& key, Eigen::Vector3d position)
 }
 
 
-void RewardMap::addCellToRewardMap(Cell cell)
+void RewardMap::addCellToRewardMap(RewardCell cell)
 {
 	Vertex vertex_id;
 	space_discretization_.keyToVertex(vertex_id, cell.key, true);
@@ -169,7 +169,7 @@ void RewardMap::setResolution(double resolution, bool plane)
 }
 
 
-const std::map<Vertex,Cell>& RewardMap::getRewardMap() const
+const std::map<Vertex,RewardCell>& RewardMap::getRewardMap() const
 {
 	return reward_gridmap_;
 }

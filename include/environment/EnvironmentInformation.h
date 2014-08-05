@@ -26,9 +26,9 @@ class EnvironmentInformation
 
 		/**
 		 * @brief Sets the terrain cost map from the reward map information
-		 * @param std::vector<dwl::Cell> reward_map Reward map
+		 * @param std::vector<dwl::RewardCell> reward_map Reward map
 		 */
-		void setEnvironmentInformation(std::vector<Cell> reward_map);
+		void setEnvironmentInformation(std::vector<RewardCell> reward_map);
 
 		/**
 		 * @brief Sets the environment resolution of the plane or height

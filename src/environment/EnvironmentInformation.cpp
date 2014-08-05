@@ -20,7 +20,7 @@ EnvironmentInformation::~EnvironmentInformation()
 }
 
 
-void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> reward_map)
+void EnvironmentInformation::setEnvironmentInformation(std::vector<RewardCell> reward_map)
 {
 	// Cleaning the old information
 	CostMap empty_terrain_cost_map;

@@ -106,7 +106,7 @@ class PlanningOfMotionSequences
 		 * @brief Sets the reward information of the environment inside of the pointer of the EnvironmentInformation object, which could be used for differents solvers
 		 * @param std::vector<Cell> reward_map Reward map of the environment
 		 */
-		void setEnvironmentInformation(std::vector<Cell> reward_map);
+		void setEnvironmentInformation(std::vector<RewardCell> reward_map);
 
 		/**
 		 * @brief Changes the goal pose

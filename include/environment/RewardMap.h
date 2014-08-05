@@ -61,11 +61,11 @@ class RewardMap
 
 		/**
 		 * @brief Gets the properties of the cell
-		 * @param dwl::Cell& cell Values of the cell
+		 * @param dwl::RewardCell& cell Values of the cell
 		 * @param double reward Reward value of the cell
 		 * @param dwl::environment::Terrain terrain_info Information of the terrain in the specific cell
 		 */
-		void getCell(Cell& cell, double reward, Terrain terrain_info);
+		void getCell(RewardCell& cell, double reward, Terrain terrain_info);
 
 		/**
 		 * @brief Gets the properties of the cell
@@ -76,9 +76,9 @@ class RewardMap
 
 		/**
 		 * @brief Adds a cell to the reward map
-		 * @param dwl::Cell cell Cell values for adding to the reward map
+		 * @param dwl::RewardCell cell Cell values for adding to the reward map
 		 */
-		void addCellToRewardMap(Cell cell);
+		void addCellToRewardMap(RewardCell cell);
 
 		/**
 		 * @brief Removes the cel to the reward map
@@ -138,9 +138,9 @@ class RewardMap
 
 		/**
 		 * @brief Gets the reward map
-		 * @return std::map<Vertex,dwl::environment::Cell> Returns the cell value per each vertex
+		 * @return std::map<Vertex,RewardCell> Returns the cell value per each vertex
 		 */
-		const std::map<Vertex,Cell>& getRewardMap() const;
+		const std::map<Vertex,RewardCell>& getRewardMap() const;
 
 
 	protected:
@@ -151,10 +151,10 @@ class RewardMap
 		std::vector<Feature*> features_;
 
 		/** @brief Reward values mapped using vertex id */
-		std::map<Vertex,Cell> reward_gridmap_;
+		std::map<Vertex,RewardCell> reward_gridmap_;
 
 		/** @brief Terrain height map */
-		std::map<Vertex, double> terrain_heightmap_;
+		std::map<Vertex,double> terrain_heightmap_;
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> search_areas_;

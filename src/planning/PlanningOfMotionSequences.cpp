@@ -219,7 +219,7 @@ void PlanningOfMotionSequences::changeGoal(Pose goal)
 }
 
 
-void PlanningOfMotionSequences::setEnvironmentInformation(std::vector<Cell> reward_map)
+void PlanningOfMotionSequences::setEnvironmentInformation(std::vector<RewardCell> reward_map)
 {
 	environment_->setEnvironmentInformation(reward_map);
 }
