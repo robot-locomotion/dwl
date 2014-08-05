@@ -56,10 +56,10 @@ void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapC
 		return;
 	}
 
-	std::vector<dwl::Cell> reward_map;
+	std::vector<dwl::RewardCell> reward_map;
 
 	// Converting the messages to reward_map format
-	dwl::Cell reward_cell;
+	dwl::RewardCell reward_cell;
 	for (int i = 0; i < msg->cell.size(); i++) {
 		// Filling the reward per every cell
 		reward_cell.key.x = msg->cell[i].key_x;
@@ -159,29 +159,33 @@ void HierarchicalPlanners::publishContactSequence()
 
 			int end_effector = contact_sequence_[i].end_effector;
 			if (end_effector == 0) {
-				contact_sequence_msg_.colors[i].r = 1.0f;
-				contact_sequence_msg_.colors[i].g = 0.0f;
-				contact_sequence_msg_.colors[i].b = 0.0f;
+				std::cout << "Contact position 0 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
+				contact_sequence_msg_.colors[i].r = 1.0;
+				contact_sequence_msg_.colors[i].g = 0.0;
+				contact_sequence_msg_.colors[i].b = 0.0;
 				contact_sequence_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 1) {
-				contact_sequence_msg_.colors[i].r = 0.0f;
-				contact_sequence_msg_.colors[i].g = 1.0f;
-				contact_sequence_msg_.colors[i].b = 0.0f;
+				std::cout << "Contact position 1 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
+				contact_sequence_msg_.colors[i].r = 1.0;
+				contact_sequence_msg_.colors[i].g = 1.0;
+				contact_sequence_msg_.colors[i].b = 0.0;
 				contact_sequence_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 2) {
-				contact_sequence_msg_.colors[i].r = 0.0f;
-				contact_sequence_msg_.colors[i].g = 0.0f;
-				contact_sequence_msg_.colors[i].b = 1.0f;
+				std::cout << "Contact position 2 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
+				contact_sequence_msg_.colors[i].r = 0.0;
+				contact_sequence_msg_.colors[i].g = 1.0;
+				contact_sequence_msg_.colors[i].b = 0.0;
 				contact_sequence_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 3) {
-				contact_sequence_msg_.colors[i].r = 1.0f;
-				contact_sequence_msg_.colors[i].g = 1.0f;
-				contact_sequence_msg_.colors[i].b = 0.0f;
+				std::cout << "Contact position 3 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
+				contact_sequence_msg_.colors[i].r = 0.0;
+				contact_sequence_msg_.colors[i].g = 0.0;
+				contact_sequence_msg_.colors[i].b = 1.0;
 				contact_sequence_msg_.colors[i].a = 1.0;
 			} else {
-				contact_sequence_msg_.colors[i].r = 0.0f;
-				contact_sequence_msg_.colors[i].g = 1.0f;
-				contact_sequence_msg_.colors[i].b = 1.0f;
+				contact_sequence_msg_.colors[i].r = 0.0;
+				contact_sequence_msg_.colors[i].g = 1.0;
+				contact_sequence_msg_.colors[i].b = 1.0;
 				contact_sequence_msg_.colors[i].a = 1.0;
 			}
 			//contact_sequence_msg_.lifetime = 0;//ros::Duration();
