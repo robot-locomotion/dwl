@@ -165,14 +165,18 @@ void RewardMapDisplay::incomingMessageCallback(const reward_map_server::RewardMa
 	// Clearing the old data of the buffers
 	point_buf_.clear();
 
-	// Computing the maximum and minumum reward of the map
+	// Computing the maximum and minumum reward of the map, and minimun key of the height
 	double min_reward, max_reward = 0;
+	unsigned int min_key_z = std::numeric_limits<unsigned int>::max();
 	for (int i = 0; i < msg->cell.size(); i++) {
 		if (min_reward > msg->cell[i].reward)
 			min_reward = msg->cell[i].reward;
 
 		if (max_reward < msg->cell[i].reward)
 			max_reward = msg->cell[i].reward;
+
+		if (min_key_z > msg->cell[i].key_z)
+			min_key_z = msg->cell[i].key_z;
 	}
 	grid_size_ = msg->plane_size;
 	height_size_ = msg->height_size;
@@ -188,15 +192,20 @@ void RewardMapDisplay::incomingMessageCallback(const reward_map_server::RewardMa
 		double x, y, z;
 		space_discretization.keyToCoord(x, msg->cell[i].key_x, true);
 		space_discretization.keyToCoord(y, msg->cell[i].key_y, true);
-		space_discretization.keyToCoord(z, msg->cell[i].key_z, false);
-		new_point.position.x = x;
-		new_point.position.y = y;
-		new_point.position.z = z;
 
-		// Setting the color of the cell acording the reward value
-		setColor(msg->cell[i].reward, min_reward, max_reward, color_factor_, new_point);
+		unsigned int key_z = msg->cell[i].key_z;
+		while (key_z >= min_key_z) {
+			space_discretization.keyToCoord(z, key_z, false);
+			new_point.position.x = x;
+			new_point.position.y = y;
+			new_point.position.z = z;
 
-		point_buf_.push_back(new_point);
+			// Setting the color of the cell acording the reward value
+			setColor(msg->cell[i].reward, min_reward, max_reward, color_factor_, new_point);
+			key_z -= 1;
+
+			point_buf_.push_back(new_point);
+		}
 	}
 
 	// Recording the data from the buffers
