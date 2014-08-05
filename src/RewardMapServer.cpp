@@ -31,7 +31,7 @@ RewardMapServer::RewardMapServer()
 	// Declaring the publisher of reward map
 	reward_pub_ = node_.advertise<reward_map_server::RewardMap>("reward_map", 1);
 
-	reward_map_msg_.header.frame_id = "world"; //"base_footprint";
+	reward_map_msg_.header.frame_id = "world";
 }
 
 
@@ -109,7 +109,7 @@ void RewardMapServer::publishRewardMap()
 {
 	reward_map_msg_.header.stamp = ros::Time::now();
 
-	std::map<dwl::Vertex, dwl::Cell> reward_gridmap;
+	std::map<dwl::Vertex, dwl::RewardCell> reward_gridmap;
 	reward_gridmap = reward_map_->getRewardMap();
 
 	reward_map_server::RewardCell cell;
@@ -117,12 +117,12 @@ void RewardMapServer::publishRewardMap()
 	reward_map_msg_.height_size = reward_map_->getResolution(false);
 
 	// Converting the vertexs into a cell message
-	for (std::map<dwl::Vertex, dwl::Cell>::iterator vertex_iter = reward_gridmap.begin();
+	for (std::map<dwl::Vertex, dwl::RewardCell>::iterator vertex_iter = reward_gridmap.begin();
 			vertex_iter != reward_gridmap.end();
 			vertex_iter++)
 	{
 		dwl::Vertex v = vertex_iter->first;
-		dwl::Cell reward_cell = vertex_iter->second;
+		dwl::RewardCell reward_cell = vertex_iter->second;
 
 		cell.key_x = reward_cell.key.x;
 		cell.key_y = reward_cell.key.y;
