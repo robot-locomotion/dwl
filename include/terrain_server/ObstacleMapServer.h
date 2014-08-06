@@ -8,22 +8,27 @@
 #include <octomap/math/Utils.h>
 
 #include <environment/ObstacleMap.h>
+#include <utils/Orientation.h>
 
 #include <Eigen/Dense>
 #include <vector>
 #include <geometry_msgs/PoseArray.h>
-#include <reward_map_server/ObstacleMap.h>
-//#include <reward_map_server/RewardCell.h>
+#include <terrain_server/ObstacleMap.h>
+#include <terrain_server/RewardCell.h>
 
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
 #include <tf/message_filter.h>
 #include <message_filters/subscriber.h>
 
-//#include <utils/utils.h>
-#include <utils/Orientation.h>
 
+namespace terrain_server
+{
 
+/**
+ * @class ObstacleMapServer
+ * @brief Class for building obstacle map of the environment
+ */
 class ObstacleMapServer
 {
 	public:
@@ -60,11 +65,13 @@ class ObstacleMapServer
 		tf::MessageFilter<octomap_msgs::Octomap>* tf_octomap_sub_;
 
 		/** @brief Obstacle map message */
-		reward_map_server::ObstacleMap obstacle_map_msg_;
+		terrain_server::ObstacleMap obstacle_map_msg_;
 
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;
 
 };
+
+} //@namespace terrain_server
 
 #endif

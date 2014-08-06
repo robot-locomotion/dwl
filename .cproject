@@ -28,8 +28,7 @@
 								<option id="gnu.cpp.compiler.option.include.paths.1172932037" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/opt/ros/hydro/include"/>
 									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/src/dwl/include"/>
-									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/hyq_controllers/include"/>
-									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/obstacle_server/include"/>
+									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/terrain_server/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1840831180" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>

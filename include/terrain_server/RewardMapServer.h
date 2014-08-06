@@ -1,5 +1,5 @@
-#ifndef RewardMapServer_H
-#define RewardMapServer_H
+#ifndef Terrain_Server_RewardMapServer_H
+#define Terrain_Server_RewardMapServer_H
 
 #include <ros/ros.h>
 #include <octomap_msgs/Octomap.h>
@@ -11,24 +11,27 @@
 #include <environment/SlopeFeature.h>
 #include <environment/HeightDeviationFeature.h>
 #include <environment/CurvatureFeature.h>
+#include <utils/Orientation.h>
 
 #include <Eigen/Dense>
 #include <vector>
 #include <geometry_msgs/PoseArray.h>
-#include <reward_map_server/RewardMap.h>
-#include <reward_map_server/RewardCell.h>
+#include <terrain_server/RewardMap.h>
+#include <terrain_server/RewardCell.h>
 
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
 #include <tf/message_filter.h>
 #include <message_filters/subscriber.h>
 
-#include <utils/utils.h>
-#include <utils/Orientation.h>
-//#include <pthread.h>
 
+namespace terrain_server
+{
 
-
+/**
+ * @class RewardMapServer
+ * @brief Class for building reward map of the environment
+ */
 class RewardMapServer
 {
 	public:
@@ -65,11 +68,12 @@ class RewardMapServer
 		tf::MessageFilter<octomap_msgs::Octomap>* tf_octomap_sub_;
 
 		/** @brief Reward map message */
-		reward_map_server::RewardMap reward_map_msg_;
+		terrain_server::RewardMap reward_map_msg_;
 
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;
 
 };
 
+} //@namespace terrain_server
 #endif

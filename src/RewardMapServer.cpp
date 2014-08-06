@@ -1,5 +1,7 @@
-#include <reward_map_server/RewardMapServer.h>
+#include <terrain_server/RewardMapServer.h>
 
+namespace terrain_server
+{
 
 RewardMapServer::RewardMapServer()
 {
@@ -29,7 +31,7 @@ RewardMapServer::RewardMapServer()
 	tf_octomap_sub_->registerCallback(boost::bind(&RewardMapServer::octomapCallback, this, _1));
 
 	// Declaring the publisher of reward map
-	reward_pub_ = node_.advertise<reward_map_server::RewardMap>("reward_map", 1);
+	reward_pub_ = node_.advertise<terrain_server::RewardMap>("reward_map", 1);
 
 	reward_map_msg_.header.frame_id = "world";
 }
@@ -112,7 +114,7 @@ void RewardMapServer::publishRewardMap()
 	std::map<dwl::Vertex, dwl::RewardCell> reward_gridmap;
 	reward_gridmap = reward_map_->getRewardMap();
 
-	reward_map_server::RewardCell cell;
+	terrain_server::RewardCell cell;
 	reward_map_msg_.plane_size = reward_map_->getResolution(true);
 	reward_map_msg_.height_size = reward_map_->getResolution(false);
 
@@ -139,13 +141,14 @@ void RewardMapServer::publishRewardMap()
 	reward_map_msg_.cell.clear();
 }
 
+} //@namespace terrain_server
 
 
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "reward_map_node");
 
-	RewardMapServer reward_server;
+	terrain_server::RewardMapServer reward_server;
 	ros::spinOnce();
 
 	try {

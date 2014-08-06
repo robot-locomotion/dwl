@@ -1,5 +1,8 @@
-#include <reward_map_server/ObstacleMapServer.h>
+#include <terrain_server/ObstacleMapServer.h>
 
+
+namespace terrain_server
+{
 
 ObstacleMapServer::ObstacleMapServer()
 {
@@ -19,7 +22,7 @@ ObstacleMapServer::ObstacleMapServer()
 	tf_octomap_sub_->registerCallback(boost::bind(&ObstacleMapServer::octomapCallback, this, _1));
 
 	// Declaring the publisher of reward map
-	obstacle_pub_ = node_.advertise<reward_map_server::ObstacleMap>("obstacle_map", 1);
+	obstacle_pub_ = node_.advertise<terrain_server::ObstacleMap>("obstacle_map", 1);
 
 	obstacle_map_msg_.header.frame_id = "world";
 }
@@ -99,7 +102,7 @@ void ObstacleMapServer::publishObstacleMap()
 	std::map<dwl::Vertex, dwl::Cell> obstacle_gridmap;
 	obstacle_gridmap = obstacle_map_.getObstacleMap();
 
-	reward_map_server::Cell cell;
+	terrain_server::Cell cell;
 	obstacle_map_msg_.plane_size = obstacle_map_.getResolution(true);
 	obstacle_map_msg_.height_size = obstacle_map_.getResolution(false);
 
@@ -125,13 +128,14 @@ void ObstacleMapServer::publishObstacleMap()
 	obstacle_map_msg_.cell.clear();
 }
 
+} //@namespace terrain_server
 
 
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "obstacle_map_node");
 
-	ObstacleMapServer obstacle_server;
+	terrain_server::ObstacleMapServer obstacle_server;
 	ros::spinOnce();
 
 	try {
