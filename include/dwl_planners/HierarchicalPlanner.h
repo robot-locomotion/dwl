@@ -15,7 +15,7 @@
 #include <environment/GridBasedBodyAdjacency.h>
 #include <environment/LatticeBasedBodyAdjacency.h>
 
-#include <reward_map_server/RewardMap.h>
+#include <terrain_server/RewardMap.h>
 #include <nav_msgs/Path.h>
 #include <visualization_msgs/Marker.h>
 
@@ -54,7 +54,7 @@ class HierarchicalPlanners
 		 * @brief Callbacks method when the reward map message arrives
 		 * @param const reward_map_server::RewardMapConstPtr& msg Reward map message
 		 */
-		void rewardMapCallback(const reward_map_server::RewardMapConstPtr& msg);
+		void rewardMapCallback(const terrain_server::RewardMapConstPtr& msg);
 
 		/**
 		 * @brief Publishs the computed body path
@@ -69,10 +69,10 @@ class HierarchicalPlanners
 		ros::NodeHandle node_;
 
 		/** @brief Reward map subscriber */
-		message_filters::Subscriber<reward_map_server::RewardMap>* reward_sub_;
+		message_filters::Subscriber<terrain_server::RewardMap>* reward_sub_;
 
 		/** @brief TF and reward map subscriber */
-		tf::MessageFilter<reward_map_server::RewardMap>* tf_reward_sub_;
+		tf::MessageFilter<terrain_server::RewardMap>* tf_reward_sub_;
 
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;

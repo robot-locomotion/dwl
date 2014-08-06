@@ -6,8 +6,8 @@ namespace dwl_planners
 
 HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), solver_ptr_(NULL)
 {
-	reward_sub_ = new message_filters::Subscriber<reward_map_server::RewardMap> (node_, "reward_map", 5);
-	tf_reward_sub_ = new tf::MessageFilter<reward_map_server::RewardMap> (*reward_sub_, tf_listener_, "world", 5);
+	reward_sub_ = new message_filters::Subscriber<terrain_server::RewardMap> (node_, "reward_map", 5);
+	tf_reward_sub_ = new tf::MessageFilter<terrain_server::RewardMap> (*reward_sub_, tf_listener_, "world", 5);
 	tf_reward_sub_->registerCallback(boost::bind(&HierarchicalPlanners::rewardMapCallback, this, _1));
 
 	// Declaring the publisher of approximated body path
@@ -45,7 +45,7 @@ void HierarchicalPlanners::init()
 }
 
 
-void HierarchicalPlanners::rewardMapCallback(const reward_map_server::RewardMapConstPtr& msg)
+void HierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapConstPtr& msg)
 {
 	// Getting the transformation between the world to robot frame
 	tf::StampedTransform tf_transform;

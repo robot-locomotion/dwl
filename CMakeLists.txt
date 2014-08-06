@@ -4,13 +4,11 @@ project(dwl_planners)
 
 find_package(catkin REQUIRED COMPONENTS
   dwl
-#  reward_map_server
   roscpp
   tf
   tf_conversions)
 
 find_package(dwl REQUIRED)
-#find_package(reward_map_server REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -72,7 +70,7 @@ find_package(dwl REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES dwl_planners
-  CATKIN_DEPENDS roscpp #reward_map_server
+  CATKIN_DEPENDS roscpp
   DEPENDS system_lib)
 
 include_directories(include
