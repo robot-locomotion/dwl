@@ -1,43 +1,32 @@
-#include <reward_map_server/RewardMapServer.h>
+#include <reward_map_server/ObstacleMapServer.h>
 
 
-RewardMapServer::RewardMapServer()
+ObstacleMapServer::ObstacleMapServer()
 {
-	reward_map_ = new dwl::environment::RewardOctoMap();
-
 	// Adding the search areas
 	// High resolution
-	reward_map_->addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.8, -0.2, 0.04);
+	obstacle_map_.addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.8, -0.2, 0.04);
 	// Low resolution
-	reward_map_->addSearchArea(2.5, 3.0, -0.85, 0.85, -0.8, -0.2, 0.08);
-	reward_map_->addSearchArea(-0.75, -0.5, -0.85, 0.85, -0.8, -0.2, 0.08);
-	reward_map_->addSearchArea(-0.75, 3.0, -1.25, -0.85, -0.8, -0.2, 0.08);
-	reward_map_->addSearchArea(-0.75, 3.0, 0.85, 1.25, -0.8, -0.2, 0.08);
-	reward_map_->setInterestRegion(1.5, 5.5);
-
-	// Adding the features
-	dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
-	dwl::environment::Feature* height_dev_ptr = new dwl::environment::HeightDeviationFeature();
-	dwl::environment::Feature* curvature_ptr = new dwl::environment::CurvatureFeature();
-	reward_map_->addFeature(slope_ptr);
-	reward_map_->addFeature(height_dev_ptr);
-	reward_map_->addFeature(curvature_ptr);
+	/*obstacle_map_->addSearchArea(2.5, 3.0, -0.85, 0.85, -0.8, -0.2, 0.08);
+	obstacle_map_->addSearchArea(-0.75, -0.5, -0.85, 0.85, -0.8, -0.2, 0.08);
+	obstacle_map_->addSearchArea(-0.75, 3.0, -1.25, -0.85, -0.8, -0.2, 0.08);
+	obstacle_map_->addSearchArea(-0.75, 3.0, 0.85, 1.25, -0.8, -0.2, 0.08);
+	obstacle_map_->setInterestRegion(1.5, 5.5);*/
 
 	// Declaring the subscriber to octomap and tf messages
 	octomap_sub_ = new message_filters::Subscriber<octomap_msgs::Octomap> (node_, "octomap_binary", 5);
 	tf_octomap_sub_ = new tf::MessageFilter<octomap_msgs::Octomap> (*octomap_sub_, tf_listener_, "world", 5);
-	tf_octomap_sub_->registerCallback(boost::bind(&RewardMapServer::octomapCallback, this, _1));
+	tf_octomap_sub_->registerCallback(boost::bind(&ObstacleMapServer::octomapCallback, this, _1));
 
 	// Declaring the publisher of reward map
-	reward_pub_ = node_.advertise<reward_map_server::RewardMap>("reward_map", 1);
+	obstacle_pub_ = node_.advertise<reward_map_server::ObstacleMap>("obstacle_map", 1);
 
-	reward_map_msg_.header.frame_id = "world";
+	obstacle_map_msg_.header.frame_id = "world";
 }
 
 
-RewardMapServer::~RewardMapServer()
+ObstacleMapServer::~ObstacleMapServer()
 {
-	delete reward_map_;
 	//octomap_sub_.shutdown();
 
 	if (tf_octomap_sub_){
@@ -52,7 +41,7 @@ RewardMapServer::~RewardMapServer()
 }
 
 
-void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg)
+void ObstacleMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg)
 {
 	// Creating a octree
 	octomap::OcTree* octomap = NULL;
@@ -67,11 +56,9 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 		return;
 	}
 
-	dwl::TerrainModel model;
-	model.octomap = octomap;
 
 	// Setting the resolution of the gridmap
-	reward_map_->setResolution(octomap->getResolution(), false);
+	obstacle_map_.setResolution(octomap->getResolution(), false);
 
 	// Getting the transformation between the world to robot frame
 	tf::StampedTransform tf_transform;
@@ -98,60 +85,59 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 	// Computing the reward map
 	timespec start_rt, end_rt;
 	clock_gettime(CLOCK_REALTIME, &start_rt);
-	reward_map_->compute(model, robot_position);
+	obstacle_map_.compute(octomap, robot_position);
 	clock_gettime(CLOCK_REALTIME, &end_rt);
 	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9*(end_rt.tv_nsec - start_rt.tv_nsec);
 	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
 }
 
 
-void RewardMapServer::publishRewardMap()
+void ObstacleMapServer::publishObstacleMap()
 {
-	reward_map_msg_.header.stamp = ros::Time::now();
+	obstacle_map_msg_.header.stamp = ros::Time::now();
 
-	std::map<dwl::Vertex, dwl::RewardCell> reward_gridmap;
-	reward_gridmap = reward_map_->getRewardMap();
+	std::map<dwl::Vertex, dwl::Cell> obstacle_gridmap;
+	obstacle_gridmap = obstacle_map_.getObstacleMap();
 
-	reward_map_server::RewardCell cell;
-	reward_map_msg_.plane_size = reward_map_->getResolution(true);
-	reward_map_msg_.height_size = reward_map_->getResolution(false);
+	reward_map_server::Cell cell;
+	obstacle_map_msg_.plane_size = obstacle_map_.getResolution(true);
+	obstacle_map_msg_.height_size = obstacle_map_.getResolution(false);
 
 	// Converting the vertexs into a cell message
-	for (std::map<dwl::Vertex, dwl::RewardCell>::iterator vertex_iter = reward_gridmap.begin();
-			vertex_iter != reward_gridmap.end();
+	for (std::map<dwl::Vertex, dwl::Cell>::iterator vertex_iter = obstacle_gridmap.begin();
+			vertex_iter != obstacle_gridmap.end();
 			vertex_iter++)
 	{
 		dwl::Vertex v = vertex_iter->first;
-		dwl::RewardCell reward_cell = vertex_iter->second;
+		dwl::Cell obstacle_cell = vertex_iter->second;
 
-		cell.key_x = reward_cell.key.x;
-		cell.key_y = reward_cell.key.y;
-		cell.key_z = reward_cell.key.z;
-		cell.reward = reward_cell.reward;
-		reward_map_msg_.cell.push_back(cell);
+		cell.key_x = obstacle_cell.key.x;
+		cell.key_y = obstacle_cell.key.y;
+		cell.key_z = obstacle_cell.key.z;
+		obstacle_map_msg_.cell.push_back(cell);
 	}
 
 	// Publishing the reward map if there is at least one subscriber
-	if (reward_pub_.getNumSubscribers() > 0)
-		reward_pub_.publish(reward_map_msg_);
+	if (obstacle_pub_.getNumSubscribers() > 0)
+		obstacle_pub_.publish(obstacle_map_msg_);
 
 	// Deleting old information
-	reward_map_msg_.cell.clear();
+	obstacle_map_msg_.cell.clear();
 }
 
 
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "reward_map_node");
+	ros::init(argc, argv, "obstacle_map_node");
 
-	RewardMapServer reward_server;
+	ObstacleMapServer obstacle_server;
 	ros::spinOnce();
 
 	try {
 		ros::Rate loop_rate(30);
 		while(ros::ok()) {
-			reward_server.publishRewardMap();
+			obstacle_server.publishObstacleMap();
 			ros::spinOnce();
 			loop_rate.sleep();
 		}
@@ -162,5 +148,3 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-
-

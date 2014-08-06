@@ -1,5 +1,5 @@
-#ifndef RewardMapServer_H
-#define RewardMapServer_H
+#ifndef ObstacleMapServer_H
+#define ObstacleMapServer_H
 
 #include <ros/ros.h>
 #include <octomap_msgs/Octomap.h>
@@ -7,56 +7,51 @@
 #include <octomap_msgs/conversions.h>
 #include <octomap/math/Utils.h>
 
-#include <environment/RewardOctoMap.h>
-#include <environment/SlopeFeature.h>
-#include <environment/HeightDeviationFeature.h>
-#include <environment/CurvatureFeature.h>
+#include <environment/ObstacleMap.h>
 
 #include <Eigen/Dense>
 #include <vector>
 #include <geometry_msgs/PoseArray.h>
-#include <reward_map_server/RewardMap.h>
-#include <reward_map_server/RewardCell.h>
+#include <reward_map_server/ObstacleMap.h>
+//#include <reward_map_server/RewardCell.h>
 
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
 #include <tf/message_filter.h>
 #include <message_filters/subscriber.h>
 
-#include <utils/utils.h>
+//#include <utils/utils.h>
 #include <utils/Orientation.h>
-//#include <pthread.h>
 
 
-
-class RewardMapServer
+class ObstacleMapServer
 {
 	public:
 		/** @brief Constructor function */
-		RewardMapServer();
+		ObstacleMapServer();
 
 		/** @brief Destructor function */
-		~RewardMapServer();
+		~ObstacleMapServer();
 
 		/**
-		 * @brief Callback function when it arrives a octomap message
-		 * @param const octomap_msgs::Octomap::ConstPtr& msg Octomap message
+		 *  @brief Callback function when it arrives a octomap message
+		 *  @param const octomap_msgs::Octomap::ConstPtr& msg Octomap message
 		 */
 		void octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg);
 
 		/** @brief Publishes a reward map */
-		void publishRewardMap();
+		void publishObstacleMap();
 
 
 	private:
 		/** @brief ROS node handle */
 		ros::NodeHandle node_;
 
-		/** @brief Pointer to the reward map class */
-		dwl::environment::RewardMap* reward_map_;
+		/** @brief Pointer to the ObstacleMap class */
+		dwl::environment::ObstacleMap obstacle_map_;
 
-		/** @brief Reward map publisher */
-		ros::Publisher reward_pub_;
+		/** @brief Obstacle map publisher */
+		ros::Publisher obstacle_pub_;
 
 		/** @brief Octomap subcriber */
 		message_filters::Subscriber<octomap_msgs::Octomap>* octomap_sub_;
@@ -64,8 +59,8 @@ class RewardMapServer
 		/** @brief TF and octomap subscriber */
 		tf::MessageFilter<octomap_msgs::Octomap>* tf_octomap_sub_;
 
-		/** @brief Reward map message */
-		reward_map_server::RewardMap reward_map_msg_;
+		/** @brief Obstacle map message */
+		reward_map_server::ObstacleMap obstacle_map_msg_;
 
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;

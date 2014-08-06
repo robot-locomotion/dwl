@@ -19,7 +19,9 @@ find_package(Eigen REQUIRED)
 add_message_files(
   FILES
   RewardCell.msg
-  RewardMap.msg)
+  RewardMap.msg
+  Cell.msg
+  ObstacleMap.msg)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -69,11 +71,19 @@ link_directories(${catkin_LIBRARY_DIRS}
 ## Declare a cpp executable
 add_executable(reward_map_server src/RewardMapServer.cpp)
 
-
 target_link_libraries(reward_map_server
                       ${catkin_LIBRARIES}
                       ${dwl_LIBRARIES}
                       ${OCTOMAP_LIBRARIES})
+
+
+add_executable(obstacle_map_server src/ObstacleMapServer.cpp)
+
+target_link_libraries(obstacle_map_server
+                      ${catkin_LIBRARIES}
+                      ${dwl_LIBRARIES}
+                      ${OCTOMAP_LIBRARIES})
+
 
 #############
 ## Install ##
