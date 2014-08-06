@@ -21,13 +21,12 @@ using namespace rviz;
 namespace reward_map_rviz_plugin
 {
 
-
 RewardMapDisplay::RewardMapDisplay() : rviz::Display(), messages_received_(0), color_factor_(0.8),
 		grid_size_(std::numeric_limits<double>::max())
 {
 	rewardmap_topic_property_ = new RosTopicProperty( "Topic",
 	                                                  "",
-	                                                  QString::fromStdString(ros::message_traits::datatype<reward_map_server::RewardMap>()),
+	                                                  QString::fromStdString(ros::message_traits::datatype<terrain_server::RewardMap>()),
 	                                                  "reward_map_server::RewardMap topic to subscribe to reward map",
 	                                                  this, SLOT( updateTopic() ));
 
@@ -86,7 +85,7 @@ void RewardMapDisplay::onInitialize()
 	cloud_ = new rviz::PointCloud();
 	cloud_->setName(sname.str());
 	cloud_->setRenderMode(rviz::PointCloud::RM_BOXES);
-	scene_node_->attachObject(cloud_);
+	scene_node_->attachObject((Ogre::MovableObject*) cloud_);
 }
 
 
@@ -117,7 +116,7 @@ void RewardMapDisplay::subscribe()
 		const std::string& topicStr = rewardmap_topic_property_->getStdString();
 
 		if (!topicStr.empty()) {
-			sub_.reset(new message_filters::Subscriber<reward_map_server::RewardMap>());
+			sub_.reset(new message_filters::Subscriber<terrain_server::RewardMap>());
 
 			sub_->subscribe(threaded_nh_, topicStr, queue_size_);
 			sub_->registerCallback(boost::bind(&RewardMapDisplay::incomingMessageCallback, this, _1));
@@ -143,7 +142,7 @@ void RewardMapDisplay::unsubscribe()
 }
 
 
-void RewardMapDisplay::incomingMessageCallback(const reward_map_server::RewardMapConstPtr& msg)
+void RewardMapDisplay::incomingMessageCallback(const terrain_server::RewardMapConstPtr& msg)
 {
 	++messages_received_;
 	setStatus(StatusProperty::Ok, "Messages", QString::number(messages_received_) + " reward map messages received");
@@ -280,7 +279,6 @@ void RewardMapDisplay::updateTopic()
 	subscribe();
 	context_->queueRender();
 }
-
 
 } //@namespace rewardmap_rviz_plugin
 

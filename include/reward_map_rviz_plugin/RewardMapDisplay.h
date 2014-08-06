@@ -8,7 +8,7 @@
 
 #include <message_filters/subscriber.h>
 
-#include <reward_map_server/RewardMap.h>
+#include <terrain_server/RewardMap.h>
 
 #include <rviz/display.h>
 #include "rviz/ogre_helpers/point_cloud.h"
@@ -48,7 +48,7 @@ class RewardMapDisplay : public rviz::Display
 		void subscribe();
 		void unsubscribe();
 
-		void incomingMessageCallback(const reward_map_server::RewardMapConstPtr& msg);
+		void incomingMessageCallback(const terrain_server::RewardMapConstPtr& msg);
 
 		void setColor(double reward_value, double min_reward, double max_reward, double color_factor, rviz::PointCloud::Point& point);
 
@@ -56,7 +56,7 @@ class RewardMapDisplay : public rviz::Display
 
 		typedef std::vector<rviz::PointCloud::Point> VPoint;
 
-		boost::shared_ptr<message_filters::Subscriber<reward_map_server::RewardMap> > sub_;
+		boost::shared_ptr<message_filters::Subscriber<terrain_server::RewardMap> > sub_;
 		boost::mutex mutex_;
 
 		int max_tree_areas_;
