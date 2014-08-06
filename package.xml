@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>reward_map_server</name>
+  <name>terrain_server</name>
   <version>0.0.0</version>
-  <description>The reward_map_server package</description>
+  <description>The terrain_server package</description>
 
   <maintainer email="carlos.mastalli@iit.it">Carlos Mastalli</maintainer>
 

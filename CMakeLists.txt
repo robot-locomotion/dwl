@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(reward_map_server)
+project(terrain_server)
 
 
 find_package(catkin REQUIRED COMPONENTS
