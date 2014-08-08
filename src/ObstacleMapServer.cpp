@@ -8,7 +8,7 @@ ObstacleMapServer::ObstacleMapServer()
 {
 	// Adding the search areas
 	// High resolution
-	obstacle_map_.addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.8, -0.2, 0.04);
+	obstacle_map_.addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.352, 0.2, 0.04);
 	// Low resolution
 	/*obstacle_map_->addSearchArea(2.5, 3.0, -0.85, 0.85, -0.8, -0.2, 0.08);
 	obstacle_map_->addSearchArea(-0.75, -0.5, -0.85, 0.85, -0.8, -0.2, 0.08);

@@ -9,12 +9,12 @@ RewardMapServer::RewardMapServer()
 
 	// Adding the search areas
 	// High resolution
-	reward_map_->addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.8, -0.2, 0.04);
+	reward_map_->addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.8, -0.35, 0.04);
 	// Low resolution
-	reward_map_->addSearchArea(2.5, 3.0, -0.85, 0.85, -0.8, -0.2, 0.08);
-	reward_map_->addSearchArea(-0.75, -0.5, -0.85, 0.85, -0.8, -0.2, 0.08);
-	reward_map_->addSearchArea(-0.75, 3.0, -1.25, -0.85, -0.8, -0.2, 0.08);
-	reward_map_->addSearchArea(-0.75, 3.0, 0.85, 1.25, -0.8, -0.2, 0.08);
+	reward_map_->addSearchArea(2.5, 3.0, -0.85, 0.85, -0.8, -0.35, 0.08);
+	reward_map_->addSearchArea(-0.75, -0.5, -0.85, 0.85, -0.8, -0.35, 0.08);
+	reward_map_->addSearchArea(-0.75, 3.0, -1.25, -0.85, -0.8, -0.35, 0.08);
+	reward_map_->addSearchArea(-0.75, 3.0, 0.85, 1.25, -0.8, -0.35, 0.08);
 	reward_map_->setInterestRegion(1.5, 5.5);
 
 	// Adding the features
