@@ -225,6 +225,12 @@ void PlanningOfMotionSequences::setEnvironmentInformation(std::vector<RewardCell
 }
 
 
+void PlanningOfMotionSequences::setEnvironmentInformation(std::vector<Cell> obstacle_map)
+{
+	environment_->setEnvironmentInformation(obstacle_map);
+}
+
+
 std::vector<Pose> PlanningOfMotionSequences::getBodyPath()
 {
 	return body_path_;

@@ -111,7 +111,16 @@ void WholeBodyLocomotion::setTerrainInformation(std::vector<RewardCell> reward_m
 	if (is_settep_planner_) {
 		planner_->setEnvironmentInformation(reward_map);
 	} else
-		printf(YELLOW "Could not setted the terrain information because has not been setted the planner\n" COLOR_RESET);
+		printf(YELLOW "Could not setted the terrain reward information because has not been setted the planner\n" COLOR_RESET);
+}
+
+
+void WholeBodyLocomotion::setTerrainInformation(std::vector<Cell> obstacle_map)
+{
+	if (is_settep_planner_) {
+		planner_->setEnvironmentInformation(obstacle_map);
+	} else
+		printf(YELLOW "Could not setted the terrain obstacle information because has not been setted the planner\n" COLOR_RESET);
 }
 
 

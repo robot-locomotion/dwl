@@ -44,6 +44,7 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/environment/LatticeBasedBodyAdjacency.cpp
 							src/environment/RewardMap.cpp
 							src/environment/RewardOctoMap.cpp
+							src/environment/ObstacleMap.cpp
 							src/environment/PlaneGrid.cpp
 							src/environment/Feature.cpp
 							src/environment/SlopeFeature.cpp

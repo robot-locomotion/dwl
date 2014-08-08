@@ -31,6 +31,12 @@ class EnvironmentInformation
 		void setEnvironmentInformation(std::vector<RewardCell> reward_map);
 
 		/**
+		 * @brief Sets the terrain obstacle map
+		 * @param std::vector<dwl::Cell> obstacle_map Obstacle map
+		 */
+		void setEnvironmentInformation(std::vector<Cell> obstacle_map);
+
+		/**
 		 * @brief Sets the environment resolution of the plane or height
 		 * @param double resolution Resolution value
 		 * @param bool plane Indicates if the key represents a plane or a height
@@ -57,6 +63,12 @@ class EnvironmentInformation
 		void getTerrainHeightMap(HeightMap& heightmap);
 
 		/**
+		 * @brief Gets the terrain obstacle-map (using vertex id)
+		 * @param dwl::ObstacleMap& obstaclemap Obstacle map of the terrain
+		 */
+		void getTerrainObstacleMap(ObstacleMap& obstaclemap);
+
+		/**
 		 * @brief Gets the average cost of the terrain
 		 * @return double Returns the average cost of the terrain
 		 */
@@ -69,10 +81,16 @@ class EnvironmentInformation
 		const SpaceDiscretization& getSpaceModel() const;
 
 		/**
-		 * @brief Indicates if it was defined terrain information
-		 * @return Returns true if it was defined terrain information, otherwise false
+		 * @brief Indicates if it was defined terrain cost information
+		 * @return Returns true if it was defined terrain cost information, otherwise false
 		 */
-		bool isTerrainInformation();
+		bool isTerrainCostInformation();
+
+		/**
+		 * @brief Indicates if it was defined terrain obstacle information
+		 * @return Returns true if it was defined terrain obstacle information, otherwise false
+		 */
+		bool isTerrainObstacleInformation();
 
 
 	private:
@@ -82,14 +100,20 @@ class EnvironmentInformation
 		/** @brief Gathers the cost values that are mapped using the vertex id */
 		CostMap terrain_cost_map_;
 
+		/** @brief Gathers the obstacles that are mapped using the vertex id */
+		ObstacleMap terrain_obstacle_map_;
+
 		/** @brief Gathers the height values that are mapperd using the vertex id */
 		HeightMap terrain_height_map_;
 
 		/** @brief Average cost which is used for unknown areas */
 		double average_cost_;
 
-		/** @brief Indicates if it was defined terrain information */
-		bool terrain_information_;
+		/** @brief Indicates if it was defined terrain cost information */
+		bool terrain_cost_information_;
+
+		/** @brief Indicates if it was defined terrain obstacle information */
+		bool terrain_obstacle_information_;
 };
 
 } //@namespace environment

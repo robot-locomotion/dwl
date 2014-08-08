@@ -48,7 +48,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 	// Checking if the start and goal vertex are part of the terrain information
 	bool is_there_start_vertex, is_there_goal_vertex = false;
 	std::vector<Vertex> vertex_map;
-	if (environment_->isTerrainInformation()) {
+	if (environment_->isTerrainCostInformation()) {
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
 		for (CostMap::iterator vertex_iter = terrain_costmap.begin();
@@ -156,7 +156,7 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 	// Checking if the  vertex is part of the terrain information
 	bool is_there_vertex = false;
 	std::vector<Vertex> vertex_map;
-	if (environment_->isTerrainInformation()) {
+	if (environment_->isTerrainCostInformation()) {
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
 		for (CostMap::iterator vertex_iter = terrain_costmap.begin();
@@ -260,6 +260,12 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 	}
 
 	return false;
+}
+
+
+bool AdjacencyEnvironment::isFreeOfObstacle(Vertex state_vertex, State state_representation, bool body)
+{
+	return true;
 }
 
 

@@ -69,7 +69,7 @@ void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 				terrain_heightmap_.erase(v);
 			}
 		} else {
-			if (pow(xc, 2) + pow(yc, 2) > pow(1.5, 2)) {
+			if (pow(xc, 2) + pow(yc, 2) > pow(interest_radius_x_, 2)) {
 				reward_gridmap_.erase(v);
 				terrain_heightmap_.erase(v);
 			}

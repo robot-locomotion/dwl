@@ -32,7 +32,13 @@ class Robot
 		 */
 		void setStanceAreas(std::vector<SearchArea> stance_areas); //TODO Re-write this method for general settings
 
+		/**
+		 * @brief Gets the stance position of the robot
+		 * @return Returns the stance position of each leg
+		 */
 		const std::vector<Eigen::Vector2d>& getStancePosition() const;
+
+		const SearchArea& getBodyArea() const;
 
 		/**
 		 * @brief Gets the stance areas
@@ -40,8 +46,13 @@ class Robot
 		 */
 		const std::vector<SearchArea>& getStanceAreas() const;
 
+		/**
+		 * @brief Gets the next leg according some defined pattern of locomotion
+		 * @param int sequence Sequence number
+		 */
 		int getNextLeg(int sequence) const;
 
+		/** @brief Gets the number of legs of the robot */
 		double getNumberOfLegs() const;
 
 
@@ -49,10 +60,16 @@ class Robot
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> stance_areas_;
 
+		/** @brief Vector of the body area */
+		SearchArea body_area_;
+
+		/** @brief Vector of stance positions */
 		std::vector<Eigen::Vector2d> stance_position_;
 
+		/** @brief Pattern of locomotion */
 		std::vector<int> pattern_locomotion_;
 
+		/** @brief Number of legs */
 		double number_legs_;
 };
 

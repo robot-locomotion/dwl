@@ -82,26 +82,19 @@ class AdjacencyEnvironment
 		bool isReachedGoal(Vertex target, Vertex current);
 
 		/**
+		 * @brief Indicates if the free of obstacle
+		 * @param dwl::Vertex state_vertex State vertex
+		 * @param dwl::State state_representation State representation
+		 * @param bool body Indicates it is desired to use the body space definition
+		 * @return bool Returns true if it is free of obstacle, and false otherwise
+		 */
+		virtual bool isFreeOfObstacle(Vertex state_vertex, State state_representation, bool body=false);
+
+		/**
 		 * @brief Indicates if it is a lattice representation of the environment
 		 * @return bool Returns true if it is a lattice representation and false otherwise
 		 */
 		bool isLatticeRepresentation();
-
-
-		//TODO
-		/**
-		 * @brief Gets the 3d position of the current vertex
-		 * @param dwl::Vertex vertex Current vertex
-		 * @return Eigen::Vector3d Return the 3d position
-		 */
-		//Eigen::Vector3d getPosition(Vertex vertex);
-
-		//Vertex getVertex(Pose pose);//TODO
-
-		//Pose getPose(Vertex vertex);
-
-		//const std::map<Vertex, double>& getOrientations() const;
-
 
 		/**
 		 * @brief Gets the name of the adjacency model

@@ -109,6 +109,12 @@ class PlanningOfMotionSequences
 		void setEnvironmentInformation(std::vector<RewardCell> reward_map);
 
 		/**
+		 * @brief Sets the obstacle information of the environment inside of the pointer of the EnvironmentInformation object, which could be used for differents solvers
+		 * @param std::vector<Cell> obstacle_map Obstacle map of the environment
+		 */
+		void setEnvironmentInformation(std::vector<Cell> obstacle_map);
+
+		/**
 		 * @brief Changes the goal pose
 		 * @param dwl::Pose goal New goal pose
 		 */

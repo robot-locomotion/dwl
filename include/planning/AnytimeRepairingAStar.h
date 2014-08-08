@@ -49,21 +49,21 @@ class AnytimeRepairingAStar : public Solver
 		 */
 		bool improvePath(SetQueue& openset_queue, Set& visitedset, Vertex target, double computation_time);
 
-
+		/** @brief Initial inflation */
 		double initial_inflation_;
 
+		/** @brief Satisfied inflation */
 		double satisfied_inflation_;
 
 		/** @brief Decrease inflation rate in percentage */
 		double decrease_inflation_rate_;
 
+		/** @brief G cost */
 		CostMap g_cost_;
 
+		/** @brief number of expansions */
 		int expansions_;
 
-
-		/** @brief Indicates if it's computed a whole adjacency map before the searching */
-		//bool compute_whole_adjacency_map_;
 };
 
 } //@namespace planning

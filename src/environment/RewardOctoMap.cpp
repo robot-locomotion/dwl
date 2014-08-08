@@ -28,7 +28,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 	if (!is_added_search_area_) {
 		printf(YELLOW "Warning: adding a default search area" COLOR_RESET);
 		// Adding a default search area
-		addSearchArea(0.5, 3.0, -0.75, 0.75, -0.77, -0.4, 0.04);
+		addSearchArea(0.5, 3.0, -0.75, 0.75, -0.8, -0.2, 0.04);
 
 		is_added_search_area_ = true;
 	}

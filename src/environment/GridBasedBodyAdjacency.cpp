@@ -9,7 +9,7 @@ namespace environment
 
 GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true), neighboring_definition_(3), number_top_reward_(5), uncertainty_factor_(1.15)
 {
-	name_ = "grid-based body";
+	name_ = "Grid-based Body";
 	is_lattice_ = false;
 
 	//TODO stance area
@@ -33,7 +33,7 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Ve
 	double yaw;
 	environment_->getSpaceModel().keyToState(yaw, key_yaw, false);
 
-	if (environment_->isTerrainInformation()) {
+	if (environment_->isTerrainCostInformation()) {
 		// Adding the source and target vertex if it is outside the information terrain
 		Vertex closest_source, closest_target;
 		getTheClosestStartAndGoalVertex(closest_source, closest_target, source, target);
@@ -92,7 +92,7 @@ void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex s
 
 	std::vector<Vertex> neighbor_actions;
 	searchNeighbors(neighbor_actions, state_vertex);
-	if (environment_->isTerrainInformation()) {
+	if (environment_->isTerrainCostInformation()) {
 		// Getting the terrain costmap
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
@@ -136,7 +136,7 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 	bool is_found_neighbor_positive_y = false, is_found_neighbor_negative_y = false;
 	bool is_found_neighbor_positive_xy = false, is_found_neighbor_negative_xy = false;
 	bool is_found_neighbor_positive_yx = false, is_found_neighbor_negative_yx = false;
-	if (environment_->isTerrainInformation()) {
+	if (environment_->isTerrainCostInformation()) {
 		// Getting the terrain cost map
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);

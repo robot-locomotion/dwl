@@ -23,6 +23,9 @@ typedef double Weight;
 /** @brief Defines the cost of a vertex for graph-searching algorithms */
 typedef std::map<Vertex, Weight> CostMap;
 
+/** @brief Defines if there is an obstacle in a certain vertex for graph-searching algorithms */
+typedef std::map<Vertex, bool> ObstacleMap;
+
 /** @brief Defines the height map of the environment */
 typedef std::map<Vertex, double> HeightMap;
 
@@ -92,6 +95,17 @@ struct Key
 	unsigned short int x;
 	unsigned short int y;
 	unsigned short int z;
+};
+
+/**
+ * @brief Struct that defines the information of the cell
+ */
+
+struct Cell
+{
+	Key key;
+	double plane_size;
+	double height_size;
 };
 
 /**

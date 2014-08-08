@@ -76,6 +76,12 @@ class WholeBodyLocomotion
 		void setTerrainInformation(std::vector<RewardCell> reward_map);
 
 		/**
+		 * @brief Sets the obstacle map of the terrain
+		 * @param std::vector<dwl::Cell> obstacle_map Obstacle map of the terrain
+		 */
+		void setTerrainInformation(std::vector<Cell> obstacle_map);
+
+		/**
 		 * @brief Changes the goal
 		 * @param dwl::Pose goal Goal state
 		 */

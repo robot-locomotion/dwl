@@ -40,7 +40,7 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 
 	// Gets actions according the defined motor primitives of the body
 	behavior_->generateActions(actions, current_pose);
-	if (environment_->isTerrainInformation()) {
+	if (environment_->isTerrainCostInformation()) {
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
 		for (int i = 0; i < actions.size(); i++) {
@@ -53,20 +53,23 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 			// Converting state vertex to environment vertex
 			environment_->getSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, current_action_vertex, XY_Y);
 
-			if (!isStanceAdjacency()) {
-				double terrain_cost;
-				if (terrain_costmap.find(environment_vertex)->first != environment_vertex)
-					terrain_cost = uncertainty_factor_ * environment_->getAverageCostOfTerrain();
-				else
-					terrain_cost = terrain_costmap.find(environment_vertex)->second;
+			// Checks if there is an obstacle
+			if (isFreeOfObstacle(current_action_vertex, XY_Y, true)) {
+				if (!isStanceAdjacency()) {
+					double terrain_cost;
+					if (terrain_costmap.find(environment_vertex)->first != environment_vertex)
+						terrain_cost = uncertainty_factor_ * environment_->getAverageCostOfTerrain();
+					else
+						terrain_cost = terrain_costmap.find(environment_vertex)->second;
 
-				successors.push_back(Edge(current_action_vertex, terrain_cost));
-			} else {
-				// Computing the body cost
-				double body_cost;
-				computeBodyCost(body_cost, current_action_vertex);
-				body_cost += actions[i].cost; //TODO
-				successors.push_back(Edge(current_action_vertex, body_cost));
+					successors.push_back(Edge(current_action_vertex, terrain_cost));
+				} else {
+					// Computing the body cost
+					double body_cost;
+					computeBodyCost(body_cost, current_action_vertex);
+					body_cost += actions[i].cost; //TODO
+					successors.push_back(Edge(current_action_vertex, body_cost));
+				}
 			}
 		}
 	} else
@@ -133,6 +136,69 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Vertex state_verte
 	}
 	body_cost /= stance_areas_.size();
 	cost = body_cost;
+}
+
+
+bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, State state_representation, bool body)
+{
+	// Getting the terrain obstacle map
+	ObstacleMap obstacle_map;
+	environment_->getTerrainObstacleMap(obstacle_map);
+
+	// Converting the vertex to state (x,y,yaw)
+	Eigen::Vector3d state;
+	environment_->getSpaceModel().vertexToState(state, state_vertex);
+
+	bool is_free;
+	if (body) {
+		// Getting the body area of the robot
+		SearchArea body_area = robot_.getBodyArea();
+
+		// Computing the boundary of stance area
+		Eigen::Vector2d boundary_min, boundary_max;
+		boundary_min(0) = body_area.min_x + state(0);
+		boundary_min(1) = body_area.min_y + state(1);
+		boundary_max(0) = body_area.max_x + state(0);
+		boundary_max(1) = body_area.max_y + state(1);
+
+		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
+		double stance_cost = 0;
+		for (double y = boundary_min(1); y < boundary_max(1); y += body_area.grid_resolution) {
+			for (double x = boundary_min(0); x < boundary_max(0); x += body_area.grid_resolution) {
+				// Computing the rotated coordinate according to the orientation of the body
+				Eigen::Vector2d point_position;
+				point_position(0) = (x - state(0)) * cos((double) state(2)) - (y - state(1)) * sin((double) state(2)) + state(0);
+				point_position(1) = (x - state(0)) * sin((double) state(2)) + (y - state(1)) * cos((double) state(2)) + state(1);
+
+				Vertex current_2d_vertex;
+				environment_->getSpaceModel().coordToVertex(current_2d_vertex, point_position);
+
+				// Checking if there is an obstacle
+				//std::cout << obstacle_map.find(current_2d_vertex)->second << std::endl;
+				if (obstacle_map.find(current_2d_vertex)->second) {
+					std::cout << obstacle_map.find(current_2d_vertex)->second << std::endl;
+					std::cout << "Obstacle" << std::endl;
+					is_free = false;
+					goto found_obstacle;
+				}
+				else
+					is_free = true;
+			}
+		}
+
+	} else {
+		// Converting the state vertex to terrain vertex
+		Vertex environment_vertex;
+		environment_->getSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, state_vertex, state_representation);
+
+		if (obstacle_map.find(environment_vertex)->second)
+			is_free = false;
+		else
+			is_free = true;
+	}
+
+	found_obstacle:
+	return is_free;
 }
 
 
