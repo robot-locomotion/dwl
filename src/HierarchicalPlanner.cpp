@@ -9,6 +9,7 @@ HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), 
 	reward_sub_ = new message_filters::Subscriber<terrain_server::RewardMap> (node_, "reward_map", 5);
 	tf_reward_sub_ = new tf::MessageFilter<terrain_server::RewardMap> (*reward_sub_, tf_listener_, "world", 5);
 	tf_reward_sub_->registerCallback(boost::bind(&HierarchicalPlanners::rewardMapCallback, this, _1));
+	obstacle_sub_ = node_.subscribe<terrain_server::ObstacleMap>("/obstacle_map", 1, &HierarchicalPlanners::obstacleMapCallback, this);
 
 	// Declaring the publisher of approximated body path
 	body_path_pub_ = node_.advertise<nav_msgs::Path>("approximated_body_path", 1);
@@ -16,6 +17,12 @@ HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), 
 
 	body_path_msg_.header.frame_id = "world";
 	contact_sequence_msg_.header.frame_id = "world";
+
+/*	if (pthread_mutex_init(&environment_lock_, NULL) != 0)
+		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&environment_lock_, NULL), strerror(pthread_mutex_init(&environment_lock_, NULL)));
+
+	if (pthread_mutex_unlock(&environment_lock_) != 0)
+		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&environment_lock_, NULL), strerror(pthread_mutex_init(&environment_lock_, NULL)));*/
 }
 
 
@@ -112,6 +119,29 @@ void HierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapCons
 
 	body_path_ = locomotor_.getBodyPath();
 	contact_sequence_ = locomotor_.getContactSequence();
+}
+
+
+void HierarchicalPlanners::obstacleMapCallback(const terrain_server::ObstacleMapConstPtr& msg)
+{
+	std::vector<dwl::Cell> obstacle_map;
+
+	// Converting the messages to reward_map format
+	dwl::Cell obstacle_cell;
+	for (int i = 0; i < msg->cell.size(); i++) {
+		// Filling the reward per every cell
+		obstacle_cell.key.x = msg->cell[i].key_x;
+		obstacle_cell.key.y = msg->cell[i].key_y;
+		obstacle_cell.key.z = msg->cell[i].key_z;
+		obstacle_cell.plane_size = msg->plane_size;
+		obstacle_cell.height_size = msg->height_size;
+
+		// Adding the reward cell to the queue
+		obstacle_map.push_back(obstacle_cell);
+	}
+
+	// Adding the obstacle map
+	locomotor_.setTerrainInformation(obstacle_map);
 }
 
 

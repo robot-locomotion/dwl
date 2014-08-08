@@ -16,6 +16,7 @@
 #include <environment/LatticeBasedBodyAdjacency.h>
 
 #include <terrain_server/RewardMap.h>
+#include <terrain_server/ObstacleMap.h>
 #include <nav_msgs/Path.h>
 #include <visualization_msgs/Marker.h>
 
@@ -45,9 +46,7 @@ class HierarchicalPlanners
 		/** @brief Destructor function */
 		~HierarchicalPlanners();
 
-		/**
-		 * @brief Initializes the hierarchical planner
-		 */
+		/** @brief Initializes the hierarchical planner */
 		void init();
 
 		/**
@@ -56,11 +55,12 @@ class HierarchicalPlanners
 		 */
 		void rewardMapCallback(const terrain_server::RewardMapConstPtr& msg);
 
-		/**
-		 * @brief Publishs the computed body path
-		 */
+		void obstacleMapCallback(const terrain_server::ObstacleMapConstPtr& msg);
+
+		/** @brief Publishes the computed body path */
 		void publishBodyPath();
 
+		/** @brief Publishes the contact sequence */
 		void publishContactSequence();
 
 
@@ -71,8 +71,13 @@ class HierarchicalPlanners
 		/** @brief Reward map subscriber */
 		message_filters::Subscriber<terrain_server::RewardMap>* reward_sub_;
 
+		/** @brief Obstacle map subscriber */
+		ros::Subscriber obstacle_sub_;
+
 		/** @brief TF and reward map subscriber */
 		tf::MessageFilter<terrain_server::RewardMap>* tf_reward_sub_;
+
+		//pthread_mutex_t environment_lock_; //TODO
 
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;
