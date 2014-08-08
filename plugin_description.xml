@@ -5,7 +5,19 @@
            type="reward_map_rviz_plugin::RewardMapDisplay"
            base_class_type="rviz::Display">
 	<description>
-		Displays 3D occupancy grids generated from compressed octomap messages.
+		Displays the reward map generated from reward map server messages.
+	</description>
+	</class>
+	
+</library>
+
+<library path="libobstacle_map_rviz_plugin">
+
+	<class name="reward_map_rviz_plugin/ObstacleMap"
+           type="reward_map_rviz_plugin::ObstacleMapDisplay"
+           base_class_type="rviz::Display">
+	<description>
+		Displays the obstacle map generated from obstacle map server messages.
 	</description>
 	</class>
 	

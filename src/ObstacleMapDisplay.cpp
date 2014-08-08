@@ -1,6 +1,6 @@
 #include <QObject>
 
-#include <reward_map_rviz_plugin/RewardMapDisplay.h>
+#include <reward_map_rviz_plugin/ObstacleMapDisplay.h>
 
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>
@@ -21,14 +21,13 @@ using namespace rviz;
 namespace reward_map_rviz_plugin
 {
 
-RewardMapDisplay::RewardMapDisplay() : rviz::Display(), messages_received_(0), color_factor_(0.8),
-		grid_size_(std::numeric_limits<double>::max())
+ObstacleMapDisplay::ObstacleMapDisplay() : rviz::Display(), messages_received_(0), grid_size_(std::numeric_limits<double>::max())
 {
-	rewardmap_topic_property_ = new RosTopicProperty( "Topic",
-	                                                  "",
-	                                                  QString::fromStdString(ros::message_traits::datatype<terrain_server::RewardMap>()),
-	                                                  "terrain_server::RewardMap topic to subscribe to reward map",
-	                                                  this, SLOT( updateTopic() ));
+	obstaclemap_topic_property_ = new RosTopicProperty( "Topic",
+														 "",
+														 QString::fromStdString(ros::message_traits::datatype<terrain_server::ObstacleMap>()),
+														 "terrain_server::ObstacleMap topic to subscribe to reward map",
+														 this, SLOT( updateTopic() ));
 
 	queue_size_property_ = new IntProperty( "Queue Size",
 	                                         queue_size_,
@@ -36,13 +35,21 @@ RewardMapDisplay::RewardMapDisplay() : rviz::Display(), messages_received_(0), c
 	                                         "is useful if your incoming TF data is delayed significantly from your"
 	                                         " image data, but it can greatly increase memory usage if the messages are big.",
 	                                         this, SLOT( updateQueueSize() ));
-
 	queue_size_property_->setMin(1);
+
+	color_property_ = new ColorProperty( "Color", QColor( 0, 25, 255 ),
+										  "The color of the obstacle map.",
+										  this, SLOT( updateColor() ));
+	alpha_property_ = new FloatProperty( "Alpha", 0.5f,
+										  "The amount of transparency to apply to the obstacle map.",
+										  this, SLOT( updateColor() ));
+	alpha_property_->setMin( 0.0f );
+	alpha_property_->setMax( 1.0f );
 
 }
 
 
-RewardMapDisplay::~RewardMapDisplay()
+ObstacleMapDisplay::~ObstacleMapDisplay()
 {
 	unsubscribe();
 
@@ -53,7 +60,7 @@ RewardMapDisplay::~RewardMapDisplay()
 }
 
 
-void RewardMapDisplay::update(float wall_dt, float ros_dt)
+void ObstacleMapDisplay::update(float wall_dt, float ros_dt)
 {
 	if (new_points_received_) {
 		boost::mutex::scoped_lock lock(mutex_);
@@ -68,7 +75,7 @@ void RewardMapDisplay::update(float wall_dt, float ros_dt)
 }
 
 
-void RewardMapDisplay::reset()
+void ObstacleMapDisplay::reset()
 {
 	clear();
 	messages_received_ = 0;
@@ -76,7 +83,7 @@ void RewardMapDisplay::reset()
 }
 
 
-void RewardMapDisplay::onInitialize()
+void ObstacleMapDisplay::onInitialize()
 {
 	boost::mutex::scoped_lock lock(mutex_);
 
@@ -86,17 +93,20 @@ void RewardMapDisplay::onInitialize()
 	cloud_->setName(sname.str());
 	cloud_->setRenderMode(rviz::PointCloud::RM_BOXES);
 	scene_node_->attachObject((Ogre::MovableObject*) cloud_);
+
+	alpha_ = alpha_property_->getFloat();
+	color_ = color_property_->getOgreColor();
 }
 
 
-void RewardMapDisplay::onEnable()
+void ObstacleMapDisplay::onEnable()
 {
 	scene_node_->setVisible(true);
 	subscribe();
 }
 
 
-void RewardMapDisplay::onDisable()
+void ObstacleMapDisplay::onDisable()
 {
 	scene_node_->setVisible(false);
 	unsubscribe();
@@ -105,7 +115,7 @@ void RewardMapDisplay::onDisable()
 }
 
 
-void RewardMapDisplay::subscribe()
+void ObstacleMapDisplay::subscribe()
 {
 	if (!isEnabled())
 		return;
@@ -113,13 +123,13 @@ void RewardMapDisplay::subscribe()
 	try {
 		unsubscribe();
 
-		const std::string& topicStr = rewardmap_topic_property_->getStdString();
+		const std::string& topicStr = obstaclemap_topic_property_->getStdString();
 
 		if (!topicStr.empty()) {
-			sub_.reset(new message_filters::Subscriber<terrain_server::RewardMap>());
+			sub_.reset(new message_filters::Subscriber<terrain_server::ObstacleMap>());
 
 			sub_->subscribe(threaded_nh_, topicStr, queue_size_);
-			sub_->registerCallback(boost::bind(&RewardMapDisplay::incomingMessageCallback, this, _1));
+			sub_->registerCallback(boost::bind(&ObstacleMapDisplay::incomingMessageCallback, this, _1));
 		}
 	}
 	catch (ros::Exception& e) {
@@ -128,21 +138,20 @@ void RewardMapDisplay::subscribe()
 }
 
 
-void RewardMapDisplay::unsubscribe()
+void ObstacleMapDisplay::unsubscribe()
 {
 	clear();
 
 	try {
 		// reset filters
 		sub_.reset();
-	}
-	catch (ros::Exception& e) {
+	} catch (ros::Exception& e) {
 		setStatus(StatusProperty::Error, "Topic", (std::string("Error unsubscribing: ") + e.what()).c_str());
 	}
 }
 
 
-void RewardMapDisplay::incomingMessageCallback(const terrain_server::RewardMapConstPtr& msg)
+void ObstacleMapDisplay::incomingMessageCallback(const terrain_server::ObstacleMapConstPtr& msg)
 {
 	++messages_received_;
 	setStatus(StatusProperty::Ok, "Messages", QString::number(messages_received_) + " reward map messages received");
@@ -164,16 +173,10 @@ void RewardMapDisplay::incomingMessageCallback(const terrain_server::RewardMapCo
 	// Clearing the old data of the buffers
 	point_buf_.clear();
 
-	// Computing the maximum and minumum reward of the map, and minimun key of the height
+	// Computing the minimun key of the height
 	double min_reward, max_reward = 0;
 	unsigned int min_key_z = std::numeric_limits<unsigned int>::max();
 	for (int i = 0; i < msg->cell.size(); i++) {
-		if (min_reward > msg->cell[i].reward)
-			min_reward = msg->cell[i].reward;
-
-		if (max_reward < msg->cell[i].reward)
-			max_reward = msg->cell[i].reward;
-
 		if (min_key_z > msg->cell[i].key_z)
 			min_key_z = msg->cell[i].key_z;
 	}
@@ -197,9 +200,7 @@ void RewardMapDisplay::incomingMessageCallback(const terrain_server::RewardMapCo
 			space_discretization.keyToCoord(z, key_z, false);
 			Ogre::Vector3 position(x, y, z);
 			new_point.position = position;
-
-			// Setting the color of the cell acording the reward value
-			setColor(msg->cell[i].reward, min_reward, max_reward, color_factor_, new_point);
+			new_point.setColor(color_.r, color_.g, color_.b, 0.5);
 			key_z -= 1;
 
 			point_buf_.push_back(new_point);
@@ -210,52 +211,12 @@ void RewardMapDisplay::incomingMessageCallback(const terrain_server::RewardMapCo
 	boost::mutex::scoped_lock lock(mutex_);
 
 	new_points_.swap(point_buf_);
-	//box_size_ = box_size_buf_;
 
 	new_points_received_ = true;
 }
 
 
-void RewardMapDisplay::setColor(double reward_value, double min_reward, double max_reward, double color_factor, rviz::PointCloud::Point& point)
-{
-	int i;
-	double m, n, f;
-
-	double s = 1.0;
-	double v = 1.0;
-
-	double h = (1.0 - std::min(std::max((reward_value - min_reward) / (max_reward - min_reward), 0.0), 1.0)) * color_factor;
-
-	h -= floor(h);
-	h *= 4;
-	i = floor(h);
-	f = h - i;
-	if (!(i & 1))
-		f = 1 - f; // if i is even
-	m = v * (1 - s);
-	n = v * (1 - s * f);
-
-	switch (i) {
-		case 0:
-			point.setColor(m, n, v);
-			break;
-		case 1:
-			point.setColor(m, v, 1-n);
-			break;
-		case 2:
-			point.setColor(n, v, m);
-			break;
-		case 3:
-			point.setColor(v, 1-n, m);
-			break;
-		default:
-			point.setColor(1, 0.5, 0.5);
-			break;
-	}
-}
-
-
-void RewardMapDisplay::clear()
+void ObstacleMapDisplay::clear()
 {
 	boost::mutex::scoped_lock lock(mutex_);
 
@@ -263,7 +224,7 @@ void RewardMapDisplay::clear()
 }
 
 
-void RewardMapDisplay::updateQueueSize()
+void ObstacleMapDisplay::updateQueueSize()
 {
 	queue_size_ = queue_size_property_->getInt();
 
@@ -271,12 +232,22 @@ void RewardMapDisplay::updateQueueSize()
 }
 
 
-void RewardMapDisplay::updateTopic()
+void ObstacleMapDisplay::updateTopic()
 {
 	unsubscribe();
 	reset();
 	subscribe();
 	context_->queueRender();
+}
+
+
+void ObstacleMapDisplay::updateColor()
+{
+//	QColor color = color_property_->getColor();
+	//color.setAlphaF( alpha_property_->getFloat() );
+	alpha_ = alpha_property_->getFloat();
+	color_ = color_property_->getOgreColor();
+	//context_->queueRender();
 }
 
 } //@namespace rewardmap_rviz_plugin
@@ -285,6 +256,6 @@ void RewardMapDisplay::updateTopic()
 
 #include <pluginlib/class_list_macros.h>
 
-PLUGINLIB_EXPORT_CLASS(reward_map_rviz_plugin::RewardMapDisplay, rviz::Display)
+PLUGINLIB_EXPORT_CLASS(reward_map_rviz_plugin::ObstacleMapDisplay, rviz::Display)
 
 

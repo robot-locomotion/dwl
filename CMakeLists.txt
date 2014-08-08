@@ -33,10 +33,12 @@ link_directories(${catkin_LIBRARY_DIRS}
                  
 qt4_wrap_cpp(MOC_FILES
   include/reward_map_rviz_plugin/RewardMapDisplay.h
+  include/reward_map_rviz_plugin/ObstacleMapDisplay.h
   OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED)
 
 set(SOURCE_FILES
   src/RewardMapDisplay.cpp
+  src/ObstacleMapDisplay.cpp
   ${MOC_FILES})
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})

@@ -1,5 +1,5 @@
-#ifndef RVIZ_RewardMapDisplay_H
-#define RVIZ_RewardMapDisplay_H
+#ifndef RVIZ_ObstacleMapDisplay_H
+#define RVIZ_ObstacleMapDisplay_H
 
 #include <ros/ros.h>
 
@@ -8,10 +8,12 @@
 
 #include <message_filters/subscriber.h>
 
-#include <terrain_server/RewardMap.h>
+#include <terrain_server/ObstacleMap.h>
 
 #include <rviz/display.h>
-#include "rviz/ogre_helpers/point_cloud.h"
+#include <rviz/ogre_helpers/point_cloud.h>
+#include <rviz/properties/color_property.h>
+#include <rviz/properties/float_property.h>
 
 
 namespace rviz
@@ -28,18 +30,18 @@ namespace reward_map_rviz_plugin
 {
 
 /**
- * @class RewardMapDisplay
- * @brief Rviz plugin for visualization of reward map of the environment
+ * @class ObstacleMapDisplay
+ * @brief Rviz plugin for visualization of obstacle map of the environment
  */
-class RewardMapDisplay : public rviz::Display
+class ObstacleMapDisplay : public rviz::Display
 {
 	Q_OBJECT
 	public:
 		/** @brief Constructor function */
-		RewardMapDisplay();
+		ObstacleMapDisplay();
 
 		/** @brief Destructor function */
-		virtual ~RewardMapDisplay();
+		virtual ~ObstacleMapDisplay();
 
 		/**
 		 * @brief Updates the informatio to display
@@ -69,17 +71,7 @@ class RewardMapDisplay : public rviz::Display
 		void unsubscribe();
 
 		/** @brief Proccesing of the incoming message */
-		void incomingMessageCallback(const terrain_server::RewardMapConstPtr& msg);
-
-		/**
-		 * @brief Sets the color of the reward cell
-		 * @param double reward_value Reward value of the cell
-		 * @param double min_reward Minimun reward value of the map
-		 * @param double max_reward Maximun reward value of the map
-		 * @param double color_factor Color factor
-		 * @param rviz::PointCloud::Point& point Point with color information
-		 */
-		void setColor(double reward_value, double min_reward, double max_reward, double color_factor, rviz::PointCloud::Point& point);
+		void incomingMessageCallback(const terrain_server::ObstacleMapConstPtr& msg);
 
 		/** Clears the display data */
 		void clear();
@@ -88,7 +80,7 @@ class RewardMapDisplay : public rviz::Display
 		typedef std::vector<rviz::PointCloud::Point> VPoint;
 
 		/** @brief Subscriber to the ObstacleMap messages */
-		boost::shared_ptr<message_filters::Subscriber<terrain_server::RewardMap> > sub_;
+		boost::shared_ptr<message_filters::Subscriber<terrain_server::ObstacleMap> > sub_;
 
 		/** @brief Mutex of thread */
 		boost::mutex mutex_;
@@ -100,7 +92,13 @@ class RewardMapDisplay : public rviz::Display
 		rviz::IntProperty* queue_size_property_;
 
 		/** @brief Obstacle map topic properties */
-		rviz::RosTopicProperty* rewardmap_topic_property_;
+		rviz::RosTopicProperty* obstaclemap_topic_property_;
+
+		/** @brief Plugin color properties */
+		rviz::ColorProperty* color_property_;
+
+		/** @brief Plugin alpha property */
+		rviz::FloatProperty* alpha_property_;
 
 		/** @brief Max tree areas */
 		int max_tree_areas_;
@@ -120,14 +118,17 @@ class RewardMapDisplay : public rviz::Display
 		/** @brief Number of received messages */
 		uint32_t messages_received_;
 
-		/** @brief Color factor */
-		double color_factor_;
-
 		/** @brief Grid size */
 		double grid_size_;
 
 		/** @brief Height size */
 		double height_size_;
+
+		/** @brief Color value */
+		Ogre::ColourValue color_;
+
+		/** @brief Alpha value */
+		float alpha_;
 
 		private Q_SLOTS:
 			/** @brief Updates queue size */
@@ -135,9 +136,12 @@ class RewardMapDisplay : public rviz::Display
 
 			/** @brief Updates the topic name */
 			void updateTopic();
+
+			/** @brief Updates the color */
+			void updateColor();
 };
 
 } //@namespace reward_map_rviz_plugin
 
 
-#endif //RVIZ_RewardMapDisplay_H
+#endif
