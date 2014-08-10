@@ -4,10 +4,15 @@
 namespace dwl_planners
 {
 
-HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), solver_ptr_(NULL)
+HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), solver_ptr_(NULL),
+		base_frame_("base_link"), world_frame_("odom")
 {
+	// Getting the base and world frame
+	node_.param("base_frame", base_frame_, base_frame_);
+	node_.param("world_frame", world_frame_, world_frame_);
+
 	reward_sub_ = new message_filters::Subscriber<terrain_server::RewardMap> (node_, "reward_map", 5);
-	tf_reward_sub_ = new tf::MessageFilter<terrain_server::RewardMap> (*reward_sub_, tf_listener_, "world", 5);
+	tf_reward_sub_ = new tf::MessageFilter<terrain_server::RewardMap> (*reward_sub_, tf_listener_, world_frame_, 5);
 	tf_reward_sub_->registerCallback(boost::bind(&HierarchicalPlanners::rewardMapCallback, this, _1));
 	obstacle_sub_ = node_.subscribe<terrain_server::ObstacleMap>("/obstacle_map", 1, &HierarchicalPlanners::obstacleMapCallback, this);
 
@@ -15,8 +20,8 @@ HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), 
 	body_path_pub_ = node_.advertise<nav_msgs::Path>("approximated_body_path", 1);
 	contact_sequence_pub_ = node_.advertise<visualization_msgs::Marker>("contact_sequence", 1);
 
-	body_path_msg_.header.frame_id = "world";
-	contact_sequence_msg_.header.frame_id = "world";
+	body_path_msg_.header.frame_id = world_frame_;
+	contact_sequence_msg_.header.frame_id = world_frame_;
 
 /*	if (pthread_mutex_init(&environment_lock_, NULL) != 0)
 		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&environment_lock_, NULL), strerror(pthread_mutex_init(&environment_lock_, NULL)));
@@ -57,7 +62,7 @@ void HierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapCons
 	// Getting the transformation between the world to robot frame
 	tf::StampedTransform tf_transform;
 	try {
-		tf_listener_.lookupTransform("world", "base_footprint", msg->header.stamp, tf_transform);
+		tf_listener_.lookupTransform(world_frame_, base_frame_, msg->header.stamp, tf_transform);
 	} catch (tf::TransformException& ex) {
 		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
 		return;

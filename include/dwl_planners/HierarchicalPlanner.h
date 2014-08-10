@@ -118,6 +118,12 @@ class HierarchicalPlanners
 		/** @brief Robot pose */
 		dwl::Pose robot_pose_;
 
+		/** @brief Base frame */
+		std::string base_frame_;
+
+		/** @brief World frame */
+		std::string world_frame_;
+
 };
 
 
