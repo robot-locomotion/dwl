@@ -3,9 +3,13 @@
 namespace terrain_server
 {
 
-RewardMapServer::RewardMapServer()
+RewardMapServer::RewardMapServer() : base_frame_("base_link"), world_frame_("odom")
 {
 	reward_map_ = new dwl::environment::RewardOctoMap();
+
+	// Getting the base and world frame
+	node_.param("base_frame", base_frame_, base_frame_);
+	node_.param("world_frame", world_frame_, world_frame_);
 
 	// Adding the search areas
 	// High resolution
@@ -27,13 +31,13 @@ RewardMapServer::RewardMapServer()
 
 	// Declaring the subscriber to octomap and tf messages
 	octomap_sub_ = new message_filters::Subscriber<octomap_msgs::Octomap> (node_, "octomap_binary", 5);
-	tf_octomap_sub_ = new tf::MessageFilter<octomap_msgs::Octomap> (*octomap_sub_, tf_listener_, "world", 5);
+	tf_octomap_sub_ = new tf::MessageFilter<octomap_msgs::Octomap> (*octomap_sub_, tf_listener_, world_frame_, 5);
 	tf_octomap_sub_->registerCallback(boost::bind(&RewardMapServer::octomapCallback, this, _1));
 
 	// Declaring the publisher of reward map
 	reward_pub_ = node_.advertise<terrain_server::RewardMap>("reward_map", 1);
 
-	reward_map_msg_.header.frame_id = "world";
+	reward_map_msg_.header.frame_id = world_frame_;
 }
 
 
@@ -78,7 +82,7 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 	// Getting the transformation between the world to robot frame
 	tf::StampedTransform tf_transform;
 	try {
-		tf_listener_.lookupTransform("world", "base_footprint", msg->header.stamp, tf_transform);
+		tf_listener_.lookupTransform(world_frame_, base_frame_, msg->header.stamp, tf_transform);
 	} catch (tf::TransformException& ex) {
 		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
 		return;

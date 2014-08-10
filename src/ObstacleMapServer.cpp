@@ -4,8 +4,12 @@
 namespace terrain_server
 {
 
-ObstacleMapServer::ObstacleMapServer()
+ObstacleMapServer::ObstacleMapServer() : base_frame_("base_link"), world_frame_("odom")
 {
+	// Getting the base and world frame
+	node_.param("base_frame", base_frame_, base_frame_);
+	node_.param("world_frame", world_frame_, world_frame_);
+
 	// Adding the search areas
 	// High resolution
 	obstacle_map_.addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.352, 0.2, 0.04);
@@ -18,13 +22,13 @@ ObstacleMapServer::ObstacleMapServer()
 
 	// Declaring the subscriber to octomap and tf messages
 	octomap_sub_ = new message_filters::Subscriber<octomap_msgs::Octomap> (node_, "octomap_binary", 5);
-	tf_octomap_sub_ = new tf::MessageFilter<octomap_msgs::Octomap> (*octomap_sub_, tf_listener_, "world", 5);
+	tf_octomap_sub_ = new tf::MessageFilter<octomap_msgs::Octomap> (*octomap_sub_, tf_listener_, "odom", 5);
 	tf_octomap_sub_->registerCallback(boost::bind(&ObstacleMapServer::octomapCallback, this, _1));
 
 	// Declaring the publisher of reward map
 	obstacle_pub_ = node_.advertise<terrain_server::ObstacleMap>("obstacle_map", 1);
 
-	obstacle_map_msg_.header.frame_id = "world";
+	obstacle_map_msg_.header.frame_id = "odom";
 }
 
 
@@ -66,7 +70,7 @@ void ObstacleMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& m
 	// Getting the transformation between the world to robot frame
 	tf::StampedTransform tf_transform;
 	try {
-		tf_listener_.lookupTransform("world", "base_footprint", msg->header.stamp, tf_transform);
+		tf_listener_.lookupTransform("odom", "base_link", msg->header.stamp, tf_transform);
 	} catch (tf::TransformException& ex) {
 		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
 		return;

@@ -73,6 +73,11 @@ class RewardMapServer
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;
 
+		/** @brief Base frame */
+		std::string base_frame_;
+
+		/** @brief World frame */
+		std::string world_frame_;
 };
 
 } //@namespace terrain_server
