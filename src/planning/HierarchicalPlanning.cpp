@@ -1,5 +1,5 @@
 #include <planning/HierarchicalPlanning.h>
-#include <utils/Orientation.h> //TODO
+#include <utils/Orientation.h>
 
 
 namespace dwl

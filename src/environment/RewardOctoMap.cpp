@@ -33,6 +33,12 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 		is_added_search_area_ = true;
 	}
 
+	// Getting the discretized state
+	/*Vertex state_vertex;
+	Eigen::Vector3d robot_3dstate;
+	robot_3dstate << robot_state.head(2), robot_state(3);
+	space_discretization_.stateToVertex(state_vertex, robot_3dstate);
+	space_discretization_.vertexToState(robot_3dstate, state_vertex);*/
 	double yaw = robot_state(3);
 
 	// Computing reward map for several search areas
@@ -54,7 +60,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 				// Checking if the cell belongs to dimensions of the map, and also getting the key of this cell
 				double z = search_areas_[n].max_z + robot_state(2);
 				octomap::OcTreeKey init_key;
-				if (!octomap->coordToKeyChecked(xr, yr, z, 16, init_key)) {
+				if (!octomap->coordToKeyChecked(xr, yr, z, 16, init_key)) {//TODO Analysing the depth value
 					printf(RED "Cell out of bounds\n" COLOR_RESET);
 
 					return;

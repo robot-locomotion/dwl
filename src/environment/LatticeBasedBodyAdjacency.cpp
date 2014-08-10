@@ -67,13 +67,13 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 					// Computing the body cost
 					double body_cost;
 					computeBodyCost(body_cost, current_action_vertex);
-					body_cost += actions[i].cost; //TODO
+					body_cost += actions[i].cost;
 					successors.push_back(Edge(current_action_vertex, body_cost));
 				}
 			}
 		}
 	} else
-		printf(RED "Could not computed the successors because there isn't terrain information \n" COLOR_RESET);
+		printf(RED "Could not computed the successors because there is not terrain information \n" COLOR_RESET);
 }
 
 
@@ -174,9 +174,7 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, State stat
 				environment_->getSpaceModel().coordToVertex(current_2d_vertex, point_position);
 
 				// Checking if there is an obstacle
-				//std::cout << obstacle_map.find(current_2d_vertex)->second << std::endl;
 				if (obstacle_map.find(current_2d_vertex)->second) {
-					std::cout << obstacle_map.find(current_2d_vertex)->second << std::endl;
 					std::cout << "Obstacle" << std::endl;
 					is_free = false;
 					goto found_obstacle;

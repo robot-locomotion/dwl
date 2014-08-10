@@ -11,7 +11,7 @@ ObstacleMap::ObstacleMap() : space_discretization_(std::numeric_limits<double>::
 		depth_(16), is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()),
 		interest_radius_y_(std::numeric_limits<double>::max())
 {
-
+	depth_ = 14; //TODO
 }
 
 
@@ -61,12 +61,12 @@ void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 				int r = 0;
 				while (z >= search_areas_[n].min_z + robot_state(2)) {
 					octomap::OcTreeKey heightmap_key;
-					octomap::OcTreeNode* heightmap_node = octomap->search(init_key);
+					octomap::OcTreeNode* heightmap_node = octomap->search(init_key, depth_);
 					heightmap_key[0] = init_key[0];
 					heightmap_key[1] = init_key[1];
 					heightmap_key[2] = init_key[2] - r;
 
-					heightmap_node = octomap->search(heightmap_key);
+					heightmap_node = octomap->search(heightmap_key, depth_);
 					octomap::point3d height_point = octomap->keyToCoord(heightmap_key, depth_);
 					z = height_point(2);
 					if (heightmap_node) {
