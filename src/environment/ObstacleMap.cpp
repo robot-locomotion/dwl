@@ -9,9 +9,8 @@ namespace environment
 
 ObstacleMap::ObstacleMap() : space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
 		depth_(16), is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()),
-		interest_radius_y_(std::numeric_limits<double>::max())
+		interest_radius_y_(std::numeric_limits<double>::max()), resolution_(std::numeric_limits<double>::max())
 {
-	depth_ = 14; //TODO
 }
 
 
@@ -25,12 +24,16 @@ void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 	if (!is_added_search_area_) {
 		printf(YELLOW "Warning: adding a default search area" COLOR_RESET);
 		// Adding a default search area
-		addSearchArea(0.5, 3.0, -0.75, 0.75, -0.202, 0.2, 0.04);//TODO
+		addSearchArea(0.5, 3.0, -0.75, 0.75, -0.202, 0.2, 0.08);//TODO
 
 		is_added_search_area_ = true;
 	}
 
 	double yaw = robot_state(3);
+
+	// Setting the depth of the octomap message according to the resolution
+	double octomap_resolution = octomap->getResolution();
+	depth_ = 16 - floor(resolution_ / (2 * octomap_resolution));
 
 	// Computing obstacle map for several search areas
 	for (int n = 0; n < search_areas_.size(); n++) {
@@ -119,8 +122,11 @@ void ObstacleMap::addSearchArea(double min_x, double max_x, double min_y, double
 
 	search_areas_.push_back(search_area);
 
-	if (grid_resolution < space_discretization_.getEnvironmentResolution(true))
+	if (grid_resolution < space_discretization_.getEnvironmentResolution(true)) {
 		space_discretization_.setEnvironmentResolution(grid_resolution, true);
+		space_discretization_.setEnvironmentResolution(grid_resolution, false);
+		resolution_ = grid_resolution;
+	}
 
 	is_added_search_area_ = true;
 }

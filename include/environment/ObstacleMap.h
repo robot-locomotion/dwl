@@ -103,6 +103,9 @@ class ObstacleMap
 
 		/** @brief Indicates if it was added a search area */
 		bool is_added_search_area_;
+
+		/** @brief Resolution of the obstacle map server */
+		double resolution_;
 };
 
 } //@namespace environment

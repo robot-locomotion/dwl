@@ -120,6 +120,16 @@ struct RewardCell
 };
 
 /**
+ * @brief Struct that defines the area
+ */
+struct Area
+{
+	double min_x, max_x;
+	double min_y, max_y;
+	double min_z, max_z;
+};
+
+/**
  * @brief Struct that defines the search area
  */
 struct SearchArea

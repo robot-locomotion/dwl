@@ -48,6 +48,10 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 		HeightMap terrain_heightmap;
 		environment_->getTerrainHeightMap(terrain_heightmap);
 
+		// Setting the terrain resolution
+		double terrain_resolution = environment_->getTerrainResolution();
+		environment_->setEnvironmentResolution(terrain_resolution, true);
+
 		double body_cost;
 		// Computing the boundary of stance area
 		Eigen::Vector2d boundary_min, boundary_max;

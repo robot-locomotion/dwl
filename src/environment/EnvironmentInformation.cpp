@@ -8,7 +8,8 @@ namespace environment
 {
 
 EnvironmentInformation::EnvironmentInformation() : space_discretization_(0.04, 0.04, M_PI / 24), average_cost_(0),
-		terrain_cost_information_(false), terrain_obstacle_information_(false)
+		terrain_cost_information_(false), terrain_obstacle_information_(false), terrain_resolution_(std::numeric_limits<double>::max()),
+		obstacle_resolution_(std::numeric_limits<double>::max())
 {
 
 }
@@ -29,19 +30,14 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<RewardCell> r
 	terrain_height_map_.swap(empty_terrain_height_map);
 	average_cost_ = 0;
 
+	// Setting the resolution
+	terrain_resolution_ = reward_map[0].plane_size;
+	setEnvironmentResolution(terrain_resolution_, true);
+	setEnvironmentResolution(reward_map[0].height_size, false);
+
 	// Storing the cost-map data according the vertex id
 	Vertex vertex_2d;
-	double resolution = std::numeric_limits<double>::max();
 	for (int i = 0; i < reward_map.size(); i++) {
-		// Setting the resolution of the environment
-		if ((reward_map[i].plane_size != space_discretization_.getEnvironmentResolution(true)) ||
-				(reward_map[i].height_size != space_discretization_.getEnvironmentResolution(false))) {
-			printf("Setting the plane resolution to %f\n", reward_map[i].plane_size);
-			printf("Setting the height resolution to %f\n", reward_map[i].height_size);
-			setEnvironmentResolution(reward_map[i].plane_size, true);
-			setEnvironmentResolution(reward_map[i].height_size, false);
-		}
-
 		// Building a cost map for a every 3d vertex
 		space_discretization_.keyToVertex(vertex_2d, reward_map[i].key, true);
 		terrain_cost_map_[vertex_2d] = -reward_map[i].reward;
@@ -52,10 +48,6 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<RewardCell> r
 		terrain_height_map_[vertex_2d] = height;
 
 		average_cost_ += -reward_map[i].reward;
-
-		if (reward_map[i].plane_size < resolution) {
-			resolution = reward_map[i].plane_size;
-		}
 	}
 
 	// Computing the average cost of the terrain
@@ -71,32 +63,17 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> obstacl
 	ObstacleMap empty_terrain_obstacle_map;
 	terrain_obstacle_map_.swap(empty_terrain_obstacle_map);
 
+	// Setting the obstacle resolution
+	obstacle_resolution_ = obstacle_map[0].plane_size;
+	setEnvironmentResolution(obstacle_resolution_, true);
+
 	//Storing the obstacle-map data according the vertex id
 	Vertex vertex_2d;
 	double resolution = std::numeric_limits<double>::max();
 	for (int i = 0; i < obstacle_map.size(); i++) {
-		// Setting the resolution of the environment
-		if ((obstacle_map[i].plane_size != space_discretization_.getEnvironmentResolution(true)) ||
-				(obstacle_map[i].height_size != space_discretization_.getEnvironmentResolution(false))) {
-			printf("Setting the plane resolution to %f\n", obstacle_map[i].plane_size);
-			printf("Setting the height resolution to %f\n", obstacle_map[i].height_size);
-			setEnvironmentResolution(obstacle_map[i].plane_size, true);
-			setEnvironmentResolution(obstacle_map[i].height_size, false);
-		}
-
 		// Building a cost map for a every 3d vertex
 		space_discretization_.keyToVertex(vertex_2d, obstacle_map[i].key, true);
 		terrain_obstacle_map_[vertex_2d] = true;
-
-		// Building a height map (3d vertex) according to certain 2d position (2d vertex)
-		/*double height;
-		space_discretization_.keyToCoord(height, reward_map[i].key.z, false);
-		terrain_height_map_[vertex_2d] = height;*/
-
-
-		if (obstacle_map[i].plane_size < resolution) {
-			resolution = obstacle_map[i].plane_size;
-		}
 	}
 
 
@@ -140,7 +117,7 @@ double EnvironmentInformation::getAverageCostOfTerrain()
 }
 
 
-const SpaceDiscretization& EnvironmentInformation::getSpaceModel() const
+SpaceDiscretization& EnvironmentInformation::getSpaceModel()
 {
 	return space_discretization_;
 }
@@ -155,6 +132,18 @@ bool EnvironmentInformation::isTerrainCostInformation()
 bool EnvironmentInformation::isTerrainObstacleInformation()
 {
 	return terrain_obstacle_information_;
+}
+
+
+double EnvironmentInformation::getTerrainResolution()
+{
+	return terrain_resolution_;
+}
+
+
+double EnvironmentInformation::getObstacleResolution()
+{
+	return obstacle_resolution_;
 }
 
 } //@namespace environment

@@ -38,7 +38,7 @@ class Robot
 		 */
 		const std::vector<Eigen::Vector2d>& getStancePosition() const;
 
-		const SearchArea& getBodyArea() const;
+		const Area& getBodyArea() const;
 
 		/**
 		 * @brief Gets the stance areas
@@ -61,7 +61,7 @@ class Robot
 		std::vector<SearchArea> stance_areas_;
 
 		/** @brief Vector of the body area */
-		SearchArea body_area_;
+		Area body_area_;
 
 		/** @brief Vector of stance positions */
 		std::vector<Eigen::Vector2d> stance_position_;

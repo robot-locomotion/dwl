@@ -78,7 +78,7 @@ class EnvironmentInformation
 		 * @brief Gets the defined grid model according the resolution of the environment
 		 * @return dwl::environment::PlaneGrid& Returns the reference of the environment object
 		 */
-		const SpaceDiscretization& getSpaceModel() const;
+		SpaceDiscretization& getSpaceModel();
 
 		/**
 		 * @brief Indicates if it was defined terrain cost information
@@ -91,6 +91,9 @@ class EnvironmentInformation
 		 * @return Returns true if it was defined terrain obstacle information, otherwise false
 		 */
 		bool isTerrainObstacleInformation();
+
+		double getTerrainResolution();
+		double getObstacleResolution();
 
 
 	private:
@@ -114,6 +117,9 @@ class EnvironmentInformation
 
 		/** @brief Indicates if it was defined terrain obstacle information */
 		bool terrain_obstacle_information_;
+
+		double terrain_resolution_;
+		double obstacle_resolution_;
 };
 
 } //@namespace environment

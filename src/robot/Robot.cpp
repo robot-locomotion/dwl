@@ -35,7 +35,6 @@ Robot::Robot() : number_legs_(4)
 	}
 
 	// Defining the body area of HyQ
-	body_area_.grid_resolution = 0.04;
 	body_area_.max_x = stance_position_[LF](0);
 	body_area_.min_x = stance_position_[LH](0);
 	body_area_.max_y = stance_position_[LF](1);
@@ -55,7 +54,7 @@ void Robot::setStanceAreas(std::vector<SearchArea> stance_areas)
 }
 
 
-const SearchArea& Robot::getBodyArea() const
+const Area& Robot::getBodyArea() const
 {
 	return body_area_;
 }
