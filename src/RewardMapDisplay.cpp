@@ -165,7 +165,8 @@ void RewardMapDisplay::incomingMessageCallback(const terrain_server::RewardMapCo
 	point_buf_.clear();
 
 	// Computing the maximum and minumum reward of the map, and minimun key of the height
-	double min_reward, max_reward = 0;
+	double min_reward = -1;
+	double max_reward = 0;
 	unsigned int min_key_z = std::numeric_limits<unsigned int>::max();
 	for (int i = 0; i < msg->cell.size(); i++) {
 		if (min_reward > msg->cell[i].reward)
