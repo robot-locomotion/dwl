@@ -12,7 +12,7 @@ ObstacleMapServer::ObstacleMapServer() : base_frame_("base_link"), world_frame_(
 
 	// Adding the search areas
 	// High resolution
-	obstacle_map_.addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.352, 0.2, 0.08);//TODO
+	obstacle_map_.addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.2, 0.2, 0.08);//TODO
 	// Low resolution
 	/*obstacle_map_->addSearchArea(2.5, 3.0, -0.85, 0.85, -0.8, -0.2, 0.08);
 	obstacle_map_->addSearchArea(-0.75, -0.5, -0.85, 0.85, -0.8, -0.2, 0.08);
@@ -62,10 +62,6 @@ void ObstacleMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& m
 		ROS_WARN("Failed to create octree structure");
 		return;
 	}
-
-
-	// Setting the resolution of the gridmap
-	obstacle_map_.setResolution(octomap->getResolution(), false);
 
 	// Getting the transformation between the world to robot frame
 	tf::StampedTransform tf_transform;
