@@ -70,7 +70,7 @@ link_directories(${catkin_LIBRARY_DIRS}
 
 ## Declare a cpp executable
 add_executable(reward_map_server src/RewardMapServer.cpp)
-
+add_dependencies(reward_map_server ${catkin_EXPORTED_TARGETS})
 target_link_libraries(reward_map_server
                       ${catkin_LIBRARIES}
                       ${dwl_LIBRARIES}
@@ -78,7 +78,7 @@ target_link_libraries(reward_map_server
 
 
 add_executable(obstacle_map_server src/ObstacleMapServer.cpp)
-
+add_dependencies(obstacle_map_server ${catkin_EXPORTED_TARGETS})
 target_link_libraries(obstacle_map_server
                       ${catkin_LIBRARIES}
                       ${dwl_LIBRARIES}
