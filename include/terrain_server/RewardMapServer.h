@@ -41,6 +41,9 @@ class RewardMapServer
 		/** @brief Destructor function */
 		~RewardMapServer();
 
+		/** @brief Initialization of the reward map server */
+		bool init();
+
 		/**
 		 * @brief Callback function when it arrives a octomap message
 		 * @param const octomap_msgs::Octomap::ConstPtr& msg Octomap message
@@ -78,6 +81,9 @@ class RewardMapServer
 
 		/** @brief World frame */
 		std::string world_frame_;
+
+		/** @brief Indicates if it was computed new information of the reward map */
+		bool new_information_;
 };
 
 } //@namespace terrain_server

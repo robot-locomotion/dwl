@@ -3,31 +3,9 @@
 namespace terrain_server
 {
 
-RewardMapServer::RewardMapServer() : base_frame_("base_link"), world_frame_("odom")
+RewardMapServer::RewardMapServer() : base_frame_("base_link"), world_frame_("odom") , new_information_(false)
 {
 	reward_map_ = new dwl::environment::RewardOctoMap();
-
-	// Getting the base and world frame
-	node_.param("base_frame", base_frame_, base_frame_);
-	node_.param("world_frame", world_frame_, world_frame_);
-
-	// Adding the search areas
-	// High resolution
-	reward_map_->addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.8, -0.35, 0.04);
-	// Low resolution
-	reward_map_->addSearchArea(2.5, 3.0, -0.85, 0.85, -0.8, -0.35, 0.08);
-	reward_map_->addSearchArea(-0.75, -0.5, -0.85, 0.85, -0.8, -0.35, 0.08);
-	reward_map_->addSearchArea(-0.75, 3.0, -1.25, -0.85, -0.8, -0.35, 0.08);
-	reward_map_->addSearchArea(-0.75, 3.0, 0.85, 1.25, -0.8, -0.35, 0.08);
-	reward_map_->setInterestRegion(1.5, 5.5);
-
-	// Adding the features
-	dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
-	dwl::environment::Feature* height_dev_ptr = new dwl::environment::HeightDeviationFeature();
-	dwl::environment::Feature* curvature_ptr = new dwl::environment::CurvatureFeature();
-	reward_map_->addFeature(slope_ptr);
-	reward_map_->addFeature(height_dev_ptr);
-	reward_map_->addFeature(curvature_ptr);
 
 	// Declaring the subscriber to octomap and tf messages
 	octomap_sub_ = new message_filters::Subscriber<octomap_msgs::Octomap> (node_, "octomap_binary", 5);
@@ -36,8 +14,6 @@ RewardMapServer::RewardMapServer() : base_frame_("base_link"), world_frame_("odo
 
 	// Declaring the publisher of reward map
 	reward_pub_ = node_.advertise<terrain_server::RewardMap>("reward_map", 1);
-
-	reward_map_msg_.header.frame_id = world_frame_;
 }
 
 
@@ -57,6 +33,87 @@ RewardMapServer::~RewardMapServer()
 	}
 }
 
+
+bool RewardMapServer::init()
+{
+	// Getting the base and world frame
+	node_.param("base_frame", base_frame_, base_frame_);
+	node_.param("world_frame", world_frame_, world_frame_);
+	reward_map_msg_.header.frame_id = world_frame_;
+
+	// Getting the names of search areas
+	XmlRpc::XmlRpcValue area_names;
+	if (!node_.getParam("reward_map/search_areas", area_names)) {
+		ROS_ERROR("No search areas given in the namespace: %s.", node_.getNamespace().c_str());
+	} else {
+		// Evaluating the fetching information of the search areas
+		if (area_names.getType() != XmlRpc::XmlRpcValue::TypeArray) {
+			ROS_ERROR("Malformed search area specification.");
+			return false;
+		}
+
+		double min_x, max_x, min_y, max_y, min_z, max_z, resolution;
+		for (int i = 0; i < area_names.size(); i++) {
+			node_.getParam("reward_map/" + (std::string) area_names[i] + "/min_x", min_x);
+			node_.getParam("reward_map/" + (std::string) area_names[i] + "/max_x", max_x);
+			node_.getParam("reward_map/" + (std::string) area_names[i] + "/min_y", min_y);
+			node_.getParam("reward_map/" + (std::string) area_names[i] + "/max_y", max_y);
+			node_.getParam("reward_map/" + (std::string) area_names[i] + "/min_z", min_z);
+			node_.getParam("reward_map/" + (std::string) area_names[i] + "/max_z", max_z);
+			node_.getParam("reward_map/" + (std::string) area_names[i] + "/resolution", resolution);
+
+			// Adding the search areas
+			reward_map_->addSearchArea(min_x, max_x, min_y, max_y, min_z, max_z, resolution);
+		}
+	}
+
+	// Getting the interest region, i.e. the information outside this region will be deleted
+	double radius_x = 1, radius_y = 1;
+	std::cout << radius_x << std::endl;
+	node_.getParam("reward_map/interest_region/radius_x", radius_x);
+	node_.getParam("reward_map/interest_region/radius_y", radius_y);
+	reward_map_->setInterestRegion(radius_x, radius_y);
+	std::cout << radius_x << std::endl;
+	// Getting the feature information
+	bool enable_slope, enable_height_dev, enable_curvature;
+	double weight;
+	double default_weight = 1;
+	node_.getParam("reward_map/features/slope/enable", enable_slope);
+	node_.getParam("reward_map/features/height_deviation/enable", enable_height_dev);
+	node_.getParam("reward_map/features/curvature/enable", enable_curvature);
+
+	// Adding the slope feature if it's enable
+	if (enable_slope) {
+		node_.param("reward_map/features/slope/weight", weight, default_weight);
+		dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
+		slope_ptr->setWeight(weight);
+
+		// Adding the feature
+		reward_map_->addFeature(slope_ptr);
+	}
+
+	// Adding the height deviation feature if it's enable
+	if (enable_height_dev) {
+			node_.param("reward_map/features/height_deviation/weight", weight, default_weight);
+			dwl::environment::Feature* height_dev_ptr = new dwl::environment::HeightDeviationFeature();
+			height_dev_ptr->setWeight(weight);
+
+			// Adding the feature
+			reward_map_->addFeature(height_dev_ptr);
+		}
+
+	// Adding the curvature feature if it's enable
+	if (enable_curvature) {
+		node_.param("reward_map/features/curvature/weight", weight, default_weight);
+		dwl::environment::Feature* curvature_ptr = new dwl::environment::CurvatureFeature();
+		curvature_ptr->setWeight(weight);
+
+		// Adding the feature
+		reward_map_->addFeature(curvature_ptr);
+	}
+
+	return true;
+}
 
 void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg)
 {
@@ -108,41 +165,47 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 	clock_gettime(CLOCK_REALTIME, &end_rt);
 	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9*(end_rt.tv_nsec - start_rt.tv_nsec);
 	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
+
+	new_information_ = true;
 }
 
 
 void RewardMapServer::publishRewardMap()
 {
-	reward_map_msg_.header.stamp = ros::Time::now();
+	if (new_information_) {
+		// Publishing the reward map if there is at least one subscriber
+		if (reward_pub_.getNumSubscribers() > 0) {
+			reward_map_msg_.header.stamp = ros::Time::now();
 
-	std::map<dwl::Vertex, dwl::RewardCell> reward_gridmap;
-	reward_gridmap = reward_map_->getRewardMap();
+			std::map<dwl::Vertex, dwl::RewardCell> reward_gridmap;
+			reward_gridmap = reward_map_->getRewardMap();
 
-	terrain_server::RewardCell cell;
-	reward_map_msg_.plane_size = reward_map_->getResolution(true);
-	reward_map_msg_.height_size = reward_map_->getResolution(false);
+			terrain_server::RewardCell cell;
+			reward_map_msg_.plane_size = reward_map_->getResolution(true);
+			reward_map_msg_.height_size = reward_map_->getResolution(false);
 
-	// Converting the vertexs into a cell message
-	for (std::map<dwl::Vertex, dwl::RewardCell>::iterator vertex_iter = reward_gridmap.begin();
-			vertex_iter != reward_gridmap.end();
-			vertex_iter++)
-	{
-		dwl::Vertex v = vertex_iter->first;
-		dwl::RewardCell reward_cell = vertex_iter->second;
+			// Converting the vertexs into a cell message
+			for (std::map<dwl::Vertex, dwl::RewardCell>::iterator vertex_iter = reward_gridmap.begin();
+					vertex_iter != reward_gridmap.end();
+					vertex_iter++)
+			{
+				dwl::Vertex v = vertex_iter->first;
+				dwl::RewardCell reward_cell = vertex_iter->second;
 
-		cell.key_x = reward_cell.key.x;
-		cell.key_y = reward_cell.key.y;
-		cell.key_z = reward_cell.key.z;
-		cell.reward = reward_cell.reward;
-		reward_map_msg_.cell.push_back(cell);
+				cell.key_x = reward_cell.key.x;
+				cell.key_y = reward_cell.key.y;
+				cell.key_z = reward_cell.key.z;
+				cell.reward = reward_cell.reward;
+				reward_map_msg_.cell.push_back(cell);
+			}
+
+			reward_pub_.publish(reward_map_msg_);
+
+			// Deleting old information
+			reward_map_msg_.cell.clear();
+			new_information_ = false;
+		}
 	}
-
-	// Publishing the reward map if there is at least one subscriber
-	if (reward_pub_.getNumSubscribers() > 0)
-		reward_pub_.publish(reward_map_msg_);
-
-	// Deleting old information
-	reward_map_msg_.cell.clear();
 }
 
 } //@namespace terrain_server
@@ -150,20 +213,23 @@ void RewardMapServer::publishRewardMap()
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "reward_map_node");
+	ros::init(argc, argv, "reward_map_server");
 
 	terrain_server::RewardMapServer reward_server;
+	if (!reward_server.init())
+		return -1;
+
 	ros::spinOnce();
 
 	try {
-		ros::Rate loop_rate(30);
+		ros::Rate loop_rate(100);
 		while(ros::ok()) {
 			reward_server.publishRewardMap();
 			ros::spinOnce();
 			loop_rate.sleep();
 		}
 	} catch(std::runtime_error& e) {
-		ROS_ERROR("octomap_server exception: %s", e.what());
+		ROS_ERROR("reward_map_server exception: %s", e.what());
 		return -1;
 	}
 

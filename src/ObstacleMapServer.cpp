@@ -4,22 +4,8 @@
 namespace terrain_server
 {
 
-ObstacleMapServer::ObstacleMapServer() : base_frame_("base_link"), world_frame_("odom")
+ObstacleMapServer::ObstacleMapServer() : base_frame_("base_link"), world_frame_("odom"), new_information_(false)
 {
-	// Getting the base and world frame
-	node_.param("base_frame", base_frame_, base_frame_);
-	node_.param("world_frame", world_frame_, world_frame_);
-
-	// Adding the search areas
-	// High resolution
-	obstacle_map_.addSearchArea(-0.5, 2.5, -0.85, 0.85, -0.2, 0.2, 0.08);//TODO
-	// Low resolution
-	/*obstacle_map_->addSearchArea(2.5, 3.0, -0.85, 0.85, -0.8, -0.2, 0.08);
-	obstacle_map_->addSearchArea(-0.75, -0.5, -0.85, 0.85, -0.8, -0.2, 0.08);
-	obstacle_map_->addSearchArea(-0.75, 3.0, -1.25, -0.85, -0.8, -0.2, 0.08);
-	obstacle_map_->addSearchArea(-0.75, 3.0, 0.85, 1.25, -0.8, -0.2, 0.08);
-	obstacle_map_->setInterestRegion(1.5, 5.5);*/
-
 	// Declaring the subscriber to octomap and tf messages
 	octomap_sub_ = new message_filters::Subscriber<octomap_msgs::Octomap> (node_, "octomap_binary", 5);
 	tf_octomap_sub_ = new tf::MessageFilter<octomap_msgs::Octomap> (*octomap_sub_, tf_listener_, world_frame_, 5);
@@ -32,10 +18,50 @@ ObstacleMapServer::ObstacleMapServer() : base_frame_("base_link"), world_frame_(
 }
 
 
+bool ObstacleMapServer::init()
+{
+	// Getting the base and world frame
+	node_.param("base_frame", base_frame_, base_frame_);
+	node_.param("world_frame", world_frame_, world_frame_);
+
+	// Getting the names of search areas
+	XmlRpc::XmlRpcValue area_names;
+	if (!node_.getParam("obstacle_map/search_areas", area_names)) {
+		ROS_ERROR("No search areas given in the namespace: %s.", node_.getNamespace().c_str());
+	} else {
+		// Evaluating the fetching information of the search areas
+		if (area_names.getType() != XmlRpc::XmlRpcValue::TypeArray) {
+			ROS_ERROR("Malformed search area specification.");
+			return false;
+		}
+
+		double min_x, max_x, min_y, max_y, min_z, max_z, resolution;
+		for (int i = 0; i < area_names.size(); i++) {
+			node_.getParam("obstacle_map/" + (std::string) area_names[i] + "/min_x", min_x);
+			node_.getParam("obstacle_map/" + (std::string) area_names[i] + "/max_x", max_x);
+			node_.getParam("obstacle_map/" + (std::string) area_names[i] + "/min_y", min_y);
+			node_.getParam("obstacle_map/" + (std::string) area_names[i] + "/max_y", max_y);
+			node_.getParam("obstacle_map/" + (std::string) area_names[i] + "/min_z", min_z);
+			node_.getParam("obstacle_map/" + (std::string) area_names[i] + "/max_z", max_z);
+			node_.getParam("obstacle_map/" + (std::string) area_names[i] + "/resolution", resolution);
+
+			// Adding the search areas
+			obstacle_map_.addSearchArea(min_x, max_x, min_y, max_y, min_z, max_z, resolution);
+		}
+	}
+
+	// Getting the interest region, i.e. the information outside this region will be deleted
+	double radius_x, radius_y;
+	node_.getParam("reward_map/interest_region/radius_x", radius_x);
+	node_.getParam("reward_map/interest_region/radius_y", radius_y);
+	obstacle_map_.setInterestRegion(radius_x, radius_y);
+
+	return true;
+}
+
+
 ObstacleMapServer::~ObstacleMapServer()
 {
-	//octomap_sub_.shutdown();
-
 	if (tf_octomap_sub_){
 		delete tf_octomap_sub_;
 		tf_octomap_sub_ = NULL;
@@ -92,40 +118,47 @@ void ObstacleMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& m
 	clock_gettime(CLOCK_REALTIME, &end_rt);
 	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9*(end_rt.tv_nsec - start_rt.tv_nsec);
 	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
+
+	new_information_ = true;
 }
 
 
 void ObstacleMapServer::publishObstacleMap()
 {
-	obstacle_map_msg_.header.stamp = ros::Time::now();
+	if (new_information_) {
+		// Publishing the reward map if there is at least one subscriber
+		if (obstacle_pub_.getNumSubscribers() > 0) {
+			obstacle_map_msg_.header.stamp = ros::Time::now();
 
-	std::map<dwl::Vertex, dwl::Cell> obstacle_gridmap;
-	obstacle_gridmap = obstacle_map_.getObstacleMap();
+			std::map<dwl::Vertex, dwl::Cell> obstacle_gridmap;
+			obstacle_gridmap = obstacle_map_.getObstacleMap();
 
-	terrain_server::Cell cell;
-	obstacle_map_msg_.plane_size = obstacle_map_.getResolution(true);
-	obstacle_map_msg_.height_size = obstacle_map_.getResolution(false);
+			terrain_server::Cell cell;
+			obstacle_map_msg_.plane_size = obstacle_map_.getResolution(true);
+			obstacle_map_msg_.height_size = obstacle_map_.getResolution(false);
 
-	// Converting the vertexs into a cell message
-	for (std::map<dwl::Vertex, dwl::Cell>::iterator vertex_iter = obstacle_gridmap.begin();
-			vertex_iter != obstacle_gridmap.end();
-			vertex_iter++)
-	{
-		dwl::Vertex v = vertex_iter->first;
-		dwl::Cell obstacle_cell = vertex_iter->second;
+			// Converting the vertexs into a cell message
+			for (std::map<dwl::Vertex, dwl::Cell>::iterator vertex_iter = obstacle_gridmap.begin();
+					vertex_iter != obstacle_gridmap.end();
+					vertex_iter++)
+			{
+				dwl::Vertex v = vertex_iter->first;
+				dwl::Cell obstacle_cell = vertex_iter->second;
 
-		cell.key_x = obstacle_cell.key.x;
-		cell.key_y = obstacle_cell.key.y;
-		cell.key_z = obstacle_cell.key.z;
-		obstacle_map_msg_.cell.push_back(cell);
+				cell.key_x = obstacle_cell.key.x;
+				cell.key_y = obstacle_cell.key.y;
+				cell.key_z = obstacle_cell.key.z;
+				obstacle_map_msg_.cell.push_back(cell);
+			}
+
+
+			obstacle_pub_.publish(obstacle_map_msg_);
+
+			// Deleting old information
+			obstacle_map_msg_.cell.clear();
+			new_information_ = false;
+		}
 	}
-
-	// Publishing the reward map if there is at least one subscriber
-	if (obstacle_pub_.getNumSubscribers() > 0)
-		obstacle_pub_.publish(obstacle_map_msg_);
-
-	// Deleting old information
-	obstacle_map_msg_.cell.clear();
 }
 
 } //@namespace terrain_server
@@ -133,20 +166,23 @@ void ObstacleMapServer::publishObstacleMap()
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "obstacle_map_node");
+	ros::init(argc, argv, "obstacle_map_server");
 
 	terrain_server::ObstacleMapServer obstacle_server;
+	if (!obstacle_server.init())
+			return -1;
+
 	ros::spinOnce();
 
 	try {
-		ros::Rate loop_rate(30);
+		ros::Rate loop_rate(100);
 		while(ros::ok()) {
 			obstacle_server.publishObstacleMap();
 			ros::spinOnce();
 			loop_rate.sleep();
 		}
 	} catch(std::runtime_error& e) {
-		ROS_ERROR("octomap_server exception: %s", e.what());
+		ROS_ERROR("obstacle_map_server exception: %s", e.what());
 		return -1;
 	}
 
