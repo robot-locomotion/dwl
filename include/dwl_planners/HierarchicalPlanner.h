@@ -49,12 +49,19 @@ class HierarchicalPlanners
 		/** @brief Initializes the hierarchical planner */
 		void init();
 
+		/** @brief Computes the hierarchical plan */
+		bool compute();
+
 		/**
-		 * @brief Callbacks method when the reward map message arrives
-		 * @param const reward_map_server::RewardMapConstPtr& msg Reward map message
+		 * @brief Callback method when the reward map message arrives
+		 * @param const terrain_server::RewardMapConstPtr& msg Reward map message
 		 */
 		void rewardMapCallback(const terrain_server::RewardMapConstPtr& msg);
 
+		/**
+		 * @brief Callback method when the obstacle map message arrives
+		 * @param const terrain_server::ObstacleMapConstPtr& msg Obstacle map message
+		 */
 		void obstacleMapCallback(const terrain_server::ObstacleMapConstPtr& msg);
 
 		/** @brief Publishes the computed body path */
@@ -69,15 +76,22 @@ class HierarchicalPlanners
 		ros::NodeHandle node_;
 
 		/** @brief Reward map subscriber */
-		message_filters::Subscriber<terrain_server::RewardMap>* reward_sub_;
+		//message_filters::Subscriber<terrain_server::RewardMap>* reward_sub_;
 
 		/** @brief Obstacle map subscriber */
 		ros::Subscriber obstacle_sub_;
 
 		/** @brief TF and reward map subscriber */
-		tf::MessageFilter<terrain_server::RewardMap>* tf_reward_sub_;
+		ros::Subscriber reward_sub_;
 
-		//pthread_mutex_t environment_lock_; //TODO
+		/** @brief Thread mutex of the reward information */
+		pthread_mutex_t reward_lock_;
+
+		/** @brief Thread mutex of the obstacle information */
+		pthread_mutex_t obstacle_lock_;
+
+		/** @brief Thread mutex of the planner */
+		pthread_mutex_t planner_lock_;
 
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;
@@ -103,7 +117,7 @@ class HierarchicalPlanners
 		//dwl::environment::EnvironmentInformation* environment_ptr_;
 
 		/** @brief Solver pointer */
-		dwl::planning::Solver* solver_ptr_;
+		dwl::planning::Solver* body_path_solver_ptr_;
 
 		/** @brief Approximated body path message */
 		nav_msgs::Path body_path_msg_;

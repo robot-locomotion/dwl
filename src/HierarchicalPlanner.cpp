@@ -4,16 +4,16 @@
 namespace dwl_planners
 {
 
-HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), solver_ptr_(NULL),
+HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), body_path_solver_ptr_(NULL),
 		base_frame_("base_link"), world_frame_("odom")
 {
 	// Getting the base and world frame
 	node_.param("base_frame", base_frame_, base_frame_);
 	node_.param("world_frame", world_frame_, world_frame_);
 
-	reward_sub_ = new message_filters::Subscriber<terrain_server::RewardMap> (node_, "reward_map", 5);
-	tf_reward_sub_ = new tf::MessageFilter<terrain_server::RewardMap> (*reward_sub_, tf_listener_, world_frame_, 5);
-	tf_reward_sub_->registerCallback(boost::bind(&HierarchicalPlanners::rewardMapCallback, this, _1));
+	reward_sub_ = node_.subscribe<terrain_server::RewardMap>("/reward_map", 1, &HierarchicalPlanners::rewardMapCallback, this);//new message_filters::Subscriber<terrain_server::RewardMap> (node_, "reward_map", 5);
+	//tf_reward_sub_ = new tf::MessageFilter<terrain_server::RewardMap> (*reward_sub_, tf_listener_, world_frame_, 5);
+	//tf_reward_sub_->registerCallback(boost::bind(&HierarchicalPlanners::rewardMapCallback, this, _1));
 	obstacle_sub_ = node_.subscribe<terrain_server::ObstacleMap>("/obstacle_map", 1, &HierarchicalPlanners::obstacleMapCallback, this);
 
 	// Declaring the publisher of approximated body path
@@ -23,17 +23,27 @@ HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), 
 	body_path_msg_.header.frame_id = world_frame_;
 	contact_sequence_msg_.header.frame_id = world_frame_;
 
-/*	if (pthread_mutex_init(&environment_lock_, NULL) != 0)
-		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&environment_lock_, NULL), strerror(pthread_mutex_init(&environment_lock_, NULL)));
+	// Initializing the mutex
+	if (pthread_mutex_init(&reward_lock_, NULL) != 0)
+		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&reward_lock_, NULL), strerror(pthread_mutex_init(&reward_lock_, NULL)));
+	if (pthread_mutex_unlock(&reward_lock_) != 0)
+		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&reward_lock_, NULL), strerror(pthread_mutex_init(&reward_lock_, NULL)));
 
-	if (pthread_mutex_unlock(&environment_lock_) != 0)
-		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&environment_lock_, NULL), strerror(pthread_mutex_init(&environment_lock_, NULL)));*/
+	if (pthread_mutex_init(&obstacle_lock_, NULL) != 0)
+		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&obstacle_lock_, NULL), strerror(pthread_mutex_init(&obstacle_lock_, NULL)));
+	if (pthread_mutex_unlock(&obstacle_lock_) != 0)
+		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&obstacle_lock_, NULL), strerror(pthread_mutex_init(&obstacle_lock_, NULL)));
+
+	if (pthread_mutex_init(&planner_lock_, NULL) != 0)
+		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&planner_lock_, NULL), strerror(pthread_mutex_init(&planner_lock_, NULL)));
+	if (pthread_mutex_unlock(&planner_lock_) != 0)
+		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&planner_lock_, NULL), strerror(pthread_mutex_init(&planner_lock_, NULL)));
 }
 
 
 HierarchicalPlanners::~HierarchicalPlanners()
 {
-	delete planning_ptr_, solver_ptr_;
+	delete planning_ptr_, body_path_solver_ptr_;
 }
 
 
@@ -42,31 +52,113 @@ void HierarchicalPlanners::init()
 	//  Setup of the locomotion approach
 	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
 
-	// Initialization of planning algorithm, which includes the initizalization and setup of solver algorithm
-	solver_ptr_ = new dwl::planning::AnytimeRepairingAStar();//new dwl::planning::AStar();//new dwl::planning::Dijkstrap();
-	dwl::environment::AdjacencyEnvironment* grid_adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();
-	dwl::environment::AdjacencyEnvironment* lattice_adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
-	solver_ptr_->setAdjacencyModel(lattice_adjacency_ptr);//solver_ptr_->setAdjacencyModel(grid_adjacency_ptr);
-	body_planner_.reset(solver_ptr_);
-	planning_ptr_->reset(&body_planner_, &footstep_planner_, &environment_);//(solver_ptr_, &environment_);
+	// Initialization of the body planner
+	// Getting the body path solver
+	std::string path_solver_name;
+	node_.param("hierarchical_planner/body_planner/path_solver", path_solver_name, (std::string) "AnytimeRepairingAStar");
+	if (path_solver_name == "AnytimeRepairingAStar")
+		body_path_solver_ptr_ = new dwl::planning::AnytimeRepairingAStar();
+	else if (path_solver_name == "AStar")
+		body_path_solver_ptr_ = new dwl::planning::AStar();
+	else if (path_solver_name == "Dijkstrap")
+		body_path_solver_ptr_ = new dwl::planning::Dijkstrap();
+	else
+		body_path_solver_ptr_ = new dwl::planning::AnytimeRepairingAStar();
+
+	// Getting the adjacency model
+	std::string adjacency_model_name;
+	dwl::environment::AdjacencyEnvironment* adjacency_ptr;
+	node_.param("hierarchical_planner/body_planner/adjacency", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
+	if (adjacency_model_name == "LatticeBasedBodyAdjacency")
+		adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
+	else if (adjacency_model_name == "GridBasedBodyAdjacency")
+		adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();
+	else
+		adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
+
+	// Setting the adjacency model in the body path solver
+	body_path_solver_ptr_->setAdjacencyModel(adjacency_ptr);
+
+	// Setting the body path solver to the body planner
+	body_planner_.reset(body_path_solver_ptr_);
+
+	// Setting the body and footstep planner, and the environment to the planning
+	planning_ptr_->reset(&body_planner_, &footstep_planner_, &environment_);
 
 	// Setting up the planner algorithm in the locomotion approach
 	locomotor_.reset(planning_ptr_);
 
+	// Initialization of the locomotion algorithm
 	locomotor_.init();
+}
+
+
+bool HierarchicalPlanners::compute()
+{
+	// Getting the transformation between the world to robot frame
+	tf::StampedTransform tf_transform;
+	try {
+		tf_listener_.waitForTransform(world_frame_, base_frame_, ros::Time(0), ros::Duration(0.05));
+		tf_listener_.lookupTransform(world_frame_, base_frame_, ros::Time(0), tf_transform);
+	} catch (tf::TransformException& ex) {
+		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
+	}
+
+	// Getting the robot state (3D position and yaw angle)
+	Eigen::Vector3d robot_position;
+	robot_position(0) = tf_transform.getOrigin()[0];
+	robot_position(1) = tf_transform.getOrigin()[1];
+	robot_position(2) = tf_transform.getOrigin()[2];
+	Eigen::Vector4d robot_orientation;
+	robot_orientation(0) = tf_transform.getRotation().getX();
+	robot_orientation(1) = tf_transform.getRotation().getY();
+	robot_orientation(2) = tf_transform.getRotation().getZ();
+	robot_orientation(3) = tf_transform.getRotation().getW();
+
+	robot_pose_.position = robot_position;
+	robot_pose_.orientation = robot_orientation;
+
+	dwl::Pose start_pose, goal_pose;
+	goal_pose.position[0] = 4.0;
+	goal_pose.position[1] = 0.0;//-0.85;
+	dwl::Orientation orientation(0, 0, 0);//1.45);
+	Eigen::Quaterniond q;
+	orientation.getQuaternion(q);
+	goal_pose.orientation = q;
+	locomotor_.resetGoal(goal_pose);
+
+
+	// Computing the locomotion plan
+	bool solution = false;
+	timespec start_rt, end_rt;
+	clock_gettime(CLOCK_REALTIME, &start_rt);
+	if (pthread_mutex_trylock(&planner_lock_) == 0)
+		solution = locomotor_.compute(robot_pose_);
+	else
+		pthread_mutex_unlock(&planner_lock_);
+
+	clock_gettime(CLOCK_REALTIME, &end_rt);
+	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
+	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
+
+	body_path_ = locomotor_.getBodyPath();
+	contact_sequence_ = locomotor_.getContactSequence();
+
+
+	return solution;
 }
 
 
 void HierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapConstPtr& msg)
 {
 	// Getting the transformation between the world to robot frame
-	tf::StampedTransform tf_transform;
+	/*tf::StampedTransform tf_transform;
 	try {
 		tf_listener_.lookupTransform(world_frame_, base_frame_, msg->header.stamp, tf_transform);
 	} catch (tf::TransformException& ex) {
 		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
 		return;
-	}
+	}*/
 
 	std::vector<dwl::RewardCell> reward_map;
 
@@ -86,44 +178,17 @@ void HierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapCons
 	}
 
 	// Adding the cost map
-	locomotor_.setTerrainInformation(reward_map);
-
-	// Getting the robot state (3D position and yaw angle)
-	Eigen::Vector3d robot_position;
-	robot_position(0) = tf_transform.getOrigin()[0];
-	robot_position(1) = tf_transform.getOrigin()[1];
-	robot_position(2) = tf_transform.getOrigin()[2];
-	Eigen::Vector4d robot_orientation;
-	robot_orientation(0) = tf_transform.getRotation().getX();
-	robot_orientation(1) = tf_transform.getRotation().getY();
-	robot_orientation(2) = tf_transform.getRotation().getZ();
-	robot_orientation(3) = tf_transform.getRotation().getW();
-
-	robot_pose_.position = robot_position;
-	robot_pose_.orientation = robot_orientation;
-
-	dwl::Pose start_pose, goal_pose;
-//	start_pose.position[0] = robot_position(0);
-//	start_pose.position[1] = robot_position(1);
-	goal_pose.position[0] = 3.50;
-	goal_pose.position[1] = -0.85;
-	dwl::Orientation orientation(0, 0, 1.45);
-	Eigen::Quaterniond q;
-	orientation.getQuaternion(q);
-	goal_pose.orientation = q;
-	locomotor_.resetGoal(goal_pose);
-
-
-	// Computing the locomotion plan
 	timespec start_rt, end_rt;
 	clock_gettime(CLOCK_REALTIME, &start_rt);
-	locomotor_.compute(robot_pose_);
+
+	if (pthread_mutex_trylock(&reward_lock_) == 0)
+		locomotor_.setTerrainInformation(reward_map);
+	else
+		pthread_mutex_unlock(&reward_lock_);
+
 	clock_gettime(CLOCK_REALTIME, &end_rt);
 	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
-	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
-
-	body_path_ = locomotor_.getBodyPath();
-	contact_sequence_ = locomotor_.getContactSequence();
+	ROS_INFO("The duration of setting the information of the environment is %f seg.", duration);
 }
 
 
@@ -146,89 +211,98 @@ void HierarchicalPlanners::obstacleMapCallback(const terrain_server::ObstacleMap
 	}
 
 	// Adding the obstacle map
-	locomotor_.setTerrainInformation(obstacle_map);
+	if (pthread_mutex_trylock(&obstacle_lock_) == 0)
+		locomotor_.setTerrainInformation(obstacle_map);
+	else
+		pthread_mutex_unlock(&obstacle_lock_);
 }
 
 
 void HierarchicalPlanners::publishBodyPath()
 {
-	body_path_msg_.header.stamp = ros::Time::now();
-	body_path_msg_.poses.resize(body_path_.size());
+	// Publishing the body path if there is at least one subscriber
+	if (body_path_pub_.getNumSubscribers() > 0) {
+		body_path_msg_.header.stamp = ros::Time::now();
+		body_path_msg_.poses.resize(body_path_.size());
 
-	if (body_path_.size() != 0) {
-		for (int i = 0; i < body_path_.size(); i++) {
-			body_path_msg_.poses[i].pose.position.x = body_path_[i].position(0);
-			body_path_msg_.poses[i].pose.position.y = body_path_[i].position(1);
-			body_path_msg_.poses[i].pose.position.z = robot_pose_.position(2);
-			body_path_msg_.poses[i].pose.orientation.w = body_path_[i].orientation.w();
-			body_path_msg_.poses[i].pose.orientation.x = body_path_[i].orientation.x();
-			body_path_msg_.poses[i].pose.orientation.y = body_path_[i].orientation.y();
-			body_path_msg_.poses[i].pose.orientation.z = body_path_[i].orientation.z();
+		if (body_path_.size() != 0) {
+			for (int i = 0; i < body_path_.size(); i++) {
+				body_path_msg_.poses[i].pose.position.x = body_path_[i].position(0);
+				body_path_msg_.poses[i].pose.position.y = body_path_[i].position(1);
+				body_path_msg_.poses[i].pose.position.z = robot_pose_.position(2);
+				body_path_msg_.poses[i].pose.orientation.w = body_path_[i].orientation.w();
+				body_path_msg_.poses[i].pose.orientation.x = body_path_[i].orientation.x();
+				body_path_msg_.poses[i].pose.orientation.y = body_path_[i].orientation.y();
+				body_path_msg_.poses[i].pose.orientation.z = body_path_[i].orientation.z();
+			}
+			body_path_pub_.publish(body_path_msg_);
+
+			std::vector<dwl::Pose> empty_body_path;
+			body_path_.swap(empty_body_path);
 		}
-		body_path_pub_.publish(body_path_msg_);
-
-		std::vector<dwl::Pose> empty_body_path;
-		body_path_.swap(empty_body_path);
 	}
 }
 
 
 void HierarchicalPlanners::publishContactSequence()
 {
-	contact_sequence_msg_.header.stamp = ros::Time::now();
-	contact_sequence_msg_.type = visualization_msgs::Marker::SPHERE_LIST;
-	contact_sequence_msg_.ns = "contact_points";
-	contact_sequence_msg_.id = 0;
-	contact_sequence_msg_.scale.x = 0.05;
-	contact_sequence_msg_.scale.y = 0.05;
-	contact_sequence_msg_.scale.z = 0.05;
-	contact_sequence_msg_.action = visualization_msgs::Marker::ADD;
+	// Publishing the contact sequence if there is at least one subscriber
+	if (contact_sequence_pub_.getNumSubscribers() > 0) {
+		contact_sequence_msg_.header.stamp = ros::Time::now();
+		contact_sequence_msg_.type = visualization_msgs::Marker::SPHERE_LIST;
+		contact_sequence_msg_.ns = "contact_points";
+		contact_sequence_msg_.id = 0;
+		contact_sequence_msg_.scale.x = 0.05;
+		contact_sequence_msg_.scale.y = 0.05;
+		contact_sequence_msg_.scale.z = 0.05;
+		contact_sequence_msg_.action = visualization_msgs::Marker::ADD;
 
-	contact_sequence_msg_.points.resize(contact_sequence_.size());
-	contact_sequence_msg_.colors.resize(contact_sequence_.size());
-	if (contact_sequence_.size() != 0) {
-		for (int i = 0; i < contact_sequence_.size(); i++) {
-			contact_sequence_msg_.points[i].x = contact_sequence_[i].position(0);
-			contact_sequence_msg_.points[i].y = contact_sequence_[i].position(1);
-			contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2) + 0.0275;
+		contact_sequence_msg_.points.resize(contact_sequence_.size());
+		contact_sequence_msg_.colors.resize(contact_sequence_.size());
+		if (contact_sequence_.size() != 0) {
+			for (int i = 0; i < contact_sequence_.size(); i++) {
+				contact_sequence_msg_.points[i].x = contact_sequence_[i].position(0);
+				contact_sequence_msg_.points[i].y = contact_sequence_[i].position(1);
+				contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2) + 0.0275;
 
-			int end_effector = contact_sequence_[i].end_effector;
-			if (end_effector == 0) {
-				std::cout << "Contact position 0 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
-				contact_sequence_msg_.colors[i].r = 1.0;
-				contact_sequence_msg_.colors[i].g = 0.0;
-				contact_sequence_msg_.colors[i].b = 0.0;
-				contact_sequence_msg_.colors[i].a = 1.0;
-			} else if (end_effector == 1) {
-				std::cout << "Contact position 1 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
-				contact_sequence_msg_.colors[i].r = 1.0;
-				contact_sequence_msg_.colors[i].g = 1.0;
-				contact_sequence_msg_.colors[i].b = 0.0;
-				contact_sequence_msg_.colors[i].a = 1.0;
-			} else if (end_effector == 2) {
-				std::cout << "Contact position 2 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
-				contact_sequence_msg_.colors[i].r = 0.0;
-				contact_sequence_msg_.colors[i].g = 1.0;
-				contact_sequence_msg_.colors[i].b = 0.0;
-				contact_sequence_msg_.colors[i].a = 1.0;
-			} else if (end_effector == 3) {
-				std::cout << "Contact position 3 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
-				contact_sequence_msg_.colors[i].r = 0.0;
-				contact_sequence_msg_.colors[i].g = 0.0;
-				contact_sequence_msg_.colors[i].b = 1.0;
-				contact_sequence_msg_.colors[i].a = 1.0;
-			} else {
-				contact_sequence_msg_.colors[i].r = 0.0;
-				contact_sequence_msg_.colors[i].g = 1.0;
-				contact_sequence_msg_.colors[i].b = 1.0;
-				contact_sequence_msg_.colors[i].a = 1.0;
+				int end_effector = contact_sequence_[i].end_effector;
+				if (end_effector == 0) {
+					std::cout << "Contact position 0 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
+					contact_sequence_msg_.colors[i].r = 1.0;
+					contact_sequence_msg_.colors[i].g = 0.0;
+					contact_sequence_msg_.colors[i].b = 0.0;
+					contact_sequence_msg_.colors[i].a = 1.0;
+				} else if (end_effector == 1) {
+					std::cout << "Contact position 1 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
+					contact_sequence_msg_.colors[i].r = 1.0;
+					contact_sequence_msg_.colors[i].g = 1.0;
+					contact_sequence_msg_.colors[i].b = 0.0;
+					contact_sequence_msg_.colors[i].a = 1.0;
+				} else if (end_effector == 2) {
+					std::cout << "Contact position 2 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
+					contact_sequence_msg_.colors[i].r = 0.0;
+					contact_sequence_msg_.colors[i].g = 1.0;
+					contact_sequence_msg_.colors[i].b = 0.0;
+					contact_sequence_msg_.colors[i].a = 1.0;
+				} else if (end_effector == 3) {
+					std::cout << "Contact position 3 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
+					contact_sequence_msg_.colors[i].r = 0.0;
+					contact_sequence_msg_.colors[i].g = 0.0;
+					contact_sequence_msg_.colors[i].b = 1.0;
+					contact_sequence_msg_.colors[i].a = 1.0;
+				} else {
+					contact_sequence_msg_.colors[i].r = 0.0;
+					contact_sequence_msg_.colors[i].g = 1.0;
+					contact_sequence_msg_.colors[i].b = 1.0;
+					contact_sequence_msg_.colors[i].a = 1.0;
+				}
+				//contact_sequence_msg_.lifetime = 0;//ros::Duration();
 			}
-			//contact_sequence_msg_.lifetime = 0;//ros::Duration();
-		}
-		contact_sequence_pub_.publish(contact_sequence_msg_);
+			contact_sequence_pub_.publish(contact_sequence_msg_);
 
-		std::vector<dwl::Contact> empty_contact_squence;
-		contact_sequence_.swap(empty_contact_squence);
+			std::vector<dwl::Contact> empty_contact_squence;
+			contact_sequence_.swap(empty_contact_squence);
+		}
 	}
 }
 
@@ -247,10 +321,14 @@ int main(int argc, char **argv)
 	ros::spinOnce();
 
 	try {
-		ros::Rate loop_rate(1000);
+		ros::Rate loop_rate(100);
+
 		while(ros::ok()) {
-			planner.publishBodyPath();
-			planner.publishContactSequence();
+
+			if (planner.compute()) {
+				planner.publishBodyPath();
+				planner.publishContactSequence();
+			}
 			ros::spinOnce();
 			loop_rate.sleep();
 		}
