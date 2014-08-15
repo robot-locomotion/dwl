@@ -17,7 +17,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BASE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BASE_DIR}/bin)
 
 
-#set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Release) TODO Try this lines
+#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
+#set(CMAKE_BUILD_TYPE Release) 
+
 #include_directories(include)
 set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")
 include_directories(${INCLUDE_DIRS})

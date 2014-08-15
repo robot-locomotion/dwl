@@ -22,9 +22,9 @@ ObstacleMap::~ObstacleMap()
 void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 {
 	if (!is_added_search_area_) {
-		printf(YELLOW "Warning: adding a default search area" COLOR_RESET);
+		printf(YELLOW "Warning: adding a default search area \n" COLOR_RESET);
 		// Adding a default search area
-		addSearchArea(0.5, 3.0, -0.75, 0.75, -0.202, 0.2, 0.08);//TODO
+		addSearchArea(5, 5, -2.75, 2.75, -0.202, 0.2, 0.08);
 
 		is_added_search_area_ = true;
 	}

@@ -11,10 +11,10 @@ HeightDeviationFeature::HeightDeviationFeature() : space_discretization_(std::nu
 {
 	name_ = "Height Deviation";
 
-	average_area_.max_x = 0.1;
-	average_area_.min_x = -0.1;
-	average_area_.max_y = 0.1;
-	average_area_.min_y = -0.1;
+	average_area_.max_x = 0.05;
+	average_area_.min_x = -0.05;
+	average_area_.max_y = 0.05;
+	average_area_.min_y = -0.05;
 	average_area_.grid_resolution = 0.04;
 }
 
@@ -56,25 +56,27 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 			}
 		}
 	}
-	if (counter != 0)
+	if (counter != 0) {
 		height_average /= counter;
 
-	// Computing the standard deviation of the height
-	for (double y = boundary_min(1); y < boundary_max(1); y += average_area_.grid_resolution) {
-		for (double x = boundary_min(0); x < boundary_max(0); x += average_area_.grid_resolution) {
-			Eigen::Vector2d coord;
-			coord(0) = x;
-			coord(1) = y;
-			Vertex vertex_2d;
-			space_discretization_.coordToVertex(vertex_2d, coord);
+		// Computing the standard deviation of the height
+		for (double y = boundary_min(1); y < boundary_max(1); y += average_area_.grid_resolution) {
+			for (double x = boundary_min(0); x < boundary_max(0); x += average_area_.grid_resolution) {
+				Eigen::Vector2d coord;
+				coord(0) = x;
+				coord(1) = y;
+				Vertex vertex_2d;
+				space_discretization_.coordToVertex(vertex_2d, coord);
 
-			if (terrain_info.height_map.find(vertex_2d)->first == vertex_2d) {
-				height_deviation += fabs(terrain_info.height_map.find(vertex_2d)->second - height_average);
+				if (terrain_info.height_map.find(vertex_2d)->first == vertex_2d) {
+					height_deviation += fabs(terrain_info.height_map.find(vertex_2d)->second - height_average);
+				}
 			}
 		}
-	}
 
-	reward_value = - height_deviation /counter;
+		reward_value = -height_deviation / counter;
+	} else
+		reward_value = 0;
 
 	reward_value *= 50; /* heuristic value */
 }

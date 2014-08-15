@@ -26,9 +26,9 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 	octomap::OcTree* octomap = model.octomap;
 
 	if (!is_added_search_area_) {
-		printf(YELLOW "Warning: adding a default search area" COLOR_RESET);
+		printf(YELLOW "Warning: adding a default search area \n" COLOR_RESET);
 		// Adding a default search area
-		addSearchArea(0.5, 3.0, -0.75, 0.75, -0.8, -0.2, 0.04);
+		addSearchArea(1.5, 4.0, -1.25, 1.25, -0.8, -0.2, 0.04);
 
 		is_added_search_area_ = true;
 	}
@@ -38,7 +38,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 	Eigen::Vector3d robot_3dstate;
 	robot_3dstate << robot_state.head(2), robot_state(3);
 	space_discretization_.stateToVertex(state_vertex, robot_3dstate);
-	space_discretization_.vertexToState(robot_3dstate, state_vertex);*/
+	space_discretization_.vertexToState(robot_3dstate, state_vertex);*///TODO
 	double yaw = robot_state(3);
 
 	// Computing reward map for several search areas
@@ -217,13 +217,13 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 		if (neighbors_position.size() < 3 || math_.computeMeanAndCovarianceMatrix(neighbors_position, covariance_matrix, terrain_info.position) == 0)
 			return;
 
-			if (!using_cloud_mean_) {
-				terrain_info.position(0) = neighbors_position[0](0);
-				terrain_info.position(1) = neighbors_position[0](1);
-				terrain_info.position(2) = neighbors_position[0](2);
-			}
+		if (!using_cloud_mean_) {
+			terrain_info.position(0) = neighbors_position[0](0);
+			terrain_info.position(1) = neighbors_position[0](1);
+			terrain_info.position(2) = neighbors_position[0](2);
+		}
 
-			math_.solvePlaneParameters(covariance_matrix, terrain_info.surface_normal, terrain_info.curvature);
+		math_.solvePlaneParameters(covariance_matrix, terrain_info.surface_normal, terrain_info.curvature);
 	}
 
 	terrain_info.height_map = terrain_heightmap_;
@@ -234,6 +234,9 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 		double reward_value, weight, total_reward = 0;
 		for (int i = 0; i < features_.size(); i++) {
 			features_[i]->computeReward(reward_value, terrain_info);
+			if (reward_value != reward_value) {
+				std::cout << "Feature name = " << features_[i]->getName().c_str() << std::endl;
+			}
 			features_[i]->getWeight(weight);
 			total_reward += weight * reward_value;
 		}

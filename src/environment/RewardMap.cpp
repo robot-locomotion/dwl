@@ -26,7 +26,9 @@ RewardMap::~RewardMap()
 
 void RewardMap::addFeature(Feature* feature)
 {
-	printf(GREEN "Adding the %s feature\n" COLOR_RESET, feature->getName().c_str());
+	double weight;
+	feature->getWeight(weight);
+	printf(GREEN "Adding the %s feature with a weight of %f\n" COLOR_RESET, feature->getName().c_str(), weight);
 	features_.push_back(feature);
 	is_added_feature_ = true;
 }

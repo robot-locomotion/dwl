@@ -37,23 +37,25 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<RewardCell> r
 
 	// Storing the cost-map data according the vertex id
 	Vertex vertex_2d;
-	for (int i = 0; i < reward_map.size(); i++) {
-		// Building a cost map for a every 3d vertex
-		space_discretization_.keyToVertex(vertex_2d, reward_map[i].key, true);
-		terrain_cost_map_[vertex_2d] = -reward_map[i].reward;
+	if (reward_map.size() != 0) {
+		for (int i = 0; i < reward_map.size(); i++) {
+			// Building a cost map for a every 3d vertex
+			space_discretization_.keyToVertex(vertex_2d, reward_map[i].key, true);
+			terrain_cost_map_[vertex_2d] = -reward_map[i].reward;
 
-		// Building a height map (3d vertex) according to certain 2d position (2d vertex)
-		double height;
-		space_discretization_.keyToCoord(height, reward_map[i].key.z, false);
-		terrain_height_map_[vertex_2d] = height;
+			// Building a height map (3d vertex) according to certain 2d position (2d vertex)
+			double height;
+			space_discretization_.keyToCoord(height, reward_map[i].key.z, false);
+			terrain_height_map_[vertex_2d] = height;
 
-		average_cost_ += -reward_map[i].reward;
+			average_cost_ += -reward_map[i].reward;
+		}
+
+		// Computing the average cost of the terrain
+		average_cost_ /= reward_map.size();
+
+		terrain_cost_information_ = true;
 	}
-
-	// Computing the average cost of the terrain
-	average_cost_ /= reward_map.size();
-
-	terrain_cost_information_ = true;
 }
 
 
