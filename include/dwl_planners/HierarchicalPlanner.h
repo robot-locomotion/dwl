@@ -17,6 +17,7 @@
 
 #include <terrain_server/RewardMap.h>
 #include <terrain_server/ObstacleMap.h>
+#include <dwl_planners/BodyGoal.h>
 #include <nav_msgs/Path.h>
 #include <visualization_msgs/Marker.h>
 
@@ -64,11 +65,18 @@ class HierarchicalPlanners
 		 */
 		void obstacleMapCallback(const terrain_server::ObstacleMapConstPtr& msg);
 
+		/**
+		 * @brief Callback method for reseting the body goal state
+		 * @param const dwl_planners::BodyGoalConstPtr& msg Body goal message
+		 */
+		void resetGoalCallback(const dwl_planners::BodyGoalConstPtr& msg);
+
 		/** @brief Publishes the computed body path */
 		void publishBodyPath();
 
 		/** @brief Publishes the contact sequence */
 		void publishContactSequence();
+
 
 
 	private:
@@ -78,11 +86,23 @@ class HierarchicalPlanners
 		/** @brief Reward map subscriber */
 		//message_filters::Subscriber<terrain_server::RewardMap>* reward_sub_;
 
+		/** @brief TF listener */
+		tf::TransformListener tf_listener_;
+
+		/** @brief Reward map subscriber */
+		ros::Subscriber reward_sub_;
+
 		/** @brief Obstacle map subscriber */
 		ros::Subscriber obstacle_sub_;
 
-		/** @brief TF and reward map subscriber */
-		ros::Subscriber reward_sub_;
+		/** @brief Body goal subscriber */
+		ros::Subscriber body_goal_sub_;
+
+		/** @brief Approximated body path publisher */
+		ros::Publisher body_path_pub_;
+
+		/** @brief Contact sequence publisher */
+		ros::Publisher contact_sequence_pub_;
 
 		/** @brief Thread mutex of the reward information */
 		pthread_mutex_t reward_lock_;
@@ -92,15 +112,6 @@ class HierarchicalPlanners
 
 		/** @brief Thread mutex of the planner */
 		pthread_mutex_t planner_lock_;
-
-		/** @brief TF listener */
-		tf::TransformListener tf_listener_;
-
-		/** @brief Approximated body path publisher */
-		ros::Publisher body_path_pub_;
-
-		/** @brief Contact sequence publisher */
-		ros::Publisher contact_sequence_pub_;
 
 		/** @brief Locomotion algorithm */
 		dwl::WholeBodyLocomotion locomotor_;
@@ -119,6 +130,9 @@ class HierarchicalPlanners
 		/** @brief Solver pointer */
 		dwl::planning::Solver* body_path_solver_ptr_;
 
+		/** @brief Current robot pose */
+		dwl::Pose current_pose_;
+
 		/** @brief Approximated body path message */
 		nav_msgs::Path body_path_msg_;
 
@@ -128,9 +142,6 @@ class HierarchicalPlanners
 		std::vector<dwl::Pose> body_path_;
 
 		std::vector<dwl::Contact> contact_sequence_;
-
-		/** @brief Robot pose */
-		dwl::Pose robot_pose_;
 
 		/** @brief Base frame */
 		std::string base_frame_;

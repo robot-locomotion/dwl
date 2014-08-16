@@ -7,21 +7,30 @@ namespace dwl_planners
 HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), body_path_solver_ptr_(NULL),
 		base_frame_("base_link"), world_frame_("odom")
 {
-	// Getting the base and world frame
-	node_.param("base_frame", base_frame_, base_frame_);
-	node_.param("world_frame", world_frame_, world_frame_);
+
+}
+
+
+HierarchicalPlanners::~HierarchicalPlanners()
+{
+	delete planning_ptr_, body_path_solver_ptr_;
+}
+
+
+void HierarchicalPlanners::init()
+{
+	//  Setup of the locomotion approach
+	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
 
 	reward_sub_ = node_.subscribe<terrain_server::RewardMap>("/reward_map", 1, &HierarchicalPlanners::rewardMapCallback, this);//new message_filters::Subscriber<terrain_server::RewardMap> (node_, "reward_map", 5);
 	//tf_reward_sub_ = new tf::MessageFilter<terrain_server::RewardMap> (*reward_sub_, tf_listener_, world_frame_, 5);
 	//tf_reward_sub_->registerCallback(boost::bind(&HierarchicalPlanners::rewardMapCallback, this, _1));
 	obstacle_sub_ = node_.subscribe<terrain_server::ObstacleMap>("/obstacle_map", 1, &HierarchicalPlanners::obstacleMapCallback, this);
+	body_goal_sub_ = node_.subscribe<dwl_planners::BodyGoal>("/body_goal", 1, &HierarchicalPlanners::resetGoalCallback, this);
 
 	// Declaring the publisher of approximated body path
 	body_path_pub_ = node_.advertise<nav_msgs::Path>("approximated_body_path", 1);
 	contact_sequence_pub_ = node_.advertise<visualization_msgs::Marker>("contact_sequence", 1);
-
-	body_path_msg_.header.frame_id = world_frame_;
-	contact_sequence_msg_.header.frame_id = world_frame_;
 
 	// Initializing the mutex
 	if (pthread_mutex_init(&reward_lock_, NULL) != 0)
@@ -38,21 +47,30 @@ HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), 
 		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&planner_lock_, NULL), strerror(pthread_mutex_init(&planner_lock_, NULL)));
 	if (pthread_mutex_unlock(&planner_lock_) != 0)
 		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&planner_lock_, NULL), strerror(pthread_mutex_init(&planner_lock_, NULL)));
-}
 
 
-HierarchicalPlanners::~HierarchicalPlanners()
-{
-	delete planning_ptr_, body_path_solver_ptr_;
-}
+	// Getting the base and world frame
+	node_.param("base_frame", base_frame_, base_frame_);
+	node_.param("world_frame", world_frame_, world_frame_);
 
-
-void HierarchicalPlanners::init()
-{
-	//  Setup of the locomotion approach
-	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
+	body_path_msg_.header.frame_id = world_frame_;
+	contact_sequence_msg_.header.frame_id = world_frame_;
 
 	// Initialization of the body planner
+	// Getting the goal pose
+	double x, y, yaw;
+	dwl::Pose goal_pose;
+	node_.getParam("hierarchical_planner/goal/x", x);
+	node_.getParam("hierarchical_planner/goal/y", y);
+	node_.getParam("hierarchical_planner/goal/yaw", yaw);
+	goal_pose.position[0] = x;
+	goal_pose.position[1] = y;
+	dwl::Orientation orientation(0, 0, yaw);
+	Eigen::Quaterniond q;
+	orientation.getQuaternion(q);
+	goal_pose.orientation = q;
+	locomotor_.resetGoal(goal_pose);
+
 	// Getting the body path solver
 	std::string path_solver_name;
 	node_.param("hierarchical_planner/body_planner/path_solver", path_solver_name, (std::string) "AnytimeRepairingAStar");
@@ -76,10 +94,8 @@ void HierarchicalPlanners::init()
 	else
 		adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
 
-	// Setting the adjacency model in the body path solver
+	// Setting the body planner
 	body_path_solver_ptr_->setAdjacencyModel(adjacency_ptr);
-
-	// Setting the body path solver to the body planner
 	body_planner_.reset(body_path_solver_ptr_);
 
 	// Setting the body and footstep planner, and the environment to the planning
@@ -90,6 +106,11 @@ void HierarchicalPlanners::init()
 
 	// Initialization of the locomotion algorithm
 	locomotor_.init();
+
+	// Setting the allowed computation time of the locomotor
+	double path_computation_time;
+	if (node_.getParam("hierararchical_planner/body_planner/path_computation_time", path_computation_time))
+		locomotor_.setComputationTime(path_computation_time, dwl::BodyPathSolver);
 }
 
 
@@ -115,25 +136,16 @@ bool HierarchicalPlanners::compute()
 	robot_orientation(2) = tf_transform.getRotation().getZ();
 	robot_orientation(3) = tf_transform.getRotation().getW();
 
-	robot_pose_.position = robot_position;
-	robot_pose_.orientation = robot_orientation;
-
-	dwl::Pose start_pose, goal_pose;
-	goal_pose.position[0] = 4.0;
-	goal_pose.position[1] = 0.0;//-0.85;
-	dwl::Orientation orientation(0, 0, 0);//1.45);
-	Eigen::Quaterniond q;
-	orientation.getQuaternion(q);
-	goal_pose.orientation = q;
-	locomotor_.resetGoal(goal_pose);
-
+	// Setting the current pose
+	current_pose_.position = robot_position;
+	current_pose_.orientation = robot_orientation;
 
 	// Computing the locomotion plan
 	bool solution = false;
 	timespec start_rt, end_rt;
 	clock_gettime(CLOCK_REALTIME, &start_rt);
 	if (pthread_mutex_trylock(&planner_lock_) == 0)
-		solution = locomotor_.compute(robot_pose_);
+		solution = locomotor_.compute(current_pose_);
 	else
 		pthread_mutex_unlock(&planner_lock_);
 
@@ -218,6 +230,21 @@ void HierarchicalPlanners::obstacleMapCallback(const terrain_server::ObstacleMap
 }
 
 
+void HierarchicalPlanners::resetGoalCallback(const dwl_planners::BodyGoalConstPtr& msg)
+{
+	dwl::Pose goal_pose;
+	goal_pose.position[0] = msg->x;
+	goal_pose.position[1] = msg->y;
+	dwl::Orientation orientation(0, 0, msg->yaw);
+	Eigen::Quaterniond q;
+	orientation.getQuaternion(q);
+	goal_pose.orientation = q;
+
+	// Setting the new goal pose
+	locomotor_.resetGoal(goal_pose);
+}
+
+
 void HierarchicalPlanners::publishBodyPath()
 {
 	// Publishing the body path if there is at least one subscriber
@@ -229,7 +256,7 @@ void HierarchicalPlanners::publishBodyPath()
 			for (int i = 0; i < body_path_.size(); i++) {
 				body_path_msg_.poses[i].pose.position.x = body_path_[i].position(0);
 				body_path_msg_.poses[i].pose.position.y = body_path_[i].position(1);
-				body_path_msg_.poses[i].pose.position.z = robot_pose_.position(2);
+				body_path_msg_.poses[i].pose.position.z = current_pose_.position(2);
 				body_path_msg_.poses[i].pose.orientation.w = body_path_[i].orientation.w();
 				body_path_msg_.poses[i].pose.orientation.x = body_path_[i].orientation.x();
 				body_path_msg_.poses[i].pose.orientation.y = body_path_[i].orientation.y();
