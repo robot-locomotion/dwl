@@ -69,11 +69,10 @@ bool RewardMapServer::init()
 
 	// Getting the interest region, i.e. the information outside this region will be deleted
 	double radius_x = 1, radius_y = 1;
-	std::cout << radius_x << std::endl;
 	node_.getParam("reward_map/interest_region/radius_x", radius_x);
 	node_.getParam("reward_map/interest_region/radius_y", radius_y);
 	reward_map_->setInterestRegion(radius_x, radius_y);
-	std::cout << radius_x << std::endl;
+
 	// Getting the feature information
 	bool enable_slope, enable_height_dev, enable_curvature;
 	double weight;

@@ -11,12 +11,7 @@
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
   <license>TODO</license>
 
-
-  <!-- Url tags are optional, but mutiple are allowed, one per tag -->
-  <!-- Optional attribute type can be: website, bugtracker, or repository -->
-  <!-- Example: -->
   <!-- <url type="website">http://wiki.ros.org/reward_map_server</url> -->
-
 
   <author email="carlos.mastalli@iit.it">Carlos Mastalli</author>
 
