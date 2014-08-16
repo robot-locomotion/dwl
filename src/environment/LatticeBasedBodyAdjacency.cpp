@@ -143,7 +143,7 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Vertex state_verte
 }
 
 
-bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, State state_representation, bool body)
+bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body)
 {
 	// Getting the terrain obstacle map
 	ObstacleMap obstacle_map;

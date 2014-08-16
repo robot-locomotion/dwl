@@ -167,9 +167,9 @@ class SpaceDiscretization
 		 * @brief Converts a state vertex to an environment vertex
 		 * @param dwl::Vertex& environment_vertex Environment vertex (x,y)
 		 * @param const dwl::Vertex state_vertex State vertex
-		 * @param State state Definition of the state, i.e. XY, XY_Y, etc.
+		 * @param dwl::TypeOfState state Definition of the state, i.e. XY, XY_Y, etc.
 		 */
-		void stateVertexToEnvironmentVertex(Vertex& environment_vertex, const Vertex state_vertex, State state) const;
+		void stateVertexToEnvironmentVertex(Vertex& environment_vertex, const Vertex state_vertex, TypeOfState state) const;
 
 		/*
 		 * @brief Gets the resolution of the environment

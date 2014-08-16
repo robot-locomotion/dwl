@@ -7,7 +7,7 @@ namespace dwl
 namespace planning
 {
 
-ContactPlanner::ContactPlanner() : environment_(NULL)
+ContactPlanner::ContactPlanner() : environment_(NULL), computation_time_(std::numeric_limits<double>::max())
 {
 
 }
@@ -100,6 +100,13 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 	}
 
 	return true;
+}
+
+
+void ContactPlanner::setComputationTime(double computation_time)
+{
+	printf("Setting the allowed computation time of the contact solver to %f \n", computation_time);
+	computation_time_ = computation_time;
 }
 
 } //@namespace planning

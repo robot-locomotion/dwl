@@ -10,7 +10,6 @@
 namespace dwl
 {
 
-
 namespace planning
 {
 
@@ -33,6 +32,10 @@ class BodyPlanner
 		 */
 		void reset(environment::EnvironmentInformation* environment);
 
+		/**
+		 * @brief Specifies the body path planner
+		 * @param dwl::planning::Solver* path_planner Body path planner
+		 */
 		void reset(Solver* path_planner);
 
 		/**
@@ -42,6 +45,13 @@ class BodyPlanner
 		 * @param dwl::Pose goal_pose Goal pose
 		 */
 		bool computeBodyPath(std::vector<Pose>& body_path, Pose start_pose, Pose goal_pose);
+
+		/**
+		 * @brief Sets the computation time
+		 * @param double computation_time Computation time
+		 * @param bool path_solver True indicates that is a path solver, false that is a pose solver
+		 */
+		void setComputationTime(double computation_time, bool path_solver);
 
 		//void findPose();
 
@@ -54,6 +64,12 @@ class BodyPlanner
 
 		/** @brief Pointer to the pose solver */
 		Solver* pose_solver_;
+
+		/** @brief Computation time for the path solver */
+		double path_computation_time_;
+
+		/** @brief Computation time for the pose solver */
+		double pose_computation_time_;
 };
 
 } //@namespace planning

@@ -115,10 +115,17 @@ class PlanningOfMotionSequences
 		void setEnvironmentInformation(std::vector<Cell> obstacle_map);
 
 		/**
-		 * @brief Changes the goal pose
-		 * @param dwl::Pose goal New goal pose
+		 * @brief Sets the allowed computation time for a coupled planner
+		 * @param double computation_time Allowed computation time
 		 */
-		void changeGoal(Pose goal);
+		void setComputationTime(double computation_time);
+
+		/**
+		 * @brief Sets the allowed computation time for a decoupled planner
+		 * @param double computation_time Allowed computation time
+		 * @param dwl::TypeOfSolver solver Type of solver to set the allowed computation time
+		 */
+		void setComputationTime(double computation_time, TypeOfSolver solver);
 
 		/**
 		 * @brief Gets the approximated body path
@@ -190,6 +197,9 @@ class PlanningOfMotionSequences
 
 		/** @brief Vector of body position */
 		std::vector<Pose> body_path_;
+
+		/** @brief Computation time */
+		double computation_time_;
 
 };
 

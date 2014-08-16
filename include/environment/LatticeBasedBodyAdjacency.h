@@ -49,11 +49,11 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		/**
 		 * @brief Indicates if the free of obstacle
 		 * @param dwl::Vertex state_vertex State vertex
-		 * @param dwl::State state_representation State representation
+		 * @param dwl::TypeOfState state_representation State representation
 		 * @param bool body Indicates it is desired to use the body space definition
 		 * @return bool Returns true if it is free of obstacle, and false otherwise
 		 */
-		bool isFreeOfObstacle(Vertex state_vertex, State state_representation, bool body=false);
+		bool isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body=false);
 
 		/**
 		 * @brief Indicates if it is requested a stance adjacency

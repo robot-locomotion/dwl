@@ -82,10 +82,17 @@ class WholeBodyLocomotion
 		void setTerrainInformation(std::vector<Cell> obstacle_map);
 
 		/**
-		 * @brief Changes the goal
-		 * @param dwl::Pose goal Goal state
+		 * @brief Sets the allowed computation time for a coupled planner
+		 * @param double computation_time Allowed computation time
 		 */
-		void changeGoal(Pose goal);
+		void setComputationTime(double computation_time);
+
+		/**
+		 * @brief Sets the allowed computation time for a decoupled planner
+		 * @param double computation_time Allowed computation time
+		 * @param dwl::TypeOfSolver solver Type of solver to set the allowed computation time
+		 */
+		void setComputationTime(double computation_time, TypeOfSolver solver);
 
 		/**
 		 * @brief Gets the approximated body path
@@ -100,8 +107,8 @@ class WholeBodyLocomotion
 		/** @brief Pointer to the planner class */
 		planning::PlanningOfMotionSequences* planner_;
 
-		/** @brief Indicates if it was settep the planner algorithm */
-		bool is_settep_planner_;
+		/** @brief Indicates if it was set the planner algorithm */
+		bool is_set_planner_;
 
 		/** @brief Indicates if it is using a lerning technique */
 		bool is_learning_;

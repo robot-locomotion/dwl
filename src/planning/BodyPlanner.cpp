@@ -7,7 +7,8 @@ namespace dwl
 namespace planning
 {
 
-BodyPlanner::BodyPlanner() : environment_(NULL), path_solver_(NULL), pose_solver_(NULL)
+BodyPlanner::BodyPlanner() : environment_(NULL), path_solver_(NULL), pose_solver_(NULL), path_computation_time_(std::numeric_limits<double>::max()),
+		pose_computation_time_(std::numeric_limits<double>::max())
 {
 
 }
@@ -23,7 +24,7 @@ void BodyPlanner::reset(environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the environment information in the body planner\n" COLOR_RESET);
 	path_solver_->reset(environment);
-	//pose_solver_->reset(environment); TODO
+	//pose_solver_->reset(environment); TODO Develip a pose solver
 	environment_ = environment;
 }
 
@@ -58,13 +59,12 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 	path_solver_->setCurrentPose(start_pose);
 
 	// Computing the body path using a graph searching algorithm
-	double computation_time = 4.75;
-	if (!path_solver_->compute(start_vertex, goal_vertex, computation_time))
+	if (!path_solver_->compute(start_vertex, goal_vertex, path_computation_time_))
 		return false;
 
 	// Getting the shortest path
 	std::list<Vertex> shortest_path = path_solver_->getShortestPath(start_vertex, goal_vertex);
-	std::cout << "Size of path = " << shortest_path.size() << std::endl; //TODO
+	std::cout << "Size of path = " << shortest_path.size() << std::endl; //TODO Delete this message
 
 	std::list<Vertex>::iterator path_iter = shortest_path.begin();
 	for(; path_iter != shortest_path.end(); path_iter++) {
@@ -89,6 +89,19 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 	}
 
 	return true;
+}
+
+
+void BodyPlanner::setComputationTime(double computation_time, bool path_solver)
+{
+	if (path_solver) {
+		printf("Setting the allowed computation time of the body path solver to %f \n", computation_time);
+		path_computation_time_ = computation_time;
+	}
+	else {
+		printf("Setting the allowed computation time of the body pose solver to %f \n", computation_time);
+		pose_computation_time_ = computation_time;
+	}
 }
 
 } //@namespace planning

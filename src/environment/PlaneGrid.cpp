@@ -260,7 +260,7 @@ void SpaceDiscretization::vertexToState(Eigen::Vector3d& state, Vertex vertex) c
 }
 
 
-void SpaceDiscretization::stateVertexToEnvironmentVertex(Vertex& environment_vertex, const Vertex state_vertex, State state) const
+void SpaceDiscretization::stateVertexToEnvironmentVertex(Vertex& environment_vertex, const Vertex state_vertex, TypeOfState state) const
 {
 	Eigen::Vector2d state_2d, coord;
 	Eigen::Vector3d state_3d;

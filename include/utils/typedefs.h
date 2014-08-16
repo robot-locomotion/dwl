@@ -32,8 +32,11 @@ typedef std::map<Vertex, double> HeightMap;
 /** @brief Defines a previous vertex for graph-searching algorithms */
 typedef std::map<Vertex, Vertex> PreviousVertex;
 
+/** @brief Enumarates types of states */
+enum TypeOfState {XY, XY_Y, XYZ_RPY};
 
-enum State {XY, XY_Y, XYZ_RPY};
+/** @brief Enumarates types of solvers */
+enum TypeOfSolver {BodyPathSolver, BodyPoseSolver, ContactSolver};
 
 /**
  * @brief Template struct that orders vertex

@@ -8,7 +8,8 @@ namespace planning
 {
 
 PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), body_planner_(NULL), footstep_planner_(NULL), environment_(NULL),
-		is_added_active_constraint_(false), is_added_inactive_constraint_(false),	is_added_cost_(false), is_settep_solver_(false), is_initialized_planning_(false)
+		is_added_active_constraint_(false), is_added_inactive_constraint_(false),	is_added_cost_(false), is_settep_solver_(false),
+		is_initialized_planning_(false), computation_time_(std::numeric_limits<double>::max())
 {
 
 }
@@ -116,10 +117,8 @@ void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
 				if (i < inactive_constraints_.size()) {
 					if (constraint_name == inactive_constraints_[i]->getName().c_str()) {
 						printf(GREEN "Removing the inactive %s constraint\n" COLOR_RESET, inactive_constraints_[i]->getName().c_str());
-//						pthread_mutex_lock(&planning_lock_);
 						delete inactive_constraints_.at(i);
 						inactive_constraints_.erase(inactive_constraints_.begin() + i);
-//						pthread_mutex_unlock(&planning_lock_);
 
 						return;
 					}
@@ -211,11 +210,29 @@ bool PlanningOfMotionSequences::computePlan(Pose robot_state)
 }
 
 
-void PlanningOfMotionSequences::changeGoal(Pose goal)
+void PlanningOfMotionSequences::setComputationTime(double computation_time)
 {
-	printf(GREEN "Changed the goal state\n" COLOR_RESET);
+	printf("Setting the allowed computation time of the solver of the coupled planner to %f \n", computation_time);
+	computation_time_ = computation_time;
+}
 
-	goal_pose_ = goal;
+
+void PlanningOfMotionSequences::setComputationTime(double computation_time, TypeOfSolver solver)
+{
+	switch (solver) {
+		case BodyPathSolver:
+			body_planner_->setComputationTime(computation_time, true);
+			break;
+		case BodyPoseSolver:
+			body_planner_->setComputationTime(computation_time, false);
+			break;
+		case ContactSolver:
+			footstep_planner_->setComputationTime(computation_time);
+			break;
+		default:
+			printf(YELLOW "Warning: it was not set an allowed computation time because there is not exist that type of solver \n" COLOR_RESET);
+			break;
+	}
 }
 
 

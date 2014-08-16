@@ -51,7 +51,6 @@ int main(int argc, char **argv)
 
 	Eigen::Vector3d robot_state = Eigen::Vector3d::Zero();
 	locomotor.compute(current);
-	locomotor.changeGoal(goal);
 
 /*
 	printf("---------- RewardMap ------------\n");

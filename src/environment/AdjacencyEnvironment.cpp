@@ -263,7 +263,7 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 }
 
 
-bool AdjacencyEnvironment::isFreeOfObstacle(Vertex state_vertex, State state_representation, bool body)
+bool AdjacencyEnvironment::isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body)
 {
 	return true;
 }
