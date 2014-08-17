@@ -37,7 +37,7 @@ ObstacleMapDisplay::ObstacleMapDisplay() : rviz::Display(), messages_received_(0
 	                                         this, SLOT( updateQueueSize() ));
 	queue_size_property_->setMin(1);
 
-	color_property_ = new ColorProperty( "Color", QColor( 0, 25, 255 ),
+	color_property_ = new ColorProperty( "Color", QColor( 0, 0, 0 ),
 										  "The color of the obstacle map.",
 										  this, SLOT( updateColor() ));
 	alpha_property_ = new FloatProperty( "Alpha", 0.5f,
