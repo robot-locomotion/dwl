@@ -56,21 +56,6 @@ void HierarchicalPlanners::init()
 	body_path_msg_.header.frame_id = world_frame_;
 	contact_sequence_msg_.header.frame_id = world_frame_;
 
-	// Initialization of the body planner
-	// Getting the goal pose
-	double x, y, yaw;
-	dwl::Pose goal_pose;
-	node_.getParam("hierarchical_planner/goal/x", x);
-	node_.getParam("hierarchical_planner/goal/y", y);
-	node_.getParam("hierarchical_planner/goal/yaw", yaw);
-	goal_pose.position[0] = x;
-	goal_pose.position[1] = y;
-	dwl::Orientation orientation(0, 0, yaw);
-	Eigen::Quaterniond q;
-	orientation.getQuaternion(q);
-	goal_pose.orientation = q;
-	locomotor_.resetGoal(goal_pose);
-
 	// Getting the body path solver
 	std::string path_solver_name;
 	node_.param("hierarchical_planner/body_planner/path_solver", path_solver_name, (std::string) "AnytimeRepairingAStar");
@@ -107,9 +92,24 @@ void HierarchicalPlanners::init()
 	// Initialization of the locomotion algorithm
 	locomotor_.init();
 
+	// Initialization of the body planner
+	// Getting the goal pose
+	double x, y, yaw;
+	dwl::Pose goal_pose;
+	node_.getParam("hierarchical_planner/goal/x", x);
+	node_.getParam("hierarchical_planner/goal/y", y);
+	node_.getParam("hierarchical_planner/goal/yaw", yaw);
+	goal_pose.position[0] = x;
+	goal_pose.position[1] = y;
+	dwl::Orientation orientation(0, 0, yaw);
+	Eigen::Quaterniond q;
+	orientation.getQuaternion(q);
+	goal_pose.orientation = q;
+	locomotor_.resetGoal(goal_pose);
+
 	// Setting the allowed computation time of the locomotor
 	double path_computation_time;
-	if (node_.getParam("hierararchical_planner/body_planner/path_computation_time", path_computation_time))
+	if (node_.getParam("hierarchical_planner/body_planner/path_computation_time", path_computation_time))
 		locomotor_.setComputationTime(path_computation_time, dwl::BodyPathSolver);
 }
 
@@ -142,20 +142,22 @@ bool HierarchicalPlanners::compute()
 
 	// Computing the locomotion plan
 	bool solution = false;
-	timespec start_rt, end_rt;
-	clock_gettime(CLOCK_REALTIME, &start_rt);
-	if (pthread_mutex_trylock(&planner_lock_) == 0)
+
+	if (pthread_mutex_trylock(&planner_lock_) == 0) {
+		timespec start_rt, end_rt;
+		clock_gettime(CLOCK_REALTIME, &start_rt);
+
 		solution = locomotor_.compute(current_pose_);
+
+		clock_gettime(CLOCK_REALTIME, &end_rt);
+		double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
+		ROS_INFO("The duration of computation of plan is %f seg.", duration);
+	}
 	else
 		pthread_mutex_unlock(&planner_lock_);
 
-	clock_gettime(CLOCK_REALTIME, &end_rt);
-	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
-	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
-
 	body_path_ = locomotor_.getBodyPath();
 	contact_sequence_ = locomotor_.getContactSequence();
-
 
 	return solution;
 }
@@ -163,15 +165,6 @@ bool HierarchicalPlanners::compute()
 
 void HierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapConstPtr& msg)
 {
-	// Getting the transformation between the world to robot frame
-	/*tf::StampedTransform tf_transform;
-	try {
-		tf_listener_.lookupTransform(world_frame_, base_frame_, msg->header.stamp, tf_transform);
-	} catch (tf::TransformException& ex) {
-		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
-		return;
-	}*/
-
 	std::vector<dwl::RewardCell> reward_map;
 
 	// Converting the messages to reward_map format
@@ -190,17 +183,20 @@ void HierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapCons
 	}
 
 	// Adding the cost map
-	timespec start_rt, end_rt;
-	clock_gettime(CLOCK_REALTIME, &start_rt);
+	if (pthread_mutex_trylock(&reward_lock_) == 0) {
+		timespec start_rt, end_rt;
+		clock_gettime(CLOCK_REALTIME, &start_rt);
 
-	if (pthread_mutex_trylock(&reward_lock_) == 0)
 		locomotor_.setTerrainInformation(reward_map);
+
+		clock_gettime(CLOCK_REALTIME, &end_rt);
+		double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
+		ROS_INFO("The duration of setting the reward information of the environment is %f seg.", duration);
+	}
 	else
 		pthread_mutex_unlock(&reward_lock_);
 
-	clock_gettime(CLOCK_REALTIME, &end_rt);
-	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
-	ROS_INFO("The duration of setting the information of the environment is %f seg.", duration);
+
 }
 
 
@@ -208,7 +204,7 @@ void HierarchicalPlanners::obstacleMapCallback(const terrain_server::ObstacleMap
 {
 	std::vector<dwl::Cell> obstacle_map;
 
-	// Converting the messages to reward_map format
+	// Converting the messages to obstacle_map format
 	dwl::Cell obstacle_cell;
 	for (int i = 0; i < msg->cell.size(); i++) {
 		// Filling the reward per every cell
@@ -218,13 +214,21 @@ void HierarchicalPlanners::obstacleMapCallback(const terrain_server::ObstacleMap
 		obstacle_cell.plane_size = msg->plane_size;
 		obstacle_cell.height_size = msg->height_size;
 
-		// Adding the reward cell to the queue
+		// Adding the obstacle cell to the queue
 		obstacle_map.push_back(obstacle_cell);
 	}
 
 	// Adding the obstacle map
-	if (pthread_mutex_trylock(&obstacle_lock_) == 0)
+	if (pthread_mutex_trylock(&obstacle_lock_) == 0) {
+		timespec start_rt, end_rt;
+		clock_gettime(CLOCK_REALTIME, &start_rt);
+
 		locomotor_.setTerrainInformation(obstacle_map);
+
+		clock_gettime(CLOCK_REALTIME, &end_rt);
+		double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
+		ROS_INFO("The duration of setting the obstacle information of the environment is %f seg.", duration);
+	}
 	else
 		pthread_mutex_unlock(&obstacle_lock_);
 }

@@ -119,10 +119,13 @@ class HierarchicalPlanners
 		/** @brief Planning of motion sequences pointer */
 		dwl::planning::PlanningOfMotionSequences* planning_ptr_;
 
+		/** @brief Body planner */
 		dwl::planning::BodyPlanner body_planner_;
 
+		/** @brief Contact planner */
 		dwl::planning::ContactPlanner footstep_planner_;
 
+		/** @brief Environment information */
 		dwl::environment::EnvironmentInformation environment_;
 
 		//dwl::environment::EnvironmentInformation* environment_ptr_;
@@ -136,11 +139,13 @@ class HierarchicalPlanners
 		/** @brief Approximated body path message */
 		nav_msgs::Path body_path_msg_;
 
+		/** @brief Contact sequence ROS message */
 		visualization_msgs::Marker contact_sequence_msg_;
 
 		/** @brief Approximated body path */
 		std::vector<dwl::Pose> body_path_;
 
+		/** Contact sequence */
 		std::vector<dwl::Contact> contact_sequence_;
 
 		/** @brief Base frame */
