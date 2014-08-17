@@ -32,8 +32,7 @@ bool HierarchicalPlanning::init()
 
 void HierarchicalPlanning::resetGoal(Pose goal)
 {
-	// Converting the start and goal position to vertex ids
-/*	initial_pose_ = start;*/
+	// Resetting the goal pose
 	goal_pose_ =  goal;
 }
 
@@ -57,7 +56,6 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 		double roll, pitch, yaw;
 		Orientation orientation(current_pose.orientation);
 		orientation.getRPY(roll, pitch, yaw);
-		std::cout << "Current position = " << current_pose.position(0) << " " << current_pose.position(1) << " " << yaw << std::endl;
 
 		// Computing the body path using a graph searching algorithm
 		if (!body_planner_->computeBodyPath(body_path_, current_pose, goal_pose_)) {
@@ -69,7 +67,7 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 			Orientation orientation(body_path_[i].orientation);
 			double roll, pitch, yaw;
 			orientation.getRPY(roll, pitch, yaw);
-			std::cout << "Plan = " << body_path_[i].position(0) << " " << body_path_[i].position(1) << " " << yaw << std::endl;
+			std::cout << "Plan = " << body_path_[i].position(0) << " " << body_path_[i].position(1) << " " << yaw << std::endl; //TODO Delete this message
 			if (!footstep_planner_->computeFootholds(contacts_sequence_, body_path_[i])) {
 				printf(YELLOW "Could not computed the footholds \n" COLOR_RESET);
 				return false;

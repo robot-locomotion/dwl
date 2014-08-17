@@ -30,14 +30,14 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<RewardCell> r
 	terrain_height_map_.swap(empty_terrain_height_map);
 	average_cost_ = 0;
 
-	// Setting the resolution
-	terrain_resolution_ = reward_map[0].plane_size;
-	setEnvironmentResolution(terrain_resolution_, true);
-	setEnvironmentResolution(reward_map[0].height_size, false);
-
 	// Storing the cost-map data according the vertex id
 	Vertex vertex_2d;
 	if (reward_map.size() != 0) {
+		// Setting the resolution
+		terrain_resolution_ = reward_map[0].plane_size;
+		setEnvironmentResolution(terrain_resolution_, true);
+		setEnvironmentResolution(reward_map[0].height_size, false);
+
 		for (int i = 0; i < reward_map.size(); i++) {
 			// Building a cost map for a every 3d vertex
 			space_discretization_.keyToVertex(vertex_2d, reward_map[i].key, true);
@@ -65,21 +65,22 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> obstacl
 	ObstacleMap empty_terrain_obstacle_map;
 	terrain_obstacle_map_.swap(empty_terrain_obstacle_map);
 
-	// Setting the obstacle resolution
-	obstacle_resolution_ = obstacle_map[0].plane_size;
-	setEnvironmentResolution(obstacle_resolution_, true);
-
 	//Storing the obstacle-map data according the vertex id
 	Vertex vertex_2d;
-	double resolution = std::numeric_limits<double>::max();
-	for (int i = 0; i < obstacle_map.size(); i++) {
-		// Building a cost map for a every 3d vertex
-		space_discretization_.keyToVertex(vertex_2d, obstacle_map[i].key, true);
-		terrain_obstacle_map_[vertex_2d] = true;
+	if (obstacle_map.size() != 0) {
+		// Setting the obstacle resolution
+		obstacle_resolution_ = obstacle_map[0].plane_size;
+		setEnvironmentResolution(obstacle_resolution_, true);
+		setEnvironmentResolution(obstacle_resolution_, false);
+
+		for (int i = 0; i < obstacle_map.size(); i++) {
+			// Building a cost map for a every 3d vertex
+			space_discretization_.keyToVertex(vertex_2d, obstacle_map[i].key, true);
+			terrain_obstacle_map_[vertex_2d] = true;
+		}
+
+		terrain_obstacle_information_ = true;
 	}
-
-
-	terrain_obstacle_information_ = true;
 }
 
 

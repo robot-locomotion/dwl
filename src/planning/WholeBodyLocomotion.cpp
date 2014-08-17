@@ -51,7 +51,7 @@ void WholeBodyLocomotion::addCost(planning::Cost* cost)
 	if (is_set_planner_)
 		planner_->addCost(cost);
 	else {
-		printf(YELLOW "Could not add the %s cost because has not been set the planner\n" COLOR_RESET, cost->getName().c_str());
+		printf(YELLOW "Could not added the %s cost because has not been set the planner\n" COLOR_RESET, cost->getName().c_str());
 	}
 }
 
@@ -113,7 +113,7 @@ void WholeBodyLocomotion::setTerrainInformation(std::vector<RewardCell> reward_m
 	if (is_set_planner_) {
 		planner_->setEnvironmentInformation(reward_map);
 	} else
-		printf(YELLOW "Could not setted the terrain reward information because has not been set the planner\n" COLOR_RESET);
+		printf(YELLOW "Could not set the terrain reward information because has not been set the planner\n" COLOR_RESET);
 }
 
 
@@ -122,7 +122,7 @@ void WholeBodyLocomotion::setTerrainInformation(std::vector<Cell> obstacle_map)
 	if (is_set_planner_) {
 		planner_->setEnvironmentInformation(obstacle_map);
 	} else
-		printf(YELLOW "Could not setted the terrain obstacle information because has not been set the planner\n" COLOR_RESET);
+		printf(YELLOW "Could not set the terrain obstacle information because has not been set the planner\n" COLOR_RESET);
 }
 
 

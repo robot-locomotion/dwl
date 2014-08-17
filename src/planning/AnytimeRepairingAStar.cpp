@@ -58,7 +58,6 @@ bool AnytimeRepairingAStar::compute(Vertex source, Vertex target, double computa
 	openset[source] = true;
 
 	while ((satisfied_inflation_ > 1) && ((clock() - time_started_) < allocated_time_secs)) {
-		std::cout << openset_queue.size() << std::endl;
 		// Computing a path with reuse of states values
 		if (improvePath(openset_queue, visitedset, target, computation_time)) {
 			// Decreasing the current inflation gain

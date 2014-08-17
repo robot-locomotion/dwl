@@ -30,7 +30,7 @@ class HierarchicalPlanning : public dwl::planning::PlanningOfMotionSequences
 		virtual bool init();
 
 		/**
-		 * @brief Updates the start and goal body pose for hierarchical planning
+		 * @brief Updates the goal body pose for hierarchical planning
 		 * @param dwl::Pose goal Goal pose
 		 */
 		virtual void resetGoal(Pose goal);

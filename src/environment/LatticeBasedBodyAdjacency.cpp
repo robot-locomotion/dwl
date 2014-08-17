@@ -149,7 +149,7 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 	ObstacleMap obstacle_map;
 	environment_->getTerrainObstacleMap(obstacle_map);
 
-	// Converting the vertex to state (x,y,yaw)
+	// Converting the vertex to state (x,y,yaw) //TODO Make something general, i.e. that includes XY and XY_Y representations
 	Eigen::Vector3d state;
 	environment_->getSpaceModel().vertexToState(state, state_vertex);
 
@@ -169,8 +169,6 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 		double obstacle_resolution = environment_->getObstacleResolution();
 		environment_->getSpaceModel().setEnvironmentResolution(obstacle_resolution, true);
 
-		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
-		double stance_cost = 0;
 		for (double y = boundary_min(1); y < boundary_max(1); y += obstacle_resolution) {
 			for (double x = boundary_min(0); x < boundary_max(0); x += obstacle_resolution) {
 				// Computing the rotated coordinate according to the orientation of the body
@@ -185,12 +183,12 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 				if (obstacle_map.find(current_2d_vertex)->first == current_2d_vertex) {
 					if (obstacle_map.find(current_2d_vertex)->second) {
 						is_free = false;
+						std::cout << "is_free = " << is_free << " | = " <<  state(0) << " " << state(1) << " " << state(2) << std::endl;
 						goto found_obstacle;
 					}
 				}
 			}
 		}
-
 	} else {
 		// Converting the state vertex to terrain vertex
 		Vertex environment_vertex;
