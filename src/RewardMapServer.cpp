@@ -83,9 +83,15 @@ bool RewardMapServer::init()
 
 	// Adding the slope feature if it's enable
 	if (enable_slope) {
+		// Setting the weight feature
 		node_.param("reward_map/features/slope/weight", weight, default_weight);
 		dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
 		slope_ptr->setWeight(weight);
+
+		// Setting the gain feature
+		double gain;
+		if (node_.getParam("reward_map/features/slope/gain", gain))
+			slope_ptr->setGainFeature(gain);
 
 		// Adding the feature
 		reward_map_->addFeature(slope_ptr);
@@ -93,19 +99,37 @@ bool RewardMapServer::init()
 
 	// Adding the height deviation feature if it's enable
 	if (enable_height_dev) {
-			node_.param("reward_map/features/height_deviation/weight", weight, default_weight);
-			dwl::environment::Feature* height_dev_ptr = new dwl::environment::HeightDeviationFeature();
-			height_dev_ptr->setWeight(weight);
+		// Setting the weight feature
+		node_.param("reward_map/features/height_deviation/weight", weight, default_weight);
+		dwl::environment::Feature* height_dev_ptr = new dwl::environment::HeightDeviationFeature();
+		height_dev_ptr->setWeight(weight);
 
-			// Adding the feature
-			reward_map_->addFeature(height_dev_ptr);
-		}
+		// Setting the gain feature
+		double gain;
+		if (node_.getParam("reward_map/features/height_deviation/gain", gain))
+			height_dev_ptr->setGainFeature(gain);
+
+		// Setting the neighboring area
+		double size, resolution;
+		node_.param("reward_map/features/height_deviation/neighboring_area/square_size", size, 0.1);
+		node_.param("reward_map/features/height_deviation/neighboring_area/resolution", resolution, 0.04);
+		height_dev_ptr->setNeighboringArea(-size, size, -size, size, resolution);
+
+		// Adding the feature
+		reward_map_->addFeature(height_dev_ptr);
+	}
 
 	// Adding the curvature feature if it's enable
 	if (enable_curvature) {
+		// Setting the weight feature
 		node_.param("reward_map/features/curvature/weight", weight, default_weight);
 		dwl::environment::Feature* curvature_ptr = new dwl::environment::CurvatureFeature();
 		curvature_ptr->setWeight(weight);
+
+		// Setting the gain feature
+		double gain;
+		if (node_.getParam("reward_map/features/curvature/gain", gain))
+			curvature_ptr->setGainFeature(gain);
 
 		// Adding the feature
 		reward_map_->addFeature(curvature_ptr);
@@ -163,7 +187,7 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 	reward_map_->compute(model, robot_position);
 	clock_gettime(CLOCK_REALTIME, &end_rt);
 	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9*(end_rt.tv_nsec - start_rt.tv_nsec);
-	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
+	ROS_INFO("The duration of computation of reward map is %f seg.", duration);
 
 	new_information_ = true;
 }
