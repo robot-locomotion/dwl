@@ -92,7 +92,10 @@ class EnvironmentInformation
 		 */
 		bool isTerrainObstacleInformation();
 
+		/** @brief Gets the terrain resolution */
 		double getTerrainResolution();
+
+		/** @brief Gets the obstacle resolution */
 		double getObstacleResolution();
 
 
@@ -118,7 +121,10 @@ class EnvironmentInformation
 		/** @brief Indicates if it was defined terrain obstacle information */
 		bool terrain_obstacle_information_;
 
+		/** @brief Terrain resolution */
 		double terrain_resolution_;
+
+		/** @brief Obstacle resolution */
 		double obstacle_resolution_;
 };
 

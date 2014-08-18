@@ -12,6 +12,7 @@ namespace environment
 CurvatureFeature::CurvatureFeature() : positive_threshold_(6.0), negative_threshold_(-6.0)
 {
 	name_ = "curvature";
+	gain_ = 1;
 }
 
 CurvatureFeature::~CurvatureFeature()
@@ -38,7 +39,7 @@ void CurvatureFeature::computeReward(double& reward_value, Terrain terrain_info)
 	else
 		p = 0.13 + ((curvature - negative_threshold_) / (positive_threshold_ - negative_threshold_)) * (1 - 0.13);
 
-	reward_value = log(p);
+	reward_value = gain_ * log(p);
 }
 
 

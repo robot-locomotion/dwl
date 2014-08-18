@@ -33,15 +33,8 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 		is_added_search_area_ = true;
 	}
 
-	// Getting the discretized state
-	/*Vertex state_vertex;
-	Eigen::Vector3d robot_3dstate;
-	robot_3dstate << robot_state.head(2), robot_state(3);
-	space_discretization_.stateToVertex(state_vertex, robot_3dstate);
-	space_discretization_.vertexToState(robot_3dstate, state_vertex);*///TODO
-	double yaw = robot_state(3);
-
 	// Computing reward map for several search areas
+	double yaw = robot_state(3);
 	for (int n = 0; n < search_areas_.size(); n++) {
 		// Computing the boundary of the gridmap
 		Eigen::Vector2d boundary_min, boundary_max;
@@ -147,8 +140,8 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 				if (reward_cell.key.z != heightmap_key[2]) {
 					removeCellToRewardMap(vertex_id);
 					removeCellToTerrainHeightMap(vertex_id);
-				} else
-					new_status = false;
+				} //else
+					//new_status = false; //TODO Evaluating if we can do it at time! This is done by commenting this
 			}
 
 			if (new_status)

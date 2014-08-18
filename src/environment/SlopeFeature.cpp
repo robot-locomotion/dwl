@@ -12,6 +12,7 @@ namespace environment
 SlopeFeature::SlopeFeature() : flat_threshold_(0.0 * (M_PI / 180.0)), steep_threshold_(70.0 * (M_PI / 180.0))
 {
 	name_ = "slope";
+	gain_ = 5;
 }
 
 SlopeFeature::~SlopeFeature()
@@ -33,7 +34,7 @@ void SlopeFeature::computeReward(double& reward_value, Terrain terrain_info)
 		reward_value = log(p);
 	}
 
-	reward_value *= 5; /* heuristic value */
+	reward_value *= gain_; /* heuristic value */
 }
 
 

@@ -33,9 +33,6 @@ class HeightDeviationFeature : public Feature
 
 
 	private:
-		/** @brief Area for computing the average of the height map */
-		SearchArea average_area_;
-
 		/** @brief Object of the SpaceDiscretization class for defining the space discretiization routines */
 		SpaceDiscretization space_discretization_;
 
