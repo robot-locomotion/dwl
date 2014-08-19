@@ -53,7 +53,6 @@ class BodyPlanner
 		 */
 		void setComputationTime(double computation_time, bool path_solver);
 
-		//void findPose();
 
 	protected:
 		/** @brief Pointer to the EnvironmentInformation object */

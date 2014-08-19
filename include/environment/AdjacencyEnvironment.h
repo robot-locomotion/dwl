@@ -2,6 +2,7 @@
 #define DWL_AdjacencyEnvironment_H
 
 #include <environment/EnvironmentInformation.h>
+#include <environment/Feature.h>
 #include <robot/Robot.h>
 #include <utils/Math.h>
 #include <utils/utils.h>
@@ -91,6 +92,12 @@ class AdjacencyEnvironment
 		virtual bool isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body=false);
 
 		/**
+		 * @brief Adds a feature for computing the associated body cost
+		 * @param dwl::environment::Feature* feature the pointer of the feature to add
+		 */
+		void addFeature(Feature* feature);
+
+		/**
 		 * @brief Indicates if it is a lattice representation of the environment
 		 * @return bool Returns true if it is a lattice representation and false otherwise
 		 */
@@ -113,8 +120,14 @@ class AdjacencyEnvironment
 		/** @brief Object of the Robot class for defining robot properties */
 		robot::Robot robot_;
 
+		/** @brief Vector of pointers to the Feature class */
+		std::vector<Feature*> features_;
+
 		/** @brief Indicates if it is a lattice-based graph */
 		bool is_lattice_;
+
+		/** @brief Indicates if it was added a feature */
+		bool is_added_feature_;
 
 		/** @brief Uncertainty factor which is applicated in un-perceived environment */
 		double uncertainty_factor_; // For unknown (non-perceive) areas

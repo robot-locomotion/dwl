@@ -165,13 +165,24 @@ struct TerrainModel
 
 /**
  * @struct Terrain
- * @brief Struct to define the relevant information of the terrain for computing reward
+ * @brief Struct to define the relevant information of the terrain for computing the reward
  */
 struct Terrain
 {
 	Eigen::Vector3d position;
 	Eigen::Vector3d surface_normal;
 	double curvature;
+	std::map<Vertex, double> height_map;
+	double resolution;
+};
+
+/**
+ * @struct RobotAndTerrain
+ * @brief Struct to define the relevant information of the robot and terrain for computing the reward
+ */
+struct RobotAndTerrain
+{
+	Pose3d pose;
 	std::map<Vertex, double> height_map;
 	double resolution;
 };

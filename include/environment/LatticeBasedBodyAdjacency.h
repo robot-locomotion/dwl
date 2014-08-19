@@ -42,9 +42,9 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 
 		/**
 		 * @brief Computes the body cost of a current vertex
-		 * @param dwl::Vertex state_vertex Current state vertex
+		 * @param Eigen::Vector3d robot_state Current robot state (x,y,yaw)
 		 */
-		void computeBodyCost(double& cost, Vertex state_vertex);
+		void computeBodyCost(double& cost, Eigen::Vector3d state);
 
 		/**
 		 * @brief Indicates if the free of obstacle

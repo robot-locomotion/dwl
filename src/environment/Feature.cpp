@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-Feature::Feature() : weight_(1), gain_(1)
+Feature::Feature() : weight_(1), gain_(1), space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max())
 {
 
 }
@@ -22,6 +22,18 @@ Feature::~Feature()
 std::string Feature::getName()
 {
 	return name_;
+}
+
+
+void Feature::computeReward(double& reward_value, Terrain terrain_info)
+{
+	printf(YELLOW "Could not computed the reward value of the terrain because was not defined\n" COLOR_RESET);
+}
+
+
+void Feature::computeReward(double& reward_value, RobotAndTerrain info)
+{
+	printf(YELLOW "Could not computed the reward value of the robot because was not defined\n" COLOR_RESET);
 }
 
 

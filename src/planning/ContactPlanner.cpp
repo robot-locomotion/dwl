@@ -37,20 +37,20 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 	Eigen::Vector3d body_state;
 	body_state << current_pose.position.head(2), yaw;
 
+	// Getting the terrain cost map information
+	CostMap terrain_costmap;
+	environment_->getTerrainCostMap(terrain_costmap);
+
+	// Getting the terrain height map information
+	HeightMap terrain_heightmap;
+	environment_->getTerrainHeightMap(terrain_heightmap);
+
+	// Setting the terrain resolution
+	double terrain_resolution = environment_->getTerrainResolution();
+	environment_->setEnvironmentResolution(terrain_resolution, true);
+
 	for (int i = 0; i < robot_.getNumberOfLegs(); i++) {
 		int current_leg_id = robot_.getNextLeg(i);
-
-		// Getting the terrain cost map information
-		CostMap terrain_costmap;
-		environment_->getTerrainCostMap(terrain_costmap);
-
-		// Getting the terrain height map information
-		HeightMap terrain_heightmap;
-		environment_->getTerrainHeightMap(terrain_heightmap);
-
-		// Setting the terrain resolution
-		double terrain_resolution = environment_->getTerrainResolution();
-		environment_->setEnvironmentResolution(terrain_resolution, true);
 
 		double body_cost;
 		// Computing the boundary of stance area

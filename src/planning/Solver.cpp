@@ -22,7 +22,7 @@ Solver::~Solver()
 
 void Solver::reset(environment::EnvironmentInformation* environment)
 {
-	printf(BLUE "Setting the environment information in the adjacency model in the %s solver\n" COLOR_RESET, getName().c_str());
+	printf(BLUE "Setting the environment information in the %s solver\n" COLOR_RESET, getName().c_str());
 	adjacency_->reset(environment);
 }
 
@@ -36,8 +36,8 @@ void Solver::setCurrentPose(Pose current_pose)
 void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_model)
 {
 	printf(BLUE "Setting the %s adjacency model in the %s solver\n" COLOR_RESET, adjacency_model->getName().c_str(), getName().c_str());
-	is_settep_adjacency_model_ = true;
 	adjacency_ = adjacency_model;
+	is_settep_adjacency_model_ = true;
 }
 
 

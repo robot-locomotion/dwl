@@ -34,17 +34,25 @@ class Robot
 
 		/**
 		 * @brief Gets the stance position of the robot
-		 * @return Returns the stance position of each leg
+		 * @return const std::vector<Eigen::Vector2d>& Returns the stance position of each leg
 		 */
 		const std::vector<Eigen::Vector2d>& getStancePosition() const;
 
+		/**
+		 * @brief Gets the body area
+		 * @return const Area& Returns the body area
+		 */
 		const Area& getBodyArea() const;
 
 		/**
 		 * @brief Gets the stance areas
-		 * @return std::vector<SearchArea> Returns the stance areas
+		 * @return const std::vector<SearchArea>& Returns the stance areas
 		 */
-		const std::vector<SearchArea>& getStanceAreas() const;
+		const std::vector<SearchArea>& getStanceAreas() const; //TODO Get only the stance area of the leg id
+
+		const SearchArea& getLegArea(int leg_id) const;//TODO Use template for the leg and abstract class
+
+		//const SearchArea& getLegArea(HumanoidLegID leg) const;
 
 		/**
 		 * @brief Gets the next leg according some defined pattern of locomotion
@@ -71,6 +79,10 @@ class Robot
 
 		/** @brief Number of legs */
 		double number_legs_;
+
+		double stance_size_;
+
+		std::vector<SearchArea> leg_area_;
 };
 
 

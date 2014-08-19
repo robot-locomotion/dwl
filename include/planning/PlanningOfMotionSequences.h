@@ -203,7 +203,6 @@ class PlanningOfMotionSequences
 
 };
 
-
 } //@namespace planning
 } //@namespace dwl
 

@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-AdjacencyEnvironment::AdjacencyEnvironment() : environment_(NULL), is_lattice_(false), uncertainty_factor_(1.15)
+AdjacencyEnvironment::AdjacencyEnvironment() : environment_(NULL), is_lattice_(false), is_added_feature_(false), uncertainty_factor_(1.15)
 {
 
 }
@@ -21,6 +21,7 @@ AdjacencyEnvironment::~AdjacencyEnvironment()
 
 void AdjacencyEnvironment::reset(EnvironmentInformation* environment)
 {
+	printf(BLUE "Setting the environment information in the %s adjacency model \n" COLOR_RESET, name_.c_str());
 	environment_ = environment;
 }
 
@@ -71,7 +72,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 			vertex_map.push_back(vertex_iter->first);
 		}
 	} else {
-		printf(RED "Couldn't get the closest start and goal vertex because there isn't terrain information \n" COLOR_RESET);
+		printf(RED "Could not get the closest start and goal vertex because there is not terrain information \n" COLOR_RESET);
 		return;
 	}
 
@@ -227,7 +228,7 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 {
 	if (isLatticeRepresentation()) {
-		double epsilon = 0.1; //TODO
+		double epsilon = 0.1; //TODO Define this variable
 
 		Eigen::Vector3d current_state, target_state;
 		environment_->getSpaceModel().vertexToState(current_state, current);
@@ -241,7 +242,7 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 		current_state(2) = current_angle;
 		target_state(2) = target_angle;
 
-		//TODO
+		//TODO Define this metrics
 		double distant = (target_state.head(2) - current_state.head(2)).norm();
 		if (distant < epsilon) {
 			double angular_error = target_state(2) - current_state(2);
@@ -266,6 +267,16 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 bool AdjacencyEnvironment::isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body)
 {
 	return true;
+}
+
+
+void AdjacencyEnvironment::addFeature(Feature* feature)
+{
+	double weight;
+	feature->getWeight(weight);
+	printf(GREEN "Adding the %s feature with a weight of %f\n" COLOR_RESET, feature->getName().c_str(), weight);
+	features_.push_back(feature);
+	is_added_feature_ = true;
 }
 
 

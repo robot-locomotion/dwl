@@ -1,6 +1,8 @@
 #ifndef DWL_Feature_H
 #define DWL_Feature_H
 
+#include <environment/PlaneGrid.h>
+#include <robot/Robot.h>
 #include <utils/utils.h>
 
 
@@ -28,7 +30,14 @@ class Feature
 		 * @param double& reward_value Reference of the reward variable
 		 * @param dwl::environment::Terrain terrain_info Information about the terrain, i.e. position, surface and curvature
 		 */
-		virtual void computeReward(double& reward_value, Terrain terrain_info) = 0;
+		virtual void computeReward(double& reward_value, Terrain terrain_info);
+
+		/**
+		 * @brief Abstract method to compute reward value according some robot and terrain information
+		 * @param double& reward_value Reference of the reward variable
+		 * @param dwl::environment::RobotAndTerrain info Information of the robot and terrain
+		 */
+		virtual void computeReward(double& reward_value, RobotAndTerrain info);
 
 		/**
 		 * @brief Sets the weight of the feature
@@ -71,6 +80,12 @@ class Feature
 
 		/** @brief Weight used for computing the total reward */
 		double weight_;
+
+		/** @brief Object of the SpaceDiscretization class for defining the space discretiization routines */
+		SpaceDiscretization space_discretization_;
+
+		/** @brief Object of the Robot class for defining robot properties */
+		robot::Robot robot_;
 
 		/** @brief Area for computing the average of the height map */
 		SearchArea neightboring_area_;

@@ -2,7 +2,6 @@
 #define DWL_HeightDeviationFeature_H
 
 #include <environment/Feature.h>
-#include <environment/PlaneGrid.h>
 
 
 namespace dwl
@@ -33,8 +32,6 @@ class HeightDeviationFeature : public Feature
 
 
 	private:
-		/** @brief Object of the SpaceDiscretization class for defining the space discretiization routines */
-		SpaceDiscretization space_discretization_;
 
 };
 

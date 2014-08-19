@@ -51,15 +51,15 @@ void PlanningOfMotionSequences::reset(Solver* solver, environment::EnvironmentIn
 
 void PlanningOfMotionSequences::reset(BodyPlanner* body_planner, ContactPlanner* footstep_planner, environment::EnvironmentInformation* environment)
 {
+	printf(BLUE "Setting the environment information in the planner\n" COLOR_RESET);
+	environment_ = environment;
+
 	body_planner_ = body_planner;
 	body_planner_->reset(environment);
 
 	footstep_planner_ = footstep_planner;
 	footstep_planner_->reset(environment);
 	is_settep_solver_ = true;
-
-	printf(BLUE "Setting the environment information in the planner\n" COLOR_RESET);
-	environment_ = environment;
 }
 
 
