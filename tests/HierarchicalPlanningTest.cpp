@@ -2,6 +2,7 @@
 #include <planning/HierarchicalPlanning.h>
 #include <planning/WholeBodyLocomotion.cpp>
 
+#include <robot/Robot.cpp>
 #include <robot/KinematicConstraints.cpp>
 #include <robot/StabilityConstraints.cpp>
 #include <robot/StateCost.cpp>
@@ -26,10 +27,11 @@ int main(int argc, char **argv)
 	dwl::WholeBodyLocomotion locomotor;
 
 	// Initialization of planning algorithm, which includes the initialization and setup of solver algorithm
+	dwl::robot::Robot* robot_ptr;
 	dwl::planning::Solver* solver_ptr = new dwl::planning::Dijkstrap();
 	dwl::planning::PlanningOfMotionSequences* planning_ptr = new dwl::planning::HierarchicalPlanning();
 	dwl::environment::EnvironmentInformation* environment_ptr;
-	planning_ptr->reset(solver_ptr, environment_ptr);
+	planning_ptr->reset(robot_ptr, solver_ptr, environment_ptr);
 
 	dwl::planning::Constraint* kin_constraint_ptr = new dwl::robot::KinematicConstraints();
 	dwl::planning::Constraint* stab_constraint_ptr = new dwl::robot::StabilityConstraints();

@@ -36,7 +36,7 @@ class Robot
 
 		const Pose& getPose() const;
 
-		const double& getEstimatedGround();
+		double getEstimatedGround();
 
 		/**
 		 * @brief Gets the stance position of the robot

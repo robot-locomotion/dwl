@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-Feature::Feature() : weight_(1), gain_(1), space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max())
+Feature::Feature() : robot_(NULL), weight_(1), gain_(1),
+		space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max())
 {
 
 }
@@ -16,6 +17,13 @@ Feature::Feature() : weight_(1), gain_(1), space_discretization_(std::numeric_li
 Feature::~Feature()
 {
 
+}
+
+
+void Feature::reset(robot::Robot* robot)
+{
+	printf(BLUE "Setting the robot properties in the %s feature \n" COLOR_RESET, name_.c_str());
+	robot_ = robot;
 }
 
 

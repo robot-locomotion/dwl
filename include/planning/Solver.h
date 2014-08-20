@@ -34,7 +34,7 @@ class Solver
 		 * @brief Specifies the environment information
 		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
-		void reset(environment::EnvironmentInformation* environment); //TODO virtual method
+		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment); //TODO virtual method
 
 		void setCurrentPose(Pose current_pose);
 

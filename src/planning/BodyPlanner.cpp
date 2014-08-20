@@ -7,7 +7,7 @@ namespace dwl
 namespace planning
 {
 
-BodyPlanner::BodyPlanner() : environment_(NULL), path_solver_(NULL), pose_solver_(NULL), path_computation_time_(std::numeric_limits<double>::max()),
+BodyPlanner::BodyPlanner() : environment_(NULL), robot_(NULL), path_solver_(NULL), pose_solver_(NULL), path_computation_time_(std::numeric_limits<double>::max()),
 		pose_computation_time_(std::numeric_limits<double>::max())
 {
 
@@ -20,12 +20,16 @@ BodyPlanner::~BodyPlanner()
 }
 
 
-void BodyPlanner::reset(environment::EnvironmentInformation* environment)
+void BodyPlanner::reset(robot::Robot* robot, environment::EnvironmentInformation* environment)
 {
+	printf(BLUE "Setting the robot properties in the contact planner \n" COLOR_RESET);
+	robot_ = robot;
+
 	printf(BLUE "Setting the environment information in the body planner\n" COLOR_RESET);
-	path_solver_->reset(environment);
-	//pose_solver_->reset(environment); TODO Develop a pose solver
 	environment_ = environment;
+
+	path_solver_->reset(robot, environment);
+	//pose_solver_->reset(environment); TODO Develop a pose solver
 }
 
 

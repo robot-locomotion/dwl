@@ -28,9 +28,10 @@ class ContactPlanner
 
 		/**
 		 * @brief Specifies the environment information for computing a contact plan
+		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
 		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
-		void reset(environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @bief Computes the footholds
@@ -50,8 +51,8 @@ class ContactPlanner
 		/** @brief Pointer to the environment information */
 		environment::EnvironmentInformation* environment_;
 
-		/** @brief Robot information */
-		robot::Robot robot_;
+		/** @brief Pointer to the robot properties information */
+		robot::Robot* robot_;
 
 		/** @brief Allowed computation time */
 		double computation_time_;

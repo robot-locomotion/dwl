@@ -28,9 +28,10 @@ class BodyPlanner
 
 		/**
 		 * @brief Specifies the environment information
+		 * @param dwl::robot::Robot* robot Encapsulates all the properties of the robot
 		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
-		void reset(environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Specifies the body path planner
@@ -57,6 +58,9 @@ class BodyPlanner
 	protected:
 		/** @brief Pointer to the EnvironmentInformation object */
 		environment::EnvironmentInformation* environment_;
+
+		/** @brief Pointer to the Robot object */
+		robot::Robot* robot_;
 
 		/** @brief Pointer to the path solver */
 		Solver* path_solver_;

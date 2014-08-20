@@ -25,6 +25,8 @@ class Feature
 		/** @brief Destructor function **/
 		virtual ~Feature();
 
+		void reset(robot::Robot* robot);
+
 		/**
 		 * @brief Abstract method to compute reward value according some terrain information
 		 * @param double& reward_value Reference of the reward variable
@@ -84,8 +86,8 @@ class Feature
 		/** @brief Object of the SpaceDiscretization class for defining the space discretiization routines */
 		SpaceDiscretization space_discretization_;
 
-		/** @brief Object of the Robot class for defining robot properties */
-		robot::Robot robot_;
+		/** @brief Pointer to the robot properties */
+		robot::Robot* robot_;
 
 		/** @brief Area for computing the average of the height map */
 		SearchArea neightboring_area_;

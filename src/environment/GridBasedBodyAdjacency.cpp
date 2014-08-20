@@ -13,7 +13,7 @@ GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true), n
 	is_lattice_ = false;
 
 	//TODO stance area
-	stance_areas_ = robot_.getStanceAreas();
+	stance_areas_ = robot_->getStanceAreas();
 }
 
 

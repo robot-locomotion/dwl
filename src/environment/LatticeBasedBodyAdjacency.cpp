@@ -14,8 +14,6 @@ LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : behavior_(NULL), is_sta
 	is_lattice_ = true;
 
 	behavior_ = new behavior::BodyMotorPrimitives(); //TODO Evaluates if it's necessary to add this externaly
-
-	stance_areas_ = robot_.getStanceAreas(); //TODO stance area
 }
 
 
@@ -27,6 +25,8 @@ LatticeBasedBodyAdjacency::~LatticeBasedBodyAdjacency()
 
 void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex state_vertex)
 {
+	stance_areas_ = robot_->getStanceAreas();
+
 	// Getting the 3d pose for generating the actions
 	std::vector<Action3d> actions;
 	Eigen::Vector3d current_state;
@@ -174,7 +174,7 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 	if (environment_->isObstacleInformation()) {
 		if (body) {
 			// Getting the body area of the robot
-			Area body_area = robot_.getBodyArea();
+			Area body_area = robot_->getBodyArea();
 
 			// Computing the boundary of stance area
 			Eigen::Vector2d boundary_min, boundary_max;

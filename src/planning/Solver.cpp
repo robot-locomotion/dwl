@@ -20,10 +20,10 @@ Solver::~Solver()
 }
 
 
-void Solver::reset(environment::EnvironmentInformation* environment)
+void Solver::reset(robot::Robot* robot, environment::EnvironmentInformation* environment)
 {
-	printf(BLUE "Setting the environment information in the %s solver\n" COLOR_RESET, getName().c_str());
-	adjacency_->reset(environment);
+	printf(BLUE "Setting the robot and environment information in the %s solver\n" COLOR_RESET, getName().c_str());
+	adjacency_->reset(robot, environment);
 }
 
 

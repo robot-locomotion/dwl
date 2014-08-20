@@ -7,7 +7,7 @@ namespace dwl
 namespace planning
 {
 
-PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), body_planner_(NULL), footstep_planner_(NULL), environment_(NULL),
+PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), body_planner_(NULL), footstep_planner_(NULL), robot_(NULL), environment_(NULL),
 		is_added_active_constraint_(false), is_added_inactive_constraint_(false),	is_added_cost_(false), is_settep_solver_(false),
 		is_initialized_planning_(false), computation_time_(std::numeric_limits<double>::max())
 {
@@ -37,28 +37,37 @@ PlanningOfMotionSequences::~PlanningOfMotionSequences()
 }
 
 
-void PlanningOfMotionSequences::reset(Solver* solver, environment::EnvironmentInformation* environment)
+void PlanningOfMotionSequences::reset(robot::Robot* robot, Solver* solver, environment::EnvironmentInformation* environment)
 {
-	printf(BLUE "Setting the %s solver\n" COLOR_RESET, solver->getName().c_str());
+	printf(BLUE "Setting the robot properties in the %s planner \n" COLOR_RESET, name_.c_str());
+	robot_ = robot;
+
+	printf(BLUE "Setting the %s solver in the %s planner\n" COLOR_RESET, solver->getName().c_str(), name_.c_str());
 	is_settep_solver_ = true;
 	solver_ = solver;
-	solver_->reset(environment);
+	solver_->reset(robot, environment);
 
-	printf(BLUE "Setting the environment information\n" COLOR_RESET);
+	printf(BLUE "Setting the environment information in the %s planner\n" COLOR_RESET, name_.c_str());
 	environment_ = environment;
 }
 
 
-void PlanningOfMotionSequences::reset(BodyPlanner* body_planner, ContactPlanner* footstep_planner, environment::EnvironmentInformation* environment)
+void PlanningOfMotionSequences::reset(robot::Robot* robot, BodyPlanner* body_planner, ContactPlanner* footstep_planner, environment::EnvironmentInformation* environment)
 {
-	printf(BLUE "Setting the environment information in the planner\n" COLOR_RESET);
+	printf(BLUE "Setting the robot properties in the %s planner \n" COLOR_RESET, name_.c_str());
+	robot_ = robot;
+
+	printf(BLUE "Setting the environment information in the %s planner\n" COLOR_RESET, name_.c_str());
 	environment_ = environment;
 
+	printf(BLUE "Setting the body planner\n" COLOR_RESET);
 	body_planner_ = body_planner;
-	body_planner_->reset(environment);
+	body_planner_->reset(robot, environment);
 
+	printf(BLUE "Setting the footstep planner\n" COLOR_RESET);
 	footstep_planner_ = footstep_planner;
-	footstep_planner_->reset(environment);
+	footstep_planner_->reset(robot, environment);
+
 	is_settep_solver_ = true;
 }
 

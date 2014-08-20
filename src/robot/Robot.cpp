@@ -89,7 +89,7 @@ const Area& Robot::getBodyArea() const
 }
 
 
-const double& Robot::getEstimatedGround()
+double Robot::getEstimatedGround()
 {
 	double stance_height = 0.60;
 	double estimated_ground = current_pose_.position(2) - stance_height;

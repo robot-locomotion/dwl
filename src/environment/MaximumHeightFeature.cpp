@@ -32,9 +32,9 @@ void MaximumHeightFeature::computeReward(double& reward_value, RobotAndTerrain i
 	Eigen::Vector2d position = info.pose.position;
 	double yaw = info.pose.orientation;
 
-	for (int i = 0; i < robot_.getNumberOfLegs(); i++) {
+	for (int i = 0; i < robot_->getNumberOfLegs(); i++) {
 		// Getting the leg area
-		SearchArea leg_area = robot_.getLegArea(i);
+		SearchArea leg_area = robot_->getLegArea(i);
 
 		Eigen::Vector2d boundary_min, boundary_max;
 		boundary_min(0) = leg_area.min_x + position(0);

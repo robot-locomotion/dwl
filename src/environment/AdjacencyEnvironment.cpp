@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-AdjacencyEnvironment::AdjacencyEnvironment() : environment_(NULL), is_lattice_(false), is_added_feature_(false), uncertainty_factor_(1.15)
+AdjacencyEnvironment::AdjacencyEnvironment() : robot_(NULL), environment_(NULL), is_lattice_(false), is_added_feature_(false), uncertainty_factor_(1.15)
 {
 
 }
@@ -19,10 +19,16 @@ AdjacencyEnvironment::~AdjacencyEnvironment()
 }
 
 
-void AdjacencyEnvironment::reset(EnvironmentInformation* environment)
+void AdjacencyEnvironment::reset(robot::Robot* robot, EnvironmentInformation* environment)
 {
+	printf(BLUE "Setting the robot information in the %s adjacency model \n" COLOR_RESET, name_.c_str());
+	robot_ = robot;
+
 	printf(BLUE "Setting the environment information in the %s adjacency model \n" COLOR_RESET, name_.c_str());
 	environment_ = environment;
+
+	for (int i = 0; i < features_.size(); i++)
+		features_[i]->reset(robot);
 }
 
 

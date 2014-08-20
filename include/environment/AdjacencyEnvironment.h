@@ -30,9 +30,10 @@ class AdjacencyEnvironment
 
 		/**
 		 * @brief Specifies the settings of all components within AdjacencyEnvironment class
+		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
 		 * @param dwl::environment::EnvironmentInformation* environment Pointer to object that defines the environment
 		 */
-		void reset(EnvironmentInformation* environment);
+		void reset(robot::Robot* robot, EnvironmentInformation* environment);
 
 		void setCurrentPose(Pose current_pose);
 
@@ -117,8 +118,8 @@ class AdjacencyEnvironment
 		/** @brief Pointer of the EnvironmentInformation object which describes the environment */
 		EnvironmentInformation* environment_;
 
-		/** @brief Object of the Robot class for defining robot properties */
-		robot::Robot robot_;
+		/** @brief Pointer to robot properties */
+		robot::Robot* robot_;
 
 		/** @brief Vector of pointers to the Feature class */
 		std::vector<Feature*> features_;

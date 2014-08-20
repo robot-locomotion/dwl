@@ -174,6 +174,9 @@ class PlanningOfMotionSequences
 		/** @brief Pointer to the footstep planner */
 		ContactPlanner* footstep_planner_;
 
+		/** @brief Pointer to the robot properties */
+		robot::Robot* robot_;
+
 		/** @brief Pointer to the solver algorithm */
 		Solver* solver_;
 

@@ -7,7 +7,7 @@ namespace dwl
 namespace planning
 {
 
-ContactPlanner::ContactPlanner() : environment_(NULL), computation_time_(std::numeric_limits<double>::max())
+ContactPlanner::ContactPlanner() : environment_(NULL), robot_(NULL), computation_time_(std::numeric_limits<double>::max())
 {
 
 }
@@ -19,8 +19,11 @@ ContactPlanner::~ContactPlanner()
 }
 
 
-void ContactPlanner::reset(environment::EnvironmentInformation* environment)
+void ContactPlanner::reset(robot::Robot* robot, environment::EnvironmentInformation* environment)
 {
+	printf(BLUE "Setting the robot properties in the contact planner \n" COLOR_RESET);
+	robot_ = robot;
+
 	printf(BLUE "Setting the environment information in the contact planner \n" COLOR_RESET);
 	environment_ = environment;
 }
@@ -45,21 +48,21 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 	HeightMap terrain_heightmap;
 	environment_->getTerrainHeightMap(terrain_heightmap);
 
-	for (int i = 0; i < robot_.getNumberOfLegs(); i++) {
-		int current_leg_id = robot_.getNextLeg(i);
+	for (int i = 0; i < robot_->getNumberOfLegs(); i++) {
+		int current_leg_id = robot_->getNextLeg(i);
 
 		double body_cost;
 		// Computing the boundary of stance area
 		Eigen::Vector2d boundary_min, boundary_max;
-		boundary_min(0) = robot_.getStanceAreas()[current_leg_id].min_x + body_state(0);
-		boundary_min(1) = robot_.getStanceAreas()[current_leg_id].min_y + body_state(1);
-		boundary_max(0) = robot_.getStanceAreas()[current_leg_id].max_x + body_state(0);
-		boundary_max(1) = robot_.getStanceAreas()[current_leg_id].max_y + body_state(1);
+		boundary_min(0) = robot_->getStanceAreas()[current_leg_id].min_x + body_state(0);
+		boundary_min(1) = robot_->getStanceAreas()[current_leg_id].min_y + body_state(1);
+		boundary_max(0) = robot_->getStanceAreas()[current_leg_id].max_x + body_state(0);
+		boundary_max(1) = robot_->getStanceAreas()[current_leg_id].max_y + body_state(1);
 
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double stance_cost = 0;
-		for (double y = boundary_min(1); y < boundary_max(1); y += robot_.getStanceAreas()[current_leg_id].grid_resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += robot_.getStanceAreas()[current_leg_id].grid_resolution) {
+		for (double y = boundary_min(1); y < boundary_max(1); y += robot_->getStanceAreas()[current_leg_id].grid_resolution) {
+			for (double x = boundary_min(0); x < boundary_max(0); x += robot_->getStanceAreas()[current_leg_id].grid_resolution) {
 				// Computing the rotated coordinate of the point inside the search area
 				Eigen::Vector3d current_state;
 				current_state(0) = (x - body_state(0)) * cos(yaw) - (y - body_state(1)) * sin(yaw) + body_state(0);
@@ -85,11 +88,11 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 			foothold.position << coord, terrain_heightmap.find(foothold_vertex)->second;
 		}
 		else {
-			Eigen::Vector2d stance_position = robot_.getStancePosition()[current_leg_id];
+			Eigen::Vector2d stance_position = robot_->getStancePosition()[current_leg_id];
 			Eigen::Vector2d foothold_position;
 			foothold_position(0) = body_state(0) + stance_position(0) * cos(yaw) - stance_position(1) * sin(yaw);
 			foothold_position(1) = body_state(1) + stance_position(0) * sin(yaw) + stance_position(1) * cos(yaw);
-			foothold.position << foothold_position, 0.0;
+			foothold.position << foothold_position, robot_->getEstimatedGround();
 		}
 
 		footholds.push_back(foothold);
