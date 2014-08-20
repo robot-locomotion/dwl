@@ -108,7 +108,6 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 
 				Vertex current_2d_vertex;
 				environment_->getSpaceModel().coordToVertex(current_2d_vertex, point_position);
-				environment_->getSpaceModel().getEnvironmentResolution(true);//TODO testing
 
 				// Inserts the element in an organized vertex queue, according to the maximun value
 				if (terrain_costmap.find(current_2d_vertex)->first == current_2d_vertex) {
