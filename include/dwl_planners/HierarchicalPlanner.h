@@ -10,6 +10,8 @@
 #include <planning/Dijkstrap.h>
 #include <planning/AStar.h>
 #include <planning/AnytimeRepairingAStar.h>
+
+#include <robot/Robot.h>
 #include <environment/EnvironmentInformation.h>
 #include <environment/AdjacencyEnvironment.h>
 #include <environment/GridBasedBodyAdjacency.h>
@@ -128,6 +130,9 @@ class HierarchicalPlanners
 
 		/** @brief Environment information */
 		dwl::environment::EnvironmentInformation environment_;
+
+		/** @brief Robot properties */
+		dwl::robot::Robot robot_;
 
 		//dwl::environment::EnvironmentInformation* environment_ptr_;
 

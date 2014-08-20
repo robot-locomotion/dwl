@@ -56,6 +56,7 @@ void HierarchicalPlanners::init()
 	body_path_msg_.header.frame_id = world_frame_;
 	contact_sequence_msg_.header.frame_id = world_frame_;
 
+
 	// Getting the body path solver
 	std::string path_solver_name;
 	node_.param("hierarchical_planner/body_planner/path_solver", path_solver_name, (std::string) "AnytimeRepairingAStar");
@@ -68,15 +69,34 @@ void HierarchicalPlanners::init()
 	else
 		body_path_solver_ptr_ = new dwl::planning::AnytimeRepairingAStar();
 
+
 	// Getting the adjacency model
 	std::string adjacency_model_name;
 	dwl::environment::AdjacencyEnvironment* adjacency_ptr;
-	node_.param("hierarchical_planner/body_planner/adjacency", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
+
+	node_.param("hierarchical_planner/body_planner/adjacency/name", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
 	if (adjacency_model_name == "LatticeBasedBodyAdjacency") {
 		adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
 
-		dwl::environment::Feature* max_heigh_ptr = new dwl::environment::MaximumHeightFeature();
-		adjacency_ptr->addFeature(max_heigh_ptr); //TODO define the feature in the yaml file
+		// Setting the features for the body planner
+		bool max_height_enable;
+		node_.param("hierarchical_planner/body_planner/adjacency/features/maximum_height/enable", max_height_enable, false);
+
+		if (max_height_enable) {
+			dwl::environment::Feature* max_heigh_ptr = new dwl::environment::MaximumHeightFeature();
+
+			// Setting the weight
+			double weight, default_weight = 1;
+			node_.param("hierarchical_planner/body_planner/adjacency/features/maximum_height/weight", weight, default_weight);
+			max_heigh_ptr->setWeight(weight);
+
+			// Setting the gain
+			double gain, default_gain = 1;
+			node_.param("hierarchical_planner/body_planner/adjacency/features/maximum_height/gain", gain, default_gain);
+			max_heigh_ptr->setWeight(gain);
+
+			adjacency_ptr->addFeature(max_heigh_ptr);
+		}
 	} else if (adjacency_model_name == "GridBasedBodyAdjacency")
 		adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();
 	else
@@ -86,8 +106,8 @@ void HierarchicalPlanners::init()
 	body_path_solver_ptr_->setAdjacencyModel(adjacency_ptr);
 	body_planner_.reset(body_path_solver_ptr_);
 
-	// Setting the body and footstep planner, and the environment to the planning
-	planning_ptr_->reset(&body_planner_, &footstep_planner_, &environment_);
+	// Setting the body and footstep planner, and the robot and environment information to the planner
+	planning_ptr_->reset(&robot_, &body_planner_, &footstep_planner_, &environment_);
 
 	// Setting up the planner algorithm in the locomotion approach
 	locomotor_.reset(planning_ptr_);
