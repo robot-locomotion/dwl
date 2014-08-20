@@ -72,9 +72,12 @@ void HierarchicalPlanners::init()
 	std::string adjacency_model_name;
 	dwl::environment::AdjacencyEnvironment* adjacency_ptr;
 	node_.param("hierarchical_planner/body_planner/adjacency", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
-	if (adjacency_model_name == "LatticeBasedBodyAdjacency")
+	if (adjacency_model_name == "LatticeBasedBodyAdjacency") {
 		adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
-	else if (adjacency_model_name == "GridBasedBodyAdjacency")
+
+		dwl::environment::Feature* max_heigh_ptr = new dwl::environment::MaximumHeightFeature();
+		adjacency_ptr->addFeature(max_heigh_ptr); //TODO define the feature in the yaml file
+	} else if (adjacency_model_name == "GridBasedBodyAdjacency")
 		adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();
 	else
 		adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
