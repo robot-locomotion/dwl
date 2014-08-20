@@ -25,23 +25,30 @@ class EnvironmentInformation
 		~EnvironmentInformation();
 
 		/**
-		 * @brief Sets the terrain cost map from the reward map information
+		 * @brief Sets the terrain cost-map and height-map
 		 * @param std::vector<dwl::RewardCell> reward_map Reward map
 		 */
 		void setEnvironmentInformation(std::vector<RewardCell> reward_map);
 
 		/**
-		 * @brief Sets the terrain obstacle map
+		 * @brief Sets the obstacle map
 		 * @param std::vector<dwl::Cell> obstacle_map Obstacle map
 		 */
 		void setEnvironmentInformation(std::vector<Cell> obstacle_map);
 
 		/**
-		 * @brief Sets the environment resolution of the plane or height
+		 * @brief Sets the terrain resolution (cost and height map) of the plane or height
 		 * @param double resolution Resolution value
 		 * @param bool plane Indicates if the key represents a plane or a height
 		 */
-		void setEnvironmentResolution(double resolution, bool plane);
+		void setTerrainResolution(double resolution, bool plane);
+
+		/**
+		 * @brief Sets the obstacle resolution of the plane or height
+		 * @param double resolution Resolution value
+		 * @param bool plane Indicates if the key represents a plane or a height
+		 */
+		void setObstacleResolution(double resolution, bool plane);
 
 		/**
 		 * @brief Sets the state resolution of the plane or height
@@ -63,10 +70,16 @@ class EnvironmentInformation
 		void getTerrainHeightMap(HeightMap& heightmap);
 
 		/**
-		 * @brief Gets the terrain obstacle-map (using vertex id)
+		 * @brief Gets the obstacle-map (using vertex id)
 		 * @param dwl::ObstacleMap& obstaclemap Obstacle map of the terrain
 		 */
-		void getTerrainObstacleMap(ObstacleMap& obstaclemap);
+		void getObstacleMap(ObstacleMap& obstaclemap);
+
+		/** @brief Gets the terrain resolution (cost and height map) */
+		double getTerrainResolution();
+
+		/** @brief Gets the obstacle resolution */
+		double getObstacleResolution();
 
 		/**
 		 * @brief Gets the average cost of the terrain
@@ -75,61 +88,67 @@ class EnvironmentInformation
 		double getAverageCostOfTerrain();
 
 		/**
-		 * @brief Gets the defined grid model according the resolution of the environment
-		 * @return dwl::environment::PlaneGrid& Returns the reference of the environment object
+		 * @brief Gets the cost discretizated model of the space according the resolution of the terrain
+		 * @return dwl::environment::SpaceDiscretization& Returns the discretized space model
 		 */
-		SpaceDiscretization& getSpaceModel();
+		SpaceDiscretization& getTerrainSpaceModel();
 
 		/**
-		 * @brief Indicates if it was defined terrain cost information
+		 * @brief Gets the cost discretizated model of the space according the resolution of the reward map
+		 * @return dwl::environment::SpaceDiscretization& Returns the discretized space model
+		 */
+		SpaceDiscretization& getObstacleSpaceModel();
+
+
+		/**
+		 * @brief Indicates if it was defined terrain information
 		 * @return Returns true if it was defined terrain cost information, otherwise false
 		 */
-		bool isTerrainCostInformation();
+		bool isTerrainInformation();
 
 		/**
 		 * @brief Indicates if it was defined terrain obstacle information
 		 * @return Returns true if it was defined terrain obstacle information, otherwise false
 		 */
-		bool isTerrainObstacleInformation();
-
-		/** @brief Gets the terrain resolution */
-		double getTerrainResolution();
-
-		/** @brief Gets the obstacle resolution */
-		double getObstacleResolution();
+		bool isObstacleInformation();
 
 
 	private:
-		/** @brief Object of the PlaneGrid class for defining the grid routines */
-		environment::SpaceDiscretization space_discretization_;
+		/** @brief Object of the SpaceDiscretization class for defining the conversion routines for the terrain cost-map */
+		environment::SpaceDiscretization terrain_space_discretization_;
 
-		/** @brief Gathers the cost values that are mapped using the vertex id */
+		/** @brief Object of the SpaceDiscretization class for defining the conversion routines for the terrain obstacle-map */
+		environment::SpaceDiscretization obstacle_space_discretization_;
+
+		/** @brief Gathers the terrain cost values that are mapped using the vertex id */
 		CostMap terrain_cost_map_;
 
 		/** @brief Gathers the obstacles that are mapped using the vertex id */
-		ObstacleMap terrain_obstacle_map_;
+		ObstacleMap obstacle_map_;
 
 		/** @brief Gathers the height values that are mapperd using the vertex id */
 		HeightMap terrain_height_map_;
 
-		/** @brief Average cost which is used for unknown areas */
-		double average_cost_;
+		/** @brief Gathers the body cost values that are mapped using the vertex id */
+		CostMap body_cost_map_;
 
-		/** @brief Indicates if it was defined terrain cost information */
-		bool terrain_cost_information_;
+		/** @brief Average terrain cost which is used for unknown areas */
+		double average_terrain_cost_;
 
-		/** @brief Indicates if it was defined terrain obstacle information */
-		bool terrain_obstacle_information_;
+		/** @brief Indicates if it was defined terrain information */
+		bool terrain_information_;
 
-		/** @brief Terrain resolution */
+		/** @brief Indicates if it was defined obstacle information */
+		bool obstacle_information_;
+
+		/** @brief Terrain resolution (cost and height map) of the environment */
 		double terrain_resolution_;
 
-		/** @brief Obstacle resolution */
+		/** @brief Obstacle resolution of the environment */
 		double obstacle_resolution_;
 };
 
 } //@namespace environment
 } //@namespace dwl
-
 
 #endif

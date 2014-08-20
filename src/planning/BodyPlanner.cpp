@@ -24,7 +24,7 @@ void BodyPlanner::reset(environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the environment information in the body planner\n" COLOR_RESET);
 	path_solver_->reset(environment);
-	//pose_solver_->reset(environment); TODO Develip a pose solver
+	//pose_solver_->reset(environment); TODO Develop a pose solver
 	environment_ = environment;
 }
 
@@ -52,8 +52,8 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 
 	// Converting the states to vertexs
 	Vertex start_vertex, goal_vertex;
-	environment_->getSpaceModel().stateToVertex(start_vertex, start_state);
-	environment_->getSpaceModel().stateToVertex(goal_vertex, goal_state);
+	environment_->getTerrainSpaceModel().stateToVertex(start_vertex, start_state);
+	environment_->getTerrainSpaceModel().stateToVertex(goal_vertex, goal_state);
 
 	// Setting the current pose to solver
 	path_solver_->setCurrentPose(start_pose);
@@ -73,7 +73,7 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 		body_pose.orientation = Eigen::Vector4d::Zero();
 
 		Eigen::Vector3d path;
-		environment_->getSpaceModel().vertexToState(path, *path_iter);
+		environment_->getTerrainSpaceModel().vertexToState(path, *path_iter);
 
 		// Converting the yaw angle to quaternion
 		Eigen::Quaterniond q;

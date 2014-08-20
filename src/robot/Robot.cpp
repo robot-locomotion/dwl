@@ -66,15 +66,35 @@ Robot::~Robot()
 }
 
 
+void Robot::setPose(Pose pose)
+{
+	current_pose_ = pose;
+}
+
 void Robot::setStanceAreas(std::vector<SearchArea> stance_areas)
 {
 	stance_areas_ = stance_areas;
 }
 
 
+const Pose& Robot::getPose() const
+{
+	return current_pose_;
+}
+
+
 const Area& Robot::getBodyArea() const
 {
 	return body_area_;
+}
+
+
+const double& Robot::getEstimatedGround()
+{
+	double stance_height = 0.60;
+	double estimated_ground = current_pose_.position(2) - stance_height;
+
+	return estimated_ground;
 }
 
 const std::vector<SearchArea>& Robot::getStanceAreas() const

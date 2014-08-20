@@ -140,8 +140,8 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 				if (reward_cell.key.z != heightmap_key[2]) {
 					removeCellToRewardMap(vertex_id);
 					removeCellToTerrainHeightMap(vertex_id);
-				} //else
-					//new_status = false; //TODO Evaluating if we can do it at time! This is done by commenting this
+				} else
+					new_status = false; //TODO Evaluating if we can do it at time! This is done by commenting this
 			}
 
 			if (new_status)

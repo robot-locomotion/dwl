@@ -43,9 +43,9 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 	Eigen::Vector3d current_state;
 	poseToState(current_state, current_pose);
 
-	if (environment_->isTerrainCostInformation()) {
+	if (environment_->isTerrainInformation()) {
 		Vertex current_vertex;
-		environment_->getSpaceModel().stateToVertex(current_vertex, current_state);
+		environment_->getTerrainSpaceModel().stateToVertex(current_vertex, current_state);
 
 		// Cleaning global variables
 		std::vector<Pose> empty_body_trajectory;

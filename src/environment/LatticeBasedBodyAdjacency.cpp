@@ -30,20 +30,18 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 	// Getting the 3d pose for generating the actions
 	std::vector<Action3d> actions;
 	Eigen::Vector3d current_state;
-	environment_->getSpaceModel().vertexToState(current_state, state_vertex);
+	environment_->getTerrainSpaceModel().vertexToState(current_state, state_vertex);
 
 	// Converting state to pose
 	Pose3d current_pose;
 	current_pose.position = current_state.head(2);
 	current_pose.orientation = current_state(2);
 
-	// Setting the resolution of the terrain map to environment resolution
-	double terrain_resolution = environment_->getTerrainResolution();
-	environment_->getSpaceModel().setEnvironmentResolution(terrain_resolution, true);
-
 	// Gets actions according the defined motor primitives of the body
 	behavior_->generateActions(actions, current_pose);
-	if (environment_->isTerrainCostInformation()) {
+
+	// Evaluating every action (body motor primitives)
+	if (environment_->isTerrainInformation()) {
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
 		for (int i = 0; i < actions.size(); i++) {
@@ -51,10 +49,10 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 			Eigen::Vector3d action_state;
 			action_state << actions[i].pose.position, actions[i].pose.orientation;
 			Vertex current_action_vertex, environment_vertex;
-			environment_->getSpaceModel().stateToVertex(current_action_vertex, action_state);
+			environment_->getTerrainSpaceModel().stateToVertex(current_action_vertex, action_state);
 
 			// Converting state vertex to environment vertex
-			environment_->getSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, current_action_vertex, XY_Y);
+			environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, current_action_vertex, XY_Y);
 
 			// Checks if there is an obstacle
 			if (isFreeOfObstacle(current_action_vertex, XY_Y, true)) {
@@ -107,7 +105,7 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 				point_position(1) = (x - state(0)) * sin((double) state(2)) + (y - state(1)) * cos((double) state(2)) + state(1);
 
 				Vertex current_2d_vertex;
-				environment_->getSpaceModel().coordToVertex(current_2d_vertex, point_position);
+				environment_->getTerrainSpaceModel().coordToVertex(current_2d_vertex, point_position);
 
 				// Inserts the element in an organized vertex queue, according to the maximun value
 				if (terrain_costmap.find(current_2d_vertex)->first == current_2d_vertex) {
@@ -166,14 +164,14 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 {
 	// Getting the terrain obstacle map
 	ObstacleMap obstacle_map;
-	environment_->getTerrainObstacleMap(obstacle_map);
+	environment_->getObstacleMap(obstacle_map);
 
 	// Converting the vertex to state (x,y,yaw) //TODO Make something general, i.e. that includes XY and XY_Y representations
 	Eigen::Vector3d state;
-	environment_->getSpaceModel().vertexToState(state, state_vertex);
+	environment_->getObstacleSpaceModel().vertexToState(state, state_vertex);
 
 	bool is_free = true;
-	if (environment_->isTerrainObstacleInformation()) {
+	if (environment_->isObstacleInformation()) {
 		if (body) {
 			// Getting the body area of the robot
 			Area body_area = robot_.getBodyArea();
@@ -185,9 +183,8 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 			boundary_max(0) = body_area.max_x + state(0);
 			boundary_max(1) = body_area.max_y + state(1);
 
-			// Setting the resolution of the obstacle map to environment resolution
+			// Getting the resolution of the obstacle map
 			double obstacle_resolution = environment_->getObstacleResolution();
-			environment_->getSpaceModel().setEnvironmentResolution(obstacle_resolution, true);
 
 			for (double y = boundary_min(1); y < boundary_max(1); y += obstacle_resolution) {
 				for (double x = boundary_min(0); x < boundary_max(0); x += obstacle_resolution) {
@@ -197,7 +194,7 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 					point_position(1) = (x - state(0)) * sin((double) state(2)) + (y - state(1)) * cos((double) state(2)) + state(1);
 
 					Vertex current_2d_vertex;
-					environment_->getSpaceModel().coordToVertex(current_2d_vertex, point_position);
+					environment_->getObstacleSpaceModel().coordToVertex(current_2d_vertex, point_position);
 
 					// Checking if there is an obstacle
 					if (obstacle_map.find(current_2d_vertex)->first == current_2d_vertex) {
@@ -212,7 +209,7 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 		} else {
 			// Converting the state vertex to terrain vertex
 			Vertex environment_vertex;
-			environment_->getSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, state_vertex, state_representation);
+			environment_->getObstacleSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, state_vertex, state_representation);
 
 			if (obstacle_map.find(environment_vertex)->first == environment_vertex) {
 				if (obstacle_map.find(environment_vertex)->second)

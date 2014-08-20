@@ -1,6 +1,7 @@
 #ifndef DWL_PlanningOfMotionSequences_H
 #define DWL_PlanningOfMotionSequences_H
 
+#include <robot/Robot.h>
 #include <planning/BodyPlanner.h>
 #include <planning/ContactPlanner.h>
 #include <planning/Solver.h>
@@ -32,18 +33,20 @@ class PlanningOfMotionSequences
 
 		/**
 		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem
+		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
 		 * @param dwl::planning::Solver* solver	The solver computes a solution of the motion planning problem which depends of the algorithm, i.e. graph-searching or optimization problems
 		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
-		void reset(Solver* solver, environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot, Solver* solver, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem
+		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
 		 * @param dwl::planning::BodyPlanner* body_planner The body planner computes body path and trajectory, and pose
 		 * @param dwl::planning::ContactPlanner* footstep_planner The footstep planner computes the footholds
 		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
-		void reset(BodyPlanner* body_planner, ContactPlanner* footstep_planner, environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot, BodyPlanner* body_planner, ContactPlanner* footstep_planner, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Adds an active or inactive constraints to the planning algorithm

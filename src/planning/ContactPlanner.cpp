@@ -45,10 +45,6 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 	HeightMap terrain_heightmap;
 	environment_->getTerrainHeightMap(terrain_heightmap);
 
-	// Setting the terrain resolution
-	double terrain_resolution = environment_->getTerrainResolution();
-	environment_->setEnvironmentResolution(terrain_resolution, true);
-
 	for (int i = 0; i < robot_.getNumberOfLegs(); i++) {
 		int current_leg_id = robot_.getNextLeg(i);
 
@@ -71,8 +67,8 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 				current_state(2) = yaw;
 
 				Vertex current_vertex, terrain_vertex;
-				environment_->getSpaceModel().stateToVertex(current_vertex, current_state);
-				environment_->getSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, current_vertex, XY_Y);
+				environment_->getTerrainSpaceModel().stateToVertex(current_vertex, current_state);
+				environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, current_vertex, XY_Y);
 
 				// Inserts the element in an organized vertex queue, according to the maximun value
 				if (terrain_costmap.find(terrain_vertex)->first == terrain_vertex)
@@ -85,7 +81,7 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 		if (stance_cost_queue.size() > 0) {
 			Vertex foothold_vertex = stance_cost_queue.begin()->second;
 			Eigen::Vector2d coord;
-			environment_->getSpaceModel().vertexToCoord(coord, foothold_vertex);
+			environment_->getTerrainSpaceModel().vertexToCoord(coord, foothold_vertex);
 			foothold.position << coord, terrain_heightmap.find(foothold_vertex)->second;
 		}
 		else {

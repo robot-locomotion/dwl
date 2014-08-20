@@ -9,7 +9,8 @@ namespace environment
 
 MaximumHeightFeature::MaximumHeightFeature()
 {
-	gain_ = 10;
+	gain_ = 50;
+	name_ = "Maximum Height";
 }
 
 

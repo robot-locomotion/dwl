@@ -26,11 +26,17 @@ class Robot
 		/** @brief Destructor function */
 		~Robot();
 
+		void setPose(Pose pose);
+
 		/**
 		 * @brief Sets the stance areas for computing the body adjacency map
 		 * @param std::vector<SearchArea> stance_areas Stance areas
 		 */
 		void setStanceAreas(std::vector<SearchArea> stance_areas); //TODO Re-write this method for general settings
+
+		const Pose& getPose() const;
+
+		const double& getEstimatedGround();
 
 		/**
 		 * @brief Gets the stance position of the robot
@@ -65,6 +71,9 @@ class Robot
 
 
 	protected:
+		/** @brief Current pose of the robot */
+		Pose current_pose_;
+
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> stance_areas_;
 

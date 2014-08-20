@@ -49,7 +49,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 	// Checking if the start and goal vertex are part of the terrain information
 	bool is_there_start_vertex, is_there_goal_vertex = false;
 	std::vector<Vertex> vertex_map;
-	if (environment_->isTerrainCostInformation()) {
+	if (environment_->isTerrainInformation()) {
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
 		for (CostMap::iterator vertex_iter = terrain_costmap.begin();
@@ -78,8 +78,8 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 
 	// Start and goal state
 	Eigen::Vector3d start_state, goal_state;
-	environment_->getSpaceModel().vertexToState(start_state, source);
-	environment_->getSpaceModel().vertexToState(goal_state, target);
+	environment_->getTerrainSpaceModel().vertexToState(start_state, source);
+	environment_->getTerrainSpaceModel().vertexToState(goal_state, target);
 
 	double closest_source_distant = std::numeric_limits<double>::max();
 	double closest_target_distant = std::numeric_limits<double>::max();
@@ -88,7 +88,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		Eigen::Vector3d current_state;
 		for (int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
-			environment_->getSpaceModel().vertexToState(current_state, vertex_map[i]);
+			environment_->getTerrainSpaceModel().vertexToState(current_state, vertex_map[i]);
 
 			// Calculating the distant to the vertex from start and goal positions
 			double start_distant = (start_state.head(2) - current_state.head(2)).norm();
@@ -115,7 +115,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		Eigen::Vector3d current_state;
 		for (int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
-			environment_->getSpaceModel().vertexToState(current_state, vertex_map[i]);
+			environment_->getTerrainSpaceModel().vertexToState(current_state, vertex_map[i]);
 
 			// Calculating the distant to the vertex from start position
 			double start_distant = (start_state.head(2) - current_state.head(2)).norm();
@@ -134,7 +134,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		Eigen::Vector3d current_state;
 		for (int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
-			environment_->getSpaceModel().vertexToState(current_state, vertex_map[i]);
+			environment_->getTerrainSpaceModel().vertexToState(current_state, vertex_map[i]);
 
 			// Calculating the distant to the vertex from goal position
 			double goal_distant = (goal_state.head(2) - current_state.head(2)).norm();
@@ -157,7 +157,7 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 	// Checking if the  vertex is part of the terrain information
 	bool is_there_vertex = false;
 	std::vector<Vertex> vertex_map;
-	if (environment_->isTerrainCostInformation()) {
+	if (environment_->isTerrainInformation()) {
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
 		for (CostMap::iterator vertex_iter = terrain_costmap.begin();
@@ -181,13 +181,13 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 
 	// State
 	Eigen::Vector3d state_vertex;
-	environment_->getSpaceModel().vertexToState(state_vertex, vertex);
+	environment_->getTerrainSpaceModel().vertexToState(state_vertex, vertex);
 
 	double closest_distant = std::numeric_limits<double>::max();
 	Eigen::Vector3d current_state_vertex;
 	for (int i = 0; i < vertex_map.size(); i++) {
 		// Calculating the vertex position
-		environment_->getSpaceModel().vertexToState(current_state_vertex, vertex_map[i]);
+		environment_->getTerrainSpaceModel().vertexToState(current_state_vertex, vertex_map[i]);
 
 		// Calculating the distant to the current vertex
 		double start_distant = (state_vertex.head(2) - current_state_vertex.head(2)).norm();
@@ -204,8 +204,8 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 {
 	Eigen::Vector3d source_state, target_state;
-	environment_->getSpaceModel().vertexToState(source_state, source);
-	environment_->getSpaceModel().vertexToState(target_state, target);
+	environment_->getTerrainSpaceModel().vertexToState(source_state, source);
+	environment_->getTerrainSpaceModel().vertexToState(target_state, target);
 
 	// Normalizing the angles for a range of [-pi,pi]
 	utils::Math math;
@@ -231,8 +231,8 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 		double epsilon = 0.1; //TODO Define this variable
 
 		Eigen::Vector3d current_state, target_state;
-		environment_->getSpaceModel().vertexToState(current_state, current);
-		environment_->getSpaceModel().vertexToState(target_state, target);
+		environment_->getTerrainSpaceModel().vertexToState(current_state, current);
+		environment_->getTerrainSpaceModel().vertexToState(target_state, target);
 
 		// Normalizing the angles for a range of [-pi,pi] //TODO
 		utils::Math math;
