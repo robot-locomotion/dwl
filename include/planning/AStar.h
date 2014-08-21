@@ -41,7 +41,7 @@ class AStar : public Solver
 
 	private:
 		/**
-		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path //TODO
+		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path
 		 * @param CostMap& min_cost Minimum cost of the vertex
 		 * @param PreviousVertex& Previous vertex
 		 * @param Vertex source Source vertex
@@ -51,7 +51,7 @@ class AStar : public Solver
 		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, AdjacencyMap adjacency_map);
 
 		/**
-		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path //TODO
+		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path
 		 * @param CostMap& min_cost Minimum cost of the vertex
 		 * @param PreviousVertex& Previous vertex
 		 * @param Vertex source Source vertex

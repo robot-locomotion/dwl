@@ -29,8 +29,8 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 	Eigen::Vector3d cell_position = terrain_info.position;
 
 	// Computing the average height of the neighboring area
-	double height_average = 0, height_deviation = 0;
-	int counter = 0, num_unknown = 0;
+	double height_average = 0, height_deviation = 0, estimated_height_deviation = 0;;
+	int counter = 0, estimated_counter = 0;
 
 	Eigen::Vector2d boundary_min, boundary_max;
 	boundary_min(0) = neightboring_area_.min_x + cell_position(0);
@@ -48,8 +48,7 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 			if (terrain_info.height_map.find(vertex_2d)->first == vertex_2d) {
 				height_average += terrain_info.height_map.find(vertex_2d)->second;
 				counter++;
-			} else
-				num_unknown++;
+			}
 		}
 	}
 	if (counter != 0) {
@@ -66,20 +65,43 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 
 				if (terrain_info.height_map.find(vertex_2d)->first == vertex_2d) {
 					height_deviation += fabs(terrain_info.height_map.find(vertex_2d)->second - height_average);
+				} else {
+					// Computing the estimated ground
+					Eigen::Vector2d height_boundary_min, height_boundary_max;
+					height_boundary_min(0) = neightboring_area_.min_x + coord(0);
+					height_boundary_min(1) = neightboring_area_.min_y + coord(1);
+					height_boundary_max(0) = neightboring_area_.max_x + coord(0);
+					height_boundary_max(1) = neightboring_area_.max_y + coord(1);
+					double estimated_height = 0;
+					int height_counter = 0;
+					for (double y_e = height_boundary_min(1); y_e < height_boundary_max(1); y_e += neightboring_area_.grid_resolution) {
+						for (double x_e = height_boundary_min(0); x_e < height_boundary_max(0); x_e += neightboring_area_.grid_resolution) {
+							Eigen::Vector2d height_coord;
+							height_coord(0) = x_e;
+							height_coord(1) = y_e;
+							Vertex height_vertex_2d;
+							space_discretization_.coordToVertex(height_vertex_2d, height_coord);
+
+							if (terrain_info.height_map.find(height_vertex_2d)->first == height_vertex_2d) {
+								estimated_height += terrain_info.height_map.find(height_vertex_2d)->second;
+								height_counter++;
+							}
+						}
+					}
+
+					if (height_counter != 0) {
+						estimated_height /= height_counter;
+						estimated_height_deviation += fabs(estimated_height - height_average);
+						estimated_counter++;
+					}
 				}
 			}
 		}
 
 		reward_value = -height_deviation / counter;
 
-		double estimated_ground = 0; //TODO Implement a method that computes a estimated ground
-		if (num_unknown != 0) {
-			double unknown_deviation = 0;
-			for (int i = 0; i < num_unknown; i++)
-				unknown_deviation += fabs(estimated_ground - (double) cell_position(2));
-
-			reward_value -= unknown_deviation / num_unknown;
-		}
+		if (estimated_counter != 0)
+			reward_value -= estimated_height_deviation / estimated_counter;
 	} else
 		reward_value = 0;
 

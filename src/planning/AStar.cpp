@@ -28,7 +28,7 @@ bool AStar::init()
 
 bool AStar::compute(Vertex source, Vertex target, double computation_time)
 {
-	if (is_settep_adjacency_model_) {
+	if (is_set_adjacency_model_) {
 		// Computing the shortest path
 		CostMap min_cost;
 		PreviousVertex previous;

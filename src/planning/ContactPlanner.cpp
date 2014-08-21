@@ -48,8 +48,8 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 	HeightMap terrain_heightmap;
 	environment_->getTerrainHeightMap(terrain_heightmap);
 
-	for (int i = 0; i < robot_->getNumberOfLegs(); i++) {
-		int current_leg_id = robot_->getNextLeg(i);
+	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
+		int current_leg_id = robot_->getPatternOfLocomotion()[leg];
 
 		double body_cost;
 		// Computing the boundary of stance area
@@ -88,11 +88,10 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 			foothold.position << coord, terrain_heightmap.find(foothold_vertex)->second;
 		}
 		else {
-			Eigen::Vector2d stance_position = robot_->getStancePosition()[current_leg_id];
-			Eigen::Vector2d foothold_position;
-			foothold_position(0) = body_state(0) + stance_position(0) * cos(yaw) - stance_position(1) * sin(yaw);
-			foothold_position(1) = body_state(1) + stance_position(0) * sin(yaw) + stance_position(1) * cos(yaw);
-			foothold.position << foothold_position, robot_->getEstimatedGround();
+			Eigen::Vector3d nominal_stance = robot_->getNominalStance()[current_leg_id];
+			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
+			foothold.position(1) = body_state(1) + nominal_stance(0) * sin(yaw) + nominal_stance(1) * cos(yaw);
+			foothold.position(2) = robot_->getExpectedGround(current_leg_id);
 		}
 
 		footholds.push_back(foothold);

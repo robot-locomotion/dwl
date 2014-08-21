@@ -7,8 +7,8 @@ namespace dwl
 namespace planning
 {
 
-Solver::Solver() : adjacency_(NULL), is_graph_searching_algorithm_(false), is_optimization_algorithm_(false), total_cost_(0),
-		time_started_(clock()), is_settep_adjacency_model_(false)
+Solver::Solver() : robot_(NULL), environment_(NULL), adjacency_(NULL), is_graph_searching_algorithm_(false), is_optimization_algorithm_(false), total_cost_(0),
+		time_started_(clock()), is_set_adjacency_model_(false)
 {
 
 }
@@ -23,13 +23,15 @@ Solver::~Solver()
 void Solver::reset(robot::Robot* robot, environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the robot and environment information in the %s solver\n" COLOR_RESET, getName().c_str());
-	adjacency_->reset(robot, environment);
-}
+	robot_ = robot;
+	environment_ = environment;
 
-
-void Solver::setCurrentPose(Pose current_pose)
-{
-	adjacency_->setCurrentPose(current_pose);
+	if (is_graph_searching_algorithm_) {
+		if (is_set_adjacency_model_)
+			adjacency_->reset(robot, environment);
+		else
+			printf(YELLOW "Warning: Could not be set the robot and environment information in the adjacency model \n" COLOR_RESET);
+	}
 }
 
 
@@ -37,7 +39,7 @@ void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_mode
 {
 	printf(BLUE "Setting the %s adjacency model in the %s solver\n" COLOR_RESET, adjacency_model->getName().c_str(), getName().c_str());
 	adjacency_ = adjacency_model;
-	is_settep_adjacency_model_ = true;
+	is_set_adjacency_model_ = true;
 }
 
 

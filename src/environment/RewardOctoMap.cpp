@@ -8,7 +8,7 @@ namespace environment
 {
 
 
-RewardOctoMap::RewardOctoMap() : is_first_computation_(true), using_cloud_mean_(false)
+RewardOctoMap::RewardOctoMap() : is_first_computation_(true), using_cloud_mean_(false), depth_(16)
 {
 	// Default neighboring area
 	setNeighboringArea(-1, 1, -1, 1, -1, 1);
@@ -53,7 +53,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 				// Checking if the cell belongs to dimensions of the map, and also getting the key of this cell
 				double z = search_areas_[n].max_z + robot_state(2);
 				octomap::OcTreeKey init_key;
-				if (!octomap->coordToKeyChecked(xr, yr, z, 16, init_key)) {//TODO Analysing the depth value
+				if (!octomap->coordToKeyChecked(xr, yr, z, depth_, init_key)) {//TODO Analysing the depth value
 					printf(RED "Cell out of bounds\n" COLOR_RESET);
 
 					return;
@@ -63,13 +63,13 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 				int r = 0;
 				while (z >= search_areas_[n].min_z + robot_state(2)) {
 					octomap::OcTreeKey heightmap_key;
-					octomap::OcTreeNode* heightmap_node = octomap->search(init_key);
+					octomap::OcTreeNode* heightmap_node = octomap->search(init_key, depth_);
 					heightmap_key[0] = init_key[0];
 					heightmap_key[1] = init_key[1];
 					heightmap_key[2] = init_key[2] - r;
 
-					heightmap_node = octomap->search(heightmap_key);
-					octomap::point3d height_point = octomap->keyToCoord(heightmap_key);
+					heightmap_node = octomap->search(heightmap_key, depth_);
+					octomap::point3d height_point = octomap->keyToCoord(heightmap_key, depth_);
 					z = height_point(2);
 					if (heightmap_node) {
 						// Computation of the heightmap
@@ -127,7 +127,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 		terrain_point(0) = xy_coord(0);
 		terrain_point(1) = xy_coord(1);
 		terrain_point(2) = height;
-		heightmap_key = octomap->coordToKey(terrain_point);
+		heightmap_key = octomap->coordToKey(terrain_point, depth_);
 
 		if (is_first_computation_)
 			computeRewards(octomap, heightmap_key);
@@ -165,11 +165,11 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 	Terrain terrain_info;
 
 	std::vector<Eigen::Vector3f> neighbors_position;
-	octomap::OcTreeNode* heightmap_node = octomap->search(heightmap_key);
+	octomap::OcTreeNode* heightmap_node = octomap->search(heightmap_key, depth_);
 
 	// Adding to the cloud the point of interest
 	Eigen::Vector3f heightmap_position;
-	octomap::point3d heightmap_point = octomap->keyToCoord(heightmap_key);
+	octomap::point3d heightmap_point = octomap->keyToCoord(heightmap_key, depth_);
 	heightmap_position(0) = heightmap_point(0);
 	heightmap_position(1) = heightmap_point(1);
 	heightmap_position(2) = heightmap_point(2);
@@ -185,13 +185,13 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 				neighbor_key[0] = heightmap_key[0] + k;
 				neighbor_key[1] = heightmap_key[1] + j;
 				neighbor_key[2] = heightmap_key[2] + i;
-				neighbor_node = octomap->search(neighbor_key);
+				neighbor_node = octomap->search(neighbor_key, depth_);
 
 				if (neighbor_node) {
 					Eigen::Vector3f neighbor_position;
 					octomap::point3d neighbor_point;
 					if (octomap->isNodeOccupied(neighbor_node)) {
-						neighbor_point = octomap->keyToCoord(neighbor_key);
+						neighbor_point = octomap->keyToCoord(neighbor_key, depth_);
 						neighbor_position(0) = neighbor_point(0);
 						neighbor_position(1) = neighbor_point(1);
 						neighbor_position(2) = neighbor_point(2);

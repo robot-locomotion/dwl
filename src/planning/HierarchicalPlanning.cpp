@@ -40,7 +40,7 @@ void HierarchicalPlanning::resetGoal(Pose goal)
 bool HierarchicalPlanning::compute(Pose current_pose)
 {
 	// Setting the pose in the robot properties
-	robot_->setPose(current_pose);
+	robot_->setCurrentPose(current_pose);
 
 	// Converting pose to 3d state (x,y,yaw)
 	Eigen::Vector3d current_state;

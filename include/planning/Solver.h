@@ -1,6 +1,7 @@
 #ifndef DWL_Solver_H
 #define DWL_Solver_H
 
+#include <robot/Robot.h>
 #include <environment/AdjacencyEnvironment.h>
 #include <utils/utils.h>
 
@@ -34,9 +35,7 @@ class Solver
 		 * @brief Specifies the environment information
 		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
-		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment); //TODO virtual method
-
-		void setCurrentPose(Pose current_pose);
+		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Sets the adjacency model that is used for graph-searchin solvers, i.e. path-planning problems
@@ -94,6 +93,12 @@ class Solver
 		/** @brief Name of the solver */
 		std::string name_;
 
+		/** @brief Robot properties */
+		robot::Robot* robot_;
+
+		/** @brief Environment information */
+		environment::EnvironmentInformation* environment_;
+
 		/** @brief Adjacency model of the environment */
 		environment::AdjacencyEnvironment* adjacency_;
 
@@ -113,7 +118,7 @@ class Solver
 		double total_cost_;
 
 		/** @brief Indicates if it was set an adjacency model */
-		bool is_settep_adjacency_model_;
+		bool is_set_adjacency_model_;
 };
 
 } //@namespace planning

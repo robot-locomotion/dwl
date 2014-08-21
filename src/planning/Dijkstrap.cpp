@@ -29,7 +29,7 @@ bool Dijkstrap::init()
 
 bool Dijkstrap::compute(Vertex source, Vertex target)
 {
-	if (is_settep_adjacency_model_) {
+	if (is_set_adjacency_model_) {
 		// Computing adjacency map
 		AdjacencyMap adjacency_map;
 		adjacency_->computeAdjacencyMap(adjacency_map, source, target);

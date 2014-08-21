@@ -26,7 +26,11 @@ class Robot
 		/** @brief Destructor function */
 		~Robot();
 
-		void setPose(Pose pose);
+		/**
+		 * @brief Sets the current pose of the robot
+		 * @param dwl::Pose pose Current pose
+		 */
+		void setCurrentPose(Pose pose);
 
 		/**
 		 * @brief Sets the stance areas for computing the body adjacency map
@@ -34,40 +38,57 @@ class Robot
 		 */
 		void setStanceAreas(std::vector<SearchArea> stance_areas); //TODO Re-write this method for general settings
 
-		const Pose& getPose() const;
-
-		double getEstimatedGround();
+		/**
+		 * @brief Sets the pattern of locomotion of the robot
+		 * @param std::vector<int> pattern Sequence of leg movements according to the current leg
+		 */
+		void setPatternOfLocomotion(std::vector<int> pattern);
 
 		/**
-		 * @brief Gets the stance position of the robot
-		 * @return const std::vector<Eigen::Vector2d>& Returns the stance position of each leg
+		 * @brief Gets current pose of the robot
+		 * @return dwl::Pose Returns the current pose of the robot
 		 */
-		const std::vector<Eigen::Vector2d>& getStancePosition() const;
+		Pose getCurrentPose();
 
 		/**
 		 * @brief Gets the body area
-		 * @return const Area& Returns the body area
+		 * @return dwl::Area Return the body area of the robot
 		 */
-		const Area& getBodyArea() const;
+		Area getBodyArea();
+
+		/**
+		 * @brief Gets the nominal stance of the robot
+		 * @return std::vector<Eigen::Vector3d> Returns the nominal stance of the robot
+		 */
+		std::vector<Eigen::Vector3d> getNominalStance();
+
+		/**
+		 * @brief Gets the pattern of locomotion of the robot
+		 * @return std::vector<int> Returns the pattern of locomotion
+		 */
+		std::vector<int> getPatternOfLocomotion();
 
 		/**
 		 * @brief Gets the stance areas
-		 * @return const std::vector<SearchArea>& Returns the stance areas
+		 * @return std::vector<SearchArea> Returns the stance areas
 		 */
-		const std::vector<SearchArea>& getStanceAreas() const; //TODO Get only the stance area of the leg id
-
-		const SearchArea& getLegArea(int leg_id) const;//TODO Use template for the leg and abstract class
-
-		//const SearchArea& getLegArea(HumanoidLegID leg) const;
+		std::vector<SearchArea> getStanceAreas();
 
 		/**
-		 * @brief Gets the next leg according some defined pattern of locomotion
-		 * @param int sequence Sequence number
+		 * @brief Gets the expected ground according to the nominal stance
+		 * @param int leg_id Leg id
+		 * @return std::vector<double> Returns the expected ground according to the nominal stance of the leg
 		 */
-		int getNextLeg(int sequence) const;
+		double getExpectedGround(int leg_id);
+
+		/**
+		 * @brief Gets the leg work-areas for evaluation of potential collisions
+		 * @return std::vector<SearchArea> Returns the leg work-areas
+		 */
+		std::vector<SearchArea> getLegWorkAreas();
 
 		/** @brief Gets the number of legs of the robot */
-		double getNumberOfLegs() const;
+		double getNumberOfLegs();
 
 
 	protected:
@@ -80,8 +101,8 @@ class Robot
 		/** @brief Vector of the body area */
 		Area body_area_;
 
-		/** @brief Vector of stance positions */
-		std::vector<Eigen::Vector2d> stance_position_;
+		/** @brief Vector of the nominal stance */
+		std::vector<Eigen::Vector3d> nominal_stance_;
 
 		/** @brief Pattern of locomotion */
 		std::vector<int> pattern_locomotion_;
@@ -93,7 +114,6 @@ class Robot
 
 		std::vector<SearchArea> leg_area_;
 };
-
 
 } //@namespace robot
 } //@namespace dwl

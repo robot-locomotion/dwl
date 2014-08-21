@@ -32,12 +32,6 @@ void AdjacencyEnvironment::reset(robot::Robot* robot, EnvironmentInformation* en
 }
 
 
-void AdjacencyEnvironment::setCurrentPose(Pose current_pose)
-{
-	current_pose_ = current_pose;
-}
-
-
 void AdjacencyEnvironment::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target)
 {
 	printf(YELLOW "Could compute the whole adjacency map because it was not defined an adjacency model\n" COLOR_RESET);
@@ -240,7 +234,7 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 		environment_->getTerrainSpaceModel().vertexToState(current_state, current);
 		environment_->getTerrainSpaceModel().vertexToState(target_state, target);
 
-		// Normalizing the angles for a range of [-pi,pi] //TODO
+		// Normalizing the angles for a range of [-pi,pi]
 		utils::Math math;
 		double current_angle, target_angle;
 		math.normalizeAngle(current_angle, MinusPiToPi);

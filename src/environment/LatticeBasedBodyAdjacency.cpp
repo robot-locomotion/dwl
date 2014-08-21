@@ -166,9 +166,21 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 	ObstacleMap obstacle_map;
 	environment_->getObstacleMap(obstacle_map);
 
-	// Converting the vertex to state (x,y,yaw) //TODO Make something general, i.e. that includes XY and XY_Y representations
-	Eigen::Vector3d state;
-	environment_->getObstacleSpaceModel().vertexToState(state, state_vertex);
+	// Converting the vertex to state (x,y,yaw)
+	Eigen::Vector3d state_3d;
+	Eigen::Vector2d state_2d;
+	double current_x, current_y, current_yaw;
+	if (state_representation == XY) {
+		environment_->getObstacleSpaceModel().vertexToState(state_2d, state_vertex);
+		current_x = state_2d(0);
+		current_y = state_2d(1);
+		current_yaw = 0;
+	} else {
+		environment_->getObstacleSpaceModel().vertexToState(state_3d, state_vertex);
+		current_x = state_3d(0);
+		current_y = state_3d(1);
+		current_yaw = state_3d(2);
+	}
 
 	bool is_free = true;
 	if (environment_->isObstacleInformation()) {
@@ -178,10 +190,10 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 
 			// Computing the boundary of stance area
 			Eigen::Vector2d boundary_min, boundary_max;
-			boundary_min(0) = body_area.min_x + state(0);
-			boundary_min(1) = body_area.min_y + state(1);
-			boundary_max(0) = body_area.max_x + state(0);
-			boundary_max(1) = body_area.max_y + state(1);
+			boundary_min(0) = body_area.min_x + current_x;
+			boundary_min(1) = body_area.min_y + current_y;
+			boundary_max(0) = body_area.max_x + current_x;
+			boundary_max(1) = body_area.max_y + current_y;
 
 			// Getting the resolution of the obstacle map
 			double obstacle_resolution = environment_->getObstacleResolution();
@@ -190,8 +202,8 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 				for (double x = boundary_min(0); x < boundary_max(0); x += obstacle_resolution) {
 					// Computing the rotated coordinate according to the orientation of the body
 					Eigen::Vector2d point_position;
-					point_position(0) = (x - state(0)) * cos((double) state(2)) - (y - state(1)) * sin((double) state(2)) + state(0);
-					point_position(1) = (x - state(0)) * sin((double) state(2)) + (y - state(1)) * cos((double) state(2)) + state(1);
+					point_position(0) = (x - current_x) * cos(current_yaw) - (y - current_y) * sin(current_yaw) + current_x;
+					point_position(1) = (x - current_x) * sin(current_yaw) + (y - current_y) * cos(current_yaw) + current_y;
 
 					Vertex current_2d_vertex;
 					environment_->getObstacleSpaceModel().coordToVertex(current_2d_vertex, point_position);
@@ -200,7 +212,7 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 					if (obstacle_map.find(current_2d_vertex)->first == current_2d_vertex) {
 						if (obstacle_map.find(current_2d_vertex)->second) {
 							is_free = false;
-							std::cout << "is_free = " << is_free << " | = " <<  state(0) << " " << state(1) << " " << state(2) << std::endl;
+							std::cout << "is_free = " << is_free << " | = " <<  current_x << " " << current_y << " " << current_yaw << std::endl; //TODO Delete this message
 							goto found_obstacle;
 						}
 					}

@@ -35,8 +35,6 @@ class AdjacencyEnvironment
 		 */
 		void reset(robot::Robot* robot, EnvironmentInformation* environment);
 
-		void setCurrentPose(Pose current_pose);
-
 		/**
 		 * @brief Abstract method that computes the whole adjacency map, which is required by some algorithms such as Dijkstrap
 		 * @param dwl::AdjacencyMap& adjacency_map Adjacency map
@@ -135,7 +133,7 @@ class AdjacencyEnvironment
 
 		std::map<Vertex, double> orientations_;
 
-		Pose current_pose_;
+		//Pose current_pose_;
 
 
 	private:

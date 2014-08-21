@@ -51,6 +51,8 @@ class RewardOctoMap : public RewardMap
 		/** @brief Defines if it is using the mean of the cloud */
 		bool using_cloud_mean_;
 
+		/** @brief Depth of the octomap */
+		int depth_;
 };
 
 

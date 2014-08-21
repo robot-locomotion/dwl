@@ -32,9 +32,9 @@ void MaximumHeightFeature::computeReward(double& reward_value, RobotAndTerrain i
 	Eigen::Vector2d position = info.pose.position;
 	double yaw = info.pose.orientation;
 
-	for (int i = 0; i < robot_->getNumberOfLegs(); i++) {
+	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
 		// Getting the leg area
-		SearchArea leg_area = robot_->getLegArea(i);
+		SearchArea leg_area = robot_->getLegWorkAreas()[leg];
 
 		Eigen::Vector2d boundary_min, boundary_max;
 		boundary_min(0) = leg_area.min_x + position(0);
@@ -45,6 +45,8 @@ void MaximumHeightFeature::computeReward(double& reward_value, RobotAndTerrain i
 		// Computing the maximum and minimun height around the leg area
 		double max_height = -std::numeric_limits<double>::max();
 		double min_height = std::numeric_limits<double>::max();
+		double mean_height = 0;
+		int counter = 0;
 		bool is_there_height_values = false;
 		for (double y = boundary_min(1); y < boundary_max(1); y += leg_area.grid_resolution) {
 			for (double x = boundary_min(0); x < boundary_max(0); x += leg_area.grid_resolution) {
@@ -66,13 +68,17 @@ void MaximumHeightFeature::computeReward(double& reward_value, RobotAndTerrain i
 					if (height < min_height)
 						min_height = height;
 
+					mean_height += height;
+					counter++;
+
 					is_there_height_values = true;
 				}
 			}
 		}
 
 		if (is_there_height_values) {
-			double max_diff_height = max_height - min_height;
+			mean_height /= counter;
+			double max_diff_height = max_height - mean_height;//min_height;
 			reward_value -= gain_ * max_diff_height;
 		} else
 			reward_value -= 0;

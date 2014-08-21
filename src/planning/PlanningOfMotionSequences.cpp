@@ -29,11 +29,6 @@ PlanningOfMotionSequences::~PlanningOfMotionSequences()
 		for (std::vector<Cost*>::iterator i = costs_.begin(); i != costs_.end(); i++)
 			delete *i;
 	}
-
-	//delete solver_;
-	//delete body_planner_;
-	//delete footstep_planner_;
-	//delete environment_;
 }
 
 
