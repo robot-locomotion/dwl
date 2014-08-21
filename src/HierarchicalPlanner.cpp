@@ -83,19 +83,19 @@ void HierarchicalPlanners::init()
 		node_.param("hierarchical_planner/body_planner/adjacency/features/maximum_height/enable", max_height_enable, false);
 
 		if (max_height_enable) {
-			dwl::environment::Feature* max_heigh_ptr = new dwl::environment::MaximumHeightFeature();
+			dwl::environment::Feature* potential_collision_ptr = new dwl::environment::LegPotentialCollisionFeature();
 
 			// Setting the weight
 			double weight, default_weight = 1;
 			node_.param("hierarchical_planner/body_planner/adjacency/features/maximum_height/weight", weight, default_weight);
-			max_heigh_ptr->setWeight(weight);
+			potential_collision_ptr->setWeight(weight);
 
 			// Setting the gain
 			double gain, default_gain = 1;
 			node_.param("hierarchical_planner/body_planner/adjacency/features/maximum_height/gain", gain, default_gain);
-			max_heigh_ptr->setWeight(gain);
+			potential_collision_ptr->setWeight(gain);
 
-			adjacency_ptr->addFeature(max_heigh_ptr);
+			adjacency_ptr->addFeature(potential_collision_ptr);
 		}
 	} else if (adjacency_model_name == "GridBasedBodyAdjacency")
 		adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();

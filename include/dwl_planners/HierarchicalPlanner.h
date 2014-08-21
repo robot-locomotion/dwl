@@ -16,7 +16,7 @@
 #include <environment/AdjacencyEnvironment.h>
 #include <environment/GridBasedBodyAdjacency.h>
 #include <environment/LatticeBasedBodyAdjacency.h>
-#include <environment/MaximumHeightFeature.h>
+#include <environment/LegPotentialCollisionFeature.h>
 
 #include <terrain_server/RewardMap.h>
 #include <terrain_server/ObstacleMap.h>
@@ -133,8 +133,6 @@ class HierarchicalPlanners
 
 		/** @brief Robot properties */
 		dwl::robot::Robot robot_;
-
-		//dwl::environment::EnvironmentInformation* environment_ptr_;
 
 		/** @brief Solver pointer */
 		dwl::planning::Solver* body_path_solver_ptr_;
