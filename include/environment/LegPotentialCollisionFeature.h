@@ -1,5 +1,5 @@
-#ifndef DWL_MaximumHeightFeature_H
-#define DWL_MaximumHeightFeature_H
+#ifndef DWL_LegPotentialCollisionFeature_H
+#define DWL_LegPotentialCollisionFeature_H
 
 #include <environment/Feature.h>
 #include <utils/utils.h>
@@ -12,17 +12,17 @@ namespace environment
 {
 
 /**
- * @class MaximumHeightFeature
- * @brief Class for computing the reward value of the maximun height feature
+ * @class LegPotentialCollisionFeature
+ * @brief Class for computing the reward value of the leg potential collision feature
  */
-class MaximumHeightFeature : public Feature
+class LegPotentialCollisionFeature : public Feature
 {
 	public:
 		/** @brief Constructor function */
-		MaximumHeightFeature();
+		LegPotentialCollisionFeature();
 
 		/** @brief Destructor function */
-		~MaximumHeightFeature();
+		~LegPotentialCollisionFeature();
 
 		/**
 		 * @brief Compute the reward value given a robot and terrain information

@@ -1,4 +1,4 @@
-#include <environment/MaximumHeightFeature.h>
+#include <environment/LegPotentialCollisionFeature.h>
 
 
 namespace dwl
@@ -7,20 +7,20 @@ namespace dwl
 namespace environment
 {
 
-MaximumHeightFeature::MaximumHeightFeature()
+LegPotentialCollisionFeature::LegPotentialCollisionFeature()
 {
 	gain_ = 50;
 	name_ = "Maximum Height";
 }
 
 
-MaximumHeightFeature::~MaximumHeightFeature()
+LegPotentialCollisionFeature::~LegPotentialCollisionFeature()
 {
 
 }
 
 
-void MaximumHeightFeature::computeReward(double& reward_value, RobotAndTerrain info)
+void LegPotentialCollisionFeature::computeReward(double& reward_value, RobotAndTerrain info)
 {
 	// Initilization of the reward value
 	reward_value = 0;
