@@ -79,23 +79,28 @@ void HierarchicalPlanners::init()
 		adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
 
 		// Setting the features for the body planner
-		bool max_height_enable;
-		node_.param("hierarchical_planner/body_planner/adjacency/features/maximum_height/enable", max_height_enable, false);
+		bool potential_collision_enable, potential_orientation_enable;
+		node_.param("hierarchical_planner/body_planner/adjacency/features/potential_leg_collision/enable", potential_collision_enable, false);
+		node_.param("hierarchical_planner/body_planner/adjacency/features/potential_body_orientation/enable", potential_orientation_enable, false);
 
-		if (max_height_enable) {
-			dwl::environment::Feature* potential_collision_ptr = new dwl::environment::LegPotentialCollisionFeature();
+		if (potential_collision_enable) {
+			dwl::environment::Feature* potential_collision_ptr = new dwl::environment::PotentialLegCollisionFeature();
 
 			// Setting the weight
 			double weight, default_weight = 1;
-			node_.param("hierarchical_planner/body_planner/adjacency/features/maximum_height/weight", weight, default_weight);
+			node_.param("hierarchical_planner/body_planner/adjacency/features/potential_leg_collision/weight", weight, default_weight);
 			potential_collision_ptr->setWeight(weight);
-
-			// Setting the gain
-			double gain, default_gain = 1;
-			node_.param("hierarchical_planner/body_planner/adjacency/features/maximum_height/gain", gain, default_gain);
-			potential_collision_ptr->setWeight(gain);
-
 			adjacency_ptr->addFeature(potential_collision_ptr);
+		}
+
+		if (potential_orientation_enable) {
+			dwl::environment::Feature* potential_orientation_ptr = new dwl::environment::PotentialBodyOrientationFeature();
+
+			// Setting the weight
+			double weight, default_weight = 1;
+			node_.param("hierarchical_planner/body_planner/adjacency/features/potential_body_orientation/weight", weight, default_weight);
+			potential_orientation_ptr->setWeight(weight);
+			adjacency_ptr->addFeature(potential_orientation_ptr);
 		}
 	} else if (adjacency_model_name == "GridBasedBodyAdjacency")
 		adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();

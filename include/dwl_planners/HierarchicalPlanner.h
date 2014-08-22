@@ -16,7 +16,8 @@
 #include <environment/AdjacencyEnvironment.h>
 #include <environment/GridBasedBodyAdjacency.h>
 #include <environment/LatticeBasedBodyAdjacency.h>
-#include <environment/LegPotentialCollisionFeature.h>
+#include <environment/PotentialLegCollisionFeature.h>
+#include <environment/PotentialBodyOrientationFeature.h>
 
 #include <terrain_server/RewardMap.h>
 #include <terrain_server/ObstacleMap.h>
