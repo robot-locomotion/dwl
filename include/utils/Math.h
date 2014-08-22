@@ -30,6 +30,13 @@ class Math
 		void normalizeAngle(double& angle, AngleRepresentation angle_notation);
 
 		/**
+		 * @brief Computes the plane parameters (normal vector of the plane)
+		 * @param Eigen::Vector3d& normal Parameters or normal vector of the plane
+		 * @param std::vector<Eigen::Vector3f> Points of the cloud
+		 */
+		void computePlaneParameters(Eigen::Vector3d& normal, std::vector<Eigen::Vector3f> points);
+
+		/**
 		 * @brief Computes the mean and covariance of the cloud of 3D points
 		 * @param std::vector<Eigen::Vector3f> cloud Cloud of 3D points
 		 * @param Eigen::Matrix3d& covariance_matrix Matrix of covariance
@@ -41,11 +48,11 @@ class Math
 
 		/**
 		 * @brief Solves the plane parameters
-		 * @param Eigen::Matrix3d& covariance_matrix Matrix of covariance
 		 * @param Eigen::Vector3d& normal_vector Normal vector of the plane
 		 * @param double& curvature Curvature of the plane
+		 * @param Eigen::Matrix3d covariance_matrix Matrix of covariance
 		 */
-		void solvePlaneParameters(const Eigen::Matrix3d& covariance_matrix,	Eigen::Vector3d& normal_vector, double& curvature);
+		void solvePlaneParameters(Eigen::Vector3d& normal_vector, double& curvature, const Eigen::Matrix3d covariance_matrix);
 
 		/**
 		 * @brief Computes the roots of a third order equation

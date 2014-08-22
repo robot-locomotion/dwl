@@ -11,9 +11,9 @@ namespace environment
 
 SlopeFeature::SlopeFeature() : flat_threshold_(0.0 * (M_PI / 180.0)), steep_threshold_(70.0 * (M_PI / 180.0))
 {
-	name_ = "slope";
-	gain_ = 5;
+	name_ = "Slope";
 }
+
 
 SlopeFeature::~SlopeFeature()
 {
@@ -28,16 +28,15 @@ void SlopeFeature::computeReward(double& reward_value, Terrain terrain_info)
 	if (slope < flat_threshold_)
 		reward_value = 0.0;
 	else {
-		double p = (steep_threshold_ - slope) / (steep_threshold_ - flat_threshold_);
-		if (p < 0.01)
-			p = 0.01;
-		reward_value = log(p);
-	}
+		if (slope < steep_threshold_) {
+			reward_value = log(fabs((steep_threshold_ - slope) / (steep_threshold_ - flat_threshold_)));
+			if (max_reward_ > reward_value)
+				reward_value = max_reward_;
+		} else
+			reward_value = max_reward_;
 
-	reward_value *= gain_; /* heuristic value */
+	}
 }
 
-
 } //@namespace environment
-
 } //@namespace dwl

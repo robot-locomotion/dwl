@@ -10,7 +10,6 @@ namespace environment
 HeightDeviationFeature::HeightDeviationFeature()
 {
 	name_ = "Height Deviation";
-	gain_ = 50;
 }
 
 
@@ -104,8 +103,6 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 			reward_value -= estimated_height_deviation / estimated_counter;
 	} else
 		reward_value = 0;
-
-	reward_value *= gain_; /* heuristic value */
 }
 
 } //@namespace environment

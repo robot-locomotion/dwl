@@ -1,4 +1,4 @@
-#include <environment/LegPotentialCollisionFeature.h>
+#include <environment/PotentialLegCollisionFeature.h>
 
 
 namespace dwl
@@ -7,20 +7,19 @@ namespace dwl
 namespace environment
 {
 
-LegPotentialCollisionFeature::LegPotentialCollisionFeature()
+PotentialLegCollisionFeature::PotentialLegCollisionFeature()
 {
-	gain_ = 50;
-	name_ = "Maximum Height";
+	name_ = "Potential Leg Collision";
 }
 
 
-LegPotentialCollisionFeature::~LegPotentialCollisionFeature()
+PotentialLegCollisionFeature::~PotentialLegCollisionFeature()
 {
 
 }
 
 
-void LegPotentialCollisionFeature::computeReward(double& reward_value, RobotAndTerrain info)
+void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain info)
 {
 	// Initilization of the reward value
 	reward_value = 0;
@@ -79,7 +78,7 @@ void LegPotentialCollisionFeature::computeReward(double& reward_value, RobotAndT
 		if (is_there_height_values) {
 			mean_height /= counter;
 			double max_diff_height = max_height - mean_height;//min_height;
-			reward_value -= gain_ * max_diff_height;
+			reward_value -= max_diff_height;
 		} else
 			reward_value -= 0;
 	}

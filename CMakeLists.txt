@@ -53,7 +53,8 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/environment/SlopeFeature.cpp
 							src/environment/CurvatureFeature.cpp
 							src/environment/HeightDeviationFeature.cpp
-							src/environment/LegPotentialCollisionFeature.cpp
+							src/environment/PotentialLegCollisionFeature.cpp
+							src/environment/PotentialBodyOrientationFeature.cpp
 							src/robot/Robot.cpp
 							src/robot/KinematicConstraints.cpp
 							src/robot/StabilityConstraints.cpp

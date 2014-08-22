@@ -110,8 +110,10 @@ class Robot
 		/** @brief Number of legs */
 		double number_legs_;
 
+		/** @brief Size of the stance area */
 		double stance_size_;
 
+		/** @brief Leg work-areas */
 		std::vector<SearchArea> leg_area_;
 };
 

@@ -15,14 +15,14 @@ namespace environment
  * @class LegPotentialCollisionFeature
  * @brief Class for computing the reward value of the leg potential collision feature
  */
-class LegPotentialCollisionFeature : public Feature
+class PotentialLegCollisionFeature : public Feature
 {
 	public:
 		/** @brief Constructor function */
-		LegPotentialCollisionFeature();
+		PotentialLegCollisionFeature();
 
 		/** @brief Destructor function */
-		~LegPotentialCollisionFeature();
+		~PotentialLegCollisionFeature();
 
 		/**
 		 * @brief Compute the reward value given a robot and terrain information

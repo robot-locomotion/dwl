@@ -46,6 +46,21 @@ void Math::normalizeAngle(double& angle, AngleRepresentation angle_notation)
 }
 
 
+void Math::computePlaneParameters(Eigen::Vector3d& normal, std::vector<Eigen::Vector3f> points)
+{
+	if (points.size() <= 3)
+		printf(YELLOW "Warning: could not computed the plane parameter with less of 4 points\n" COLOR_RESET);
+	else {
+		Eigen::Matrix3d covariance;
+		Eigen::Vector3d mean;
+		double curvature;
+
+		computeMeanAndCovarianceMatrix(points, covariance, mean);
+		solvePlaneParameters(normal, curvature, covariance);
+	}
+}
+
+
 unsigned int Math::computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> cloud, Eigen::Matrix3d &covariance_matrix, Eigen::Vector3d &mean)
 {
 	// create the buffer on the stack which is much faster than using cloud[indices[i]] and mean as a buffer
@@ -84,7 +99,7 @@ unsigned int Math::computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> c
 }
 
 
-void Math::solvePlaneParameters(const Eigen::Matrix3d &covariance_matrix, Eigen::Vector3d &normal_vector, double &curvature)
+void Math::solvePlaneParameters(Eigen::Vector3d &normal_vector, double &curvature, const Eigen::Matrix3d covariance_matrix)
 {
 	// Extract the smallest eigenvalue and its eigenvector
 	EIGEN_ALIGN16 Eigen::Vector3d::Scalar eigenvalue;

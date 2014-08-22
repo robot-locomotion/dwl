@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-Feature::Feature() : robot_(NULL), weight_(1), gain_(1),
+Feature::Feature() : max_reward_(-2), robot_(NULL), weight_(1),
 		space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max())
 {
 
@@ -64,12 +64,6 @@ void Feature::setNeighboringArea(double min_x, double max_x, double min_y, doubl
 	neightboring_area_.max_y = max_y;
 	neightboring_area_.min_y = min_y;
 	neightboring_area_.grid_resolution = resolution;
-}
-
-
-void Feature::setGainFeature(double gain)
-{
-	gain_ = gain;
 }
 
 } //@namespace environment

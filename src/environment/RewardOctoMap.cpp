@@ -216,7 +216,7 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 			terrain_info.position(2) = neighbors_position[0](2);
 		}
 
-		math_.solvePlaneParameters(covariance_matrix, terrain_info.surface_normal, terrain_info.curvature);
+		math_.solvePlaneParameters(terrain_info.surface_normal, terrain_info.curvature, covariance_matrix);
 	}
 
 	terrain_info.height_map = terrain_heightmap_;

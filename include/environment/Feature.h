@@ -25,6 +25,10 @@ class Feature
 		/** @brief Destructor function **/
 		virtual ~Feature();
 
+		/**
+		 * @brief Sets the robot information that is used for body features
+		 * @param dwl::robot::Robot* robot Robot properties
+		 */
 		void reset(robot::Robot* robot);
 
 		/**
@@ -64,12 +68,6 @@ class Feature
 		void setNeighboringArea(double min_x, double max_x, double min_y, double max_y, double resolution);
 
 		/**
-		 * @brief Sets the gain that maps the feature to reward value
-		 * @param double gain Value of the gain
-		 */
-		void setGainFeature(double gain);
-
-		/**
 		 * @brief Gets the name of the feature
 		 * @return std::string Return the name of the feature
 		 */
@@ -79,6 +77,9 @@ class Feature
 	protected:
 		/** @brief Name of the feature **/
 		std::string name_;
+
+		/** @brief Maximum reward */
+		double max_reward_;
 
 		/** @brief Weight used for computing the total reward */
 		double weight_;
@@ -91,9 +92,6 @@ class Feature
 
 		/** @brief Area for computing the average of the height map */
 		SearchArea neightboring_area_;
-
-		/** @brief Gain that maps the feature to reward value */
-		double gain_;
 };
 
 } //@namespace environment
