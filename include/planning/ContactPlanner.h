@@ -2,6 +2,7 @@
 #define DWL_ContactPlanner_H
 
 #include <environment/EnvironmentInformation.h>
+#include <environment/Feature.h>
 #include <robot/Robot.h>
 #include <utils/utils.h>
 #include <utils/Orientation.h>
@@ -34,6 +35,12 @@ class ContactPlanner
 		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment);
 
 		/**
+		 * @brief Adds a feature for the contact planner
+		 * @param dwl::environment::Feature* feature Feature
+		 */
+		void addFeature(environment::Feature* feature);
+
+		/**
 		 * @bief Computes the footholds
 		 * @param std::vector<Contact>& footholds Set of footholds
 		 * @param dwl::Pose current_pose Current pose
@@ -53,6 +60,9 @@ class ContactPlanner
 
 		/** @brief Pointer to the robot properties information */
 		robot::Robot* robot_;
+
+		/** @brief Vector of features */
+		std::vector<environment::Feature*> features_;
 
 		/** @brief Allowed computation time */
 		double computation_time_;

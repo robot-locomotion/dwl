@@ -35,15 +35,16 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 		// Getting the leg area
 		SearchArea leg_area = robot_->getLegWorkAreas()[leg];
 
+		Eigen::Vector3d nominal_stance = robot_->getNominalStance()[leg];
 		Eigen::Vector2d boundary_min, boundary_max;
-		boundary_min(0) = leg_area.min_x + position(0);
-		boundary_min(1) = leg_area.min_y + position(1);
-		boundary_max(0) = leg_area.max_x + position(0);
-		boundary_max(1) = leg_area.max_y + position(1);
+		boundary_min(0) = position(0) + nominal_stance(0) + leg_area.min_x;
+		boundary_min(1) = position(1) + nominal_stance(1) + leg_area.min_y;
+		boundary_max(0) = position(0) + nominal_stance(0) + leg_area.max_x;
+		boundary_max(1) = position(1) + nominal_stance(1) + leg_area.max_y;
 
 		// Computing the maximum and minimun height around the leg area
 		double max_height = -std::numeric_limits<double>::max();
-		double min_height = std::numeric_limits<double>::max();
+		//double min_height = std::numeric_limits<double>::max();
 		double mean_height = 0;
 		int counter = 0;
 		bool is_there_height_values = false;
@@ -64,8 +65,8 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 						max_height = height;
 
 					// Updating the minimum height
-					if (height < min_height)
-						min_height = height;
+					/*if (height < min_height)
+						min_height = height;*/ //TODO Eliminate when I have clear results
 
 					mean_height += height;
 					counter++;

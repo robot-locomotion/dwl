@@ -29,6 +29,15 @@ void ContactPlanner::reset(robot::Robot* robot, environment::EnvironmentInformat
 }
 
 
+void ContactPlanner::addFeature(environment::Feature* feature)
+{
+	double weight;
+	feature->getWeight(weight);
+	printf(GREEN "Adding the %s feature with a weight of %f to the contact planner\n" COLOR_RESET, feature->getName().c_str(), weight);
+	features_.push_back(feature);
+}
+
+
 bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose current_pose)
 {
 	// Converting quaternion to roll, pitch and yaw angles
@@ -40,13 +49,18 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 	Eigen::Vector3d body_state;
 	body_state << current_pose.position.head(2), yaw;
 
-	// Getting the terrain cost map information
+	// Getting the terrain cost-map information
 	CostMap terrain_costmap;
 	environment_->getTerrainCostMap(terrain_costmap);
 
-	// Getting the terrain height map information
+	// Getting the terrain height-map information
 	HeightMap terrain_heightmap;
 	environment_->getTerrainHeightMap(terrain_heightmap);
+
+	// Setting the terrain information for computing the reward of the features
+	RobotAndTerrain info;
+	info.height_map = terrain_heightmap;
+	info.resolution = environment_->getTerrainResolution();
 
 	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
 		int current_leg_id = robot_->getPatternOfLocomotion()[leg];
@@ -73,9 +87,30 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 				environment_->getTerrainSpaceModel().stateToVertex(current_vertex, current_state);
 				environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, current_vertex, XY_Y);
 
-				// Inserts the element in an organized vertex queue, according to the maximun value
-				if (terrain_costmap.find(terrain_vertex)->first == terrain_vertex)
-					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(terrain_vertex)->second, terrain_vertex));
+				// Getting the cost of the terrain
+				double terrain_cost, body_cost = 0, contact_cost;
+				if (terrain_costmap.find(terrain_vertex)->first == terrain_vertex) {
+					terrain_cost = terrain_costmap.find(terrain_vertex)->second;
+
+					// Computing the cost associated with the body
+					info.pose.position = current_pose.position.head(2);
+					info.pose.orientation = yaw;
+					info.contact.position << current_state.head(2), terrain_heightmap.find(terrain_vertex)->second;
+					info.contact.end_effector = leg;
+					for (int i = 0; i < features_.size(); i++) {
+						// Computing the cost associated with contact features
+						double feature_reward, weight;
+						features_[i]->computeReward(feature_reward, info);
+						features_[i]->getWeight(weight);
+
+						// Computing the cost of the body feature
+						body_cost -= weight * feature_reward;
+					}
+					contact_cost = terrain_cost + body_cost;
+
+					// Inserts the contact cost in an organized vertex queue, according to the minimum value
+					stance_cost_queue.insert(std::pair<Weight, Vertex>(contact_cost, terrain_vertex));
+				}
 			}
 		}
 
@@ -83,11 +118,10 @@ bool ContactPlanner::computeFootholds(std::vector<Contact>& footholds, Pose curr
 		foothold.end_effector = current_leg_id;
 		if (stance_cost_queue.size() > 0) {
 			Vertex foothold_vertex = stance_cost_queue.begin()->second;
-			Eigen::Vector2d coord;
-			environment_->getTerrainSpaceModel().vertexToCoord(coord, foothold_vertex);
-			foothold.position << coord, terrain_heightmap.find(foothold_vertex)->second;
-		}
-		else {
+			Eigen::Vector2d foothold_coord;
+			environment_->getTerrainSpaceModel().vertexToCoord(foothold_coord, foothold_vertex);
+			foothold.position << foothold_coord, terrain_heightmap.find(foothold_vertex)->second;
+		} else {
 			Eigen::Vector3d nominal_stance = robot_->getNominalStance()[current_leg_id];
 			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
 			foothold.position(1) = body_state(1) + nominal_stance(0) * sin(yaw) + nominal_stance(1) * cos(yaw);

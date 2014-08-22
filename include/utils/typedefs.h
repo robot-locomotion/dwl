@@ -155,6 +155,15 @@ struct NeighboringArea
 };
 
 /**
+ * @brief Struct that defines a contact
+ */
+struct Contact
+{
+	int end_effector;
+	Eigen::Vector3d position;
+};
+
+/**
  * @brief Struct that defines the models of the terrain
  */
 struct TerrainModel
@@ -183,17 +192,10 @@ struct Terrain
 struct RobotAndTerrain
 {
 	Pose3d pose;
+	Contact contact;
+	int endeffector;
 	std::map<Vertex, double> height_map;
 	double resolution;
-};
-
-/**
- * @brief Struct that defines a contact
- */
-struct Contact
-{
-	int end_effector;
-	Eigen::Vector3d position;
 };
 
 } //@namespace dwl

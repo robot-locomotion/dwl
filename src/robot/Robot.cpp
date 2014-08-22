@@ -45,15 +45,15 @@ Robot::Robot() : number_legs_(4), stance_size_(0.1)
 	leg_area_.resize(number_legs_);
 	for (int leg_id = 0; leg_id < number_legs_; leg_id++) {
 		if ((leg_id == LF) || (leg_id == RF)) {
-			leg_area_[leg_id].min_x = nominal_stance_[leg_id](0) - leg_workspace;
-			leg_area_[leg_id].max_x = nominal_stance_[leg_id](0) + stance_size_;
-			leg_area_[leg_id].min_y = nominal_stance_[leg_id](1) - stance_size_;
-			leg_area_[leg_id].max_y = nominal_stance_[leg_id](1) + stance_size_;
+			leg_area_[leg_id].min_x = -leg_workspace;
+			leg_area_[leg_id].max_x = stance_size_;
+			leg_area_[leg_id].min_y = -stance_size_;
+			leg_area_[leg_id].max_y = stance_size_;
 		} else {
-			leg_area_[leg_id].min_x = nominal_stance_[leg_id](0) - stance_size_;
-			leg_area_[leg_id].max_x = nominal_stance_[leg_id](0) + leg_workspace;
-			leg_area_[leg_id].min_y = nominal_stance_[leg_id](1) - stance_size_;
-			leg_area_[leg_id].max_y = nominal_stance_[leg_id](1) + stance_size_;
+			leg_area_[leg_id].min_x = -stance_size_;
+			leg_area_[leg_id].max_x = leg_workspace;
+			leg_area_[leg_id].min_y = -stance_size_;
+			leg_area_[leg_id].max_y = stance_size_;
 		}
 		leg_area_[leg_id].grid_resolution = 0.04;
 	}

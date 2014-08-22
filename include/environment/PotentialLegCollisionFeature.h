@@ -1,5 +1,5 @@
-#ifndef DWL_LegPotentialCollisionFeature_H
-#define DWL_LegPotentialCollisionFeature_H
+#ifndef DWL_PotentialLegCollisionFeature_H
+#define DWL_PotentialLegCollisionFeature_H
 
 #include <environment/Feature.h>
 #include <utils/utils.h>
@@ -12,7 +12,7 @@ namespace environment
 {
 
 /**
- * @class LegPotentialCollisionFeature
+ * @class PotentialLegCollisionFeature
  * @brief Class for computing the reward value of the leg potential collision feature
  */
 class PotentialLegCollisionFeature : public Feature

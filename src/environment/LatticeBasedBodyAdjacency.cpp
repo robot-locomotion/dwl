@@ -149,7 +149,7 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 	// Computing the cost of the body features
 	cost = terrain_cost;
 	for (int i = 0; i < features_.size(); i++) {
-		// Computing the cost associated with potential obstacle (maximum height)
+		// Computing the cost associated with body path features
 		double feature_reward, weight;
 		features_[i]->computeReward(feature_reward, info);
 		features_[i]->getWeight(weight);
