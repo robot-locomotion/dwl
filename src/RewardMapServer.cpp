@@ -88,11 +88,6 @@ bool RewardMapServer::init()
 		dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
 		slope_ptr->setWeight(weight);
 
-		// Setting the gain feature
-		double gain;
-		if (node_.getParam("reward_map/features/slope/gain", gain))
-			slope_ptr->setGainFeature(gain);
-
 		// Adding the feature
 		reward_map_->addFeature(slope_ptr);
 	}
@@ -103,11 +98,6 @@ bool RewardMapServer::init()
 		node_.param("reward_map/features/height_deviation/weight", weight, default_weight);
 		dwl::environment::Feature* height_dev_ptr = new dwl::environment::HeightDeviationFeature();
 		height_dev_ptr->setWeight(weight);
-
-		// Setting the gain feature
-		double gain;
-		if (node_.getParam("reward_map/features/height_deviation/gain", gain))
-			height_dev_ptr->setGainFeature(gain);
 
 		// Setting the neighboring area
 		double size, resolution;
@@ -125,11 +115,6 @@ bool RewardMapServer::init()
 		node_.param("reward_map/features/curvature/weight", weight, default_weight);
 		dwl::environment::Feature* curvature_ptr = new dwl::environment::CurvatureFeature();
 		curvature_ptr->setWeight(weight);
-
-		// Setting the gain feature
-		double gain;
-		if (node_.getParam("reward_map/features/curvature/gain", gain))
-			curvature_ptr->setGainFeature(gain);
 
 		// Adding the feature
 		reward_map_->addFeature(curvature_ptr);
