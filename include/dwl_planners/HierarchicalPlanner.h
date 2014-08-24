@@ -18,6 +18,8 @@
 #include <environment/LatticeBasedBodyAdjacency.h>
 #include <environment/PotentialLegCollisionFeature.h>
 #include <environment/PotentialBodyOrientationFeature.h>
+#include <environment/LegCollisionFeature.h>
+#include <environment/BodyOrientationFeature.h>
 
 #include <terrain_server/RewardMap.h>
 #include <terrain_server/ObstacleMap.h>
@@ -158,11 +160,8 @@ class HierarchicalPlanners
 
 		/** @brief World frame */
 		std::string world_frame_;
-
 };
 
-
 } //@namespace dwl_planners
-
 
 #endif

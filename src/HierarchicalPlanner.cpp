@@ -1,5 +1,11 @@
 #include <dwl_planners/HierarchicalPlanner.h>
-
+/*
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
+	tf::StampedTransform transform;
+	tf2::BufferCore core;
+	tf2_ros::TransformListener listener(core);
+	transform = core.lookupTransform(world_frame_, base_frame_, ros::Time(0));*/
 
 namespace dwl_planners
 {
@@ -111,6 +117,32 @@ void HierarchicalPlanners::init()
 	body_path_solver_ptr_->setAdjacencyModel(adjacency_ptr);
 	body_planner_.reset(body_path_solver_ptr_);
 
+	// Setting the features for the footstep planner
+	bool collision_enable, orientation_enable;
+	node_.param("hierarchical_planner/contact_planner/features/leg_collision/enable", collision_enable, false);
+	node_.param("hierarchical_planner/contact_planner/features/body_orientation/enable", orientation_enable, false);
+
+	if (collision_enable) {
+		dwl::environment::Feature* collision_ptr = new dwl::environment::LegCollisionFeature();
+
+		// Setting the weight
+		double weight, default_weight = 1;
+		node_.param("hierarchical_planner/contact_planner/features/leg_collision/weight", weight, default_weight);
+		collision_ptr->setWeight(weight);
+		footstep_planner_.addFeature(collision_ptr);
+	}
+
+	if (orientation_enable) {
+		dwl::environment::Feature* orientation_ptr = new dwl::environment::BodyOrientationFeature();
+
+		// Setting the weight
+		double weight, default_weight = 1;
+		node_.param("hierarchical_planner/contact_planner/features/body_orientation/weight", weight, default_weight);
+		orientation_ptr->setWeight(weight);
+		footstep_planner_.addFeature(orientation_ptr);
+	}
+
+
 	// Setting the body and footstep planner, and the robot and environment information to the planner
 	planning_ptr_->reset(&robot_, &body_planner_, &footstep_planner_, &environment_);
 
@@ -145,13 +177,43 @@ void HierarchicalPlanners::init()
 bool HierarchicalPlanners::compute()
 {
 	// Getting the transformation between the world to robot frame
-	tf::StampedTransform tf_transform;
+	tf::StampedTransform tf_transform, lf_transform, rf_transform, lh_transform, rh_transform;
 	try {
 		tf_listener_.waitForTransform(world_frame_, base_frame_, ros::Time(0), ros::Duration(0.05));
 		tf_listener_.lookupTransform(world_frame_, base_frame_, ros::Time(0), tf_transform);
+
+		tf_listener_.waitForTransform(world_frame_, "lf_foot", ros::Time(0), ros::Duration(0.05));
+		tf_listener_.lookupTransform(world_frame_, "lf_foot", ros::Time(0), lf_transform);
+
+		tf_listener_.waitForTransform(world_frame_, "rf_foot", ros::Time(0), ros::Duration(0.05));
+		tf_listener_.lookupTransform(world_frame_, "rf_foot", ros::Time(0), rf_transform);
+
+		tf_listener_.waitForTransform(world_frame_, "lh_foot", ros::Time(0), ros::Duration(0.05));
+		tf_listener_.lookupTransform(world_frame_, "lh_foot", ros::Time(0), lh_transform);
+
+		tf_listener_.waitForTransform(world_frame_, "rh_foot", ros::Time(0), ros::Duration(0.05));
+		tf_listener_.lookupTransform(world_frame_, "rh_foot", ros::Time(0), rh_transform);
 	} catch (tf::TransformException& ex) {
 		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
 	}
+
+	// Setting the current contacts of the robot
+	std::vector<dwl::Contact> current_footholds;
+	dwl::Contact contact;
+	contact.end_effector = 0;
+	contact.position << lf_transform.getOrigin()[0], lf_transform.getOrigin()[1], lf_transform.getOrigin()[2];
+	current_footholds.push_back(contact);
+	contact.end_effector = 1;
+	contact.position << rf_transform.getOrigin()[0], rf_transform.getOrigin()[1], rf_transform.getOrigin()[2];
+	current_footholds.push_back(contact);
+	contact.end_effector = 2;
+	contact.position << lh_transform.getOrigin()[0], lh_transform.getOrigin()[1], lh_transform.getOrigin()[2];
+	current_footholds.push_back(contact);
+	contact.end_effector = 3;
+	contact.position << rh_transform.getOrigin()[0], rh_transform.getOrigin()[1], rh_transform.getOrigin()[2];
+	current_footholds.push_back(contact);
+
+	robot_.setCurrentContacts(current_footholds);
 
 	// Getting the robot state (3D position and yaw angle)
 	Eigen::Vector3d robot_position;
@@ -223,8 +285,6 @@ void HierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapCons
 	}
 	else
 		pthread_mutex_unlock(&reward_lock_);
-
-
 }
 
 
