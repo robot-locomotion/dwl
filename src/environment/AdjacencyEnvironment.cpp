@@ -15,7 +15,7 @@ AdjacencyEnvironment::AdjacencyEnvironment() : robot_(NULL), environment_(NULL),
 
 AdjacencyEnvironment::~AdjacencyEnvironment()
 {
-	//delete environment_;
+
 }
 
 

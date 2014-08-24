@@ -192,13 +192,12 @@ struct Terrain
 struct RobotAndTerrain
 {
 	Pose3d pose;
-	Contact contact;
-	int endeffector;
+	Contact potential_contact;
+	std::vector<Contact> current_contacts;
 	std::map<Vertex, double> height_map;
 	double resolution;
 };
 
 } //@namespace dwl
-
 
 #endif

@@ -18,7 +18,7 @@ namespace planning
  * @class ContactPlanner
  * @brief Class for computing contact plans
  */
-class ContactPlanner
+class ContactPlanner //TODO Convert this class to an abstract class
 {
 	public:
 		/** @brief Constructor function */
@@ -41,11 +41,12 @@ class ContactPlanner
 		void addFeature(environment::Feature* feature);
 
 		/**
-		 * @bief Computes the footholds
-		 * @param std::vector<Contact>& footholds Set of footholds
-		 * @param dwl::Pose current_pose Current pose
+		 * @bief Computes the contacts given a current pose of the robot
+		 * @param std::vector<Contact>& contacts Set of contacts
+		 * @param std::vector<Contact> current_contacts Current contacts
+		 * @param dwl::Pose goal_pose Goal pose
 		 */
-		bool computeFootholds(std::vector<Contact>& footholds, Pose current_pose);
+		bool computeContacts(std::vector<Contact>& contacts, std::vector<Contact> current_contacts, Pose goal_pose);
 
 		/**
 		 * @brief Sets the allowed computation time for the contact planner

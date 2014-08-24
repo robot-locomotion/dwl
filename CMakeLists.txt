@@ -55,6 +55,8 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/environment/HeightDeviationFeature.cpp
 							src/environment/PotentialLegCollisionFeature.cpp
 							src/environment/PotentialBodyOrientationFeature.cpp
+							src/environment/LegCollisionFeature.cpp
+							src/environment/BodyOrientationFeature.cpp
 							src/robot/Robot.cpp
 							src/robot/KinematicConstraints.cpp
 							src/robot/StabilityConstraints.cpp

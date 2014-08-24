@@ -20,7 +20,7 @@ PotentialBodyOrientationFeature::~PotentialBodyOrientationFeature()
 }
 
 
-void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotAndTerrain info) //TODO Finish this feature
+void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotAndTerrain info)
 {
 	// Setting the resolution of the terrain
 	space_discretization_.setEnvironmentResolution(info.resolution, true);

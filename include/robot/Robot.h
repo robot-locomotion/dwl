@@ -33,6 +33,12 @@ class Robot
 		void setCurrentPose(Pose pose);
 
 		/**
+		 * @brief Sets the current contacts of the robot
+		 * @param std::vector<dwl::Contact> contacts Contact positions
+		 */
+		void setCurrentContacts(std::vector<Contact> contacts);
+
+		/**
 		 * @brief Sets the stance areas for computing the body adjacency map
 		 * @param std::vector<SearchArea> stance_areas Stance areas
 		 */
@@ -49,6 +55,12 @@ class Robot
 		 * @return dwl::Pose Returns the current pose of the robot
 		 */
 		Pose getCurrentPose();
+
+		/**
+		 * @brief Gets the current contact positions
+		 * @return std::vector<Contact> Returns the set of current contacts
+		 */
+		std::vector<Contact> getCurrentContacts();
 
 		/**
 		 * @brief Gets the body area
@@ -95,6 +107,9 @@ class Robot
 		/** @brief Current pose of the robot */
 		Pose current_pose_;
 
+		/** @brief Current contacts of the robot */
+		std::vector<Contact> current_contacts_;
+
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> stance_areas_;
 
@@ -114,7 +129,7 @@ class Robot
 		double stance_size_;
 
 		/** @brief Leg work-areas */
-		std::vector<SearchArea> leg_area_;
+		std::vector<SearchArea> leg_areas_;
 };
 
 } //@namespace robot

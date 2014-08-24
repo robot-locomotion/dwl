@@ -32,10 +32,10 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 	double yaw = info.pose.orientation;
 
 	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
-		// Getting the leg area
+		// Getting the leg area and nominal stance of the leg
 		SearchArea leg_area = robot_->getLegWorkAreas()[leg];
-
 		Eigen::Vector3d nominal_stance = robot_->getNominalStance()[leg];
+
 		Eigen::Vector2d boundary_min, boundary_max;
 		boundary_min(0) = position(0) + nominal_stance(0) + leg_area.min_x;
 		boundary_min(1) = position(1) + nominal_stance(1) + leg_area.min_y;

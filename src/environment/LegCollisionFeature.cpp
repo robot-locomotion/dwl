@@ -9,7 +9,7 @@ namespace environment
 
 LegCollisionFeature::LegCollisionFeature()
 {
-	name_ = "Potential Leg Collision";
+	name_ = "Leg Collision";
 }
 
 
@@ -27,22 +27,20 @@ void LegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain in
 	// Getting the current foothold position
 	Eigen::Vector2d position = info.pose.position;
 	double yaw = info.pose.orientation;
-	Eigen::Vector3d foothold = info.contact.position;
-	int leg = info.contact.end_effector;
+	Eigen::Vector3d foothold = info.potential_contact.position;
+	int leg = info.potential_contact.end_effector;
 
 	// Getting the leg area
 	SearchArea leg_area = robot_->getLegWorkAreas()[leg];
 
-	Eigen::Vector3d nominal_stance = robot_->getNominalStance()[leg];
 	Eigen::Vector2d boundary_min, boundary_max;
-	boundary_min(0) = position(0) + nominal_stance(0) + leg_area.min_x;
-	boundary_min(1) = position(1) + nominal_stance(1) + leg_area.min_y;
-	boundary_max(0) = position(0) + nominal_stance(0) + leg_area.max_x;
-	boundary_max(1) = position(1) + nominal_stance(1) + leg_area.max_y;
+	boundary_min(0) = foothold(0) + leg_area.min_x;
+	boundary_min(1) = foothold(1) + leg_area.min_y;
+	boundary_max(0) = foothold(0) + leg_area.max_x;
+	boundary_max(1) = foothold(1) + leg_area.max_y;
 
 	// Computing the maximum and minimun height around the leg area
 	double max_height = -std::numeric_limits<double>::max();
-	int counter = 0;
 	bool is_there_height_values = false;
 	for (double y = boundary_min(1); y < boundary_max(1); y += leg_area.grid_resolution) {
 		for (double x = boundary_min(0); x < boundary_max(0); x += leg_area.grid_resolution) {

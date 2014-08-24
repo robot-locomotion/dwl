@@ -91,7 +91,8 @@ bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue, Set& visitedset
 	double allocated_time_secs = computation_time * (double) CLOCKS_PER_SEC;
 	double min_f_cost = openset_queue.begin()->first +
 			satisfied_inflation_ * adjacency_->heuristicCostEstimate(openset_queue.begin()->second, target);
-	while ((!openset_queue.empty()) && ((clock() - time_started_) < allocated_time_secs) && (g_cost_[target] > min_f_cost)) { // Note that f_cost[target] = g_cost[target]
+	// Note that f_cost[target] = g_cost[target]
+	while ((!openset_queue.empty()) && ((clock() - time_started_) < allocated_time_secs) && (g_cost_[target] > min_f_cost)) {
 		Vertex current = openset_queue.begin()->second;
 
 		// Deleting the current vertex to the openset list

@@ -42,23 +42,12 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 	// Setting the pose in the robot properties
 	robot_->setCurrentPose(current_pose);
 
-	// Converting pose to 3d state (x,y,yaw)
-	Eigen::Vector3d current_state;
-	poseToState(current_state, current_pose);
-
 	if (environment_->isTerrainInformation()) {
-		Vertex current_vertex;
-		environment_->getTerrainSpaceModel().stateToVertex(current_vertex, current_state);
-
 		// Cleaning global variables
 		std::vector<Pose> empty_body_trajectory;
 		body_path_.swap(empty_body_trajectory);
 		std::vector<Contact> empty_contacts_sequence;
 		contacts_sequence_.swap(empty_contacts_sequence);
-
-		double roll, pitch, yaw;
-		Orientation orientation(current_pose.orientation);
-		orientation.getRPY(roll, pitch, yaw);
 
 		// Computing the body path using a graph searching algorithm
 		if (!body_planner_->computeBodyPath(body_path_, current_pose, goal_pose_)) {
@@ -66,15 +55,24 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 			return false;
 		}
 
+		std::vector<Contact> current_contacts = robot_->getCurrentContacts();
+		std::vector<Contact> planned_contacts;
 		for (int i = 1; i < body_path_.size(); i++) {//3; i++) {
 			Orientation orientation(body_path_[i].orientation);
 			double roll, pitch, yaw;
 			orientation.getRPY(roll, pitch, yaw);
 			std::cout << "Plan = " << body_path_[i].position(0) << " " << body_path_[i].position(1) << " " << yaw << std::endl; //TODO Delete this message
-			if (!footstep_planner_->computeFootholds(contacts_sequence_, body_path_[i])) {
+			if (!footstep_planner_->computeContacts(planned_contacts, current_contacts, body_path_[i])) {
 				printf(YELLOW "Could not computed the footholds \n" COLOR_RESET);
 				return false;
 			}
+
+			// Setting the planned contacts as a currents
+			current_contacts = planned_contacts;
+
+			// Setting the planned contacts in the planned contact sequence
+			for (int i = 0; i < planned_contacts.size(); i++)
+				contacts_sequence_.push_back(planned_contacts[i]);
 		}
 	} else {
 		printf(YELLOW "Could not computed a locomotion plan because there is not terrain information\n" COLOR_RESET);

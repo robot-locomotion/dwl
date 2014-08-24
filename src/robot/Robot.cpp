@@ -26,6 +26,7 @@ Robot::Robot() : number_legs_(4), stance_size_(0.1)
 	// Defining the search areas for the stance position of HyQ
 	SearchArea stance_area;
 	stance_area.grid_resolution = 0.04;
+	//stance_areas_.resize(number_legs_);
 	for (int i = 0; i < number_legs_; i++) {
 		stance_area.max_x = nominal_stance_[i](0) + stance_size_;
 		stance_area.min_x = nominal_stance_[i](0) - stance_size_;
@@ -42,20 +43,22 @@ Robot::Robot() : number_legs_(4), stance_size_(0.1)
 
 	// Defining the leg areas
 	double leg_workspace = 0.25;
-	leg_area_.resize(number_legs_);
+	SearchArea leg_area;
+	leg_area.grid_resolution = 0.04;
 	for (int leg_id = 0; leg_id < number_legs_; leg_id++) {
 		if ((leg_id == LF) || (leg_id == RF)) {
-			leg_area_[leg_id].min_x = -leg_workspace;
-			leg_area_[leg_id].max_x = stance_size_;
-			leg_area_[leg_id].min_y = -stance_size_;
-			leg_area_[leg_id].max_y = stance_size_;
+			leg_area.min_x = -leg_workspace;
+			leg_area.max_x = stance_size_;
+			leg_area.min_y = -stance_size_;
+			leg_area.max_y = stance_size_;
 		} else {
-			leg_area_[leg_id].min_x = -stance_size_;
-			leg_area_[leg_id].max_x = leg_workspace;
-			leg_area_[leg_id].min_y = -stance_size_;
-			leg_area_[leg_id].max_y = stance_size_;
+			leg_area.min_x = -stance_size_;
+			leg_area.max_x = leg_workspace;
+			leg_area.min_y = -stance_size_;
+			leg_area.max_y = stance_size_;
 		}
-		leg_area_[leg_id].grid_resolution = 0.04;
+
+		leg_areas_.push_back(leg_area);
 	}
 }
 
@@ -69,6 +72,12 @@ Robot::~Robot()
 void Robot::setCurrentPose(Pose pose)
 {
 	current_pose_ = pose;
+}
+
+
+void Robot::setCurrentContacts(std::vector<Contact> contacts)
+{
+	current_contacts_ = contacts;
 }
 
 
@@ -87,6 +96,12 @@ void Robot::setPatternOfLocomotion(std::vector<int> pattern)
 Pose Robot::getCurrentPose()
 {
 	return current_pose_;
+}
+
+
+std::vector<Contact> Robot::getCurrentContacts()
+{
+	return current_contacts_;
 }
 
 
@@ -122,7 +137,8 @@ double Robot::getExpectedGround(int leg_id)
 
 std::vector<SearchArea> Robot::getLegWorkAreas()
 {
-	return leg_area_;
+	std::cout << "Leg size = " << leg_areas_.size() << std::endl;
+	return leg_areas_;
 }
 
 
