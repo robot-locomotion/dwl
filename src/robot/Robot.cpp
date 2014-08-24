@@ -137,7 +137,6 @@ double Robot::getExpectedGround(int leg_id)
 
 std::vector<SearchArea> Robot::getLegWorkAreas()
 {
-	std::cout << "Leg size = " << leg_areas_.size() << std::endl;
 	return leg_areas_;
 }
 
