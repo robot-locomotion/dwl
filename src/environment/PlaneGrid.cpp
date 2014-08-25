@@ -190,13 +190,13 @@ void SpaceDiscretization::keyToState(double& state, const unsigned short int key
 {
 	if (position) {
 		if (position_resolution_ == 0)
-			printf(RED "Could not state of the key because it was not defined the position resolution" COLOR_RESET);
+			printf(RED "Could not state of the key because it was not defined the position resolution\n" COLOR_RESET);
 		else
 			state = ((double) ((int) key - (int) max_key_val_) + 0.5) * position_resolution_;
 	}
 	else {
 		if (angular_resolution_ == 0)
-			printf(RED "Could not the state because it was not defined the angular resolution" COLOR_RESET);
+			printf(RED "Could not the state because it was not defined the angular resolution\n" COLOR_RESET);
 		else {
 			unsigned short int max_key_yaw_val_ = 0;
 			state = ((double) ((int) key - (int) max_key_yaw_val_) + 0.5) * angular_resolution_;

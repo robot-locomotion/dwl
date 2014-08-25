@@ -9,7 +9,8 @@ namespace environment
 
 
 RewardMap::RewardMap() : space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()), is_added_feature_(false),
-		is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()), interest_radius_y_(std::numeric_limits<double>::max())
+		is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()), interest_radius_y_(std::numeric_limits<double>::max()),
+		min_height_(std::numeric_limits<double>::max())
 {
 
 }
@@ -119,6 +120,9 @@ void RewardMap::removeCellToRewardMap(Vertex cell_vertex)
 void RewardMap::addCellToTerrainHeightMap(Vertex cell_vertex, double height)
 {
 	terrain_heightmap_[cell_vertex] = height;
+
+	if (height < min_height_)
+		min_height_ = height;
 }
 
 
@@ -141,8 +145,10 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 
 	search_areas_.push_back(search_area);
 
-	if (grid_resolution < space_discretization_.getEnvironmentResolution(true))
+	if (grid_resolution < space_discretization_.getEnvironmentResolution(true)) {
 		space_discretization_.setEnvironmentResolution(grid_resolution, true);
+		space_discretization_.setStateResolution(grid_resolution);
+	}
 
 	is_added_search_area_ = true;
 }

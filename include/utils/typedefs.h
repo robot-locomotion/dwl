@@ -182,6 +182,7 @@ struct Terrain
 	Eigen::Vector3d surface_normal;
 	double curvature;
 	std::map<Vertex, double> height_map;
+	double min_height;
 	double resolution;
 };
 

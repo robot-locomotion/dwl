@@ -23,12 +23,16 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 {
 	// Setting the grid resolution of the gridmap
 	space_discretization_.setEnvironmentResolution(terrain_info.resolution, true);
+	space_discretization_.setStateResolution(terrain_info.resolution);
 
 	// Getting the cell position
-	Eigen::Vector3d cell_position = terrain_info.position;
+	Eigen::Vector2d cell_position = terrain_info.position.head(2);
+	Vertex cell_vertex;
+	space_discretization_.stateToVertex(cell_vertex, cell_position);
+	space_discretization_.vertexToState(cell_position, cell_vertex);
 
 	// Computing the average height of the neighboring area
-	double height_average = 0, height_deviation = 0, estimated_height_deviation = 0;;
+	double height_average = 0, height_deviation = 0, estimated_height_deviation = 0;
 	int counter = 0, estimated_counter = 0;
 
 	Eigen::Vector2d boundary_min, boundary_max;
@@ -45,7 +49,8 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 			space_discretization_.coordToVertex(vertex_2d, coord);
 
 			if (terrain_info.height_map.find(vertex_2d)->first == vertex_2d) {
-				height_average += terrain_info.height_map.find(vertex_2d)->second;
+				double height = terrain_info.height_map.find(vertex_2d)->second;
+				height_average += height;
 				counter++;
 			}
 		}
@@ -81,10 +86,12 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 							Vertex height_vertex_2d;
 							space_discretization_.coordToVertex(height_vertex_2d, height_coord);
 
-							if (terrain_info.height_map.find(height_vertex_2d)->first == height_vertex_2d) {
+							if (terrain_info.height_map.find(height_vertex_2d)->first == height_vertex_2d)
 								estimated_height += terrain_info.height_map.find(height_vertex_2d)->second;
-								height_counter++;
-							}
+							else
+								estimated_height += terrain_info.min_height;
+
+							height_counter++;
 						}
 					}
 

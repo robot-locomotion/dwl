@@ -221,6 +221,7 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 
 	terrain_info.height_map = terrain_heightmap_;
 	terrain_info.resolution = space_discretization_.getEnvironmentResolution(true);
+	terrain_info.min_height = min_height_;
 
 	// Computing the reward
 	if (is_added_feature_) {

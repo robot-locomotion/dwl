@@ -156,6 +156,9 @@ class RewardMap
 		/** @brief Terrain height map */
 		std::map<Vertex,double> terrain_heightmap_;
 
+		/** @brief Minimum height of the terrain */
+		double min_height_;
+
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> search_areas_;
 
