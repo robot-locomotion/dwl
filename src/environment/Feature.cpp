@@ -7,10 +7,10 @@ namespace dwl
 namespace environment
 {
 
-Feature::Feature() : max_reward_(-2), robot_(NULL), weight_(1),
+Feature::Feature() : min_reward_(-2), robot_(NULL), weight_(1),
 		space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max())
 {
-	//space_discretization_.setStateResolution(0.04, M_PI / 24);
+
 }
 
 

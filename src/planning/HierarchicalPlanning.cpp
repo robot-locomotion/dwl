@@ -56,12 +56,12 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 		}
 
 		std::vector<Contact> current_contacts = robot_->getCurrentContacts();
-		std::vector<Contact> planned_contacts;
 		for (int i = 1; i < body_path_.size(); i++) {//3; i++) {
 			Orientation orientation(body_path_[i].orientation);
 			double roll, pitch, yaw;
 			orientation.getRPY(roll, pitch, yaw);
 			std::cout << "Plan = " << body_path_[i].position(0) << " " << body_path_[i].position(1) << " " << yaw << std::endl; //TODO Delete this message
+			std::vector<Contact> planned_contacts;
 			if (!footstep_planner_->computeContacts(planned_contacts, current_contacts, body_path_[i])) {
 				printf(YELLOW "Could not computed the footholds \n" COLOR_RESET);
 				return false;

@@ -7,8 +7,8 @@ namespace dwl
 namespace environment
 {
 
-BodyOrientationFeature::BodyOrientationFeature() : flat_threshold_(0.0 * (M_PI / 180.0)), roll_threshold_(30.0 * (M_PI / 180.0)),
-		pitch_threshold_(30.0 * (M_PI / 180.0))
+BodyOrientationFeature::BodyOrientationFeature() : flat_orientation_(1.0 * (M_PI / 180.0)), max_roll_(30.0 * (M_PI / 180.0)),
+		max_pitch_(30.0 * (M_PI / 180.0))
 {
 	name_ = "Body Orientation";
 }
@@ -20,7 +20,7 @@ BodyOrientationFeature::~BodyOrientationFeature()
 }
 
 
-void BodyOrientationFeature::computeReward(double& reward_value, RobotAndTerrain info) //TODO Finish this feature
+void BodyOrientationFeature::computeReward(double& reward_value, RobotAndTerrain info)
 {
 	// Setting the resolution of the terrain
 	space_discretization_.setEnvironmentResolution(info.resolution, true);
@@ -60,27 +60,23 @@ void BodyOrientationFeature::computeReward(double& reward_value, RobotAndTerrain
 	double roll_reward, pitch_reward;
 	r = fabs(r);
 	p = fabs(p);
-	if (r < flat_threshold_)
-		roll_reward = 0.0;
-	else {
-		if (r < roll_threshold_) {
-			roll_reward = log((roll_threshold_ - r) / (roll_threshold_ - flat_threshold_));
-			if (max_reward_ > roll_reward)
-				roll_reward = max_reward_;
-		} else
-			roll_reward = max_reward_;
-	}
+	if (r <= flat_orientation_)
+		roll_reward = 0;
+	else if (r < max_roll_) {
+		roll_reward = log(0.75 * (1 - r / (max_roll_ - flat_orientation_)));
+		if (min_reward_ > roll_reward)
+			roll_reward = min_reward_;
+	} else
+		roll_reward = min_reward_;
 
-	if (p < flat_threshold_)
-		pitch_reward = 0.0;
-	else {
-		if (p < pitch_threshold_) {
-			pitch_reward = log(fabs((pitch_threshold_ - p) / (pitch_threshold_ - flat_threshold_)));
-			if (max_reward_ > roll_reward)
-				pitch_reward = max_reward_;
-		} else
-			pitch_reward = max_reward_;
-	}
+	if (p <= flat_orientation_)
+		pitch_reward = 0;
+	else if (p < max_pitch_) {
+		pitch_reward = log(0.75 * (1 - p / (max_pitch_ - flat_orientation_)));
+		if (min_reward_ > roll_reward)
+			pitch_reward = min_reward_;
+	} else
+		pitch_reward = min_reward_;
 
 	reward_value = roll_reward + pitch_reward;
 }

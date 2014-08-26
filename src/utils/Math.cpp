@@ -46,6 +46,12 @@ void Math::normalizeAngle(double& angle, AngleRepresentation angle_notation)
 }
 
 
+void Math::inRadiiTriangle(double& inradii, double size_a, double size_b, double size_c)
+{
+	inradii = sqrt((size_b + size_c - size_a) * (size_c + size_a - size_b) * (size_a + size_b - size_c) / (size_a + size_b + size_c)) / 2;
+}
+
+
 void Math::computePlaneParameters(Eigen::Vector3d& normal, std::vector<Eigen::Vector3f> points)
 {
 	if (points.size() <= 3)

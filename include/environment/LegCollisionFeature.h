@@ -32,7 +32,11 @@ class LegCollisionFeature : public Feature
 		void computeReward(double& reward_value, RobotAndTerrain info);
 
 	private:
+		/** @brief Potential clearance of environment */
+		double potential_clearance_;
 
+		/** @brief Potential collision with the environment */
+		double potential_collision_;
 };
 
 } //@namespace environment

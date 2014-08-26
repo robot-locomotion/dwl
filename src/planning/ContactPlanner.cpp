@@ -131,6 +131,11 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 			Eigen::Vector2d foothold_coord;
 			environment_->getTerrainSpaceModel().vertexToCoord(foothold_coord, foothold_vertex);
 			foothold.position << foothold_coord, terrain_heightmap.find(foothold_vertex)->second;
+			/*Eigen::Vector3d nominal_stance = robot_->getNominalStance()[current_leg_id];
+			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
+			foothold.position(1) = body_state(1) + nominal_stance(0) * sin(yaw) + nominal_stance(1) * cos(yaw);
+			foothold.position(2) = robot_->getExpectedGround(current_leg_id);*/ //TODO delete
+
 		} else {
 			Eigen::Vector3d nominal_stance = robot_->getNominalStance()[current_leg_id];
 			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);

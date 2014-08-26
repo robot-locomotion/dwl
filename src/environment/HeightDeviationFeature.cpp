@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-HeightDeviationFeature::HeightDeviationFeature()
+HeightDeviationFeature::HeightDeviationFeature() : flat_height_deviation_(0.01), max_height_deviation_(0.5)
 {
 	name_ = "Height Deviation";
 }
@@ -104,10 +104,21 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 			}
 		}
 
-		reward_value = -height_deviation / counter;
+		height_deviation /= counter;
 
 		if (estimated_counter != 0)
-			reward_value -= estimated_height_deviation / estimated_counter;
+			estimated_height_deviation /= estimated_counter;
+
+		double total_heigh_deviation = height_deviation + estimated_height_deviation;
+
+		if (total_heigh_deviation <= flat_height_deviation_)
+			reward_value = 0;
+		else if (total_heigh_deviation < max_height_deviation_) {
+			reward_value = log(0.75 * (1 - total_heigh_deviation / (max_height_deviation_ - flat_height_deviation_)));
+			if (min_reward_ > reward_value)
+				reward_value = min_reward_;
+		} else
+			reward_value = min_reward_;
 	} else
 		reward_value = 0;
 }

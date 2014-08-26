@@ -25,7 +25,7 @@ void CurvatureFeature::computeReward(double& reward_value, Terrain terrain_info)
 
 	 // The worse condition
 	if (curvature * 10000 > 9) {
-		reward_value = max_reward_;
+		reward_value = min_reward_;
 
 		return;
 	}
@@ -34,12 +34,10 @@ void CurvatureFeature::computeReward(double& reward_value, Terrain terrain_info)
 	if (curvature > positive_threshold_)
 		reward_value = 0;
 	else if (curvature < negative_threshold_)
-		reward_value = max_reward_;
+		reward_value = min_reward_;
 	else
-		reward_value = max_reward_ + log((curvature - negative_threshold_) / (positive_threshold_ - negative_threshold_));
+		reward_value = min_reward_ + log((curvature - negative_threshold_) / (positive_threshold_ - negative_threshold_));
 }
 
-
 } //@namespace environment
-
 } //@namespace dwl

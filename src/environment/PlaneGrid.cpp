@@ -199,7 +199,7 @@ void SpaceDiscretization::keyToState(double& state, const unsigned short int key
 			printf(RED "Could not the state because it was not defined the angular resolution\n" COLOR_RESET);
 		else {
 			unsigned short int max_key_yaw_val_ = 0;
-			state = ((double) ((int) key - (int) max_key_yaw_val_) + 0.5) * angular_resolution_;
+			state = ((double) ((int) key - (int) max_key_yaw_val_)) * angular_resolution_;
 		}
 	}
 }

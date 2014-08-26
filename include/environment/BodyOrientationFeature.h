@@ -34,14 +34,14 @@ class BodyOrientationFeature : public Feature
 		void computeReward(double& reward_value, RobotAndTerrain info);
 
 	private:
-		/** @brief Threshold that specifies the flat condition */
-		double flat_threshold_;
+		/** @brief Threshold that specifies the flat orientation condition */
+		double flat_orientation_;
 
 		/** @brief Threshold that indicates a very bad roll condition */
-		double roll_threshold_;
+		double max_roll_;
 
 		/** @brief Threshold that indicates a very bad pitch condition */
-		double pitch_threshold_;
+		double max_pitch_;
 };
 
 } //@namespace environment

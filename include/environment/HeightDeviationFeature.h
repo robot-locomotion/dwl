@@ -32,7 +32,11 @@ class HeightDeviationFeature : public Feature
 
 
 	private:
+		/** @brief Flat height deviation */
+		double flat_height_deviation_;
 
+		/** @brief Maximum height deviation */
+		double max_height_deviation_;
 };
 
 } //@namespace environment

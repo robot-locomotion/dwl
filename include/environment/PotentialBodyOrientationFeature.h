@@ -35,13 +35,13 @@ class PotentialBodyOrientationFeature : public Feature
 
 	private:
 		/** @brief Threshold that specifies the flat condition */
-		double flat_threshold_;
+		double flat_orientation_;
 
 		/** @brief Threshold that indicates a very bad roll condition */
-		double roll_threshold_;
+		double max_roll_;
 
 		/** @brief Threshold that indicates a very bad pitch condition */
-		double pitch_threshold_;
+		double max_pitch_;
 };
 
 } //@namespace environment

@@ -78,8 +78,8 @@ class Feature
 		/** @brief Name of the feature **/
 		std::string name_;
 
-		/** @brief Maximum reward */
-		double max_reward_;
+		/** @brief Minimum reward */
+		double min_reward_;
 
 		/** @brief Weight used for computing the total reward */
 		double weight_;

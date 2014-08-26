@@ -30,6 +30,15 @@ class Math
 		void normalizeAngle(double& angle, AngleRepresentation angle_notation);
 
 		/**
+		 * @brief Computes the inradii of a triangle
+		 * @param double& inradii Inscribed radiu of the triangle
+		 * @param double size_a Size a
+		 * @param double size_b Size b
+		 * @param double size_c Size c
+		 */
+		void inRadiiTriangle(double& inradii, double size_a, double size_b, double size_c);
+
+		/**
 		 * @brief Computes the plane parameters (normal vector of the plane)
 		 * @param Eigen::Vector3d& normal Parameters or normal vector of the plane
 		 * @param std::vector<Eigen::Vector3f> Points of the cloud

@@ -59,6 +59,9 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 	Vertex start_vertex, goal_vertex;
 	environment_->getTerrainSpaceModel().stateToVertex(start_vertex, start_state);
 	environment_->getTerrainSpaceModel().stateToVertex(goal_vertex, goal_state);
+	Eigen::Vector3d test;
+	environment_->getTerrainSpaceModel().vertexToState(test, goal_vertex);
+	std::cout << "Goal = " << goal_state(0) << " " << goal_state(1) << " " << goal_state(2) << " " << test(0) << " " << test(1) << " " << test(2) << std::endl;
 
 	// Computing the body path using a graph searching algorithm
 	if (!path_solver_->compute(start_vertex, goal_vertex, path_computation_time_))

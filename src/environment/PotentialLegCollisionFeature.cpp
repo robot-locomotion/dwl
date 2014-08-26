@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-PotentialLegCollisionFeature::PotentialLegCollisionFeature()
+PotentialLegCollisionFeature::PotentialLegCollisionFeature() : potential_clearance_(0.04), potential_collision_(0.2)
 {
 	name_ = "Potential Leg Collision";
 }
@@ -21,9 +21,6 @@ PotentialLegCollisionFeature::~PotentialLegCollisionFeature()
 
 void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain info)
 {
-	// Initilization of the reward value
-	reward_value = 0;
-
 	// Setting the resolution of the terrain
 	space_discretization_.setEnvironmentResolution(info.resolution, true);
 
@@ -44,7 +41,6 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 
 		// Computing the maximum and minimun height around the leg area
 		double max_height = -std::numeric_limits<double>::max();
-		//double min_height = std::numeric_limits<double>::max();
 		double mean_height = 0;
 		int counter = 0;
 		bool is_there_height_values = false;
@@ -64,10 +60,6 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 					if (height > max_height)
 						max_height = height;
 
-					// Updating the minimum height
-					/*if (height < min_height)
-						min_height = height;*/ //TODO Eliminate when I have clear results
-
 					mean_height += height;
 					counter++;
 
@@ -78,10 +70,18 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 
 		if (is_there_height_values) {
 			mean_height /= counter;
-			double max_diff_height = max_height - mean_height;//min_height;
-			reward_value -= max_diff_height;
+			double max_diff_height = max_height - mean_height;
+
+			if (max_diff_height < potential_clearance_)
+				reward_value = 0.0;
+			else if (max_diff_height < potential_collision_) {
+				reward_value = log(0.75 * (1 - max_diff_height / (potential_collision_ - potential_clearance_)));
+				if (min_reward_ > reward_value)
+					reward_value = min_reward_;
+			} else
+				reward_value = min_reward_;
 		} else
-			reward_value -= 0;
+			reward_value = min_reward_;
 	}
 }
 
