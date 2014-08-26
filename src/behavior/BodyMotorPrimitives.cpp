@@ -26,22 +26,22 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	// Frontal actions
 	std::vector<Eigen::Vector3d> frontal_actions;
 	Eigen::Vector3d action;
+	action << 0.05, 0.0, 0.0;
+	frontal_actions.push_back(action);
 	action << 0.1, 0.0, 0.0;
 	frontal_actions.push_back(action);
-	action << 0.2, 0.0, 0.0;
+	action << 0.175, 0.0, 0.0;
 	frontal_actions.push_back(action);
-	action << 0.3, 0.0, 0.0;
+	action << 0.235, 0.0, 0.0;
 	frontal_actions.push_back(action);
-//	action << 0.325, 0.0, 0.0;
-//	frontal_actions.push_back(action);
+	action << -0.05, 0.0, 0.0;
+	frontal_actions.push_back(action);
 	action << -0.1, 0.0, 0.0;
 	frontal_actions.push_back(action);
-	action << -0.2, 0.0, 0.0;
+	action << -0.175, 0.0, 0.0;
 	frontal_actions.push_back(action);
-	action << -0.3, 0.0, 0.0;
+	action << -0.235, 0.0, 0.0;
 	frontal_actions.push_back(action);
-//	action << -0.325, 0.0, 0.0;
-//	frontal_actions.push_back(action);
 	motor_actions.push_back(frontal_actions);
 
 	// Lateral actions
@@ -50,14 +50,14 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	lateral_actions.push_back(action);
 	action << 0.0, 0.1, 0.0;
 	lateral_actions.push_back(action);
-//	action << 0.0, 0.225, 0.0;
-//	lateral_actions.push_back(action);
+	action << 0.0, 0.125, 0.0;
+	lateral_actions.push_back(action);
 	action << 0.0, -0.05, 0.0;
 	lateral_actions.push_back(action);
 	action << 0.0, -0.1, 0.0;
 	lateral_actions.push_back(action);
-//	action << 0.0, -0.225, 0.0;
-//	lateral_actions.push_back(action);
+	action << 0.0, -0.125, 0.0;
+	lateral_actions.push_back(action);
 	motor_actions.push_back(lateral_actions);
 
 	// Diagonal actions
@@ -156,6 +156,10 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 
 	// Twist actions
 	std::vector<Eigen::Vector3d> twist_actions;
+	action << 0.0, 0.0, 0.04;
+	twist_actions.push_back(action);
+	action << 0.0, 0.0, -0.04;
+	twist_actions.push_back(action);
 	action << 0.0, 0.0, 0.08;
 	twist_actions.push_back(action);
 	action << 0.0, 0.0, -0.08;
@@ -164,6 +168,10 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	twist_actions.push_back(action);
 	action << 0.0, 0.0, -0.16;
 	twist_actions.push_back(action);
+	action << 0.0, 0.0, 0.24;
+	twist_actions.push_back(action);
+	action << 0.0, 0.0, -0.24;
+	twist_actions.push_back(action);
 	action << 0.0, 0.0, 0.32;
 	twist_actions.push_back(action);
 	action << 0.0, 0.0, -0.32;
@@ -171,10 +179,6 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	action << 0.0, 0.0, 0.45;
 	twist_actions.push_back(action);
 	action << 0.0, 0.0, -0.45;
-	twist_actions.push_back(action);
-	action << 0.0, 0.0, 0.60;
-	twist_actions.push_back(action);
-	action << 0.0, 0.0, -0.60;
 	twist_actions.push_back(action);
 	motor_actions.push_back(twist_actions);
 
