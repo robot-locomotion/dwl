@@ -18,6 +18,7 @@
 #include <environment/LatticeBasedBodyAdjacency.h>
 #include <environment/PotentialLegCollisionFeature.h>
 #include <environment/PotentialBodyOrientationFeature.h>
+#include <environment/SupportTriangleFeature.h>
 #include <environment/LegCollisionFeature.h>
 #include <environment/BodyOrientationFeature.h>
 

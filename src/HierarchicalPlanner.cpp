@@ -118,9 +118,20 @@ void HierarchicalPlanners::init()
 	body_planner_.reset(body_path_solver_ptr_);
 
 	// Setting the features for the footstep planner
-	bool collision_enable, orientation_enable;
+	bool support_enable, collision_enable, orientation_enable;
+	node_.param("hierarchical_planner/contact_planner/features/support_triangle/enable", support_enable, false);
 	node_.param("hierarchical_planner/contact_planner/features/leg_collision/enable", collision_enable, false);
 	node_.param("hierarchical_planner/contact_planner/features/body_orientation/enable", orientation_enable, false);
+
+	if (support_enable) {
+		dwl::environment::Feature* support_ptr = new dwl::environment::SupportTriangleFeature();
+
+		// Setting the weight
+		double weight, default_weight = 1;
+		node_.param("hierarchical_planner/contact_planner/features/support_triangle/weight", weight, default_weight);
+		support_ptr->setWeight(weight);
+		footstep_planner_.addFeature(support_ptr);
+	}
 
 	if (collision_enable) {
 		dwl::environment::Feature* collision_ptr = new dwl::environment::LegCollisionFeature();
@@ -371,43 +382,44 @@ void HierarchicalPlanners::publishContactSequence()
 		contact_sequence_msg_.type = visualization_msgs::Marker::SPHERE_LIST;
 		contact_sequence_msg_.ns = "contact_points";
 		contact_sequence_msg_.id = 0;
-		contact_sequence_msg_.scale.x = 0.05;
-		contact_sequence_msg_.scale.y = 0.05;
-		contact_sequence_msg_.scale.z = 0.05;
+		contact_sequence_msg_.scale.x = 0.04;
+		contact_sequence_msg_.scale.y = 0.04;
+		contact_sequence_msg_.scale.z = 0.04;
 		contact_sequence_msg_.action = visualization_msgs::Marker::ADD;
 
 		contact_sequence_msg_.points.resize(contact_sequence_.size());
 		contact_sequence_msg_.colors.resize(contact_sequence_.size());
 		if (contact_sequence_.size() != 0) {
+			std::cout << "Contacts" << std::endl;
 			for (int i = 0; i < contact_sequence_.size(); i++) {
 				contact_sequence_msg_.points[i].x = contact_sequence_[i].position(0);
 				contact_sequence_msg_.points[i].y = contact_sequence_[i].position(1);
-				contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2) + 0.0275;
+				contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2) + 0.03;
 
 				int end_effector = contact_sequence_[i].end_effector;
 				if (end_effector == 0) {
-					std::cout << "Contact position 0 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
-					contact_sequence_msg_.colors[i].r = 1.0;
-					contact_sequence_msg_.colors[i].g = 0.0;
-					contact_sequence_msg_.colors[i].b = 0.0;
+					std::cout << "1\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2) << std::endl;
+					contact_sequence_msg_.colors[i].r = 0.45;
+					contact_sequence_msg_.colors[i].g = 0.29;
+					contact_sequence_msg_.colors[i].b = 0.09;
 					contact_sequence_msg_.colors[i].a = 1.0;
 				} else if (end_effector == 1) {
-					std::cout << "Contact position 1 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
+					std::cout << "2\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2) << std::endl;
 					contact_sequence_msg_.colors[i].r = 1.0;
 					contact_sequence_msg_.colors[i].g = 1.0;
 					contact_sequence_msg_.colors[i].b = 0.0;
 					contact_sequence_msg_.colors[i].a = 1.0;
 				} else if (end_effector == 2) {
-					std::cout << "Contact position 2 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
+					std::cout << "3\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2) << std::endl;
 					contact_sequence_msg_.colors[i].r = 0.0;
 					contact_sequence_msg_.colors[i].g = 1.0;
 					contact_sequence_msg_.colors[i].b = 0.0;
 					contact_sequence_msg_.colors[i].a = 1.0;
 				} else if (end_effector == 3) {
-					std::cout << "Contact position 3 = " << contact_sequence_[i].position(0) << " " << contact_sequence_[i].position(1) << " " << contact_sequence_[i].position(2) << std::endl;
-					contact_sequence_msg_.colors[i].r = 0.0;
-					contact_sequence_msg_.colors[i].g = 0.0;
-					contact_sequence_msg_.colors[i].b = 1.0;
+					std::cout << "4\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2) << std::endl;
+					contact_sequence_msg_.colors[i].r = 0.09;
+					contact_sequence_msg_.colors[i].g = 0.11;
+					contact_sequence_msg_.colors[i].b = 0.7;
 					contact_sequence_msg_.colors[i].a = 1.0;
 				} else {
 					contact_sequence_msg_.colors[i].r = 0.0;
