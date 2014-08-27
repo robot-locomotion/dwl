@@ -28,7 +28,7 @@ void SlopeFeature::computeReward(double& reward_value, Terrain terrain_info)
 	if (slope < flat_threshold_)
 		reward_value = 0.0;
 	else if (slope < steep_threshold_) {
-		reward_value = log(0.75 * (1 - slope / (steep_threshold_ - flat_threshold_)));
+		reward_value = log(0.75 * (1 - (slope - flat_threshold_) / (steep_threshold_ - flat_threshold_)));
 		if (min_reward_ > reward_value)
 			reward_value = min_reward_;
 	} else

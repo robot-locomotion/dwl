@@ -94,7 +94,7 @@ void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotA
 	if (r < flat_orientation_)
 		roll_reward = 0.0;
 	else if (r < max_roll_) {
-		roll_reward = log(0.75 * (1 - r / (max_roll_ - flat_orientation_)));
+		roll_reward = log(0.75 * (1 - (r - flat_orientation_) / (max_roll_ - flat_orientation_)));
 		if (min_reward_ > roll_reward)
 			roll_reward = min_reward_;
 	} else
@@ -103,7 +103,7 @@ void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotA
 	if (p < flat_orientation_)
 		pitch_reward = 0.0;
 	else if (p < max_pitch_) {
-		pitch_reward = log(0.75 * (1 - p / (max_pitch_ - flat_orientation_)));
+		pitch_reward = log(0.75 * (1 - (p - flat_orientation_) / (max_pitch_ - flat_orientation_)));
 		if (min_reward_ > roll_reward)
 			pitch_reward = min_reward_;
 	} else

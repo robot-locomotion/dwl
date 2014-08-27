@@ -75,7 +75,7 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 			if (max_diff_height < potential_clearance_)
 				reward_value = 0.0;
 			else if (max_diff_height < potential_collision_) {
-				reward_value = log(0.75 * (1 - max_diff_height / (potential_collision_ - potential_clearance_)));
+				reward_value = log(0.75 * (1 - (max_diff_height - potential_clearance_) / (potential_collision_ - potential_clearance_)));
 				if (min_reward_ > reward_value)
 					reward_value = min_reward_;
 			} else

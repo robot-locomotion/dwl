@@ -18,10 +18,10 @@ Robot::Robot() : number_legs_(4), stance_size_(0.1)
 
 	// Defining the pattern of locomotion
 	pattern_locomotion_.resize(number_legs_);
-	pattern_locomotion_[0] = LH;
-	pattern_locomotion_[1] = LF;
-	pattern_locomotion_[2] = RH;
-	pattern_locomotion_[3] = RF;
+	pattern_locomotion_[LF] = RH;
+	pattern_locomotion_[RF] = LH;
+	pattern_locomotion_[LH] = LF;
+	pattern_locomotion_[RH] = RF;
 
 	// Defining the search areas for the stance position of HyQ
 	SearchArea stance_area;

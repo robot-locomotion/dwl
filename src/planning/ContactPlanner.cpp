@@ -43,6 +43,8 @@ void ContactPlanner::addFeature(environment::Feature* feature)
 
 bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> current_contacts, Pose goal_pose)
 {
+	footholds.clear();
+
 	// Converting quaternion to roll, pitch and yaw angles
 	double roll, pitch, yaw;
 	Orientation orientation(goal_pose.orientation);
@@ -65,13 +67,13 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 	info.height_map = terrain_heightmap;
 	info.resolution = environment_->getTerrainResolution();
 
-	std::vector<Contact> unchanged_contacts;
 	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
 		int current_leg_id = robot_->getPatternOfLocomotion()[leg];
 
 		// Computing the unchanged contacts
+		std::vector<Contact> unchanged_contacts;
 		for (int i = 0; i < current_contacts.size(); i++) {
-			if (i != leg)
+			if (current_contacts[i].end_effector != current_leg_id)
 				unchanged_contacts.push_back(current_contacts[i]);
 		}
 		info.current_contacts = unchanged_contacts;
@@ -82,7 +84,9 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 		boundary_min(1) = body_state(1) + robot_->getStanceAreas()[current_leg_id].min_y;
 		boundary_max(0) = body_state(0) + robot_->getStanceAreas()[current_leg_id].max_x;
 		boundary_max(1) = body_state(1) + robot_->getStanceAreas()[current_leg_id].max_y;
-
+		std::cout << "Current leg = " << current_leg_id << std::endl;
+		std::cout <<"minx = " << robot_->getStanceAreas()[current_leg_id].min_x << " | maxx = " << robot_->getStanceAreas()[current_leg_id].max_x << std::endl;
+		std::cout << "miny = " << robot_->getStanceAreas()[current_leg_id].min_y << " | maxy = " << robot_->getStanceAreas()[current_leg_id].max_y << std::endl;
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double stance_cost = 0;
 		for (double y = boundary_min(1); y < boundary_max(1); y += robot_->getStanceAreas()[current_leg_id].grid_resolution) {
@@ -114,6 +118,7 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 						features_[i]->getWeight(weight);
 
 						// Computing the cost of the body feature
+						std::cout << features_[i]->getName() << " body cost = -" << weight << " * " << feature_reward << std::endl;
 						body_cost -= weight * feature_reward;
 					}
 					contact_cost = terrain_cost + body_cost;
@@ -131,11 +136,6 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 			Eigen::Vector2d foothold_coord;
 			environment_->getTerrainSpaceModel().vertexToCoord(foothold_coord, foothold_vertex);
 			foothold.position << foothold_coord, terrain_heightmap.find(foothold_vertex)->second;
-			/*Eigen::Vector3d nominal_stance = robot_->getNominalStance()[current_leg_id];
-			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
-			foothold.position(1) = body_state(1) + nominal_stance(0) * sin(yaw) + nominal_stance(1) * cos(yaw);
-			foothold.position(2) = robot_->getExpectedGround(current_leg_id);*/ //TODO delete
-
 		} else {
 			Eigen::Vector3d nominal_stance = robot_->getNominalStance()[current_leg_id];
 			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);

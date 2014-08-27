@@ -114,7 +114,7 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 		if (total_heigh_deviation <= flat_height_deviation_)
 			reward_value = 0;
 		else if (total_heigh_deviation < max_height_deviation_) {
-			reward_value = log(0.75 * (1 - total_heigh_deviation / (max_height_deviation_ - flat_height_deviation_)));
+			reward_value = log(0.75 * (1 - (total_heigh_deviation - flat_height_deviation_) / (max_height_deviation_ - flat_height_deviation_)));
 			if (min_reward_ > reward_value)
 				reward_value = min_reward_;
 		} else

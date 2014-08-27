@@ -48,7 +48,16 @@ void Math::normalizeAngle(double& angle, AngleRepresentation angle_notation)
 
 void Math::inRadiiTriangle(double& inradii, double size_a, double size_b, double size_c)
 {
-	inradii = sqrt((size_b + size_c - size_a) * (size_c + size_a - size_b) * (size_a + size_b - size_c) / (size_a + size_b + size_c)) / 2;
+	double s = (size_a + size_b + size_c) / 2;
+	double a = (s - size_a) * (s - size_b) * (s - size_c) / s;
+
+	if (a > 0)
+		inradii = sqrt(a);
+	else
+		inradii = 0;
+
+	//std::cout << "a = " << size_a << " | b = " << size_b << " | c = " << size_c << std::endl;
+	std::cout << "Inradii = " << inradii << std::endl;
 }
 
 
