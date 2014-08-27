@@ -219,7 +219,7 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 	double distance = (target_state.head(2) - source_state.head(2)).norm();
 	double dist_orientation = sqrt(pow(((double) target_state(2) - (double) source_state(2)), 2));
 
-	double heuristic = (2.5 * distance + 0.35 * dist_orientation) * uncertainty_factor_ * environment_->getAverageCostOfTerrain(); //TODO Tunning the heuristic function
+	double heuristic = (2.5 * distance + 0.35 * dist_orientation) * uncertainty_factor_ * (environment_->getAverageCostOfTerrain() + 0.1); //TODO Tunning the heuristic function
 
 	return heuristic;
 }
