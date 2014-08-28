@@ -21,6 +21,8 @@ PotentialLegCollisionFeature::~PotentialLegCollisionFeature()
 
 void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain info)
 {
+	reward_value = 0;
+
 	// Setting the resolution of the terrain
 	space_discretization_.setEnvironmentResolution(info.resolution, true);
 
@@ -28,6 +30,7 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 	Eigen::Vector2d position = info.pose.position;
 	double yaw = info.pose.orientation;
 
+	int leg_information = 0;
 	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
 		// Getting the leg area and nominal stance of the leg
 		SearchArea leg_area = robot_->getLegWorkAreas()[leg];
@@ -73,16 +76,21 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 			double max_diff_height = max_height - mean_height;
 
 			if (max_diff_height < potential_clearance_)
-				reward_value = 0.0;
+				reward_value += 0.0;
 			else if (max_diff_height < potential_collision_) {
-				reward_value = log(0.75 * (1 - (max_diff_height - potential_clearance_) / (potential_collision_ - potential_clearance_)));
-				if (min_reward_ > reward_value)
-					reward_value = min_reward_;
+				double potential_reward_value = log(0.75 * (1 - (max_diff_height - potential_clearance_) / (potential_collision_ - potential_clearance_)));
+				if (min_reward_ > potential_reward_value)
+					reward_value += min_reward_;
+				else
+					reward_value += potential_reward_value;
 			} else
-				reward_value = min_reward_;
-		} else
-			reward_value = min_reward_;
+				reward_value += min_reward_;
+			leg_information++;
+		}
 	}
+
+	if (leg_information != 0)
+		reward_value /= leg_information;
 }
 
 } //@namespace environment
