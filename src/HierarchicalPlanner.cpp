@@ -394,7 +394,7 @@ void HierarchicalPlanners::publishContactSequence()
 			for (int i = 0; i < contact_sequence_.size(); i++) {
 				contact_sequence_msg_.points[i].x = contact_sequence_[i].position(0);
 				contact_sequence_msg_.points[i].y = contact_sequence_[i].position(1);
-				contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2) + 0.03;
+				contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2);
 
 				int end_effector = contact_sequence_[i].end_effector;
 				if (end_effector == 0) {
