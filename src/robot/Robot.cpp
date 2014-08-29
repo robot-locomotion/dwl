@@ -11,10 +11,10 @@ Robot::Robot() : number_legs_(4), stance_size_(0.1)
 {
 	// Defining the stance position per leg
 	nominal_stance_.resize(number_legs_);
-	nominal_stance_[LF] << 0.4269, 0.2683, -0.6116;
-	nominal_stance_[RF] << 0.4269, -0.2683, -0.6116;
-	nominal_stance_[LH] << -0.4269, 0.2683, -0.6116;
-	nominal_stance_[RH] << -0.4269, -0.2683, -0.6116;
+	nominal_stance_[LF] << 0.3667, 0.3237, -0.5757;
+	nominal_stance_[RF] << 0.3667, -0.3237, -0.5757;
+	nominal_stance_[LH] << -0.3667, 0.3237, -0.5757;
+	nominal_stance_[RH] << -0.3667, -0.3237, -0.5757;
 
 	// Defining the pattern of locomotion
 	pattern_locomotion_.resize(number_legs_);

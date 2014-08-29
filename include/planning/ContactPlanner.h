@@ -67,6 +67,8 @@ class ContactPlanner //TODO Convert this class to an abstract class
 
 		/** @brief Allowed computation time */
 		double computation_time_;
+
+		double leg_offset_;
 };
 
 } //@namespace planning

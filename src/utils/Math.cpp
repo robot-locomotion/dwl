@@ -55,9 +55,6 @@ void Math::inRadiiTriangle(double& inradii, double size_a, double size_b, double
 		inradii = sqrt(a);
 	else
 		inradii = 0;
-
-	//std::cout << "a = " << size_a << " | b = " << size_b << " | c = " << size_c << std::endl;
-	std::cout << "Inradii = " << inradii << std::endl;
 }
 
 

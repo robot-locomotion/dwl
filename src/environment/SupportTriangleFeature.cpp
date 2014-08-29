@@ -10,13 +10,6 @@ namespace environment
 SupportTriangleFeature::SupportTriangleFeature() : stable_inradii_(0.13), unstable_inradii_(0.08)
 {
 	name_ = "Support Triangle";
-
-	utils::Math mat;
-	double inradii;
-	mat.inRadiiTriangle(inradii, 20, 21, 29);
-	std::cout << "Inradii = " << inradii << std::endl;
-	mat.inRadiiTriangle(inradii, 0.86, 0.32, sqrt(0.86*0.86+0.32*0.32));
-	std::cout << "Inradii = " << inradii << std::endl;
 }
 
 
@@ -34,7 +27,7 @@ void SupportTriangleFeature::computeReward(double& reward_value, RobotAndTerrain
 	// Getting the potential foothold
 	std::vector<Contact> potential_footholds = info.current_contacts;
 	potential_footholds.push_back(info.potential_contact);
-	std::cout << "Potential foot size = " << potential_footholds.size() << std::endl;
+
 	// Getting the next leg
 	int next_leg = robot_->getPatternOfLocomotion()[info.potential_contact.end_effector];
 	std::cout << "Current foot = " << info.potential_contact.end_effector << " | Next foot = " << next_leg << std::endl;
@@ -68,7 +61,7 @@ void SupportTriangleFeature::computeReward(double& reward_value, RobotAndTerrain
 	if (inradii >= stable_inradii_)
 		reward_value = 0;
 	else if (inradii > unstable_inradii_) {
-		reward_value = log(0.75 * (1 - (inradii - unstable_inradii_) / (stable_inradii_ - unstable_inradii_)));
+		reward_value = log(0.75 * (inradii - unstable_inradii_) / (stable_inradii_ - unstable_inradii_));
 		if (min_reward_ > reward_value)
 			reward_value = min_reward_;
 	} else

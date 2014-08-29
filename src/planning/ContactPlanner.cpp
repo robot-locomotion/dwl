@@ -7,7 +7,7 @@ namespace dwl
 namespace planning
 {
 
-ContactPlanner::ContactPlanner() : environment_(NULL), robot_(NULL), computation_time_(std::numeric_limits<double>::max())
+ContactPlanner::ContactPlanner() : environment_(NULL), robot_(NULL), computation_time_(std::numeric_limits<double>::max()), leg_offset_(0.025)
 {
 
 }
@@ -41,8 +41,9 @@ void ContactPlanner::addFeature(environment::Feature* feature)
 }
 
 
-bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> current_contacts, Pose goal_pose)
+bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts, Pose goal_pose)
 {
+	// Initilization of footholds
 	footholds.clear();
 
 	// Converting quaternion to roll, pitch and yaw angles
@@ -67,16 +68,31 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 	info.height_map = terrain_heightmap;
 	info.resolution = environment_->getTerrainResolution();
 
-	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
-		int current_leg_id = robot_->getPatternOfLocomotion()[leg];
+	int current_leg_id, past_leg_id = 1;
+	for (int l = 0; l < robot_->getNumberOfLegs(); l++) {
+		// Computing the current leg according to the predefined pattern of locomotion
+		current_leg_id = robot_->getPatternOfLocomotion()[past_leg_id];
 
-		// Computing the unchanged contacts
-		std::vector<Contact> unchanged_contacts;
-		for (int i = 0; i < current_contacts.size(); i++) {
-			if (current_contacts[i].end_effector != current_leg_id)
-				unchanged_contacts.push_back(current_contacts[i]);
+		// Setting the current leg as a past leg for future iterations
+		past_leg_id = current_leg_id;
+
+		// Computing the current contacts
+		std::vector<Contact> current_contacts;
+		for (int i = 0; i < robot_->getNumberOfLegs(); i++) {
+			if (initial_contacts[i].end_effector != current_leg_id) {
+				current_contacts.push_back(initial_contacts[i]);
+				std::cout << "Adding " << initial_contacts[i].end_effector << std::endl;
+			}
 		}
-		info.current_contacts = unchanged_contacts;
+		for (int i = 0; i < robot_->getNumberOfLegs() - 1; i++) {
+			for (int j = 0; j < footholds.size(); j++) {
+				if (current_contacts[i].end_effector == footholds[j].end_effector) {
+					current_contacts[i] = footholds[j];
+					std::cout << "Adding " << footholds[j].end_effector << "n" << std::endl;
+				}
+			}
+		}
+		info.current_contacts = current_contacts;
 
 		// Computing the boundary of stance area
 		Eigen::Vector2d boundary_min, boundary_max;
@@ -85,8 +101,7 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 		boundary_max(0) = body_state(0) + robot_->getStanceAreas()[current_leg_id].max_x;
 		boundary_max(1) = body_state(1) + robot_->getStanceAreas()[current_leg_id].max_y;
 		std::cout << "Current leg = " << current_leg_id << std::endl;
-		std::cout <<"minx = " << robot_->getStanceAreas()[current_leg_id].min_x << " | maxx = " << robot_->getStanceAreas()[current_leg_id].max_x << std::endl;
-		std::cout << "miny = " << robot_->getStanceAreas()[current_leg_id].min_y << " | maxy = " << robot_->getStanceAreas()[current_leg_id].max_y << std::endl;
+
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double stance_cost = 0;
 		for (double y = boundary_min(1); y < boundary_max(1); y += robot_->getStanceAreas()[current_leg_id].grid_resolution) {
@@ -135,7 +150,7 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 			Vertex foothold_vertex = stance_cost_queue.begin()->second;
 			Eigen::Vector2d foothold_coord;
 			environment_->getTerrainSpaceModel().vertexToCoord(foothold_coord, foothold_vertex);
-			foothold.position << foothold_coord, terrain_heightmap.find(foothold_vertex)->second;
+			foothold.position << foothold_coord, (terrain_heightmap.find(foothold_vertex)->second + leg_offset_);
 		} else {
 			Eigen::Vector3d nominal_stance = robot_->getNominalStance()[current_leg_id];
 			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
