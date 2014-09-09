@@ -24,7 +24,7 @@
 
 #include <terrain_server/RewardMap.h>
 #include <terrain_server/ObstacleMap.h>
-#include <dwl_planners/BodyGoal.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
 #include <visualization_msgs/Marker.h>
 
@@ -74,9 +74,9 @@ class HierarchicalPlanners
 
 		/**
 		 * @brief Callback method for reseting the body goal state
-		 * @param const dwl_planners::BodyGoalConstPtr& msg Body goal message
+		 * @param const geometry_msgs::PoseStampedConstPtr& msg Body goal message
 		 */
-		void resetGoalCallback(const dwl_planners::BodyGoalConstPtr& msg);
+		void resetGoalCallback(const geometry_msgs::PoseStampedConstPtr& msg);
 
 		/** @brief Publishes the computed body path */
 		void publishBodyPath();

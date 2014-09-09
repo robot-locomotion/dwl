@@ -32,7 +32,7 @@ void HierarchicalPlanners::init()
 	//tf_reward_sub_ = new tf::MessageFilter<terrain_server::RewardMap> (*reward_sub_, tf_listener_, world_frame_, 5);
 	//tf_reward_sub_->registerCallback(boost::bind(&HierarchicalPlanners::rewardMapCallback, this, _1));
 	obstacle_sub_ = node_.subscribe<terrain_server::ObstacleMap>("/obstacle_map", 1, &HierarchicalPlanners::obstacleMapCallback, this);
-	body_goal_sub_ = node_.subscribe<dwl_planners::BodyGoal>("/body_goal", 1, &HierarchicalPlanners::resetGoalCallback, this);
+	body_goal_sub_ = node_.subscribe<geometry_msgs::PoseStamped>("/body_goal", 1, &HierarchicalPlanners::resetGoalCallback, this);
 
 	// Declaring the publisher of approximated body path
 	body_path_pub_ = node_.advertise<nav_msgs::Path>("approximated_body_path", 1);
@@ -333,18 +333,22 @@ void HierarchicalPlanners::obstacleMapCallback(const terrain_server::ObstacleMap
 }
 
 
-void HierarchicalPlanners::resetGoalCallback(const dwl_planners::BodyGoalConstPtr& msg)
+void HierarchicalPlanners::resetGoalCallback(const geometry_msgs::PoseStampedConstPtr& msg)
 {
 	dwl::Pose goal_pose;
-	goal_pose.position[0] = msg->x;
-	goal_pose.position[1] = msg->y;
-	dwl::Orientation orientation(0, 0, msg->yaw);
-	Eigen::Quaterniond q;
-	orientation.getQuaternion(q);
+	goal_pose.position[0] = msg->pose.position.x;
+	goal_pose.position[1] = msg->pose.position.y;
+
+	Eigen::Quaterniond q(msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);//wxyz
 	goal_pose.orientation = q;
+
+	dwl::Orientation orientation(q);
+	double roll, pitch, yaw;
+	orientation.getRPY(roll, pitch, yaw);
 
 	// Setting the new goal pose
 	locomotor_.resetGoal(goal_pose);
+	ROS_INFO("Setting the new goal pose (%f,%f,%f)", goal_pose.position[0], goal_pose.position[1], yaw);
 }
 
 
@@ -397,26 +401,26 @@ void HierarchicalPlanners::publishContactSequence()
 				contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2);
 
 				int end_effector = contact_sequence_[i].end_effector;
-				if (end_effector == 0) {
-					std::cout << "1\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2) << std::endl;
+				if (end_effector == 0) {//TODO Remove the offset
+					std::cout << "1\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
 					contact_sequence_msg_.colors[i].r = 0.45;
 					contact_sequence_msg_.colors[i].g = 0.29;
 					contact_sequence_msg_.colors[i].b = 0.09;
 					contact_sequence_msg_.colors[i].a = 1.0;
 				} else if (end_effector == 1) {
-					std::cout << "2\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2) << std::endl;
+					std::cout << "2\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
 					contact_sequence_msg_.colors[i].r = 1.0;
 					contact_sequence_msg_.colors[i].g = 1.0;
 					contact_sequence_msg_.colors[i].b = 0.0;
 					contact_sequence_msg_.colors[i].a = 1.0;
 				} else if (end_effector == 2) {
-					std::cout << "3\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2) << std::endl;
+					std::cout << "3\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
 					contact_sequence_msg_.colors[i].r = 0.0;
 					contact_sequence_msg_.colors[i].g = 1.0;
 					contact_sequence_msg_.colors[i].b = 0.0;
 					contact_sequence_msg_.colors[i].a = 1.0;
 				} else if (end_effector == 3) {
-					std::cout << "4\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2) << std::endl;
+					std::cout << "4\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
 					contact_sequence_msg_.colors[i].r = 0.09;
 					contact_sequence_msg_.colors[i].g = 0.11;
 					contact_sequence_msg_.colors[i].b = 0.7;
