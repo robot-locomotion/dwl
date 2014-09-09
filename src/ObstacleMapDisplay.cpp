@@ -11,7 +11,7 @@
 #include <rviz/properties/ros_topic_property.h>
 #include <rviz/properties/enum_property.h>
 
-#include <environment/PlaneGrid.h>
+#include <environment/SpaceDiscretization.h>
 
 #include <sstream>
 
