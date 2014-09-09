@@ -1,7 +1,7 @@
 #ifndef DWL_ObstacleMap_H
 #define DWL_ObstacleMap_H
 
-#include <environment/PlaneGrid.h>
+#include <environment/SpaceDiscretization.h>
 #include <utils/utils.h>
 
 #include <octomap/octomap.h>

@@ -30,21 +30,17 @@ void SupportTriangleFeature::computeReward(double& reward_value, RobotAndTerrain
 
 	// Getting the next leg
 	int next_leg = robot_->getPatternOfLocomotion()[info.potential_contact.end_effector];
-	std::cout << "Current foot = " << info.potential_contact.end_effector << " | Next foot = " << next_leg << std::endl;
 
 	// Computing the future stance
 	std::vector<Eigen::Vector3d> future_stance;
 	Eigen::Vector3d leg_position;
 
-	std::cout << "Future stance = ";
 	for (int i = 0; i < potential_footholds.size(); i++) {
 		if (potential_footholds[i].end_effector != next_leg) {
 			leg_position = potential_footholds[i].position;
 			future_stance.push_back(leg_position);
-			std::cout << potential_footholds[i].end_effector << " | " << leg_position(0) << " " << leg_position(1) << std::endl;
 		}
 	}
-	std::cout << std::endl;
 
 	// Computing the radius of a circle inscribed in the support triangle
 	double inradii;

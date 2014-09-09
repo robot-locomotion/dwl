@@ -1,7 +1,7 @@
 #ifndef DWL_EnvironmentInformation_H
 #define DWL_EnvironmentInformation_H
 
-#include <environment/PlaneGrid.h>
+#include <environment/SpaceDiscretization.h>
 #include <utils/utils.h>
 
 

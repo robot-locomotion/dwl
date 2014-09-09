@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-EnvironmentInformation::EnvironmentInformation() : terrain_space_discretization_(0.04, 0.04, M_PI / 24), obstacle_space_discretization_(0.04, 0.04, M_PI / 24),
+EnvironmentInformation::EnvironmentInformation() : terrain_space_discretization_(0.04, 0.04, M_PI / 200), obstacle_space_discretization_(0.04, 0.04, M_PI / 200),
 		average_terrain_cost_(0), terrain_information_(false), obstacle_information_(false), terrain_resolution_(std::numeric_limits<double>::max()),
 		obstacle_resolution_(std::numeric_limits<double>::max())
 {
@@ -94,7 +94,6 @@ void EnvironmentInformation::setObstacleResolution(double resolution, bool plane
 {
 	obstacle_space_discretization_.setEnvironmentResolution(resolution, plane);
 }
-
 
 
 void EnvironmentInformation::setStateResolution(double position_resolution, double angular_resolution)

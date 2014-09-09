@@ -218,11 +218,12 @@ class SpaceDiscretization
 
 		/** @brief Maximun count for key variables */
 		unsigned long int max_key_count_;
-		/** @brief Maximun count for angular state variables */
-		unsigned long int max_yaw_count_;
 
 		/** @brief Maximun count for position state variables */
 		unsigned long int max_position_count_;
+
+		/** @brief Maximun count for angular state variables */
+		unsigned long int max_angular_count_;
 };
 
 } //@namespace environment

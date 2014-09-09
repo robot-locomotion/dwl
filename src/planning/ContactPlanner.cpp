@@ -79,17 +79,13 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 		// Computing the current contacts
 		std::vector<Contact> current_contacts;
 		for (int i = 0; i < robot_->getNumberOfLegs(); i++) {
-			if (initial_contacts[i].end_effector != current_leg_id) {
+			if (initial_contacts[i].end_effector != current_leg_id)
 				current_contacts.push_back(initial_contacts[i]);
-				std::cout << "Adding " << initial_contacts[i].end_effector << std::endl;
-			}
 		}
 		for (int i = 0; i < robot_->getNumberOfLegs() - 1; i++) {
 			for (int j = 0; j < footholds.size(); j++) {
-				if (current_contacts[i].end_effector == footholds[j].end_effector) {
+				if (current_contacts[i].end_effector == footholds[j].end_effector)
 					current_contacts[i] = footholds[j];
-					std::cout << "Adding " << footholds[j].end_effector << "n" << std::endl;
-				}
 			}
 		}
 		info.current_contacts = current_contacts;
@@ -100,7 +96,6 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 		boundary_min(1) = body_state(1) + robot_->getStanceAreas()[current_leg_id].min_y;
 		boundary_max(0) = body_state(0) + robot_->getStanceAreas()[current_leg_id].max_x;
 		boundary_max(1) = body_state(1) + robot_->getStanceAreas()[current_leg_id].max_y;
-		std::cout << "Current leg = " << current_leg_id << std::endl;
 
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double stance_cost = 0;
@@ -133,7 +128,6 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 						features_[i]->getWeight(weight);
 
 						// Computing the cost of the body feature
-						std::cout << features_[i]->getName() << " body cost = -" << weight << " * " << feature_reward << std::endl;
 						body_cost -= weight * feature_reward;
 					}
 					contact_cost = terrain_cost + body_cost;

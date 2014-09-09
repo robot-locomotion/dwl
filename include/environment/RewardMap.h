@@ -1,7 +1,7 @@
 #ifndef DWL_RewardMap_H
 #define DWL_RewardMap_H
 
-#include <environment/PlaneGrid.h>
+#include <environment/SpaceDiscretization.h>
 #include <environment/Feature.h>
 #include <utils/utils.h>
 

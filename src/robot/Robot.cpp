@@ -42,13 +42,13 @@ Robot::Robot() : number_legs_(4), stance_size_(0.1)
 	body_area_.min_y = nominal_stance_[RF](1);
 
 	// Defining the leg areas
-	double leg_workspace = 0.25;
+	double leg_workspace = 0.35;
 	SearchArea leg_area;
 	leg_area.grid_resolution = 0.04;
 	for (int leg_id = 0; leg_id < number_legs_; leg_id++) {
 		if ((leg_id == LF) || (leg_id == RF)) {
 			leg_area.min_x = -leg_workspace;
-			leg_area.max_x = stance_size_;
+			leg_area.max_x = 2.5 * stance_size_;
 			leg_area.min_y = -stance_size_;
 			leg_area.max_y = stance_size_;
 		} else {

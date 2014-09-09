@@ -1,7 +1,7 @@
 #ifndef DWL_Feature_H
 #define DWL_Feature_H
 
-#include <environment/PlaneGrid.h>
+#include <environment/SpaceDiscretization.h>
 #include <robot/Robot.h>
 #include <utils/utils.h>
 
