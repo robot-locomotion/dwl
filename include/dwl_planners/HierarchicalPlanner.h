@@ -22,6 +22,7 @@
 #include <environment/LegCollisionFeature.h>
 #include <environment/BodyOrientationFeature.h>
 
+#include <dwl_planners/ContactSequence.h>
 #include <terrain_server/RewardMap.h>
 #include <terrain_server/ObstacleMap.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -111,6 +112,9 @@ class HierarchicalPlanners
 		/** @brief Contact sequence publisher */
 		ros::Publisher contact_sequence_pub_;
 
+		/** @brief Contact sequence publisher for visualization */
+		ros::Publisher contact_sequence_rviz_pub_;
+
 		/** @brief Thread mutex of the reward information */
 		pthread_mutex_t reward_lock_;
 
@@ -148,7 +152,10 @@ class HierarchicalPlanners
 		nav_msgs::Path body_path_msg_;
 
 		/** @brief Contact sequence ROS message */
-		visualization_msgs::Marker contact_sequence_msg_;
+		dwl_planners::ContactSequence contact_sequence_msg_;
+
+		/** @brief Contact sequence for visualization in RVIZ */
+		visualization_msgs::Marker contact_sequence_rviz_msg_;
 
 		/** @brief Approximated body path */
 		std::vector<dwl::Pose> body_path_;

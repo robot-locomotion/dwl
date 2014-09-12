@@ -36,7 +36,8 @@ void HierarchicalPlanners::init()
 
 	// Declaring the publisher of approximated body path
 	body_path_pub_ = node_.advertise<nav_msgs::Path>("approximated_body_path", 1);
-	contact_sequence_pub_ = node_.advertise<visualization_msgs::Marker>("contact_sequence", 1);
+	contact_sequence_pub_ = node_.advertise<dwl_planners::ContactSequence>("contact_sequence", 1);
+	contact_sequence_rviz_pub_ = node_.advertise<visualization_msgs::Marker>("contact_sequence_markers", 1);
 
 	// Initializing the mutex
 	if (pthread_mutex_init(&reward_lock_, NULL) != 0)
@@ -61,6 +62,7 @@ void HierarchicalPlanners::init()
 
 	body_path_msg_.header.frame_id = world_frame_;
 	contact_sequence_msg_.header.frame_id = world_frame_;
+	contact_sequence_rviz_msg_.header.frame_id = world_frame_;
 
 
 	// Getting the body path solver
@@ -359,21 +361,19 @@ void HierarchicalPlanners::publishBodyPath()
 		body_path_msg_.header.stamp = ros::Time::now();
 		body_path_msg_.poses.resize(body_path_.size());
 
-		if (body_path_.size() != 0) {
-			for (int i = 0; i < body_path_.size(); i++) {
-				body_path_msg_.poses[i].pose.position.x = body_path_[i].position(0);
-				body_path_msg_.poses[i].pose.position.y = body_path_[i].position(1);
-				body_path_msg_.poses[i].pose.position.z = current_pose_.position(2);
-				body_path_msg_.poses[i].pose.orientation.w = body_path_[i].orientation.w();
-				body_path_msg_.poses[i].pose.orientation.x = body_path_[i].orientation.x();
-				body_path_msg_.poses[i].pose.orientation.y = body_path_[i].orientation.y();
-				body_path_msg_.poses[i].pose.orientation.z = body_path_[i].orientation.z();
-			}
-			body_path_pub_.publish(body_path_msg_);
-
-			std::vector<dwl::Pose> empty_body_path;
-			body_path_.swap(empty_body_path);
+		for (int i = 0; i < body_path_.size(); i++) {
+			body_path_msg_.poses[i].pose.position.x = body_path_[i].position(0);
+			body_path_msg_.poses[i].pose.position.y = body_path_[i].position(1);
+			body_path_msg_.poses[i].pose.position.z = current_pose_.position(2);
+			body_path_msg_.poses[i].pose.orientation.w = body_path_[i].orientation.w();
+			body_path_msg_.poses[i].pose.orientation.x = body_path_[i].orientation.x();
+			body_path_msg_.poses[i].pose.orientation.y = body_path_[i].orientation.y();
+			body_path_msg_.poses[i].pose.orientation.z = body_path_[i].orientation.z();
 		}
+		body_path_pub_.publish(body_path_msg_);
+
+		std::vector<dwl::Pose> empty_body_path;
+		body_path_.swap(empty_body_path);
 	}
 }
 
@@ -383,62 +383,75 @@ void HierarchicalPlanners::publishContactSequence()
 	// Publishing the contact sequence if there is at least one subscriber
 	if (contact_sequence_pub_.getNumSubscribers() > 0) {
 		contact_sequence_msg_.header.stamp = ros::Time::now();
-		contact_sequence_msg_.type = visualization_msgs::Marker::SPHERE_LIST;
-		contact_sequence_msg_.ns = "contact_points";
-		contact_sequence_msg_.id = 0;
-		contact_sequence_msg_.scale.x = 0.04;
-		contact_sequence_msg_.scale.y = 0.04;
-		contact_sequence_msg_.scale.z = 0.04;
-		contact_sequence_msg_.action = visualization_msgs::Marker::ADD;
-
-		contact_sequence_msg_.points.resize(contact_sequence_.size());
-		contact_sequence_msg_.colors.resize(contact_sequence_.size());
-		if (contact_sequence_.size() != 0) {
-			std::cout << "Contacts" << std::endl;
-			for (int i = 0; i < contact_sequence_.size(); i++) {
-				contact_sequence_msg_.points[i].x = contact_sequence_[i].position(0);
-				contact_sequence_msg_.points[i].y = contact_sequence_[i].position(1);
-				contact_sequence_msg_.points[i].z = contact_sequence_[i].position(2);
-
-				int end_effector = contact_sequence_[i].end_effector;
-				if (end_effector == 0) {//TODO Remove the offset
-					std::cout << "1\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
-					contact_sequence_msg_.colors[i].r = 0.45;
-					contact_sequence_msg_.colors[i].g = 0.29;
-					contact_sequence_msg_.colors[i].b = 0.09;
-					contact_sequence_msg_.colors[i].a = 1.0;
-				} else if (end_effector == 1) {
-					std::cout << "2\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
-					contact_sequence_msg_.colors[i].r = 1.0;
-					contact_sequence_msg_.colors[i].g = 1.0;
-					contact_sequence_msg_.colors[i].b = 0.0;
-					contact_sequence_msg_.colors[i].a = 1.0;
-				} else if (end_effector == 2) {
-					std::cout << "3\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
-					contact_sequence_msg_.colors[i].r = 0.0;
-					contact_sequence_msg_.colors[i].g = 1.0;
-					contact_sequence_msg_.colors[i].b = 0.0;
-					contact_sequence_msg_.colors[i].a = 1.0;
-				} else if (end_effector == 3) {
-					std::cout << "4\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
-					contact_sequence_msg_.colors[i].r = 0.09;
-					contact_sequence_msg_.colors[i].g = 0.11;
-					contact_sequence_msg_.colors[i].b = 0.7;
-					contact_sequence_msg_.colors[i].a = 1.0;
-				} else {
-					contact_sequence_msg_.colors[i].r = 0.0;
-					contact_sequence_msg_.colors[i].g = 1.0;
-					contact_sequence_msg_.colors[i].b = 1.0;
-					contact_sequence_msg_.colors[i].a = 1.0;
-				}
-				//contact_sequence_msg_.lifetime = 0;//ros::Duration();
-			}
-			contact_sequence_pub_.publish(contact_sequence_msg_);
-
-			std::vector<dwl::Contact> empty_contact_squence;
-			contact_sequence_.swap(empty_contact_squence);
+		contact_sequence_msg_.contacts.resize(contact_sequence_.size());
+		for (int i = 0; i < contact_sequence_.size(); i++) {
+			contact_sequence_msg_.contacts[i].end_effector = contact_sequence_[i].end_effector + 1; //This for compatibility with the controller
+			contact_sequence_msg_.contacts[i].position.x = contact_sequence_[i].position(0);
+			contact_sequence_msg_.contacts[i].position.y = contact_sequence_[i].position(1);
+			contact_sequence_msg_.contacts[i].position.z = contact_sequence_[i].position(2);
 		}
+
+		contact_sequence_pub_.publish(contact_sequence_msg_);
 	}
+
+	// Publishing the contact sequence for visualization if there is at least one subscriber
+	if (contact_sequence_rviz_pub_.getNumSubscribers() > 0) {
+		contact_sequence_rviz_msg_.header.stamp = ros::Time::now();
+		contact_sequence_rviz_msg_.type = visualization_msgs::Marker::SPHERE_LIST;
+		contact_sequence_rviz_msg_.ns = "contact_points";
+		contact_sequence_rviz_msg_.id = 0;
+		contact_sequence_rviz_msg_.scale.x = 0.04;
+		contact_sequence_rviz_msg_.scale.y = 0.04;
+		contact_sequence_rviz_msg_.scale.z = 0.04;
+		contact_sequence_rviz_msg_.action = visualization_msgs::Marker::ADD;
+
+		contact_sequence_rviz_msg_.points.resize(contact_sequence_.size());
+		contact_sequence_rviz_msg_.colors.resize(contact_sequence_.size());
+		std::cout << "Contacts" << std::endl;
+		for (int i = 0; i < contact_sequence_.size(); i++) {
+			contact_sequence_rviz_msg_.points[i].x = contact_sequence_[i].position(0);
+			contact_sequence_rviz_msg_.points[i].y = contact_sequence_[i].position(1);
+			contact_sequence_rviz_msg_.points[i].z = contact_sequence_[i].position(2) + 0.03;
+
+			int end_effector = contact_sequence_[i].end_effector;
+			if (end_effector == 0) {//TODO Remove the offset
+				std::cout << "1\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				contact_sequence_rviz_msg_.colors[i].r = 0.45;
+				contact_sequence_rviz_msg_.colors[i].g = 0.29;
+				contact_sequence_rviz_msg_.colors[i].b = 0.09;
+				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+			} else if (end_effector == 1) {
+				std::cout << "2\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				contact_sequence_rviz_msg_.colors[i].r = 1.0;
+				contact_sequence_rviz_msg_.colors[i].g = 1.0;
+				contact_sequence_rviz_msg_.colors[i].b = 0.0;
+				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+			} else if (end_effector == 2) {
+				std::cout << "3\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				contact_sequence_rviz_msg_.colors[i].r = 0.0;
+				contact_sequence_rviz_msg_.colors[i].g = 1.0;
+				contact_sequence_rviz_msg_.colors[i].b = 0.0;
+				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+			} else if (end_effector == 3) {
+				std::cout << "4\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				contact_sequence_rviz_msg_.colors[i].r = 0.09;
+				contact_sequence_rviz_msg_.colors[i].g = 0.11;
+				contact_sequence_rviz_msg_.colors[i].b = 0.7;
+				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+			} else {
+				contact_sequence_rviz_msg_.colors[i].r = 0.0;
+				contact_sequence_rviz_msg_.colors[i].g = 1.0;
+				contact_sequence_rviz_msg_.colors[i].b = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+			}
+			//contact_sequence_msg_.lifetime = 0;//ros::Duration();
+		}
+		contact_sequence_rviz_pub_.publish(contact_sequence_rviz_msg_);
+	}
+
+	// Cleaning old information
+	std::vector<dwl::Contact> empty_contact_squence;
+	contact_sequence_.swap(empty_contact_squence);
 }
 
 } //@namespace dwl_planners

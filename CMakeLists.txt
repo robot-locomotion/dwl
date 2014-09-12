@@ -15,7 +15,9 @@ find_package(dwl REQUIRED)
 
 add_message_files(
    FILES
-   BodyGoal.msg)
+    Contact.msg
+    ContactSequence.msg)
+#   BodyGoal.msg)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -34,7 +36,8 @@ add_message_files(
 
 generate_messages(
    DEPENDENCIES
-   std_msgs)
+   std_msgs
+   geometry_msgs)
    
 
 catkin_package(
