@@ -7,9 +7,9 @@ namespace dwl
 namespace planning
 {
 
-PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), body_planner_(NULL), footstep_planner_(NULL), robot_(NULL), environment_(NULL),
-		is_added_active_constraint_(false), is_added_inactive_constraint_(false),	is_added_cost_(false), is_settep_solver_(false),
-		is_initialized_planning_(false), computation_time_(std::numeric_limits<double>::max())
+PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), motion_planner_(NULL), contact_planner_(NULL),
+		robot_(NULL), environment_(NULL), is_added_active_constraint_(false), is_added_inactive_constraint_(false),
+		is_added_cost_(false), is_settep_solver_(false), is_initialized_planning_(false), computation_time_(std::numeric_limits<double>::max())
 {
 
 }
@@ -47,7 +47,8 @@ void PlanningOfMotionSequences::reset(robot::Robot* robot, Solver* solver, envir
 }
 
 
-void PlanningOfMotionSequences::reset(robot::Robot* robot, BodyPlanner* body_planner, ContactPlanning* footstep_planner, environment::EnvironmentInformation* environment)
+void PlanningOfMotionSequences::reset(robot::Robot* robot, MotionPlanning* motion_planner, ContactPlanning* contact_planner,
+		environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the robot properties in the %s planner \n" COLOR_RESET, name_.c_str());
 	robot_ = robot;
@@ -55,13 +56,13 @@ void PlanningOfMotionSequences::reset(robot::Robot* robot, BodyPlanner* body_pla
 	printf(BLUE "Setting the environment information in the %s planner\n" COLOR_RESET, name_.c_str());
 	environment_ = environment;
 
-	printf(BLUE "Setting the body planner\n" COLOR_RESET);
-	body_planner_ = body_planner;
-	body_planner_->reset(robot, environment);
+	printf(BLUE "Setting the motion planner\n" COLOR_RESET);
+	motion_planner_ = motion_planner;
+	motion_planner_->reset(robot, environment);
 
-	printf(BLUE "Setting the footstep planner\n" COLOR_RESET);
-	footstep_planner_ = footstep_planner;
-	footstep_planner_->reset(robot, environment);
+	printf(BLUE "Setting the contact planner\n" COLOR_RESET);
+	contact_planner_ = contact_planner;
+	contact_planner_->reset(robot, environment);
 
 	is_settep_solver_ = true;
 }
@@ -225,13 +226,13 @@ void PlanningOfMotionSequences::setComputationTime(double computation_time, Type
 {
 	switch (solver) {
 		case BodyPathSolver:
-			body_planner_->setComputationTime(computation_time, true);
+			motion_planner_->setComputationTime(computation_time, true);
 			break;
 		case BodyPoseSolver:
-			body_planner_->setComputationTime(computation_time, false);
+			motion_planner_->setComputationTime(computation_time, false);
 			break;
 		case ContactSolver:
-			footstep_planner_->setComputationTime(computation_time);
+			contact_planner_->setComputationTime(computation_time);
 			break;
 		default:
 			printf(YELLOW "Warning: it was not set an allowed computation time because there is not exist that type of solver \n" COLOR_RESET);

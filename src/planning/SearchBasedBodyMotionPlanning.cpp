@@ -1,4 +1,4 @@
-#include <planning/BodyPlanner.h>
+#include <planning/SearchBasedBodyMotionPlanning.h>
 
 
 namespace dwl
@@ -7,42 +7,19 @@ namespace dwl
 namespace planning
 {
 
-BodyPlanner::BodyPlanner() : environment_(NULL), robot_(NULL), path_solver_(NULL), pose_solver_(NULL),
-		path_computation_time_(std::numeric_limits<double>::max()), 	pose_computation_time_(std::numeric_limits<double>::max())
+SearchBasedBodyMotionPlanning::SearchBasedBodyMotionPlanning()
+{
+	name_ = "Search-Based Body Motion";
+}
+
+
+SearchBasedBodyMotionPlanning::~SearchBasedBodyMotionPlanning()
 {
 
 }
 
 
-BodyPlanner::~BodyPlanner()
-{
-	delete path_solver_;
-	delete pose_solver_;
-}
-
-
-void BodyPlanner::reset(robot::Robot* robot, environment::EnvironmentInformation* environment)
-{
-	printf(BLUE "Setting the robot properties in the contact planner \n" COLOR_RESET);
-	robot_ = robot;
-
-	printf(BLUE "Setting the environment information in the body planner\n" COLOR_RESET);
-	environment_ = environment;
-
-	path_solver_->reset(robot, environment);
-	//pose_solver_->reset(environment); TODO Develop a pose solver
-}
-
-
-void BodyPlanner::reset(Solver* path_solver)
-{
-	printf(BLUE "Setting the %s path solver in the body planner\n" COLOR_RESET, path_solver->getName().c_str());
-	path_solver_ = path_solver;
-	path_solver_->init();
-}
-
-
-bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose, Pose goal_pose)
+bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path, Pose start_pose, Pose goal_pose)
 {
 	// Computing the yaw angle of the start and goal pose
 	double start_roll, goal_roll, start_pitch, goal_pitch, start_yaw, goal_yaw;
@@ -91,19 +68,6 @@ bool BodyPlanner::computeBodyPath(std::vector<Pose>& body_path, Pose start_pose,
 	}
 
 	return true;
-}
-
-
-void BodyPlanner::setComputationTime(double computation_time, bool path_solver)
-{
-	if (path_solver) {
-		printf("Setting the allowed computation time of the body path solver to %f \n", computation_time);
-		path_computation_time_ = computation_time;
-	}
-	else {
-		printf("Setting the allowed computation time of the body pose solver to %f \n", computation_time);
-		pose_computation_time_ = computation_time;
-	}
 }
 
 } //@namespace planning

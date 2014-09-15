@@ -31,7 +31,8 @@ include_directories(${OCTOMAP_INCLUDE_DIRS})
 set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/PlanningOfMotionSequences.cpp 
 							src/planning/HierarchicalPlanning.cpp
-							src/planning/BodyPlanner.cpp
+							src/planning/MotionPlanning.cpp
+							src/planning/SearchBasedBodyMotionPlanning.cpp
 							src/planning/ContactPlanning.cpp
 							src/planning/GreedyFootstepPlanning.cpp
 							src/planning/Solver.cpp

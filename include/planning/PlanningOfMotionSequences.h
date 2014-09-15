@@ -2,7 +2,7 @@
 #define DWL_PlanningOfMotionSequences_H
 
 #include <robot/Robot.h>
-#include <planning/BodyPlanner.h>
+#include <planning/MotionPlanning.h>
 #include <planning/ContactPlanning.h>
 #include <planning/Solver.h>
 #include <planning/Constraint.h>
@@ -42,11 +42,11 @@ class PlanningOfMotionSequences
 		/**
 		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem
 		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
-		 * @param dwl::planning::BodyPlanner* body_planner The body planner computes body path and trajectory, and pose
-		 * @param dwl::planning::ContactPlanning* footstep_planner The footstep planner computes the footholds
+		 * @param dwl::planning::BodyPlanner* motion_planner The motion planner computes body path and trajectory, and pose
+		 * @param dwl::planning::ContactPlanning* contact_planner The contact planner computes the contact sequence
 		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
-		void reset(robot::Robot* robot, BodyPlanner* body_planner, ContactPlanning* footstep_planner, environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot, MotionPlanning* motion_planner, ContactPlanning* contact_planner, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Adds an active or inactive constraints to the planning algorithm
@@ -168,11 +168,11 @@ class PlanningOfMotionSequences
 		/** @brief Name of the planner */
 		std::string name_;
 
-		/** @brief Pointer to the body planner */
-		BodyPlanner* body_planner_;
+		/** @brief Pointer to the motion planner */
+		MotionPlanning* motion_planner_;
 
-		/** @brief Pointer to the footstep planner */
-		ContactPlanning* footstep_planner_;
+		/** @brief Pointer to the contact planner */
+		ContactPlanning* contact_planner_;
 
 		/** @brief Pointer to the robot properties */
 		robot::Robot* robot_;
@@ -211,6 +211,5 @@ class PlanningOfMotionSequences
 
 } //@namespace planning
 } //@namespace dwl
-
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef DWL_BodyPlanner_H
-#define DWL_BodyPlanner_H
+#ifndef DWL_MotionPlanning_H
+#define DWL_MotionPlanning_H
 
 #include <planning/Solver.h>
 #include <environment/EnvironmentInformation.h>
@@ -14,17 +14,17 @@ namespace planning
 {
 
 /**
- * @class BodyPlanner
- * @brief Class for implementing a body planner
+ * @class MotionPlanning
+ * @brief Abstract class for implementing a motion planning algorithms
  */
-class BodyPlanner
+class MotionPlanning
 {
 	public:
 		/** @brief Constructor function */
-		BodyPlanner();
+		MotionPlanning();
 
 		/** @brief Destructor function */
-		~BodyPlanner();
+		virtual ~MotionPlanning();
 
 		/**
 		 * @brief Specifies the environment information
@@ -37,15 +37,15 @@ class BodyPlanner
 		 * @brief Specifies the body path planner
 		 * @param dwl::planning::Solver* path_planner Body path planner
 		 */
-		void reset(Solver* path_planner);
+		void reset(Solver* solver);
 
 		/**
-		 * @brief Computes the body path from goal pose
-		 * @param std::vector<dwl::Pose>& body_path Body path
+		 * @brief Computes a path from start pose to goal pose
+		 * @param std::vector<dwl::Pose>& path Body path
 		 * @param dwl::Pose start_pose Start pose
 		 * @param dwl::Pose goal_pose Goal pose
 		 */
-		bool computeBodyPath(std::vector<Pose>& body_path, Pose start_pose, Pose goal_pose);
+		virtual bool computePath(std::vector<Pose>& path, Pose start_pose, Pose goal_pose) = 0;
 
 		/**
 		 * @brief Sets the computation time
@@ -56,6 +56,9 @@ class BodyPlanner
 
 
 	protected:
+		/** @brief Name of the motion planner */
+		std::string name_;
+
 		/** @brief Pointer to the EnvironmentInformation object */
 		environment::EnvironmentInformation* environment_;
 
