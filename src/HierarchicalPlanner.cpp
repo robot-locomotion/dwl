@@ -1,11 +1,4 @@
 #include <dwl_planners/HierarchicalPlanner.h>
-/*
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
-	tf::StampedTransform transform;
-	tf2::BufferCore core;
-	tf2_ros::TransformListener listener(core);
-	transform = core.lookupTransform(world_frame_, base_frame_, ros::Time(0));*/
 
 
 namespace dwl_planners
@@ -27,9 +20,7 @@ HierarchicalPlanners::~HierarchicalPlanners()
 void HierarchicalPlanners::init()
 {
 	// Setting the subscribers and publishers
-	reward_sub_ = node_.subscribe<terrain_server::RewardMap>("/reward_map", 1, &HierarchicalPlanners::rewardMapCallback, this);//new message_filters::Subscriber<terrain_server::RewardMap> (node_, "reward_map", 5);
-	//tf_reward_sub_ = new tf::MessageFilter<terrain_server::RewardMap> (*reward_sub_, tf_listener_, world_frame_, 5);
-	//tf_reward_sub_->registerCallback(boost::bind(&HierarchicalPlanners::rewardMapCallback, this, _1));
+	reward_sub_ = node_.subscribe<terrain_server::RewardMap>("/reward_map", 1, &HierarchicalPlanners::rewardMapCallback, this);
 	obstacle_sub_ = node_.subscribe<terrain_server::ObstacleMap>("/obstacle_map", 1, &HierarchicalPlanners::obstacleMapCallback, this);
 	body_goal_sub_ = node_.subscribe<geometry_msgs::PoseStamped>("/body_goal", 1, &HierarchicalPlanners::resetGoalCallback, this);
 
