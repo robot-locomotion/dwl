@@ -7,11 +7,12 @@
 	tf2_ros::TransformListener listener(core);
 	transform = core.lookupTransform(world_frame_, base_frame_, ros::Time(0));*/
 
+
 namespace dwl_planners
 {
 
-HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), body_path_solver_ptr_(NULL),
-		base_frame_("base_link"), world_frame_("odom")
+HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), footstep_planner_ptr_(NULL),
+		body_path_solver_ptr_(NULL), base_frame_("base_link"), world_frame_("odom")
 {
 
 }
@@ -19,15 +20,13 @@ HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), 
 
 HierarchicalPlanners::~HierarchicalPlanners()
 {
-	delete planning_ptr_, body_path_solver_ptr_;
+	delete planning_ptr_, footstep_planner_ptr_, body_path_solver_ptr_;
 }
 
 
 void HierarchicalPlanners::init()
 {
-	//  Setup of the locomotion approach
-	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
-
+	// Setting the subscribers and publishers
 	reward_sub_ = node_.subscribe<terrain_server::RewardMap>("/reward_map", 1, &HierarchicalPlanners::rewardMapCallback, this);//new message_filters::Subscriber<terrain_server::RewardMap> (node_, "reward_map", 5);
 	//tf_reward_sub_ = new tf::MessageFilter<terrain_server::RewardMap> (*reward_sub_, tf_listener_, world_frame_, 5);
 	//tf_reward_sub_->registerCallback(boost::bind(&HierarchicalPlanners::rewardMapCallback, this, _1));
@@ -59,12 +58,53 @@ void HierarchicalPlanners::init()
 	// Getting the base and world frame
 	node_.param("base_frame", base_frame_, base_frame_);
 	node_.param("world_frame", world_frame_, world_frame_);
-
 	body_path_msg_.header.frame_id = world_frame_;
 	contact_sequence_msg_.header.frame_id = world_frame_;
 	contact_sequence_rviz_msg_.header.frame_id = world_frame_;
 
 
+	//  Setting the locomotion approach
+	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
+
+	// Initi the body planner
+	initBodyPlanner();
+
+	// Init the contact planner
+	initContactPlanner();
+
+	// Setting the body and footstep planner, and the robot and environment information to the planner
+	planning_ptr_->reset(&robot_, &body_planner_, footstep_planner_ptr_, &environment_);
+
+	// Setting up the planner algorithm in the locomotion approach
+	locomotor_.reset(planning_ptr_);
+
+	// Initialization of the locomotion algorithm
+	locomotor_.init();
+
+	// Initialization of the hierarchical planner
+	// Getting the goal pose
+	double x, y, yaw;
+	dwl::Pose goal_pose;
+	node_.getParam("hierarchical_planner/goal/x", x);
+	node_.getParam("hierarchical_planner/goal/y", y);
+	node_.getParam("hierarchical_planner/goal/yaw", yaw);
+	goal_pose.position[0] = x;
+	goal_pose.position[1] = y;
+	dwl::Orientation orientation(0, 0, yaw);
+	Eigen::Quaterniond q;
+	orientation.getQuaternion(q);
+	goal_pose.orientation = q;
+	locomotor_.resetGoal(goal_pose);
+
+	// Setting the allowed computation time of the locomotor
+	double path_computation_time;
+	if (node_.getParam("hierarchical_planner/body_planner/path_computation_time", path_computation_time))
+		locomotor_.setComputationTime(path_computation_time, dwl::BodyPathSolver);
+}
+
+
+void HierarchicalPlanners::initBodyPlanner()
+{
 	// Getting the body path solver
 	std::string path_solver_name;
 	node_.param("hierarchical_planner/body_planner/path_solver", path_solver_name, (std::string) "AnytimeRepairingAStar");
@@ -115,16 +155,29 @@ void HierarchicalPlanners::init()
 	else
 		adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
 
+
 	// Setting the body planner
 	body_path_solver_ptr_->setAdjacencyModel(adjacency_ptr);
 	body_planner_.reset(body_path_solver_ptr_);
+
+}
+
+
+void HierarchicalPlanners::initContactPlanner()
+{
+	// Setting the contact planner
+	std::string planner_name;
+	node_.param("hierarchical_planner/contact_planner/type", planner_name, (std::string) "GreedyFootstep");
+	if (planner_name == "GreedyFootstep")
+		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning();
+	else
+		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning();
 
 	// Setting the features for the footstep planner
 	bool support_enable, collision_enable, orientation_enable;
 	node_.param("hierarchical_planner/contact_planner/features/support_triangle/enable", support_enable, false);
 	node_.param("hierarchical_planner/contact_planner/features/leg_collision/enable", collision_enable, false);
 	node_.param("hierarchical_planner/contact_planner/features/body_orientation/enable", orientation_enable, false);
-
 	if (support_enable) {
 		dwl::environment::Feature* support_ptr = new dwl::environment::SupportTriangleFeature();
 
@@ -132,7 +185,7 @@ void HierarchicalPlanners::init()
 		double weight, default_weight = 1;
 		node_.param("hierarchical_planner/contact_planner/features/support_triangle/weight", weight, default_weight);
 		support_ptr->setWeight(weight);
-		footstep_planner_.addFeature(support_ptr);
+		footstep_planner_ptr_->addFeature(support_ptr);
 	}
 
 	if (collision_enable) {
@@ -142,7 +195,7 @@ void HierarchicalPlanners::init()
 		double weight, default_weight = 1;
 		node_.param("hierarchical_planner/contact_planner/features/leg_collision/weight", weight, default_weight);
 		collision_ptr->setWeight(weight);
-		footstep_planner_.addFeature(collision_ptr);
+		footstep_planner_ptr_->addFeature(collision_ptr);
 	}
 
 	if (orientation_enable) {
@@ -152,38 +205,13 @@ void HierarchicalPlanners::init()
 		double weight, default_weight = 1;
 		node_.param("hierarchical_planner/contact_planner/features/body_orientation/weight", weight, default_weight);
 		orientation_ptr->setWeight(weight);
-		footstep_planner_.addFeature(orientation_ptr);
+		footstep_planner_ptr_->addFeature(orientation_ptr);
 	}
 
-
-	// Setting the body and footstep planner, and the robot and environment information to the planner
-	planning_ptr_->reset(&robot_, &body_planner_, &footstep_planner_, &environment_);
-
-	// Setting up the planner algorithm in the locomotion approach
-	locomotor_.reset(planning_ptr_);
-
-	// Initialization of the locomotion algorithm
-	locomotor_.init();
-
-	// Initialization of the body planner
-	// Getting the goal pose
-	double x, y, yaw;
-	dwl::Pose goal_pose;
-	node_.getParam("hierarchical_planner/goal/x", x);
-	node_.getParam("hierarchical_planner/goal/y", y);
-	node_.getParam("hierarchical_planner/goal/yaw", yaw);
-	goal_pose.position[0] = x;
-	goal_pose.position[1] = y;
-	dwl::Orientation orientation(0, 0, yaw);
-	Eigen::Quaterniond q;
-	orientation.getQuaternion(q);
-	goal_pose.orientation = q;
-	locomotor_.resetGoal(goal_pose);
-
-	// Setting the allowed computation time of the locomotor
-	double path_computation_time;
-	if (node_.getParam("hierarchical_planner/body_planner/path_computation_time", path_computation_time))
-		locomotor_.setComputationTime(path_computation_time, dwl::BodyPathSolver);
+	// Setting the contact horizon
+	double contact_horizon;
+	node_.param("hierarchical_planner/contact_planner/horizon", contact_horizon, 0.0);
+	footstep_planner_ptr_->setContactHorizon(contact_horizon);
 }
 
 

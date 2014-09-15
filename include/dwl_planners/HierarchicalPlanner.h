@@ -3,14 +3,17 @@
 
 #include <ros/ros.h>
 
+// Planning headers
 #include <planning/WholeBodyLocomotion.h>
 #include <planning/HierarchicalPlanning.h>
 #include <planning/BodyPlanner.h>
-#include <planning/ContactPlanner.h>
+#include <planning/ContactPlanning.h>
+#include <planning/GreedyFootstepPlanning.h>
 #include <planning/Dijkstrap.h>
 #include <planning/AStar.h>
 #include <planning/AnytimeRepairingAStar.h>
 
+// Robot and Environment headers
 #include <robot/Robot.h>
 #include <environment/EnvironmentInformation.h>
 #include <environment/AdjacencyEnvironment.h>
@@ -22,6 +25,7 @@
 #include <environment/LegCollisionFeature.h>
 #include <environment/BodyOrientationFeature.h>
 
+// Messages headers
 #include <dwl_planners/ContactSequence.h>
 #include <terrain_server/RewardMap.h>
 #include <terrain_server/ObstacleMap.h>
@@ -29,11 +33,11 @@
 #include <nav_msgs/Path.h>
 #include <visualization_msgs/Marker.h>
 
+// TF headers
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
 #include <tf/message_filter.h>
 #include <message_filters/subscriber.h>
-
 
 
 namespace dwl_planners
@@ -57,6 +61,9 @@ class HierarchicalPlanners
 
 		/** @brief Initializes the hierarchical planner */
 		void init();
+
+		void initBodyPlanner();
+		void initContactPlanner();
 
 		/** @brief Computes the hierarchical plan */
 		bool compute();
@@ -84,7 +91,6 @@ class HierarchicalPlanners
 
 		/** @brief Publishes the contact sequence */
 		void publishContactSequence();
-
 
 
 	private:
@@ -134,7 +140,7 @@ class HierarchicalPlanners
 		dwl::planning::BodyPlanner body_planner_;
 
 		/** @brief Contact planner */
-		dwl::planning::ContactPlanner footstep_planner_;
+		dwl::planning::ContactPlanning* footstep_planner_ptr_;
 
 		/** @brief Environment information */
 		dwl::environment::EnvironmentInformation environment_;
