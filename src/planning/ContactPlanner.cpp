@@ -7,7 +7,7 @@ namespace dwl
 namespace planning
 {
 
-ContactPlanner::ContactPlanner() : environment_(NULL), robot_(NULL), computation_time_(std::numeric_limits<double>::max()), leg_offset_(0.025)
+ContactPlanner::ContactPlanner() : environment_(NULL), robot_(NULL), computation_time_(std::numeric_limits<double>::max()), leg_offset_(0.0)//0.025
 {
 
 }
@@ -41,6 +41,38 @@ void ContactPlanner::addFeature(environment::Feature* feature)
 }
 
 
+bool ContactPlanner::computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory)
+{
+	// Setting the current body state
+	Pose current_body_pose = robot_->getCurrentPose();
+	double current_roll, current_pitch, current_yaw;
+	Orientation current_orientation(current_body_pose.orientation);
+	current_orientation.getRPY(current_roll, current_pitch, current_yaw);
+	current_body_state_ << current_body_pose.position.head(2), current_yaw;
+
+	std::vector<Contact> current_contacts = robot_->getCurrentContacts();
+	for (int i = 1; i < pose_trajectory.size(); i++) {//3; i++) {
+		Orientation orientation(pose_trajectory[i].orientation);
+		double roll, pitch, yaw;
+		orientation.getRPY(roll, pitch, yaw);
+		std::cout << "Plan = " << pose_trajectory[i].position(0) << " " << pose_trajectory[i].position(1) << " " << yaw << std::endl; //TODO Delete this message
+		std::vector<Contact> planned_contacts;
+		if (!computeContacts(planned_contacts, current_contacts, pose_trajectory[i])) {
+			printf(YELLOW "Could not computed the footholds \n" COLOR_RESET);
+			return false;
+		}
+
+		// Setting the planned contacts as a currents
+		current_contacts = planned_contacts;
+
+		// Setting the planned contacts in the planned contact sequence
+		for (int i = 0; i < planned_contacts.size(); i++)
+			contact_sequence.push_back(planned_contacts[i]);
+	}
+
+	return true;
+}
+
 bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts, Pose goal_pose)
 {
 	// Initilization of footholds
@@ -68,7 +100,30 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 	info.height_map = terrain_heightmap;
 	info.resolution = environment_->getTerrainResolution();
 
-	int current_leg_id, past_leg_id = 1;
+	// Setting the first leg according to the action
+	Eigen::Vector2d action = body_state.head(2) - current_body_state_.head(2);
+	double angular_tolerance = 0.2;
+	double next_yaw, delta_yaw;
+	if (action.norm() < 0.04)
+		delta_yaw = body_state(2) - current_body_state_(2);
+	else {
+		next_yaw = atan2((double) action(1), (double) action(0));
+		delta_yaw = next_yaw - yaw;
+	}
+
+	int past_leg_id;
+	if ((delta_yaw >= -M_PI_2 - angular_tolerance) && (delta_yaw <= -M_PI_2 + angular_tolerance))
+		past_leg_id = 0;
+	else if ((delta_yaw >= M_PI_2 - angular_tolerance) && (delta_yaw <= M_PI_2 + angular_tolerance))
+		past_leg_id = 1;
+	else if (delta_yaw <= 0)
+		past_leg_id = 1;
+	else
+		past_leg_id = 0;
+	current_body_state_ = body_state;
+
+	// Computing the contact sequence
+	int current_leg_id;
 	for (int l = 0; l < robot_->getNumberOfLegs(); l++) {
 		// Computing the current leg according to the predefined pattern of locomotion
 		current_leg_id = robot_->getPatternOfLocomotion()[past_leg_id];

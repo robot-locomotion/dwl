@@ -42,6 +42,13 @@ class ContactPlanner //TODO Convert this class to an abstract class
 
 		/**
 		 * @bief Computes the contacts given a current pose of the robot
+		 * @param std::vector<Contact>& contact_sequence Set of contacts
+		 * @param std::vector<dwl::Pose> pose_trajectory Goal pose
+		 */
+		bool computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory);
+
+		/**
+		 * @bief Computes the contacts given a current pose of the robot
 		 * @param std::vector<Contact>& contacts Set of contacts
 		 * @param std::vector<Contact> current_contacts Current contacts
 		 * @param dwl::Pose goal_pose Goal pose
@@ -67,6 +74,9 @@ class ContactPlanner //TODO Convert this class to an abstract class
 
 		/** @brief Allowed computation time */
 		double computation_time_;
+
+		/** @brief Current body state */
+		Eigen::Vector3d current_body_state_;
 
 		double leg_offset_;
 };

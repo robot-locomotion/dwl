@@ -55,40 +55,13 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 			return false;
 		}
 
-		std::vector<Contact> current_contacts = robot_->getCurrentContacts();
-		for (int i = 1; i < body_path_.size(); i++) {//3; i++) {
-			Orientation orientation(body_path_[i].orientation);
-			double roll, pitch, yaw;
-			orientation.getRPY(roll, pitch, yaw);
-			std::cout << "Plan = " << body_path_[i].position(0) << " " << body_path_[i].position(1) << " " << yaw << std::endl; //TODO Delete this message
-			std::vector<Contact> planned_contacts;
-			if (!footstep_planner_->computeContacts(planned_contacts, current_contacts, body_path_[i])) {
-				printf(YELLOW "Could not computed the footholds \n" COLOR_RESET);
-				return false;
-			}
-
-			// Setting the planned contacts as a currents
-			current_contacts = planned_contacts;
-
-			// Setting the planned contacts in the planned contact sequence
-			for (int i = 0; i < planned_contacts.size(); i++)
-				contacts_sequence_.push_back(planned_contacts[i]);
+		if (!footstep_planner_->computeContactSequence(contacts_sequence_, body_path_)) {
+			printf(YELLOW "Could not computed the foothold sequence \n" COLOR_RESET);
+			return false;
 		}
-	} else {
-		printf(YELLOW "Could not computed a locomotion plan because there is not terrain information\n" COLOR_RESET);
-		return false;
 	}
 
 	return true;
-}
-
-
-void HierarchicalPlanning::poseToState(Eigen::Vector3d& state, Pose pose)
-{
-	double roll, pitch, yaw;
-	Orientation orientation(pose.orientation);
-	orientation.getRPY(roll, pitch, yaw);
-	state << pose.position.head(2), yaw;
 }
 
 } //@namespace planning
