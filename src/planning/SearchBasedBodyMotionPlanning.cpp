@@ -43,7 +43,6 @@ bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path, Po
 
 	// Getting the shortest path
 	std::list<Vertex> shortest_path = path_solver_->getShortestPath(start_vertex, goal_vertex);
-	std::cout << "Size of path = " << shortest_path.size() << std::endl; //TODO Delete this message
 
 	std::list<Vertex>::iterator path_iter = shortest_path.begin();
 	for(; path_iter != shortest_path.end(); path_iter++) {

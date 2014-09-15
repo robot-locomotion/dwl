@@ -9,7 +9,7 @@ namespace planning
 
 GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.0)//0.025
 {
-
+	name_ = "Greedy Footstep";
 }
 
 
@@ -40,7 +40,7 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 		Orientation orientation(pose_trajectory[i].orientation);
 		double roll, pitch, yaw;
 		orientation.getRPY(roll, pitch, yaw);
-		std::cout << "Plan = " << pose_trajectory[i].position(0) << " " << pose_trajectory[i].position(1) << " " << yaw << std::endl; //TODO Delete this message
+
 		std::vector<Contact> planned_contacts;
 		if (!computeContacts(planned_contacts, current_contacts, pose_trajectory[i])) {
 			printf(YELLOW "Could not computed the footholds \n" COLOR_RESET);
@@ -59,7 +59,8 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 }
 
 
-bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts, Pose goal_pose)
+bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts,
+		Pose goal_pose)
 {
 	// Initilization of footholds
 	footholds.clear();

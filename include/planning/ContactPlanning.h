@@ -61,6 +61,9 @@ class ContactPlanning
 
 
 	protected:
+		/** @brief Name of the contact planning */
+		std::string name_;
+
 		/** @brief Pointer to the environment information */
 		environment::EnvironmentInformation* environment_;
 
