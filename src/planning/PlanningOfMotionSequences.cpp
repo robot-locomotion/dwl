@@ -47,7 +47,7 @@ void PlanningOfMotionSequences::reset(robot::Robot* robot, Solver* solver, envir
 }
 
 
-void PlanningOfMotionSequences::reset(robot::Robot* robot, BodyPlanner* body_planner, ContactPlanner* footstep_planner, environment::EnvironmentInformation* environment)
+void PlanningOfMotionSequences::reset(robot::Robot* robot, BodyPlanner* body_planner, ContactPlanning* footstep_planner, environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the robot properties in the %s planner \n" COLOR_RESET, name_.c_str());
 	robot_ = robot;

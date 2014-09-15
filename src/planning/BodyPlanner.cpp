@@ -7,8 +7,8 @@ namespace dwl
 namespace planning
 {
 
-BodyPlanner::BodyPlanner() : environment_(NULL), robot_(NULL), path_solver_(NULL), pose_solver_(NULL), path_computation_time_(std::numeric_limits<double>::max()),
-		pose_computation_time_(std::numeric_limits<double>::max())
+BodyPlanner::BodyPlanner() : environment_(NULL), robot_(NULL), path_solver_(NULL), pose_solver_(NULL),
+		path_computation_time_(std::numeric_limits<double>::max()), 	pose_computation_time_(std::numeric_limits<double>::max())
 {
 
 }

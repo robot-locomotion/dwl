@@ -1,4 +1,4 @@
-#include <planning/ContactPlanner.h>
+#include <planning/GreedyFootstepPlanning.h>
 
 
 namespace dwl
@@ -7,41 +7,19 @@ namespace dwl
 namespace planning
 {
 
-ContactPlanner::ContactPlanner() : environment_(NULL), robot_(NULL), computation_time_(std::numeric_limits<double>::max()), leg_offset_(0.0)//0.025
+GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.0)//0.025
 {
 
 }
 
 
-ContactPlanner::~ContactPlanner()
+GreedyFootstepPlanning::~GreedyFootstepPlanning()
 {
 
 }
 
 
-void ContactPlanner::reset(robot::Robot* robot, environment::EnvironmentInformation* environment)
-{
-	printf(BLUE "Setting the robot properties in the contact planner \n" COLOR_RESET);
-	robot_ = robot;
-
-	printf(BLUE "Setting the environment information in the contact planner \n" COLOR_RESET);
-	environment_ = environment;
-
-	for (int i = 0; i < features_.size(); i++)
-		features_[i]->reset(robot);
-}
-
-
-void ContactPlanner::addFeature(environment::Feature* feature)
-{
-	double weight;
-	feature->getWeight(weight);
-	printf(GREEN "Adding the %s feature with a weight of %f to the contact planner\n" COLOR_RESET, feature->getName().c_str(), weight);
-	features_.push_back(feature);
-}
-
-
-bool ContactPlanner::computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory)
+bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory)
 {
 	// Setting the current body state
 	Pose current_body_pose = robot_->getCurrentPose();
@@ -50,8 +28,15 @@ bool ContactPlanner::computeContactSequence(std::vector<Contact>& contact_sequen
 	current_orientation.getRPY(current_roll, current_pitch, current_yaw);
 	current_body_state_ << current_body_pose.position.head(2), current_yaw;
 
+	// Setting the contact horizon
+	int contact_horizon;
+	if ((contact_horizon_ == 0) || (contact_horizon_ > pose_trajectory.size()))
+		contact_horizon = pose_trajectory.size();
+	else
+		contact_horizon =  contact_horizon_;
+
 	std::vector<Contact> current_contacts = robot_->getCurrentContacts();
-	for (int i = 1; i < pose_trajectory.size(); i++) {//3; i++) {
+	for (int i = 1; i < contact_horizon + 1; i++) {
 		Orientation orientation(pose_trajectory[i].orientation);
 		double roll, pitch, yaw;
 		orientation.getRPY(roll, pitch, yaw);
@@ -73,7 +58,8 @@ bool ContactPlanner::computeContactSequence(std::vector<Contact>& contact_sequen
 	return true;
 }
 
-bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts, Pose goal_pose)
+
+bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts, Pose goal_pose)
 {
 	// Initilization of footholds
 	footholds.clear();
@@ -211,13 +197,6 @@ bool ContactPlanner::computeContacts(std::vector<Contact>& footholds, std::vecto
 	}
 
 	return true;
-}
-
-
-void ContactPlanner::setComputationTime(double computation_time)
-{
-	printf("Setting the allowed computation time of the contact solver to %f \n", computation_time);
-	computation_time_ = computation_time;
 }
 
 } //@namespace planning

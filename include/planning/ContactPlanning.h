@@ -1,5 +1,5 @@
-#ifndef DWL_ContactPlanner_H
-#define DWL_ContactPlanner_H
+#ifndef DWL_ContactPlanning_H
+#define DWL_ContactPlanning_H
 
 #include <environment/EnvironmentInformation.h>
 #include <environment/Feature.h>
@@ -15,17 +15,17 @@ namespace planning
 {
 
 /**
- * @class ContactPlanner
- * @brief Class for computing contact plans
+ * @class ContactPlanning
+ * @brief Abstract class for computing contact sequence
  */
-class ContactPlanner //TODO Convert this class to an abstract class
+class ContactPlanning
 {
 	public:
 		/** @brief Constructor function */
-		ContactPlanner();
+		ContactPlanning();
 
 		/** @brief Destructor function */
-		~ContactPlanner();
+		virtual ~ContactPlanning();
 
 		/**
 		 * @brief Specifies the environment information for computing a contact plan
@@ -45,21 +45,19 @@ class ContactPlanner //TODO Convert this class to an abstract class
 		 * @param std::vector<Contact>& contact_sequence Set of contacts
 		 * @param std::vector<dwl::Pose> pose_trajectory Goal pose
 		 */
-		bool computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory);
-
-		/**
-		 * @bief Computes the contacts given a current pose of the robot
-		 * @param std::vector<Contact>& contacts Set of contacts
-		 * @param std::vector<Contact> current_contacts Current contacts
-		 * @param dwl::Pose goal_pose Goal pose
-		 */
-		bool computeContacts(std::vector<Contact>& contacts, std::vector<Contact> current_contacts, Pose goal_pose);
+		virtual bool computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory) = 0;
 
 		/**
 		 * @brief Sets the allowed computation time for the contact planner
 		 * @param double computation_time Allowed computation time
 		 */
 		void setComputationTime(double computation_time);
+
+		/**
+		 * @brief Sets the contact horizon, number of contacts, of the planner
+		 * @param int horizon Number of contacts
+		 */
+		void setContactHorizon(int horizon);
 
 
 	protected:
@@ -78,7 +76,8 @@ class ContactPlanner //TODO Convert this class to an abstract class
 		/** @brief Current body state */
 		Eigen::Vector3d current_body_state_;
 
-		double leg_offset_;
+		/** @brief Contact horizon */
+		double contact_horizon_;
 };
 
 } //@namespace planning

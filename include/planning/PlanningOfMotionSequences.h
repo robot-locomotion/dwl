@@ -3,7 +3,7 @@
 
 #include <robot/Robot.h>
 #include <planning/BodyPlanner.h>
-#include <planning/ContactPlanner.h>
+#include <planning/ContactPlanning.h>
 #include <planning/Solver.h>
 #include <planning/Constraint.h>
 #include <planning/Cost.h>
@@ -43,10 +43,10 @@ class PlanningOfMotionSequences
 		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem
 		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
 		 * @param dwl::planning::BodyPlanner* body_planner The body planner computes body path and trajectory, and pose
-		 * @param dwl::planning::ContactPlanner* footstep_planner The footstep planner computes the footholds
+		 * @param dwl::planning::ContactPlanning* footstep_planner The footstep planner computes the footholds
 		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
-		void reset(robot::Robot* robot, BodyPlanner* body_planner, ContactPlanner* footstep_planner, environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot, BodyPlanner* body_planner, ContactPlanning* footstep_planner, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Adds an active or inactive constraints to the planning algorithm
@@ -172,7 +172,7 @@ class PlanningOfMotionSequences
 		BodyPlanner* body_planner_;
 
 		/** @brief Pointer to the footstep planner */
-		ContactPlanner* footstep_planner_;
+		ContactPlanning* footstep_planner_;
 
 		/** @brief Pointer to the robot properties */
 		robot::Robot* robot_;

@@ -32,7 +32,8 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/PlanningOfMotionSequences.cpp 
 							src/planning/HierarchicalPlanning.cpp
 							src/planning/BodyPlanner.cpp
-							src/planning/ContactPlanner.cpp
+							src/planning/ContactPlanning.cpp
+							src/planning/GreedyFootstepPlanning.cpp
 							src/planning/Solver.cpp
 							src/planning/Cost.cpp
 							src/planning/Constraint.cpp
