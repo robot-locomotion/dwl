@@ -20,8 +20,6 @@ class KinematicConstraints : public planning::Constraint
 		~KinematicConstraints();
 
 		void get(Eigen::VectorXd& constraint, Eigen::VectorXd state);
-
-
 };
 
 } //@namespace hyq

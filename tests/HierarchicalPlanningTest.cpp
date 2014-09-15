@@ -12,6 +12,7 @@
 #include <environment/RewardMap.h>
 #include <environment/SlopeFeature.h>
 
+
 template <typename Weight, typename Vertex>
 struct pair_first_less
 {
@@ -20,6 +21,7 @@ struct pair_first_less
         return vertex_1.first < vertex_2.first;
     }
 };
+
 
 int main(int argc, char **argv)
 {
