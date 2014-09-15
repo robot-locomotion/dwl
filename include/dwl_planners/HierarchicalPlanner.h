@@ -6,7 +6,8 @@
 // Planning headers
 #include <planning/WholeBodyLocomotion.h>
 #include <planning/HierarchicalPlanning.h>
-#include <planning/BodyPlanner.h>
+#include <planning/MotionPlanning.h>
+#include <planning/SearchBasedBodyMotionPlanning.h>
 #include <planning/ContactPlanning.h>
 #include <planning/GreedyFootstepPlanning.h>
 #include <planning/Dijkstrap.h>
@@ -137,7 +138,7 @@ class HierarchicalPlanners
 		dwl::planning::PlanningOfMotionSequences* planning_ptr_;
 
 		/** @brief Body planner */
-		dwl::planning::BodyPlanner body_planner_;
+		dwl::planning::MotionPlanning* body_planner_ptr_;
 
 		/** @brief Contact planner */
 		dwl::planning::ContactPlanning* footstep_planner_ptr_;

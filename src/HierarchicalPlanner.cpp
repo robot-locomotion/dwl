@@ -11,8 +11,8 @@
 namespace dwl_planners
 {
 
-HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), footstep_planner_ptr_(NULL),
-		body_path_solver_ptr_(NULL), base_frame_("base_link"), world_frame_("odom")
+HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), body_planner_ptr_(NULL),
+		footstep_planner_ptr_(NULL), body_path_solver_ptr_(NULL), base_frame_("base_link"), world_frame_("odom")
 {
 
 }
@@ -73,7 +73,7 @@ void HierarchicalPlanners::init()
 	initContactPlanner();
 
 	// Setting the body and footstep planner, and the robot and environment information to the planner
-	planning_ptr_->reset(&robot_, &body_planner_, footstep_planner_ptr_, &environment_);
+	planning_ptr_->reset(&robot_, body_planner_ptr_, footstep_planner_ptr_, &environment_);
 
 	// Setting up the planner algorithm in the locomotion approach
 	locomotor_.reset(planning_ptr_);
@@ -105,6 +105,14 @@ void HierarchicalPlanners::init()
 
 void HierarchicalPlanners::initBodyPlanner()
 {
+	// Setting the contact planner
+	std::string planner_name;
+	node_.param("hierarchical_planner/body_planner/type", planner_name, (std::string) "SearchBasedBody");
+	if (planner_name == "SearchBasedBody")
+		body_planner_ptr_ = new dwl::planning::SearchBasedBodyMotionPlanning();
+	else
+		body_planner_ptr_ = new dwl::planning::SearchBasedBodyMotionPlanning();
+
 	// Getting the body path solver
 	std::string path_solver_name;
 	node_.param("hierarchical_planner/body_planner/path_solver", path_solver_name, (std::string) "AnytimeRepairingAStar");
@@ -158,7 +166,7 @@ void HierarchicalPlanners::initBodyPlanner()
 
 	// Setting the body planner
 	body_path_solver_ptr_->setAdjacencyModel(adjacency_ptr);
-	body_planner_.reset(body_path_solver_ptr_);
+	body_planner_ptr_->reset(body_path_solver_ptr_);
 
 }
 
