@@ -21,6 +21,8 @@ using namespace rviz;
 namespace reward_map_rviz_plugin
 {
 
+enum VoxelColorMode{ FULL_COLOR, GREY };
+
 RewardMapDisplay::RewardMapDisplay() : rviz::Display(), messages_received_(0), color_factor_(0.8),
 		grid_size_(std::numeric_limits<double>::max())
 {
@@ -39,6 +41,15 @@ RewardMapDisplay::RewardMapDisplay() : rviz::Display(), messages_received_(0), c
 
 	queue_size_property_->setMin(1);
 
+	voxel_color_property_ = new rviz::EnumProperty("Color",
+													"Full Color",
+													"Select voxel coloring.",
+													this,
+													SLOT( updateColorMode() ) );
+
+
+	voxel_color_property_->addOption( "Full Color", FULL_COLOR );
+	voxel_color_property_->addOption( "Grey", GREY );
 }
 
 
@@ -219,38 +230,54 @@ void RewardMapDisplay::incomingMessageCallback(const terrain_server::RewardMapCo
 
 void RewardMapDisplay::setColor(double reward_value, double min_reward, double max_reward, double color_factor, rviz::PointCloud::Point& point)
 {
-	int i;
-	double m, n, f;
+	VoxelColorMode color_mode = static_cast<VoxelColorMode>(voxel_color_property_->getOptionInt());
 
-	double s = 1.0;
-	double v = 1.0;
+	switch (color_mode)
+	{
+		case FULL_COLOR:
+		{
+			int i;
+			double m, n, f;
 
-	double h = (1.0 - std::min(std::max((reward_value - min_reward) / (max_reward - min_reward), 0.0), 1.0)) * color_factor;
+			double s = 1.0;
+			double v = 1.0;
 
-	h -= floor(h);
-	h *= 4;
-	i = floor(h);
-	f = h - i;
-	if (!(i & 1))
-		f = 1 - f; // if i is even
-	m = v * (1 - s);
-	n = v * (1 - s * f);
+			double h = (1.0 - std::min(std::max((reward_value - min_reward) / (max_reward - min_reward), 0.0), 1.0)) * color_factor;
 
-	switch (i) {
-		case 0:
-			point.setColor(m, n, v);
+			h -= floor(h);
+			h *= 4;
+			i = floor(h);
+			f = h - i;
+			if (!(i & 1))
+				f = 1 - f; // if i is even
+			m = v * (1 - s);
+			n = v * (1 - s * f);
+
+			switch (i)
+			{
+				case 0:
+					point.setColor(m, n, v);
+					break;
+				case 1:
+					point.setColor(m, v, 1-n);
+					break;
+				case 2:
+					point.setColor(n, v, m);
+					break;
+				case 3:
+					point.setColor(v, 1-n, m);
+					break;
+				default:
+					point.setColor(1, 0.5, 0.5);
+					break;
+			}
 			break;
-		case 1:
-			point.setColor(m, v, 1-n);
+		} case GREY:
+		{
+			double v = (reward_value - min_reward) / (max_reward - min_reward);
+			point.setColor(v, v, v);
 			break;
-		case 2:
-			point.setColor(n, v, m);
-			break;
-		case 3:
-			point.setColor(v, 1-n, m);
-			break;
-		default:
-			point.setColor(1, 0.5, 0.5);
+		} default:
 			break;
 	}
 }
@@ -278,6 +305,11 @@ void RewardMapDisplay::updateTopic()
 	reset();
 	subscribe();
 	context_->queueRender();
+}
+
+void RewardMapDisplay::updateColorMode()
+{
+
 }
 
 } //@namespace rewardmap_rviz_plugin

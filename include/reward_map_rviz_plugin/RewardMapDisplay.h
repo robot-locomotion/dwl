@@ -102,6 +102,9 @@ class RewardMapDisplay : public rviz::Display
 		/** @brief Obstacle map topic properties */
 		rviz::RosTopicProperty* rewardmap_topic_property_;
 
+		/** @brief Color property */
+		rviz::EnumProperty* voxel_color_property_;
+
 		/** @brief Max tree areas */
 		int max_tree_areas_;
 
@@ -135,6 +138,9 @@ class RewardMapDisplay : public rviz::Display
 
 			/** @brief Updates the topic name */
 			void updateTopic();
+
+			/** @brief Color mode */
+			void updateColorMode();
 };
 
 } //@namespace reward_map_rviz_plugin
