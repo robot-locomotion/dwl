@@ -156,31 +156,26 @@ class RewardMap
 		/** @brief Terrain height map */
 		std::map<Vertex,double> terrain_heightmap_;
 
-		/** @brief Minimum height of the terrain */
-		double min_height_;
-
-		/** @brief Vector of search areas */
-		std::vector<SearchArea> search_areas_;
-
-		/** @brief Interest area */
-		double interest_radius_x_, interest_radius_y_;
-
-		/** @brief Object of the NeighboringArea struct that defines the neighboring area */
-		NeighboringArea neighboring_area_;
-
 		/** @brief Indicates if it was added a feature */
 		bool is_added_feature_;
 
 		/** @brief Indicates if it was added a search area */
 		bool is_added_search_area_;
 
+		/** @brief Interest area */
+		double interest_radius_x_, interest_radius_y_;
 
+		/** @brief Minimum height of the terrain */
+		double min_height_;
 
-//		pthread_mutex_t environment_lock_;
+		/** @brief Vector of search areas */
+		std::vector<SearchArea> search_areas_;
+
+		/** @brief Object of the NeighboringArea struct that defines the neighboring area */
+		NeighboringArea neighboring_area_;
 };
 
 } //@namespace environment
 } //@namespace dwl
-
 
 #endif

@@ -35,7 +35,8 @@ void SupportTriangleFeature::computeReward(double& reward_value, RobotAndTerrain
 	std::vector<Eigen::Vector3d> future_stance;
 	Eigen::Vector3d leg_position;
 
-	for (int i = 0; i < potential_footholds.size(); i++) {
+	int num_foothold = potential_footholds.size();
+	for (int i = 0; i < num_foothold; i++) {
 		if (potential_footholds[i].end_effector != next_leg) {
 			leg_position = potential_footholds[i].position;
 			future_stance.push_back(leg_position);

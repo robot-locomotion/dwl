@@ -7,9 +7,9 @@ namespace dwl
 namespace planning
 {
 
-PlanningOfMotionSequences::PlanningOfMotionSequences() : solver_(NULL), motion_planner_(NULL), contact_planner_(NULL),
-		robot_(NULL), environment_(NULL), is_added_active_constraint_(false), is_added_inactive_constraint_(false),
-		is_added_cost_(false), is_settep_solver_(false), is_initialized_planning_(false), computation_time_(std::numeric_limits<double>::max())
+PlanningOfMotionSequences::PlanningOfMotionSequences() : motion_planner_(NULL), contact_planner_(NULL), robot_(NULL), solver_(NULL),
+		environment_(NULL), computation_time_(std::numeric_limits<double>::max()), is_set_solver_(false), is_initialized_planning_(false),
+		is_added_active_constraint_(false), is_added_inactive_constraint_(false), is_added_cost_(false)
 {
 
 }
@@ -38,7 +38,7 @@ void PlanningOfMotionSequences::reset(robot::Robot* robot, Solver* solver, envir
 	robot_ = robot;
 
 	printf(BLUE "Setting the %s solver in the %s planner\n" COLOR_RESET, solver->getName().c_str(), name_.c_str());
-	is_settep_solver_ = true;
+	is_set_solver_ = true;
 	solver_ = solver;
 	solver_->reset(robot, environment);
 
@@ -64,7 +64,7 @@ void PlanningOfMotionSequences::reset(robot::Robot* robot, MotionPlanning* motio
 	contact_planner_ = contact_planner;
 	contact_planner_->reset(robot, environment);
 
-	is_settep_solver_ = true;
+	is_set_solver_ = true;
 }
 
 
@@ -107,7 +107,7 @@ void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
 	else {
 		for (int i = 0; i < max_num_constraints; i++) {
 			if (is_added_active_constraint_) {
-				if (i < active_constraints_.size()) {
+				if (i < (int) active_constraints_.size()) {
 					if (constraint_name == active_constraints_[i]->getName().c_str()) {
 						printf(GREEN "Removing the active %s constraint\n" COLOR_RESET, active_constraints_[i]->getName().c_str());
 						delete active_constraints_.at(i);
@@ -119,7 +119,7 @@ void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
 			}
 
 			if (is_added_inactive_constraint_) {
-				if (i < inactive_constraints_.size()) {
+				if (i < (int) inactive_constraints_.size()) {
 					if (constraint_name == inactive_constraints_[i]->getName().c_str()) {
 						printf(GREEN "Removing the inactive %s constraint\n" COLOR_RESET, inactive_constraints_[i]->getName().c_str());
 						delete inactive_constraints_.at(i);
@@ -153,7 +153,8 @@ void PlanningOfMotionSequences::removeCost(std::string cost_name)
 		if (costs_.size() == 0)
 			printf(YELLOW "Could not removed the %s cost because there is not cost\n" COLOR_RESET, cost_name.c_str());
 		else {
-			for (int i = 0; i < costs_.size(); i++) {
+			unsigned int costs_size = costs_.size();
+			for (unsigned int i = 0; i < costs_size; i++) {
 				if (cost_name == costs_[i]->getName().c_str()) {
 					printf(GREEN "Removing the %s cost\n" COLOR_RESET, costs_[i]->getName().c_str());
 					delete costs_.at(i);
@@ -174,7 +175,7 @@ void PlanningOfMotionSequences::removeCost(std::string cost_name)
 
 bool PlanningOfMotionSequences::initPlan()
 {
-	if (is_settep_solver_) {
+	if (is_set_solver_) {
 		if (!init()) {
 			printf(RED "Could not initialized the %s planning algorithm\n" COLOR_RESET, name_.c_str());
 
@@ -195,7 +196,7 @@ bool PlanningOfMotionSequences::initPlan()
 bool PlanningOfMotionSequences::computePlan(Pose robot_state)
 {
 	if (is_initialized_planning_) {
-		if (is_settep_solver_) {
+		if (is_set_solver_) {
 			if (!compute(robot_state)) {
 				printf(RED "Could not computed the %s planning algorithm\n" COLOR_RESET, name_.c_str());
 				return false;

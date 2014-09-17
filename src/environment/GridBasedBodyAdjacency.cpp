@@ -66,7 +66,7 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Ve
 				// Searching the neighbor actions
 				std::vector<Vertex> neighbor_actions;
 				searchNeighbors(neighbor_actions, state_vertex);
-				for (int i = 0; i < neighbor_actions.size(); i++)
+				for (unsigned int i = 0; i < neighbor_actions.size(); i++)
 					adjacency_map[neighbor_actions[i]].push_back(Edge(state_vertex, terrain_cost));
 			} else {
 				// Computing the body cost
@@ -76,7 +76,7 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Ve
 				// Searching the neighbor actions
 				std::vector<Vertex> neighbor_actions;
 				searchNeighbors(neighbor_actions, state_vertex);
-				for (int i = 0; i < neighbor_actions.size(); i++)
+				for (unsigned int i = 0; i < neighbor_actions.size(); i++)
 					adjacency_map[neighbor_actions[i]].push_back(Edge(state_vertex, body_cost));
 			}
 		}
@@ -97,7 +97,8 @@ void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex s
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
 
-		for (int i = 0; i < neighbor_actions.size(); i++) {
+		unsigned int action_size = neighbor_actions.size();
+		for (unsigned int i = 0; i < action_size; i++) {
 			// Converting the state vertex (x,y,yaw) to a terrain vertex (x,y)
 			Vertex terrain_vertex;
 			environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, neighbor_actions[i], XY_Y);
@@ -292,8 +293,9 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost, Vertex state_vertex)
 	environment_->getTerrainCostMap(terrain_costmap);
 
 	// Computing the body cost
-	double body_cost;
-	for (int n = 0; n < stance_areas_.size(); n++) {
+	double body_cost = 0;
+	unsigned int area_size = stance_areas_.size();
+	for (unsigned int n = 0; n < area_size; n++) {
 		// Computing the boundary of stance area
 		Eigen::Vector2d boundary_min, boundary_max;
 		boundary_min(0) = stance_areas_[n].min_x + state(0);
@@ -304,8 +306,9 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost, Vertex state_vertex)
 		// Computing the stance cost
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double stance_cost = 0;
-		for (double y = boundary_min(1); y < boundary_max(1); y += stance_areas_[n].grid_resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += stance_areas_[n].grid_resolution) {
+		double resolution = stance_areas_[n].grid_resolution;
+		for (double y = boundary_min(1); y < boundary_max(1); y += resolution ) {
+			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate according to the orientation of the body
 				Eigen::Vector2d point_position;
 				point_position(0) = (x - state(0)) * cos((double) state(2)) - (y - state(1)) * sin((double) state(2)) + state(0);
@@ -321,14 +324,14 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost, Vertex state_vertex)
 		}
 
 		// Averaging the 5-best (lowest) cost
-		int number_top_reward = number_top_reward_;
+		unsigned int number_top_reward = number_top_reward_;
 		if (stance_cost_queue.size() < number_top_reward)
 			number_top_reward = stance_cost_queue.size();
 
 		if (number_top_reward == 0) {
 			stance_cost += uncertainty_factor_ * environment_->getAverageCostOfTerrain();
 		} else {
-			for (int i = 0; i < number_top_reward; i++) {
+			for (unsigned int i = 0; i < number_top_reward; i++) {
 				stance_cost += stance_cost_queue.begin()->first;
 				stance_cost_queue.erase(stance_cost_queue.begin());
 			}

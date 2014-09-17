@@ -38,7 +38,7 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<RewardCell> r
 		setTerrainResolution(terrain_resolution_, true);
 		setTerrainResolution(reward_map[0].height_size, false);
 
-		for (int i = 0; i < reward_map.size(); i++) {
+		for (int i = 0; i < (int) reward_map.size(); i++) {
 			// Building a cost-map for a every 3d vertex
 			terrain_space_discretization_.keyToVertex(vertex_2d, reward_map[i].key, true);
 			terrain_cost_map_[vertex_2d] = -reward_map[i].reward;
@@ -73,7 +73,7 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> obstacl
 		setObstacleResolution(obstacle_resolution_, true);
 		setObstacleResolution(obstacle_resolution_, false);
 
-		for (int i = 0; i < obstacle_map.size(); i++) {
+		for (int i = 0; i < (int) obstacle_map.size(); i++) {
 			// Building a cost map for a every 3d vertex
 			obstacle_space_discretization_.keyToVertex(vertex_2d, obstacle_map[i].key, true);
 			obstacle_map_[vertex_2d] = true;

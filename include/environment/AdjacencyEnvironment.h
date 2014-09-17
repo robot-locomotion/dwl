@@ -113,11 +113,11 @@ class AdjacencyEnvironment
 		/** @brief Name of the adjacency model */
 		std::string name_;
 
-		/** @brief Pointer of the EnvironmentInformation object which describes the environment */
-		EnvironmentInformation* environment_;
-
 		/** @brief Pointer to robot properties */
 		robot::Robot* robot_;
+
+		/** @brief Pointer of the EnvironmentInformation object which describes the environment */
+		EnvironmentInformation* environment_;
 
 		/** @brief Vector of pointers to the Feature class */
 		std::vector<Feature*> features_;

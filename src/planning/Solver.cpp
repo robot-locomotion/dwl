@@ -7,8 +7,8 @@ namespace dwl
 namespace planning
 {
 
-Solver::Solver() : robot_(NULL), environment_(NULL), adjacency_(NULL), is_graph_searching_algorithm_(false), is_optimization_algorithm_(false), total_cost_(0),
-		time_started_(clock()), is_set_adjacency_model_(false)
+Solver::Solver() : robot_(NULL), environment_(NULL), adjacency_(NULL), is_graph_searching_algorithm_(false), is_optimization_algorithm_(false),
+		total_cost_(0.0), time_started_(clock()), is_set_adjacency_model_(false)
 {
 
 }

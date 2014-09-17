@@ -78,17 +78,17 @@ class Feature
 		/** @brief Name of the feature **/
 		std::string name_;
 
-		/** @brief Minimum reward */
-		double min_reward_;
-
-		/** @brief Weight used for computing the total reward */
-		double weight_;
-
 		/** @brief Object of the SpaceDiscretization class for defining the space discretiization routines */
 		SpaceDiscretization space_discretization_;
 
 		/** @brief Pointer to the robot properties */
 		robot::Robot* robot_;
+
+		/** @brief Minimum reward */
+		double min_reward_;
+
+		/** @brief Weight used for computing the total reward */
+		double weight_;
 
 		/** @brief Area for computing the average of the height map */
 		SearchArea neightboring_area_;

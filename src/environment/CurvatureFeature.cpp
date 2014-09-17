@@ -30,7 +30,6 @@ void CurvatureFeature::computeReward(double& reward_value, Terrain terrain_info)
 		return;
 	}
 
-	double p;
 	if (curvature > positive_threshold_)
 		reward_value = 0;
 	else if (curvature < negative_threshold_)

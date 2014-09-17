@@ -35,7 +35,8 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 
 	// Computing reward map for several search areas
 	double yaw = robot_state(3);
-	for (int n = 0; n < search_areas_.size(); n++) {
+	unsigned int area_size = search_areas_.size();
+	for (unsigned int n = 0; n < area_size; n++) {
 		// Computing the boundary of the gridmap
 		Eigen::Vector2d boundary_min, boundary_max;
 
@@ -226,7 +227,8 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 	// Computing the reward
 	if (is_added_feature_) {
 		double reward_value, weight, total_reward = 0;
-		for (int i = 0; i < features_.size(); i++) {
+		unsigned int num_feature = features_.size();
+		for (unsigned int i = 0; i < num_feature; i++) {
 			features_[i]->computeReward(reward_value, terrain_info);
 			if (reward_value != reward_value) {
 				std::cout << "Feature name = " << features_[i]->getName().c_str() << std::endl;

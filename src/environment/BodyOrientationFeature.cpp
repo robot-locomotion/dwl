@@ -32,7 +32,8 @@ void BodyOrientationFeature::computeReward(double& reward_value, RobotAndTerrain
 	// Computing the potential stance
 	std::vector<Eigen::Vector3f> stance;
 	Eigen::Vector3f leg_position;
-	for (int i = 0; i < potential_footholds.size(); i++) {
+	int num_footholds = potential_footholds.size();
+	for (int i = 0; i < num_footholds; i++) {
 		float foothold_x = potential_footholds[i].position(0);
 		float foothold_y = potential_footholds[i].position(1);
 		float foothold_z = potential_footholds[i].position(2);

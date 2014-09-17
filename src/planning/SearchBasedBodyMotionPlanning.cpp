@@ -62,7 +62,6 @@ bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path, Po
 		body_pose.position.head(2) = path.head(2);
 		body_pose.orientation = q;
 
-
 		body_path.push_back(body_pose);
 	}
 

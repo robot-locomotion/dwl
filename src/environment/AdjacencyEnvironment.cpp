@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-AdjacencyEnvironment::AdjacencyEnvironment() : robot_(NULL), environment_(NULL), is_lattice_(false), is_added_feature_(false), uncertainty_factor_(1.15)
+AdjacencyEnvironment::AdjacencyEnvironment() : robot_(NULL), environment_(NULL), is_lattice_(false), is_added_feature_(false),
+		uncertainty_factor_(1.15)
 {
 
 }
@@ -27,7 +28,7 @@ void AdjacencyEnvironment::reset(robot::Robot* robot, EnvironmentInformation* en
 	printf(BLUE "Setting the environment information in the %s adjacency model \n" COLOR_RESET, name_.c_str());
 	environment_ = environment;
 
-	for (int i = 0; i < features_.size(); i++)
+	for (int i = 0; i < (int) features_.size(); i++)
 		features_[i]->reset(robot);
 }
 
@@ -83,10 +84,10 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 
 	double closest_source_distant = std::numeric_limits<double>::max();
 	double closest_target_distant = std::numeric_limits<double>::max();
-	Vertex start_closest_vertex, goal_closest_vertex;
+	Vertex start_closest_vertex = 0, goal_closest_vertex = 0;
 	if ((!is_there_start_vertex) && (!is_there_goal_vertex)) {
 		Eigen::Vector3d current_state;
-		for (int i = 0; i < vertex_map.size(); i++) {
+		for (unsigned int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
 			environment_->getTerrainSpaceModel().vertexToState(current_state, vertex_map[i]);
 
@@ -113,7 +114,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 
 	} else if (!is_there_start_vertex) {
 		Eigen::Vector3d current_state;
-		for (int i = 0; i < vertex_map.size(); i++) {
+		for (unsigned int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
 			environment_->getTerrainSpaceModel().vertexToState(current_state, vertex_map[i]);
 
@@ -132,7 +133,7 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 
 	} else if (!is_there_goal_vertex) {
 		Eigen::Vector3d current_state;
-		for (int i = 0; i < vertex_map.size(); i++) {
+		for (unsigned int i = 0; i < vertex_map.size(); i++) {
 			// Calculating the vertex position
 			environment_->getTerrainSpaceModel().vertexToState(current_state, vertex_map[i]);
 
@@ -155,7 +156,6 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex vertex)
 {
 	// Checking if the  vertex is part of the terrain information
-	bool is_there_vertex = false;
 	std::vector<Vertex> vertex_map;
 	if (environment_->isTerrainInformation()) {
 		CostMap terrain_costmap;
@@ -166,7 +166,6 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 		{
 			Vertex current_vertex = vertex_iter->first;
 			if (vertex == current_vertex) {
-				is_there_vertex = true;
 				closest_vertex = current_vertex;
 
 				return;
@@ -185,7 +184,7 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 
 	double closest_distant = std::numeric_limits<double>::max();
 	Eigen::Vector3d current_state_vertex;
-	for (int i = 0; i < vertex_map.size(); i++) {
+	for (unsigned int i = 0; i < vertex_map.size(); i++) {
 		// Calculating the vertex position
 		environment_->getTerrainSpaceModel().vertexToState(current_state_vertex, vertex_map[i]);
 
@@ -219,7 +218,7 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 	double distance = (target_state.head(2) - source_state.head(2)).norm();
 	double dist_orientation = sqrt(pow(((double) target_state(2) - (double) source_state(2)), 2));
 
-	double heuristic = (2.5 * distance + 0.35 * dist_orientation) * uncertainty_factor_ * (environment_->getAverageCostOfTerrain() + 0.1); //TODO Tunning the heuristic function
+	double heuristic = (5 * distance + 2.5 * dist_orientation) * uncertainty_factor_ * (environment_->getAverageCostOfTerrain() + 0.1); //TODO Tunning the heuristic function
 
 	return heuristic;
 }

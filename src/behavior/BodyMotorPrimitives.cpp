@@ -296,9 +296,9 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	motor_actions.push_back(twist_actions);
 
 
-	for (int i = 0; i < motor_actions.size(); i++) {
+	for (int i = 0; i < (int) motor_actions.size(); i++) {
 		std::cout << "Type of action = " << i << std::endl;
-		for (int j = 0; j < motor_actions[i].size(); j++) {
+		for (int j = 0; j < (int) motor_actions[i].size(); j++) {
 			double current_x, next_x, current_y, next_y;
 			current_x = 0.4269;
 			current_y = 0.3886;
@@ -324,7 +324,7 @@ BodyMotorPrimitives::~BodyMotorPrimitives()
 
 void BodyMotorPrimitives::generateActions(std::vector<Action3d>& actions, Pose3d state)
 {
-	for (int i = 0; i < actions_.size(); i++) {
+	for (int i = 0; i < (int) actions_.size(); i++) {
 		// Computing the motor action
 		double delta_x = actions_[i].action(0);
 		double delta_y = actions_[i].action(1);

@@ -144,26 +144,6 @@ class PlanningOfMotionSequences
 		 */
 		std::string getName();
 
-
-	private:
-		/** @brief Indicates if it was settep a solver algorithm for the computation of a plan */
-		bool is_settep_solver_;
-
-		/** @brief Indicates it was initialized the planning algorithm */
-		bool is_initialized_planning_;
-
-		/** @brief Indicates if it was added an active constraint in the solver */
-		bool is_added_active_constraint_;
-
-		/** @brief Indicates if it was added an inactive constraint in the solver */
-		bool is_added_inactive_constraint_;
-
-		/** @brief Indicates if it was added a cost in the solver */
-		bool is_added_cost_;
-
-		//pthread_mutex_t planning_lock_;
-
-
 	protected:
 		/** @brief Name of the planner */
 		std::string name_;
@@ -207,6 +187,22 @@ class PlanningOfMotionSequences
 		/** @brief Computation time */
 		double computation_time_;
 
+
+	private:
+		/** @brief Indicates if it was settep a solver algorithm for the computation of a plan */
+		bool is_set_solver_;
+
+		/** @brief Indicates it was initialized the planning algorithm */
+		bool is_initialized_planning_;
+
+		/** @brief Indicates if it was added an active constraint in the solver */
+		bool is_added_active_constraint_;
+
+		/** @brief Indicates if it was added an inactive constraint in the solver */
+		bool is_added_inactive_constraint_;
+
+		/** @brief Indicates if it was added a cost in the solver */
+		bool is_added_cost_;
 };
 
 } //@namespace planning

@@ -7,8 +7,8 @@ namespace dwl
 namespace environment
 {
 
-Feature::Feature() : min_reward_(-2), robot_(NULL), weight_(1),
-		space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max())
+Feature::Feature() : space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
+		robot_(NULL), min_reward_(-2), weight_(1)
 {
 
 }

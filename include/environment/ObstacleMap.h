@@ -98,11 +98,11 @@ class ObstacleMap
 		/** @brief Depth of the octomap model for searching obstacles */
 		int depth_;
 
-		/** @brief Interest area */
-		double interest_radius_x_, interest_radius_y_;
-
 		/** @brief Indicates if it was added a search area */
 		bool is_added_search_area_;
+
+		/** @brief Interest area */
+		double interest_radius_x_, interest_radius_y_;
 
 		/** @brief Resolution of the obstacle map server */
 		double resolution_;

@@ -11,6 +11,7 @@ ObstacleMap::ObstacleMap() : space_discretization_(std::numeric_limits<double>::
 		depth_(16), is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()),
 		interest_radius_y_(std::numeric_limits<double>::max()), resolution_(std::numeric_limits<double>::max())
 {
+
 }
 
 
@@ -18,6 +19,7 @@ ObstacleMap::~ObstacleMap()
 {
 
 }
+
 
 void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 {
@@ -36,7 +38,8 @@ void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 	depth_ = 16 - floor(resolution_ / (2 * octomap_resolution));
 
 	// Computing obstacle map for several search areas
-	for (int n = 0; n < search_areas_.size(); n++) {
+	unsigned int num_area = search_areas_.size();
+	for (unsigned int n = 0; n < num_area; n++) {
 		// Computing the boundary of the gridmap
 		Eigen::Vector2d boundary_min, boundary_max;
 

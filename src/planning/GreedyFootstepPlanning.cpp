@@ -51,7 +51,7 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 		current_contacts = planned_contacts;
 
 		// Setting the planned contacts in the planned contact sequence
-		for (int i = 0; i < planned_contacts.size(); i++)
+		for (int i = 0; i < (int) planned_contacts.size(); i++)
 			contact_sequence.push_back(planned_contacts[i]);
 	}
 
@@ -125,7 +125,7 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 				current_contacts.push_back(initial_contacts[i]);
 		}
 		for (int i = 0; i < robot_->getNumberOfLegs() - 1; i++) {
-			for (int j = 0; j < footholds.size(); j++) {
+			for (int j = 0; j < (int) footholds.size(); j++) {
 				if (current_contacts[i].end_effector == footholds[j].end_effector)
 					current_contacts[i] = footholds[j];
 			}
@@ -140,7 +140,6 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 		boundary_max(1) = body_state(1) + robot_->getStanceAreas()[current_leg_id].max_y;
 
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
-		double stance_cost = 0;
 		for (double y = boundary_min(1); y < boundary_max(1); y += robot_->getStanceAreas()[current_leg_id].grid_resolution) {
 			for (double x = boundary_min(0); x < boundary_max(0); x += robot_->getStanceAreas()[current_leg_id].grid_resolution) {
 				// Computing the rotated coordinate of the point inside the search area
@@ -163,7 +162,7 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 					info.pose.orientation = yaw;
 					info.potential_contact.position << current_state.head(2), terrain_heightmap.find(terrain_vertex)->second;
 					info.potential_contact.end_effector = current_leg_id;
-					for (int i = 0; i < features_.size(); i++) {
+					for (int i = 0; i < (int) features_.size(); i++) {
 						// Computing the cost associated with contact features
 						double feature_reward, weight;
 						features_[i]->computeReward(feature_reward, info);

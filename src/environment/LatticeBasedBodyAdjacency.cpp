@@ -44,7 +44,8 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 	if (environment_->isTerrainInformation()) {
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
-		for (int i = 0; i < actions.size(); i++) {
+		unsigned int action_size = actions.size();
+		for (unsigned int i = 0; i < action_size; i++) {
 			// Converting the action to current vertex
 			Eigen::Vector3d action_state;
 			action_state << actions[i].pose.position, actions[i].pose.orientation;
@@ -86,7 +87,8 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 
 	// Computing the terrain cost
 	double terrain_cost = 0;
-	for (int n = 0; n < stance_areas_.size(); n++) {
+	unsigned int area_size = stance_areas_.size();
+	for (unsigned int n = 0; n < area_size; n++) {
 		// Computing the boundary of stance area
 		Eigen::Vector2d boundary_min, boundary_max;
 		boundary_min(0) = stance_areas_[n].min_x + state(0);
@@ -97,8 +99,9 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 		// Computing the stance cost
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double stance_cost = 0;
-		for (double y = boundary_min(1); y < boundary_max(1); y += stance_areas_[n].grid_resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += stance_areas_[n].grid_resolution) {
+		double resolution = stance_areas_[n].grid_resolution;
+		for (double y = boundary_min(1); y < boundary_max(1); y += resolution) {
+			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate according to the orientation of the body
 				Eigen::Vector2d point_position;
 				point_position(0) = (x - state(0)) * cos((double) state(2)) - (y - state(1)) * sin((double) state(2)) + state(0);
@@ -115,14 +118,14 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 		}
 
 		// Averaging the 5-best (lowest) cost
-		int number_top_reward = number_top_reward_;
+		unsigned int number_top_reward = number_top_reward_;
 		if (stance_cost_queue.size() < number_top_reward)
 			number_top_reward = stance_cost_queue.size();
 
 		if (number_top_reward == 0) {
 			stance_cost += uncertainty_factor_ * environment_->getAverageCostOfTerrain();
 		} else {
-			for (int i = 0; i < number_top_reward; i++) {
+			for (unsigned int i = 0; i < number_top_reward; i++) {
 				stance_cost += stance_cost_queue.begin()->first;
 				stance_cost_queue.erase(stance_cost_queue.begin());
 			}
@@ -148,7 +151,8 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 
 	// Computing the cost of the body features
 	cost = terrain_cost;
-	for (int i = 0; i < features_.size(); i++) {
+	unsigned int feature_size = features_.size();
+	for (unsigned int i = 0; i < feature_size; i++) {
 		// Computing the cost associated with body path features
 		double feature_reward, weight;
 		features_[i]->computeReward(feature_reward, info);

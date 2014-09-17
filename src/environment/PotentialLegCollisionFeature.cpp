@@ -47,8 +47,8 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 		double mean_height = 0;
 		int counter = 0;
 		bool is_there_height_values = false;
-		for (double y = boundary_min(1); y < boundary_max(1); y += leg_area.grid_resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += leg_area.grid_resolution) {
+		for (double y = boundary_min(1); y < boundary_max(1); y += 2 * leg_area.grid_resolution) {
+			for (double x = boundary_min(0); x < boundary_max(0); x += 3 * leg_area.grid_resolution) {
 				Eigen::Vector2d coord;
 				coord(0) = (x - position(0)) * cos(yaw) - (y - position(1)) * sin(yaw) + position(0);
 				coord(1) = (x - position(0)) * sin(yaw) + (y - position(1)) * cos(yaw) + position(1);

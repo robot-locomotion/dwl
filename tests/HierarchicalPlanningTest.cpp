@@ -29,10 +29,10 @@ int main(int argc, char **argv)
 	dwl::WholeBodyLocomotion locomotor;
 
 	// Initialization of planning algorithm, which includes the initialization and setup of solver algorithm
-	dwl::robot::Robot* robot_ptr;
+	dwl::robot::Robot* robot_ptr = NULL;
 	dwl::planning::Solver* solver_ptr = new dwl::planning::Dijkstrap();
 	dwl::planning::PlanningOfMotionSequences* planning_ptr = new dwl::planning::HierarchicalPlanning();
-	dwl::environment::EnvironmentInformation* environment_ptr;
+	dwl::environment::EnvironmentInformation* environment_ptr = NULL;
 	planning_ptr->reset(robot_ptr, solver_ptr, environment_ptr);
 
 	dwl::planning::Constraint* kin_constraint_ptr = new dwl::robot::KinematicConstraints();
@@ -53,7 +53,6 @@ int main(int argc, char **argv)
 	std::vector<dwl::RewardCell> reward_map;
 	locomotor.init();
 
-	Eigen::Vector3d robot_state = Eigen::Vector3d::Zero();
 	locomotor.compute(current);
 
 /*
@@ -75,7 +74,6 @@ int main(int argc, char **argv)
 	vertex_queue.insert(std::pair<double, int>(5.5, 5));
 //	while (!vertex_queue.empty()) {
 	for (int i = 0; i < 2; i++) {
-		int u = vertex_queue.begin()->second;
 		double weight = vertex_queue.begin()->first;
 		vertex_queue.erase(vertex_queue.begin());
 

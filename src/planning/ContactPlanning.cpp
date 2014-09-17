@@ -27,7 +27,7 @@ void ContactPlanning::reset(robot::Robot* robot, environment::EnvironmentInforma
 	printf(BLUE "Setting the environment information in the %s contact planner \n" COLOR_RESET, name_.c_str());
 	environment_ = environment;
 
-	for (int i = 0; i < features_.size(); i++)
+	for (int i = 0; i < (int) features_.size(); i++)
 		features_[i]->reset(robot);
 }
 

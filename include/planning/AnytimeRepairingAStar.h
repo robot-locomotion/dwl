@@ -61,6 +61,9 @@ class AnytimeRepairingAStar : public Solver
 		/** @brief G cost */
 		CostMap g_cost_;
 
+		/** @brief Minimum f cost */
+		double min_f_cost_;
+
 		/** @brief number of expansions */
 		int expansions_;
 

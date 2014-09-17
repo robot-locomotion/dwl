@@ -86,9 +86,6 @@ class Solver
 		std::string getName();
 
 
-	private:
-
-
 	protected:
 		/** @brief Name of the solver */
 		std::string name_;
@@ -111,11 +108,11 @@ class Solver
 		/** @brief Shortest previous vertex */
 		PreviousVertex previous_;
 
-		/** @brief Initial time of computation */
-		clock_t time_started_;
-
 		/** @brief Total cost of the path */
 		double total_cost_;
+
+		/** @brief Initial time of computation */
+		clock_t time_started_;
 
 		/** @brief Indicates if it was set an adjacency model */
 		bool is_set_adjacency_model_;

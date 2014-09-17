@@ -45,8 +45,6 @@ void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotA
 		boundary_max(1) = leg_area.max_y + position(1);
 
 		// Computing the maximum and minimun height around the leg area
-		int counter = 0;
-		bool is_there_height_values = false;
 		for (double y = boundary_min(1); y < boundary_max(1); y += leg_area.grid_resolution) {
 			for (double x = boundary_min(0); x < boundary_max(0); x += leg_area.grid_resolution) {
 				Eigen::Vector2d foothold;

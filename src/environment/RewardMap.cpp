@@ -8,9 +8,9 @@ namespace environment
 {
 
 
-RewardMap::RewardMap() : space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()), is_added_feature_(false),
-		is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()), interest_radius_y_(std::numeric_limits<double>::max()),
-		min_height_(std::numeric_limits<double>::max())
+RewardMap::RewardMap() : space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
+		is_added_feature_(false), is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()),
+		interest_radius_y_(std::numeric_limits<double>::max()), min_height_(std::numeric_limits<double>::max())
 {
 
 }
@@ -37,14 +37,15 @@ void RewardMap::addFeature(Feature* feature)
 
 void RewardMap::removeFeature(std::string feature_name)
 {
-	for (int i = 0; i < features_.size(); i++) {
+	int num_feature = features_.size();
+	for (int i = 0; i < num_feature; i++) {
 		if (feature_name == features_[i]->getName().c_str()) {
 			printf(GREEN "Removing the %s feature\n" COLOR_RESET, features_[i]->getName().c_str());
 			features_.erase(features_.begin() + i);
 
 			return;
 		}
-		else if (i == features_.size() - 1) {
+		else if (i == num_feature - 1) {
 			printf(YELLOW "Could not remove the %s feature\n" COLOR_RESET, feature_name.c_str());
 		}
 	}
