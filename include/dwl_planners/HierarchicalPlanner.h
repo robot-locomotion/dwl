@@ -143,6 +143,8 @@ class HierarchicalPlanners
 		/** @brief Contact planner */
 		dwl::planning::ContactPlanning* footstep_planner_ptr_;
 
+		dwl::environment::AdjacencyEnvironment* adjacency_ptr_;
+
 		/** @brief Environment information */
 		dwl::environment::EnvironmentInformation environment_;
 

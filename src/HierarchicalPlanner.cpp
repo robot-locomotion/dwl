@@ -119,11 +119,11 @@ void HierarchicalPlanners::initBodyPlanner()
 
 	// Getting the adjacency model
 	std::string adjacency_model_name;
-	dwl::environment::AdjacencyEnvironment* adjacency_ptr;
+	//dwl::environment::AdjacencyEnvironment* adjacency_ptr_;
 
 	node_.param("hierarchical_planner/body_planner/adjacency/name", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
 	if (adjacency_model_name == "LatticeBasedBodyAdjacency") {
-		adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
+		adjacency_ptr_ = new dwl::environment::LatticeBasedBodyAdjacency();
 
 		// Setting the features for the body planner
 		bool potential_collision_enable, potential_orientation_enable;
@@ -137,7 +137,7 @@ void HierarchicalPlanners::initBodyPlanner()
 			double weight, default_weight = 1;
 			node_.param("hierarchical_planner/body_planner/adjacency/features/potential_leg_collision/weight", weight, default_weight);
 			potential_collision_ptr->setWeight(weight);
-			adjacency_ptr->addFeature(potential_collision_ptr);
+			adjacency_ptr_->addFeature(potential_collision_ptr);
 		}
 
 		if (potential_orientation_enable) {
@@ -147,16 +147,16 @@ void HierarchicalPlanners::initBodyPlanner()
 			double weight, default_weight = 1;
 			node_.param("hierarchical_planner/body_planner/adjacency/features/potential_body_orientation/weight", weight, default_weight);
 			potential_orientation_ptr->setWeight(weight);
-			adjacency_ptr->addFeature(potential_orientation_ptr);
+			adjacency_ptr_->addFeature(potential_orientation_ptr);
 		}
 	} else if (adjacency_model_name == "GridBasedBodyAdjacency")
-		adjacency_ptr = new dwl::environment::GridBasedBodyAdjacency();
+		adjacency_ptr_ = new dwl::environment::GridBasedBodyAdjacency();
 	else
-		adjacency_ptr = new dwl::environment::LatticeBasedBodyAdjacency();
+		adjacency_ptr_ = new dwl::environment::LatticeBasedBodyAdjacency();
 
 
 	// Setting the body planner
-	body_path_solver_ptr_->setAdjacencyModel(adjacency_ptr);
+	body_path_solver_ptr_->setAdjacencyModel(adjacency_ptr_);
 	body_planner_ptr_->reset(body_path_solver_ptr_);
 
 }
@@ -442,25 +442,25 @@ void HierarchicalPlanners::publishContactSequence()
 
 			int end_effector = contact_sequence_[i].end_effector;
 			if (end_effector == 0) {//TODO Remove the offset
-				std::cout << "1\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				//std::cout << "1\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 0.45;
 				contact_sequence_rviz_msg_.colors[i].g = 0.29;
 				contact_sequence_rviz_msg_.colors[i].b = 0.09;
 				contact_sequence_rviz_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 1) {
-				std::cout << "2\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				//std::cout << "2\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 1.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 0.0;
 				contact_sequence_rviz_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 2) {
-				std::cout << "3\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				//std::cout << "3\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 0.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 0.0;
 				contact_sequence_rviz_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 3) {
-				std::cout << "4\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				//std::cout << "4\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 0.09;
 				contact_sequence_rviz_msg_.colors[i].g = 0.11;
 				contact_sequence_rviz_msg_.colors[i].b = 0.7;
