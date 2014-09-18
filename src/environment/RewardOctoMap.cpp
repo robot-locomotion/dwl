@@ -90,7 +90,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 								addCellToTerrainHeightMap(vertex_id, (double) cell_position(2));
 							else {
 								bool new_status = true;
-								if ((reward_gridmap_.find(vertex_id)->first == vertex_id)) {
+								if ((reward_gridmap_.count(vertex_id) > 0)) {//find(vertex_id)->first == vertex_id)) {
 									// Evaluating if it changed status (height)
 									RewardCell reward_cell = reward_gridmap_.find(vertex_id)->second;
 									if (reward_cell.key.z != cell_key.z) {
@@ -134,7 +134,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 			computeRewards(octomap, heightmap_key);
 		else {
 			bool new_status = true;
-			if (reward_gridmap_.find(vertex_id)->first == vertex_id) {
+			if (reward_gridmap_.count(vertex_id) > 0) {//find(vertex_id)->first == vertex_id) {
 				// Evaluating if it's changed status (height)
 				RewardCell reward_cell = reward_gridmap_.find(vertex_id)->second;
 

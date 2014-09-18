@@ -242,9 +242,9 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 		target_state(2) = target_angle;
 
 		//TODO Define this metrics
-		double distant = (target_state.head(2) - current_state.head(2)).norm();
+		double distant = ((Eigen::Vector2d) target_state.head(2) - (Eigen::Vector2d) current_state.head(2)).norm();
 		if (distant < epsilon) {
-			double angular_error = target_state(2) - current_state(2);
+			double angular_error = (double) target_state(2) - (double) current_state(2);
 
 			if (std::abs(angular_error) < epsilon) {
 				// Reconstructing path

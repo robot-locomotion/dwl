@@ -154,7 +154,7 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 
 				// Getting the cost of the terrain
 				double terrain_cost, body_cost = 0, contact_cost;
-				if (terrain_costmap.find(terrain_vertex)->first == terrain_vertex) {
+				if (terrain_costmap.count(terrain_vertex) > 0) {
 					terrain_cost = terrain_costmap.find(terrain_vertex)->second;
 
 					// Computing the cost associated with the body

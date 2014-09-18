@@ -66,7 +66,6 @@ class AnytimeRepairingAStar : public Solver
 
 		/** @brief number of expansions */
 		int expansions_;
-
 };
 
 } //@namespace planning

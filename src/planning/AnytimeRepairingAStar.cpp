@@ -75,9 +75,8 @@ bool AnytimeRepairingAStar::compute(Vertex source, Vertex target, double computa
 			satisfied_inflation_ = current_inflation;
 		}
 
-		//std::cout << "Time of computation = " << (clock() - time_started_) / (double) CLOCKS_PER_SEC << std::endl;
+		std::cout << "Time of computation = " << (clock() - time_started_) / (double) CLOCKS_PER_SEC << std::endl;
 	}
-
 	std::cout << "Expansions = " << expansions_ << std::endl;
 	return true;
 }
@@ -109,7 +108,7 @@ bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue, Set& visitedset
 			Vertex neighbor = edge_iter->target;
 			Weight weight = edge_iter->weight;
 
-			if (visitedset.find(neighbor)->second == false) {
+			if (visitedset.count(neighbor) == 0) {
 				g_cost_[neighbor] = std::numeric_limits<double>::max();
 				visitedset[neighbor] = true;
 			}
@@ -119,8 +118,7 @@ bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue, Set& visitedset
 				previous_[neighbor] = current;
 				g_cost_[neighbor] = tentative_g_cost;
 				double f_cost = g_cost_[neighbor] + satisfied_inflation_ * adjacency_->heuristicCostEstimate(neighbor, target);
-
-				if (closedset.find(neighbor)->second == false) {
+				if (closedset.count(neighbor) == 0) {
 					openset_queue.insert(std::pair<Weight, Vertex>(f_cost, neighbor));
 				} else {
 					inconsistentset_queue.insert(std::pair<Weight, Vertex>(f_cost, neighbor));

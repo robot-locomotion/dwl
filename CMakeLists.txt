@@ -10,18 +10,16 @@ include_directories(${EIGEN_INCLUDE_DIRS})
 set(DWL_VERSION 0.0.1 CACHE STRING "DWL version")
 message("Compiling the version ${DWL_VERSION} of Dynamic Whole-Body Locomotion (DWL) library")
 
+# Setting the release mode, and flags for optimization
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mtune=native -D EIGEN_NO_DEBUG")
+
 # Set output directories for libraries and executables
 set(BASE_DIR ${CMAKE_SOURCE_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BASE_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BASE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BASE_DIR}/bin)
 
-
-#set(CMAKE_BUILD_TYPE Release) #TODO Try this lines
-#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D EIGEN_NO_DEBUG")
-#set(CMAKE_BUILD_TYPE Release)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O3 -march=native -mtune=native -D EIGEN_NO_DEBUG")  
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D EIGEN_NO_DEBUG")
 
 #include_directories(include)
 set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")
@@ -100,6 +98,3 @@ configure_file(dwl-config.cmake.in
   "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" @ONLY)
 #configure_file(octomap-config-version.cmake.in
 #  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/octomap/octomap-config-version.cmake" @ONLY)
-
-
-

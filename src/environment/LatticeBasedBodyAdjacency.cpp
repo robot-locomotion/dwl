@@ -59,7 +59,7 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 			if (isFreeOfObstacle(current_action_vertex, XY_Y, true)) {
 				if (!isStanceAdjacency()) {
 					double terrain_cost;
-					if (terrain_costmap.find(environment_vertex)->first != environment_vertex)
+					if (terrain_costmap.count(environment_vertex) == 0)
 						terrain_cost = uncertainty_factor_ * environment_->getAverageCostOfTerrain();
 					else
 						terrain_cost = terrain_costmap.find(environment_vertex)->second;
@@ -104,14 +104,17 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate according to the orientation of the body
 				Eigen::Vector2d point_position;
-				point_position(0) = (x - state(0)) * cos((double) state(2)) - (y - state(1)) * sin((double) state(2)) + state(0);
-				point_position(1) = (x - state(0)) * sin((double) state(2)) + (y - state(1)) * cos((double) state(2)) + state(1);
+				double current_x = state(0);
+				double current_y = state(1);
+				double current_yaw = state(2);
+				point_position(0) = (x - current_x) * cos(current_yaw) - (y - current_y) * sin(current_yaw) + current_x;
+				point_position(1) = (x - current_x) * sin(current_yaw) + (y - current_y) * cos(current_yaw) + current_y;
 
 				Vertex current_2d_vertex;
 				environment_->getTerrainSpaceModel().coordToVertex(current_2d_vertex, point_position);
 
 				// Inserts the element in an organized vertex queue, according to the maximun value
-				if (terrain_costmap.find(current_2d_vertex)->first == current_2d_vertex) {
+				if (terrain_costmap.count(current_2d_vertex) > 0) {
 					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(current_2d_vertex)->second, current_2d_vertex));
 				}
 			}
@@ -144,8 +147,8 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 
 	// Getting robot and terrain information
 	RobotAndTerrain info;
-	info.pose.position = state.head(2);
-	info.pose.orientation = state(2);
+	info.pose.position = (Eigen::Vector2d) state.head(2);
+	info.pose.orientation = (double) state(2);
 	info.height_map = heightmap;
 	info.resolution = environment_->getTerrainResolution();
 

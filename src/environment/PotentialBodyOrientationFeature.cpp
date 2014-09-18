@@ -56,7 +56,7 @@ void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotA
 				space_discretization_.coordToVertex(leg_vertex, foothold);
 
 				// Computing the height foothold
-				if (info.height_map.find(leg_vertex)->first == leg_vertex)
+				if (info.height_map.count(leg_vertex) > 0)
 					height_foothold = info.height_map.find(leg_vertex)->second;
 				else
 					height_foothold = robot_->getExpectedGround(leg);

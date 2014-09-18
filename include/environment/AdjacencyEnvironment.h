@@ -132,12 +132,6 @@ class AdjacencyEnvironment
 		double uncertainty_factor_; // For unknown (non-perceive) areas
 
 		std::map<Vertex, double> orientations_;
-
-		//Pose current_pose_;
-
-
-	private:
-
 };
 
 

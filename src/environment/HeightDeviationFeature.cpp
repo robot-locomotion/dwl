@@ -56,7 +56,7 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 			Vertex vertex_2d;
 			space_discretization_.coordToVertex(vertex_2d, coord);
 
-			if (terrain_info.height_map.find(vertex_2d)->first == vertex_2d) {
+			if (terrain_info.height_map.count(vertex_2d) > 0) {
 				double height = terrain_info.height_map.find(vertex_2d)->second;
 				height_average += height;
 				counter++;
@@ -75,7 +75,7 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 				Vertex vertex_2d;
 				space_discretization_.coordToVertex(vertex_2d, coord);
 
-				if (terrain_info.height_map.find(vertex_2d)->first == vertex_2d) {
+				if (terrain_info.height_map.count(vertex_2d) > 0) {
 					height_deviation += fabs(terrain_info.height_map.find(vertex_2d)->second - height_average);
 				} else {
 					// Computing the estimated ground
@@ -94,7 +94,7 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 							Vertex height_vertex_2d;
 							space_discretization_.coordToVertex(height_vertex_2d, height_coord);
 
-							if (terrain_info.height_map.find(height_vertex_2d)->first == height_vertex_2d)
+							if (terrain_info.height_map.count(height_vertex_2d) > 0)
 								estimated_height += terrain_info.height_map.find(height_vertex_2d)->second;
 							else
 								estimated_height += terrain_info.min_height;

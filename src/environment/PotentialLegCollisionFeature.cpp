@@ -56,7 +56,7 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 				space_discretization_.coordToVertex(vertex_2d, coord);
 
 				double height;
-				if (info.height_map.find(vertex_2d)->first == vertex_2d) {
+				if (info.height_map.count(vertex_2d) > 0) {
 					height = info.height_map.find(vertex_2d)->second;
 
 					// Updating the maximum height
