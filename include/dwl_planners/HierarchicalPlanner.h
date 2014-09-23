@@ -98,9 +98,6 @@ class HierarchicalPlanners
 		/** @brief ROS node handle */
 		ros::NodeHandle node_;
 
-		/** @brief Reward map subscriber */
-		//message_filters::Subscriber<terrain_server::RewardMap>* reward_sub_;
-
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;
 

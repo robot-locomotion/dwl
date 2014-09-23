@@ -5,7 +5,7 @@ namespace dwl_planners
 {
 
 HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), body_planner_ptr_(NULL),
-		footstep_planner_ptr_(NULL), body_path_solver_ptr_(NULL), base_frame_("base_link"), world_frame_("odom")
+		footstep_planner_ptr_(NULL), adjacency_ptr_(NULL), body_path_solver_ptr_(NULL), base_frame_("base_link"), world_frame_("odom")
 {
 
 }
@@ -31,19 +31,25 @@ void HierarchicalPlanners::init()
 
 	// Initializing the mutex
 	if (pthread_mutex_init(&reward_lock_, NULL) != 0)
-		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&reward_lock_, NULL), strerror(pthread_mutex_init(&reward_lock_, NULL)));
+		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&reward_lock_, NULL),
+				strerror(pthread_mutex_init(&reward_lock_, NULL)));
 	if (pthread_mutex_unlock(&reward_lock_) != 0)
-		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&reward_lock_, NULL), strerror(pthread_mutex_init(&reward_lock_, NULL)));
+		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&reward_lock_, NULL),
+				strerror(pthread_mutex_init(&reward_lock_, NULL)));
 
 	if (pthread_mutex_init(&obstacle_lock_, NULL) != 0)
-		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&obstacle_lock_, NULL), strerror(pthread_mutex_init(&obstacle_lock_, NULL)));
+		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&obstacle_lock_, NULL),
+				strerror(pthread_mutex_init(&obstacle_lock_, NULL)));
 	if (pthread_mutex_unlock(&obstacle_lock_) != 0)
-		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&obstacle_lock_, NULL), strerror(pthread_mutex_init(&obstacle_lock_, NULL)));
+		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&obstacle_lock_, NULL),
+				strerror(pthread_mutex_init(&obstacle_lock_, NULL)));
 
 	if (pthread_mutex_init(&planner_lock_, NULL) != 0)
-		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&planner_lock_, NULL), strerror(pthread_mutex_init(&planner_lock_, NULL)));
+		ROS_ERROR("Could not initialized mutex (%i : %s).", pthread_mutex_init(&planner_lock_, NULL),
+				strerror(pthread_mutex_init(&planner_lock_, NULL)));
 	if (pthread_mutex_unlock(&planner_lock_) != 0)
-		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&planner_lock_, NULL), strerror(pthread_mutex_init(&planner_lock_, NULL)));
+		ROS_ERROR("Could not unlocked mutex (%i : %s).", pthread_mutex_init(&planner_lock_, NULL),
+				strerror(pthread_mutex_init(&planner_lock_, NULL)));
 
 
 	// Getting the base and world frame
@@ -119,23 +125,22 @@ void HierarchicalPlanners::initBodyPlanner()
 
 	// Getting the adjacency model
 	std::string adjacency_model_name;
-	//dwl::environment::AdjacencyEnvironment* adjacency_ptr_;
-
-	node_.param("hierarchical_planner/body_planner/adjacency/name", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
+	std::string path = "hierarchical_planner/body_planner/adjacency/";
+	node_.param(path + "name", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
 	if (adjacency_model_name == "LatticeBasedBodyAdjacency") {
 		adjacency_ptr_ = new dwl::environment::LatticeBasedBodyAdjacency();
 
 		// Setting the features for the body planner
 		bool potential_collision_enable, potential_orientation_enable;
-		node_.param("hierarchical_planner/body_planner/adjacency/features/potential_leg_collision/enable", potential_collision_enable, false);
-		node_.param("hierarchical_planner/body_planner/adjacency/features/potential_body_orientation/enable", potential_orientation_enable, false);
+		node_.param(path + "features/potential_leg_collision/enable", potential_collision_enable, false);
+		node_.param(path + "features/potential_body_orientation/enable", potential_orientation_enable, false);
 
 		if (potential_collision_enable) {
 			dwl::environment::Feature* potential_collision_ptr = new dwl::environment::PotentialLegCollisionFeature();
 
 			// Setting the weight
 			double weight, default_weight = 1;
-			node_.param("hierarchical_planner/body_planner/adjacency/features/potential_leg_collision/weight", weight, default_weight);
+			node_.param(path + "features/potential_leg_collision/weight", weight, default_weight);
 			potential_collision_ptr->setWeight(weight);
 			adjacency_ptr_->addFeature(potential_collision_ptr);
 		}
@@ -145,7 +150,7 @@ void HierarchicalPlanners::initBodyPlanner()
 
 			// Setting the weight
 			double weight, default_weight = 1;
-			node_.param("hierarchical_planner/body_planner/adjacency/features/potential_body_orientation/weight", weight, default_weight);
+			node_.param(path + "features/potential_body_orientation/weight", weight, default_weight);
 			potential_orientation_ptr->setWeight(weight);
 			adjacency_ptr_->addFeature(potential_orientation_ptr);
 		}
@@ -166,7 +171,8 @@ void HierarchicalPlanners::initContactPlanner()
 {
 	// Setting the contact planner
 	std::string planner_name;
-	node_.param("hierarchical_planner/contact_planner/type", planner_name, (std::string) "GreedyFootstep");
+	std::string path = "hierarchical_planner/contact_planner/";
+	node_.param(path + "type", planner_name, (std::string) "GreedyFootstep");
 	if (planner_name == "GreedyFootstep")
 		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning();
 	else
@@ -174,15 +180,15 @@ void HierarchicalPlanners::initContactPlanner()
 
 	// Setting the features for the footstep planner
 	bool support_enable, collision_enable, orientation_enable;
-	node_.param("hierarchical_planner/contact_planner/features/support_triangle/enable", support_enable, false);
-	node_.param("hierarchical_planner/contact_planner/features/leg_collision/enable", collision_enable, false);
-	node_.param("hierarchical_planner/contact_planner/features/body_orientation/enable", orientation_enable, false);
+	node_.param(path + "features/support_triangle/enable", support_enable, false);
+	node_.param(path + "features/leg_collision/enable", collision_enable, false);
+	node_.param(path + "features/body_orientation/enable", orientation_enable, false);
 	if (support_enable) {
 		dwl::environment::Feature* support_ptr = new dwl::environment::SupportTriangleFeature();
 
 		// Setting the weight
 		double weight, default_weight = 1;
-		node_.param("hierarchical_planner/contact_planner/features/support_triangle/weight", weight, default_weight);
+		node_.param(path + "features/support_triangle/weight", weight, default_weight);
 		support_ptr->setWeight(weight);
 		footstep_planner_ptr_->addFeature(support_ptr);
 	}
@@ -192,7 +198,7 @@ void HierarchicalPlanners::initContactPlanner()
 
 		// Setting the weight
 		double weight, default_weight = 1;
-		node_.param("hierarchical_planner/contact_planner/features/leg_collision/weight", weight, default_weight);
+		node_.param(path + "features/leg_collision/weight", weight, default_weight);
 		collision_ptr->setWeight(weight);
 		footstep_planner_ptr_->addFeature(collision_ptr);
 	}
@@ -202,14 +208,14 @@ void HierarchicalPlanners::initContactPlanner()
 
 		// Setting the weight
 		double weight, default_weight = 1;
-		node_.param("hierarchical_planner/contact_planner/features/body_orientation/weight", weight, default_weight);
+		node_.param(path + "features/body_orientation/weight", weight, default_weight);
 		orientation_ptr->setWeight(weight);
 		footstep_planner_ptr_->addFeature(orientation_ptr);
 	}
 
 	// Setting the contact horizon
 	double contact_horizon;
-	node_.param("hierarchical_planner/contact_planner/horizon", contact_horizon, 0.0);
+	node_.param(path + "horizon", contact_horizon, 0.0);
 	footstep_planner_ptr_->setContactHorizon(contact_horizon);
 }
 
@@ -356,8 +362,7 @@ void HierarchicalPlanners::obstacleMapCallback(const terrain_server::ObstacleMap
 		clock_gettime(CLOCK_REALTIME, &end_rt);
 		double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
 		ROS_INFO("The duration of setting the obstacle information of the environment is %f seg.", duration);
-	}
-	else
+	} else
 		pthread_mutex_unlock(&obstacle_lock_);
 }
 
@@ -415,7 +420,7 @@ void HierarchicalPlanners::publishContactSequence()
 			contact_sequence_msg_.contacts[i].end_effector = contact_sequence_[i].end_effector + 1; //This for compatibility with the controller
 			contact_sequence_msg_.contacts[i].position.x = contact_sequence_[i].position(0);
 			contact_sequence_msg_.contacts[i].position.y = contact_sequence_[i].position(1);
-			contact_sequence_msg_.contacts[i].position.z = contact_sequence_[i].position(2);
+			contact_sequence_msg_.contacts[i].position.z = contact_sequence_[i].position(2) + 0.575648;
 		}
 
 		contact_sequence_pub_.publish(contact_sequence_msg_);
@@ -441,26 +446,30 @@ void HierarchicalPlanners::publishContactSequence()
 			contact_sequence_rviz_msg_.points[i].z = contact_sequence_[i].position(2) + 0.03;
 
 			int end_effector = contact_sequence_[i].end_effector;
-			if (end_effector == 0) {//TODO Remove the offset
-				//std::cout << "1\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+			if (end_effector == 0) { //TODO Remove the offset
+				std::cout << "1\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1)
+						<< "\t" << contact_sequence_[i].position(2) + 0.575648 << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 0.45;
 				contact_sequence_rviz_msg_.colors[i].g = 0.29;
 				contact_sequence_rviz_msg_.colors[i].b = 0.09;
 				contact_sequence_rviz_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 1) {
-				//std::cout << "2\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				std::cout << "2\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1)
+						<< "\t" << contact_sequence_[i].position(2) + 0.575648 << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 1.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 0.0;
 				contact_sequence_rviz_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 2) {
-				//std::cout << "3\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				std::cout << "3\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1)
+						<< "\t" << contact_sequence_[i].position(2) + 0.575648 << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 0.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 0.0;
 				contact_sequence_rviz_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 3) {
-				//std::cout << "4\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1) << "\t" << contact_sequence_[i].position(2)+0.575648 << std::endl;
+				std::cout << "4\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1)
+						<< "\t" << contact_sequence_[i].position(2) + 0.575648 << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 0.09;
 				contact_sequence_rviz_msg_.colors[i].g = 0.11;
 				contact_sequence_rviz_msg_.colors[i].b = 0.7;
@@ -498,8 +507,7 @@ int main(int argc, char **argv)
 	try {
 		ros::Rate loop_rate(100);
 
-		while(ros::ok()) {
-
+		while (ros::ok()) {
 			if (planner.compute()) {
 				planner.publishBodyPath();
 				planner.publishContactSequence();
@@ -507,7 +515,7 @@ int main(int argc, char **argv)
 			ros::spinOnce();
 			loop_rate.sleep();
 		}
-	} catch(std::runtime_error& e) {
+	} catch (std::runtime_error& e) {
 		ROS_ERROR("hierarchical_planner exception: %s", e.what());
 		return -1;
 	}
