@@ -7,7 +7,7 @@ namespace dwl
 namespace behavior
 {
 
-BodyMotorPrimitives::BodyMotorPrimitives()
+BodyMotorPrimitives::BodyMotorPrimitives() //TODO Test a lot with real HyQ
 {
 	// Defining the cost per movement class
 	std::vector<double> motor_costs;
@@ -63,7 +63,7 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	action << 0.0, 0.12, 0.0;
 	lateral_actions.push_back(action);
 	action << 0.0, 0.16, 0.0;
-	lateral_actions.push_back(action);
+//	lateral_actions.push_back(action);
 	action << 0.0, -0.04, 0.0;
 	lateral_actions.push_back(action);
 	action << 0.0, -0.08, 0.0;
@@ -71,7 +71,7 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 	action << 0.0, -0.12, 0.0;
 	lateral_actions.push_back(action);
 	action << 0.0, -0.16, 0.0;
-	lateral_actions.push_back(action);
+//	lateral_actions.push_back(action);
 	motor_actions.push_back(lateral_actions);
 
 	// Diagonal actions
@@ -295,17 +295,24 @@ BodyMotorPrimitives::BodyMotorPrimitives()
 //	twist_actions.push_back(action);
 	motor_actions.push_back(twist_actions);
 
-
-	for (int i = 0; i < (int) motor_actions.size(); i++) {
+	for (int i = 0; i < (int) motor_actions.size(); i++)
+	{
 		std::cout << "Type of action = " << i << std::endl;
-		for (int j = 0; j < (int) motor_actions[i].size(); j++) {
+		for (int j = 0; j < (int) motor_actions[i].size(); j++)
+		{
 			double current_x, next_x, current_y, next_y;
 			current_x = 0.4269;
 			current_y = 0.3886;
-			next_x = motor_actions[i][j](0) + (current_x * cos((double) motor_actions[i][j](2)) - current_y * sin((double) motor_actions[i][j](2)));
-			next_y = motor_actions[i][j](1) + (current_x * sin((double) motor_actions[i][j](2)) + current_y * cos((double) motor_actions[i][j](2)));
+			next_x = motor_actions[i][j](0)
+					+ (current_x * cos((double) motor_actions[i][j](2))
+							- current_y * sin((double) motor_actions[i][j](2)));
+			next_y = motor_actions[i][j](1)
+					+ (current_x * sin((double) motor_actions[i][j](2))
+							+ current_y * cos((double) motor_actions[i][j](2)));
 
-			double distance = pow(pow(next_x - current_x, 2) + pow(next_y - current_y, 2), 0.5);
+			double distance = pow(
+					pow(next_x - current_x, 2) + pow(next_y - current_y, 2),
+					0.5);
 			std::cout << "Distance of the action = " << distance << std::endl;
 
 			primitives.action = motor_actions[i][j];
@@ -322,9 +329,11 @@ BodyMotorPrimitives::~BodyMotorPrimitives()
 }
 
 
-void BodyMotorPrimitives::generateActions(std::vector<Action3d>& actions, Pose3d state)
+void BodyMotorPrimitives::generateActions(std::vector<Action3d>& actions,
+		Pose3d state)
 {
-	for (int i = 0; i < (int) actions_.size(); i++) {
+	for (int i = 0; i < (int) actions_.size(); i++)
+	{
 		// Computing the motor action
 		double delta_x = actions_[i].action(0);
 		double delta_y = actions_[i].action(1);
@@ -332,8 +341,12 @@ void BodyMotorPrimitives::generateActions(std::vector<Action3d>& actions, Pose3d
 
 		// Computing the current action
 		Action3d current_action;
-		current_action.pose.position(0) = state.position(0) + delta_x * cos(state.orientation) - delta_y * sin(state.orientation);
-		current_action.pose.position(1) = state.position(1) + delta_x * sin(state.orientation) + delta_y * cos(state.orientation);
+		current_action.pose.position(0) = state.position(0)
+				+ delta_x * cos(state.orientation)
+				- delta_y * sin(state.orientation);
+		current_action.pose.position(1) = state.position(1)
+				+ delta_x * sin(state.orientation)
+				+ delta_y * cos(state.orientation);
 		current_action.pose.orientation = state.orientation + delta_th;
 		current_action.cost = actions_[i].cost;
 

@@ -65,14 +65,14 @@ class Feature
 		 * @param double max_y Maximun y
 		 * @param double resolution Resolution of the neighboring area
 		 */
-		void setNeighboringArea(double min_x, double max_x, double min_y, double max_y, double resolution);
+		void setNeighboringArea(double min_x, double max_x, double min_y, double max_y,
+				double resolution);
 
 		/**
 		 * @brief Gets the name of the feature
 		 * @return std::string Return the name of the feature
 		 */
 		std::string getName();
-
 
 	protected:
 		/** @brief Name of the feature **/

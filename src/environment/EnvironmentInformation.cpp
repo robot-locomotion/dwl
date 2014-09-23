@@ -7,9 +7,12 @@ namespace dwl
 namespace environment
 {
 
-EnvironmentInformation::EnvironmentInformation() : terrain_space_discretization_(0.04, 0.04, M_PI / 200), obstacle_space_discretization_(0.04, 0.04, M_PI / 200),
-		average_terrain_cost_(0), terrain_information_(false), obstacle_information_(false), terrain_resolution_(std::numeric_limits<double>::max()),
-		obstacle_resolution_(std::numeric_limits<double>::max())
+EnvironmentInformation::EnvironmentInformation() :
+		terrain_space_discretization_(0.04, 0.04, M_PI / 200),
+				obstacle_space_discretization_(0.04, 0.04, M_PI / 200), average_terrain_cost_(0),
+				terrain_information_(false), obstacle_information_(false),
+				terrain_resolution_(std::numeric_limits<double>::max()),
+				obstacle_resolution_(std::numeric_limits<double>::max())
 {
 
 }
@@ -32,13 +35,15 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<RewardCell> r
 
 	// Storing the cost-map data according the vertex id
 	Vertex vertex_2d;
-	if (reward_map.size() != 0) {
+	if (reward_map.size() != 0)
+	{
 		// Setting the resolution
 		terrain_resolution_ = reward_map[0].plane_size;
 		setTerrainResolution(terrain_resolution_, true);
 		setTerrainResolution(reward_map[0].height_size, false);
 
-		for (int i = 0; i < (int) reward_map.size(); i++) {
+		for (int i = 0; i < (int) reward_map.size(); i++)
+		{
 			// Building a cost-map for a every 3d vertex
 			terrain_space_discretization_.keyToVertex(vertex_2d, reward_map[i].key, true);
 			terrain_cost_map_[vertex_2d] = -reward_map[i].reward;
@@ -67,13 +72,15 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> obstacl
 
 	//Storing the obstacle-map data according the vertex id
 	Vertex vertex_2d;
-	if (obstacle_map.size() != 0) {
+	if (obstacle_map.size() != 0)
+	{
 		// Setting the obstacle resolution
 		obstacle_resolution_ = obstacle_map[0].plane_size;
 		setObstacleResolution(obstacle_resolution_, true);
 		setObstacleResolution(obstacle_resolution_, false);
 
-		for (int i = 0; i < (int) obstacle_map.size(); i++) {
+		for (int i = 0; i < (int) obstacle_map.size(); i++)
+		{
 			// Building a cost map for a every 3d vertex
 			obstacle_space_discretization_.keyToVertex(vertex_2d, obstacle_map[i].key, true);
 			obstacle_map_[vertex_2d] = true;
@@ -96,7 +103,8 @@ void EnvironmentInformation::setObstacleResolution(double resolution, bool plane
 }
 
 
-void EnvironmentInformation::setStateResolution(double position_resolution, double angular_resolution)
+void EnvironmentInformation::setStateResolution(double position_resolution,
+		double angular_resolution)
 {
 	terrain_space_discretization_.setStateResolution(position_resolution, angular_resolution);
 	obstacle_space_discretization_.setStateResolution(position_resolution, angular_resolution);

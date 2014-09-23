@@ -6,7 +6,6 @@
 #include <utils/Math.h>
 #include <utils/Orientation.h>
 
-
 namespace dwl
 {
 

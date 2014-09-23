@@ -3,7 +3,6 @@
 
 #include <environment/Feature.h>
 
-
 namespace dwl
 {
 
@@ -37,7 +36,6 @@ class CurvatureFeature : public Feature
 		/** @brief Threshold that indicates a very (bad) condition */
 		double negative_threshold_;
 };
-
 
 } //@namespace environment
 } //@namespace dwl

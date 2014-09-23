@@ -4,7 +4,6 @@
 #include <environment/SpaceDiscretization.h>
 #include <utils/utils.h>
 
-
 namespace dwl
 {
 
@@ -99,7 +98,6 @@ class EnvironmentInformation
 		 */
 		SpaceDiscretization& getObstacleSpaceModel();
 
-
 		/**
 		 * @brief Indicates if it was defined terrain information
 		 * @return Returns true if it was defined terrain cost information, otherwise false
@@ -111,7 +109,6 @@ class EnvironmentInformation
 		 * @return Returns true if it was defined terrain obstacle information, otherwise false
 		 */
 		bool isObstacleInformation();
-
 
 	private:
 		/** @brief Object of the SpaceDiscretization class for defining the conversion routines for the terrain cost-map */

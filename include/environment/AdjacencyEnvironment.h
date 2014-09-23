@@ -8,7 +8,6 @@
 #include <utils/utils.h>
 #include <utils/Orientation.h>
 
-
 namespace dwl
 {
 
@@ -41,14 +40,16 @@ class AdjacencyEnvironment
 		 * @param dwl::Vertex source Source vertex
 		 * @param dwl::Vertex target Target vertex
 		 */
-		virtual void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target);
+		virtual void computeAdjacencyMap(AdjacencyMap& adjacency_map,
+				Vertex source, Vertex target);
 
 		/**
 		 * @brief Abstract method that gets the successors of a certain vertex
 		 * @param std::list<Edge>& successors The successors of a certain vertex
 		 * @param dwl::Vertex Current state vertex
 		 */
-		virtual void getSuccessors(std::list<Edge>& successors, Vertex state_vertex);
+		virtual void getSuccessors(std::list<Edge>& successors,
+				Vertex state_vertex);
 
 		/**
 		 * @brief Gets the closest start and goal vertex if it is not belong to the terrain information
@@ -57,7 +58,8 @@ class AdjacencyEnvironment
 		 * @param dwl::Vertex source Start vertex
 		 * @param dwl::Vertex target Goal vertex
 		 */
-		void getTheClosestStartAndGoalVertex(Vertex& closest_source, Vertex& closest_target, Vertex source, Vertex target);
+		void getTheClosestStartAndGoalVertex(Vertex& closest_source,
+				Vertex& closest_target, Vertex source, Vertex target);
 
 		/**
 		 * @brief Gets the closest vertex to a certain vertex
@@ -88,7 +90,8 @@ class AdjacencyEnvironment
 		 * @param bool body Indicates it is desired to use the body space definition
 		 * @return bool Returns true if it is free of obstacle, and false otherwise
 		 */
-		virtual bool isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body=false);
+		virtual bool isFreeOfObstacle(Vertex state_vertex,
+				TypeOfState state_representation, bool body = false);
 
 		/**
 		 * @brief Adds a feature for computing the associated body cost
@@ -107,7 +110,6 @@ class AdjacencyEnvironment
 		 * @return std::string Return the name of the adjacency model
 		 */
 		std::string getName();
-
 
 	protected:
 		/** @brief Name of the adjacency model */
@@ -131,12 +133,10 @@ class AdjacencyEnvironment
 		/** @brief Uncertainty factor which is applicated in un-perceived environment */
 		double uncertainty_factor_; // For unknown (non-perceive) areas
 
-		std::map<Vertex, double> orientations_;
+		std::map<Vertex,double> orientations_;
 };
-
 
 } //@namespace environment
 } //@namespace dwl
-
 
 #endif

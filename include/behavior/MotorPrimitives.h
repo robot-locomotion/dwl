@@ -3,7 +3,6 @@
 
 #include <utils/utils.h>
 
-
 namespace dwl
 {
 
@@ -28,7 +27,8 @@ class MotorPrimitives
 		 * @param std::vector<dwl::Action3d>& actions Set of actions
 		 * @param dwl::A3d state Current 3D pose
 		 */
-		virtual void generateActions(std::vector<Action3d>& actions, Pose3d state);
+		virtual void generateActions(std::vector<Action3d>& actions,
+				Pose3d state);
 };
 
 } //@namespace behavior

@@ -4,7 +4,6 @@
 #include <behavior/MotorPrimitives.h>
 #include <utils/utils.h>
 
-
 namespace dwl
 {
 
@@ -13,8 +12,8 @@ namespace behavior
 
 struct BodyMotorPrimitive
 {
-	Eigen::Vector3d action;
-	double cost;
+		Eigen::Vector3d action;
+		double cost;
 };
 
 /**
@@ -36,7 +35,6 @@ class BodyMotorPrimitives : public MotorPrimitives
 		 * @param dwl::Action3d state Current 3D pose
 		 */
 		void generateActions(std::vector<Action3d>& actions, Pose3d state);
-
 
 	private:
 		std::vector<BodyMotorPrimitive> actions_;
