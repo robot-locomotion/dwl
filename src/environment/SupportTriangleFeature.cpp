@@ -48,9 +48,9 @@ void SupportTriangleFeature::computeReward(double& reward_value, RobotAndTerrain
 	Eigen::Vector2d foothold_0 = future_stance[0].head(2);
 	Eigen::Vector2d foothold_1 = future_stance[1].head(2);
 	Eigen::Vector2d foothold_2 = future_stance[2].head(2);
-	double size_a = (foothold_1 - foothold_0).transpose() * (foothold_1 - foothold_0);
-	double size_b = (foothold_2 - foothold_0).transpose() * (foothold_2 - foothold_0);
-	double size_c = (foothold_2 - foothold_1).transpose() * (foothold_2 - foothold_1);
+	double size_a = (foothold_1 - foothold_0).norm();
+	double size_b = (foothold_2 - foothold_0).norm();
+	double size_c = (foothold_2 - foothold_1).norm();
 
 	utils::Math math;
 	math.inRadiiTriangle(inradii, size_a, size_b, size_c);

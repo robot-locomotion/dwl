@@ -25,8 +25,6 @@ LatticeBasedBodyAdjacency::~LatticeBasedBodyAdjacency()
 
 void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex state_vertex)
 {
-	stance_areas_ = robot_->getStanceAreas();
-
 	// Getting the 3d pose for generating the actions
 	std::vector<Action3d> actions;
 	Eigen::Vector3d current_state;
@@ -54,6 +52,9 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 
 			// Converting state vertex to environment vertex
 			environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, current_action_vertex, XY_Y);
+
+			// Computing the current action
+			current_action_ = action_state - current_state;
 
 			// Checks if there is an obstacle
 			if (isFreeOfObstacle(current_action_vertex, XY_Y, true)) {
@@ -84,6 +85,9 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 	// Getting the terrain cost map
 	CostMap terrain_costmap;
 	environment_->getTerrainCostMap(terrain_costmap);
+
+	// Getting the stance areas according to the action
+	stance_areas_ = robot_->getStanceAreas(current_action_);
 
 	// Computing the terrain cost
 	double terrain_cost = 0;
@@ -147,6 +151,7 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 
 	// Getting robot and terrain information
 	RobotAndTerrain info;
+	info.body_action = current_action_;
 	info.pose.position = (Eigen::Vector2d) state.head(2);
 	info.pose.orientation = (double) state(2);
 	info.height_map = heightmap;

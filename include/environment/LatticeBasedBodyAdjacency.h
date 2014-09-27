@@ -64,6 +64,9 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		/** @brief Pointer to the motor primitives */
 		behavior::MotorPrimitives* behavior_;
 
+		/** @brief Current action of the body */
+		Eigen::Vector3d current_action_;
+
 		/** @brief Indicates it was requested a stance or terrain adjacency */
 		bool is_stance_adjacency_;
 

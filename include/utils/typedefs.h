@@ -192,6 +192,7 @@ struct Terrain
  */
 struct RobotAndTerrain
 {
+	Eigen::Vector3d body_action;
 	Pose3d pose;
 	Contact potential_contact;
 	std::vector<Contact> current_contacts;

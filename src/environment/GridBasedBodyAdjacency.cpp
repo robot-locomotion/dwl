@@ -13,7 +13,8 @@ GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true), n
 	is_lattice_ = false;
 
 	//TODO stance area
-	stance_areas_ = robot_->getStanceAreas();
+	Eigen::Vector3d full_action = Eigen::Vector3d::Zero();
+	stance_areas_ = robot_->getStanceAreas(full_action);
 }
 
 

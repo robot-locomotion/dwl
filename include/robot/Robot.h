@@ -70,9 +70,10 @@ class Robot
 
 		/**
 		 * @brief Gets the nominal stance of the robot
+		 * @param Eigen::Vector3d action Action to execute
 		 * @return std::vector<Eigen::Vector3d> Returns the nominal stance of the robot
 		 */
-		std::vector<Eigen::Vector3d> getNominalStance();
+		std::vector<Eigen::Vector3d> getNominalStance(Eigen::Vector3d action);
 
 		/**
 		 * @brief Gets the pattern of locomotion of the robot
@@ -82,9 +83,10 @@ class Robot
 
 		/**
 		 * @brief Gets the stance areas
+		 * @param Eigen::Vector3d action Action to execute
 		 * @return std::vector<SearchArea> Returns the stance areas
 		 */
-		std::vector<SearchArea> getStanceAreas();
+		std::vector<SearchArea> getStanceAreas(Eigen::Vector3d action);
 
 		/**
 		 * @brief Gets the expected ground according to the nominal stance
@@ -112,12 +114,16 @@ class Robot
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> stance_areas_;
+		std::vector<SearchArea> forward_stance_areas_;
+		std::vector<SearchArea> backward_stance_areas_;
 
 		/** @brief Vector of the body area */
 		Area body_area_;
 
 		/** @brief Vector of the nominal stance */
 		std::vector<Eigen::Vector3d> nominal_stance_;
+		std::vector<Eigen::Vector3d> forward_nominal_stance_;
+		std::vector<Eigen::Vector3d> backward_nominal_stance_;
 
 		/** @brief Pattern of locomotion */
 		std::vector<int> pattern_locomotion_;

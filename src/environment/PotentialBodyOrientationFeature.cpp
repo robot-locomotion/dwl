@@ -36,7 +36,7 @@ void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotA
 
 	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
 		// Getting the leg area
-		SearchArea leg_area = robot_->getStanceAreas()[leg];
+		SearchArea leg_area = robot_->getStanceAreas(info.body_action)[leg];
 
 		Eigen::Vector2d boundary_min, boundary_max;
 		boundary_min(0) = leg_area.min_x + position(0);

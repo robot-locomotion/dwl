@@ -93,11 +93,10 @@ void SpaceDiscretization::keyToCoord(double& coordinate, const unsigned short in
 
 void SpaceDiscretization::keyToVertex(Vertex& vertex, const Key key, const bool plane) const
 {
-	unsigned long int max_count = std::numeric_limits<unsigned short int>::max() + 1;
 	if (plane)
-		vertex = key.y + max_count * key.x;
+		vertex = key.y + max_key_count_ * key.x;
 	else
-		vertex = key.z + max_count * key.y + max_count * max_count * key.x;
+		vertex = key.z + max_key_count_ * key.y + max_key_count_ * max_key_count_ * key.x;
 }
 
 

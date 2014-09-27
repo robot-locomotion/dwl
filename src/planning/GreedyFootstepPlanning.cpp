@@ -1,4 +1,4 @@
-#include <planning/GreedyFootstepPlanning.h>
+	#include <planning/GreedyFootstepPlanning.h>
 
 namespace dwl {
 
@@ -10,18 +10,22 @@ GreedyFootstepPlanning::GreedyFootstepPlanning() :
 	name_ = "Greedy Footstep";
 }
 
-GreedyFootstepPlanning::~GreedyFootstepPlanning() {
+GreedyFootstepPlanning::~GreedyFootstepPlanning()
+{
 
 }
 
-bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contact_sequence,
-		std::vector<Pose> pose_trajectory) {
-	// Setting the current body state
+bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory)
+{
+	// Setting the current discretized body state
 	Pose current_body_pose = robot_->getCurrentPose();
 	double current_roll, current_pitch, current_yaw;
 	Orientation current_orientation(current_body_pose.orientation);
 	current_orientation.getRPY(current_roll, current_pitch, current_yaw);
 	current_body_state_ << current_body_pose.position.head(2), current_yaw;
+	Vertex current_state_vertex;
+	environment_->getTerrainSpaceModel().stateToVertex(current_state_vertex, current_body_state_);
+	environment_->getTerrainSpaceModel().vertexToState(current_body_state_, current_state_vertex);
 
 	// Setting the contact horizon
 	int contact_horizon;
@@ -30,11 +34,14 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 	else
 		contact_horizon = contact_horizon_ + 1;
 
+	std::cout << "Path = ";
 	std::vector<Contact> current_contacts = robot_->getCurrentContacts();
 	for (int i = 1; i < contact_horizon; i++) {
 		Orientation orientation(pose_trajectory[i].orientation);
 		double roll, pitch, yaw;
 		orientation.getRPY(roll, pitch, yaw);
+
+		std::cout << pose_trajectory[i].position(0) << " " << pose_trajectory[i].position(1) << " " << yaw << std::endl;
 
 		std::vector<Contact> planned_contacts;
 		if (!computeContacts(planned_contacts, current_contacts, pose_trajectory[i])) {
@@ -53,8 +60,8 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 	return true;
 }
 
-bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts,
-		Pose goal_pose) {
+bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts, Pose goal_pose)
+{
 	// Initilization of footholds
 	footholds.clear();
 
@@ -82,6 +89,7 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 
 	// Setting the first leg according to the action
 	Eigen::Vector2d action = body_state.head(2) - current_body_state_.head(2);
+	Eigen::Vector3d full_action = body_state - current_body_state_;
 	double angular_tolerance = 0.2;
 	double next_yaw, delta_yaw;
 	if (action.norm() < 0.04)
@@ -96,7 +104,7 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 		past_leg_id = 0;
 	else if ((delta_yaw >= M_PI_2 - angular_tolerance) && (delta_yaw <= M_PI_2 + angular_tolerance))
 		past_leg_id = 1;
-	else if (delta_yaw > 0.1) //TODO Delete this offset
+	else if (delta_yaw > 0) //TODO Delete this offset
 		past_leg_id = 0;
 	else
 		past_leg_id = 1;
@@ -128,17 +136,17 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 
 		// Computing the boundary of stance area
 		Eigen::Vector2d boundary_min, boundary_max;
-		boundary_min(0) = body_state(0) + robot_->getStanceAreas()[current_leg_id].min_x;
-		boundary_min(1) = body_state(1) + robot_->getStanceAreas()[current_leg_id].min_y;
-		boundary_max(0) = body_state(0) + robot_->getStanceAreas()[current_leg_id].max_x;
-		boundary_max(1) = body_state(1) + robot_->getStanceAreas()[current_leg_id].max_y;
+		boundary_min(0) = body_state(0) + robot_->getStanceAreas(full_action)[current_leg_id].min_x;
+		boundary_min(1) = body_state(1) + robot_->getStanceAreas(full_action)[current_leg_id].min_y;
+		boundary_max(0) = body_state(0) + robot_->getStanceAreas(full_action)[current_leg_id].max_x;
+		boundary_max(1) = body_state(1) + robot_->getStanceAreas(full_action)[current_leg_id].max_y;
 
 		std::set<std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double center_x = boundary_min(0) + (boundary_max(0) - boundary_min(0)) / 2;
 		double center_y = boundary_min(1) + (boundary_max(1) - boundary_min(1)) / 2;
 		double window_x = (boundary_max(0) - boundary_min(0)) / 2;
 		double window_y = (boundary_max(1) - boundary_min(1)) / 2;
-		double resolution = robot_->getStanceAreas()[current_leg_id].grid_resolution;
+		double resolution = robot_->getStanceAreas(full_action)[current_leg_id].grid_resolution; //TODO
 		for (double xi = 0; xi < window_x; xi += resolution) {
 			for (int sx = -1; sx <= 1; sx += 2) {
 				for (double yi = 0; yi < window_y; yi += resolution) {
@@ -151,8 +159,7 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 
 						Vertex current_vertex, terrain_vertex;
 						environment_->getTerrainSpaceModel().stateToVertex(current_vertex, current_state);
-						environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, current_vertex,
-								XY_Y);
+						environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, current_vertex,	XY_Y);
 
 						// Getting the cost of the terrain
 						double terrain_cost, body_cost = 0, contact_cost;
@@ -191,7 +198,7 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 			environment_->getTerrainSpaceModel().vertexToCoord(foothold_coord, foothold_vertex);
 			foothold.position << foothold_coord, (terrain_heightmap.find(foothold_vertex)->second + leg_offset_);
 		} else {
-			Eigen::Vector3d nominal_stance = robot_->getNominalStance()[current_leg_id];
+			Eigen::Vector3d nominal_stance = robot_->getNominalStance(full_action)[current_leg_id];
 			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
 			foothold.position(1) = body_state(1) + nominal_stance(0) * sin(yaw) + nominal_stance(1) * cos(yaw);
 			foothold.position(2) = robot_->getExpectedGround(current_leg_id);

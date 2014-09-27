@@ -34,7 +34,7 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
 		// Getting the leg area and nominal stance of the leg
 		SearchArea leg_area = robot_->getLegWorkAreas()[leg];
-		Eigen::Vector3d nominal_stance = robot_->getNominalStance()[leg];
+		Eigen::Vector3d nominal_stance = robot_->getNominalStance(info.body_action)[leg];
 
 		Eigen::Vector2d boundary_min, boundary_max;
 		boundary_min(0) = position(0) + nominal_stance(0) + leg_area.min_x;
