@@ -420,7 +420,7 @@ void HierarchicalPlanners::publishContactSequence()
 			contact_sequence_msg_.contacts[i].end_effector = contact_sequence_[i].end_effector + 1; //This for compatibility with the controller
 			contact_sequence_msg_.contacts[i].position.x = contact_sequence_[i].position(0);
 			contact_sequence_msg_.contacts[i].position.y = contact_sequence_[i].position(1);
-			contact_sequence_msg_.contacts[i].position.z = contact_sequence_[i].position(2) + 0.575648;
+			contact_sequence_msg_.contacts[i].position.z = contact_sequence_[i].position(2);
 		}
 
 		contact_sequence_pub_.publish(contact_sequence_msg_);
@@ -448,28 +448,28 @@ void HierarchicalPlanners::publishContactSequence()
 			int end_effector = contact_sequence_[i].end_effector;
 			if (end_effector == 0) { //TODO Remove the offset
 				std::cout << "1\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1)
-						<< "\t" << contact_sequence_[i].position(2) + 0.575648 << std::endl;
+						<< "\t" << contact_sequence_[i].position(2) << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 0.45;
 				contact_sequence_rviz_msg_.colors[i].g = 0.29;
 				contact_sequence_rviz_msg_.colors[i].b = 0.09;
 				contact_sequence_rviz_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 1) {
 				std::cout << "2\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1)
-						<< "\t" << contact_sequence_[i].position(2) + 0.575648 << std::endl;
+						<< "\t" << contact_sequence_[i].position(2) << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 1.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 0.0;
 				contact_sequence_rviz_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 2) {
 				std::cout << "3\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1)
-						<< "\t" << contact_sequence_[i].position(2) + 0.575648 << std::endl;
+						<< "\t" << contact_sequence_[i].position(2) << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 0.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 0.0;
 				contact_sequence_rviz_msg_.colors[i].a = 1.0;
 			} else if (end_effector == 3) {
 				std::cout << "4\t" << contact_sequence_[i].position(0) << "\t" << contact_sequence_[i].position(1)
-						<< "\t" << contact_sequence_[i].position(2) + 0.575648 << std::endl;
+						<< "\t" << contact_sequence_[i].position(2) << std::endl;
 				contact_sequence_rviz_msg_.colors[i].r = 0.09;
 				contact_sequence_rviz_msg_.colors[i].g = 0.11;
 				contact_sequence_rviz_msg_.colors[i].b = 0.7;
