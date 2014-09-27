@@ -1,19 +1,22 @@
 	#include <planning/GreedyFootstepPlanning.h>
 
-namespace dwl {
+namespace dwl
+{
 
-namespace planning {
+namespace planning
+{
 
-GreedyFootstepPlanning::GreedyFootstepPlanning() :
-		leg_offset_(0.0) //0.025
+GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.0), last_past_leg_ (1) //0.025
 {
 	name_ = "Greedy Footstep";
 }
+
 
 GreedyFootstepPlanning::~GreedyFootstepPlanning()
 {
 
 }
+
 
 bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory)
 {
@@ -36,7 +39,7 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 
 	std::cout << "Path = ";
 	std::vector<Contact> current_contacts = robot_->getCurrentContacts();
-	for (int i = 1; i < contact_horizon; i++) {
+	for (int i = 0; i < contact_horizon; i++) {
 		Orientation orientation(pose_trajectory[i].orientation);
 		double roll, pitch, yaw;
 		orientation.getRPY(roll, pitch, yaw);
@@ -59,6 +62,7 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 
 	return true;
 }
+
 
 bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts, Pose goal_pose)
 {
@@ -99,16 +103,20 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 		delta_yaw = next_yaw - yaw;
 	}
 
+	//TODO Clean this shit
 	int past_leg_id;
 	if ((delta_yaw >= -M_PI_2 - angular_tolerance) && (delta_yaw <= -M_PI_2 + angular_tolerance))
 		past_leg_id = 0;
 	else if ((delta_yaw >= M_PI_2 - angular_tolerance) && (delta_yaw <= M_PI_2 + angular_tolerance))
 		past_leg_id = 1;
-	else if (delta_yaw > 0) //TODO Delete this offset
+	else if (delta_yaw > angular_tolerance)
 		past_leg_id = 0;
-	else
+	else if (delta_yaw < -angular_tolerance)
 		past_leg_id = 1;
+	else
+		past_leg_id = last_past_leg_;
 	current_body_state_ = body_state;
+	last_past_leg_ = past_leg_id;
 	std::cout << delta_yaw << std::endl;
 
 	// Computing the contact sequence

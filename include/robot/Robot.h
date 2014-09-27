@@ -114,16 +114,12 @@ class Robot
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> stance_areas_;
-		std::vector<SearchArea> forward_stance_areas_;
-		std::vector<SearchArea> backward_stance_areas_;
 
 		/** @brief Vector of the body area */
 		Area body_area_;
 
 		/** @brief Vector of the nominal stance */
 		std::vector<Eigen::Vector3d> nominal_stance_;
-		std::vector<Eigen::Vector3d> forward_nominal_stance_;
-		std::vector<Eigen::Vector3d> backward_nominal_stance_;
 
 		/** @brief Pattern of locomotion */
 		std::vector<int> pattern_locomotion_;
@@ -136,6 +132,12 @@ class Robot
 
 		/** @brief Leg work-areas */
 		std::vector<SearchArea> leg_areas_;
+
+		/** @brief Estimated ground from the body frame */
+		double estimated_ground_from_body_;
+
+		/** @brief The last past leg */
+		int last_past_leg_;
 };
 
 } //@namespace robot

@@ -8,32 +8,21 @@ namespace dwl
 namespace robot
 {
 
-Robot::Robot() : number_legs_(4), stance_size_(0.1)
+Robot::Robot() : number_legs_(4), stance_size_(0.1), estimated_ground_from_body_(-0.55), last_past_leg_(1)
 {
-	// Defining the stance position per leg
-	double displacement_x = 0.04;
-	nominal_stance_.resize(number_legs_);
-	nominal_stance_[LF] << 0.36, 0.32, -0.5757;
-	nominal_stance_[RF] << 0.36, -0.32, -0.5757;
-	nominal_stance_[LH] << -0.36, 0.32, -0.5757;
-	nominal_stance_[RH] << -0.36, -0.32, -0.5757;
-	forward_nominal_stance_.resize(number_legs_);
-	forward_nominal_stance_[LF] << 0.36 - displacement_x, 0.32, -0.5757;
-	forward_nominal_stance_[RF] << 0.36 - displacement_x, -0.32, -0.5757;
-	forward_nominal_stance_[LH] << -0.36 - displacement_x, 0.32, -0.5757;
-	forward_nominal_stance_[RH] << -0.36 - displacement_x, -0.32, -0.5757;
-	backward_nominal_stance_.resize(number_legs_);
-	backward_nominal_stance_[LF] << 0.36 + displacement_x, 0.32, -0.5757;
-	backward_nominal_stance_[RF] << 0.36 + displacement_x, -0.32, -0.5757;
-	backward_nominal_stance_[LH] << -0.36 + displacement_x, 0.32, -0.5757;
-	backward_nominal_stance_[RH] << -0.36 + displacement_x, -0.32, -0.5757;
-
 	// Defining the pattern of locomotion
 	pattern_locomotion_.resize(number_legs_);
 	pattern_locomotion_[LF] = RH;
 	pattern_locomotion_[RF] = LH;
 	pattern_locomotion_[LH] = LF;
 	pattern_locomotion_[RH] = RF;
+
+	// Defining the stance position per leg
+	nominal_stance_.resize(number_legs_);
+	nominal_stance_[LF] << 0.36, 0.32, estimated_ground_from_body_;
+	nominal_stance_[RF] << 0.36, -0.32, estimated_ground_from_body_;
+	nominal_stance_[LH] << -0.36, 0.32, estimated_ground_from_body_;
+	nominal_stance_[RH] << -0.36, -0.32, estimated_ground_from_body_;
 
 	// Defining the search areas for the stance position of HyQ
 	SearchArea stance_area;
@@ -44,20 +33,6 @@ Robot::Robot() : number_legs_(4), stance_size_(0.1)
 		stance_area.max_y = nominal_stance_[i](1) + stance_size_;
 		stance_area.min_y = nominal_stance_[i](1) - stance_size_;
 		stance_areas_.push_back(stance_area);
-	}
-	for (int i = 0; i < number_legs_; i++) {
-		stance_area.max_x = forward_nominal_stance_[i](0) + stance_size_;
-		stance_area.min_x = forward_nominal_stance_[i](0) - stance_size_;
-		stance_area.max_y = forward_nominal_stance_[i](1) + stance_size_;
-		stance_area.min_y = forward_nominal_stance_[i](1) - stance_size_;
-		forward_stance_areas_.push_back(stance_area);
-	}
-	for (int i = 0; i < number_legs_; i++) {
-		stance_area.max_x = backward_nominal_stance_[i](0) + stance_size_;
-		stance_area.min_x = backward_nominal_stance_[i](0) - stance_size_;
-		stance_area.max_y = backward_nominal_stance_[i](1) + stance_size_;
-		stance_area.min_y = backward_nominal_stance_[i](1) - stance_size_;
-		backward_stance_areas_.push_back(stance_area);
 	}
 
 	// Defining the body area of HyQ
@@ -103,6 +78,12 @@ void Robot::setCurrentPose(Pose pose)
 void Robot::setCurrentContacts(std::vector<Contact> contacts)
 {
 	current_contacts_ = contacts;
+
+	estimated_ground_from_body_ = 0;
+	for (int i = 0; i < number_legs_; i++)
+		estimated_ground_from_body_ += contacts[i].position(2);
+
+	estimated_ground_from_body_ /= number_legs_;
 }
 
 
@@ -138,14 +119,42 @@ Area Robot::getBodyArea()
 
 std::vector<Eigen::Vector3d> Robot::getNominalStance(Eigen::Vector3d action)
 {
-	std::vector<Eigen::Vector3d> nominal_stance;
+	double displacement_x, leg_offset;
 	double frontal_action = action(0);
 	if (frontal_action == 0)
-		nominal_stance = nominal_stance_;
+		displacement_x = 0;
 	else if (frontal_action > 0)
-		nominal_stance = forward_nominal_stance_;
+		displacement_x = -0.04;
 	else
-		nominal_stance = backward_nominal_stance_;
+		displacement_x = 0.04;
+
+	//TODO Clean this shit
+	int past_leg_id;
+	double angular_tolerance = 0.2;
+	if ((action(2) >= -M_PI_2 - angular_tolerance) && (action(2) <= -M_PI_2 + angular_tolerance))
+		past_leg_id = 0;
+	else if ((action(2) >= M_PI_2 - angular_tolerance) && (action(2) <= M_PI_2 + angular_tolerance))
+		past_leg_id = 1;
+	else if (action(2) > angular_tolerance)
+		past_leg_id = 0;
+	else if (action(2) < -angular_tolerance)
+		past_leg_id = 1;
+	else
+		past_leg_id = last_past_leg_;
+	last_past_leg_ = past_leg_id;
+
+	if (past_leg_id == 0)
+		leg_offset = -0.04;
+	else
+		leg_offset = 0.04;
+
+	// Defining the stance position per leg
+	std::vector<Eigen::Vector3d> nominal_stance;
+	nominal_stance.resize(number_legs_);
+	nominal_stance[LF] << 0.36 - leg_offset + displacement_x, 0.32, estimated_ground_from_body_;
+	nominal_stance[RF] << 0.36 + leg_offset + displacement_x, -0.32, estimated_ground_from_body_;
+	nominal_stance[LH] << -0.36 - leg_offset + displacement_x, 0.32, estimated_ground_from_body_;
+	nominal_stance[RH] << -0.36 + leg_offset + displacement_x, -0.32, estimated_ground_from_body_;
 
 	return nominal_stance;
 }
@@ -159,14 +168,19 @@ std::vector<int> Robot::getPatternOfLocomotion()
 
 std::vector<SearchArea> Robot::getStanceAreas(Eigen::Vector3d action)
 {
+	std::vector<Eigen::Vector3d> nominal_stance = getNominalStance(action);
+
 	std::vector<SearchArea> stance_areas;
-	double frontal_action = action(0);
-	if (frontal_action == 0)
-		stance_areas = stance_areas_;
-	else if (frontal_action > 0)
-		stance_areas = forward_stance_areas_;
-	else
-		stance_areas = backward_stance_areas_;
+	stance_areas.resize(number_legs_);
+	SearchArea stance_area;
+	stance_area.grid_resolution = 0.04;
+	for (int i = 0; i < number_legs_; i++) {
+		stance_area.max_x = nominal_stance[i](0) + stance_size_;
+		stance_area.min_x = nominal_stance[i](0) - stance_size_;
+		stance_area.max_y = nominal_stance[i](1) + stance_size_;
+		stance_area.min_y = nominal_stance[i](1) - stance_size_;
+		stance_areas.push_back(stance_area);
+	}
 
 	return stance_areas;
 }
@@ -174,7 +188,7 @@ std::vector<SearchArea> Robot::getStanceAreas(Eigen::Vector3d action)
 
 double Robot::getExpectedGround(int leg_id)
 {
-	return current_pose_.position(2) + nominal_stance_[leg_id](2);
+	return current_pose_.position(2) + estimated_ground_from_body_;
 }
 
 
