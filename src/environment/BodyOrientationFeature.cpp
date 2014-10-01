@@ -21,8 +21,7 @@ BodyOrientationFeature::~BodyOrientationFeature()
 }
 
 
-void BodyOrientationFeature::computeReward(double& reward_value,
-		RobotAndTerrain info)
+void BodyOrientationFeature::computeReward(double& reward_value, RobotAndTerrain info)
 {
 	// Setting the resolution of the terrain
 	space_discretization_.setEnvironmentResolution(info.resolution, true);
@@ -35,8 +34,7 @@ void BodyOrientationFeature::computeReward(double& reward_value,
 	std::vector<Eigen::Vector3f> stance;
 	Eigen::Vector3f leg_position;
 	int num_footholds = potential_footholds.size();
-	for (int i = 0; i < num_footholds; i++)
-	{
+	for (int i = 0; i < num_footholds; i++) {
 		float foothold_x = potential_footholds[i].position(0);
 		float foothold_y = potential_footholds[i].position(1);
 		float foothold_z = potential_footholds[i].position(2);

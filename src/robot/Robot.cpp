@@ -1,6 +1,6 @@
 #include <robot/Robot.h>
-
 #include <utils/Math.h>
+
 
 namespace dwl
 {
@@ -8,7 +8,7 @@ namespace dwl
 namespace robot
 {
 
-Robot::Robot() : number_legs_(4), stance_size_(0.1), estimated_ground_from_body_(-0.55), last_past_leg_(1)
+Robot::Robot() : number_legs_(4), stance_size_(0.125), estimated_ground_from_body_(-0.55), last_past_leg_(1)
 {
 	// Defining the pattern of locomotion
 	pattern_locomotion_.resize(number_legs_);
@@ -48,11 +48,11 @@ Robot::Robot() : number_legs_(4), stance_size_(0.1), estimated_ground_from_body_
 	for (int leg_id = 0; leg_id < number_legs_; leg_id++) {
 		if ((leg_id == LF) || (leg_id == RF)) {
 			leg_area.min_x = -leg_workspace;
-			leg_area.max_x = 2.5 * stance_size_;
+			leg_area.max_x = 1.5 * stance_size_;
 			leg_area.min_y = -stance_size_;
 			leg_area.max_y = stance_size_;
 		} else {
-			leg_area.min_x = -stance_size_;
+			leg_area.min_x = -1.5 * stance_size_;
 			leg_area.max_x = leg_workspace;
 			leg_area.min_y = -stance_size_;
 			leg_area.max_y = stance_size_;
@@ -128,25 +128,31 @@ std::vector<Eigen::Vector3d> Robot::getNominalStance(Eigen::Vector3d action)
 	else
 		displacement_x = 0.04;
 
+
 	//TODO Clean this shit
 	int past_leg_id;
 	double angular_tolerance = 0.2;
-	if ((action(2) >= -M_PI_2 - angular_tolerance) && (action(2) <= -M_PI_2 + angular_tolerance))
+	if ((action(2) >= -M_PI_2 - angular_tolerance) && (action(2) <= -M_PI_2 + angular_tolerance)) {
 		past_leg_id = 0;
-	else if ((action(2) >= M_PI_2 - angular_tolerance) && (action(2) <= M_PI_2 + angular_tolerance))
+		leg_offset = -0.06;
+	} else if ((action(2) >= M_PI_2 - angular_tolerance) && (action(2) <= M_PI_2 + angular_tolerance)) {
 		past_leg_id = 1;
-	else if (action(2) > angular_tolerance)
+		leg_offset = 0.06;
+	} else if (action(2) > angular_tolerance) {
 		past_leg_id = 0;
-	else if (action(2) < -angular_tolerance)
+		leg_offset = 0;
+	} else if (action(2) < -angular_tolerance) {
 		past_leg_id = 1;
-	else
+		leg_offset = 0;
+	} else {
 		past_leg_id = last_past_leg_;
+		if (past_leg_id == 0)
+			leg_offset = -0.06;
+		else
+			leg_offset = 0.06;
+	}
 	last_past_leg_ = past_leg_id;
 
-	if (past_leg_id == 0)
-		leg_offset = -0.04;
-	else
-		leg_offset = 0.04;
 
 	// Defining the stance position per leg
 	std::vector<Eigen::Vector3d> nominal_stance;
@@ -171,7 +177,6 @@ std::vector<SearchArea> Robot::getStanceAreas(Eigen::Vector3d action)
 	std::vector<Eigen::Vector3d> nominal_stance = getNominalStance(action);
 
 	std::vector<SearchArea> stance_areas;
-	stance_areas.resize(number_legs_);
 	SearchArea stance_area;
 	stance_area.grid_resolution = 0.04;
 	for (int i = 0; i < number_legs_; i++) {
