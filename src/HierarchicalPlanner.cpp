@@ -222,78 +222,82 @@ void HierarchicalPlanners::initContactPlanner()
 
 bool HierarchicalPlanners::compute()
 {
+	bool solution = false;
+
 	// Getting the transformation between the world to robot frame
 	tf::StampedTransform tf_transform, lf_transform, rf_transform, lh_transform, rh_transform;
 	try {
 		tf_listener_.waitForTransform(world_frame_, base_frame_, ros::Time(0), ros::Duration(0.05));
 		tf_listener_.lookupTransform(world_frame_, base_frame_, ros::Time(0), tf_transform);
 
-		tf_listener_.waitForTransform(world_frame_, "lf_foot", ros::Time(0), ros::Duration(0.05));
-		tf_listener_.lookupTransform(world_frame_, "lf_foot", ros::Time(0), lf_transform);
+		tf_listener_.waitForTransform(base_frame_, "lf_foot", ros::Time(0), ros::Duration(0.05));
+		tf_listener_.lookupTransform(base_frame_, "lf_foot", ros::Time(0), lf_transform);
 
-		tf_listener_.waitForTransform(world_frame_, "rf_foot", ros::Time(0), ros::Duration(0.05));
-		tf_listener_.lookupTransform(world_frame_, "rf_foot", ros::Time(0), rf_transform);
+		tf_listener_.waitForTransform(base_frame_, "rf_foot", ros::Time(0), ros::Duration(0.05));
+		tf_listener_.lookupTransform(base_frame_, "rf_foot", ros::Time(0), rf_transform);
 
-		tf_listener_.waitForTransform(world_frame_, "lh_foot", ros::Time(0), ros::Duration(0.05));
-		tf_listener_.lookupTransform(world_frame_, "lh_foot", ros::Time(0), lh_transform);
+		tf_listener_.waitForTransform(base_frame_, "lh_foot", ros::Time(0), ros::Duration(0.05));
+		tf_listener_.lookupTransform(base_frame_, "lh_foot", ros::Time(0), lh_transform);
 
-		tf_listener_.waitForTransform(world_frame_, "rh_foot", ros::Time(0), ros::Duration(0.05));
-		tf_listener_.lookupTransform(world_frame_, "rh_foot", ros::Time(0), rh_transform);
+		tf_listener_.waitForTransform(base_frame_, "rh_foot", ros::Time(0), ros::Duration(0.05));
+		tf_listener_.lookupTransform(base_frame_, "rh_foot", ros::Time(0), rh_transform);
+
+		// Setting the current contacts of the robot
+		std::vector<dwl::Contact> current_footholds;
+		dwl::Contact contact;
+		contact.end_effector = 0;
+		contact.position << lf_transform.getOrigin()[0], lf_transform.getOrigin()[1], lf_transform.getOrigin()[2];
+		current_footholds.push_back(contact);
+		contact.end_effector = 1;
+		contact.position << rf_transform.getOrigin()[0], rf_transform.getOrigin()[1], rf_transform.getOrigin()[2];
+		current_footholds.push_back(contact);
+		contact.end_effector = 2;
+		contact.position << lh_transform.getOrigin()[0], lh_transform.getOrigin()[1], lh_transform.getOrigin()[2];
+		current_footholds.push_back(contact);
+		contact.end_effector = 3;
+		contact.position << rh_transform.getOrigin()[0], rh_transform.getOrigin()[1], rh_transform.getOrigin()[2];
+		current_footholds.push_back(contact);
+
+		robot_.setCurrentContacts(current_footholds);
+
+		// Getting the robot state (3D position and yaw angle)
+		Eigen::Vector3d robot_position;
+		robot_position(0) = tf_transform.getOrigin()[0];
+		robot_position(1) = tf_transform.getOrigin()[1];
+		robot_position(2) = tf_transform.getOrigin()[2];
+		Eigen::Vector4d robot_orientation;
+		robot_orientation(0) = tf_transform.getRotation().getX();
+		robot_orientation(1) = tf_transform.getRotation().getY();
+		robot_orientation(2) = tf_transform.getRotation().getZ();
+		robot_orientation(3) = tf_transform.getRotation().getW();
+
+		// Setting the current pose
+		current_pose_.position = robot_position;
+		current_pose_.orientation = robot_orientation;
+
+
+		// Computing the locomotion plan
+		if (pthread_mutex_trylock(&planner_lock_) == 0) {
+			timespec start_rt, end_rt;
+			clock_gettime(CLOCK_REALTIME, &start_rt);
+
+			solution = locomotor_.compute(current_pose_);
+
+			clock_gettime(CLOCK_REALTIME, &end_rt);
+			double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
+			ROS_INFO("The duration of computation of plan is %f seg.", duration);
+		}
+		else
+			pthread_mutex_unlock(&planner_lock_);
+
+		body_path_ = locomotor_.getBodyPath();
+		contact_sequence_ = locomotor_.getContactSequence();
 	} catch (tf::TransformException& ex) {
 		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
+
+		return false;
 	}
 
-	// Setting the current contacts of the robot
-	std::vector<dwl::Contact> current_footholds;
-	dwl::Contact contact;
-	contact.end_effector = 0;
-	contact.position << lf_transform.getOrigin()[0], lf_transform.getOrigin()[1], lf_transform.getOrigin()[2];
-	current_footholds.push_back(contact);
-	contact.end_effector = 1;
-	contact.position << rf_transform.getOrigin()[0], rf_transform.getOrigin()[1], rf_transform.getOrigin()[2];
-	current_footholds.push_back(contact);
-	contact.end_effector = 2;
-	contact.position << lh_transform.getOrigin()[0], lh_transform.getOrigin()[1], lh_transform.getOrigin()[2];
-	current_footholds.push_back(contact);
-	contact.end_effector = 3;
-	contact.position << rh_transform.getOrigin()[0], rh_transform.getOrigin()[1], rh_transform.getOrigin()[2];
-	current_footholds.push_back(contact);
-
-	robot_.setCurrentContacts(current_footholds);
-
-	// Getting the robot state (3D position and yaw angle)
-	Eigen::Vector3d robot_position;
-	robot_position(0) = tf_transform.getOrigin()[0];
-	robot_position(1) = tf_transform.getOrigin()[1];
-	robot_position(2) = tf_transform.getOrigin()[2];
-	Eigen::Vector4d robot_orientation;
-	robot_orientation(0) = tf_transform.getRotation().getX();
-	robot_orientation(1) = tf_transform.getRotation().getY();
-	robot_orientation(2) = tf_transform.getRotation().getZ();
-	robot_orientation(3) = tf_transform.getRotation().getW();
-
-	// Setting the current pose
-	current_pose_.position = robot_position;
-	current_pose_.orientation = robot_orientation;
-
-	// Computing the locomotion plan
-	bool solution = false;
-
-	if (pthread_mutex_trylock(&planner_lock_) == 0) {
-		timespec start_rt, end_rt;
-		clock_gettime(CLOCK_REALTIME, &start_rt);
-
-		solution = locomotor_.compute(current_pose_);
-
-		clock_gettime(CLOCK_REALTIME, &end_rt);
-		double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
-		ROS_INFO("The duration of computation of plan is %f seg.", duration);
-	}
-	else
-		pthread_mutex_unlock(&planner_lock_);
-
-	body_path_ = locomotor_.getBodyPath();
-	contact_sequence_ = locomotor_.getContactSequence();
 
 	return solution;
 }
