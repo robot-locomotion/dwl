@@ -63,7 +63,7 @@ BodyMotorPrimitives::BodyMotorPrimitives() //TODO Test a lot with real HyQ
 	action << 0.0, 0.12, 0.0;
 	lateral_actions.push_back(action);
 	action << 0.0, 0.16, 0.0;
-//	lateral_actions.push_back(action);
+	lateral_actions.push_back(action);
 	action << 0.0, -0.04, 0.0;
 	lateral_actions.push_back(action);
 	action << 0.0, -0.08, 0.0;
@@ -71,7 +71,7 @@ BodyMotorPrimitives::BodyMotorPrimitives() //TODO Test a lot with real HyQ
 	action << 0.0, -0.12, 0.0;
 	lateral_actions.push_back(action);
 	action << 0.0, -0.16, 0.0;
-//	lateral_actions.push_back(action);
+	lateral_actions.push_back(action);
 	motor_actions.push_back(lateral_actions);
 
 	// Diagonal actions
@@ -256,7 +256,7 @@ BodyMotorPrimitives::BodyMotorPrimitives() //TODO Test a lot with real HyQ
 	action << -0.20, -0.0125, 0.0624;
 	diagonal_actions.push_back(action);
 
-	action << 0.24, 0.015, 0.0624;
+/*	action << 0.24, 0.015, 0.0624;
 	diagonal_actions.push_back(action);
 	action << 0.24, -0.015, -0.0624;
 	diagonal_actions.push_back(action);
@@ -264,7 +264,7 @@ BodyMotorPrimitives::BodyMotorPrimitives() //TODO Test a lot with real HyQ
 	diagonal_actions.push_back(action);
 	action << -0.24, -0.015, 0.0624;
 	diagonal_actions.push_back(action);
-
+*/
 	motor_actions.push_back(diagonal_actions);
 
 	// Twist actions

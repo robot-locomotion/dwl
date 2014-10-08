@@ -41,6 +41,9 @@ class GreedyFootstepPlanning : public ContactPlanning
 	private:
 		/** @brief Leg offset */
 		double leg_offset_; //TODO evaluate if it's necessary
+
+		/** @brief The last executed past leg */
+		int last_past_leg_;
 };
 
 } //@namespace planning

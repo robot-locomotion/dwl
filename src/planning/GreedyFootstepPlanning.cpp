@@ -1,19 +1,22 @@
 	#include <planning/GreedyFootstepPlanning.h>
 
-namespace dwl {
+namespace dwl
+{
 
-namespace planning {
+namespace planning
+{
 
-GreedyFootstepPlanning::GreedyFootstepPlanning() :
-		leg_offset_(0.0) //0.025
+GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.0), last_past_leg_ (1) //0.025
 {
 	name_ = "Greedy Footstep";
 }
+
 
 GreedyFootstepPlanning::~GreedyFootstepPlanning()
 {
 
 }
+
 
 bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory)
 {
@@ -34,14 +37,11 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 	else
 		contact_horizon = contact_horizon_ + 1;
 
-	std::cout << "Path = ";
 	std::vector<Contact> current_contacts = robot_->getCurrentContacts();
-	for (int i = 1; i < contact_horizon; i++) {
+	for (int i = 0; i < contact_horizon; i++) {
 		Orientation orientation(pose_trajectory[i].orientation);
 		double roll, pitch, yaw;
 		orientation.getRPY(roll, pitch, yaw);
-
-		std::cout << pose_trajectory[i].position(0) << " " << pose_trajectory[i].position(1) << " " << yaw << std::endl;
 
 		std::vector<Contact> planned_contacts;
 		if (!computeContacts(planned_contacts, current_contacts, pose_trajectory[i])) {
@@ -59,6 +59,7 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 
 	return true;
 }
+
 
 bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts, Pose goal_pose)
 {
@@ -99,16 +100,20 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 		delta_yaw = next_yaw - yaw;
 	}
 
+	//TODO Clean this shit
 	int past_leg_id;
 	if ((delta_yaw >= -M_PI_2 - angular_tolerance) && (delta_yaw <= -M_PI_2 + angular_tolerance))
 		past_leg_id = 0;
 	else if ((delta_yaw >= M_PI_2 - angular_tolerance) && (delta_yaw <= M_PI_2 + angular_tolerance))
 		past_leg_id = 1;
-	else if (delta_yaw > 0) //TODO Delete this offset
+	else if (delta_yaw > angular_tolerance)
 		past_leg_id = 0;
-	else
+	else if (delta_yaw < -angular_tolerance)
 		past_leg_id = 1;
+	else
+		past_leg_id = last_past_leg_;
 	current_body_state_ = body_state;
+	last_past_leg_ = past_leg_id;
 	std::cout << delta_yaw << std::endl;
 
 	// Computing the contact sequence
@@ -136,17 +141,18 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 
 		// Computing the boundary of stance area
 		Eigen::Vector2d boundary_min, boundary_max;
-		boundary_min(0) = body_state(0) + robot_->getStanceAreas(full_action)[current_leg_id].min_x;
-		boundary_min(1) = body_state(1) + robot_->getStanceAreas(full_action)[current_leg_id].min_y;
-		boundary_max(0) = body_state(0) + robot_->getStanceAreas(full_action)[current_leg_id].max_x;
-		boundary_max(1) = body_state(1) + robot_->getStanceAreas(full_action)[current_leg_id].max_y;
+		std::vector<SearchArea> stance_areas = robot_->getStanceAreas(full_action);
+		boundary_min(0) = body_state(0) + stance_areas[current_leg_id].min_x;
+		boundary_min(1) = body_state(1) + stance_areas[current_leg_id].min_y;
+		boundary_max(0) = body_state(0) + stance_areas[current_leg_id].max_x;
+		boundary_max(1) = body_state(1) + stance_areas[current_leg_id].max_y;
 
 		std::set<std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double center_x = boundary_min(0) + (boundary_max(0) - boundary_min(0)) / 2;
 		double center_y = boundary_min(1) + (boundary_max(1) - boundary_min(1)) / 2;
 		double window_x = (boundary_max(0) - boundary_min(0)) / 2;
 		double window_y = (boundary_max(1) - boundary_min(1)) / 2;
-		double resolution = robot_->getStanceAreas(full_action)[current_leg_id].grid_resolution; //TODO
+		double resolution = stance_areas[current_leg_id].grid_resolution; //TODO
 		for (double xi = 0; xi < window_x; xi += resolution) {
 			for (int sx = -1; sx <= 1; sx += 2) {
 				for (double yi = 0; yi < window_y; yi += resolution) {
@@ -197,6 +203,11 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 			Eigen::Vector2d foothold_coord;
 			environment_->getTerrainSpaceModel().vertexToCoord(foothold_coord, foothold_vertex);
 			foothold.position << foothold_coord, (terrain_heightmap.find(foothold_vertex)->second + leg_offset_);
+
+			// TODO Only for testing
+//			Eigen::Vector3d nominal_stance = robot_->getNominalStance(full_action)[current_leg_id];
+//			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
+//			foothold.position(1) = body_state(1) + nominal_stance(0) * sin(yaw) + nominal_stance(1) * cos(yaw);
 		} else {
 			Eigen::Vector3d nominal_stance = robot_->getNominalStance(full_action)[current_leg_id];
 			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
