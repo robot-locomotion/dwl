@@ -63,7 +63,11 @@ void HierarchicalPlanners::init()
 	//  Setting the locomotion approach
 	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
 
-	// Initi the body planner
+	// Init the robot properties
+	robot_.getBodyMotorPrimitive().read("/home/cmastalli/ros_workspace/src/dwl_planners/config/hyq/body_motor_primitives.yaml"); //TODO read this variable
+
+
+	// Init the body planner
 	initBodyPlanner();
 
 	// Init the contact planner
