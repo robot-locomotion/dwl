@@ -1,5 +1,4 @@
 #include <environment/LatticeBasedBodyAdjacency.h>
-#include <behavior/BodyMotorPrimitives.h>
 
 
 namespace dwl
@@ -8,18 +7,16 @@ namespace dwl
 namespace environment
 {
 
-LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : behavior_(NULL), is_stance_adjacency_(true), number_top_reward_(5)
+LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : is_stance_adjacency_(true), number_top_reward_(5)
 {
 	name_ = "Lattice-based Body";
 	is_lattice_ = true;
-
-	behavior_ = new behavior::BodyMotorPrimitives(); //TODO Evaluates if it's necessary to add this externaly
 }
 
 
 LatticeBasedBodyAdjacency::~LatticeBasedBodyAdjacency()
 {
-	delete behavior_;
+
 }
 
 
@@ -35,8 +32,8 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 	current_pose.position = current_state.head(2);
 	current_pose.orientation = current_state(2);
 
-	// Gets actions according the defined motor primitives of the body
-	behavior_->generateActions(actions, current_pose);
+	// Gets actions according the defined body motor primitives
+	robot_->getBodyMotorPrimitive().generateActions(actions, current_pose);
 
 	// Evaluating every action (body motor primitives)
 	if (environment_->isTerrainInformation()) {

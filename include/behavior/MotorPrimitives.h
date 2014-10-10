@@ -23,12 +23,21 @@ class MotorPrimitives
 		virtual ~MotorPrimitives();
 
 		/**
+		 * @brief Abstract method for reading a set of motor primitives from the disk
+		 * @param file_name Name of the file
+		 */
+		virtual void read(std::string filepath) = 0;
+
+		/**
 		 * @brief Abstract method for generation 3D actions
 		 * @param std::vector<dwl::Action3d>& actions Set of actions
-		 * @param dwl::A3d state Current 3D pose
+		 * @param dwl::Action3d state Current 3D pose
 		 */
-		virtual void generateActions(std::vector<Action3d>& actions,
-				Pose3d state);
+		virtual void generateActions(std::vector<Action3d>& actions, Pose3d state);
+
+
+	protected:
+		bool is_defined_motor_primitives_;
 };
 
 } //@namespace behavior

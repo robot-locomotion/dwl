@@ -2,7 +2,6 @@
 #define DWL_LatticeBasedBodyAdjacency_H
 
 #include <environment/AdjacencyEnvironment.h>
-#include <behavior/MotorPrimitives.h>
 
 
 namespace dwl
@@ -60,9 +59,6 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		 * @return Returns true it is requested a stance adjacency (body cost), false otherwise
 		 */
 		bool isStanceAdjacency();
-
-		/** @brief Pointer to the motor primitives */
-		behavior::MotorPrimitives* behavior_;
 
 		/** @brief Current action of the body */
 		Eigen::Vector3d current_action_;

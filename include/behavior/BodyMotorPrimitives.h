@@ -29,6 +29,8 @@ class BodyMotorPrimitives : public MotorPrimitives
 		/** @brief Destructor function */
 		~BodyMotorPrimitives();
 
+		void read(std::string filepath);
+
 		/**
 		 * @brief Abstract method for generation 3D actions
 		 * @param std::vector<dwl::Action3d>& actions Set of actions

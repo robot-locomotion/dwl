@@ -226,7 +226,7 @@ double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
 			pow(((double) target_state(2) - (double) source_state(2)), 2));
 
 	double heuristic = (5 * distance + 2.5 * dist_orientation)
-			* uncertainty_factor_ * (environment_->getAverageCostOfTerrain() + 0.1) * 0.1; //TODO Tunning the heuristic function
+			* uncertainty_factor_ * (environment_->getAverageCostOfTerrain() + 0.1); //TODO Tunning the heuristic function
 
 	return heuristic;
 }

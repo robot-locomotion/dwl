@@ -25,6 +25,13 @@ RewardMap::~RewardMap()
 }
 
 
+void RewardMap::reset()
+{
+	terrain_rewardmap_.clear();
+	terrain_heightmap_.clear();
+}
+
+
 void RewardMap::addFeature(Feature* feature)
 {
 	double weight;
@@ -57,8 +64,8 @@ void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 	// Getting the orientation of the body
 	double yaw = robot_state(2);
 
-	for (std::map<Vertex,RewardCell>::iterator vertex_iter = reward_gridmap_.begin();
-			vertex_iter != reward_gridmap_.end();
+	for (std::map<Vertex,RewardCell>::iterator vertex_iter = terrain_rewardmap_.begin();
+			vertex_iter != terrain_rewardmap_.end();
 			vertex_iter++)
 	{
 		Vertex v = vertex_iter->first;
@@ -69,12 +76,12 @@ void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 		double yc = point(1) - robot_state(1);
 		if (xc * cos(yaw) + yc * sin(yaw) >= 0.0) {
 			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1) {
-				reward_gridmap_.erase(v);
+				terrain_rewardmap_.erase(v);
 				terrain_heightmap_.erase(v);
 			}
 		} else {
 			if (pow(xc, 2) + pow(yc, 2) > pow(interest_radius_x_, 2)) {
-				reward_gridmap_.erase(v);
+				terrain_rewardmap_.erase(v);
 				terrain_heightmap_.erase(v);
 			}
 		}
@@ -108,13 +115,13 @@ void RewardMap::addCellToRewardMap(RewardCell cell)
 {
 	Vertex vertex_id;
 	space_discretization_.keyToVertex(vertex_id, cell.key, true);
-	reward_gridmap_[vertex_id] = cell;
+	terrain_rewardmap_[vertex_id] = cell;
 }
 
 
 void RewardMap::removeCellToRewardMap(Vertex cell_vertex)
 {
-	reward_gridmap_.erase(cell_vertex);
+	terrain_rewardmap_.erase(cell_vertex);
 }
 
 
@@ -180,7 +187,7 @@ void RewardMap::setResolution(double resolution, bool plane)
 
 const std::map<Vertex,RewardCell>& RewardMap::getRewardMap() const
 {
-	return reward_gridmap_;
+	return terrain_rewardmap_;
 }
 
 } //@namepace dwl

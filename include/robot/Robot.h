@@ -1,6 +1,7 @@
 #ifndef DWL_Robot_H
 #define DWL_Robot_H
 
+#include <behavior/MotorPrimitives.h>
 #include <utils/utils.h>
 
 
@@ -25,6 +26,12 @@ class Robot
 
 		/** @brief Destructor function */
 		~Robot();
+
+		/**
+		 * @brief Gets the body motor primitives
+		 * @return behavior::MotorPrimitives& Returns the body motor primitives
+		 */
+		behavior::MotorPrimitives& getBodyMotorPrimitive();
 
 		/**
 		 * @brief Sets the current pose of the robot
@@ -111,6 +118,9 @@ class Robot
 
 		/** @brief Current contacts of the robot */
 		std::vector<Contact> current_contacts_;
+
+		/** @brief Pointer to the body motor primitives */
+		behavior::MotorPrimitives* body_behavior_;
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> stance_areas_;

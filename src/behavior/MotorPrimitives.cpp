@@ -7,7 +7,7 @@ namespace dwl
 namespace behavior
 {
 
-MotorPrimitives::MotorPrimitives()
+MotorPrimitives::MotorPrimitives() : is_defined_motor_primitives_(false)
 {
 
 }

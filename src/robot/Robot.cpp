@@ -1,4 +1,5 @@
 #include <robot/Robot.h>
+#include <behavior/BodyMotorPrimitives.h>
 #include <utils/Math.h>
 
 
@@ -8,8 +9,12 @@ namespace dwl
 namespace robot
 {
 
-Robot::Robot() : number_legs_(4), stance_size_(0.125), estimated_ground_from_body_(-0.55), last_past_leg_(1)
+Robot::Robot() : body_behavior_(NULL), number_legs_(4), stance_size_(0.125), estimated_ground_from_body_(-0.55), last_past_leg_(1)
 {
+	body_behavior_ = new behavior::BodyMotorPrimitives();
+
+
+
 	// Defining the pattern of locomotion
 	pattern_locomotion_.resize(number_legs_);
 	pattern_locomotion_[LF] = RH;
@@ -66,6 +71,12 @@ Robot::Robot() : number_legs_(4), stance_size_(0.125), estimated_ground_from_bod
 Robot::~Robot()
 {
 
+}
+
+
+behavior::MotorPrimitives& Robot::getBodyMotorPrimitive()
+{
+	return *body_behavior_;
 }
 
 

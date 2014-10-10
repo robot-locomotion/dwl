@@ -27,6 +27,9 @@ class RewardMap
 		/** @brief Destructor function */
 		virtual ~RewardMap();
 
+		/** @brief Reset the reward map */
+		void reset();
+
 		/**
 		 * @brief Adds a feature of the reward map
 		 * @param dwl::environment::Feature* feature the pointer of the feature to add
@@ -150,8 +153,8 @@ class RewardMap
 		/** @brief Vector of pointers to the Feature class */
 		std::vector<Feature*> features_;
 
-		/** @brief Reward values mapped using vertex id */
-		std::map<Vertex,RewardCell> reward_gridmap_;
+		/** @brief Terrain reward values mapped using vertex id */
+		std::map<Vertex,RewardCell> terrain_rewardmap_;
 
 		/** @brief Terrain height map */
 		std::map<Vertex,double> terrain_heightmap_;

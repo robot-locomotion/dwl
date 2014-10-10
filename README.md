@@ -10,6 +10,7 @@ DWL has the following required dependencies:
 * [Boost](http://www.boost.org) (version x.x or higher)
 * [CMake](http://www.cmake.org) (version x.x.x or higher)
 * [Eigen](http://eigen.tuxfamily.org) (version 3.2.2 or higher)
+* [yaml-cpp](https://code.google.com/p/yaml-cpp/) (version 0.2.7 or higher)
 
 The following dependece are optional:
 * [Doxygen](http://www.doxygen.org)

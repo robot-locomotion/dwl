@@ -5,6 +5,7 @@ project(dwl)
 
 find_package(Eigen REQUIRED)
 find_package(octomap REQUIRED)
+#find_package(yaml-cpp REQUIRED)
 include_directories(${EIGEN_INCLUDE_DIRS})
 
 set(DWL_VERSION 0.0.1 CACHE STRING "DWL version")
@@ -21,12 +22,45 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BASE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BASE_DIR}/bin)
 
 
+#if (UNIX)
+# find_library(YAMLCPP_LIBRARY NAMES yaml-cpp)
+# find_file(YAMLCPP_HAVE_H yaml-cpp/yaml.h )
+# find_path(YAMLCPP_H_INCLUDE_DIR yaml-cpp/yaml.h )
+# SET(YAMLCPP_INCLUDE_DIR ${YAMLCPP_H_INCLUDE_DIR}/yaml-cpp)
+#else()
+# find_library(
+#  YAMLCPP_LIBRARY
+#  NAMES yamlcpp.lib
+#  NO_DEFAULT_PATH 
+#  PATHS 
+#  $ENV{YAMLCPP_ROOT}/lib
+# )
+# find_file(YAMLCPP_HAVE_H include/yaml.h PATHS $ENV{YAMLCPP_ROOT} NO_DEFAULT_PATH)
+# find_path(YAMLCPP_H_INCLUDE_DIR include/yaml.h PATHS $ENV{YAMLCPP_ROOT} NO_DEFAULT_PATH)
+# SET(YAMLCPP_INCLUDE_DIR ${YAMLCPP_H_INCLUDE_DIR}/include)
+#endif(UNIX)
+#
+#SET(YAMLCPP_FOUND FALSE)
+#if (YAMLCPP_HAVE_H)
+# if (YAMLCPP_LIBRARY)
+#  SET(YAMLCPP_FOUND TRUE)
+# endif (YAMLCPP_LIBRARY)
+#endif (YAMLCPP_HAVE_H)
+#
+#if(NOT YAMLCPP_FOUND)
+# message(STATUS "YamlCpp Can't be found")
+# break()
+#else()
+# message(STATUS "YamlCpp Library: " ${YAMLCPP_LIBRARY} )
+# message(STATUS "YamlCpp Header: " ${YAMLCPP_INCLUDE_DIR} )
+#endif(NOT YAMLCPP_FOUND)
+
+
 #include_directories(include)
 set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")
 include_directories(${INCLUDE_DIRS})
 include_directories(src)
-include_directories(${OCTOMAP_INCLUDE_DIRS})
-
+#include_directories(${OCTOMAP_INCLUDE_DIRS}) #TODO Check this in the intense pc 
 
 set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/planning/PlanningOfMotionSequences.cpp 
@@ -71,6 +105,7 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
+target_link_libraries(${PROJECT_NAME} yaml-cpp)# ${YAMLCPP_LIBRARY})
 
 
 add_executable(my_planner tests/HierarchicalPlanningTest.cpp)
@@ -88,7 +123,7 @@ install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" DES
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
 export(PACKAGE dwl)
- 
+
 # Create a octomap-config.cmake file for the use from the build tree
 set(DWL_INCLUDE_DIRS "${INCLUDE_DIRS}")
 set(DWL_LIB_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
