@@ -64,8 +64,14 @@ void HierarchicalPlanners::init()
 	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
 
 	// Init the robot properties
-	robot_.getBodyMotorPrimitive().read("/home/cmastalli/ros_workspace/src/dwl_planners/config/hyq/body_motor_primitives.yaml"); //TODO read this variable
+	std::string body_primitive_path;
+	std::string path = "hierarchical_planner/robot/body_movement_primitives";
+	if (node_.getParam(path, body_primitive_path))
+		robot_.getBodyMotorPrimitive().read(body_primitive_path);
+	else
+		ROS_WARN("The body movement primitives was not defined, this could be neccesary.");
 
+	robot_.read("/home/cmastalli/ros_workspace/src/dwl_planners/config/hyq/properties.yaml");
 
 	// Init the body planner
 	initBodyPlanner();
