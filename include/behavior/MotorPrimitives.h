@@ -2,6 +2,9 @@
 #define DWL_MotorPrimitives_H
 
 #include <utils/utils.h>
+#include <fstream>
+#include <yaml-cpp/yaml.h>
+
 
 namespace dwl
 {

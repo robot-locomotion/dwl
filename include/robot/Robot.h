@@ -3,6 +3,8 @@
 
 #include <behavior/MotorPrimitives.h>
 #include <utils/utils.h>
+#include <fstream>
+#include <yaml-cpp/yaml.h>
 
 
 namespace dwl
@@ -33,6 +35,8 @@ class Robot
 		 */
 		behavior::MotorPrimitives& getBodyMotorPrimitive();
 
+		void read(std::string filepath);
+
 		/**
 		 * @brief Sets the current pose of the robot
 		 * @param dwl::Pose pose Current pose
@@ -44,12 +48,6 @@ class Robot
 		 * @param std::vector<dwl::Contact> contacts Contact positions
 		 */
 		void setCurrentContacts(std::vector<Contact> contacts);
-
-		/**
-		 * @brief Sets the stance areas for computing the body adjacency map
-		 * @param std::vector<SearchArea> stance_areas Stance areas
-		 */
-		void setStanceAreas(std::vector<SearchArea> stance_areas); //TODO Re-write this method for general settings
 
 		/**
 		 * @brief Sets the pattern of locomotion of the robot
@@ -93,7 +91,7 @@ class Robot
 		 * @param Eigen::Vector3d action Action to execute
 		 * @return std::vector<SearchArea> Returns the stance areas
 		 */
-		std::vector<SearchArea> getStanceAreas(Eigen::Vector3d action);
+		std::vector<SearchArea> getFootstepSearchAreas(Eigen::Vector3d action);
 
 		/**
 		 * @brief Gets the expected ground according to the nominal stance
@@ -122,8 +120,13 @@ class Robot
 		/** @brief Pointer to the body motor primitives */
 		behavior::MotorPrimitives* body_behavior_;
 
-		/** @brief Vector of search areas */
-		std::vector<SearchArea> stance_areas_;
+
+		ContactID end_effectors_;
+		SearchArea footstep_window_;
+
+
+		/** @brief Vector of footstep search areas */
+		std::vector<SearchArea> footstep_search_areas_;
 
 		/** @brief Vector of the body area */
 		Area body_area_;
@@ -136,9 +139,10 @@ class Robot
 
 		/** @brief Number of legs */
 		double number_legs_;
+		double number_end_effectors_;
 
 		/** @brief Size of the stance area */
-		double stance_size_;
+		//double stance_size_;
 
 		/** @brief Leg work-areas */
 		std::vector<SearchArea> leg_areas_;

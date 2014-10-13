@@ -32,6 +32,9 @@ typedef std::map<Vertex, double> HeightMap;
 /** @brief Defines a previous vertex for graph-searching algorithms */
 typedef std::map<Vertex, Vertex> PreviousVertex;
 
+/** @brief Defines a contact id */
+typedef std::map<std::string, unsigned int> ContactID;
+
 /** @brief Enumarates types of states */
 enum TypeOfState {XY, XY_Y, XYZ_RPY};
 

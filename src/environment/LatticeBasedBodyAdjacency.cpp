@@ -218,7 +218,7 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 					environment_->getObstacleSpaceModel().coordToVertex(current_2d_vertex, point_position);
 
 					// Checking if there is an obstacle
-					if (obstacle_map.find(current_2d_vertex)->first == current_2d_vertex) {
+					if (obstacle_map.count(current_2d_vertex) > 0) {
 						if (obstacle_map.find(current_2d_vertex)->second) {
 							is_free = false;
 							std::cout << "is_free = " << is_free << " | = " <<  current_x << " " << current_y << " " << current_yaw << std::endl; //TODO Delete this message
@@ -232,7 +232,7 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 			Vertex environment_vertex;
 			environment_->getObstacleSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, state_vertex, state_representation);
 
-			if (obstacle_map.find(environment_vertex)->first == environment_vertex) {
+			if (obstacle_map.count(environment_vertex) > 0) {
 				if (obstacle_map.find(environment_vertex)->second)
 					is_free = false;
 			}
