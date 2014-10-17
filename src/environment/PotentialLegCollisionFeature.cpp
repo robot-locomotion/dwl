@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-PotentialLegCollisionFeature::PotentialLegCollisionFeature() : potential_clearance_(0.04), potential_collision_(0.2)
+PotentialLegCollisionFeature::PotentialLegCollisionFeature() :
+		potential_clearance_(0.04), potential_collision_(0.2)
 {
 	name_ = "Potential Leg Collision";
 }
@@ -30,25 +31,34 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 	Eigen::Vector2d position = info.pose.position;
 	double yaw = info.pose.orientation;
 
+	// Getting the predefined set of leg workspaces
+	SearchAreaMap leg_workspaces = robot_->getPredefinedLegWorkspaces();
+
+	// Getting the nominal stance of the robot
+	Vector3dMap stance = robot_->getStance(info.body_action);
+
 	int leg_information = 0;
-	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
+	EndEffectorMap leg_map = robot_->getLegMap();
+	for (EndEffectorMap::iterator it = leg_map.begin(); it != leg_map.end(); ++it) {
+		unsigned int leg_id = it->first;
+
 		// Getting the leg area and nominal stance of the leg
-		SearchArea leg_area = robot_->getLegWorkAreas()[leg];
-		Eigen::Vector3d nominal_stance = robot_->getNominalStance(info.body_action)[leg];
+		SearchArea leg_area = leg_workspaces[leg_id];
+		Eigen::Vector3d leg_position = stance[leg_id];
 
 		Eigen::Vector2d boundary_min, boundary_max;
-		boundary_min(0) = position(0) + nominal_stance(0) + leg_area.min_x;
-		boundary_min(1) = position(1) + nominal_stance(1) + leg_area.min_y;
-		boundary_max(0) = position(0) + nominal_stance(0) + leg_area.max_x;
-		boundary_max(1) = position(1) + nominal_stance(1) + leg_area.max_y;
+		boundary_min(0) = position(0) + leg_position(0) + leg_area.min_x;
+		boundary_min(1) = position(1) + leg_position(1) + leg_area.min_y;
+		boundary_max(0) = position(0) + leg_position(0) + leg_area.max_x;
+		boundary_max(1) = position(1) + leg_position(1) + leg_area.max_y;
 
 		// Computing the maximum and minimun height around the leg area
 		double max_height = -std::numeric_limits<double>::max();
 		double mean_height = 0;
 		int counter = 0;
 		bool is_there_height_values = false;
-		for (double y = boundary_min(1); y < boundary_max(1); y += leg_area.grid_resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += leg_area.grid_resolution) {
+		for (double y = boundary_min(1); y < boundary_max(1); y += leg_area.resolution) {
+			for (double x = boundary_min(0); x < boundary_max(0); x += leg_area.resolution) {
 				Eigen::Vector2d coord;
 				coord(0) = (x - position(0)) * cos(yaw) - (y - position(1)) * sin(yaw) + position(0);
 				coord(1) = (x - position(0)) * sin(yaw) + (y - position(1)) * cos(yaw) + position(1);

@@ -100,6 +100,9 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 		delta_yaw = next_yaw - yaw;
 	}
 
+	// Computing the current stance
+	Vector3dMap stance = robot_->getStance(full_action);
+
 	//TODO Clean this shit
 	int past_leg_id;
 	if ((delta_yaw >= -M_PI_2 - angular_tolerance) && (delta_yaw <= -M_PI_2 + angular_tolerance))
@@ -141,7 +144,7 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 
 		// Computing the boundary of stance area
 		Eigen::Vector2d boundary_min, boundary_max;
-		std::vector<SearchArea> stance_areas = robot_->getStanceAreas(full_action);
+		SearchAreaMap stance_areas = robot_->getFootstepSearchAreas(full_action);
 		boundary_min(0) = body_state(0) + stance_areas[current_leg_id].min_x;
 		boundary_min(1) = body_state(1) + stance_areas[current_leg_id].min_y;
 		boundary_max(0) = body_state(0) + stance_areas[current_leg_id].max_x;
@@ -152,15 +155,22 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 		double center_y = boundary_min(1) + (boundary_max(1) - boundary_min(1)) / 2;
 		double window_x = (boundary_max(0) - boundary_min(0)) / 2;
 		double window_y = (boundary_max(1) - boundary_min(1)) / 2;
-		double resolution = stance_areas[current_leg_id].grid_resolution; //TODO
+
+		// Setting the resolution
+		double resolution = stance_areas[current_leg_id].resolution;
+		if (resolution < environment_->getTerrainResolution())
+			resolution = environment_->getTerrainResolution();
+
 		for (double xi = 0; xi < window_x; xi += resolution) {
 			for (int sx = -1; sx <= 1; sx += 2) {
 				for (double yi = 0; yi < window_y; yi += resolution) {
 					for (int sy = -1; sy <= 1; sy += 2) {
 						// Computing the rotated coordinate of the point inside the search area
 						Eigen::Vector3d current_state;
-						current_state(0) = (sx * xi + center_x - body_state(0)) * cos(yaw) - (sy * yi + center_y - body_state(1)) * sin(yaw) + body_state(0);
-						current_state(1) = (sx * xi + center_x - body_state(0)) * sin(yaw) + (sy * yi + center_y - body_state(1)) * cos(yaw) + body_state(1);
+						double x = sx * xi + center_x - body_state(0);
+						double y = sy * yi + center_y - body_state(1);
+						current_state(0) = x * cos(yaw) - y * sin(yaw) + body_state(0);
+						current_state(1) = x * sin(yaw) + y * cos(yaw) + body_state(1);
 						current_state(2) = yaw;
 
 						Vertex current_vertex, terrain_vertex;
@@ -205,13 +215,12 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 			foothold.position << foothold_coord, (terrain_heightmap.find(foothold_vertex)->second + leg_offset_);
 
 			// TODO Only for testing
-//			Eigen::Vector3d nominal_stance = robot_->getNominalStance(full_action)[current_leg_id];
+//			Eigen::Vector3d nominal_stance = robot_->getStance(full_action)[current_leg_id];
 //			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
 //			foothold.position(1) = body_state(1) + nominal_stance(0) * sin(yaw) + nominal_stance(1) * cos(yaw);
 		} else {
-			Eigen::Vector3d nominal_stance = robot_->getNominalStance(full_action)[current_leg_id];
-			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
-			foothold.position(1) = body_state(1) + nominal_stance(0) * sin(yaw) + nominal_stance(1) * cos(yaw);
+			foothold.position(0) = body_state(0) + stance[current_leg_id](0) * cos(yaw) - stance[current_leg_id](1) * sin(yaw);
+			foothold.position(1) = body_state(1) + stance[current_leg_id](0) * sin(yaw) + stance[current_leg_id](1) * cos(yaw);
 			foothold.position(2) = robot_->getExpectedGround(current_leg_id);
 		}
 

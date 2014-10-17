@@ -30,20 +30,20 @@ void LegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain in
 	Eigen::Vector3d foothold = info.potential_contact.position;
 	int leg = info.potential_contact.end_effector;
 
-	// Getting the leg area
-	SearchArea leg_area = robot_->getLegWorkAreas()[leg];
+	// Getting the leg workspace
+	SearchArea leg_workspace = robot_->getPredefinedLegWorkspaces()[leg];
 
 	Eigen::Vector2d boundary_min, boundary_max;
-	boundary_min(0) = foothold(0) + leg_area.min_x;
-	boundary_min(1) = foothold(1) + leg_area.min_y;
-	boundary_max(0) = foothold(0) + leg_area.max_x;
-	boundary_max(1) = foothold(1) + leg_area.max_y;
+	boundary_min(0) = foothold(0) + leg_workspace.min_x;
+	boundary_min(1) = foothold(1) + leg_workspace.min_y;
+	boundary_max(0) = foothold(0) + leg_workspace.max_x;
+	boundary_max(1) = foothold(1) + leg_workspace.max_y;
 
 	// Computing the maximum and minimun height around the leg area
 	double max_height = -std::numeric_limits<double>::max();
 	bool is_there_height_values = false;
-	for (double y = boundary_min(1); y < boundary_max(1); y += leg_area.grid_resolution) {
-		for (double x = boundary_min(0); x < boundary_max(0); x += leg_area.grid_resolution) {
+	for (double y = boundary_min(1); y < boundary_max(1); y += leg_workspace.resolution) {
+		for (double x = boundary_min(0); x < boundary_max(0); x += leg_workspace.resolution) {
 			Eigen::Vector2d coord;
 			coord(0) = (x - position(0)) * cos(yaw) - (y - position(1)) * sin(yaw) + position(0);
 			coord(1) = (x - position(0)) * sin(yaw) + (y - position(1)) * cos(yaw) + position(1);

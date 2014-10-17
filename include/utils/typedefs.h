@@ -32,8 +32,17 @@ typedef std::map<Vertex, double> HeightMap;
 /** @brief Defines a previous vertex for graph-searching algorithms */
 typedef std::map<Vertex, Vertex> PreviousVertex;
 
-/** @brief Defines a contact id */
-typedef std::map<std::string, unsigned int> ContactID;
+/** @brief Defines a pattern of locomotion mapping */
+typedef std::map<unsigned int, unsigned int> PatternOfLocomotionMap;
+
+/** @brief Defines a end-effector map between the id and the name */
+typedef std::map<unsigned int, std::string> EndEffectorMap;
+
+/** @brief Defines the patch end-effector elements */
+typedef std::map<unsigned int, std::vector<std::string> > PatchMap; //TODO
+
+/** @brief Defines a Vector3d map */
+typedef std::map<unsigned int, Eigen::Vector3d> Vector3dMap;
 
 /** @brief Enumarates types of states */
 enum TypeOfState {XY, XY_Y, XYZ_RPY};
@@ -143,8 +152,11 @@ struct SearchArea
 	double min_x, max_x;
 	double min_y, max_y;
 	double min_z, max_z;
-	double grid_resolution;
+	double resolution;
 };
+
+/** @brief Defines a search area map */
+typedef std::map<unsigned int, SearchArea> SearchAreaMap;//TODO
 
 /**
  * @struct NeighboringArea

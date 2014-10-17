@@ -61,8 +61,8 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 		/** @brief Indicates it was requested a stance or terrain adjacency */
 		bool is_stance_adjacency_;
 
-		/** @brief Vector of search areas */
-		std::vector<SearchArea> stance_areas_;
+		/** @brief A Map of search areas */
+		SearchAreaMap stance_areas_;
 
 		/** @brief Definition of the neighboring area (number of neighbors per size) */
 		int neighboring_definition_;

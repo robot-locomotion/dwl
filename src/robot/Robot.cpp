@@ -9,74 +9,17 @@ namespace dwl
 namespace robot
 {
 
-Robot::Robot() : body_behavior_(NULL), number_legs_(0), number_end_effectors_(0), estimated_ground_from_body_(-0.55), last_past_leg_(1)
+Robot::Robot() : body_behavior_(NULL), number_legs_(0), number_end_effectors_(0),
+		estimated_ground_from_body_(-0.55), last_past_leg_(1), leg_lateral_offset_(0),
+		displacement_(0)
 {
 	body_behavior_ = new behavior::BodyMotorPrimitives();
-
-
-
-	// Defining the pattern of locomotion
-	pattern_locomotion_.resize(number_legs_);
-	pattern_locomotion_[LF] = RH;
-	pattern_locomotion_[RF] = LH;
-	pattern_locomotion_[LH] = LF;
-	pattern_locomotion_[RH] = RF;
-
-	// Defining the stance position per leg
-//	nominal_stance_.resize(number_legs_);
-//	nominal_stance_[LF] << 0.36, 0.32, estimated_ground_from_body_;
-//	nominal_stance_[RF] << 0.36, -0.32, estimated_ground_from_body_;
-//	nominal_stance_[LH] << -0.36, 0.32, estimated_ground_from_body_;
-//	nominal_stance_[RH] << -0.36, -0.32, estimated_ground_from_body_;
-
-	// Defining the search areas for the stance position of HyQ
-//	SearchArea stance_area;
-//	stance_area.grid_resolution = 0.04;
-//	for (int i = 0; i < number_legs_; i++) {
-//		stance_area.max_x = nominal_stance_[i](0) + stance_size_;
-//		stance_area.min_x = nominal_stance_[i](0) - stance_size_;
-//		stance_area.max_y = nominal_stance_[i](1) + stance_size_;
-//		stance_area.min_y = nominal_stance_[i](1) - stance_size_;
-//		stance_areas_.push_back(stance_area);
-//	}
-//
-//	// Defining the body area of HyQ
-//	body_area_.max_x = nominal_stance_[LF](0);
-//	body_area_.min_x = nominal_stance_[LH](0);
-//	body_area_.max_y = nominal_stance_[LF](1);
-//	body_area_.min_y = nominal_stance_[RF](1);
-
-	// Defining the leg areas
-//	double leg_workspace = 0.35;
-//	SearchArea leg_area;
-//	leg_area.grid_resolution = 0.04;
-//	for (int leg_id = 0; leg_id < number_legs_; leg_id++) {
-//		if ((leg_id == LF) || (leg_id == RF)) {
-//			leg_area.min_x = -leg_workspace;
-//			leg_area.max_x = 1.5 * stance_size_;
-//			leg_area.min_y = -stance_size_;
-//			leg_area.max_y = stance_size_;
-//		} else {
-//			leg_area.min_x = -1.5 * stance_size_;
-//			leg_area.max_x = leg_workspace;
-//			leg_area.min_y = -stance_size_;
-//			leg_area.max_y = stance_size_;
-//		}
-//
-//		leg_areas_.push_back(leg_area);
-//	}
 }
 
 
 Robot::~Robot()
 {
 
-}
-
-
-behavior::MotorPrimitives& Robot::getBodyMotorPrimitive()
-{
-	return *body_behavior_;
 }
 
 
@@ -88,92 +31,155 @@ void Robot::read(std::string filepath)
 	YAML::Node doc;
 	parser.GetNextDocument(doc);
 	for (YAML::Iterator it = doc.begin(); it != doc.end(); ++it) {
-//		for (unsigned it = 0; it < doc.size(); it++) {
-//		    std::string key, value;
-//		    it.first() >> key;
-//		    it.second() >> value;
-//		    std::cout << "Key: " << key << ", value: " << value << std::endl;
-
 		// Reading the name of the robot
 		std::string robot_name;
-		it.first() >> robot_name;
-		std::cout << robot_name << std::endl;
+		yaml_reader_.read(it.first(), robot_name);
 
 		// Reading the robot properties
 		if (const YAML::Node* probot = doc.FindValue(robot_name)) {
 			const YAML::Node& robot = *probot;
 
-			// Reading the end-effectors of the robot
-			if (const YAML::Node* pend_effectors = robot.FindValue("end_effectors")) {
-				const YAML::Node& end_effectors = *pend_effectors;
-				number_end_effectors_ = end_effectors.size();
-				for (unsigned e = 0; e < number_end_effectors_; e++) {
-					std::string name_leg;
-					end_effectors[e] >> name_leg;
-					end_effectors_[name_leg] = e;
+			// Reading the general description of the robot
+			if (const YAML::Node* pdescription = robot.FindValue("description")) {
+				const YAML::Node& description = *pdescription;
 
-					std::cout << "end_effector[" << e << "] = " << name_leg << std::endl; //TODO
-				}
-			}
+				// Reading the end-effectors of the robot
+				if (const YAML::Node* pend_effectors = description.FindValue("end_effectors")) {
+					std::vector<std::string> end_effectors;
+					yaml_reader_.read(*pend_effectors, end_effectors);
+					for (unsigned int i = 0; i < end_effectors.size(); i++) {
+						end_effectors_[i] = end_effectors[i];
+					}
+				} else
+					printf(YELLOW "Warning: the end-effector was not read\n" COLOR_RESET);
 
-			// Reading the nominal stance of the robot
-			int leg_counter = 0;
-			if (const YAML::Node* pnom_stance = robot.FindValue("nominal_stance")) {
-				const YAML::Node& nom_stance = *pnom_stance;
-				for (ContactID::iterator it = end_effectors_.begin(); it != end_effectors_.end(); ++it) {
-					std::string leg_name = it->first;
+				// Reading the feet of the robot
+				if (const YAML::Node* pfeet = description.FindValue("feet")) {
+					std::vector<std::string> feet;
+					yaml_reader_.read(*pfeet, feet);
+					number_legs_ = feet.size();
+					for (unsigned int i = 0; i < number_legs_; i++) {
+						feet_[i] = feet[i];
+					}
+				} else
+					printf(YELLOW "Warning: the feet was not read\n" COLOR_RESET);
 
-					std::cout << leg_name << std::endl; //TODO
+				// Reading the end-effectors description
+				if (const YAML::Node* pee_description = description.FindValue("end_effector_descriptions")) {
+					const YAML::Node& ee_description = *pee_description;
 
-					if (const YAML::Node* plegs = nom_stance.FindValue(leg_name)) {
-						leg_counter++;
-						const YAML::Node& legs = *plegs;
+					for (EndEffectorMap::iterator e = end_effectors_.begin(); e != end_effectors_.end(); e++) {
+						unsigned int ee_id = e->first;
+						std::string ee_name = e->second;
 
-						Eigen::Vector3d stance;
-						if (const YAML::Node* px = legs.FindValue("x")) {
-							const YAML::Node& x = *px;
-							x >> stance(0);
+						if (const YAML::Node* ppatchs = ee_description.FindValue(ee_name)) {
+							std::vector<std::string> patchs;
+							yaml_reader_.read(*ppatchs, patchs);
+							patchs_[ee_id] = patchs;
 						}
-						if (const YAML::Node* py = legs.FindValue("y")) {
-							const YAML::Node& y = *py;
-							y >> stance(1);
-						}
-						stance(2) = estimated_ground_from_body_;
-						nominal_stance_.push_back(stance);
-
-						std::cout << stance << std::endl; //TODO
 					}
 				}
-			}
-
-			number_legs_ = leg_counter;
-
-			// Reading the footstep search window
-			if (const YAML::Node* pfootstep_area = robot.FindValue("footstep_search_window")) {
-				const YAML::Node& footstep_area = *pfootstep_area;
-
-				footstep_window_.grid_resolution = 0.04;
-				if (const YAML::Node* pmin_x = footstep_area.FindValue("min_x")) {
-					const YAML::Node& min_x = *pmin_x;
-					min_x >> footstep_window_.min_x;
-				}
-				if (const YAML::Node* pmin_y = footstep_area.FindValue("min_y")) {
-					const YAML::Node& min_y = *pmin_y;
-					min_y >> footstep_window_.min_y;
-				}
-				if (const YAML::Node* pmax_x = footstep_area.FindValue("max_x")) {
-					const YAML::Node& max_x = *pmax_x;
-					max_x >> footstep_window_.max_x;
-				}
-				if (const YAML::Node* pmax_y = footstep_area.FindValue("max_y")) {
-					const YAML::Node& max_y = *pmax_y;
-					max_y >> footstep_window_.max_y;
-				}
+			} else
+				printf(YELLOW "Warning: the description was not read\n" COLOR_RESET);
 
 
-				std::cout << footstep_window_.min_x << " " << footstep_window_.min_y << " " << footstep_window_.max_x << " " << footstep_window_.max_y << std::endl;
-			}
-		}
+			// Reading the predefined properties
+			if (const YAML::Node* pproperties = robot.FindValue("predefined_properties")) {
+				const YAML::Node& properties = *pproperties;
+
+				if (const YAML::Node* ppattern_locomotion = properties.FindValue("pattern_locomotion")) {
+					const YAML::Node& pattern_locomotion = *ppattern_locomotion;
+
+					for (EndEffectorMap::iterator f = feet_.begin(); f != feet_.end(); ++f) {
+						unsigned int leg_id = f->first;
+						std::string leg_name = f->second;
+
+						if (const YAML::Node* pleg = pattern_locomotion.FindValue(leg_name)) {
+							std::string next_leg_name;
+							unsigned int next_leg_id;
+							yaml_reader_.read(*pleg, next_leg_name);
+							for (EndEffectorMap::iterator l = feet_.begin(); l != feet_.end(); ++l) {
+								std::string potential_leg_name = l->second;
+								if (next_leg_name == potential_leg_name) {
+									next_leg_id = l->first;
+									break;
+								}
+							}
+
+							pattern_locomotion_[leg_id] = next_leg_id;
+						} else
+							printf(YELLOW "Warning: the next leg of %s was not read\n" COLOR_RESET, leg_name.c_str());
+					}
+				} else
+					printf(YELLOW "Warning: the pattern of locomotion was not read\n" COLOR_RESET);
+
+
+				// Reading the nominal stance properties of the robot
+				if (const YAML::Node* pnom_stance = properties.FindValue("nominal_stance")) {
+					const YAML::Node& nom_stance = *pnom_stance;
+
+					for (EndEffectorMap::iterator it = feet_.begin(); it != feet_.end(); ++it) {
+						std::string leg_name = it->second;
+						if (const YAML::Node* pleg = nom_stance.FindValue(leg_name)) {
+							unsigned int leg_id = it->first;
+
+							Eigen::Vector3d stance;
+							yaml_reader_.read(*pleg, stance);
+							stance(2) = estimated_ground_from_body_;
+							nominal_stance_[leg_id] = stance;
+						} else
+							printf(YELLOW "Warning: the position of %s leg was not read\n" COLOR_RESET, leg_name.c_str());
+					}
+
+					if (const YAML::Node* pleg_offset = nom_stance.FindValue("lateral_offset"))
+						yaml_reader_.read(*pleg_offset, leg_lateral_offset_);
+					else
+						printf(YELLOW "Warning: the lateral offset was not read\n" COLOR_RESET);
+
+					if (const YAML::Node* pdisplacement = nom_stance.FindValue("displacement"))
+						yaml_reader_.read(*pdisplacement, displacement_);
+					else
+						printf(YELLOW "Warning: the displacement was not read\n" COLOR_RESET);
+				} else
+					printf(YELLOW "Warning: the nominal stance description was not read\n" COLOR_RESET);
+
+
+				// Reading the footstep search window
+				if (const YAML::Node* pfootstep_area = properties.FindValue("footstep_search_window")) {
+					yaml_reader_.read(*pfootstep_area, footstep_window_);
+				} else
+					printf(YELLOW "Warning: the footstep search window was not read\n" COLOR_RESET);
+
+
+				// Reading the leg work window
+				if (const YAML::Node* pleg_area = properties.FindValue("leg_workspace")) {
+					const YAML::Node& leg_area = *pleg_area;
+
+					for (EndEffectorMap::iterator it = feet_.begin(); it != feet_.end(); ++it) {
+						std::string leg_name = it->second;
+
+						if (const YAML::Node* pleg = leg_area.FindValue(leg_name)) {
+							unsigned int leg_id = it->first;
+
+							SearchArea leg_area;
+							yaml_reader_.read(*pleg, leg_area);
+
+							leg_workspaces_[leg_id] = leg_area;
+						} else
+							printf(YELLOW "Warning: the workspace of %s leg was not read\n" COLOR_RESET, leg_name.c_str());
+					}
+				} else
+					printf(YELLOW "Warning: the leg workspace description was not read\n" COLOR_RESET);
+
+				// Reading the body work window
+				if (const YAML::Node* pbody_area = properties.FindValue("body_workspace")) {
+					yaml_reader_.read(*pbody_area, body_workspace_);
+				} else
+					printf(YELLOW "Warning: the body workspace description was not read\n" COLOR_RESET);
+			} else
+				printf(YELLOW "Warning: the predefined properties was not read\n" COLOR_RESET);
+		} else
+			printf(YELLOW "Warning: the robot properties was not read\n" COLOR_RESET);
 	}
 
 //	is_defined_motor_primitives_ = true;
@@ -198,12 +204,6 @@ void Robot::setCurrentContacts(std::vector<Contact> contacts)
 }
 
 
-void Robot::setPatternOfLocomotion(std::vector<int> pattern)
-{
-	pattern_locomotion_ = pattern;
-}
-
-
 Pose Robot::getCurrentPose()
 {
 	return current_pose_;
@@ -216,80 +216,103 @@ std::vector<Contact> Robot::getCurrentContacts()
 }
 
 
-Area Robot::getBodyArea()
+behavior::MotorPrimitives& Robot::getBodyMotorPrimitive()
 {
-	return body_area_;
+	return *body_behavior_;
 }
 
 
-std::vector<Eigen::Vector3d> Robot::getNominalStance(Eigen::Vector3d action)
+SearchArea Robot::getPredefinedBodyWorkspace()
 {
-	double displacement_x, leg_offset;
+	return body_workspace_;
+}
+
+
+SearchAreaMap Robot::getPredefinedLegWorkspaces()
+{
+	return leg_workspaces_;
+}
+
+
+Vector3dMap Robot::getStance(Eigen::Vector3d action) //TODO Virtual method
+{
+	int lateral_pattern, displacement_pattern;
 	double frontal_action = action(0);
 	if (frontal_action == 0)
-		displacement_x = 0;
+		displacement_pattern = 0;
 	else if (frontal_action > 0)
-		displacement_x = -0.04;
+		displacement_pattern = -1;
 	else
-		displacement_x = 0.04;
+		displacement_pattern = 1;
 
 
 	//TODO Clean this shit
 	int past_leg_id;
 	double angular_tolerance = 0.2;
 	if ((action(2) >= -M_PI_2 - angular_tolerance) && (action(2) <= -M_PI_2 + angular_tolerance)) {
-		past_leg_id = 0;
-		leg_offset = -0.06;
+		past_leg_id = 0;//LF_foot;//
+		lateral_pattern = -1;//leg_offset = -0.06;
 	} else if ((action(2) >= M_PI_2 - angular_tolerance) && (action(2) <= M_PI_2 + angular_tolerance)) {
-		past_leg_id = 1;
-		leg_offset = 0.06;
+		past_leg_id = 1;//RF_foot;//
+		lateral_pattern = 1;//leg_offset = 0.06;
 	} else if (action(2) > angular_tolerance) {
-		past_leg_id = 0;
-		leg_offset = 0;
+		past_leg_id = 0;//LF_foot;//
+		lateral_pattern = 0;//leg_offset = 0;
 	} else if (action(2) < -angular_tolerance) {
-		past_leg_id = 1;
-		leg_offset = 0;
+		past_leg_id = 1;//RF_foot;//
+		lateral_pattern = 0;//leg_offset = 0;
 	} else {
 		past_leg_id = last_past_leg_;
 		if (past_leg_id == 0)
-			leg_offset = -0.06;
+			lateral_pattern = -1;//leg_offset = -0.06;
 		else
-			leg_offset = 0.06;
+			lateral_pattern = 1;//leg_offset = 0.06;
 	}
 	last_past_leg_ = past_leg_id;
 
 
 	// Defining the stance position per leg
-	std::vector<Eigen::Vector3d> nominal_stance;
-	nominal_stance.resize(number_legs_);
-	nominal_stance[LF] << 0.36 - leg_offset + displacement_x, 0.32, estimated_ground_from_body_;
-	nominal_stance[RF] << 0.36 + leg_offset + displacement_x, -0.32, estimated_ground_from_body_;
-	nominal_stance[LH] << -0.36 - leg_offset + displacement_x, 0.32, estimated_ground_from_body_;
-	nominal_stance[RH] << -0.36 + leg_offset + displacement_x, -0.32, estimated_ground_from_body_;
+	Vector3dMap stance;
+	for (EndEffectorMap::iterator it = feet_.begin(); it != feet_.end(); ++it) {
+		unsigned int leg_id = it->first;
+		std::string leg_name = it->second;
 
-	return nominal_stance;
+		Eigen::Vector3d leg_position;
+		if ((leg_name == "LF_foot") || (leg_name == "LH_foot"))
+			leg_position(0) = nominal_stance_[leg_id](0) - lateral_pattern * leg_lateral_offset_ + displacement_pattern * displacement_;
+		else
+			leg_position(0) = nominal_stance_[leg_id](0) + lateral_pattern * leg_lateral_offset_ + displacement_pattern * displacement_;
+
+
+		leg_position(1) = nominal_stance_[leg_id](1);
+		leg_position(2) = estimated_ground_from_body_;
+		stance[leg_id] = leg_position;
+	}
+
+	return stance;
 }
 
 
-std::vector<int> Robot::getPatternOfLocomotion()
+PatternOfLocomotionMap Robot::getPatternOfLocomotion()
 {
 	return pattern_locomotion_;
 }
 
 
-std::vector<SearchArea> Robot::getFootstepSearchAreas(Eigen::Vector3d action)
+SearchAreaMap Robot::getFootstepSearchAreas(Eigen::Vector3d action)
 {
-	std::vector<Eigen::Vector3d> nominal_stance = getNominalStance(action);
+	Vector3dMap current_stance = getStance(action);
 
-	std::vector<SearchArea> footstep_areas;
+	SearchAreaMap footstep_areas;
 	SearchArea footstep_area;
-	footstep_area.grid_resolution = 0.04;
-	for (int i = 0; i < number_legs_; i++) {
-		footstep_area.max_x = nominal_stance[i](0) + footstep_window_.max_x;
-		footstep_area.min_x = nominal_stance[i](0) + footstep_window_.min_x;
-		footstep_area.max_y = nominal_stance[i](1) + footstep_window_.max_y;
-		footstep_area.min_y = nominal_stance[i](1) + footstep_window_.min_y;
-		footstep_areas.push_back(footstep_area);
+	footstep_area.resolution = 0.04;
+	for (EndEffectorMap::iterator l = feet_.begin(); l != feet_.end(); l++) {
+		unsigned int leg_id = l->first;
+		footstep_area.max_x = current_stance[leg_id](0) + footstep_window_.max_x;
+		footstep_area.min_x = current_stance[leg_id](0) + footstep_window_.min_x;
+		footstep_area.max_y = current_stance[leg_id](1) + footstep_window_.max_y;
+		footstep_area.min_y = current_stance[leg_id](1) + footstep_window_.min_y;
+		footstep_areas[leg_id] = footstep_area;
 	}
 
 	return footstep_areas;
@@ -302,15 +325,21 @@ double Robot::getExpectedGround(int leg_id)
 }
 
 
-std::vector<SearchArea> Robot::getLegWorkAreas()
-{
-	return leg_areas_;
-}
-
-
 double Robot::getNumberOfLegs()
 {
 	return number_legs_;
+}
+
+
+EndEffectorMap Robot::getEndEffectorMap()
+{
+	return end_effectors_;
+}
+
+
+EndEffectorMap Robot::getLegMap()
+{
+	return feet_;
 }
 
 } //@namespace robot

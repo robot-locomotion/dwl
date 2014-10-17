@@ -3,8 +3,7 @@
 
 #include <behavior/MotorPrimitives.h>
 #include <utils/utils.h>
-#include <fstream>
-#include <yaml-cpp/yaml.h>
+#include <utils/YamlBridge.h>
 
 
 namespace dwl
@@ -13,8 +12,10 @@ namespace dwl
 namespace robot
 {
 
-enum QuadrupeLegID {LF, RF, LH, RH};
-enum HumanoidLegID {L, R};
+//enum QuadrupeLegID {LF, RF, LH, RH};
+//enum HumanoidLegID {L, R};
+//enum EndEffectorID {LF_foot, RF_foot, LH_foot, RH_foot};
+
 
 /**
  * @class Robot
@@ -30,11 +31,9 @@ class Robot
 		~Robot();
 
 		/**
-		 * @brief Gets the body motor primitives
-		 * @return behavior::MotorPrimitives& Returns the body motor primitives
+		 * @brief Reads the robot properties from a yaml file
+		 * @param std::string filepath File path of the yaml
 		 */
-		behavior::MotorPrimitives& getBodyMotorPrimitive();
-
 		void read(std::string filepath);
 
 		/**
@@ -50,12 +49,6 @@ class Robot
 		void setCurrentContacts(std::vector<Contact> contacts);
 
 		/**
-		 * @brief Sets the pattern of locomotion of the robot
-		 * @param std::vector<int> pattern Sequence of leg movements according to the current leg
-		 */
-		void setPatternOfLocomotion(std::vector<int> pattern);
-
-		/**
 		 * @brief Gets current pose of the robot
 		 * @return dwl::Pose Returns the current pose of the robot
 		 */
@@ -68,30 +61,42 @@ class Robot
 		std::vector<Contact> getCurrentContacts();
 
 		/**
-		 * @brief Gets the body area
-		 * @return dwl::Area Return the body area of the robot
+		 * @brief Gets the body motor primitives
+		 * @return behavior::MotorPrimitives& Returns the body motor primitives
 		 */
-		Area getBodyArea();
+		behavior::MotorPrimitives& getBodyMotorPrimitive();
 
 		/**
-		 * @brief Gets the nominal stance of the robot
-		 * @param Eigen::Vector3d action Action to execute
-		 * @return std::vector<Eigen::Vector3d> Returns the nominal stance of the robot
+		 * @brief Gets the predefined body workspace for evaluation of potential collisions
+		 * @return dwl::SearchArea Returns the predefined body workspace
 		 */
-		std::vector<Eigen::Vector3d> getNominalStance(Eigen::Vector3d action);
+		SearchArea getPredefinedBodyWorkspace();
+
+		/**
+		 * @brief Gets the predefined leg workspace for evaluation of potential collisions
+		 * @return SearchAreaMap Returns the predefined leg workspaces
+		 */
+		SearchAreaMap getPredefinedLegWorkspaces();
+
+		/**
+		 * @brief Gets the current stance of the robot
+		 * @param Eigen::Vector3d action Action to execute
+		 * @return dwl::Vector3dMap Returns the current stance of the robot
+		 */
+		Vector3dMap getStance(Eigen::Vector3d action);
 
 		/**
 		 * @brief Gets the pattern of locomotion of the robot
-		 * @return std::vector<int> Returns the pattern of locomotion
+		 * @return PatternOfLocomotionMap Returns the pattern of locomotion
 		 */
-		std::vector<int> getPatternOfLocomotion();
+		PatternOfLocomotionMap getPatternOfLocomotion();
 
 		/**
 		 * @brief Gets the stance areas
 		 * @param Eigen::Vector3d action Action to execute
 		 * @return std::vector<SearchArea> Returns the stance areas
 		 */
-		std::vector<SearchArea> getFootstepSearchAreas(Eigen::Vector3d action);
+		SearchAreaMap getFootstepSearchAreas(Eigen::Vector3d action);
 
 		/**
 		 * @brief Gets the expected ground according to the nominal stance
@@ -100,14 +105,11 @@ class Robot
 		 */
 		double getExpectedGround(int leg_id);
 
-		/**
-		 * @brief Gets the leg work-areas for evaluation of potential collisions
-		 * @return std::vector<SearchArea> Returns the leg work-areas
-		 */
-		std::vector<SearchArea> getLegWorkAreas();
-
 		/** @brief Gets the number of legs of the robot */
 		double getNumberOfLegs();
+
+		EndEffectorMap getEndEffectorMap();
+		EndEffectorMap getLegMap();
 
 
 	protected:
@@ -120,32 +122,48 @@ class Robot
 		/** @brief Pointer to the body motor primitives */
 		behavior::MotorPrimitives* body_behavior_;
 
+		/** @brief Yaml bridge */
+		YamlBridge yaml_reader_;
 
-		ContactID end_effectors_;
+
+
+
+		EndEffectorMap end_effectors_;
+		EndEffectorMap feet_;
+		PatchMap patchs_;
+
+		/** @brief Vector of the nominal stance */
+//		std::vector<Eigen::Vector3d> nominal_stance_;
+		Vector3dMap nominal_stance_;
+
+		/** @brief Leg workspaces */
+//		std::vector<SearchArea> leg_workspaces_;
+		SearchAreaMap leg_workspaces_;
+
+
 		SearchArea footstep_window_;
+		double leg_lateral_offset_;
+
+
+		/** @brief Vector of the body workspace */
+		SearchArea body_workspace_;
+
 
 
 		/** @brief Vector of footstep search areas */
 		std::vector<SearchArea> footstep_search_areas_;
 
-		/** @brief Vector of the body area */
-		Area body_area_;
 
-		/** @brief Vector of the nominal stance */
-		std::vector<Eigen::Vector3d> nominal_stance_;
 
 		/** @brief Pattern of locomotion */
-		std::vector<int> pattern_locomotion_;
+//		std::vector<int> pattern_locomotion_;
+		PatternOfLocomotionMap pattern_locomotion_;
 
 		/** @brief Number of legs */
 		double number_legs_;
 		double number_end_effectors_;
+		double displacement_;
 
-		/** @brief Size of the stance area */
-		//double stance_size_;
-
-		/** @brief Leg work-areas */
-		std::vector<SearchArea> leg_areas_;
 
 		/** @brief Estimated ground from the body frame */
 		double estimated_ground_from_body_;

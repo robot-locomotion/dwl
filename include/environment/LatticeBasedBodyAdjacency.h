@@ -66,8 +66,8 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		/** @brief Indicates it was requested a stance or terrain adjacency */
 		bool is_stance_adjacency_;
 
-		/** @brief Vector of search areas */
-		std::vector<SearchArea> stance_areas_;
+		/** @brief Map of search areas */
+		SearchAreaMap stance_areas_;
 
 		/** @brief Number of top reward for computing the stance cost */
 		int number_top_reward_;

@@ -48,8 +48,8 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 	boundary_min(1) = neightboring_area_.min_y + cell_position(1);
 	boundary_max(0) = neightboring_area_.max_x + cell_position(0);
 	boundary_max(1) = neightboring_area_.max_y + cell_position(1);
-	for (double y = boundary_min(1); y < boundary_max(1); y += neightboring_area_.grid_resolution) {
-		for (double x = boundary_min(0); x < boundary_max(0); x += neightboring_area_.grid_resolution) {
+	for (double y = boundary_min(1); y < boundary_max(1); y += neightboring_area_.resolution) {
+		for (double x = boundary_min(0); x < boundary_max(0); x += neightboring_area_.resolution) {
 			Eigen::Vector2d coord;
 			coord(0) = x;
 			coord(1) = y;
@@ -67,8 +67,8 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 		height_average /= counter;
 
 		// Computing the standard deviation of the height
-		for (double y = boundary_min(1); y < boundary_max(1); y += neightboring_area_.grid_resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += neightboring_area_.grid_resolution) {
+		for (double y = boundary_min(1); y < boundary_max(1); y += neightboring_area_.resolution) {
+			for (double x = boundary_min(0); x < boundary_max(0); x += neightboring_area_.resolution) {
 				Eigen::Vector2d coord;
 				coord(0) = x;
 				coord(1) = y;
@@ -86,8 +86,8 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 					height_boundary_max(1) = neightboring_area_.max_y + coord(1);
 					double estimated_height = 0;
 					int height_counter = 0;
-					for (double y_e = height_boundary_min(1); y_e < height_boundary_max(1); y_e += neightboring_area_.grid_resolution) {
-						for (double x_e = height_boundary_min(0); x_e < height_boundary_max(0); x_e += neightboring_area_.grid_resolution) {
+					for (double y_e = height_boundary_min(1); y_e < height_boundary_max(1); y_e += neightboring_area_.resolution) {
+						for (double x_e = height_boundary_min(0); x_e < height_boundary_max(0); x_e += neightboring_area_.resolution) {
 							Eigen::Vector2d height_coord;
 							height_coord(0) = x_e;
 							height_coord(1) = y_e;

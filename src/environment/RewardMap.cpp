@@ -149,7 +149,7 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 	search_area.max_y = max_y;
 	search_area.min_z = min_z;
 	search_area.max_z = max_z;
-	search_area.grid_resolution = grid_resolution;
+	search_area.resolution = grid_resolution;
 
 	search_areas_.push_back(search_area);
 

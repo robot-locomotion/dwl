@@ -84,7 +84,7 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 	environment_->getTerrainCostMap(terrain_costmap);
 
 	// Getting the stance areas according to the action
-	stance_areas_ = robot_->getStanceAreas(current_action_);
+	stance_areas_ = robot_->getFootstepSearchAreas(current_action_);
 
 	// Computing the terrain cost
 	double terrain_cost = 0;
@@ -100,7 +100,7 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 		// Computing the stance cost
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double stance_cost = 0;
-		double resolution = stance_areas_[n].grid_resolution;
+		double resolution = stance_areas_[n].resolution;
 		for (double y = boundary_min(1); y < boundary_max(1); y += resolution) {
 			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate according to the orientation of the body
@@ -195,17 +195,19 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 	if (environment_->isObstacleInformation()) {
 		if (body) {
 			// Getting the body area of the robot
-			Area body_area = robot_->getBodyArea();
+			SearchArea body_workspace = robot_->getPredefinedBodyWorkspace();
 
 			// Computing the boundary of stance area
 			Eigen::Vector2d boundary_min, boundary_max;
-			boundary_min(0) = body_area.min_x + current_x;
-			boundary_min(1) = body_area.min_y + current_y;
-			boundary_max(0) = body_area.max_x + current_x;
-			boundary_max(1) = body_area.max_y + current_y;
+			boundary_min(0) = body_workspace.min_x + current_x;
+			boundary_min(1) = body_workspace.min_y + current_y;
+			boundary_max(0) = body_workspace.max_x + current_x;
+			boundary_max(1) = body_workspace.max_y + current_y;
 
 			// Getting the resolution of the obstacle map
 			double obstacle_resolution = environment_->getObstacleResolution();
+			if (body_workspace.resolution > obstacle_resolution)
+				obstacle_resolution = body_workspace.resolution;
 
 			for (double y = boundary_min(1); y < boundary_max(1); y += obstacle_resolution) {
 				for (double x = boundary_min(0); x < boundary_max(0); x += obstacle_resolution) {

@@ -38,6 +38,7 @@ class GreedyFootstepPlanning : public ContactPlanning
 		 */
 		bool computeContacts(std::vector<Contact>& contacts, std::vector<Contact> current_contacts, Pose goal_pose);
 
+
 	private:
 		/** @brief Leg offset */
 		double leg_offset_; //TODO evaluate if it's necessary

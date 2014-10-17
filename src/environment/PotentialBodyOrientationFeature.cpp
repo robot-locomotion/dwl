@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-PotentialBodyOrientationFeature::PotentialBodyOrientationFeature() : flat_orientation_(1.0 * (M_PI / 180.0)), max_roll_(30.0 * (M_PI / 180.0)),
+PotentialBodyOrientationFeature::PotentialBodyOrientationFeature() :
+		flat_orientation_(1.0 * (M_PI / 180.0)), max_roll_(30.0 * (M_PI / 180.0)),
 		max_pitch_(30.0 * (M_PI / 180.0))
 {
 	name_ = "Potential Body Orientation";
@@ -34,19 +35,25 @@ void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotA
 	Eigen::Vector2d position = info.pose.position;
 	double yaw = info.pose.orientation;
 
-	for (int leg = 0; leg < robot_->getNumberOfLegs(); leg++) {
-		// Getting the leg area
-		SearchArea leg_area = robot_->getStanceAreas(info.body_action)[leg];
+	// Getting the leg workspaces
+	SearchAreaMap leg_workspaces = robot_->getFootstepSearchAreas(info.body_action);
+
+	EndEffectorMap leg_map = robot_->getLegMap();
+	for (EndEffectorMap::iterator it = leg_map.begin(); it != leg_map.end(); ++it) {
+		unsigned int leg_id = it->first;
+
+		// Getting the leg workspace
+		SearchArea leg_workspace = leg_workspaces[leg_id];
 
 		Eigen::Vector2d boundary_min, boundary_max;
-		boundary_min(0) = leg_area.min_x + position(0);
-		boundary_min(1) = leg_area.min_y + position(1);
-		boundary_max(0) = leg_area.max_x + position(0);
-		boundary_max(1) = leg_area.max_y + position(1);
+		boundary_min(0) = leg_workspace.min_x + position(0);
+		boundary_min(1) = leg_workspace.min_y + position(1);
+		boundary_max(0) = leg_workspace.max_x + position(0);
+		boundary_max(1) = leg_workspace.max_y + position(1);
 
-		// Computing the maximum and minimun height around the leg area
-		for (double y = boundary_min(1); y < boundary_max(1); y += leg_area.grid_resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += leg_area.grid_resolution) {
+		// Computing the maximum and minimun height around the leg workspace
+		for (double y = boundary_min(1); y < boundary_max(1); y += leg_workspace.resolution) {
+			for (double x = boundary_min(0); x < boundary_max(0); x += leg_workspace.resolution) {
 				Eigen::Vector2d foothold;
 				foothold(0) = (x - position(0)) * cos(yaw) - (y - position(1)) * sin(yaw) + position(0);
 				foothold(1) = (x - position(0)) * sin(yaw) + (y - position(1)) * cos(yaw) + position(1);
@@ -59,7 +66,7 @@ void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotA
 				if (info.height_map.count(leg_vertex) > 0)
 					height_foothold = info.height_map.find(leg_vertex)->second;
 				else
-					height_foothold = robot_->getExpectedGround(leg);
+					height_foothold = robot_->getExpectedGround(leg_id);
 
 				float foothold_x = foothold(0);
 				float foothold_y = foothold(1);

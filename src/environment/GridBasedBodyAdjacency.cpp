@@ -14,7 +14,7 @@ GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true), n
 
 	//TODO stance area
 	Eigen::Vector3d full_action = Eigen::Vector3d::Zero();
-	stance_areas_ = robot_->getStanceAreas(full_action);
+	stance_areas_ = robot_->getFootstepSearchAreas(full_action);
 }
 
 
@@ -307,7 +307,7 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost, Vertex state_vertex)
 		// Computing the stance cost
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double stance_cost = 0;
-		double resolution = stance_areas_[n].grid_resolution;
+		double resolution = stance_areas_[n].resolution;
 		for (double y = boundary_min(1); y < boundary_max(1); y += resolution ) {
 			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate according to the orientation of the body

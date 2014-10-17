@@ -48,8 +48,9 @@ void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 		boundary_max(0) = search_areas_[n].max_x + robot_state(0);
 		boundary_max(1) = search_areas_[n].max_y + robot_state(1);
 
-		for (double y = boundary_min(1); y < boundary_max(1); y += search_areas_[n].grid_resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += search_areas_[n].grid_resolution) {
+		double resolution = search_areas_[n].resolution;
+		for (double y = boundary_min(1); y < boundary_max(1); y += resolution) {
+			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate of the point inside the search area
 				double xr = (x - robot_state(0)) * cos(yaw) - (y - robot_state(1)) * sin(yaw) + robot_state(0);
 				double yr = (x - robot_state(0)) * sin(yaw) + (y - robot_state(1)) * cos(yaw) + robot_state(1);
@@ -121,7 +122,7 @@ void ObstacleMap::addSearchArea(double min_x, double max_x, double min_y, double
 	search_area.max_y = max_y;
 	search_area.min_z = min_z;
 	search_area.max_z = max_z;
-	search_area.grid_resolution = grid_resolution;
+	search_area.resolution = grid_resolution;
 
 	search_areas_.push_back(search_area);
 

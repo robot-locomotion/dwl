@@ -41,9 +41,9 @@ class ObstacleMap
 		 * @param double max_x Maximun cartesian position along the y-axis
 		 * @param double min_z Minimun cartesian position along the z-axis
 		 * @param double max_z Maximun cartesian position along the z-axis
-		 * @param double grid_size Resolution of the grid
+		 * @param double grid_resolution Resolution of the grid
 		 */
-		void addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_size);
+		void addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_resolution);
 
 		/**
 		 * @brief Removes obstacles outside the interest region

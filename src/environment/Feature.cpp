@@ -63,7 +63,7 @@ void Feature::setNeighboringArea(double min_x, double max_x, double min_y, doubl
 	neightboring_area_.min_x = min_x;
 	neightboring_area_.max_y = max_y;
 	neightboring_area_.min_y = min_y;
-	neightboring_area_.grid_resolution = resolution;
+	neightboring_area_.resolution = resolution;
 }
 
 } //@namespace environment

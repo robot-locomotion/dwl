@@ -98,8 +98,9 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/robot/KinematicConstraints.cpp
 							src/robot/StabilityConstraints.cpp
 							src/robot/StateCost.cpp
-							src//utils/Math.cpp
-							src/utils/Orientation.cpp) 
+							src/utils/Math.cpp
+							src/utils/Orientation.cpp
+							src/utils/YamlBridge.cpp) 
 
 #set(${PROJECT_NAME}_HEADERS )
 
@@ -111,10 +112,11 @@ target_link_libraries(${PROJECT_NAME} yaml-cpp)# ${YAMLCPP_LIBRARY})
 add_executable(my_planner tests/HierarchicalPlanningTest.cpp)
 target_link_libraries(my_planner ${PROJECT_NAME} ${OCTOMAP_LIBRARIES})
 
+add_executable(yaml_bridge tests/YamlBridgeTest.cpp)
+target_link_libraries(yaml_bridge ${PROJECT_NAME})
 
 add_executable(dikstrap_algorithm tests/DijkstraExample.cpp)
 add_executable(boost_dikstrap_algorithm tests/DijkstraExampleBoost.cpp)
-
 
 # Install catkin package.xml and dw-config.cmake
 install(FILES package.xml DESTINATION share/dwl)
@@ -124,7 +126,7 @@ install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" DES
 # (this registers the build-tree with a global CMake-registry)
 export(PACKAGE dwl)
 
-# Create a octomap-config.cmake file for the use from the build tree
+# Create a dwl-config.cmake file for the use from the build tree
 set(DWL_INCLUDE_DIRS "${INCLUDE_DIRS}")
 set(DWL_LIB_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 # not used right now (export depends?)
