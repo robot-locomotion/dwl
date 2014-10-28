@@ -6,7 +6,7 @@ namespace dwl
 namespace planning
 {
 
-GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.0), last_past_leg_ (1) //0.025
+GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.03), last_past_leg_ (1) //0.025
 {
 	name_ = "Greedy Footstep";
 }
@@ -175,6 +175,7 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 
 						Vertex current_vertex, terrain_vertex;
 						environment_->getTerrainSpaceModel().stateToVertex(current_vertex, current_state);
+						environment_->getTerrainSpaceModel().vertexToState(current_state, current_vertex);
 						environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, current_vertex,	XY_Y);
 
 						// Getting the cost of the terrain
@@ -218,6 +219,8 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 //			Eigen::Vector3d nominal_stance = robot_->getStance(full_action)[current_leg_id];
 //			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
 //			foothold.position(1) = body_state(1) + nominal_stance(0) * sin(yaw) + nominal_stance(1) * cos(yaw);
+//			environment_->getTerrainSpaceModel().coordToVertex(foothold_vertex, (Eigen::Vector2d) foothold.position.head(2));
+//			foothold.position(2) = terrain_heightmap.find(foothold_vertex)->second + leg_offset_;
 		} else {
 			foothold.position(0) = body_state(0) + stance[current_leg_id](0) * cos(yaw) - stance[current_leg_id](1) * sin(yaw);
 			foothold.position(1) = body_state(1) + stance[current_leg_id](0) * sin(yaw) + stance[current_leg_id](1) * cos(yaw);

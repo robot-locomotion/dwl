@@ -84,7 +84,7 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 
 		// Deleting the current vertex to the openset list
 		openset_queue.erase(openset_queue.begin());
-		openset.erase(source);
+		openset.erase(current);
 
 		// Adding the current vertex to the closedset
 		closedset[current] = true;
@@ -96,16 +96,16 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 		{
 			Vertex neighbor = edge_iter->target;
 			Weight weight = edge_iter->weight;
-			if (closedset.find(neighbor)->second == true)
+			if (closedset.count(neighbor) > 0)
 				continue;
 
 			Weight tentative_g_cost = g_cost[current] + weight;
-			if ((openset.find(neighbor)->second == false) || (tentative_g_cost < g_cost[neighbor])) {
+			if ((openset.count(neighbor) == 0) || (tentative_g_cost < g_cost[neighbor])) {
 				previous[neighbor] = current;
 				g_cost[neighbor] = tentative_g_cost;
 				f_cost[neighbor] = g_cost[neighbor] + adjacency_->heuristicCostEstimate(neighbor, target);
 
-				if (openset.find(neighbor)->second == false) {
+				if (openset.count(neighbor) == 0) {
 					openset[neighbor] = true;
 					openset_queue.insert(std::pair<Weight, Vertex>(f_cost[neighbor], neighbor));
 				}
@@ -160,16 +160,17 @@ void AStar::findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex s
 		{
 			Vertex neighbor = edge_iter->target;
 			Weight weight = edge_iter->weight;
-			if (closedset.find(neighbor)->second == true)
+
+			if (closedset.count(neighbor) > 0)
 				continue;
 
 			Weight tentative_g_cost = g_cost[current] + weight;
-			if ((openset.find(neighbor)->second == false) || (tentative_g_cost < g_cost[neighbor])) {
+			if ((openset.count(neighbor) == 0) || (tentative_g_cost < g_cost[neighbor])) {
 				previous[neighbor] = current;
 				g_cost[neighbor] = tentative_g_cost;
 				f_cost[neighbor] = g_cost[neighbor] + adjacency_->heuristicCostEstimate(neighbor, target);
 
-				if (openset.find(neighbor)->second == false) {
+				if (openset.count(neighbor) == 0) {
 					openset[neighbor] = true;
 					openset_queue.insert(std::pair<Weight, Vertex>(f_cost[neighbor], neighbor));
 				}
