@@ -64,14 +64,7 @@ void HierarchicalPlanners::init()
 	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
 
 	// Init the robot properties
-	std::string body_primitive_path;
-	std::string path = "hierarchical_planner/robot/body_movement_primitives";
-	if (node_.getParam(path, body_primitive_path))
-		robot_.getBodyMotorPrimitive().read(body_primitive_path);
-	else
-		ROS_WARN("The body movement primitives was not defined, this could be neccesary.");
-
-	robot_.read("/home/cmastalli/ros_workspace/src/dwl_planners/config/hyq/properties.yaml");
+	initRobot();
 
 	// Init the body planner
 	initBodyPlanner();
@@ -107,6 +100,26 @@ void HierarchicalPlanners::init()
 	double path_computation_time;
 	if (node_.getParam("hierarchical_planner/body_planner/path_computation_time", path_computation_time))
 		locomotor_.setComputationTime(path_computation_time, dwl::BodyPathSolver);
+}
+
+
+void HierarchicalPlanners::initRobot()
+{
+	// Initializes the robot properties
+	std::string properties_path;
+	std::string  path = "hierarchical_planner/robot/properties";
+	if (node_.getParam(path, properties_path))
+		robot_.read(properties_path);
+	else
+		ROS_WARN("The properties was not defined, this could be neccesary.");
+
+	// Initializes robot body primitives
+	std::string body_primitive_path;
+	path = "hierarchical_planner/robot/body_movement_primitives";
+	if (node_.getParam(path, body_primitive_path))
+		robot_.getBodyMotorPrimitive().read(body_primitive_path);
+	else
+		ROS_WARN("The body movement primitives was not defined, this could be neccesary.");
 }
 
 
@@ -457,7 +470,7 @@ void HierarchicalPlanners::publishContactSequence()
 		for (int i = 0; i < contact_sequence_.size(); i++) {
 			contact_sequence_rviz_msg_.points[i].x = contact_sequence_[i].position(0);
 			contact_sequence_rviz_msg_.points[i].y = contact_sequence_[i].position(1);
-			contact_sequence_rviz_msg_.points[i].z = contact_sequence_[i].position(2) + 0.03;
+			contact_sequence_rviz_msg_.points[i].z = contact_sequence_[i].position(2);// + 0.03;
 
 			int end_effector = contact_sequence_[i].end_effector;
 			if (end_effector == 0) { //TODO Remove the offset

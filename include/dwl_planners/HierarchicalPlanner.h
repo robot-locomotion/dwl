@@ -63,7 +63,13 @@ class HierarchicalPlanners
 		/** @brief Initializes the hierarchical planner */
 		void init();
 
+		/** Initializes the robot properties */
+		void initRobot();
+
+		/** Initializes the body planner */
 		void initBodyPlanner();
+
+		/** Initialized the contact planner */
 		void initContactPlanner();
 
 		/** @brief Computes the hierarchical plan */

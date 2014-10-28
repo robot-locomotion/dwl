@@ -4,6 +4,7 @@ project(dwl_planners)
 
 find_package(catkin REQUIRED COMPONENTS
   dwl
+#  hyq_gen
   roscpp
   std_msgs
   message_generation
@@ -11,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf_conversions)
 
 find_package(dwl REQUIRED)
+#find_package(hyq_gen REQUIRED)
 
 
 add_message_files(
