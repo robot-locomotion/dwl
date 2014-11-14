@@ -107,16 +107,14 @@ void HierarchicalPlanners::initRobot()
 {
 	// Initializes the robot properties
 	std::string properties_path;
-	std::string  path = "hierarchical_planner/robot/properties";
-	if (node_.getParam(path, properties_path))
+	if (node_.getParam("hierarchical_planner/robot/properties", properties_path))
 		robot_.read(properties_path);
 	else
 		ROS_WARN("The properties was not defined, this could be neccesary.");
 
 	// Initializes robot body primitives
 	std::string body_primitive_path;
-	path = "hierarchical_planner/robot/body_movement_primitives";
-	if (node_.getParam(path, body_primitive_path))
+	if (node_.getParam("hierarchical_planner/robot/body_movement_primitives", body_primitive_path))
 		robot_.getBodyMotorPrimitive().read(body_primitive_path);
 	else
 		ROS_WARN("The body movement primitives was not defined, this could be neccesary.");
