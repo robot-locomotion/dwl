@@ -28,6 +28,7 @@
 
 // Messages headers
 #include <dwl_planners/ContactSequence.h>
+#include <dwl_planners/ContactRegion.h>
 #include <terrain_server/RewardMap.h>
 #include <terrain_server/ObstacleMap.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -99,6 +100,9 @@ class HierarchicalPlanners
 		/** @brief Publishes the contact sequence */
 		void publishContactSequence();
 
+		/** @brief Publishes the contact regions */
+		void publishContactRegions();
+
 
 	private:
 		/** @brief ROS node handle */
@@ -124,6 +128,8 @@ class HierarchicalPlanners
 
 		/** @brief Contact sequence publisher for visualization */
 		ros::Publisher contact_sequence_rviz_pub_;
+
+		ros::Publisher contact_regions_pub_;
 
 		/** @brief Thread mutex of the reward information */
 		pthread_mutex_t reward_lock_;
@@ -169,8 +175,12 @@ class HierarchicalPlanners
 		/** @brief Contact sequence for visualization in RVIZ */
 		visualization_msgs::Marker contact_sequence_rviz_msg_;
 
+		dwl_planners::ContactRegion contact_regions_msg_;
+
 		/** @brief Approximated body path */
 		std::vector<dwl::Pose> body_path_;
+
+		std::vector<dwl::Contact> nominal_contacts_;
 
 		/** Contact sequence */
 		std::vector<dwl::Contact> contact_sequence_;

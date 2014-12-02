@@ -18,7 +18,8 @@ find_package(dwl REQUIRED)
 add_message_files(
    FILES
     Contact.msg
-    ContactSequence.msg)
+    ContactSequence.msg
+    ContactRegion.msg)
 
 
 ## Generate services in the 'srv' folder
