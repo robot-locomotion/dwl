@@ -22,3 +22,15 @@
 	</class>
 	
 </library>
+
+<library path="libreward_map_rviz_plugin">
+
+	<class name="reward_map_rviz_plugin/FootstepRegion"
+           type="reward_map_rviz_plugin::FootstepRegionDisplay"
+           base_class_type="rviz::Display">
+	<description>
+		Displays the contact regions messages.
+	</description>
+	</class>
+	
+</library>

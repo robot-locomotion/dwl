@@ -30,6 +30,7 @@
 									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/src/dwl/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/qt4/QtCore"/>
 									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/terrain_server/include"/>
+									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/dwl_planners/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.11371985" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -119,4 +120,5 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope"/>
 </cproject>
