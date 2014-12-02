@@ -53,5 +53,16 @@ void ContactPlanning::setContactHorizon(int horizon)
 	contact_horizon_ = horizon;
 }
 
+
+std::vector<Contact> ContactPlanning::getNominalContacts()
+{
+	std::vector<Contact> contacts;
+	contacts = nominal_contacts_;
+
+	nominal_contacts_.clear();
+
+	return contacts;
+}
+
 } //@namespace planning
 } //@namespace dwl

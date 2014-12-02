@@ -44,7 +44,6 @@ bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path, Po
 	// Getting the shortest path
 	std::list<Vertex> shortest_path = path_solver_->getShortestPath(start_vertex, goal_vertex);
 
-	std::cout << "Path = " << std::endl;
 	std::list<Vertex>::iterator path_iter = shortest_path.begin();
 	for(; path_iter != shortest_path.end(); path_iter++) {
 		Pose body_pose;
@@ -53,8 +52,6 @@ bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path, Po
 
 		Eigen::Vector3d path;
 		environment_->getTerrainSpaceModel().vertexToState(path, *path_iter);
-
-		std::cout << path(0) << " " << path(1) << " " << path(2) << std::endl;
 
 		// Converting the yaw angle to quaternion
 		Eigen::Quaterniond q;

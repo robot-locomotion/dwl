@@ -59,6 +59,12 @@ class ContactPlanning
 		 */
 		void setContactHorizon(int horizon);
 
+		/**
+		 * @brief Gets the nominal contact information
+		 * @return std::vector<dwl::Contact> Nominal contact information
+		 */
+		std::vector<dwl::Contact> getNominalContacts();
+
 
 	protected:
 		/** @brief Name of the contact planning */
@@ -81,6 +87,8 @@ class ContactPlanning
 
 		/** @brief Contact horizon */
 		double contact_horizon_;
+
+		std::vector<Contact> nominal_contacts_;
 };
 
 } //@namespace planning

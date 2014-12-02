@@ -35,7 +35,7 @@ class Dijkstrap : public Solver
 		 * @param dwl::Vertex target Target vertex
 		 * @return bool Returns true if it was computed a solution
 		 */
-		bool compute(Vertex source, Vertex target);
+		bool compute(Vertex source, Vertex target, double computation_time);
 
 
 	private:
@@ -47,6 +47,10 @@ class Dijkstrap : public Solver
 		 * @param AdjacencyMap adjacency_map Adjacency map
 		 */
 		void findShortestPath(CostMap& min_cost, PreviousVertex& previous, Vertex source, AdjacencyMap adjacency_map);
+
+		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target);
+
+		int expansions_;
 
 };
 

@@ -117,7 +117,6 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 		past_leg_id = last_past_leg_;
 	current_body_state_ = body_state;
 	last_past_leg_ = past_leg_id;
-	std::cout << delta_yaw << std::endl;
 
 	// Computing the contact sequence
 	int current_leg_id;
@@ -178,6 +177,20 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 						environment_->getTerrainSpaceModel().vertexToState(current_state, current_vertex);
 						environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, current_vertex,	XY_Y);
 
+						// Computing the nominal stance
+						if ((xi == 0) && (yi == 0)) {
+							dwl::Contact footstep;
+							footstep.end_effector = current_leg_id;
+							double z;
+							if (terrain_heightmap.count(terrain_vertex) > 0)
+								z = terrain_heightmap.find(terrain_vertex)->second + 0.0105;
+							else
+								z = robot_->getExpectedGround(current_leg_id) - 0.015;
+
+							footstep.position << current_state(0), current_state(1), z;
+							nominal_contacts_.push_back(footstep);
+						}
+
 						// Getting the cost of the terrain
 						double terrain_cost, body_cost = 0, contact_cost;
 						if (terrain_costmap.count(terrain_vertex) > 0) {
@@ -214,13 +227,6 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 			Eigen::Vector2d foothold_coord;
 			environment_->getTerrainSpaceModel().vertexToCoord(foothold_coord, foothold_vertex);
 			foothold.position << foothold_coord, (terrain_heightmap.find(foothold_vertex)->second + leg_offset_);
-
-			// TODO Only for testing
-//			Eigen::Vector3d nominal_stance = robot_->getStance(full_action)[current_leg_id];
-//			foothold.position(0) = body_state(0) + nominal_stance(0) * cos(yaw) - nominal_stance(1) * sin(yaw);
-//			foothold.position(1) = body_state(1) + nominal_stance(0) * sin(yaw) + nominal_stance(1) * cos(yaw);
-//			environment_->getTerrainSpaceModel().coordToVertex(foothold_vertex, (Eigen::Vector2d) foothold.position.head(2));
-//			foothold.position(2) = terrain_heightmap.find(foothold_vertex)->second + leg_offset_;
 		} else {
 			foothold.position(0) = body_state(0) + stance[current_leg_id](0) * cos(yaw) - stance[current_leg_id](1) * sin(yaw);
 			foothold.position(1) = body_state(1) + stance[current_leg_id](0) * sin(yaw) + stance[current_leg_id](1) * cos(yaw);

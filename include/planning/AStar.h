@@ -36,32 +36,20 @@ class AStar : public Solver
 		 * @param double computation_time Allowed time for computing a solution (in seconds)
 		 * @return bool Return true if it was computed a solution
 		 */
-		bool compute(Vertex source, Vertex target, double computation_time = std::numeric_limits<double>::max());
+		bool compute(Vertex source, Vertex target,
+				double computation_time = std::numeric_limits<double>::max());
 
 
 	private:
 		/**
 		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path
-		 * @param CostMap& min_cost Minimum cost of the vertex
-		 * @param PreviousVertex& Previous vertex
-		 * @param Vertex source Source vertex
-		 * @param Vertex target Target vertex
-		 * @param AdjacencyMap adjacency_map Adjacency map
-		 */
-		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target, AdjacencyMap adjacency_map);
-
-		/**
-		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path
-		 * @param CostMap& min_cost Minimum cost of the vertex
-		 * @param PreviousVertex& Previous vertex
 		 * @param Vertex source Source vertex
 		 * @param Vertex target Target vertex
 		 */
-		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target);
+		void findShortestPath(Vertex source, Vertex target);
 
-		/** @brief Indicates if it's computed a whole adjacency map before the searching */
-		bool compute_whole_adjacency_map_;
-
+		/** @brief number of expansions */
+		int expansions_;
 };
 
 } //@namespace planning
