@@ -59,9 +59,6 @@ class AnytimeRepairingAStar : public Solver
 		/** @brief Satisfied inflation */
 		double satisfied_inflation_;
 
-		/** @brief Decrease inflation rate in percentage */
-		double decrease_inflation_rate_;
-
 		/** @brief G cost */
 		CostMap g_cost_;
 

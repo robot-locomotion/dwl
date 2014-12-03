@@ -43,6 +43,7 @@ bool AStar::compute(Vertex source, Vertex target, double computation_time)
 
 void AStar::findShortestPath(Vertex source, Vertex target)
 {
+	// Defining the f_cost and g_cost
 	CostMap f_cost;
 	CostMap g_cost;
 

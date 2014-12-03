@@ -9,7 +9,7 @@ namespace planning
 {
 
 AnytimeRepairingAStar::AnytimeRepairingAStar() : initial_inflation_(3), satisfied_inflation_(1.0),
-		decrease_inflation_rate_(0.2), min_f_cost_(std::numeric_limits<double>::max()), expansions_(0)
+		min_f_cost_(std::numeric_limits<double>::max()), expansions_(0)
 {
 	name_ = "Anytime Repairing A*";
 	is_graph_searching_algorithm_ = true;
