@@ -59,7 +59,8 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 			printf(YELLOW "Could not computed the foothold sequence \n" COLOR_RESET);
 			return false;
 		}
-	}
+	} else
+		return false;
 
 	return true;
 }

@@ -184,7 +184,7 @@ bool PlanningOfMotionSequences::initPlan()
 		is_initialized_planning_ = true;
 	}
 	else {
-		printf(YELLOW "Could not initialized the %s planning because has not been setted the solver\n" COLOR_RESET, name_.c_str());
+		printf(YELLOW "Could not initialized the %s planning because has not been set the solver\n" COLOR_RESET, name_.c_str());
 
 		return false;
 	}
@@ -195,24 +195,17 @@ bool PlanningOfMotionSequences::initPlan()
 
 bool PlanningOfMotionSequences::computePlan(Pose robot_state)
 {
-	if (is_initialized_planning_) {
-		if (is_set_solver_) {
-			if (!compute(robot_state)) {
-				printf(RED "Could not computed the %s planning algorithm\n" COLOR_RESET, name_.c_str());
-				return false;
-			}
-		}
-		else {
-			printf(YELLOW "Could not executed the %s planning because has not been setted the solver\n" COLOR_RESET, name_.c_str());
-			return false;
-		}
-	}
-	else {
+	if (!is_initialized_planning_) {
 		printf(YELLOW "Could not executed the %s planning because has not been initialized\n" COLOR_RESET, name_.c_str());
+		return false;
+	} else if (!is_set_solver_) {
+		printf(YELLOW "Could not executed the %s planning because has not been set the solver\n" COLOR_RESET, name_.c_str());
 		return false;
 	}
 
-	return true;
+	bool plan = compute(robot_state);
+
+	return plan;
 }
 
 
