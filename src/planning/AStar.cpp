@@ -63,12 +63,11 @@ void AStar::findShortestPath(Vertex source, Vertex target)
 	g_cost[source] = 0;
 
 	// Estimated total cost from start to goal
-	f_cost[source] = g_cost[source] + adjacency_->heuristicCostEstimate(source, target);
+	f_cost[source] = g_cost[source] + adjacency_->heuristicCost(source, target);
 
 	// Adding the start vertex to the openset
 	openset_queue.insert(std::pair<Weight, Vertex>(f_cost[source], source));
 	openset[source] = true;
-	int expansions = 0;
 	double min_f_cost = std::numeric_limits<double>::max();
 	while ((!openset.empty()) && (g_cost[target] < min_f_cost)) {
 		Vertex current = openset_queue.begin()->second;
@@ -104,8 +103,7 @@ void AStar::findShortestPath(Vertex source, Vertex target)
 			if ((openset.count(neighbor) == 0) || (tentative_g_cost < g_cost[neighbor])) {
 				policy_[neighbor] = current;
 				g_cost[neighbor] = tentative_g_cost;
-				f_cost[neighbor] = g_cost[neighbor] +
-						adjacency_->heuristicCostEstimate(neighbor, target);
+				f_cost[neighbor] = g_cost[neighbor] + adjacency_->heuristicCost(neighbor, target);
 
 				if (openset.count(neighbor) == 0) {
 					openset[neighbor] = true;
@@ -118,7 +116,7 @@ void AStar::findShortestPath(Vertex source, Vertex target)
 		// Computing the minimum f cost
 		Vertex current_vertex = openset_queue.begin()->second;
 		double current_f_cost = openset_queue.begin()->first;
-		min_f_cost = current_f_cost + adjacency_->heuristicCostEstimate(current_vertex, target);
+		min_f_cost = current_f_cost + adjacency_->heuristicCost(current_vertex, target);
 	}
 
 	total_cost_ = g_cost[target];

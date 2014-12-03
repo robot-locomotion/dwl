@@ -32,8 +32,7 @@ class AnytimeRepairingAStar : public Solver
 		 * @param double computation_time Allowed time for computing a solution (in seconds)
 		 * @return bool Return true if it was computed a solution
 		 */
-		bool compute(Vertex source, Vertex target,
-				double computation_time = std::numeric_limits<double>::max());
+		bool compute(Vertex source, Vertex target,	double computation_time = std::numeric_limits<double>::max());
 
 		/** @brief Defines a ordered queue according to the less weight */
 		typedef std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > SetQueue;
@@ -50,8 +49,7 @@ class AnytimeRepairingAStar : public Solver
 		 * @param dwl::Vertex target Target vertex
 		 * @return Returns true if the path was improved
 		 */
-		bool improvePath(SetQueue& openset_queue, Set& visitedset, Vertex target,
-				double computation_time);
+		bool improvePath(SetQueue& openset_queue, Set& visitedset, Vertex target,	double computation_time);
 
 		/** @brief Initial inflation */
 		double initial_inflation_;

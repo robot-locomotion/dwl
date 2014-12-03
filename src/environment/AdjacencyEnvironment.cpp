@@ -175,8 +175,7 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 		}
 	} else
 	{
-		printf(
-				RED "Could not get the closest start and goal vertex because there is not terrain information \n" COLOR_RESET);
+		printf(	RED "Could not get the closest start and goal vertex because there is not terrain information \n" COLOR_RESET);
 		return;
 	}
 
@@ -206,7 +205,7 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 }
 
 
-double AdjacencyEnvironment::heuristicCostEstimate(Vertex source, Vertex target)
+double AdjacencyEnvironment::heuristicCost(Vertex source, Vertex target)
 {
 	Eigen::Vector3d source_state, target_state;
 	environment_->getTerrainSpaceModel().vertexToState(source_state, source);
@@ -243,13 +242,12 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 
 		// Normalizing the angles for a range of [-pi,pi]
 		utils::Math math;
-		double current_angle, target_angle;
+		double current_angle = current_state(2), target_angle = target_state(2);
 		math.normalizeAngle(current_angle, MinusPiToPi);
 		math.normalizeAngle(target_angle, MinusPiToPi);
 		current_state(2) = current_angle;
 		target_state(2) = target_angle;
 
-		//TODO Define this metrics
 		double distant = ((Eigen::Vector2d) target_state.head(2) - (Eigen::Vector2d) current_state.head(2)).norm();
 		if (distant < epsilon) {
 			double angular_error = (double) target_state(2) - (double) current_state(2);

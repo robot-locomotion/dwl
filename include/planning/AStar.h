@@ -36,8 +36,7 @@ class AStar : public Solver
 		 * @param double computation_time Allowed time for computing a solution (in seconds)
 		 * @return bool Return true if it was computed a solution
 		 */
-		bool compute(Vertex source, Vertex target,
-				double computation_time = std::numeric_limits<double>::max());
+		bool compute(Vertex source, Vertex target,	double computation_time = std::numeric_limits<double>::max());
 
 
 	private:

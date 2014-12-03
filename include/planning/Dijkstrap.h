@@ -41,17 +41,13 @@ class Dijkstrap : public Solver
 	private:
 		/**
 		 * @brief Computes the minimun cost and previous vertex according to the shortest Dijkstrap path
-		 * @param CostMap& min_cost Minimum cost of the vertex
-		 * @param PreviousVertex& Previous vertex
 		 * @param Vertex source Source vertex
 		 * @param AdjacencyMap adjacency_map Adjacency map
 		 */
-		void findShortestPath(CostMap& min_cost, PreviousVertex& previous, Vertex source, AdjacencyMap adjacency_map);
+		void findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacency_map);
 
-		void findShortestPath(CostMap& g_cost, PreviousVertex& previous, Vertex source, Vertex target);
-
+		/** @brief number of expansions */
 		int expansions_;
-
 };
 
 } //@namespace planning

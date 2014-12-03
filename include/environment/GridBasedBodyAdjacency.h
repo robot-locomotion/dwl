@@ -12,7 +12,7 @@ namespace environment
 
 /**
  * @class GridBasedBodyAdjacency
- * @brief Class for building a grid-based body adjacency map
+ * @brief Class for building a grid-based body adjacency map of the environment
  */
 class GridBasedBodyAdjacency : public AdjacencyEnvironment
 {
@@ -53,9 +53,7 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 		 */
 		void computeBodyCost(double& cost, Vertex state_vertex);
 
-		/**
-		 * @brief Ask if it is requested a stance adjacency
-		 */
+		/** @brief Asks if it is requested a stance adjacency */
 		bool isStanceAdjacency();
 
 		/** @brief Indicates it was requested a stance or terrain adjacency */
@@ -72,7 +70,6 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 
 		/** @brief Uncertainty factor which is applicated in non-perceived environment */
 		double uncertainty_factor_; // For unknown (non-perceive) areas
-
 };
 
 } //@namespace hyq

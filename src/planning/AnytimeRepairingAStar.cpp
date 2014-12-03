@@ -60,7 +60,7 @@ bool AnytimeRepairingAStar::compute(Vertex source, Vertex target, double computa
 
 	// Estimated total cost from start to goal
 	double f_cost = g_cost_[source] +
-			satisfied_inflation_ * adjacency_->heuristicCostEstimate(source, target);
+			satisfied_inflation_ * adjacency_->heuristicCost(source, target);
 
 	// Adding the start vertex to the openset
 	openset_queue.insert(std::pair<Weight, Vertex>(f_cost, source));
@@ -70,7 +70,7 @@ bool AnytimeRepairingAStar::compute(Vertex source, Vertex target, double computa
 	Vertex current_vertex = openset_queue.begin()->second;
 	double current_f_cost = openset_queue.begin()->first;
 	min_f_cost_ = current_f_cost +
-			satisfied_inflation_ * adjacency_->heuristicCostEstimate(current_vertex, target);
+			satisfied_inflation_ * adjacency_->heuristicCost(current_vertex, target);
 
 	while ((satisfied_inflation_ > 1) && ((clock() - time_started_) < allocated_time_secs)) {
 		// Computing a path with reuse of states values
@@ -130,7 +130,7 @@ bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue, Set& visitedset
 				policy_[neighbor] = current;
 				g_cost_[neighbor] = tentative_g_cost;
 				double f_cost = g_cost_[neighbor] +
-						satisfied_inflation_ * adjacency_->heuristicCostEstimate(neighbor, target);
+						satisfied_inflation_ * adjacency_->heuristicCost(neighbor, target);
 				if (closedset.count(neighbor) == 0) {
 					openset_queue.insert(std::pair<Weight, Vertex>(f_cost, neighbor));
 				} else {
@@ -155,7 +155,7 @@ bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue, Set& visitedset
 	Vertex current_vertex = openset_queue.begin()->second;
 	double current_f_cost = openset_queue.begin()->first;
 	min_f_cost_ = current_f_cost +
-			satisfied_inflation_ * adjacency_->heuristicCostEstimate(current_vertex, target);
+			satisfied_inflation_ * adjacency_->heuristicCost(current_vertex, target);
 
 	return true;
 }

@@ -11,10 +11,6 @@ GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true), n
 {
 	name_ = "Grid-based Body";
 	is_lattice_ = false;
-
-	//TODO stance area
-	Eigen::Vector3d full_action = Eigen::Vector3d::Zero();
-	stance_areas_ = robot_->getFootstepSearchAreas(full_action);
 }
 
 
@@ -26,6 +22,10 @@ GridBasedBodyAdjacency::~GridBasedBodyAdjacency()
 
 void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target)
 {
+	// Computing a default stance areas
+	Eigen::Vector3d full_action = Eigen::Vector3d::Zero();
+	stance_areas_ = robot_->getFootstepSearchAreas(full_action);
+
 	// Getting the body orientation
 	Eigen::Vector3d initial_state;
 	environment_->getTerrainSpaceModel().vertexToState(initial_state, source);
@@ -293,8 +293,8 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost, Vertex state_vertex)
 	CostMap terrain_costmap;
 	environment_->getTerrainCostMap(terrain_costmap);
 
-	// Computing the body cost
-	double body_cost = 0;
+	// Computing the terrain cost
+	double terrain_cost = 0;
 	unsigned int area_size = stance_areas_.size();
 	for (unsigned int n = 0; n < area_size; n++) {
 		// Computing the boundary of stance area
@@ -340,10 +340,37 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost, Vertex state_vertex)
 			stance_cost /= number_top_reward;
 		}
 
-		body_cost += stance_cost;
+		terrain_cost += stance_cost;
 	}
-	body_cost /= stance_areas_.size();
-	cost = body_cost;
+	terrain_cost /= stance_areas_.size();
+
+
+	// Getting the height map
+	HeightMap heightmap;
+	environment_->getTerrainHeightMap(heightmap);
+
+	// Getting robot and terrain information
+	RobotAndTerrain info;
+	Eigen::Vector3d default_action;
+	default_action << 1, 0, 0;
+	info.body_action = default_action;
+	info.pose.position = (Eigen::Vector2d) state.head(2);
+	info.pose.orientation = (double) state(2);
+	info.height_map = heightmap;
+	info.resolution = environment_->getTerrainResolution();
+
+	// Computing the cost of the body features
+	cost = terrain_cost;
+	unsigned int feature_size = features_.size();
+	for (unsigned int i = 0; i < feature_size; i++) {
+		// Computing the cost associated with body path features
+		double feature_reward, weight;
+		features_[i]->computeReward(feature_reward, info);
+		features_[i]->getWeight(weight);
+
+		// Computing the cost of the body feature
+		cost -= weight * feature_reward;
+	}
 }
 
 
