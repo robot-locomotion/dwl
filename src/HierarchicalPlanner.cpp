@@ -150,43 +150,43 @@ void HierarchicalPlanners::initBodyPlanner()
 	std::string adjacency_model_name;
 	std::string path = "hierarchical_planner/body_planner/adjacency/";
 	node_.param(path + "name", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
-	if (adjacency_model_name == "LatticeBasedBodyAdjacency") {
+	std::cout << adjacency_model_name << std::endl;
+	if (adjacency_model_name == "LatticeBasedBodyAdjacency")
 		adjacency_ptr_ = new dwl::environment::LatticeBasedBodyAdjacency();
-
-		// Setting the features for the body planner
-		bool potential_collision_enable, potential_orientation_enable;
-		node_.param(path + "features/potential_leg_collision/enable", potential_collision_enable, false);
-		node_.param(path + "features/potential_body_orientation/enable", potential_orientation_enable, false);
-
-		if (potential_collision_enable) {
-			dwl::environment::Feature* potential_collision_ptr = new dwl::environment::PotentialLegCollisionFeature();
-
-			// Setting the weight
-			double weight, default_weight = 1;
-			node_.param(path + "features/potential_leg_collision/weight", weight, default_weight);
-			potential_collision_ptr->setWeight(weight);
-			adjacency_ptr_->addFeature(potential_collision_ptr);
-		}
-
-		if (potential_orientation_enable) {
-			dwl::environment::Feature* potential_orientation_ptr = new dwl::environment::PotentialBodyOrientationFeature();
-
-			// Setting the weight
-			double weight, default_weight = 1;
-			node_.param(path + "features/potential_body_orientation/weight", weight, default_weight);
-			potential_orientation_ptr->setWeight(weight);
-			adjacency_ptr_->addFeature(potential_orientation_ptr);
-		}
-	} else if (adjacency_model_name == "GridBasedBodyAdjacency")
+	else
+		if (adjacency_model_name == "GridBasedBodyAdjacency")
 		adjacency_ptr_ = new dwl::environment::GridBasedBodyAdjacency();
 	else
-		adjacency_ptr_ = new dwl::environment::LatticeBasedBodyAdjacency();
+		ROS_ERROR("Wrong adjacency model");
 
+	// Setting the features for the body planner
+	bool potential_collision_enable, potential_orientation_enable;
+	node_.param(path + "features/potential_leg_collision/enable", potential_collision_enable, false);
+	node_.param(path + "features/potential_body_orientation/enable", potential_orientation_enable, false);
+
+	if (potential_collision_enable) {
+		dwl::environment::Feature* potential_collision_ptr = new dwl::environment::PotentialLegCollisionFeature();
+
+		// Setting the weight
+		double weight, default_weight = 1;
+		node_.param(path + "features/potential_leg_collision/weight", weight, default_weight);
+		potential_collision_ptr->setWeight(weight);
+		adjacency_ptr_->addFeature(potential_collision_ptr);
+	}
+
+	if (potential_orientation_enable) {
+		dwl::environment::Feature* potential_orientation_ptr = new dwl::environment::PotentialBodyOrientationFeature();
+
+		// Setting the weight
+		double weight, default_weight = 1;
+		node_.param(path + "features/potential_body_orientation/weight", weight, default_weight);
+		potential_orientation_ptr->setWeight(weight);
+		adjacency_ptr_->addFeature(potential_orientation_ptr);
+	}
 
 	// Setting the body planner
 	body_path_solver_ptr_->setAdjacencyModel(adjacency_ptr_);
 	body_planner_ptr_->reset(body_path_solver_ptr_);
-
 }
 
 
@@ -306,9 +306,11 @@ bool HierarchicalPlanners::compute()
 
 			solution = locomotor_.compute(current_pose_);
 
-			clock_gettime(CLOCK_REALTIME, &end_rt);
-			double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
-			ROS_INFO("The duration of computation of plan is %f seg.", duration);
+			if (solution) {
+				clock_gettime(CLOCK_REALTIME, &end_rt);
+				double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
+				ROS_INFO("The duration of computation of plan is %f seg.", duration);
+			}
 		}
 		else
 			pthread_mutex_unlock(&planner_lock_);
@@ -321,7 +323,6 @@ bool HierarchicalPlanners::compute()
 
 		return false;
 	}
-
 
 	return solution;
 }
