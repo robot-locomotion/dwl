@@ -125,51 +125,48 @@ class Robot
 		/** @brief Yaml bridge */
 		YamlBridge yaml_reader_;
 
-
-
-
+		/** @brief End-Effector map */
 		EndEffectorMap end_effectors_;
+
+		// TODO
 		EndEffectorMap feet_;
 		PatchMap patchs_;
 
 		/** @brief Vector of the nominal stance */
-//		std::vector<Eigen::Vector3d> nominal_stance_;
 		Vector3dMap nominal_stance_;
 
 		/** @brief Leg workspaces */
-//		std::vector<SearchArea> leg_workspaces_;
 		SearchAreaMap leg_workspaces_;
 
-
+		/** @brief Footstep window */
 		SearchArea footstep_window_;
-		double leg_lateral_offset_;
-
 
 		/** @brief Vector of the body workspace */
 		SearchArea body_workspace_;
 
-
-
 		/** @brief Vector of footstep search areas */
 		std::vector<SearchArea> footstep_search_areas_;
 
-
-
 		/** @brief Pattern of locomotion */
-//		std::vector<int> pattern_locomotion_;
 		PatternOfLocomotionMap pattern_locomotion_;
 
 		/** @brief Number of legs */
 		double number_legs_;
-		double number_end_effectors_;
-		double displacement_;
 
+		/** @brief Number of end-effectors */
+		double number_end_effectors_;
 
 		/** @brief Estimated ground from the body frame */
 		double estimated_ground_from_body_;
 
 		/** @brief The last past leg */
 		int last_past_leg_;
+
+		/** @brief Lateral offset between the legs */
+		double leg_lateral_offset_;
+
+		/** @brief Body displacement */
+		double displacement_;
 };
 
 } //@namespace robot

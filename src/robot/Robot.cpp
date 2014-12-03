@@ -96,7 +96,7 @@ void Robot::read(std::string filepath)
 
 						if (const YAML::Node* pleg = pattern_locomotion.FindValue(leg_name)) {
 							std::string next_leg_name;
-							unsigned int next_leg_id;
+							unsigned int next_leg_id = 0;
 							yaml_reader_.read(*pleg, next_leg_name);
 							for (EndEffectorMap::iterator l = feet_.begin(); l != feet_.end(); ++l) {
 								std::string potential_leg_name = l->second;
