@@ -175,21 +175,18 @@ void PlanningOfMotionSequences::removeCost(std::string cost_name)
 
 bool PlanningOfMotionSequences::initPlan()
 {
-	if (is_set_solver_) {
-		if (!init()) {
-			printf(RED "Could not initialized the %s planning algorithm\n" COLOR_RESET, name_.c_str());
-
-			return false;
-		}
-		is_initialized_planning_ = true;
-	}
-	else {
+	if (!is_set_solver_) {
 		printf(YELLOW "Could not initialized the %s planning because has not been set the solver\n" COLOR_RESET, name_.c_str());
-
 		return false;
 	}
 
-	return true;
+	if (!init()) {
+		printf(RED "Could not initialized the %s planning algorithm\n" COLOR_RESET, name_.c_str());
+		return false;
+	}
+	is_initialized_planning_ = true;
+
+	return is_initialized_planning_;
 }
 
 
