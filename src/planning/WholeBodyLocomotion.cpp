@@ -68,20 +68,14 @@ void WholeBodyLocomotion::removeCost(std::string cost_name)
 
 bool WholeBodyLocomotion::init()
 {
-	if (is_set_planner_) {
-		if (!planner_->initPlan()) {
-			//printf(RED "Could not initiliazed the %s planner\n" COLOR_RESET, planner_->getName().c_str());
-			return false;
-		}
-		if (is_learning_)
-			printf("WholeBodyLocomotion is using a learning component\n");
-	} else {
+	if (!is_set_planner_) {
 		printf(YELLOW "Could not initialized the whole-body locomotor because has not been set the planner\n" COLOR_RESET);
-
 		return false;
 	}
 
-	return true;
+	bool init = planner_->initPlan();
+
+	return init;
 }
 
 
@@ -96,15 +90,14 @@ void WholeBodyLocomotion::resetGoal(Pose goal)
 
 bool WholeBodyLocomotion::compute(Pose current_pose)
 {
-	if (is_set_planner_) {
-		if (!planner_->computePlan(current_pose)) {
-			return false;
-		}
-	} else {
+	if (!is_set_planner_) {
 		printf(YELLOW "Could not computed the plan because has not been set the planner\n" COLOR_RESET);
+		return false;
 	}
 
-	return true;
+	bool plan = planner_->computePlan(current_pose);
+
+	return plan;
 }
 
 
