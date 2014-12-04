@@ -54,7 +54,8 @@ class RewardMapServer
 		/** @brief Publishes a reward map */
 		void publishRewardMap();
 
-		bool resetRewardMap(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
+		/** @brief Resets the reward map */
+		bool reset(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
 
 
 	private:
@@ -73,6 +74,7 @@ class RewardMapServer
 		/** @brief TF and octomap subscriber */
 		tf::MessageFilter<octomap_msgs::Octomap>* tf_octomap_sub_;
 
+		/** @brief Reset service */
 		ros::ServiceServer reset_srv_;
 
 		/** @brief Reward map message */

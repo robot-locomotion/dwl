@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   octomap_msgs
+  std_srvs
   message_generation
   tf
   tf_conversions)

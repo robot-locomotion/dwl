@@ -15,6 +15,8 @@ ObstacleMapServer::ObstacleMapServer() : base_frame_("base_link"), world_frame_(
 	obstacle_pub_ = node_.advertise<terrain_server::ObstacleMap>("obstacle_map", 1);
 
 	obstacle_map_msg_.header.frame_id = world_frame_;
+
+	reset_srv_ = node_.advertiseService("obstacle_map/reset", &ObstacleMapServer::reset, this);
 }
 
 
@@ -120,6 +122,16 @@ void ObstacleMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& m
 	ROS_INFO("The duration of computation of optimization problem is %f seg.", duration);
 
 	new_information_ = true;
+}
+
+
+bool ObstacleMapServer::reset(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp)
+{
+	obstacle_map_.reset();
+
+	ROS_INFO("Reset obstacle map");
+
+	return true;
 }
 
 
