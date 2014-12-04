@@ -15,6 +15,8 @@ RewardMapServer::RewardMapServer() : base_frame_("base_link"), world_frame_("odo
 
 	// Declaring the publisher of reward map
 	reward_pub_ = node_.advertise<terrain_server::RewardMap>("reward_map", 1);
+
+	reset_srv_ = node_.advertiseService("reset_reward_map", &RewardMapServer::resetRewardMap, this);
 }
 
 
@@ -176,6 +178,16 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 	ROS_INFO("The duration of computation of reward map is %f seg.", duration);
 
 	new_information_ = true;
+}
+
+
+bool RewardMapServer::resetRewardMap(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp)
+{
+	reward_map_->reset();
+
+	ROS_INFO("Reset reward map");
+
+	return true;
 }
 
 

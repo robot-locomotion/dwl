@@ -18,6 +18,7 @@
 #include <geometry_msgs/PoseArray.h>
 #include <terrain_server/RewardMap.h>
 #include <terrain_server/RewardCell.h>
+#include <std_srvs/Empty.h>
 
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
@@ -53,6 +54,8 @@ class RewardMapServer
 		/** @brief Publishes a reward map */
 		void publishRewardMap();
 
+		bool resetRewardMap(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
+
 
 	private:
 		/** @brief ROS node handle */
@@ -69,6 +72,8 @@ class RewardMapServer
 
 		/** @brief TF and octomap subscriber */
 		tf::MessageFilter<octomap_msgs::Octomap>* tf_octomap_sub_;
+
+		ros::ServiceServer reset_srv_;
 
 		/** @brief Reward map message */
 		terrain_server::RewardMap reward_map_msg_;
