@@ -55,32 +55,18 @@ int main(int argc, char **argv)
 
 	locomotor.compute(current);
 
-/*
-	printf("---------- RewardMap ------------\n");
-
-	// Setup of reward map
-	dwl::environment::RewardMap reward_map;
-
-	// Initialization of reward map algorithm
-	dwl::environment::Feature* slope_ptr = new dwl::environment::SlopeFeature();
-	reward_map.addFeature(slope_ptr);
-	reward_map.removeFeature("fake");
-*/
 	std::set< std::pair<double, int>, pair_first_less<double, int> > vertex_queue;
 	vertex_queue.insert(std::pair<double, int>(5, 1));
 	vertex_queue.insert(std::pair<double, int>(2.5, 2));
 	vertex_queue.insert(std::pair<double, int>(0.5, 3));
 	vertex_queue.insert(std::pair<double, int>(0.25, 4));
 	vertex_queue.insert(std::pair<double, int>(5.5, 5));
-//	while (!vertex_queue.empty()) {
 	for (int i = 0; i < 2; i++) {
 		double weight = vertex_queue.begin()->first;
 		vertex_queue.erase(vertex_queue.begin());
 
 		std::cout << "Weight = " << weight << " ";
 	}
-
-
 
 	std::map<char,int> mymap;
 	  std::map<char,int>::iterator it;
