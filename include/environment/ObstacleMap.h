@@ -26,6 +26,9 @@ class ObstacleMap
 		/** @brief Destructor function */
 		~ObstacleMap();
 
+		/** @brief Reset the obstacle map */
+		void reset();
+
 		/**
 		 * @brief Computes the obstacle map according the robot position and model of the terrain
 		 * @param octomap::OcTree* octomap Octomap model of the environment
@@ -90,7 +93,7 @@ class ObstacleMap
 		SpaceDiscretization space_discretization_;
 
 		/** @brief Reward values mapped using vertex id */
-		std::map<Vertex,Cell> obstacle_gridmap_;
+		std::map<Vertex,Cell> obstacle_map_;
 
 		/** @brief Vector of search areas */
 		std::vector<SearchArea> search_areas_;

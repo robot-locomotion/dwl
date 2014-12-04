@@ -21,6 +21,12 @@ ObstacleMap::~ObstacleMap()
 }
 
 
+void ObstacleMap::reset()
+{
+	obstacle_map_.clear();
+}
+
+
 void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 {
 	if (!is_added_search_area_) {
@@ -141,8 +147,8 @@ void ObstacleMap::removeObstacleOutsideInterestRegion(Eigen::Vector3d robot_stat
 	// Getting the orientation of the body
 	double yaw = robot_state(2);
 
-	for (std::map<Vertex,Cell>::iterator vertex_iter = obstacle_gridmap_.begin();
-			vertex_iter != obstacle_gridmap_.end();
+	for (std::map<Vertex,Cell>::iterator vertex_iter = obstacle_map_.begin();
+			vertex_iter != obstacle_map_.end();
 			vertex_iter++)
 	{
 		Vertex v = vertex_iter->first;
@@ -153,10 +159,10 @@ void ObstacleMap::removeObstacleOutsideInterestRegion(Eigen::Vector3d robot_stat
 		double yc = point(1) - robot_state(1);
 		if (xc * cos(yaw) + yc * sin(yaw) >= 0.0) {
 			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1)
-				obstacle_gridmap_.erase(v);
+				obstacle_map_.erase(v);
 		} else {
 			if (pow(xc, 2) + pow(yc, 2) > pow(interest_radius_x_, 2))
-				obstacle_gridmap_.erase(v);
+				obstacle_map_.erase(v);
 		}
 	}
 }
@@ -166,7 +172,7 @@ void ObstacleMap::addCellToObstacleMap(Cell cell)
 {
 	Vertex vertex_id;
 	space_discretization_.keyToVertex(vertex_id, cell.key, true);
-	obstacle_gridmap_[vertex_id] = cell;
+	obstacle_map_[vertex_id] = cell;
 }
 
 
@@ -191,7 +197,7 @@ void ObstacleMap::setResolution(double resolution, bool plane)
 
 const std::map<Vertex,Cell>& ObstacleMap::getObstacleMap() const
 {
-	return obstacle_gridmap_;
+	return obstacle_map_;
 }
 
 } //@namespace environment
