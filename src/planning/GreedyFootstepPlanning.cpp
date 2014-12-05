@@ -160,6 +160,9 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 		if (resolution < environment_->getTerrainResolution())
 			resolution = environment_->getTerrainResolution();
 
+		SearchAreaMap footstep_region = robot_->getFootstepSearchSize(full_action);
+
+
 		for (double xi = 0; xi < window_x; xi += resolution) {
 			for (int sx = -1; sx <= 1; sx += 2) {
 				for (double yi = 0; yi < window_y; yi += resolution) {
@@ -177,18 +180,20 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 						environment_->getTerrainSpaceModel().vertexToState(current_state, current_vertex);
 						environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, current_vertex,	XY_Y);
 
-						// Computing the nominal stance
-						if ((xi == 0) && (yi == 0)) {
-							dwl::Contact footstep;
-							footstep.end_effector = current_leg_id;
+						// Recording the contact search region for visualization
+						if ((xi == 0) && (yi == 0) && (sy == -1) && (sx == -1)) {
 							double z;
 							if (terrain_heightmap.count(terrain_vertex) > 0)
 								z = terrain_heightmap.find(terrain_vertex)->second + 0.0105;
 							else
 								z = robot_->getExpectedGround(current_leg_id) - 0.015;
 
-							footstep.position << current_state(0), current_state(1), z;
-							nominal_contacts_.push_back(footstep);
+							// Adding the current contact search region
+							ContactSearchRegion contact_search_region;
+							contact_search_region.end_effector = current_leg_id;
+							contact_search_region.position << current_state(0), current_state(1), z;
+							contact_search_region.region = footstep_region[current_leg_id];
+							contact_search_regions_.push_back(contact_search_region);
 						}
 
 						// Getting the cost of the terrain

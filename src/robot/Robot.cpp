@@ -146,7 +146,22 @@ void Robot::read(std::string filepath)
 
 				// Reading the footstep search window
 				if (const YAML::Node* pfootstep_area = properties.FindValue("footstep_search_window")) {
-					yaml_reader_.read(*pfootstep_area, footstep_window_);
+					const YAML::Node& footstep_area = *pfootstep_area;
+
+					for (EndEffectorMap::iterator it = feet_.begin(); it != feet_.end(); ++it) {
+						std::string leg_name = it->second;
+
+						if (const YAML::Node* pfootstep = footstep_area.FindValue(leg_name)) {
+							unsigned int leg_id = it->first;
+
+							SearchArea footstep_area;
+							yaml_reader_.read(*pfootstep, footstep_area);
+							footstep_window_[leg_id] = footstep_area;
+						} else
+							printf(YELLOW "Warning: the footstep search window of %s leg was not read\n" COLOR_RESET, leg_name.c_str());
+					}
+
+//					yaml_reader_.read(*pfootstep_area, footstep_window_);
 				} else
 					printf(YELLOW "Warning: the footstep search window was not read\n" COLOR_RESET);
 
@@ -303,15 +318,41 @@ SearchAreaMap Robot::getFootstepSearchAreas(Eigen::Vector3d action)
 {
 	Vector3dMap current_stance = getStance(action);
 
+
+	SearchAreaMap footstep_areas;
+	SearchArea stance_area;
+	footstep_areas = getFootstepSearchSize(action);
+	for (EndEffectorMap::iterator l = feet_.begin(); l != feet_.end(); l++) {
+		unsigned int leg_id = l->first;
+		footstep_areas[leg_id].max_x += current_stance[leg_id](0);
+		footstep_areas[leg_id].min_x += current_stance[leg_id](0);
+		footstep_areas[leg_id].max_y += current_stance[leg_id](1);
+		footstep_areas[leg_id].min_y += current_stance[leg_id](1);
+	}
+
+	return footstep_areas;
+}
+
+
+SearchAreaMap Robot::getFootstepSearchSize(Eigen::Vector3d action)
+{
+	// Determining if the movements is forward or backward because the footstep search areas changes according the action
+	int lateral_pattern, displacement_pattern;
+	double frontal_action = action(0);
+	if (frontal_action >= 0)
+		displacement_pattern = 1;
+	else
+		displacement_pattern = -1;
+
 	SearchAreaMap footstep_areas;
 	SearchArea footstep_area;
 	footstep_area.resolution = 0.04;
 	for (EndEffectorMap::iterator l = feet_.begin(); l != feet_.end(); l++) {
 		unsigned int leg_id = l->first;
-		footstep_area.max_x = current_stance[leg_id](0) + footstep_window_.max_x;
-		footstep_area.min_x = current_stance[leg_id](0) + footstep_window_.min_x;
-		footstep_area.max_y = current_stance[leg_id](1) + footstep_window_.max_y;
-		footstep_area.min_y = current_stance[leg_id](1) + footstep_window_.min_y;
+		footstep_area.max_x = displacement_pattern * footstep_window_[leg_id].max_x;
+		footstep_area.min_x = displacement_pattern * footstep_window_[leg_id].min_x;
+		footstep_area.max_y = footstep_window_[leg_id].max_y;
+		footstep_area.min_y = footstep_window_[leg_id].min_y;
 		footstep_areas[leg_id] = footstep_area;
 	}
 

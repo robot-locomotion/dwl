@@ -179,6 +179,16 @@ struct Contact
 };
 
 /**
+ * @brief Struct that defines a contact search region
+ */
+struct ContactSearchRegion
+{
+	int end_effector;
+	Eigen::Vector3d position;
+	SearchArea region;
+};
+
+/**
  * @brief Struct that defines the models of the terrain
  */
 struct TerrainModel

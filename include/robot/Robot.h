@@ -98,6 +98,8 @@ class Robot
 		 */
 		SearchAreaMap getFootstepSearchAreas(Eigen::Vector3d action);
 
+		SearchAreaMap getFootstepSearchSize(Eigen::Vector3d action);
+
 		/**
 		 * @brief Gets the expected ground according to the nominal stance
 		 * @param int leg_id Leg id
@@ -139,7 +141,7 @@ class Robot
 		SearchAreaMap leg_workspaces_;
 
 		/** @brief Footstep window */
-		SearchArea footstep_window_;
+		SearchAreaMap footstep_window_;
 
 		/** @brief Vector of the body workspace */
 		SearchArea body_workspace_;
