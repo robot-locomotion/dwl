@@ -316,7 +316,8 @@ bool HierarchicalPlanners::compute()
 			pthread_mutex_unlock(&planner_lock_);
 
 		body_path_ = locomotor_.getBodyPath();
-		nominal_contacts_ = footstep_planner_ptr_->getNominalContacts();
+//		nominal_contacts_ = footstep_planner_ptr_->getNominalContacts();
+		contact_search_region_ = footstep_planner_ptr_->getContactSearchRegions();
 		contact_sequence_ = locomotor_.getContactSequence();
 	} catch (tf::TransformException& ex) {
 		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
@@ -474,7 +475,7 @@ void HierarchicalPlanners::publishContactSequence()
 			contact_sequence_rviz_msg_.points[i].z = contact_sequence_[i].position(2);// + 0.03;
 
 			int end_effector = contact_sequence_[i].end_effector;
-			if (end_effector == 0) { //TODO Remove the offset
+			if (end_effector == 0) {
 				contact_sequence_rviz_msg_.colors[i].r = 0.45;
 				contact_sequence_rviz_msg_.colors[i].g = 0.29;
 				contact_sequence_rviz_msg_.colors[i].b = 0.09;
@@ -514,58 +515,127 @@ void HierarchicalPlanners::publishContactSequence()
 void HierarchicalPlanners::publishContactRegions()
 {
 	// Publishing the contacts regions
-	if (contact_regions_pub_.getNumSubscribers() > 0) {
-		contact_regions_msg_.header.stamp = ros::Time::now();
-		contact_regions_msg_.cell_width = 0.27;
-		contact_regions_msg_.cell_height = 0.27;
-		contact_regions_msg_.cells.resize(nominal_contacts_.size());
-		contact_regions_msg_.colors.resize(nominal_contacts_.size());
-		for (int i = 0; i < nominal_contacts_.size(); i++) {
-			contact_regions_msg_.cells[i].position.x = nominal_contacts_[i].position(0);
-			contact_regions_msg_.cells[i].position.y = nominal_contacts_[i].position(1);
-			contact_regions_msg_.cells[i].position.z = nominal_contacts_[i].position(2);
+		if (contact_regions_pub_.getNumSubscribers() > 0) {
+			contact_regions_msg_.header.stamp = ros::Time::now();
+			contact_regions_msg_.regions.resize(contact_search_region_.size());
 
-			contact_regions_msg_.cells[i].orientation.w = 1; //body_path_msg_.poses[i].pose.orientation.w;
-			contact_regions_msg_.cells[i].orientation.x = 0; //body_path_msg_.poses[i].pose.orientation.x;
-			contact_regions_msg_.cells[i].orientation.y = 0; //body_path_msg_.poses[i].pose.orientation.y;
-			contact_regions_msg_.cells[i].orientation.z = 0; //body_path_msg_.poses[i].pose.orientation.z;
-			// TODO orientation
+			double size_x, size_y, size_z;
+			Eigen::Vector3d cell_position;
+			for (int i = 0; i < contact_search_region_.size(); i++) {
+				int end_effector = contact_search_region_[i].end_effector;
+				Eigen::Vector3d nominal_contact = contact_search_region_[i].position;
+				dwl::SearchArea contact_region = contact_search_region_[i].region;
 
-			int end_effector = nominal_contacts_[i].end_effector;
-			if (end_effector == 0) {
-				contact_regions_msg_.colors[i].r = 0.45;
-				contact_regions_msg_.colors[i].g = 0.29;
-				contact_regions_msg_.colors[i].b = 0.09;
-				contact_regions_msg_.colors[i].a = 1.0;
-			} else if (end_effector == 1) {
-				contact_regions_msg_.colors[i].r = 1.0;
-				contact_regions_msg_.colors[i].g = 1.0;
-				contact_regions_msg_.colors[i].b = 0.0;
-				contact_regions_msg_.colors[i].a = 1.0;
-			} else if (end_effector == 2) {
-				contact_regions_msg_.colors[i].r = 0.0;
-				contact_regions_msg_.colors[i].g = 1.0;
-				contact_regions_msg_.colors[i].b = 0.0;
-				contact_regions_msg_.colors[i].a = 1.0;
-			} else if (end_effector == 3) {
-				contact_regions_msg_.colors[i].r = 0.09;
-				contact_regions_msg_.colors[i].g = 0.11;
-				contact_regions_msg_.colors[i].b = 0.7;
-				contact_regions_msg_.colors[i].a = 1.0;
-			} else {
-				contact_regions_msg_.colors[i].r = 0.0;
-				contact_regions_msg_.colors[i].g = 1.0;
-				contact_regions_msg_.colors[i].b = 1.0;
-				contact_regions_msg_.colors[i].a = 1.0;
+				// Computing the width, height and center of the cell
+				size_x = contact_region.max_x - contact_region.min_x;
+				size_y = contact_region.max_y - contact_region.min_y;
+				size_z = contact_region.max_z - contact_region.min_z;
+				cell_position(0) = nominal_contact(0);
+				cell_position(1) = nominal_contact(1);
+				cell_position(2) = nominal_contact(2);
+
+				contact_regions_msg_.regions[i].size.x = size_x;
+				contact_regions_msg_.regions[i].size.y = size_y;
+				contact_regions_msg_.regions[i].size.z = size_z;
+				contact_regions_msg_.regions[i].pose.position.x = cell_position(0);
+				contact_regions_msg_.regions[i].pose.position.y = cell_position(1);
+				contact_regions_msg_.regions[i].pose.position.z = cell_position(2);
+
+				contact_regions_msg_.regions[i].pose.orientation.w = 1; //body_path_msg_.poses[i].pose.orientation.w;
+				contact_regions_msg_.regions[i].pose.orientation.x = 0; //body_path_msg_.poses[i].pose.orientation.x;
+				contact_regions_msg_.regions[i].pose.orientation.y = 0; //body_path_msg_.poses[i].pose.orientation.y;
+				contact_regions_msg_.regions[i].pose.orientation.z = 0; //body_path_msg_.poses[i].pose.orientation.z;
+
+				if (end_effector == 0) {
+					contact_regions_msg_.regions[i].color.r = 0.45;
+					contact_regions_msg_.regions[i].color.g = 0.29;
+					contact_regions_msg_.regions[i].color.b = 0.09;
+					contact_regions_msg_.regions[i].color.a = 1.0;
+				} else if (end_effector == 1) {
+					contact_regions_msg_.regions[i].color.r = 1.0;
+					contact_regions_msg_.regions[i].color.g = 1.0;
+					contact_regions_msg_.regions[i].color.b = 0.0;
+					contact_regions_msg_.regions[i].color.a = 1.0;
+				} else if (end_effector == 2) {
+					contact_regions_msg_.regions[i].color.r = 0.0;
+					contact_regions_msg_.regions[i].color.g = 1.0;
+					contact_regions_msg_.regions[i].color.b = 0.0;
+					contact_regions_msg_.regions[i].color.a = 1.0;
+				} else if (end_effector == 3) {
+					contact_regions_msg_.regions[i].color.r = 0.09;
+					contact_regions_msg_.regions[i].color.g = 0.11;
+					contact_regions_msg_.regions[i].color.b = 0.7;
+					contact_regions_msg_.regions[i].color.a = 1.0;
+				} else {
+					contact_regions_msg_.regions[i].color.r = 0.0;
+					contact_regions_msg_.regions[i].color.g = 1.0;
+					contact_regions_msg_.regions[i].color.b = 1.0;
+					contact_regions_msg_.regions[i].color.a = 1.0;
+				}
 			}
+
+			contact_regions_pub_.publish(contact_regions_msg_);
 		}
 
-		contact_regions_pub_.publish(contact_regions_msg_);
-	}
+		// Cleaning old information
+		std::vector<dwl::ContactSearchRegion> empty_contact_regions;
+		contact_search_region_.swap(empty_contact_regions);
 
-	// Cleaning old information
-	std::vector<dwl::Contact> empty_contact_squence;
-	nominal_contacts_.swap(empty_contact_squence);
+
+
+
+//	if (contact_regions_pub_.getNumSubscribers() > 0) {
+//		contact_regions_msg_.header.stamp = ros::Time::now();
+//		contact_regions_msg_.cell_width = footstep_width_;
+//		contact_regions_msg_.cell_height = footstep_height_;
+//		contact_regions_msg_.cells.resize(nominal_contacts_.size());
+//		contact_regions_msg_.colors.resize(nominal_contacts_.size());
+//		for (int i = 0; i < nominal_contacts_.size(); i++) {
+//			contact_regions_msg_.cells[i].position.x = nominal_contacts_[i].position(0) + footstep_height_offset_;
+//			contact_regions_msg_.cells[i].position.y = nominal_contacts_[i].position(1) + footstep_width_offset_;
+//			contact_regions_msg_.cells[i].position.z = nominal_contacts_[i].position(2);
+//
+//			contact_regions_msg_.cells[i].orientation.w = 1; //body_path_msg_.poses[i].pose.orientation.w;
+//			contact_regions_msg_.cells[i].orientation.x = 0; //body_path_msg_.poses[i].pose.orientation.x;
+//			contact_regions_msg_.cells[i].orientation.y = 0; //body_path_msg_.poses[i].pose.orientation.y;
+//			contact_regions_msg_.cells[i].orientation.z = 0; //body_path_msg_.poses[i].pose.orientation.z;
+//			// TODO orientation
+//
+//			int end_effector = nominal_contacts_[i].end_effector;
+//			if (end_effector == 0) {
+//				contact_regions_msg_.colors[i].r = 0.45;
+//				contact_regions_msg_.colors[i].g = 0.29;
+//				contact_regions_msg_.colors[i].b = 0.09;
+//				contact_regions_msg_.colors[i].a = 1.0;
+//			} else if (end_effector == 1) {
+//				contact_regions_msg_.colors[i].r = 1.0;
+//				contact_regions_msg_.colors[i].g = 1.0;
+//				contact_regions_msg_.colors[i].b = 0.0;
+//				contact_regions_msg_.colors[i].a = 1.0;
+//			} else if (end_effector == 2) {
+//				contact_regions_msg_.colors[i].r = 0.0;
+//				contact_regions_msg_.colors[i].g = 1.0;
+//				contact_regions_msg_.colors[i].b = 0.0;
+//				contact_regions_msg_.colors[i].a = 1.0;
+//			} else if (end_effector == 3) {
+//				contact_regions_msg_.colors[i].r = 0.09;
+//				contact_regions_msg_.colors[i].g = 0.11;
+//				contact_regions_msg_.colors[i].b = 0.7;
+//				contact_regions_msg_.colors[i].a = 1.0;
+//			} else {
+//				contact_regions_msg_.colors[i].r = 0.0;
+//				contact_regions_msg_.colors[i].g = 1.0;
+//				contact_regions_msg_.colors[i].b = 1.0;
+//				contact_regions_msg_.colors[i].a = 1.0;
+//			}
+//		}
+//
+//		contact_regions_pub_.publish(contact_regions_msg_);
+//	}
+//
+//	// Cleaning old information
+//	std::vector<dwl::Contact> empty_contact_squence;
+//	nominal_contacts_.swap(empty_contact_squence);
 }
 
 } //@namespace dwl_planners

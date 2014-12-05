@@ -17,6 +17,7 @@ find_package(dwl REQUIRED)
 
 add_message_files(
    FILES
+    Region.msg
     Contact.msg
     ContactSequence.msg
     ContactRegion.msg)

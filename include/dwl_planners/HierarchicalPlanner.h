@@ -180,7 +180,8 @@ class HierarchicalPlanners
 		/** @brief Approximated body path */
 		std::vector<dwl::Pose> body_path_;
 
-		std::vector<dwl::Contact> nominal_contacts_;
+//		std::vector<dwl::Contact> nominal_contacts_;
+		std::vector<dwl::ContactSearchRegion> contact_search_region_;
 
 		/** Contact sequence */
 		std::vector<dwl::Contact> contact_sequence_;
