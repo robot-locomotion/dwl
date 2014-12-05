@@ -142,9 +142,9 @@ void FootstepRegionDisplay::fixedFrameChanged()
 bool validateFloats(const dwl_planners::ContactRegion& msg)
 {
 	bool valid = true;
-	valid = valid && rviz::validateFloats(msg.cell_width);
-	valid = valid && rviz::validateFloats(msg.cell_height);
-	valid = valid && rviz::validateFloats(msg.cells);
+//	valid = valid && rviz::validateFloats(msg.regionscell_width);
+//	valid = valid && rviz::validateFloats(msg.cell_height);
+//	valid = valid && rviz::validateFloats(msg.regions);
 	return valid;
 }
 
@@ -175,25 +175,25 @@ void FootstepRegionDisplay::incomingMessage(const dwl_planners::ContactRegion::C
 	scene_node_->setPosition(position);
 	scene_node_->setOrientation(orientation);
 
-	if (msg->cell_width == 0)
+	if (msg->regions[0].size.y == 0)
 		setStatus(StatusProperty::Error, "Topic", "Cell width is zero, cells will be invisible.");
-	else if (msg->cell_height == 0)
+	else if (msg->regions[0].size.x == 0)
 		setStatus(StatusProperty::Error, "Topic", "Cell height is zero, cells will be invisible.");
 
-	cloud_->setDimensions(msg->cell_width, msg->cell_height, 0.0);
+	cloud_->setDimensions(msg->regions[0].size.x, msg->regions[0].size.y, msg->regions[0].size.z);
 
 
-	uint32_t num_points = msg->cells.size();
+	uint32_t num_points = msg->regions.size();
 	typedef std::vector< PointCloud::Point > V_Point;
 	V_Point points;
 	points.resize( num_points );
 	for (uint32_t i = 0; i < num_points; i++) {
 		PointCloud::Point& current_point = points[i];
-		current_point.position.x = msg->cells[i].position.x;
-		current_point.position.y = msg->cells[i].position.y;
-		current_point.position.z = msg->cells[i].position.z;
+		current_point.position.x = msg->regions[i].pose.position.x;
+		current_point.position.y = msg->regions[i].pose.position.y;
+		current_point.position.z = msg->regions[i].pose.position.z;
 
-		Ogre::ColourValue color_int(msg->colors[i].r, msg->colors[i].g, msg->colors[i].b, 0.5*msg->colors[i].a); //= qtToOgre(color_property_->getColor());
+		Ogre::ColourValue color_int(msg->regions[i].color.r, msg->regions[i].color.g, msg->regions[i].color.b, 0.5*msg->regions[i].color.a); //= qtToOgre(color_property_->getColor());
 		current_point.color = color_int;
 	}
 
