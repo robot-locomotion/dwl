@@ -316,12 +316,13 @@ PatternOfLocomotionMap Robot::getPatternOfLocomotion()
 
 SearchAreaMap Robot::getFootstepSearchAreas(Eigen::Vector3d action)
 {
+	// Getting the current stance
 	Vector3dMap current_stance = getStance(action);
 
-
+	// Getting the footstep search regions
 	SearchAreaMap footstep_areas;
-	SearchArea stance_area;
 	footstep_areas = getFootstepSearchSize(action);
+
 	for (EndEffectorMap::iterator l = feet_.begin(); l != feet_.end(); l++) {
 		unsigned int leg_id = l->first;
 		footstep_areas[leg_id].max_x += current_stance[leg_id](0);
@@ -337,7 +338,7 @@ SearchAreaMap Robot::getFootstepSearchAreas(Eigen::Vector3d action)
 SearchAreaMap Robot::getFootstepSearchSize(Eigen::Vector3d action)
 {
 	// Determining if the movements is forward or backward because the footstep search areas changes according the action
-	int lateral_pattern, displacement_pattern;
+	int displacement_pattern;
 	double frontal_action = action(0);
 	if (frontal_action >= 0)
 		displacement_pattern = 1;
