@@ -54,17 +54,6 @@ void ContactPlanning::setContactHorizon(int horizon)
 }
 
 
-//std::vector<Contact> ContactPlanning::getNominalContacts()
-//{
-//	std::vector<Contact> contacts;
-//	contacts = nominal_contacts_;
-//
-//	nominal_contacts_.clear();
-//
-//	return contacts;
-//}
-
-
 std::vector<ContactSearchRegion> ContactPlanning::getContactSearchRegions()
 {
 	std::vector<ContactSearchRegion> contact_search_regions;
