@@ -170,6 +170,7 @@ struct NeighboringArea
 };
 
 /**
+ * @struct Contact
  * @brief Struct that defines a contact
  */
 struct Contact
@@ -179,6 +180,7 @@ struct Contact
 };
 
 /**
+ * @struct ContactSearchRegion
  * @brief Struct that defines a contact search region
  */
 struct ContactSearchRegion
@@ -189,6 +191,7 @@ struct ContactSearchRegion
 };
 
 /**
+ * @struct TerrainModel
  * @brief Struct that defines the models of the terrain
  */
 struct TerrainModel
