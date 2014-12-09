@@ -31,7 +31,7 @@ void YamlBridge::read(const YAML::Node& node, std::string& data)
 void YamlBridge::read(const YAML::Node& node, std::vector<double>& data)
 {
 	int node_size = node.size();
-	for (unsigned int i = 0; i < node_size; i++) {
+	for (int i = 0; i < node_size; i++) {
 		double number;
 
 		read(node[i], number);
@@ -43,7 +43,7 @@ void YamlBridge::read(const YAML::Node& node, std::vector<double>& data)
 void YamlBridge::read(const YAML::Node& node, std::vector<std::string>& data)
 {
 	int node_size = node.size();
-	for (unsigned int i = 0; i < node_size; i++) {
+	for (int i = 0; i < node_size; i++) {
 		std::string str;
 
 		read(node[i], str);
