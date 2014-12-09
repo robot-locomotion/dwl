@@ -87,17 +87,22 @@ class Robot
 
 		/**
 		 * @brief Gets the pattern of locomotion of the robot
-		 * @return PatternOfLocomotionMap Returns the pattern of locomotion
+		 * @return dwl::PatternOfLocomotionMap Returns the pattern of locomotion
 		 */
 		PatternOfLocomotionMap getPatternOfLocomotion();
 
 		/**
 		 * @brief Gets the stance areas
 		 * @param Eigen::Vector3d action Action to execute
-		 * @return std::vector<SearchArea> Returns the stance areas
+		 * @return dwl::SearchAreaMap Returns the stance areas
 		 */
 		SearchAreaMap getFootstepSearchAreas(Eigen::Vector3d action);
 
+		/**
+		 * @brief Gets the footstep search region given an action
+		 * @param Eigen::Vector3d action Action to execute
+		 * @return dwl::SearchAreaMap Returns the footstep search regions
+		 */
 		SearchAreaMap getFootstepSearchSize(Eigen::Vector3d action);
 
 		/**
@@ -110,7 +115,10 @@ class Robot
 		/** @brief Gets the number of legs of the robot */
 		double getNumberOfLegs();
 
+		/** @brief Gets the end-effector map */
 		EndEffectorMap getEndEffectorMap();
+
+		/** @brief Gets the leg map */
 		EndEffectorMap getLegMap();
 
 
