@@ -13,7 +13,9 @@ HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), 
 
 HierarchicalPlanners::~HierarchicalPlanners()
 {
-	delete planning_ptr_, footstep_planner_ptr_, body_path_solver_ptr_;
+	delete planning_ptr_;
+	delete footstep_planner_ptr_;
+	delete body_path_solver_ptr_;
 }
 
 
