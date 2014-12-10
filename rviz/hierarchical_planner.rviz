@@ -338,7 +338,7 @@ Visualization Manager:
         {}
       Update Interval: 0
       Value: false
-    - Class: reward_map_rviz_plugin/RewardMap
+    - Class: dwl_rviz_plugin/RewardMap
       Color: Grey
       Enabled: true
       Name: RewardMap
@@ -362,7 +362,7 @@ Visualization Manager:
       Queue Size: 100
       Value: true
     - Alpha: 0.5
-      Class: reward_map_rviz_plugin/ObstacleMap
+      Class: dwl_rviz_plugin/ObstacleMap
       Color: 255; 85; 0
       Enabled: true
       Name: ObstacleMap
