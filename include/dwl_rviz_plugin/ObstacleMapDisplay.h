@@ -44,7 +44,7 @@ class ObstacleMapDisplay : public rviz::Display
 		virtual ~ObstacleMapDisplay();
 
 		/**
-		 * @brief Updates the informatio to display
+		 * @brief Updates the information to display
 		 * @param float wall_dt Wall delta time
 		 * @param float ros_dt Ros delta time
 		 */
