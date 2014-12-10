@@ -159,7 +159,6 @@ void FootstepRegionDisplay::incomingMessage(const dwl_planners::ContactRegion::C
 		return;
 
 	last_frame_count_ = context_->getFrameCount();
-	cloud_->clear();
 	if (!validateFloats(*msg)) {
 		setStatus(StatusProperty::Error, "Topic", "Message contained invalid floating point values (nans or infs)");
 		return;
@@ -175,6 +174,8 @@ void FootstepRegionDisplay::incomingMessage(const dwl_planners::ContactRegion::C
 	scene_node_->setPosition(position);
 	scene_node_->setOrientation(orientation);
 
+	cloud_->clear();
+
 	if (msg->regions[0].size.y == 0)
 		setStatus(StatusProperty::Error, "Topic", "Cell width is zero, cells will be invisible.");
 	else if (msg->regions[0].size.x == 0)
@@ -182,6 +183,20 @@ void FootstepRegionDisplay::incomingMessage(const dwl_planners::ContactRegion::C
 
 	cloud_->setDimensions(msg->regions[0].size.x, msg->regions[0].size.y, msg->regions[0].size.z);
 
+	// Computing the yaw
+//	double roll, pitch, yaw;
+//	double q_x = msg->regions[0].pose.orientation.x;
+//	double q_y = msg->regions[0].pose.orientation.y;
+//	double q_z = msg->regions[0].pose.orientation.z;
+//	double q_w = msg->regions[0].pose.orientation.w;
+//	dwl::Orientation converter(q_x, q_y, q_z, q_w);
+//	converter.getRPY(roll, pitch, yaw);
+//	Ogre::Vector3 dir;
+//	yaw = (90 + 25) * 3.1416 / 180;
+//	dir.x = cos(yaw);
+//	dir.y = sin(yaw);
+//	dir.z = 0;
+//	cloud_->setCommonUpVector(dir);
 
 	uint32_t num_points = msg->regions.size();
 	typedef std::vector< PointCloud::Point > V_Point;

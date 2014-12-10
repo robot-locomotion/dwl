@@ -3,6 +3,7 @@
 
 #include "rviz/display.h"
 
+#include <utils/Orientation.h>
 #include <dwl_planners/ContactRegion.h>
 #include <nav_msgs/MapMetaData.h>
 
