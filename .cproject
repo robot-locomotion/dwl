@@ -28,9 +28,10 @@
 								<option id="gnu.cpp.compiler.option.include.paths.953664040" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/opt/ros/hydro/include"/>
 									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/src/dwl/include"/>
-									<listOptionValue builtIn="false" value="/usr/include/qt4/QtCore"/>
-									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/terrain_server/include"/>
 									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/dwl_planners/include"/>
+									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/devel_isolated/terrain_server/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/OGRE"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/QtCore"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.11371985" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
