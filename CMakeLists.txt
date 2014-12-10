@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(reward_map_rviz_plugin)
+project(dwl_rviz_plugin)
 
 
 find_package(catkin REQUIRED COMPONENTS

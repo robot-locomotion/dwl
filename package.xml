@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>reward_map_rviz_plugin</name>
+  <name>dwl_rviz_plugin</name>
   <version>0.0.0</version>
   <description>
     A plugin for displaying reward map information from reward map messages.

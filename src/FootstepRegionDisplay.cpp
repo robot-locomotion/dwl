@@ -16,12 +16,12 @@
 #include "rviz/properties/ros_topic_property.h"
 #include "rviz/validate_floats.h"
 #include "rviz/display_context.h"
-#include <reward_map_rviz_plugin/FootstepRegionDisplay.h>
+#include <dwl_rviz_plugin/FootstepRegionDisplay.h>
 
 
 using namespace rviz;
 
-namespace reward_map_rviz_plugin
+namespace dwl_rviz_plugin
 {
 
 FootstepRegionDisplay::FootstepRegionDisplay() : Display(), messages_received_(0),
@@ -224,8 +224,8 @@ void FootstepRegionDisplay::reset()
 	clear();
 }
 
-} // namespace rviz
+} // namespace dwl_rviz_plugin
 
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(reward_map_rviz_plugin::FootstepRegionDisplay, rviz::Display)
+PLUGINLIB_EXPORT_CLASS(dwl_rviz_plugin::FootstepRegionDisplay, rviz::Display)

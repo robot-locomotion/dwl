@@ -26,7 +26,7 @@ namespace rviz
 } //@namespace rviz
 
 
-namespace reward_map_rviz_plugin
+namespace dwl_rviz_plugin
 {
 
 /**

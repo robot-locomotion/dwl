@@ -1,6 +1,6 @@
 #include <QObject>
 
-#include <reward_map_rviz_plugin/RewardMapDisplay.h>
+#include <dwl_rviz_plugin/RewardMapDisplay.h>
 
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>
@@ -18,7 +18,7 @@
 
 using namespace rviz;
 
-namespace reward_map_rviz_plugin
+namespace dwl_rviz_plugin
 {
 
 enum VoxelColorMode{ FULL_COLOR, GREY };
@@ -312,12 +312,10 @@ void RewardMapDisplay::updateColorMode()
 
 }
 
-} //@namespace rewardmap_rviz_plugin
-
+} //@namespace dwl_rviz_plugin
 
 
 #include <pluginlib/class_list_macros.h>
-
-PLUGINLIB_EXPORT_CLASS(reward_map_rviz_plugin::RewardMapDisplay, rviz::Display)
+PLUGINLIB_EXPORT_CLASS(dwl_rviz_plugin::RewardMapDisplay, rviz::Display)
 
 

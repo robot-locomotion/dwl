@@ -1,6 +1,6 @@
 #include <QObject>
 
-#include <reward_map_rviz_plugin/ObstacleMapDisplay.h>
+#include <dwl_rviz_plugin/ObstacleMapDisplay.h>
 
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>
@@ -18,7 +18,7 @@
 
 using namespace rviz;
 
-namespace reward_map_rviz_plugin
+namespace dwl_rviz_plugin
 {
 
 ObstacleMapDisplay::ObstacleMapDisplay() : rviz::Display(), messages_received_(0), grid_size_(std::numeric_limits<double>::max())
@@ -250,12 +250,11 @@ void ObstacleMapDisplay::updateColor()
 	//context_->queueRender();
 }
 
-} //@namespace rewardmap_rviz_plugin
+} //@namespace dwl_rviz_plugin
 
 
 
 #include <pluginlib/class_list_macros.h>
-
-PLUGINLIB_EXPORT_CLASS(reward_map_rviz_plugin::ObstacleMapDisplay, rviz::Display)
+PLUGINLIB_EXPORT_CLASS(dwl_rviz_plugin::ObstacleMapDisplay, rviz::Display)
 
 

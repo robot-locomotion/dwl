@@ -28,11 +28,11 @@ class PointCloud;
 class RosTopicProperty;
 }
 
-namespace reward_map_rviz_plugin
+namespace dwl_rviz_plugin
 {
 /**
-* \class GridCellsDisplay
-* \brief Displays a nav_msgs::GridCells message
+* \class FootstepRegionDisplay
+* \brief Displays a dwl_planners::ContactRegion message
 */
 class FootstepRegionDisplay : public rviz::Display
 {
