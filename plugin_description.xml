@@ -1,7 +1,7 @@
 
 <library path="libdwl_rviz_plugin">
 
-	<class name="dwl_map_rviz_plugin/RewardMap"
+	<class name="dwl_rviz_plugin/RewardMap"
            type="dwl_rviz_plugin::RewardMapDisplay"
            base_class_type="rviz::Display">
 	<description>
