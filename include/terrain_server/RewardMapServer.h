@@ -51,11 +51,11 @@ class RewardMapServer
 		 */
 		void octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg);
 
-		/** @brief Publishes a reward map */
-		void publishRewardMap();
-
 		/** @brief Resets the reward map */
 		bool reset(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
+
+		/** @brief Publishes a reward map */
+		void publishRewardMap();
 
 
 	private:
