@@ -32,9 +32,9 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 	space_discretization_.vertexToState(cell_position, cell_vertex);
 
 	//TODO Putting minimum reward to voxel with low height
-	/*if (terrain_info.height_map.count(cell_vertex) > 0) {
+/*	if (terrain_info.height_map.count(cell_vertex) > 0) {
 		if (terrain_info.height_map.find(cell_vertex)->second < -0.66) {
-			reward_value = 10*min_reward_;
+			reward_value = min_reward_;
 			return;
 		}
 	}*/
