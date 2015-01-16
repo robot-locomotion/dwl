@@ -6,7 +6,7 @@ namespace dwl
 namespace planning
 {
 
-GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.03), last_past_leg_ (1) //0.025
+GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.01), last_past_leg_ (1) //0.025
 {
 	name_ = "Greedy Footstep";
 }
@@ -38,7 +38,7 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 		contact_horizon = contact_horizon_ + 1;
 
 	std::vector<Contact> current_contacts = robot_->getCurrentContacts();
-	for (int i = 0; i < contact_horizon; i++) {
+	for (int i = 1; i < contact_horizon; i++) {
 		Orientation orientation(pose_trajectory[i].orientation);
 		double roll, pitch, yaw;
 		orientation.getRPY(roll, pitch, yaw);
@@ -183,10 +183,12 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 						// Recording the contact search region for visualization
 						if ((xi == 0) && (yi == 0) && (sy == -1) && (sx == -1)) {
 							double z;
-							if (terrain_heightmap.count(terrain_vertex) > 0)
-								z = terrain_heightmap.find(terrain_vertex)->second + 0.0105;
-							else
-								z = robot_->getExpectedGround(current_leg_id) - 0.015;
+							if (terrain_heightmap.count(terrain_vertex) > 0) {
+								double voxel_size = environment_->getTerrainSpaceModel().getEnvironmentResolution(false);
+								z = terrain_heightmap.find(terrain_vertex)->second + voxel_size / 2;
+							} else {
+								z = robot_->getExpectedGround(current_leg_id) - leg_offset_;
+							}
 
 							// Adding the current contact search region
 							ContactSearchRegion contact_search_region;
