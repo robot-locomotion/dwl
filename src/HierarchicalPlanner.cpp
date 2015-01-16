@@ -5,7 +5,7 @@ namespace dwl_planners
 {
 
 HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), body_planner_ptr_(NULL),
-		footstep_planner_ptr_(NULL), adjacency_ptr_(NULL), body_path_solver_ptr_(NULL), base_frame_("base_link"), world_frame_("odom")
+		footstep_planner_ptr_(NULL), adjacency_ptr_(NULL), body_path_solver_ptr_(NULL), base_frame_("base_link"), world_frame_("world")
 {
 
 }
