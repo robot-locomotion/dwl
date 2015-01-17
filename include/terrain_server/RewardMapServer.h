@@ -37,7 +37,7 @@ class RewardMapServer
 {
 	public:
 		/** @brief Constructor function */
-		RewardMapServer();
+		RewardMapServer(ros::NodeHandle node = ros::NodeHandle("~"));
 
 		/** @brief Destructor function */
 		~RewardMapServer();
@@ -61,6 +61,9 @@ class RewardMapServer
 	private:
 		/** @brief ROS node handle */
 		ros::NodeHandle node_;
+
+		/** @brief Private ROS node handle */
+		ros::NodeHandle private_node_;
 
 		/** @brief Pointer to the reward map class */
 		dwl::environment::RewardMap* reward_map_;
