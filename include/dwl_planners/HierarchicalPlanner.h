@@ -56,7 +56,7 @@ class HierarchicalPlanners
 		 * @brief Constructor function
 		 * @param ros::NodeHandle node ROS node handle
 		 */
-		HierarchicalPlanners(ros::NodeHandle node);
+		HierarchicalPlanners(ros::NodeHandle node = ros::NodeHandle("~"));
 
 		/** @brief Destructor function */
 		~HierarchicalPlanners();
@@ -107,6 +107,9 @@ class HierarchicalPlanners
 	private:
 		/** @brief ROS node handle */
 		ros::NodeHandle node_;
+
+		/** @brief Private ROS node handle */
+		ros::NodeHandle private_node_;
 
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;
