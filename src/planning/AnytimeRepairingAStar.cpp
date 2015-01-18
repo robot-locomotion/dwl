@@ -8,7 +8,7 @@ namespace dwl
 namespace planning
 {
 
-AnytimeRepairingAStar::AnytimeRepairingAStar() : initial_inflation_(3), satisfied_inflation_(1.0),
+AnytimeRepairingAStar::AnytimeRepairingAStar(double initial_inflation) : initial_inflation_(initial_inflation), satisfied_inflation_(1.0),
 		min_f_cost_(std::numeric_limits<double>::max()), expansions_(0)
 {
 	name_ = "Anytime Repairing A*";
@@ -37,7 +37,7 @@ bool AnytimeRepairingAStar::compute(Vertex source, Vertex target, double computa
 		return false;
 	}
 
-	// Definiting the set of nodes already evaluated (openset), the set of tentative nodes
+	// Defining the set of nodes already evaluated (openset), the set of tentative nodes
 	// to be evaluated (openset), and ordered openset queue
 	SetQueue openset_queue;
 	Set openset, visitedset;

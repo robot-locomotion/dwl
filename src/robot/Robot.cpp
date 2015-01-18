@@ -160,8 +160,6 @@ void Robot::read(std::string filepath)
 						} else
 							printf(YELLOW "Warning: the footstep search window of %s leg was not read\n" COLOR_RESET, leg_name.c_str());
 					}
-
-//					yaml_reader_.read(*pfootstep_area, footstep_window_);
 				} else
 					printf(YELLOW "Warning: the footstep search window was not read\n" COLOR_RESET);
 
@@ -261,27 +259,27 @@ Vector3dMap Robot::getStance(Eigen::Vector3d action) //TODO Virtual method
 		displacement_pattern = 1;
 
 
-	//TODO Clean this shit
+	// Getting the initial leg and lateral displacement
 	int past_leg_id;
 	double angular_tolerance = 0.2;
 	if ((action(2) >= -M_PI_2 - angular_tolerance) && (action(2) <= -M_PI_2 + angular_tolerance)) {
-		past_leg_id = 0;//LF_foot;//
-		lateral_pattern = -1;//leg_offset = -0.06;
+		past_leg_id = 0;
+		lateral_pattern = -1;
 	} else if ((action(2) >= M_PI_2 - angular_tolerance) && (action(2) <= M_PI_2 + angular_tolerance)) {
-		past_leg_id = 1;//RF_foot;//
-		lateral_pattern = 1;//leg_offset = 0.06;
+		past_leg_id = 1;
+		lateral_pattern = 1;
 	} else if (action(2) > angular_tolerance) {
-		past_leg_id = 0;//LF_foot;//
-		lateral_pattern = 0;//leg_offset = 0;
+		past_leg_id = 0;
+		lateral_pattern = 0;
 	} else if (action(2) < -angular_tolerance) {
-		past_leg_id = 1;//RF_foot;//
-		lateral_pattern = 0;//leg_offset = 0;
+		past_leg_id = 1;
+		lateral_pattern = 0;
 	} else {
 		past_leg_id = last_past_leg_;
 		if (past_leg_id == 0)
-			lateral_pattern = -1;//leg_offset = -0.06;
+			lateral_pattern = -1;
 		else
-			lateral_pattern = 1;//leg_offset = 0.06;
+			lateral_pattern = 1;
 	}
 	last_past_leg_ = past_leg_id;
 
@@ -347,9 +345,9 @@ SearchAreaMap Robot::getFootstepSearchSize(Eigen::Vector3d action)
 
 	SearchAreaMap footstep_areas;
 	SearchArea footstep_area;
-	footstep_area.resolution = 0.04;
 	for (EndEffectorMap::iterator l = feet_.begin(); l != feet_.end(); l++) {
 		unsigned int leg_id = l->first;
+		footstep_area.resolution = footstep_window_[leg_id].resolution;
 		footstep_area.max_x = displacement_pattern * footstep_window_[leg_id].max_x;
 		footstep_area.min_x = displacement_pattern * footstep_window_[leg_id].min_x;
 		footstep_area.max_y = footstep_window_[leg_id].max_y;

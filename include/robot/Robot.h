@@ -83,7 +83,7 @@ class Robot
 		 * @param Eigen::Vector3d action Action to execute
 		 * @return dwl::Vector3dMap Returns the current stance of the robot
 		 */
-		Vector3dMap getStance(Eigen::Vector3d action);
+		Vector3dMap getStance(Eigen::Vector3d action = Eigen::Vector3d::Zero());
 
 		/**
 		 * @brief Gets the pattern of locomotion of the robot
@@ -96,14 +96,14 @@ class Robot
 		 * @param Eigen::Vector3d action Action to execute
 		 * @return dwl::SearchAreaMap Returns the stance areas
 		 */
-		SearchAreaMap getFootstepSearchAreas(Eigen::Vector3d action);
+		SearchAreaMap getFootstepSearchAreas(Eigen::Vector3d action = Eigen::Vector3d::Zero());
 
 		/**
 		 * @brief Gets the footstep search region given an action
 		 * @param Eigen::Vector3d action Action to execute
 		 * @return dwl::SearchAreaMap Returns the footstep search regions
 		 */
-		SearchAreaMap getFootstepSearchSize(Eigen::Vector3d action);
+		SearchAreaMap getFootstepSearchSize(Eigen::Vector3d action = Eigen::Vector3d::Zero());
 
 		/**
 		 * @brief Gets the expected ground according to the nominal stance
@@ -138,9 +138,11 @@ class Robot
 		/** @brief End-Effector map */
 		EndEffectorMap end_effectors_;
 
-		// TODO
+		/** @brief Feet map */
 		EndEffectorMap feet_;
-		PatchMap patchs_;
+
+		/** @brief Patch map */
+		PatchMap patchs_;//TODO evaluate if it's required
 
 		/** @brief Vector of the nominal stance */
 		Vector3dMap nominal_stance_;

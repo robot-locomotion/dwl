@@ -75,7 +75,8 @@ void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 		double xc = point(0) - robot_state(0);
 		double yc = point(1) - robot_state(1);
 		if (xc * cos(yaw) + yc * sin(yaw) >= 0.0) {
-			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1) {
+			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) +
+					pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1) {
 				terrain_rewardmap_.erase(v);
 				terrain_heightmap_.erase(v);
 			}

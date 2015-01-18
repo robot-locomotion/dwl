@@ -156,7 +156,7 @@ struct SearchArea
 };
 
 /** @brief Defines a search area map */
-typedef std::map<unsigned int, SearchArea> SearchAreaMap;//TODO
+typedef std::map<unsigned int, SearchArea> SearchAreaMap;
 
 /**
  * @struct NeighboringArea

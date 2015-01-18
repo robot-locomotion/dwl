@@ -114,7 +114,7 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 				Vertex current_2d_vertex;
 				environment_->getTerrainSpaceModel().coordToVertex(current_2d_vertex, point_position);
 
-				// Inserts the element in an organized vertex queue, according to the maximun value
+				// Inserts the element in an organized vertex queue, according to the maximum value
 				if (terrain_costmap.count(current_2d_vertex) > 0) {
 					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(current_2d_vertex)->second, current_2d_vertex));
 				}

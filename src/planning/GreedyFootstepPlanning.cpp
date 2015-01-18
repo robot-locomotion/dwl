@@ -6,7 +6,7 @@ namespace dwl
 namespace planning
 {
 
-GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.01), last_past_leg_ (1) //0.025
+GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.01), last_past_leg_(1)
 {
 	name_ = "Greedy Footstep";
 }
@@ -63,7 +63,7 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 
 bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts, Pose goal_pose)
 {
-	// Initilization of footholds
+	// Initialization of footholds
 	footholds.clear();
 
 	// Converting quaternion to roll, pitch and yaw angles
@@ -89,21 +89,20 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 	info.resolution = environment_->getTerrainResolution();
 
 	// Setting the first leg according to the action
-	Eigen::Vector2d action = body_state.head(2) - current_body_state_.head(2);
 	Eigen::Vector3d full_action = body_state - current_body_state_;
 	double angular_tolerance = 0.2;
 	double next_yaw, delta_yaw;
-	if (action.norm() < 0.04)
+	if (full_action.head(2).norm() < 0.04)
 		delta_yaw = body_state(2) - current_body_state_(2);
 	else {
-		next_yaw = atan2((double) action(1), (double) action(0));
+		next_yaw = atan2((double) full_action(1), (double) full_action(0));
 		delta_yaw = next_yaw - yaw;
 	}
 
 	// Computing the current stance
 	Vector3dMap stance = robot_->getStance(full_action);
 
-	//TODO Clean this shit
+	// Getting the initial leg
 	int past_leg_id;
 	if ((delta_yaw >= -M_PI_2 - angular_tolerance) && (delta_yaw <= -M_PI_2 + angular_tolerance))
 		past_leg_id = 0;

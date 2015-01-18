@@ -38,11 +38,9 @@ void LegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain in
 	boundary_min(1) = foothold(1) + leg_workspace.min_y;
 	boundary_max(0) = foothold(0) + leg_workspace.max_x;
 	boundary_max(1) = foothold(1) + leg_workspace.max_y;
-	double max_distance = 0.15;
 
 	// Computing the maximum and minimum height around the leg area
 	double max_height = -std::numeric_limits<double>::max();
-	double distance = 0.0;
 	bool is_there_height_values = false;
 	for (double y = boundary_min(1); y < boundary_max(1); y += leg_workspace.resolution) {
 		for (double x = boundary_min(0); x < boundary_max(0); x += leg_workspace.resolution) {
@@ -57,10 +55,8 @@ void LegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain in
 				height = info.height_map.find(vertex_2d)->second;
 
 				// Updating the maximum height
-				if (height > max_height) {
+				if (height > max_height)
 					max_height = height;
-					distance = (coord - foothold.head(2)).norm();
-				}
 
 				is_there_height_values = true;
 			}
@@ -69,10 +65,6 @@ void LegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain in
 
 	if (is_there_height_values) {
 		double max_diff_height = max_height - foothold(2);
-std::cout << "maxheight = " << max_height << std::endl;
-std::cout << max_diff_height << " / coord = " << foothold(0) << " " << foothold(1) << " " << foothold(2) << std::endl;//<< " = " << max_height << " - " << foothold(2) << std::endl;
-std::cout << distance / max_distance << std::endl;
-std::cout << "Leg = " << leg << std::endl;
 		if (max_diff_height > 0.0) {
 			if (max_diff_height < potential_clearance_)
 				reward_value = 0.0;
@@ -86,8 +78,6 @@ std::cout << "Leg = " << leg << std::endl;
 			reward_value = 0;
 	} else
 		reward_value = min_reward_;
-std::cout << "reward = " << reward_value << std::endl;
-std::cout << "----------------------" << std::endl;
 }
 
 } //@namespace environment

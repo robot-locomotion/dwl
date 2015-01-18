@@ -7,33 +7,9 @@ namespace dwl
 namespace behavior
 {
 
-BodyMotorPrimitives::BodyMotorPrimitives() //TODO Test a lot with real HyQ
+BodyMotorPrimitives::BodyMotorPrimitives()
 {
-//	for (int i = 0; i < (int) motor_actions.size(); i++)
-//	{
-//		std::cout << "Type of action = " << i << std::endl;
-//		for (int j = 0; j < (int) motor_actions[i].size(); j++)
-//		{
-//			double current_x, next_x, current_y, next_y;
-//			current_x = 0.4269;
-//			current_y = 0.3886;
-//			next_x = motor_actions[i][j](0)
-//					+ (current_x * cos((double) motor_actions[i][j](2))
-//							- current_y * sin((double) motor_actions[i][j](2)));
-//			next_y = motor_actions[i][j](1)
-//					+ (current_x * sin((double) motor_actions[i][j](2))
-//							+ current_y * cos((double) motor_actions[i][j](2)));
-//
-//			double distance = pow(
-//					pow(next_x - current_x, 2) + pow(next_y - current_y, 2),
-//					0.5);
-//			std::cout << "Distance of the action = " << distance << std::endl;
-//
-//			primitives.action = motor_actions[i][j];
-//			primitives.cost = motor_costs[i];
-//			actions_.push_back(primitives);
-//		}
-//	}
+
 }
 
 

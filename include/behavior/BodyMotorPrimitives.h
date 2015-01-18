@@ -39,6 +39,7 @@ class BodyMotorPrimitives : public MotorPrimitives
 		void generateActions(std::vector<Action3d>& actions, Pose3d state);
 
 	private:
+		/** @brief Vector of body actions */
 		std::vector<BodyMotorPrimitive> actions_;
 
 };

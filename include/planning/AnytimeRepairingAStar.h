@@ -14,7 +14,7 @@ class AnytimeRepairingAStar : public Solver
 {
 	public:
 		/** @brief Constructor function */
-		AnytimeRepairingAStar();
+		AnytimeRepairingAStar(double initial_inflation = 3.0);
 
 		/** @brief Destructor function */
 		~AnytimeRepairingAStar();

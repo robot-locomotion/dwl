@@ -225,7 +225,7 @@ double AdjacencyEnvironment::heuristicCost(Vertex source, Vertex target)
 			pow(((double) target_state(2) - (double) source_state(2)), 2));
 
 	double heuristic = (5 * distance + 2.5 * dist_orientation)
-			* uncertainty_factor_ * (environment_->getAverageCostOfTerrain() + 0.1); //TODO Tunning the heuristic function
+			* uncertainty_factor_ * (environment_->getAverageCostOfTerrain() + 0.1);
 
 	return heuristic;
 }
@@ -234,7 +234,7 @@ double AdjacencyEnvironment::heuristicCost(Vertex source, Vertex target)
 bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 {
 	if (isLatticeRepresentation()) {
-		double epsilon = 0.1; //TODO Define this variable
+		double min_error = 0.1;
 
 		Eigen::Vector3d current_state, target_state;
 		environment_->getTerrainSpaceModel().vertexToState(current_state, current);
@@ -249,10 +249,10 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 		target_state(2) = target_angle;
 
 		double distant = ((Eigen::Vector2d) target_state.head(2) - (Eigen::Vector2d) current_state.head(2)).norm();
-		if (distant < epsilon) {
+		if (distant < min_error) {
 			double angular_error = (double) target_state(2) - (double) current_state(2);
 
-			if (std::abs(angular_error) < epsilon) {
+			if (std::abs(angular_error) < min_error) {
 				// Reconstructing path
 
 				return true;

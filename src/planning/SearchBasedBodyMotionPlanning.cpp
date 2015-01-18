@@ -32,7 +32,7 @@ bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path, Po
 	start_state << start_pose.position.head(2), start_yaw;
 	goal_state << goal_pose.position.head(2), goal_yaw;
 
-	// Converting the states to vertexs
+	// Converting the states to vertexes
 	Vertex start_vertex, goal_vertex;
 	environment_->getTerrainSpaceModel().stateToVertex(start_vertex, start_state);
 	environment_->getTerrainSpaceModel().stateToVertex(goal_vertex, goal_state);
