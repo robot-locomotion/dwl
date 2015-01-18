@@ -121,7 +121,7 @@ void HierarchicalPlanners::initRobot()
 	if (private_node_.getParam("robot/body_movement_primitives", body_primitive_path))
 		robot_.getBodyMotorPrimitive().read(body_primitive_path);
 	else
-		ROS_WARN("The body movement primitives was not defined, this could be neccesary.");
+		ROS_WARN("The body movement primitives was not defined, this could be necessary.");
 }
 
 
@@ -138,9 +138,12 @@ void HierarchicalPlanners::initBodyPlanner()
 	// Getting the body path solver
 	std::string path_solver_name;
 	private_node_.param("body_planner/path_solver", path_solver_name, (std::string) "AnytimeRepairingAStar");
-	if (path_solver_name == "AnytimeRepairingAStar")
-		body_path_solver_ptr_ = new dwl::planning::AnytimeRepairingAStar();
-	else if (path_solver_name == "AStar")
+	if (path_solver_name == "AnytimeRepairingAStar") {
+		// Reads the initial inflation value
+		double inflation = 3;
+		private_node_.param("body_planner/initial_inflation", inflation, inflation);
+		body_path_solver_ptr_ = new dwl::planning::AnytimeRepairingAStar(inflation);
+	} else if (path_solver_name == "AStar")
 		body_path_solver_ptr_ = new dwl::planning::AStar();
 	else if (path_solver_name == "Dijkstrap")
 		body_path_solver_ptr_ = new dwl::planning::Dijkstrap();
