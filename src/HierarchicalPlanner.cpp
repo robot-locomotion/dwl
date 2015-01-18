@@ -404,7 +404,7 @@ void HierarchicalPlanners::resetGoalCallback(const geometry_msgs::PoseStampedCon
 	goal_pose.position[0] = msg->pose.position.x;
 	goal_pose.position[1] = msg->pose.position.y;
 
-	Eigen::Quaterniond q(msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);//wxyz
+	Eigen::Quaterniond q(msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);
 	goal_pose.orientation = q;
 
 	dwl::Orientation orientation(q);
