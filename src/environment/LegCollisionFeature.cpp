@@ -40,7 +40,7 @@ void LegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain in
 	boundary_max(1) = foothold(1) + leg_workspace.max_y;
 	double max_distance = 0.15;
 
-	// Computing the maximum and minimun height around the leg area
+	// Computing the maximum and minimum height around the leg area
 	double max_height = -std::numeric_limits<double>::max();
 	double distance = 0.0;
 	bool is_there_height_values = false;

@@ -115,7 +115,7 @@ class RewardMap
 		void addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_size);
 
 		/**
-		 * @brief Sets the neighboring area for computing phisycal properties of the terrain
+		 * @brief Sets the neighboring area for computing physical properties of the terrain
 		 * @param int back_neighbors Number of left neighbors
 		 * @param int front_neighbors Number of right neighbors
 		 * @param int left_neighbors Number of left neighbors
