@@ -99,7 +99,12 @@ bool RewardMapServer::init()
 	if (enable_height_dev) {
 		// Setting the weight feature
 		private_node_.param("features/height_deviation/weight", weight, default_weight);
-		dwl::environment::Feature* height_dev_ptr = new dwl::environment::HeightDeviationFeature();
+		double flat_height_deviation, max_height_deviation, min_allowed_height;
+		private_node_.param("features/height_deviation/flat_height_deviation", flat_height_deviation, 0.01);
+		private_node_.param("features/height_deviation/max_height_deviation", max_height_deviation, 0.3);
+		private_node_.param("features/height_deviation/min_allowed_height", min_allowed_height, -std::numeric_limits<double>::max());
+		dwl::environment::Feature* height_dev_ptr = new dwl::environment::HeightDeviationFeature(flat_height_deviation,
+				max_height_deviation, min_allowed_height);
 		height_dev_ptr->setWeight(weight);
 
 		// Setting the neighboring area
