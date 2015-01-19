@@ -169,7 +169,10 @@ void HierarchicalPlanners::initBodyPlanner()
 	private_node_.param(path + "features/potential_body_orientation/enable", potential_orientation_enable, false);
 
 	if (potential_collision_enable) {
-		dwl::environment::Feature* potential_collision_ptr = new dwl::environment::PotentialLegCollisionFeature();
+		double clearance, collision;
+		private_node_.param(path + "features/potential_leg_collision/clearance", clearance, 0.0);
+		private_node_.param(path + "features/potential_leg_collision/collision", collision, 0.3);
+		dwl::environment::Feature* potential_collision_ptr = new dwl::environment::PotentialLegCollisionFeature(clearance, collision);
 
 		// Setting the weight
 		double weight, default_weight = 1;
