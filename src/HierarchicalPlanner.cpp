@@ -230,7 +230,10 @@ void HierarchicalPlanners::initContactPlanner()
 	}
 
 	if (collision_enable) {
-		dwl::environment::Feature* collision_ptr = new dwl::environment::LegCollisionFeature();
+		double clearance, collision;
+		private_node_.param(path + "features/leg_collision/clearance", clearance, 0.0);
+		private_node_.param(path + "features/leg_collision/collision", collision, 0.3);
+		dwl::environment::Feature* collision_ptr = new dwl::environment::LegCollisionFeature(clearance, collision);
 
 		// Setting the weight
 		double weight, default_weight = 1;
