@@ -62,7 +62,8 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "default_flat_terrain");
 
-	terrain_server::DefaultFlatTerrain default_flat_terrain;
+	ros::NodeHandle node("~");
+	terrain_server::DefaultFlatTerrain default_flat_terrain(node);
 
 	ros::spinOnce();
 
