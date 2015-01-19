@@ -114,7 +114,7 @@ void HierarchicalPlanners::initRobot()
 	if (private_node_.getParam("robot/properties", properties_path))
 		robot_.read(properties_path);
 	else
-		ROS_WARN("The properties was not defined, this could be neccesary.");
+		ROS_WARN("The properties was not defined, this could be necessary.");
 
 	// Initializes robot body primitives
 	std::string body_primitive_path;
@@ -211,7 +211,10 @@ void HierarchicalPlanners::initContactPlanner()
 	private_node_.param(path + "features/leg_collision/enable", collision_enable, false);
 	private_node_.param(path + "features/body_orientation/enable", orientation_enable, false);
 	if (support_enable) {
-		dwl::environment::Feature* support_ptr = new dwl::environment::SupportTriangleFeature();
+		double stable_inradii, unstable_inradii;
+		private_node_.param(path + "features/support_triangle/stable_inraddi", stable_inradii, 0.13);
+		private_node_.param(path + "features/support_triangle/unstable_inraddi", unstable_inradii, 0.08);
+		dwl::environment::Feature* support_ptr = new dwl::environment::SupportTriangleFeature(stable_inradii, unstable_inradii);
 
 		// Setting the weight
 		double weight, default_weight = 1;
