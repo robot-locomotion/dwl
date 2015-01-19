@@ -199,11 +199,17 @@ void HierarchicalPlanners::initContactPlanner()
 	// Setting the contact planner
 	std::string planner_name;
 	std::string path = "contact_planner/";
+	bool remove_enable;
+	double distance_threshold;
+	private_node_.param(path + "remove_footholds/enable", remove_enable, false);
+	if (remove_enable)
+		private_node_.param(path + "remove_footholds/distance_threshold", distance_threshold, std::numeric_limits<double>::max());
+
 	private_node_.param(path + "type", planner_name, (std::string) "GreedyFootstep");
 	if (planner_name == "GreedyFootstep")
-		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning();
+		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning(remove_enable, distance_threshold);
 	else
-		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning();
+		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning(remove_enable, distance_threshold);
 
 	// Setting the features for the footstep planner
 	bool support_enable, collision_enable, orientation_enable;
