@@ -7,7 +7,9 @@ namespace dwl
 namespace environment
 {
 
-HeightDeviationFeature::HeightDeviationFeature() : flat_height_deviation_(0.01), max_height_deviation_(0.5)
+HeightDeviationFeature::HeightDeviationFeature(double flat_height_deviation, double max_height_deviation,
+		double min_allowed_height) : flat_height_deviation_(flat_height_deviation), max_height_deviation_(max_height_deviation),
+				min_allowed_height_(min_allowed_height)
 {
 	name_ = "Height Deviation";
 }
@@ -31,13 +33,13 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 	space_discretization_.stateToVertex(cell_vertex, cell_position);
 	space_discretization_.vertexToState(cell_position, cell_vertex);
 
-	//TODO Putting minimum reward to voxel with low height
-/*	if (terrain_info.height_map.count(cell_vertex) > 0) {
-		if (terrain_info.height_map.find(cell_vertex)->second < -0.66) {
+	// Putting minimum reward to voxel with low height
+	if (terrain_info.height_map.count(cell_vertex) > 0) {
+		if (terrain_info.height_map.find(cell_vertex)->second < min_allowed_height_) {
 			reward_value = min_reward_;
 			return;
 		}
-	}*/
+	}
 
 	// Computing the average height of the neighboring area
 	double height_average = 0, height_deviation = 0, estimated_height_deviation = 0;
