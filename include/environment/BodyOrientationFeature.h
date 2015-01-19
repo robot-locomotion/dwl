@@ -20,7 +20,7 @@ class BodyOrientationFeature : public Feature
 {
 	public:
 		/** @brief Constructor function */
-		BodyOrientationFeature();
+		BodyOrientationFeature(double max_roll, double max_pitch);
 
 		/** @brief Destructor function */
 		~BodyOrientationFeature();
