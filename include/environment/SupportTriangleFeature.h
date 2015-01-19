@@ -19,7 +19,7 @@ class SupportTriangleFeature : public Feature
 {
 	public:
 		/** @brief Constructor function */
-		SupportTriangleFeature();
+		SupportTriangleFeature(double stable_inradii, double unstable_inradii);
 
 		/** @brief Destructor function */
 		~SupportTriangleFeature();
@@ -32,10 +32,10 @@ class SupportTriangleFeature : public Feature
 		void computeReward(double& reward_value, RobotAndTerrain info);
 
 	private:
-		/** @brief Stable suppport triangle area */
+		/** @brief Stable support triangle area */
 		double stable_inradii_;
 
-		/** @brief Unstable suppport triangle area */
+		/** @brief Unstable support triangle area */
 		double unstable_inradii_;
 };
 

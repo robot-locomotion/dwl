@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-SupportTriangleFeature::SupportTriangleFeature() : stable_inradii_(0.13), unstable_inradii_(0.08)
+SupportTriangleFeature::SupportTriangleFeature(double stable_inradii, double unstable_inradii) :
+		stable_inradii_(stable_inradii), unstable_inradii_(unstable_inradii)
 {
 	name_ = "Support Triangle";
 }
