@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-LegCollisionFeature::LegCollisionFeature() : potential_clearance_(0.04), potential_collision_(0.2)
+LegCollisionFeature::LegCollisionFeature(double clearance, double collision) : potential_clearance_(clearance),
+		potential_collision_(collision)
 {
 	name_ = "Leg Collision";
 }

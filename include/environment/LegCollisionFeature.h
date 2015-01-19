@@ -19,7 +19,7 @@ class LegCollisionFeature : public Feature
 {
 	public:
 		/** @brief Constructor function */
-		LegCollisionFeature();
+		LegCollisionFeature(double clearance, double collision);
 
 		/** @brief Destructor function */
 		~LegCollisionFeature();
