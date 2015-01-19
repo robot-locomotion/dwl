@@ -6,7 +6,8 @@ namespace dwl
 namespace planning
 {
 
-GreedyFootstepPlanning::GreedyFootstepPlanning() : leg_offset_(0.01), last_past_leg_(1)
+GreedyFootstepPlanning::GreedyFootstepPlanning(bool remove_footholds, double threshold_distance) :
+		leg_offset_(0.01), last_past_leg_(1), remove_footholds_(remove_footholds), threshold_distance_(threshold_distance)
 {
 	name_ = "Greedy Footstep";
 }
@@ -237,6 +238,21 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 			foothold.position(0) = body_state(0) + stance[current_leg_id](0) * cos(yaw) - stance[current_leg_id](1) * sin(yaw);
 			foothold.position(1) = body_state(1) + stance[current_leg_id](0) * sin(yaw) + stance[current_leg_id](1) * cos(yaw);
 			foothold.position(2) = robot_->getExpectedGround(current_leg_id);
+		}
+
+		// Removing the small footsteps, that means to keep the same foothold position
+		if (remove_footholds_) {
+			for (int l = 0; l < robot_->getNumberOfLegs(); l++) {
+				if (initial_contacts[l].end_effector == foothold.end_effector) {
+					double distance = (foothold.position - initial_contacts[l].position).norm();
+					if (distance <= threshold_distance_) {
+						Eigen::Vector3d initial_foothold = initial_contacts[l].position;
+
+						initial_contacts[l].position = foothold.position;
+						foothold.position = initial_foothold;
+					}
+				}
+			}
 		}
 
 		footholds.push_back(foothold);

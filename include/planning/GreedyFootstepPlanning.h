@@ -18,7 +18,7 @@ class GreedyFootstepPlanning : public ContactPlanning
 {
 	public:
 		/** @brief Constructor function */
-		GreedyFootstepPlanning();
+		GreedyFootstepPlanning(bool remove_footholds, double threshold_distance);
 
 		/** @brief Destructor function */
 		~GreedyFootstepPlanning();
@@ -41,10 +41,16 @@ class GreedyFootstepPlanning : public ContactPlanning
 
 	private:
 		/** @brief Leg offset */
-		double leg_offset_; //TODO evaluate if it's necessary
+		double leg_offset_;
 
 		/** @brief The last executed past leg */
 		int last_past_leg_;
+
+		/** @brief Remove foothold tag */
+		bool remove_footholds_;
+
+		/** @brief Threshold distance for removing footholds */
+		double threshold_distance_;
 };
 
 } //@namespace planning
