@@ -7,8 +7,8 @@ namespace dwl
 namespace environment
 {
 
-PotentialLegCollisionFeature::PotentialLegCollisionFeature() :
-		potential_clearance_(0.04), potential_collision_(0.2)
+PotentialLegCollisionFeature::PotentialLegCollisionFeature(double clearance, double collision) :
+		potential_clearance_(clearance), potential_collision_(collision)
 {
 	name_ = "Potential Leg Collision";
 }
@@ -52,7 +52,7 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 		boundary_max(0) = position(0) + leg_position(0) + leg_area.max_x;
 		boundary_max(1) = position(1) + leg_position(1) + leg_area.max_y;
 
-		// Computing the maximum and minimun height around the leg area
+		// Computing the maximum and minimum height around the leg area
 		double max_height = -std::numeric_limits<double>::max();
 		double mean_height = 0;
 		int counter = 0;
