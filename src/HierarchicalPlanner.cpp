@@ -469,9 +469,9 @@ void HierarchicalPlanners::publishContactSequence()
 		contact_sequence_rviz_msg_.type = visualization_msgs::Marker::SPHERE_LIST;
 		contact_sequence_rviz_msg_.ns = "contact_points";
 		contact_sequence_rviz_msg_.id = 0;
-		contact_sequence_rviz_msg_.scale.x = 0.04;
-		contact_sequence_rviz_msg_.scale.y = 0.04;
-		contact_sequence_rviz_msg_.scale.z = 0.04;
+		contact_sequence_rviz_msg_.scale.x = 0.03;
+		contact_sequence_rviz_msg_.scale.y = 0.03;
+		contact_sequence_rviz_msg_.scale.z = 0.03;
 		contact_sequence_rviz_msg_.action = visualization_msgs::Marker::ADD;
 
 		contact_sequence_rviz_msg_.points.resize(contact_sequence_.size());
@@ -479,34 +479,34 @@ void HierarchicalPlanners::publishContactSequence()
 		for (int i = 0; i < contact_sequence_.size(); i++) {
 			contact_sequence_rviz_msg_.points[i].x = contact_sequence_[i].position(0);
 			contact_sequence_rviz_msg_.points[i].y = contact_sequence_[i].position(1);
-			contact_sequence_rviz_msg_.points[i].z = contact_sequence_[i].position(2);// + 0.03;
+			contact_sequence_rviz_msg_.points[i].z = contact_sequence_[i].position(2) + 0.015;
 
 			int end_effector = contact_sequence_[i].end_effector;
 			if (end_effector == 0) {
 				contact_sequence_rviz_msg_.colors[i].r = 0.45;
 				contact_sequence_rviz_msg_.colors[i].g = 0.29;
 				contact_sequence_rviz_msg_.colors[i].b = 0.09;
-				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 0.5;
 			} else if (end_effector == 1) {
 				contact_sequence_rviz_msg_.colors[i].r = 1.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 0.0;
-				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 0.5;
 			} else if (end_effector == 2) {
 				contact_sequence_rviz_msg_.colors[i].r = 0.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 0.0;
-				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 0.5;
 			} else if (end_effector == 3) {
 				contact_sequence_rviz_msg_.colors[i].r = 0.09;
 				contact_sequence_rviz_msg_.colors[i].g = 0.11;
 				contact_sequence_rviz_msg_.colors[i].b = 0.7;
-				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 0.5;
 			} else {
 				contact_sequence_rviz_msg_.colors[i].r = 0.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 1.0;
-				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 0.5;
 			}
 			//contact_sequence_msg_.lifetime = 0;//ros::Duration();
 		}
