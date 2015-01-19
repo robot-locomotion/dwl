@@ -182,7 +182,10 @@ void HierarchicalPlanners::initBodyPlanner()
 	}
 
 	if (potential_orientation_enable) {
-		dwl::environment::Feature* potential_orientation_ptr = new dwl::environment::PotentialBodyOrientationFeature();
+		double max_roll, max_pitch;
+		private_node_.param(path + "features/potential_body_orientation/max_roll", max_roll, 30.0);
+		private_node_.param(path + "features/potential_body_orientation/max_pitch", max_pitch, 30.0);
+		dwl::environment::Feature* potential_orientation_ptr = new dwl::environment::PotentialBodyOrientationFeature(max_roll, max_pitch);
 
 		// Setting the weight
 		double weight, default_weight = 1;
@@ -246,7 +249,10 @@ void HierarchicalPlanners::initContactPlanner()
 	}
 
 	if (orientation_enable) {
-		dwl::environment::Feature* orientation_ptr = new dwl::environment::BodyOrientationFeature();
+		double max_roll, max_pitch;
+		private_node_.param(path + "features/body_orientation/max_roll", max_roll, 30.0);
+		private_node_.param(path + "features/body_orientation/max_pitch", max_pitch, 30.0);
+		dwl::environment::Feature* orientation_ptr = new dwl::environment::BodyOrientationFeature(max_roll, max_pitch);
 
 		// Setting the weight
 		double weight, default_weight = 1;
