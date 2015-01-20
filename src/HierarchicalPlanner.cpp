@@ -218,10 +218,11 @@ void HierarchicalPlanners::initContactPlanner()
 		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning(remove_enable, distance_threshold);
 
 	// Setting the features for the footstep planner
-	bool support_enable, collision_enable, orientation_enable;
+	bool support_enable, collision_enable, orientation_enable, kinematic_enable;
 	private_node_.param(path + "features/support_triangle/enable", support_enable, false);
 	private_node_.param(path + "features/leg_collision/enable", collision_enable, false);
 	private_node_.param(path + "features/body_orientation/enable", orientation_enable, false);
+	private_node_.param(path + "features/kinematic_feasibility/enable", kinematic_enable, false);
 	if (support_enable) {
 		double stable_inradii, unstable_inradii;
 		private_node_.param(path + "features/support_triangle/stable_inraddi", stable_inradii, 0.13);
@@ -259,6 +260,20 @@ void HierarchicalPlanners::initContactPlanner()
 		private_node_.param(path + "features/body_orientation/weight", weight, default_weight);
 		orientation_ptr->setWeight(weight);
 		footstep_planner_ptr_->addFeature(orientation_ptr);
+	}
+
+	if (kinematic_enable) {
+		double kin_lim_x, kin_lim_y, stable_displacement;
+		private_node_.param(path + "features/kinematic_feasibility/kin_lim_x", kin_lim_x, 0.16);
+		private_node_.param(path + "features/kinematic_feasibility/kin_lim_x", kin_lim_y, 0.08);
+		private_node_.param(path + "features/kinematic_feasibility/stable_displacement", stable_displacement, 0.15);
+		dwl::environment::Feature* kinematic_ptr = new dwl::environment::KinematicFeasibilityFeature(kin_lim_x, kin_lim_y, stable_displacement);
+
+		// Setting the weight
+		double weight, default_weight = 1;
+		private_node_.param(path + "features/kinematic_feasibility/weight", weight, default_weight);
+		kinematic_ptr->setWeight(weight);
+		footstep_planner_ptr_->addFeature(kinematic_ptr);
 	}
 
 	// Setting the contact horizon
@@ -341,7 +356,6 @@ bool HierarchicalPlanners::compute()
 			pthread_mutex_unlock(&planner_lock_);
 
 		body_path_ = locomotor_.getBodyPath();
-//		nominal_contacts_ = footstep_planner_ptr_->getNominalContacts();
 		contact_search_region_ = footstep_planner_ptr_->getContactSearchRegions();
 		contact_sequence_ = locomotor_.getContactSequence();
 	} catch (tf::TransformException& ex) {
