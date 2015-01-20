@@ -306,6 +306,12 @@ Vector3dMap Robot::getStance(Eigen::Vector3d action) //TODO Virtual method
 }
 
 
+Vector3dMap Robot::getNominalStance()
+{
+	return nominal_stance_;
+}
+
+
 PatternOfLocomotionMap Robot::getPatternOfLocomotion()
 {
 	return pattern_locomotion_;

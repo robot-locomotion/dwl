@@ -86,6 +86,12 @@ class Robot
 		Vector3dMap getStance(Eigen::Vector3d action = Eigen::Vector3d::Zero());
 
 		/**
+		 * @brief Gets the nominal stance of the robot
+		 * @return dwl::Vector3dMap Returns the nominal stance of the robot
+		 */
+		Vector3dMap getNominalStance();
+
+		/**
 		 * @brief Gets the pattern of locomotion of the robot
 		 * @return dwl::PatternOfLocomotionMap Returns the pattern of locomotion
 		 */

@@ -141,7 +141,8 @@ void RewardMap::removeCellToTerrainHeightMap(Vertex cell_vertex)
 }
 
 
-void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_resolution)
+void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double max_y,
+		double min_z, double max_z, double grid_resolution)
 {
 	SearchArea search_area;
 	search_area.min_x = min_x;
@@ -163,7 +164,8 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 }
 
 
-void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors, int right_neighbors, int bottom_neighbors, int top_neighbors)
+void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors,
+		int right_neighbors, int bottom_neighbors, int top_neighbors)
 {
 	neighboring_area_.min_x = back_neighbors;
 	neighboring_area_.max_x = front_neighbors;

@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : is_stance_adjacency_(true), number_top_reward_(5)
+LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : is_stance_adjacency_(true), number_top_reward_(10)
 {
 	name_ = "Lattice-based Body";
 	is_lattice_ = true;
@@ -101,8 +101,8 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double stance_cost = 0;
 		double resolution = stance_areas_[n].resolution;
-		for (double y = boundary_min(1); y < boundary_max(1); y += resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
+		for (double y = boundary_min(1); y <= boundary_max(1); y += resolution) {
+			for (double x = boundary_min(0); x <= boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate according to the orientation of the body
 				Eigen::Vector2d point_position;
 				double current_x = state(0);
@@ -209,8 +209,8 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 			if (body_workspace.resolution > obstacle_resolution)
 				obstacle_resolution = body_workspace.resolution;
 
-			for (double y = boundary_min(1); y < boundary_max(1); y += obstacle_resolution) {
-				for (double x = boundary_min(0); x < boundary_max(0); x += obstacle_resolution) {
+			for (double y = boundary_min(1); y <= boundary_max(1); y += obstacle_resolution) {
+				for (double x = boundary_min(0); x <= boundary_max(0); x += obstacle_resolution) {
 					// Computing the rotated coordinate according to the orientation of the body
 					Eigen::Vector2d point_position;
 					point_position(0) = (x - current_x) * cos(current_yaw) - (y - current_y) * sin(current_yaw) + current_x;

@@ -112,7 +112,8 @@ class RewardMap
 		 * @param double max_z Maximun cartesian position along the z-axis
 		 * @param double grid_size Resolution of the grid
 		 */
-		void addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_size);
+		void addSearchArea(double min_x, double max_x, double min_y, double max_y,
+				double min_z, double max_z, double grid_size);
 
 		/**
 		 * @brief Sets the neighboring area for computing physical properties of the terrain
@@ -123,7 +124,8 @@ class RewardMap
 		 * @param int bottom_neighbors Number of bottom neighbors
 		 * @param int top_neighbors Number of top neighbors
 		 */
-		void setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors, int right_neighbors, int bottom_neighbors, int top_neighbors);
+		void setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors,
+				int right_neighbors, int bottom_neighbors, int top_neighbors);
 
 		/**
 		 * @brief Gets the environment resolution of the reward map

@@ -94,6 +94,7 @@ set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
 							src/environment/LegCollisionFeature.cpp
 							src/environment/BodyOrientationFeature.cpp
 							src/environment/SupportTriangleFeature.cpp
+							src/environment/KinematicFeasibilityFeature.cpp
 							src/robot/Robot.cpp
 							src/robot/KinematicConstraints.cpp
 							src/robot/StabilityConstraints.cpp

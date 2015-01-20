@@ -34,8 +34,8 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 	space_discretization_.vertexToState(cell_position, cell_vertex);
 
 	// Putting minimum reward to voxel with low height
-	if (terrain_info.height_map.count(cell_vertex) > 0) {
-		if (terrain_info.height_map.find(cell_vertex)->second < min_allowed_height_) {
+	if (terrain_info.height_map.find(cell_vertex)->second < min_allowed_height_) {
+		if (terrain_info.height_map.count(cell_vertex) > 0) {
 			reward_value = min_reward_;
 			return;
 		}
@@ -50,8 +50,8 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 	boundary_min(1) = neightboring_area_.min_y + cell_position(1);
 	boundary_max(0) = neightboring_area_.max_x + cell_position(0);
 	boundary_max(1) = neightboring_area_.max_y + cell_position(1);
-	for (double y = boundary_min(1); y < boundary_max(1); y += neightboring_area_.resolution) {
-		for (double x = boundary_min(0); x < boundary_max(0); x += neightboring_area_.resolution) {
+	for (double y = boundary_min(1); y <= boundary_max(1); y += neightboring_area_.resolution) {
+		for (double x = boundary_min(0); x <= boundary_max(0); x += neightboring_area_.resolution) {
 			Eigen::Vector2d coord;
 			coord(0) = x;
 			coord(1) = y;
@@ -69,8 +69,8 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 		height_average /= counter;
 
 		// Computing the standard deviation of the height
-		for (double y = boundary_min(1); y < boundary_max(1); y += neightboring_area_.resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += neightboring_area_.resolution) {
+		for (double y = boundary_min(1); y <= boundary_max(1); y += neightboring_area_.resolution) {
+			for (double x = boundary_min(0); x <= boundary_max(0); x += neightboring_area_.resolution) {
 				Eigen::Vector2d coord;
 				coord(0) = x;
 				coord(1) = y;

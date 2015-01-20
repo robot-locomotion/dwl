@@ -43,8 +43,8 @@ void LegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain in
 	// Computing the maximum and minimum height around the leg area
 	double max_height = -std::numeric_limits<double>::max();
 	bool is_there_height_values = false;
-	for (double y = boundary_min(1); y < boundary_max(1); y += leg_workspace.resolution) {
-		for (double x = boundary_min(0); x < boundary_max(0); x += leg_workspace.resolution) {
+	for (double y = boundary_min(1); y <= boundary_max(1); y += leg_workspace.resolution) {
+		for (double x = boundary_min(0); x <= boundary_max(0); x += leg_workspace.resolution) {
 			Eigen::Vector2d coord;
 			coord(0) = (x - position(0)) * cos(yaw) - (y - position(1)) * sin(yaw) + position(0);
 			coord(1) = (x - position(0)) * sin(yaw) + (y - position(1)) * cos(yaw) + position(1);

@@ -163,9 +163,9 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 		SearchAreaMap footstep_region = robot_->getFootstepSearchSize(full_action);
 
 
-		for (double xi = 0; xi < window_x; xi += resolution) {
+		for (double xi = 0; xi <= window_x; xi += resolution) {
 			for (int sx = -1; sx <= 1; sx += 2) {
-				for (double yi = 0; yi < window_y; yi += resolution) {
+				for (double yi = 0; yi <= window_y; yi += resolution) {
 					for (int sy = -1; sy <= 1; sy += 2) {
 						// Computing the rotated coordinate of the point inside the search area
 						Eigen::Vector3d current_state;

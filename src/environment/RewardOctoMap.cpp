@@ -46,8 +46,8 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 		boundary_max(1) = search_areas_[n].max_y + robot_state(1);
 
 		double resolution = search_areas_[n].resolution;
-		for (double y = boundary_min(1); y < boundary_max(1); y += resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
+		for (double y = boundary_min(1); y <= boundary_max(1); y += resolution) {
+			for (double x = boundary_min(0); x <= boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate of the point inside the search area
 				double xr = (x - robot_state(0)) * cos(yaw) - (y - robot_state(1)) * sin(yaw) + robot_state(0);
 				double yr = (x - robot_state(0)) * sin(yaw) + (y - robot_state(1)) * cos(yaw) + robot_state(1);
@@ -142,7 +142,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 					removeCellToRewardMap(vertex_id);
 					removeCellToTerrainHeightMap(vertex_id);
 				} else
-					new_status = false;
+					new_status = true;//false;
 			}
 
 			if (new_status)
@@ -208,7 +208,8 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 	if (is_there_neighboring) {
 		// Computing terrain info
 		EIGEN_ALIGN16 Eigen::Matrix3d covariance_matrix;
-		if (neighbors_position.size() < 3 || math_.computeMeanAndCovarianceMatrix(neighbors_position, covariance_matrix, terrain_info.position) == 0)
+		if (neighbors_position.size() < 3 ||
+				math_.computeMeanAndCovarianceMatrix(neighbors_position, covariance_matrix, terrain_info.position) == 0)
 			return;
 
 		if (!using_cloud_mean_) {
