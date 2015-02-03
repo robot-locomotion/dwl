@@ -9,7 +9,7 @@
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 /**
@@ -120,7 +120,7 @@ class Solver
 		bool is_set_adjacency_model_;
 };
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl
 
 

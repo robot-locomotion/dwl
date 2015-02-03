@@ -1,10 +1,10 @@
-#include <planning/ContactPlanning.h>
+#include <locomotion/ContactPlanning.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 ContactPlanning::ContactPlanning() : environment_(NULL), robot_(NULL), computation_time_(std::numeric_limits<double>::max()), contact_horizon_(0)
@@ -64,5 +64,5 @@ std::vector<ContactSearchRegion> ContactPlanning::getContactSearchRegions()
 	return contact_search_regions;
 }
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl

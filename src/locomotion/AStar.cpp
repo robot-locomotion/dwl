@@ -1,10 +1,10 @@
-#include <planning/AStar.h>
+#include <locomotion/AStar.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 AStar::AStar() : expansions_(0)
@@ -53,7 +53,7 @@ void AStar::findShortestPath(Vertex source, Vertex target)
 	// Number of expansions
 	expansions_ = 0;
 
-	// Definiting the set of nodes already evaluated (openset), the set of
+	// Defining the set of nodes already evaluated (openset), the set of
 	// tentative nodes to be evaluated (openset), and ordered openset queue
 	std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > openset_queue;
 	std::map<Vertex, bool> openset;
@@ -122,6 +122,6 @@ void AStar::findShortestPath(Vertex source, Vertex target)
 	total_cost_ = g_cost[target];
 }
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl
 

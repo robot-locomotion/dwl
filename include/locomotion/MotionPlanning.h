@@ -1,7 +1,7 @@
 #ifndef DWL_MotionPlanning_H
 #define DWL_MotionPlanning_H
 
-#include <planning/Solver.h>
+#include <locomotion/Solver.h>
 #include <environment/EnvironmentInformation.h>
 #include <utils/utils.h>
 #include <utils/Orientation.h>
@@ -10,7 +10,7 @@
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 /**
@@ -78,7 +78,7 @@ class MotionPlanning
 		double pose_computation_time_;
 };
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl
 
 #endif

@@ -1,13 +1,13 @@
 #ifndef DWL_GreedyFootstepPlanning_H
 #define DWL_GreedyFootstepPlanning_H
 
-#include <planning/ContactPlanning.h>
+#include <locomotion/ContactPlanning.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 /**
@@ -53,7 +53,7 @@ class GreedyFootstepPlanning : public ContactPlanning
 		double threshold_distance_;
 };
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl
 
 #endif

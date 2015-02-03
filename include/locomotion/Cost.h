@@ -1,7 +1,7 @@
 #ifndef DWL_Cost_H
 #define DWL_Cost_H
 
-#include <planning/Solver.h>
+#include <locomotion/Solver.h>
 #include <environment/RewardMap.h>
 
 #include <utils/utils.h>
@@ -10,7 +10,7 @@
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 /**
@@ -66,10 +66,9 @@ class Cost
 
 		/** @brief Indicates if it is a cost map */
 		bool is_cost_map_;
-
 };
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl
 
 #endif

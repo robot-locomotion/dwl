@@ -1,10 +1,10 @@
-#include <planning/MotionPlanning.h>
+#include <locomotion/MotionPlanning.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 MotionPlanning::MotionPlanning() : environment_(NULL), robot_(NULL), path_solver_(NULL), pose_solver_(NULL),
@@ -54,5 +54,5 @@ void MotionPlanning::setComputationTime(double computation_time, bool path_solve
 	}
 }
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl

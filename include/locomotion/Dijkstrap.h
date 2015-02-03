@@ -1,13 +1,13 @@
 #ifndef DWL_Dijktra_H
 #define DWL_Dijktra_H
 
-#include <planning/Solver.h>
+#include <locomotion/Solver.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 /**
@@ -50,7 +50,7 @@ class Dijkstrap : public Solver
 		int expansions_;
 };
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl
 
 #endif

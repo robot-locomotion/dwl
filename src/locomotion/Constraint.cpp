@@ -1,10 +1,10 @@
-#include <planning/Constraint.h>
+#include <locomotion/Constraint.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 Constraint::Constraint() : is_active_constraint_(false)
@@ -30,5 +30,5 @@ bool Constraint::isActive()
 }
 
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl

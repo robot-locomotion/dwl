@@ -1,10 +1,10 @@
-#include <planning/Solver.h>
+#include <locomotion/Solver.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 Solver::Solver() : robot_(NULL), environment_(NULL), adjacency_(NULL),
@@ -96,10 +96,10 @@ double Solver::getMinimumCost()
 }
 
 
-std::string dwl::planning::Solver::getName()
+std::string Solver::getName()
 {
 	return name_;
 }
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl

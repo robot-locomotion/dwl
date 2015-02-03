@@ -11,7 +11,7 @@
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 /**
@@ -92,7 +92,7 @@ class ContactPlanning
 		std::vector<ContactSearchRegion> contact_search_regions_;
 };
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl
 
 #endif

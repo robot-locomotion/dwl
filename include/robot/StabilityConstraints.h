@@ -1,7 +1,7 @@
 #ifndef DWL_StabilityConstraints_H
 #define DWL_StabilityConstraints_H
 
-#include <planning/Constraint.h>
+#include <locomotion/Constraint.h>
 
 
 namespace dwl
@@ -10,7 +10,7 @@ namespace dwl
 namespace robot
 {
 
-class StabilityConstraints : public planning::Constraint
+class StabilityConstraints : public locomotion::Constraint
 {
 	public:
 		/** @brief Constructor function */

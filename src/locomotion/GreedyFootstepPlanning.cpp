@@ -1,9 +1,9 @@
-	#include <planning/GreedyFootstepPlanning.h>
+	#include <locomotion/GreedyFootstepPlanning.h>
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 GreedyFootstepPlanning::GreedyFootstepPlanning(bool remove_footholds, double threshold_distance) :
@@ -261,5 +261,5 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 	return true;
 }
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl

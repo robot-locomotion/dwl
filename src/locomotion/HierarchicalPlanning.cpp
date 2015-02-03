@@ -1,11 +1,11 @@
-#include <planning/HierarchicalPlanning.h>
+#include <locomotion/HierarchicalPlanning.h>
 #include <utils/Orientation.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 HierarchicalPlanning::HierarchicalPlanning()
@@ -65,5 +65,5 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 	return true;
 }
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl

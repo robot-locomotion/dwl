@@ -1,10 +1,10 @@
-#include <planning/MotionPlanning.h>
+#include <locomotion/MotionPlanning.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 class SearchBasedBodyMotionPlanning : public MotionPlanning
@@ -25,5 +25,5 @@ class SearchBasedBodyMotionPlanning : public MotionPlanning
 		bool computePath(std::vector<Pose>& body_path, Pose start_pose, Pose goal_pose);
 };
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl

@@ -2,11 +2,11 @@
 #define DWL_PlanningOfMotionSequences_H
 
 #include <robot/Robot.h>
-#include <planning/MotionPlanning.h>
-#include <planning/ContactPlanning.h>
-#include <planning/Solver.h>
-#include <planning/Constraint.h>
-#include <planning/Cost.h>
+#include <locomotion/MotionPlanning.h>
+#include <locomotion/ContactPlanning.h>
+#include <locomotion/Solver.h>
+#include <locomotion/Constraint.h>
+#include <locomotion/Cost.h>
 #include <environment/EnvironmentInformation.h>
 
 #include <utils/utils.h>
@@ -15,7 +15,7 @@
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 /**
@@ -34,7 +34,7 @@ class PlanningOfMotionSequences
 		/**
 		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem
 		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
-		 * @param dwl::planning::Solver* solver	The solver computes a solution of the motion planning problem which depends of the algorithm, i.e. graph-searching or optimization problems
+		 * @param dwl::locomotion::Solver* solver	The solver computes a solution of the motion planning problem which depends of the algorithm, i.e. graph-searching or optimization problems
 		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
 		void reset(robot::Robot* robot, Solver* solver, environment::EnvironmentInformation* environment);
@@ -42,33 +42,33 @@ class PlanningOfMotionSequences
 		/**
 		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem
 		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
-		 * @param dwl::planning::BodyPlanner* motion_planner The motion planner computes body path and trajectory, and pose
-		 * @param dwl::planning::ContactPlanning* contact_planner The contact planner computes the contact sequence
+		 * @param dwl::locomotion::BodyPlanner* motion_planner The motion planner computes body path and trajectory, and pose
+		 * @param dwl::locomotion::ContactPlanning* contact_planner The contact planner computes the contact sequence
 		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
 		 */
 		void reset(robot::Robot* robot, MotionPlanning* motion_planner, ContactPlanning* contact_planner, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Adds an active or inactive constraints to the planning algorithm
-		 * @param dwl::planning::Constraint* constraint Pointer to the constraint class
+		 * @param dwl::locomotion::Constraint* constraint Pointer to the constraint class
 		 */
 		void addConstraint(Constraint* constraint);
 
 		/**
 		 * @brief Removes an active or inactive constraints to the planning algorithm
-		 * @param dwl::planning::Constraint* constraint Pointer to the constraint class
+		 * @param dwl::locomotion::Constraint* constraint Pointer to the constraint class
 		 */
 		void removeConstraint(std::string constraint_name);
 
 		/**
 		 * @brief Adds a cost for the optimization problem of the planning algorithm
-		 * @param dwl::planning::Cost* Pointer to the cost class
+		 * @param dwl::locomotion::Cost* Pointer to the cost class
 		 */
 		void addCost(Cost* cost);
 
 		/**
 		 * @brief Removes a cost for the optimization problem of the planning algorithm
-		 * @param dwl::planning::Cost* Pointer to the cost class
+		 * @param dwl::locomotion::Cost* Pointer to the cost class
 		 */
 		void removeCost(std::string cost_name);
 
@@ -205,7 +205,7 @@ class PlanningOfMotionSequences
 		bool is_added_cost_;
 };
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl
 
 #endif

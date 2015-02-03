@@ -1,10 +1,10 @@
-#include <planning/PlanningOfMotionSequences.h>
+#include <locomotion/PlanningOfMotionSequences.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 PlanningOfMotionSequences::PlanningOfMotionSequences() : motion_planner_(NULL), contact_planner_(NULL), robot_(NULL), solver_(NULL),
@@ -261,5 +261,5 @@ std::string PlanningOfMotionSequences::getName()
 	return name_;
 }
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl

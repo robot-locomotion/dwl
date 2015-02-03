@@ -1,4 +1,4 @@
-#include <planning/WholeBodyLocomotion.h>
+#include <locomotion/WholeBodyLocomotion.h>
 
 
 
@@ -18,7 +18,7 @@ WholeBodyLocomotion::~WholeBodyLocomotion()
 }
 
 
-void WholeBodyLocomotion::reset(dwl::planning::PlanningOfMotionSequences* planner)
+void WholeBodyLocomotion::reset(locomotion::PlanningOfMotionSequences* planner)
 {
 	printf(BLUE "Setting the %s planner\n" COLOR_RESET, planner->getName().c_str());
 	is_set_planner_ = true;
@@ -26,7 +26,7 @@ void WholeBodyLocomotion::reset(dwl::planning::PlanningOfMotionSequences* planne
 }
 
 
-void WholeBodyLocomotion::addConstraint(planning::Constraint* constraint)
+void WholeBodyLocomotion::addConstraint(locomotion::Constraint* constraint)
 {
 	if (is_set_planner_)
 		planner_->addConstraint(constraint);
@@ -46,7 +46,7 @@ void WholeBodyLocomotion::removeConstraint(std::string constraint_name)
 }
 
 
-void WholeBodyLocomotion::addCost(planning::Cost* cost)
+void WholeBodyLocomotion::addCost(locomotion::Cost* cost)
 {
 	if (is_set_planner_)
 		planner_->addCost(cost);

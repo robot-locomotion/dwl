@@ -62,19 +62,19 @@ include_directories(${INCLUDE_DIRS})
 include_directories(src)
 #include_directories(${OCTOMAP_INCLUDE_DIRS}) #TODO Check this in the intense pc 
 
-set(${PROJECT_NAME}_SOURCES src/planning/WholeBodyLocomotion.cpp
-							src/planning/PlanningOfMotionSequences.cpp 
-							src/planning/HierarchicalPlanning.cpp
-							src/planning/MotionPlanning.cpp
-							src/planning/SearchBasedBodyMotionPlanning.cpp
-							src/planning/ContactPlanning.cpp
-							src/planning/GreedyFootstepPlanning.cpp
-							src/planning/Solver.cpp
-							src/planning/Cost.cpp
-							src/planning/Constraint.cpp
-							src/planning/Dijkstrap.cpp
-							src/planning/AStar.cpp
-							src/planning/AnytimeRepairingAStar.cpp
+set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
+							src/locomotion/PlanningOfMotionSequences.cpp 
+							src/locomotion/HierarchicalPlanning.cpp
+							src/locomotion/MotionPlanning.cpp
+							src/locomotion/SearchBasedBodyMotionPlanning.cpp
+							src/locomotion/ContactPlanning.cpp
+							src/locomotion/GreedyFootstepPlanning.cpp
+							src/locomotion/Solver.cpp
+							src/locomotion/Cost.cpp
+							src/locomotion/Constraint.cpp
+							src/locomotion/Dijkstrap.cpp
+							src/locomotion/AStar.cpp
+							src/locomotion/AnytimeRepairingAStar.cpp
 							src/behavior/MotorPrimitives.cpp
 							src/behavior/BodyMotorPrimitives.cpp
 							src/environment/EnvironmentInformation.cpp

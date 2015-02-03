@@ -7,7 +7,7 @@
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 /**

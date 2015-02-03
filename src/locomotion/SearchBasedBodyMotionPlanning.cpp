@@ -1,10 +1,10 @@
-#include <planning/SearchBasedBodyMotionPlanning.h>
+#include <locomotion/SearchBasedBodyMotionPlanning.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 SearchBasedBodyMotionPlanning::SearchBasedBodyMotionPlanning()
@@ -68,5 +68,5 @@ bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path, Po
 	return true;
 }
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl

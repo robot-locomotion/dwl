@@ -1,10 +1,10 @@
-#include <planning/Cost.h>
+#include <locomotion/Cost.h>
 
 
 namespace dwl
 {
 
-namespace planning
+namespace locomotion
 {
 
 Cost::Cost() : is_cost_map_(false)
@@ -45,10 +45,10 @@ bool Cost::isCostMap()
 }
 
 
-std::string dwl::planning::Cost::getName()
+std::string Cost::getName()
 {
 	return name_;
 }
 
-} //@namespace planning
+} //@namespace locomotion
 } //@namespace dwl
