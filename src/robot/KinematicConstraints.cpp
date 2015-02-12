@@ -25,5 +25,5 @@ void KinematicConstraints::get(Eigen::VectorXd& constraint, Eigen::VectorXd stat
 	printf("Getting kinematic constraints\n");
 }
 
-} //@namespace hyq
+} //@namespace robot
 } //@namespace dwl

@@ -22,7 +22,7 @@ class KinematicConstraints : public locomotion::Constraint
 		void get(Eigen::VectorXd& constraint, Eigen::VectorXd state);
 };
 
-} //@namespace hyq
+} //@namespace robot
 } //@namespace dwl
 
 #endif

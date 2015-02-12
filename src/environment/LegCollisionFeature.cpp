@@ -7,8 +7,8 @@ namespace dwl
 namespace environment
 {
 
-LegCollisionFeature::LegCollisionFeature(double clearance, double collision) : potential_clearance_(clearance),
-		potential_collision_(collision)
+LegCollisionFeature::LegCollisionFeature(double clearance, double collision) :
+		potential_clearance_(clearance), potential_collision_(collision)
 {
 	name_ = "Leg Collision";
 }
@@ -70,7 +70,8 @@ void LegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain in
 			if (max_diff_height < potential_clearance_)
 				reward_value = 0.0;
 			else if (max_diff_height < potential_collision_) {
-				reward_value = log(0.75 * (1 - (max_diff_height - potential_clearance_) / (potential_collision_ - potential_clearance_)));
+				reward_value = log(0.75 * (1 - (max_diff_height - potential_clearance_) /
+						(potential_collision_ - potential_clearance_)));
 				if (min_reward_ > reward_value)
 					reward_value = min_reward_;
 			} else

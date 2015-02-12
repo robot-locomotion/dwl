@@ -12,7 +12,8 @@ namespace locomotion
 
 /**
  * @class Dijkstrap
- * @brief Class for solving a shortest-search problem using the Dijkstrap algorithm
+ * @brief Class for solving a shortest-search problem using the Dijkstrap algorithm. This class derive from the
+ * Solver class
  */
 class Dijkstrap : public Solver
 {
@@ -25,24 +26,24 @@ class Dijkstrap : public Solver
 
 		/**
 		 * @brief Initializes the Dijkstrap algorithm
-		 * @return bool Returns true if Dijkstrap algorithm was initialized
+		 * @return True if Dijkstrap algorithm was initialized
 		 */
 		bool init();
 
 		/**
 		 * @brief Computes a shortest-path using Dijkstrap algorithm
-		 * @param dwl::Vertex source Source vertex
-		 * @param dwl::Vertex target Target vertex
-		 * @return bool Returns true if it was computed a solution
+		 * @param Vertex Source vertex
+		 * @param Vertex Target vertex
+		 * @return True if it was computed a solution
 		 */
 		bool compute(Vertex source, Vertex target, double computation_time);
 
 
 	private:
 		/**
-		 * @brief Computes the minimun cost and previous vertex according to the shortest Dijkstrap path
-		 * @param Vertex source Source vertex
-		 * @param AdjacencyMap adjacency_map Adjacency map
+		 * @brief Computes the minimum cost and previous vertex according to the shortest Dijkstrap path
+		 * @param Vertex Source vertex
+		 * @param AdjacencyMap Adjacency map
 		 */
 		void findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacency_map);
 

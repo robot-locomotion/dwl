@@ -1,10 +1,8 @@
 #ifndef DWL_LearningDiscoveryOfNewBehaviors_H
 #define DWL_LearningDiscoveryOfNewBehaviors_H
 
-
 #include <vector>
 
-//#include <planning/PlanningOfMotionSequences.h>
 
 namespace dwl
 {
@@ -28,14 +26,9 @@ class LearningDiscoveryOfNewBehaviors
 
 	private:
 		std::vector<double> reward_;
-
-	protected:
-
-
-}; //@class LearningDiscoveryOfNewBehaviors
+};
 
 } //@namespace learning
-
 } //@namespace dwl
 
 

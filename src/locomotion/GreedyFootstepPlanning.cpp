@@ -7,7 +7,8 @@ namespace locomotion
 {
 
 GreedyFootstepPlanning::GreedyFootstepPlanning(bool remove_footholds, double threshold_distance) :
-		leg_offset_(0.01), last_past_leg_(1), remove_footholds_(remove_footholds), threshold_distance_(threshold_distance)
+		leg_offset_(0.01), last_past_leg_(1), remove_footholds_(remove_footholds),
+		threshold_distance_(threshold_distance)
 {
 	name_ = "Greedy Footstep";
 }
@@ -19,7 +20,8 @@ GreedyFootstepPlanning::~GreedyFootstepPlanning()
 }
 
 
-bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory)
+bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contact_sequence,
+		std::vector<Pose> pose_trajectory)
 {
 	// Setting the current discretized body state
 	Pose current_body_pose = robot_->getCurrentPose();
@@ -62,7 +64,8 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 }
 
 
-bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, std::vector<Contact> initial_contacts, Pose goal_pose)
+bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds,
+		std::vector<Contact> initial_contacts, Pose goal_pose)
 {
 	// Initialization of footholds
 	footholds.clear();
@@ -178,7 +181,8 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 						Vertex current_vertex, terrain_vertex;
 						environment_->getTerrainSpaceModel().stateToVertex(current_vertex, current_state);
 						environment_->getTerrainSpaceModel().vertexToState(current_state, current_vertex);
-						environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, current_vertex,	XY_Y);
+						environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex,
+								current_vertex,	XY_Y);
 
 						// Recording the contact search region for visualization
 						if ((xi == 0) && (yi == 0) && (sy == -1) && (sx == -1)) {
@@ -206,7 +210,8 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 							// Computing the cost associated with the body
 							info.pose.position = goal_pose.position.head(2);
 							info.pose.orientation = yaw;
-							info.potential_contact.position << current_state.head(2), terrain_heightmap.find(terrain_vertex)->second;
+							info.potential_contact.position << current_state.head(2),
+									terrain_heightmap.find(terrain_vertex)->second;
 							info.potential_contact.end_effector = current_leg_id;
 							for (int i = 0; i < (int) features_.size(); i++) {
 								// Computing the cost associated with contact features
@@ -235,8 +240,10 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 			environment_->getTerrainSpaceModel().vertexToCoord(foothold_coord, foothold_vertex);
 			foothold.position << foothold_coord, (terrain_heightmap.find(foothold_vertex)->second + leg_offset_);
 		} else {
-			foothold.position(0) = body_state(0) + stance[current_leg_id](0) * cos(yaw) - stance[current_leg_id](1) * sin(yaw);
-			foothold.position(1) = body_state(1) + stance[current_leg_id](0) * sin(yaw) + stance[current_leg_id](1) * cos(yaw);
+			foothold.position(0) = body_state(0) +
+					stance[current_leg_id](0) * cos(yaw) - stance[current_leg_id](1) * sin(yaw);
+			foothold.position(1) = body_state(1) +
+					stance[current_leg_id](0) * sin(yaw) + stance[current_leg_id](1) * cos(yaw);
 			foothold.position(2) = robot_->getExpectedGround(current_leg_id);
 		}
 

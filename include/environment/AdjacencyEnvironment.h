@@ -16,7 +16,7 @@ namespace environment
 
 /**
  * @class AdjacencyEnvironment
- * @brief Abstract class for building adjacency map of the environment
+ * @brief Abstract class for building an adjacency map of the environment
  */
 class AdjacencyEnvironment
 {
@@ -28,82 +28,84 @@ class AdjacencyEnvironment
 		virtual ~AdjacencyEnvironment();
 
 		/**
-		 * @brief Specifies the settings of all components within AdjacencyEnvironment class
-		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
-		 * @param dwl::environment::EnvironmentInformation* environment Pointer to object that defines the environment
+		 * @brief Defines the settings of all components within AdjacencyEnvironment class
+		 * @param Robot* The robot defines all the properties of the robot
+		 * @param EnvironmentInformation* Pointer to object that defines the environment
 		 */
 		void reset(robot::Robot* robot, EnvironmentInformation* environment);
 
 		/**
-		 * @brief Abstract method that computes the whole adjacency map, which is required by some algorithms such as Dijkstrap
-		 * @param dwl::AdjacencyMap& adjacency_map Adjacency map
-		 * @param dwl::Vertex source Source vertex
-		 * @param dwl::Vertex target Target vertex
+		 * @brief Abstract method that computes the whole adjacency map, which is required by some algorithms
+		 * such as Dijkstrap
+		 * @param AdjacencyMap& Adjacency map
+		 * @param Vertex Source vertex
+		 * @param Vertex Target vertex
 		 */
 		virtual void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target);
 
 		/**
 		 * @brief Abstract method that gets the successors of a certain vertex
-		 * @param std::list<Edge>& successors The successors of a certain vertex
-		 * @param dwl::Vertex Current state vertex
+		 * @param std::list<Edge>& The successors of a certain vertex
+		 * @param Vertex Current state vertex
 		 */
 		virtual void getSuccessors(std::list<Edge>& successors, Vertex state_vertex);
 
 		/**
 		 * @brief Gets the closest start and goal vertex if it is not belong to the terrain information
-		 * @param dwl::Vertex& closest_source The closest vertex to the start
-		 * @param dwl::Vertex& closest_target The closest vertex to the goal
-		 * @param dwl::Vertex source Start vertex
-		 * @param dwl::Vertex target Goal vertex
+		 * @param Vertex& The closest vertex to the start
+		 * @param Vertex& The closest vertex to the goal
+		 * @param Vertex Start vertex
+		 * @param Vertex Goal vertex
 		 */
-		void getTheClosestStartAndGoalVertex(Vertex& closest_source, Vertex& closest_target, Vertex source, Vertex target);
+		void getTheClosestStartAndGoalVertex(Vertex& closest_source, Vertex& closest_target,
+				Vertex source, Vertex target);
 
 		/**
 		 * @brief Gets the closest vertex to a certain vertex
-		 * @param dwl::Vertex& closest_vertex The closest vertex
-		 * @param dwl::Vertex Current vertex
+		 * @param Vertex& The closest vertex
+		 * @param Vertex Current vertex
 		 */
 		void getTheClosestVertex(Vertex& closest_vertex, Vertex vertex);
 
 		/**
 		 * @brief Estimates the heuristic cost from a source to a target vertex
-		 * @param Vertex source Source vertex
-		 * @param Vertex target Target vertex
+		 * @param Vertex Source vertex
+		 * @param Vertex Target vertex
 		 */
 		virtual double heuristicCost(Vertex source, Vertex target);
 
 		/**
 		 * @brief Indicates if it is reached the goal
-		 * @param dwl::Vertex target Goal vertex
-		 * @param dwl::Vertex current Current vertex
-		 * @return bool Returns true if it is reached the goal and false otherwise
+		 * @param Vertex Goal vertex
+		 * @param Vertex Current vertex
+		 * @return True if it is reached the goal and false otherwise
 		 */
 		bool isReachedGoal(Vertex target, Vertex current);
 
 		/**
 		 * @brief Indicates if the free of obstacle
-		 * @param dwl::Vertex state_vertex State vertex
-		 * @param dwl::TypeOfState state_representation State representation
-		 * @param bool body Indicates it is desired to use the body space definition
-		 * @return bool Returns true if it is free of obstacle, and false otherwise
+		 * @param Vertex State vertex
+		 * @param TypeOfState State representation
+		 * @param bool Indicates it is desired to use the body space definition
+		 * @return True if it is free of obstacle, and false otherwise
 		 */
 		virtual bool isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body = false);
 
 		/**
 		 * @brief Adds a feature for computing the associated body cost
-		 * @param dwl::environment::Feature* feature the pointer of the feature to add
+		 * @param Feature* The pointer of the feature to add it
 		 */
 		void addFeature(Feature* feature);
 
 		/**
 		 * @brief Indicates if it is a lattice representation of the environment
-		 * @return bool Returns true if it is a lattice representation and false otherwise
+		 * @return True if it is a lattice representation and false otherwise
 		 */
 		bool isLatticeRepresentation();
 
 		/**
 		 * @brief Gets the name of the adjacency model
-		 * @return std::string Return the name of the adjacency model
+		 * @return The name of the adjacency model
 		 */
 		std::string getName();
 
@@ -127,7 +129,7 @@ class AdjacencyEnvironment
 		/** @brief Indicates if it was added a feature */
 		bool is_added_feature_;
 
-		/** @brief Uncertainty factor which is applicated in un-perceived environment */
+		/** @brief Uncertainty factor which is applied in un-perceived environment */
 		double uncertainty_factor_; // For unknown (non-perceive) areas
 };
 

@@ -12,7 +12,7 @@ namespace locomotion
 
 /**
  * @class Constraint
- * @brief Abstract class for defining constraints in the planning of motion sequences problem (optimization problem)
+ * @brief Abstract class for defining constraints in the planning of motion sequences problem
  */
 class Constraint
 {
@@ -25,20 +25,20 @@ class Constraint
 
 		/**
 		 * @brief Abstract method for getting the constraint vector given a certain state
-		 * @param Eigen::VectorXd& constraint Constraint vector
-		 * @param Eigen::VectorXd state State vector
+		 * @param Eigen::VectorXd& Constraint vector
+		 * @param Eigen::VectorXd State vector
 		 */
 		virtual void get(Eigen::VectorXd& constraint, Eigen::VectorXd state) = 0;
 
 		/**
 		 * @brief Indicates if the constraint is active [g(x) = 0] or inactive [g(x) > 0]
-		 * @return Bool Return true for active constraints, and false for inactive one
+		 * @return True for active constraints, and false for inactive one
 		 */
 		bool isActive();
 
 		/**
 		 * @brief Gets the name of the constraint
-		 * @return std::string Retunr the name of the constraint
+		 * @return The name of the constraint
 		 */
 		std::string getName();
 
@@ -55,7 +55,6 @@ class Constraint
 
 		/** @brief Vector of the values of the constraint */
 		Eigen::VectorXd constraint_value_;
-
 };
 
 } //@namespace planning

@@ -32,89 +32,89 @@ class Robot
 
 		/**
 		 * @brief Reads the robot properties from a yaml file
-		 * @param std::string file path File path of the yaml
+		 * @param std::string File path of the yaml
 		 */
 		void read(std::string filepath);
 
 		/**
 		 * @brief Sets the current pose of the robot
-		 * @param dwl::Pose pose Current pose
+		 * @param Pose Current pose
 		 */
 		void setCurrentPose(Pose pose);
 
 		/**
 		 * @brief Sets the current contacts of the robot
-		 * @param std::vector<dwl::Contact> contacts Contact positions
+		 * @param std::vector<Contact> Contact positions
 		 */
 		void setCurrentContacts(std::vector<Contact> contacts);
 
 		/**
 		 * @brief Gets current pose of the robot
-		 * @return dwl::Pose Returns the current pose of the robot
+		 * @return The current pose of the robot
 		 */
 		Pose getCurrentPose();
 
 		/**
 		 * @brief Gets the current contact positions
-		 * @return std::vector<Contact> Returns the set of current contacts
+		 * @return The set of current contacts
 		 */
 		std::vector<Contact> getCurrentContacts();
 
 		/**
 		 * @brief Gets the body motor primitives
-		 * @return behavior::MotorPrimitives& Returns the body motor primitives
+		 * @return The body motor primitives
 		 */
 		behavior::MotorPrimitives& getBodyMotorPrimitive();
 
 		/**
 		 * @brief Gets the predefined body workspace for evaluation of potential collisions
-		 * @return dwl::SearchArea Returns the predefined body workspace
+		 * @return The predefined body workspace
 		 */
 		SearchArea getPredefinedBodyWorkspace();
 
 		/**
 		 * @brief Gets the predefined leg workspace for evaluation of potential collisions
-		 * @return SearchAreaMap Returns the predefined leg workspaces
+		 * @return The predefined leg workspaces
 		 */
 		SearchAreaMap getPredefinedLegWorkspaces();
 
 		/**
 		 * @brief Gets the current stance of the robot
 		 * @param Eigen::Vector3d action Action to execute
-		 * @return dwl::Vector3dMap Returns the current stance of the robot
+		 * @return The current stance of the robot
 		 */
 		Vector3dMap getStance(Eigen::Vector3d action = Eigen::Vector3d::Zero());
 
 		/**
 		 * @brief Gets the nominal stance of the robot
-		 * @return dwl::Vector3dMap Returns the nominal stance of the robot
+		 * @return The nominal stance of the robot
 		 */
 		Vector3dMap getNominalStance();
 
 		/**
 		 * @brief Gets the pattern of locomotion of the robot
-		 * @return dwl::PatternOfLocomotionMap Returns the pattern of locomotion
+		 * @return The pattern of locomotion
 		 */
 		PatternOfLocomotionMap getPatternOfLocomotion();
 
 		/**
 		 * @brief Gets the stance areas
 		 * @param Eigen::Vector3d action Action to execute
-		 * @return dwl::SearchAreaMap Returns the stance areas
+		 * @return The stance areas
 		 */
 		SearchAreaMap getFootstepSearchAreas(Eigen::Vector3d action = Eigen::Vector3d::Zero());
 
 		/**
 		 * @brief Gets the footstep search region given an action
 		 * @param Eigen::Vector3d action Action to execute
-		 * @return dwl::SearchAreaMap Returns the footstep search regions
+		 * @return The footstep search regions
 		 */
 		SearchAreaMap getFootstepSearchSize(Eigen::Vector3d action = Eigen::Vector3d::Zero());
 
 		/**
 		 * @brief Gets the expected ground according to the nominal stance
 		 * @param int leg_id Leg id
-		 * @return std::vector<double> Returns the expected ground according to the nominal stance of the leg
+		 * @return The expected ground according to the nominal stance of the leg
 		 */
 		double getExpectedGround(int leg_id);
 

@@ -16,7 +16,7 @@ namespace locomotion
 
 /**
  * @class ContactPlanning
- * @brief Abstract class for computing contact sequence
+ * @brief Abstract class for computing contact sequence.
  */
 class ContactPlanning
 {
@@ -28,40 +28,41 @@ class ContactPlanning
 		virtual ~ContactPlanning();
 
 		/**
-		 * @brief Specifies the environment information for computing a contact plan
-		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
-		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
+		 * @brief Defines the environment information for computing a contact plan
+		 * @param Robot* The robot defines all the properties of the robot
+		 * @param EnvironmentInformation* Encapsulates all the information of the environment
 		 */
 		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Adds a feature for the contact planner
-		 * @param dwl::environment::Feature* feature Feature
+		 * @param Feature* Feature
 		 */
 		void addFeature(environment::Feature* feature);
 
 		/**
-		 * @bief Computes the contacts given a current pose of the robot
+		 * @brief Computes the contacts given a current pose of the robot
 		 * @param std::vector<Contact>& contact_sequence Set of contacts
-		 * @param std::vector<dwl::Pose> pose_trajectory Goal pose
+		 * @param std::vector<Pose> pose_trajectory Goal pose
 		 */
-		virtual bool computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory) = 0;
+		virtual bool computeContactSequence(std::vector<Contact>& contact_sequence,
+												std::vector<Pose> pose_trajectory) = 0;
 
 		/**
 		 * @brief Sets the allowed computation time for the contact planner
-		 * @param double computation_time Allowed computation time
+		 * @param double Allowed computation time
 		 */
 		void setComputationTime(double computation_time);
 
 		/**
 		 * @brief Sets the contact horizon, number of contacts, of the planner
-		 * @param int horizon Number of contacts
+		 * @param int Number of contacts
 		 */
 		void setContactHorizon(int horizon);
 
 		/**
 		 * @brief Gets the contact search regions
-		 * @return std::vector<dwl::ContactSearchRegion> Contact search regions
+		 * @return std::vector<ContactSearchRegion> Contact search regions
 		 */
 		std::vector<dwl::ContactSearchRegion> getContactSearchRegions();
 

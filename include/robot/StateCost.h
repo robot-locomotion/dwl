@@ -26,7 +26,7 @@ class StateCost : public locomotion::Cost
 		//virtual void get(planning::AdjacencyMap& adjacency_map) {}
 };
 
-} //@namespace hyq
+} //@namespace robot
 } //@namespace dwl
 
 

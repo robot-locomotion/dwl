@@ -35,7 +35,8 @@ void AdjacencyEnvironment::reset(robot::Robot* robot, EnvironmentInformation* en
 
 void AdjacencyEnvironment::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target)
 {
-	printf(	YELLOW "Could compute the whole adjacency map because it was not defined an adjacency model\n" COLOR_RESET);
+	printf(	YELLOW "Could compute the whole adjacency map because it was not defined an adjacency model\n"
+			COLOR_RESET);
 }
 
 
@@ -45,7 +46,8 @@ void AdjacencyEnvironment::getSuccessors(std::list<Edge>& successors, Vertex sta
 }
 
 
-void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_source, Vertex& closest_target, Vertex source, Vertex target)
+void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_source, Vertex& closest_target,
+		Vertex source, Vertex target)
 {
 	// Checking if the start and goal vertex are part of the terrain information
 	bool is_there_start_vertex, is_there_goal_vertex = false;
@@ -72,7 +74,8 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		}
 	} else {
 		printf(
-				RED "Could not get the closest start and goal vertex because there is not terrain information \n" COLOR_RESET);
+				RED "Could not get the closest start and goal vertex because there is not terrain information \n"
+				COLOR_RESET);
 		return;
 	}
 
@@ -173,7 +176,8 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 		}
 	} else
 	{
-		printf(	RED "Could not get the closest start and goal vertex because there is not terrain information \n" COLOR_RESET);
+		printf(	RED "Could not get the closest start and goal vertex because there is not terrain information \n"
+				COLOR_RESET);
 		return;
 	}
 

@@ -20,7 +20,10 @@ namespace locomotion
 
 /**
  * @class PlanningOfMotionSequence
- * @brief Abstract class for solving the planning of motion sequence problem
+ * @brief Abstract class for solving the planning of motion sequence problem. This abstract class allow us to
+ * implement different approaches such as: decoupled and coupled approaches. For instance, coupled approaches
+ * required a one Solver, in contrast of decoupled approaches that require the MotionPlanning and
+ * ContactPlanning classes.
  */
 class PlanningOfMotionSequence
 {
@@ -32,117 +35,125 @@ class PlanningOfMotionSequence
 		virtual ~PlanningOfMotionSequence();
 
 		/**
-		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem
-		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
-		 * @param dwl::locomotion::Solver* solver	The solver computes a solution of the motion planning problem which depends of the algorithm, i.e. graph-searching or optimization problems
-		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
+		 * @brief Defines the settings required for a decoupled approach
+		 * @param Robot* The robot defines all the properties of the robot
+		 * @param Solver* The solver that computes a motion plan, e.g. graph-searcher or optimizer
+		 * @param EnvironmentInformation* Encapsulates all the information of the environment
 		 */
 		void reset(robot::Robot* robot, Solver* solver, environment::EnvironmentInformation* environment);
 
 		/**
-		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem
-		 * @param dwl::robot::Robot* robot The robot defines all the properties of the robot
-		 * @param dwl::locomotion::BodyPlanner* motion_planner The motion planner computes body path and trajectory, and pose
-		 * @param dwl::locomotion::ContactPlanning* contact_planner The contact planner computes the contact sequence
-		 * @param dwl::environment::EnvironmentInformation* environment Encapsulates all the information of the environment
+		 * @brief Defines the settings required for a decoupled approach
+		 * @param Robot* The robot defines all the properties of the robot
+		 * @param BodyPlanner* A body planner could computed body paths, poses or/and trajectories
+		 * @param ContactPlanning* A contact planner computes the contact sequence
+		 * @param EnvironmentInformation* Encapsulates all the information of the environment
 		 */
-		void reset(robot::Robot* robot, MotionPlanning* motion_planner, ContactPlanning* contact_planner, environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot, MotionPlanning* motion_planner, ContactPlanning* contact_planner,
+					environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Adds an active or inactive constraints to the planning algorithm
-		 * @param dwl::locomotion::Constraint* constraint Pointer to the constraint class
+		 * @param Constraint* Constraint to add it
 		 */
 		void addConstraint(Constraint* constraint);
 
 		/**
 		 * @brief Removes an active or inactive constraints to the planning algorithm
-		 * @param dwl::locomotion::Constraint* constraint Pointer to the constraint class
+		 * @param Constraint* Constraint to remove it
 		 */
 		void removeConstraint(std::string constraint_name);
 
 		/**
-		 * @brief Adds a cost for the optimization problem of the planning algorithm
-		 * @param dwl::locomotion::Cost* Pointer to the cost class
+		 * @brief Adds a cost function for the planning algorithm
+		 * @param Cost* Cost to add it
 		 */
 		void addCost(Cost* cost);
 
 		/**
-		 * @brief Removes a cost for the optimization problem of the planning algorithm
-		 * @param dwl::locomotion::Cost* Pointer to the cost class
+		 * @brief Removes a cost function for the planning algorithm
+		 * @param Cost* Cost to remove it
 		 */
 		void removeCost(std::string cost_name);
 
 		/**
-		 * @brief Initialized the planner
-		 * @param bool Return true if it was initialized the planner
+		 * @brief Initializes the planner
+		 * @param True if it was initialized the planner
 		 */
 		bool initPlan();
 
 		/**
 		 * @brief Abstract method for initialization of a plan
-		 * @param std::vector<double> start Initial state
-		 * @param std::vector<double> goal Goal state to arrive
+		 * @return True if it was initialized the planner
 		 */
 		virtual bool init() = 0;
 
 		/**
 		 * @brief Updates the start and goal pose of the robot
-		 * @param dwl::Pose goal Goal pose
+		 * @param Pose Goal pose
 		 */
 		virtual void resetGoal(Pose goal) = 0;
 
 		/**
-		 * @brief Computes the motion planning
-		 * @param dwl::planning::Pose robot_state Robot pose
-		 * @return bool Return true if it was computed the plan
+		 * @brief Computes the motion plan
+		 * @param Pose Robot pose
+		 * @return True if it was computed the plan
 		 */
 		bool computePlan(Pose robot_state);
 
 		/**
-		 * @brief Abstract method for the computation a motion plan according to added constraints and costs in the optimization problem
-		 * @param dwl::planning::Pose robot_state Robot pose
-		 * @return bool Return true if it was found a plan
+		 * @brief Abstract method for the computation a motion plan according to added constraints and costs
+		 * in the optimization problem
+		 * @param Pose Robot pose
+		 * @return True if it was found a plan
 		 */
 		virtual bool compute(Pose robot_state) = 0;
 
 		/**
-		 * @brief Sets the reward information of the environment inside of the pointer of the EnvironmentInformation object, which could be used for differents solvers
-		 * @param std::vector<Cell> reward_map Reward map of the environment
+		 * @brief Sets the reward information of the environment inside of the pointer of the
+		 * EnvironmentInformation object, which could be used for different solvers
+		 * @param std::vector<Cell> Reward map of the environment
 		 */
 		void setEnvironmentInformation(std::vector<RewardCell> reward_map);
 
 		/**
-		 * @brief Sets the obstacle information of the environment inside of the pointer of the EnvironmentInformation object, which could be used for differents solvers
-		 * @param std::vector<Cell> obstacle_map Obstacle map of the environment
+		 * @brief Sets the obstacle information of the environment inside of the pointer of the
+		 * EnvironmentInformation object, which could be used for different solvers
+		 * @param std::vector<Cell> Obstacle map of the environment
 		 */
 		void setEnvironmentInformation(std::vector<Cell> obstacle_map);
 
 		/**
 		 * @brief Sets the allowed computation time for a coupled planner
-		 * @param double computation_time Allowed computation time
+		 * @param double Allowed computation time
 		 */
 		void setComputationTime(double computation_time);
 
 		/**
 		 * @brief Sets the allowed computation time for a decoupled planner
-		 * @param double computation_time Allowed computation time
-		 * @param dwl::TypeOfSolver solver Type of solver to set the allowed computation time
+		 * @param double Allowed computation time
+		 * @param TypeOfSolver Type of solver to set the allowed computation time
 		 */
 		void setComputationTime(double computation_time, TypeOfSolver solver);
 
 		/**
 		 * @brief Gets the approximated body path
-		 * @return std::vector<Pose> Return the approximated body path
+		 * @return The approximated body path
 		 */
 		std::vector<Pose> getBodyPath();
 
+		/**
+		 * @brief Gets the planned contact sequence
+		 * @return The sequence of contacts
+		 */
 		std::vector<Contact> getContactSequence();
 
 		/**
 		 * @brief Gets the name of the planner
-		 * @return std::string Return the name of the planner
+		 * @return The name of the planner
 		 */
 		std::string getName();
+
 
 	protected:
 		/** @brief Name of the planner */
@@ -189,7 +200,7 @@ class PlanningOfMotionSequence
 
 
 	private:
-		/** @brief Indicates if it was settep a solver algorithm for the computation of a plan */
+		/** @brief Indicates if it was set a solver algorithm for the computation of a plan */
 		bool is_set_solver_;
 
 		/** @brief Indicates it was initialized the planning algorithm */

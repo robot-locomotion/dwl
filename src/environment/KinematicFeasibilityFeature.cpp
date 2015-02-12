@@ -7,8 +7,9 @@ namespace dwl
 namespace environment
 {
 
-KinematicFeasibilityFeature::KinematicFeasibilityFeature(double kin_lim_x, double kin_lim_y, double stable_displacement) :
-		kin_lim_x_(kin_lim_x), kin_lim_y_(kin_lim_y), stable_displacement_(stable_displacement)
+KinematicFeasibilityFeature::KinematicFeasibilityFeature(double kin_lim_x, double kin_lim_y,
+		double stable_displacement) : kin_lim_x_(kin_lim_x), kin_lim_y_(kin_lim_y),
+				stable_displacement_(stable_displacement)
 {
 	name_ = "Kinematic Feasibility";
 }
@@ -42,7 +43,8 @@ void KinematicFeasibilityFeature::computeReward(double& reward_value, RobotAndTe
 	if (displacement >= stable_displacement_)
 		reward_value = 0;
 	else if (displacement > max_allowed_displacement) {
-		reward_value = log(0.75 * (displacement - max_allowed_displacement) / (stable_displacement_ - max_allowed_displacement));
+		reward_value = log(0.75 * (displacement - max_allowed_displacement) /
+				(stable_displacement_ - max_allowed_displacement));
 		if (min_reward_ > reward_value)
 			reward_value = min_reward_;
 	} else

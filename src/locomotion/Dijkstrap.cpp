@@ -22,7 +22,7 @@ Dijkstrap::~Dijkstrap()
 
 bool Dijkstrap::init()
 {
-	printf("Initialized the Dijkstrap algortihm\n");
+	printf("Initialized the Dijkstrap algorithm\n");
 	return true;
 }
 
@@ -30,7 +30,8 @@ bool Dijkstrap::init()
 bool Dijkstrap::compute(Vertex source, Vertex target, double computation_time)
 {
 	if (!is_set_adjacency_model_) {
-		printf(RED "Could not computed the shortest path because it is required to defined an adjacency model\n" COLOR_RESET);
+		printf(RED "Could not computed the shortest path because it is required to defined an adjacency model\n"
+				COLOR_RESET);
 		return false;
 	} else if (adjacency_->isLatticeRepresentation()) {
 		printf(RED "Could not computed the shortest path because it is lattice representation\n" COLOR_RESET);
@@ -75,7 +76,7 @@ void Dijkstrap::findShortestPath(Vertex source, Vertex target, AdjacencyMap adja
 		Vertex current = vertex_queue.begin()->second;
 		vertex_queue.erase(vertex_queue.begin());
 
-		// Checking if it is getted the target
+		// Checking if it is get the target
 		if (adjacency_->isReachedGoal(target, current)) {
 			policy_[target] = current;
 			min_cost[target] = min_cost[current];

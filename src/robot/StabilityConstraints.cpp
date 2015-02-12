@@ -25,5 +25,5 @@ void StabilityConstraints::get(Eigen::VectorXd& constraint, Eigen::VectorXd stat
 	printf("Getting stability constraints\n");
 }
 
-} //@namespace hyq
+} //@namespace robot
 } //@namespace dwl

@@ -12,7 +12,8 @@ namespace locomotion
 
 /**
  * @class AStar
- * @brief Class for solving a shortest-search problem using the A* algorithm
+ * @brief Class for solving a shortest-search problem using the A* algorithm. This class derives from the Solver
+ * class
  */
 class AStar : public Solver
 {
@@ -25,25 +26,25 @@ class AStar : public Solver
 
 		/**
 		 * @brief Initializes the A* algorithm
-		 * @return bool Return true if A* algorithm was initialized
+		 * @return True if A* algorithm was initialized
 		 */
 		bool init();
 
 		/**
 		 * @brief Computes a shortest-path using A* algorithm
-		 * @param dwl::Vertex source Source vertex
-		 * @param dwl::Vertex target Target vertex
-		 * @param double computation_time Allowed time for computing a solution (in seconds)
-		 * @return bool Return true if it was computed a solution
+		 * @param Vertex Source vertex
+		 * @param Vertex Target vertex
+		 * @param double Allowed time for computing a solution (in seconds)
+		 * @return True if it was computed a solution
 		 */
 		bool compute(Vertex source, Vertex target,	double computation_time = std::numeric_limits<double>::max());
 
 
 	private:
 		/**
-		 * @brief Computes the minimun cost and previous vertex according to the shortest A* path
-		 * @param Vertex source Source vertex
-		 * @param Vertex target Target vertex
+		 * @brief Computes the minimum cost and previous vertex according to the shortest A* path
+		 * @param Vertex Source vertex
+		 * @param Vertex Target vertex
 		 */
 		void findShortestPath(Vertex source, Vertex target);
 
@@ -53,6 +54,5 @@ class AStar : public Solver
 
 } //@namespace locomotion
 } //@namespace dwl
-
 
 #endif

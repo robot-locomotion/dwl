@@ -23,31 +23,31 @@ class WholeBodyLocomotion
 
 		/**
 		 * @brief Resets the planning of motion sequences algorithm
-		 * @param dwl::locomotion::PlanningOfMotionSequences* planner Pointer to the planner
+		 * @param PlanningOfMotionSequences* Pointer to the planner
 		 */
 		void reset(locomotion::PlanningOfMotionSequence* planner);
 
 		/**
 		 * @brief Adds a constraint to the locomotion approach
-		 * @param dwl::locomotion::Constraint* constraint Pointer to the constraint class
+		 * @param Constraint* Pointer to the constraint class
 		 */
 		void addConstraint(locomotion::Constraint* constraint);
 
 		/**
 		 * @brief Removes a constraint to the locomotion approach
-		 * @param std::string constraint_name Name of the constraint
+		 * @param std::string Name of the constraint
 		 */
 		void removeConstraint(std::string constraint_name);
 
 		/**
 		 * @brief Adds a cost to the locomotion approach
-		 * @param dwl::locomotion::Cost* cost Pointer to the cost class
+		 * @param Cost* Pointer to the cost class
 		 */
 		void addCost(locomotion::Cost* cost);
 
 		/**
 		 * @brief Removes a cost to the locomotion approach
-		 * @param std::string cost_name Name of the cost
+		 * @param std::string Name of the cost
 		 */
 		void removeCost(std::string cost_name);
 
@@ -58,48 +58,52 @@ class WholeBodyLocomotion
 
 		/**
 		 * @brief Updates the start and goal pose of the robot for making a receding horizon planning
-		 * @param dwl::Pose goal Goal pose
+		 * @param Pose Goal pose
 		 */
 		void resetGoal(Pose goal);
 
 		/**
 		 * @brief Computes a locomotion plan
-		 * @param dwl::Pose current_pose Current pose
-		 * @return bool Return true if was found a locomotion plan
+		 * @param Pose Current pose
+		 * @return True if was found a locomotion plan
 		 */
 		bool compute(Pose current_pose);
 
 		/**
 		 * @brief Sets the reward map of the terrain
-		 * @param std::vector<dwl::RewardCell> reward_map Reward map of the terrain
+		 * @param std::vector<RewardCell> Reward map of the terrain
 		 */
 		void setTerrainInformation(std::vector<RewardCell> reward_map);
 
 		/**
 		 * @brief Sets the obstacle map of the terrain
-		 * @param std::vector<dwl::Cell> obstacle_map Obstacle map of the terrain
+		 * @param std::vector<Cell> Obstacle map of the terrain
 		 */
 		void setTerrainInformation(std::vector<Cell> obstacle_map);
 
 		/**
 		 * @brief Sets the allowed computation time for a coupled planner
-		 * @param double computation_time Allowed computation time
+		 * @param double Allowed computation time
 		 */
 		void setComputationTime(double computation_time);
 
 		/**
 		 * @brief Sets the allowed computation time for a decoupled planner
-		 * @param double computation_time Allowed computation time
-		 * @param dwl::TypeOfSolver solver Type of solver to set the allowed computation time
+		 * @param double Allowed computation time
+		 * @param TypeOfSolver Type of solver to set the allowed computation time
 		 */
 		void setComputationTime(double computation_time, TypeOfSolver solver);
 
 		/**
 		 * @brief Gets the approximated body path
-		 * @return std::vector<dwl::Pose> Return the approximated body path
+		 * @return The approximated body path
 		 */
 		std::vector<Pose> getBodyPath();
 
+		/**
+		 * @brief Gets the planned contact sequence
+		 * @return The sequence of contacts
+		 */
 		std::vector<Contact> getContactSequence();
 
 
@@ -112,10 +116,6 @@ class WholeBodyLocomotion
 
 		/** @brief Indicates if it is using a learning technique */
 		bool is_learning_;
-
-
-	protected:
-	
 };
 
 } //@namespace dwl

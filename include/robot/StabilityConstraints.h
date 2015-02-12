@@ -23,7 +23,7 @@ class StabilityConstraints : public locomotion::Constraint
 
 };
 
-} //@namespace hyq
+} //@namespace robot
 } //@namespace dwl
 
 #endif

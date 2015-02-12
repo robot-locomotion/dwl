@@ -21,16 +21,16 @@ class AnytimeRepairingAStar : public Solver
 
 		/**
 		 * @brief Initializes the ARA* algorithm
-		 * @return bool Return true if ARA* algorithm was initialized
+		 * @return True if ARA* algorithm was initialized
 		 */
 		bool init();
 
 		/**
 		 * @brief Computes a shortest-path using ARA* algorithm
-		 * @param dwl::Vertex source Source vertex
-		 * @param dwl::Vertex target Target vertex
-		 * @param double computation_time Allowed time for computing a solution (in seconds)
-		 * @return bool Return true if it was computed a solution
+		 * @param Vertex Source vertex
+		 * @param Vertex Target vertex
+		 * @param double Allowed time for computing a solution (in seconds)
+		 * @return True if it was computed a solution
 		 */
 		bool compute(Vertex source, Vertex target,	double computation_time = std::numeric_limits<double>::max());
 
@@ -44,10 +44,10 @@ class AnytimeRepairingAStar : public Solver
 	private:
 		/**
 		 * @brief Improves the path according to inflation gain
-		 * @param dwl::SetQueue& openset_queue Openset queue
-		 * @param dwl::Set& visitedset Visited set
-		 * @param dwl::Vertex target Target vertex
-		 * @return Returns true if the path was improved
+		 * @param SetQueue& openset_queue Openset queue
+		 * @param Set& visitedset Visited set
+		 * @param Vertex target Target vertex
+		 * @return True if the path was improved
 		 */
 		bool improvePath(SetQueue& openset_queue, Set& visitedset, Vertex target,	double computation_time);
 

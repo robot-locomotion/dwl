@@ -7,9 +7,8 @@ namespace dwl
 namespace locomotion
 {
 
-Solver::Solver() : robot_(NULL), environment_(NULL), adjacency_(NULL),
-		is_graph_searching_algorithm_(false), is_optimization_algorithm_(false),
-		total_cost_(std::numeric_limits<double>::max()), time_started_(clock()),
+Solver::Solver() : robot_(NULL), environment_(NULL), adjacency_(NULL), is_graph_searching_algorithm_(false),
+		is_optimization_algorithm_(false),total_cost_(std::numeric_limits<double>::max()), time_started_(clock()),
 		is_set_adjacency_model_(false)
 {
 
@@ -24,12 +23,14 @@ Solver::~Solver()
 
 void Solver::reset(robot::Robot* robot, environment::EnvironmentInformation* environment)
 {
-	printf(BLUE "Setting the robot and environment information in the %s solver\n" COLOR_RESET, getName().c_str());
+	printf(BLUE "Setting the robot and environment information in the %s solver\n" COLOR_RESET,
+			getName().c_str());
 	robot_ = robot;
 	environment_ = environment;
 
 	if (!(is_graph_searching_algorithm_) && (!is_set_adjacency_model_)) {
-		printf(YELLOW "Warning: Could not be set the robot and environment information in the adjacency model \n" COLOR_RESET);
+		printf(YELLOW "Warning: Could not be set the robot and environment information in the adjacency model \n"
+				COLOR_RESET);
 		return;
 	}
 
@@ -39,7 +40,8 @@ void Solver::reset(robot::Robot* robot, environment::EnvironmentInformation* env
 
 void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_model)
 {
-	printf(BLUE "Setting the %s adjacency model in the %s solver\n" COLOR_RESET, adjacency_model->getName().c_str(), getName().c_str());
+	printf(BLUE "Setting the %s adjacency model in the %s solver\n" COLOR_RESET,
+			adjacency_model->getName().c_str(), getName().c_str());
 	adjacency_ = adjacency_model;
 	is_set_adjacency_model_ = true;
 }
@@ -48,9 +50,11 @@ void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_mode
 bool Solver::compute(Vertex source, Vertex target, double computation_time)
 {
 	if (is_graph_searching_algorithm_)
-		printf(YELLOW "Could not compute the shortest-path because the %s was not defined an algorithm\n" COLOR_RESET, name_.c_str());
+		printf(YELLOW "Could not compute the shortest-path because the %s was not defined an algorithm\n"
+				COLOR_RESET, name_.c_str());
 	else
-		printf(YELLOW "Could not compute the shortest-path because the %s is not a graph-searching algorithm\n" COLOR_RESET, name_.c_str());
+		printf(YELLOW "Could not compute the shortest-path because the %s is not a graph-searching algorithm\n"
+				COLOR_RESET, name_.c_str());
 
 	return false;
 }
@@ -61,9 +65,11 @@ bool Solver::compute(Eigen::MatrixXd hessian, Eigen::VectorXd gradient,
 		Eigen::VectorXd low_constraint, Eigen::VectorXd upper_constraint)
 {
 	if (is_optimization_algorithm_)
-			printf(YELLOW "Could not compute the optimal solution because the %s was not defined an algorithm\n" COLOR_RESET, name_.c_str());
+			printf(YELLOW "Could not compute the optimal solution because the %s was not defined an algorithm\n"
+					COLOR_RESET, name_.c_str());
 		else
-			printf(YELLOW "Could not compute the optimal solution the %s is not a graph-searchin algorithm\n" COLOR_RESET, name_.c_str());
+			printf(YELLOW "Could not compute the optimal solution the %s is not a graph-searching algorithm\n"
+					COLOR_RESET, name_.c_str());
 
 	return false;
 }
@@ -83,7 +89,8 @@ std::list<Vertex> Solver::getShortestPath(Vertex source, Vertex target)
 				break;
 		}
 	} else {
-		printf(YELLOW "Could not get the shortest path because the %s is not a graph-searchin algorithm\n" COLOR_RESET, name_.c_str());
+		printf(YELLOW "Could not get the shortest path because the %s is not a graph-searching algorithm\n"
+				COLOR_RESET, name_.c_str());
 	}
 
 	return path;

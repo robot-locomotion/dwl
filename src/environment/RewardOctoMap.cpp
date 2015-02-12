@@ -240,7 +240,8 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 		addCellToRewardMap(cell);
 	}
 	else {
-		printf(YELLOW "Could not computed the reward of the features because it is necessary to add at least one\n" COLOR_RESET);
+		printf(YELLOW "Could not computed the reward of the features because it is necessary to add at least one\n"
+				COLOR_RESET);
 	}
 }
 

@@ -7,6 +7,11 @@ namespace dwl
 namespace locomotion
 {
 
+/**
+ * @class SearchBasedBodyMotionPlanning
+ * @brief SearchBasedBodyMotionPlanning is derived from MotionPlanning and computes the body path based on
+ * search algorithm such as A*, ARA*, etc.
+ */
 class SearchBasedBodyMotionPlanning : public MotionPlanning
 {
 	public:
@@ -18,9 +23,9 @@ class SearchBasedBodyMotionPlanning : public MotionPlanning
 
 		/**
 		 * @brief Computes the body path from start pose to goal pose
-		 * @param std::vector<dwl::Pose>& body_path Body path
-		 * @param dwl::Pose start_pose Start pose
-		 * @param dwl::Pose goal_pose Goal pose
+		 * @param std::vector<Pose>& Planned body path
+		 * @param Pose Start pose
+		 * @param Pose Goal pose
 		 */
 		bool computePath(std::vector<Pose>& body_path, Pose start_pose, Pose goal_pose);
 };

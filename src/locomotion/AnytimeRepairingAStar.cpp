@@ -8,7 +8,8 @@ namespace dwl
 namespace locomotion
 {
 
-AnytimeRepairingAStar::AnytimeRepairingAStar(double initial_inflation) : initial_inflation_(initial_inflation), satisfied_inflation_(1.0),
+AnytimeRepairingAStar::AnytimeRepairingAStar(double initial_inflation) :
+		initial_inflation_(initial_inflation), satisfied_inflation_(1.0),
 		min_f_cost_(std::numeric_limits<double>::max()), expansions_(0)
 {
 	name_ = "Anytime Repairing A*";

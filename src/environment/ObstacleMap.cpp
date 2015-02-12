@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-ObstacleMap::ObstacleMap() : space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
+ObstacleMap::ObstacleMap() :
+		space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
 		depth_(16), is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()),
 		interest_radius_y_(std::numeric_limits<double>::max()), resolution_(std::numeric_limits<double>::max())
 {
@@ -119,7 +120,8 @@ void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 }
 
 
-void ObstacleMap::addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_resolution)
+void ObstacleMap::addSearchArea(double min_x, double max_x, double min_y, double max_y,
+		double min_z, double max_z, double grid_resolution)
 {
 	SearchArea search_area;
 	search_area.min_x = min_x;
@@ -158,7 +160,8 @@ void ObstacleMap::removeObstacleOutsideInterestRegion(Eigen::Vector3d robot_stat
 		double xc = point(0) - robot_state(0);
 		double yc = point(1) - robot_state(1);
 		if (xc * cos(yaw) + yc * sin(yaw) >= 0.0) {
-			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1)
+			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) +
+					pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1)
 				obstacle_map_.erase(v);
 		} else {
 			if (pow(xc, 2) + pow(yc, 2) > pow(interest_radius_x_, 2))
