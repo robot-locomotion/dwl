@@ -3,16 +3,16 @@
 
 #include <ros/ros.h>
 
-// Planning headers
-#include <planning/WholeBodyLocomotion.h>
-#include <planning/HierarchicalPlanning.h>
-#include <planning/MotionPlanning.h>
-#include <planning/SearchBasedBodyMotionPlanning.h>
-#include <planning/ContactPlanning.h>
-#include <planning/GreedyFootstepPlanning.h>
-#include <planning/Dijkstrap.h>
-#include <planning/AStar.h>
-#include <planning/AnytimeRepairingAStar.h>
+// Locomotion headers
+#include <locomotion/WholeBodyLocomotion.h>
+#include <locomotion/HierarchicalPlanning.h>
+#include <locomotion/MotionPlanning.h>
+#include <locomotion/SearchBasedBodyMotionPlanning.h>
+#include <locomotion/ContactPlanning.h>
+#include <locomotion/GreedyFootstepPlanning.h>
+#include <locomotion/Dijkstrap.h>
+#include <locomotion/AStar.h>
+#include <locomotion/AnytimeRepairingAStar.h>
 
 // Robot and Environment headers
 #include <robot/Robot.h>
@@ -147,13 +147,17 @@ class HierarchicalPlanners
 		dwl::WholeBodyLocomotion locomotor_;
 
 		/** @brief Planning of motion sequences pointer */
-		dwl::planning::PlanningOfMotionSequences* planning_ptr_;
+		dwl::locomotion::PlanningOfMotionSequences* planning_ptr_;
 
 		/** @brief Body planner */
-		dwl::planning::MotionPlanning* body_planner_ptr_;
+		dwl::locomotion::MotionPlanning* body_planner_ptr_;
 
 		/** @brief Contact planner */
-		dwl::planning::ContactPlanning* footstep_planner_ptr_;
+		dwl::locomotion::ContactPlanning* footstep_planner_ptr_;
+
+		/** @brief Solver pointer */
+		dwl::locomotion::Solver* body_path_solver_ptr_;
+
 
 		dwl::environment::AdjacencyEnvironment* adjacency_ptr_;
 
@@ -162,9 +166,6 @@ class HierarchicalPlanners
 
 		/** @brief Robot properties */
 		dwl::robot::Robot robot_;
-
-		/** @brief Solver pointer */
-		dwl::planning::Solver* body_path_solver_ptr_;
 
 		/** @brief Current robot pose */
 		dwl::Pose current_pose_;

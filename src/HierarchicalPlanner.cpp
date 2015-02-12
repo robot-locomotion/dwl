@@ -65,7 +65,7 @@ void HierarchicalPlanners::init()
 
 
 	//  Setting the locomotion approach
-	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
+	planning_ptr_ = new dwl::locomotion::HierarchicalPlanning();
 
 	// Init the robot properties
 	initRobot();
@@ -131,9 +131,9 @@ void HierarchicalPlanners::initBodyPlanner()
 	std::string planner_name;
 	private_node_.param("body_planner/type", planner_name, (std::string) "SearchBasedBody");
 	if (planner_name == "SearchBasedBody")
-		body_planner_ptr_ = new dwl::planning::SearchBasedBodyMotionPlanning();
+		body_planner_ptr_ = new dwl::locomotion::SearchBasedBodyMotionPlanning();
 	else
-		body_planner_ptr_ = new dwl::planning::SearchBasedBodyMotionPlanning();
+		body_planner_ptr_ = new dwl::locomotion::SearchBasedBodyMotionPlanning();
 
 	// Getting the body path solver
 	std::string path_solver_name;
@@ -142,13 +142,13 @@ void HierarchicalPlanners::initBodyPlanner()
 		// Reads the initial inflation value
 		double inflation = 3;
 		private_node_.param("body_planner/initial_inflation", inflation, inflation);
-		body_path_solver_ptr_ = new dwl::planning::AnytimeRepairingAStar(inflation);
+		body_path_solver_ptr_ = new dwl::locomotion::AnytimeRepairingAStar(inflation);
 	} else if (path_solver_name == "AStar")
-		body_path_solver_ptr_ = new dwl::planning::AStar();
+		body_path_solver_ptr_ = new dwl::locomotion::AStar();
 	else if (path_solver_name == "Dijkstrap")
-		body_path_solver_ptr_ = new dwl::planning::Dijkstrap();
+		body_path_solver_ptr_ = new dwl::locomotion::Dijkstrap();
 	else
-		body_path_solver_ptr_ = new dwl::planning::AnytimeRepairingAStar();
+		body_path_solver_ptr_ = new dwl::locomotion::AnytimeRepairingAStar();
 
 
 	// Getting the adjacency model
@@ -213,9 +213,9 @@ void HierarchicalPlanners::initContactPlanner()
 
 	private_node_.param(path + "type", planner_name, (std::string) "GreedyFootstep");
 	if (planner_name == "GreedyFootstep")
-		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning(remove_enable, distance_threshold);
+		footstep_planner_ptr_ = new dwl::locomotion::GreedyFootstepPlanning(remove_enable, distance_threshold);
 	else
-		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning(remove_enable, distance_threshold);
+		footstep_planner_ptr_ = new dwl::locomotion::GreedyFootstepPlanning(remove_enable, distance_threshold);
 
 	// Setting the features for the footstep planner
 	bool support_enable, collision_enable, orientation_enable;
