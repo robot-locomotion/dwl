@@ -25,6 +25,7 @@
 #include <environment/SupportTriangleFeature.h>
 #include <environment/LegCollisionFeature.h>
 #include <environment/BodyOrientationFeature.h>
+#include <environment/KinematicFeasibilityFeature.h>
 
 // Messages headers
 #include <dwl_planners/ContactSequence.h>
