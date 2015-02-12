@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	// Initialization of planning algorithm, which includes the initialization and setup of solver algorithm
 	dwl::robot::Robot* robot_ptr = NULL;
 	dwl::locomotion::Solver* solver_ptr = new dwl::locomotion::Dijkstrap();
-	dwl::locomotion::PlanningOfMotionSequences* planning_ptr = new dwl::locomotion::HierarchicalPlanning();
+	dwl::locomotion::PlanningOfMotionSequence* planning_ptr = new dwl::locomotion::HierarchicalPlanning();
 	dwl::environment::EnvironmentInformation* environment_ptr = NULL;
 	planning_ptr->reset(robot_ptr, solver_ptr, environment_ptr);
 

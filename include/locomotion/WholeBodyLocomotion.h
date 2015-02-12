@@ -1,7 +1,7 @@
 #ifndef DWL_WholeBodyLocomotion_H
 #define DWL_WholeBodyLocomotion_H
 
-#include <locomotion/PlanningOfMotionSequences.h>
+#include <locomotion/PlanningOfMotionSequence.h>
 
 
 namespace dwl
@@ -25,28 +25,28 @@ class WholeBodyLocomotion
 		 * @brief Resets the planning of motion sequences algorithm
 		 * @param dwl::locomotion::PlanningOfMotionSequences* planner Pointer to the planner
 		 */
-		void reset(locomotion::PlanningOfMotionSequences* planner);
+		void reset(locomotion::PlanningOfMotionSequence* planner);
 
 		/**
-		 * @brief Adds a constraint to the locomotor
+		 * @brief Adds a constraint to the locomotion approach
 		 * @param dwl::locomotion::Constraint* constraint Pointer to the constraint class
 		 */
 		void addConstraint(locomotion::Constraint* constraint);
 
 		/**
-		 * @brief Removes a constraint to the locomotor
+		 * @brief Removes a constraint to the locomotion approach
 		 * @param std::string constraint_name Name of the constraint
 		 */
 		void removeConstraint(std::string constraint_name);
 
 		/**
-		 * @brief Adds a cost to the locomotor
+		 * @brief Adds a cost to the locomotion approach
 		 * @param dwl::locomotion::Cost* cost Pointer to the cost class
 		 */
 		void addCost(locomotion::Cost* cost);
 
 		/**
-		 * @brief Removes a cost to the locomotor
+		 * @brief Removes a cost to the locomotion approach
 		 * @param std::string cost_name Name of the cost
 		 */
 		void removeCost(std::string cost_name);
@@ -105,7 +105,7 @@ class WholeBodyLocomotion
 
 	private:
 		/** @brief Pointer to the planner class */
-		locomotion::PlanningOfMotionSequences* planner_;
+		locomotion::PlanningOfMotionSequence* planner_;
 
 		/** @brief Indicates if it was set the planner algorithm */
 		bool is_set_planner_;

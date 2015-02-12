@@ -63,7 +63,7 @@ include_directories(src)
 #include_directories(${OCTOMAP_INCLUDE_DIRS}) #TODO Check this in the intense pc 
 
 set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
-							src/locomotion/PlanningOfMotionSequences.cpp 
+							src/locomotion/PlanningOfMotionSequence.cpp 
 							src/locomotion/HierarchicalPlanning.cpp
 							src/locomotion/MotionPlanning.cpp
 							src/locomotion/SearchBasedBodyMotionPlanning.cpp

@@ -1,7 +1,7 @@
 #ifndef DWL_HierarchicalPlanning_H
 #define DWL_HierarchicalPlanning_H
 
-#include <locomotion/PlanningOfMotionSequences.h>
+#include <locomotion/PlanningOfMotionSequence.h>
 
 
 namespace dwl
@@ -14,7 +14,7 @@ namespace locomotion
  * @class HierarchicalPlanning
  * @brief Class for solving the problem of planning of motion sequences using a hierarchical approach
  */
-class HierarchicalPlanning : public PlanningOfMotionSequences
+class HierarchicalPlanning : public PlanningOfMotionSequence
 {
 	public:
 		/** @brief Constructor function */

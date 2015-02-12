@@ -1,5 +1,5 @@
-#ifndef DWL_PlanningOfMotionSequences_H
-#define DWL_PlanningOfMotionSequences_H
+#ifndef DWL_PlanningOfMotionSequence_H
+#define DWL_PlanningOfMotionSequence_H
 
 #include <robot/Robot.h>
 #include <locomotion/MotionPlanning.h>
@@ -19,17 +19,17 @@ namespace locomotion
 {
 
 /**
- * @class PlanningOfMotionSequences
- * @brief Abstract class for solving the planning of motion sequence problem (optimization problem)
+ * @class PlanningOfMotionSequence
+ * @brief Abstract class for solving the planning of motion sequence problem
  */
-class PlanningOfMotionSequences
+class PlanningOfMotionSequence
 {
 	public:
 		/** @brief Constructor function */
-		PlanningOfMotionSequences();
+		PlanningOfMotionSequence();
 
 		/** @brief Destructor function */
-		virtual ~PlanningOfMotionSequences();
+		virtual ~PlanningOfMotionSequence();
 
 		/**
 		 * @brief Specifies the settings of all components within the decoupled approach for solving Planning of Motion Sequences problem

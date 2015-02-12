@@ -18,7 +18,7 @@ WholeBodyLocomotion::~WholeBodyLocomotion()
 }
 
 
-void WholeBodyLocomotion::reset(locomotion::PlanningOfMotionSequences* planner)
+void WholeBodyLocomotion::reset(locomotion::PlanningOfMotionSequence* planner)
 {
 	printf(BLUE "Setting the %s planner\n" COLOR_RESET, planner->getName().c_str());
 	is_set_planner_ = true;

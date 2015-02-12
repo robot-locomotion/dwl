@@ -1,4 +1,4 @@
-#include <locomotion/PlanningOfMotionSequences.h>
+#include <locomotion/PlanningOfMotionSequence.h>
 
 
 namespace dwl
@@ -7,7 +7,7 @@ namespace dwl
 namespace locomotion
 {
 
-PlanningOfMotionSequences::PlanningOfMotionSequences() : motion_planner_(NULL), contact_planner_(NULL), robot_(NULL), solver_(NULL),
+PlanningOfMotionSequence::PlanningOfMotionSequence() : motion_planner_(NULL), contact_planner_(NULL), robot_(NULL), solver_(NULL),
 		environment_(NULL), computation_time_(std::numeric_limits<double>::max()), is_set_solver_(false), is_initialized_planning_(false),
 		is_added_active_constraint_(false), is_added_inactive_constraint_(false), is_added_cost_(false)
 {
@@ -15,7 +15,7 @@ PlanningOfMotionSequences::PlanningOfMotionSequences() : motion_planner_(NULL), 
 }
 
 
-PlanningOfMotionSequences::~PlanningOfMotionSequences()
+PlanningOfMotionSequence::~PlanningOfMotionSequence()
 {
 	if (is_added_active_constraint_) {
 		for (std::vector<Constraint*>::iterator i = active_constraints_.begin(); i != active_constraints_.end(); i++)
@@ -32,7 +32,7 @@ PlanningOfMotionSequences::~PlanningOfMotionSequences()
 }
 
 
-void PlanningOfMotionSequences::reset(robot::Robot* robot, Solver* solver, environment::EnvironmentInformation* environment)
+void PlanningOfMotionSequence::reset(robot::Robot* robot, Solver* solver, environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the robot properties in the %s planner \n" COLOR_RESET, name_.c_str());
 	robot_ = robot;
@@ -47,7 +47,7 @@ void PlanningOfMotionSequences::reset(robot::Robot* robot, Solver* solver, envir
 }
 
 
-void PlanningOfMotionSequences::reset(robot::Robot* robot, MotionPlanning* motion_planner, ContactPlanning* contact_planner,
+void PlanningOfMotionSequence::reset(robot::Robot* robot, MotionPlanning* motion_planner, ContactPlanning* contact_planner,
 		environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the robot properties in the %s planner \n" COLOR_RESET, name_.c_str());
@@ -68,7 +68,7 @@ void PlanningOfMotionSequences::reset(robot::Robot* robot, MotionPlanning* motio
 }
 
 
-void PlanningOfMotionSequences::addConstraint(Constraint* constraint)
+void PlanningOfMotionSequence::addConstraint(Constraint* constraint)
 {
 	if (constraint->isActive()) {
 		printf(GREEN "Adding the active %s constraint\n" COLOR_RESET, constraint->getName().c_str());
@@ -87,7 +87,7 @@ void PlanningOfMotionSequences::addConstraint(Constraint* constraint)
 }
 
 
-void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
+void PlanningOfMotionSequence::removeConstraint(std::string constraint_name)
 {
 	int max_num_constraints;
 	if (is_added_active_constraint_ & is_added_inactive_constraint_)
@@ -138,7 +138,7 @@ void PlanningOfMotionSequences::removeConstraint(std::string constraint_name)
 }
 
 
-void PlanningOfMotionSequences::addCost(Cost* cost)
+void PlanningOfMotionSequence::addCost(Cost* cost)
 {
 	printf(GREEN "Adding the %s cost\n" COLOR_RESET, cost->getName().c_str());
 
@@ -147,7 +147,7 @@ void PlanningOfMotionSequences::addCost(Cost* cost)
 }
 
 
-void PlanningOfMotionSequences::removeCost(std::string cost_name)
+void PlanningOfMotionSequence::removeCost(std::string cost_name)
 {
 	if (is_added_cost_) {
 		if (costs_.size() == 0)
@@ -173,7 +173,7 @@ void PlanningOfMotionSequences::removeCost(std::string cost_name)
 }
 
 
-bool PlanningOfMotionSequences::initPlan()
+bool PlanningOfMotionSequence::initPlan()
 {
 	if (!is_set_solver_) {
 		printf(YELLOW "Could not initialized the %s planning because has not been set the solver\n" COLOR_RESET, name_.c_str());
@@ -190,7 +190,7 @@ bool PlanningOfMotionSequences::initPlan()
 }
 
 
-bool PlanningOfMotionSequences::computePlan(Pose robot_state)
+bool PlanningOfMotionSequence::computePlan(Pose robot_state)
 {
 	if (!is_initialized_planning_) {
 		printf(YELLOW "Could not executed the %s planning because has not been initialized\n" COLOR_RESET, name_.c_str());
@@ -206,14 +206,14 @@ bool PlanningOfMotionSequences::computePlan(Pose robot_state)
 }
 
 
-void PlanningOfMotionSequences::setComputationTime(double computation_time)
+void PlanningOfMotionSequence::setComputationTime(double computation_time)
 {
 	printf("Setting the allowed computation time of the solver of the coupled planner to %f \n", computation_time);
 	computation_time_ = computation_time;
 }
 
 
-void PlanningOfMotionSequences::setComputationTime(double computation_time, TypeOfSolver solver)
+void PlanningOfMotionSequence::setComputationTime(double computation_time, TypeOfSolver solver)
 {
 	switch (solver) {
 		case BodyPathSolver:
@@ -232,31 +232,31 @@ void PlanningOfMotionSequences::setComputationTime(double computation_time, Type
 }
 
 
-void PlanningOfMotionSequences::setEnvironmentInformation(std::vector<RewardCell> reward_map)
+void PlanningOfMotionSequence::setEnvironmentInformation(std::vector<RewardCell> reward_map)
 {
 	environment_->setEnvironmentInformation(reward_map);
 }
 
 
-void PlanningOfMotionSequences::setEnvironmentInformation(std::vector<Cell> obstacle_map)
+void PlanningOfMotionSequence::setEnvironmentInformation(std::vector<Cell> obstacle_map)
 {
 	environment_->setEnvironmentInformation(obstacle_map);
 }
 
 
-std::vector<Pose> PlanningOfMotionSequences::getBodyPath()
+std::vector<Pose> PlanningOfMotionSequence::getBodyPath()
 {
 	return body_path_;
 }
 
 
-std::vector<Contact> PlanningOfMotionSequences::getContactSequence()
+std::vector<Contact> PlanningOfMotionSequence::getContactSequence()
 {
 	return contacts_sequence_;
 }
 
 
-std::string PlanningOfMotionSequences::getName()
+std::string PlanningOfMotionSequence::getName()
 {
 	return name_;
 }

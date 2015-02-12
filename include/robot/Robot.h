@@ -32,7 +32,7 @@ class Robot
 
 		/**
 		 * @brief Reads the robot properties from a yaml file
-		 * @param std::string filepath File path of the yaml
+		 * @param std::string file path File path of the yaml
 		 */
 		void read(std::string filepath);
 
