@@ -1,10 +1,10 @@
-#include <locomotion/Solver.h>
+#include <solver/Solver.h>
 
 
 namespace dwl
 {
 
-namespace locomotion
+namespace solver
 {
 
 Solver::Solver() : robot_(NULL), environment_(NULL), adjacency_(NULL), is_graph_searching_algorithm_(false),
@@ -108,5 +108,5 @@ std::string Solver::getName()
 	return name_;
 }
 
-} //@namespace locomotion
+} //@namespace solver
 } //@namespace dwl

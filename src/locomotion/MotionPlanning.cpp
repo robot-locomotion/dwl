@@ -35,7 +35,7 @@ void MotionPlanning::reset(robot::Robot* robot, environment::EnvironmentInformat
 }
 
 
-void MotionPlanning::reset(Solver* solver)
+void MotionPlanning::reset(solver::Solver* solver)
 {
 	printf(BLUE "Setting the %s path solver in the %s planner\n" COLOR_RESET, solver->getName().c_str(),
 			name_.c_str());

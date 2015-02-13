@@ -1,13 +1,13 @@
 #ifndef DWL_AnytimeRepairingAStar_H
 #define DWL_AnytimeRepairingAStar_H
 
-#include <locomotion/Solver.h>
+#include <solver/Solver.h>
 
 
 namespace dwl
 {
 
-namespace locomotion
+namespace solver
 {
 
 class AnytimeRepairingAStar : public Solver
@@ -67,7 +67,7 @@ class AnytimeRepairingAStar : public Solver
 		int expansions_;
 };
 
-} //@namespace locomotion
+} //@namespace solver
 } //@namespace dwl
 
 #endif

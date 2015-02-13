@@ -69,12 +69,14 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							src/locomotion/SearchBasedBodyMotionPlanning.cpp
 							src/locomotion/ContactPlanning.cpp
 							src/locomotion/GreedyFootstepPlanning.cpp
-							src/locomotion/Solver.cpp
+							
+							src/solver/Solver.cpp
+							src/solver/Dijkstrap.cpp
+							src/solver/AStar.cpp
+							src/solver/AnytimeRepairingAStar.cpp
+							
 							src/locomotion/Cost.cpp
 							src/locomotion/Constraint.cpp
-							src/locomotion/Dijkstrap.cpp
-							src/locomotion/AStar.cpp
-							src/locomotion/AnytimeRepairingAStar.cpp
 							src/behavior/MotorPrimitives.cpp
 							src/behavior/BodyMotorPrimitives.cpp
 							src/environment/EnvironmentInformation.cpp

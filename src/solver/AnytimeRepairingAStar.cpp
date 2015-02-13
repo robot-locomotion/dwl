@@ -1,11 +1,11 @@
-#include <locomotion/AnytimeRepairingAStar.h>
+#include <solver/AnytimeRepairingAStar.h>
 #include <time.h>
 
 
 namespace dwl
 {
 
-namespace locomotion
+namespace solver
 {
 
 AnytimeRepairingAStar::AnytimeRepairingAStar(double initial_inflation) :
@@ -161,5 +161,5 @@ bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue, Set& visitedset
 	return true;
 }
 
-} //@namespace locomotion
+} //@namespace solver
 } //@namespace dwl

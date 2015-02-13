@@ -1,10 +1,10 @@
-#include <locomotion/AStar.h>
+#include <solver/AStar.h>
 
 
 namespace dwl
 {
 
-namespace locomotion
+namespace solver
 {
 
 AStar::AStar() : expansions_(0)
@@ -122,6 +122,6 @@ void AStar::findShortestPath(Vertex source, Vertex target)
 	total_cost_ = g_cost[target];
 }
 
-} //@namespace locomotion
+} //@namespace solver
 } //@namespace dwl
 

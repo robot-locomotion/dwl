@@ -1,13 +1,13 @@
 #ifndef DWL_AStar_H
 #define DWL_AStar_H
 
-#include <locomotion/Solver.h>
+#include <solver/Solver.h>
 
 
 namespace dwl
 {
 
-namespace locomotion
+namespace solver
 {
 
 /**
@@ -52,7 +52,7 @@ class AStar : public Solver
 		int expansions_;
 };
 
-} //@namespace locomotion
+} //@namespace solver
 } //@namespace dwl
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef DWL_Cost_H
 #define DWL_Cost_H
 
-#include <locomotion/Solver.h>
+#include <solver/Solver.h>
 #include <environment/RewardMap.h>
 
 #include <utils/utils.h>

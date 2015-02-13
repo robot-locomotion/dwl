@@ -1,4 +1,4 @@
-#include <locomotion/Dijkstrap.h>
+#include <solver/Dijkstrap.h>
 #include <locomotion/HierarchicalPlanning.h>
 #include <locomotion/WholeBodyLocomotion.cpp>
 
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
 	// Initialization of planning algorithm, which includes the initialization and setup of solver algorithm
 	dwl::robot::Robot* robot_ptr = NULL;
-	dwl::locomotion::Solver* solver_ptr = new dwl::locomotion::Dijkstrap();
+	dwl::solver::Solver* solver_ptr = new dwl::solver::Dijkstrap();
 	dwl::locomotion::PlanningOfMotionSequence* planning_ptr = new dwl::locomotion::HierarchicalPlanning();
 	dwl::environment::EnvironmentInformation* environment_ptr = NULL;
 	planning_ptr->reset(robot_ptr, solver_ptr, environment_ptr);

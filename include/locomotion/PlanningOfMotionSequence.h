@@ -4,7 +4,7 @@
 #include <robot/Robot.h>
 #include <locomotion/MotionPlanning.h>
 #include <locomotion/ContactPlanning.h>
-#include <locomotion/Solver.h>
+#include <solver/Solver.h>
 #include <locomotion/Constraint.h>
 #include <locomotion/Cost.h>
 #include <environment/EnvironmentInformation.h>
@@ -40,7 +40,7 @@ class PlanningOfMotionSequence
 		 * @param Solver* The solver that computes a motion plan, e.g. graph-searcher or optimizer
 		 * @param EnvironmentInformation* Encapsulates all the information of the environment
 		 */
-		void reset(robot::Robot* robot, Solver* solver, environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot, solver::Solver* solver, environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Defines the settings required for a decoupled approach
@@ -169,7 +169,7 @@ class PlanningOfMotionSequence
 		robot::Robot* robot_;
 
 		/** @brief Pointer to the solver algorithm */
-		Solver* solver_;
+		solver::Solver* solver_;
 
 		/** @brief Pointer to the environment information */
 		environment::EnvironmentInformation* environment_;

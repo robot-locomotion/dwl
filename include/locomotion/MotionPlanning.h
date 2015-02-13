@@ -1,7 +1,7 @@
 #ifndef DWL_MotionPlanning_H
 #define DWL_MotionPlanning_H
 
-#include <locomotion/Solver.h>
+#include <solver/Solver.h>
 #include <environment/EnvironmentInformation.h>
 #include <utils/utils.h>
 #include <utils/Orientation.h>
@@ -38,7 +38,7 @@ class MotionPlanning
 		 * @brief Defines the motion planning solver
 		 * @param Solver* Motion planning solver
 		 */
-		void reset(Solver* solver);
+		void reset(solver::Solver* solver);
 
 		/**
 		 * @brief Computes a path from start pose to goal pose
@@ -67,10 +67,10 @@ class MotionPlanning
 		robot::Robot* robot_;
 
 		/** @brief Pointer to the path solver */
-		Solver* path_solver_;
+		solver::Solver* path_solver_;
 
 		/** @brief Pointer to the pose solver */
-		Solver* pose_solver_;
+		solver::Solver* pose_solver_;
 
 		/** @brief Computation time for the path solver */
 		double path_computation_time_;

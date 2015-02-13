@@ -1,10 +1,10 @@
-#include <locomotion/Dijkstrap.h>
+#include <solver/Dijkstrap.h>
 
 
 namespace dwl
 {
 
-namespace locomotion
+namespace solver
 {
 
 Dijkstrap::Dijkstrap() : expansions_(0)
@@ -102,5 +102,5 @@ void Dijkstrap::findShortestPath(Vertex source, Vertex target, AdjacencyMap adja
 	}
 }
 
-} //@namespace locomotion
+} //@namespace solver
 } //@namespace dwl
