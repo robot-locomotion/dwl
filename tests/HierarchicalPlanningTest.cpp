@@ -3,8 +3,8 @@
 #include <locomotion/WholeBodyLocomotion.cpp>
 
 #include <robot/Robot.cpp>
-#include <robot/KinematicConstraints.cpp>
-#include <robot/StabilityConstraints.cpp>
+#include <constraint/KinematicConstraints.cpp>
+#include <constraint/StabilityConstraints.cpp>
 #include <robot/StateCost.cpp>
 #include <Eigen/Dense>
 
@@ -35,8 +35,8 @@ int main(int argc, char **argv)
 	dwl::environment::EnvironmentInformation* environment_ptr = NULL;
 	planning_ptr->reset(robot_ptr, solver_ptr, environment_ptr);
 
-	dwl::locomotion::Constraint* kin_constraint_ptr = new dwl::robot::KinematicConstraints();
-	dwl::locomotion::Constraint* stab_constraint_ptr = new dwl::robot::StabilityConstraints();
+	dwl::constraint::Constraint* kin_constraint_ptr = new dwl::constraint::KinematicConstraints();
+	dwl::constraint::Constraint* stab_constraint_ptr = new dwl::constraint::StabilityConstraints();
 	dwl::locomotion::Cost* state_cost_ptr = new dwl::robot::StateCost();
 
 	// Setting up the planner algorithm in the locomotion approach

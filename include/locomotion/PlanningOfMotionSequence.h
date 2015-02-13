@@ -5,7 +5,7 @@
 #include <locomotion/MotionPlanning.h>
 #include <locomotion/ContactPlanning.h>
 #include <solver/Solver.h>
-#include <locomotion/Constraint.h>
+#include <constraint/Constraint.h>
 #include <locomotion/Cost.h>
 #include <environment/EnvironmentInformation.h>
 
@@ -56,7 +56,7 @@ class PlanningOfMotionSequence
 		 * @brief Adds an active or inactive constraints to the planning algorithm
 		 * @param Constraint* Constraint to add it
 		 */
-		void addConstraint(Constraint* constraint);
+		void addConstraint(constraint::Constraint* constraint);
 
 		/**
 		 * @brief Removes an active or inactive constraints to the planning algorithm
@@ -175,10 +175,10 @@ class PlanningOfMotionSequence
 		environment::EnvironmentInformation* environment_;
 
 		/** @brief Vector of active constraints pointers */
-		std::vector<Constraint*> active_constraints_;
+		std::vector<constraint::Constraint*> active_constraints_;
 
 		/** @brief Vector of inactive constraints pointers */
-		std::vector<Constraint*> inactive_constraints_;
+		std::vector<constraint::Constraint*> inactive_constraints_;
 
 		/** @brief Vector of costs pointers */
 		std::vector<Cost*> costs_;

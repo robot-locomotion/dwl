@@ -68,15 +68,16 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							src/locomotion/MotionPlanning.cpp
 							src/locomotion/SearchBasedBodyMotionPlanning.cpp
 							src/locomotion/ContactPlanning.cpp
-							src/locomotion/GreedyFootstepPlanning.cpp
-							
+							src/locomotion/GreedyFootstepPlanning.cpp	
 							src/solver/Solver.cpp
 							src/solver/Dijkstrap.cpp
 							src/solver/AStar.cpp
 							src/solver/AnytimeRepairingAStar.cpp
+							src/constraint/Constraint.cpp
+							src/constraint/KinematicConstraints.cpp
+							src/constraint/StabilityConstraints.cpp
 							
 							src/locomotion/Cost.cpp
-							src/locomotion/Constraint.cpp
 							src/behavior/MotorPrimitives.cpp
 							src/behavior/BodyMotorPrimitives.cpp
 							src/environment/EnvironmentInformation.cpp
@@ -98,8 +99,6 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							src/environment/SupportTriangleFeature.cpp
 							src/environment/KinematicFeasibilityFeature.cpp
 							src/robot/Robot.cpp
-							src/robot/KinematicConstraints.cpp
-							src/robot/StabilityConstraints.cpp
 							src/robot/StateCost.cpp
 							src/utils/Math.cpp
 							src/utils/Orientation.cpp

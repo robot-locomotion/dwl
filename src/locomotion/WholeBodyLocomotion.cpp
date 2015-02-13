@@ -26,7 +26,7 @@ void WholeBodyLocomotion::reset(locomotion::PlanningOfMotionSequence* planner)
 }
 
 
-void WholeBodyLocomotion::addConstraint(locomotion::Constraint* constraint)
+void WholeBodyLocomotion::addConstraint(constraint::Constraint* constraint)
 {
 	if (is_set_planner_)
 		planner_->addConstraint(constraint);

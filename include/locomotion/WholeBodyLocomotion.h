@@ -31,7 +31,7 @@ class WholeBodyLocomotion
 		 * @brief Adds a constraint to the locomotion approach
 		 * @param Constraint* Pointer to the constraint class
 		 */
-		void addConstraint(locomotion::Constraint* constraint);
+		void addConstraint(constraint::Constraint* constraint);
 
 		/**
 		 * @brief Removes a constraint to the locomotion approach

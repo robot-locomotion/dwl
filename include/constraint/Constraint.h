@@ -7,7 +7,7 @@
 namespace dwl
 {
 
-namespace locomotion
+namespace constraint
 {
 
 /**
@@ -57,7 +57,7 @@ class Constraint
 		Eigen::VectorXd constraint_value_;
 };
 
-} //@namespace planning
+} //@namespace constraint
 } //@namespace dwl
 
 #endif

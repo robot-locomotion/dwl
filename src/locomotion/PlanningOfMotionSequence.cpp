@@ -18,7 +18,7 @@ PlanningOfMotionSequence::PlanningOfMotionSequence() : motion_planner_(NULL), co
 
 PlanningOfMotionSequence::~PlanningOfMotionSequence()
 {
-	typedef std::vector<Constraint*>::iterator ConstraintItr;
+	typedef std::vector<constraint::Constraint*>::iterator ConstraintItr;
 	typedef std::vector<Cost*>::iterator CostItr;
 	if (is_added_active_constraint_) {
 		for (ConstraintItr i = active_constraints_.begin(); i != active_constraints_.end(); i++)
@@ -73,7 +73,7 @@ void PlanningOfMotionSequence::reset(robot::Robot* robot, MotionPlanning* motion
 }
 
 
-void PlanningOfMotionSequence::addConstraint(Constraint* constraint)
+void PlanningOfMotionSequence::addConstraint(constraint::Constraint* constraint)
 {
 	if (constraint->isActive()) {
 		printf(GREEN "Adding the active %s constraint\n" COLOR_RESET, constraint->getName().c_str());

@@ -1,10 +1,10 @@
-#include <robot/KinematicConstraints.h>
+#include <constraint/KinematicConstraints.h>
 
 
 namespace dwl
 {
 
-namespace robot
+namespace constraint
 {
 
 KinematicConstraints::KinematicConstraints()
@@ -25,5 +25,5 @@ void KinematicConstraints::get(Eigen::VectorXd& constraint, Eigen::VectorXd stat
 	printf("Getting kinematic constraints\n");
 }
 
-} //@namespace robot
+} //@namespace constraint
 } //@namespace dwl

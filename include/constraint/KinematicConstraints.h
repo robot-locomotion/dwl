@@ -1,16 +1,16 @@
 #ifndef DWL_KinematicConstraints_H
 #define DWL_KinematicConstraints_H
 
-#include <locomotion/Constraint.h>
+#include <constraint/Constraint.h>
 
 
 namespace dwl
 {
 
-namespace robot
+namespace constraint
 {
 
-class KinematicConstraints : public locomotion::Constraint
+class KinematicConstraints : public constraint::Constraint
 {
 	public:
 		/** @brief Constructor function */
@@ -22,7 +22,7 @@ class KinematicConstraints : public locomotion::Constraint
 		void get(Eigen::VectorXd& constraint, Eigen::VectorXd state);
 };
 
-} //@namespace robot
+} //@namespace constraint
 } //@namespace dwl
 
 #endif
