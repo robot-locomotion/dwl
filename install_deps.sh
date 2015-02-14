@@ -136,6 +136,10 @@ if [ "$USER" != "root" ]; then
 	exit
 fi
 
+# Getting the path of the install_deps.sh file
+SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+
+# Printing the information of the shell script
 echo -e "${COLOR_BOLD}install_deps.sh - DWL Installation Script for Ubuntu Precise Pangolin 12.04${COLOR_RESET}"
 echo ""
 echo "Copyright (C) 2015 Carlos Mastalli"
@@ -165,8 +169,8 @@ read -s -p "Press enter to start the installation."
 echo ""
 
 
-mkdir -p thirdparty
-cd thirdparty
+mkdir -p ${SELF_PATH}/thirdparty
+cd ${SELF_PATH}/thirdparty
 
 ##---------------------------------------------------------------##
 ##---------------------- Installing Eigen -----------------------##
