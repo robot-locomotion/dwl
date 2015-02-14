@@ -8,7 +8,8 @@ namespace environment
 {
 
 BodyOrientationFeature::BodyOrientationFeature(double max_roll, double max_pitch) :
-		flat_orientation_(1.0 * (M_PI / 180.0)), max_roll_(max_roll * (M_PI / 180.0)), max_pitch_(max_pitch * (M_PI / 180.0))
+		flat_orientation_(1.0 * (M_PI / 180.0)), max_roll_(max_roll * (M_PI / 180.0)),
+		max_pitch_(max_pitch * (M_PI / 180.0))
 {
 	name_ = "Body Orientation";
 }

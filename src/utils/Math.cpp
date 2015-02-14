@@ -40,7 +40,8 @@ void Math::normalizeAngle(double& angle, AngleRepresentation angle_notation)
 			break;
 
 		default:
-			printf(YELLOW "Warning: it was not normalize the angle because the angle notation is incoherent \n" COLOR_RESET);
+			printf(YELLOW "Warning: it was not normalize the angle because the angle notation is "
+					"incoherent \n" COLOR_RESET);
 			break;
 	}
 }
@@ -73,7 +74,8 @@ void Math::computePlaneParameters(Eigen::Vector3d& normal, std::vector<Eigen::Ve
 }
 
 
-unsigned int Math::computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> cloud, Eigen::Matrix3d &covariance_matrix, Eigen::Vector3d &mean)
+unsigned int Math::computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> cloud,
+		Eigen::Matrix3d &covariance_matrix, Eigen::Vector3d &mean)
 {
 	// create the buffer on the stack which is much faster than using cloud[indices[i]] and mean as a buffer
 	Eigen::VectorXd accu = Eigen::VectorXd::Zero(9, 1);
@@ -111,7 +113,8 @@ unsigned int Math::computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> c
 }
 
 
-void Math::solvePlaneParameters(Eigen::Vector3d &normal_vector, double &curvature, const Eigen::Matrix3d covariance_matrix)
+void Math::solvePlaneParameters(Eigen::Vector3d &normal_vector, double &curvature,
+		const Eigen::Matrix3d covariance_matrix)
 {
 	// Extract the smallest eigenvalue and its eigenvector
 	EIGEN_ALIGN16 Eigen::Vector3d::Scalar eigenvalue;
@@ -165,14 +168,15 @@ void Math::computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots)
 	// The characteristic equation is x^3 - c2*x^2 + c1*x - c0 = 0. The
 	// eigenvalues are the roots to this equation, all guaranteed to be
 	// real-valued, because the matrix is symmetric.
-	Eigen::Matrix3d::Scalar c0 = m (0, 0) * m (1, 1) * m (2, 2) + Eigen::Matrix3d::Scalar (2) * m (0, 1) * m (0, 2) * m (1, 2)
-	- m (0, 0) * m (1, 2) * m (1, 2) - m (1, 1) * m (0, 2) * m (0, 2)
-	- m (2, 2) * m (0, 1) * m (0, 1);
+	Eigen::Matrix3d::Scalar c0 = m(0,0) * m(1,1) * m(2,2) +
+			Eigen::Matrix3d::Scalar(2) * m(0,1) * m(0,2) * m(1,2)
+	- m(0,0) * m(1,2) * m(1,2) - m(1,1) * m(0,2) * m(0,2)
+	- m(2,2) * m(0,1) * m(0,1);
 
-	Eigen::Matrix3d::Scalar c1 = m (0, 0) * m (1, 1) - m (0, 1) * m (0, 1) + m (0, 0) * m (2, 2) -
-	m (0, 2) * m (0, 2) + m (1, 1) * m (2, 2) - m (1, 2) * m (1, 2);
+	Eigen::Matrix3d::Scalar c1 = m(0,0) * m(1,1) - m(0,1) * m(0,1) + m(0,0) * m(2,2) -
+			m(0,2) * m(0,2) + m(1,1) * m(2,2) - m(1,2) * m(1,2);
 
-	Eigen::Matrix3d::Scalar c2 = m (0, 0) + m (1, 1) + m (2, 2);
+	Eigen::Matrix3d::Scalar c2 = m(0,0) + m(1,1) + m(2,2);
 
 
 	if (fabs (c0) < Eigen::NumTraits<Eigen::Matrix3d::Scalar>::epsilon ())// one root is 0 -> quadratic equation
@@ -188,7 +192,8 @@ void Math::computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots)
 		if (a_over_3 > Eigen::Matrix3d::Scalar(0))
 			a_over_3 = Eigen::Matrix3d::Scalar (0);
 
-		Eigen::Matrix3d::Scalar half_b = Eigen::Matrix3d::Scalar(0.5) * (c0 + c2_over_3 * (Eigen::Matrix3d::Scalar(2) * c2_over_3 * c2_over_3 - c1));
+		Eigen::Matrix3d::Scalar half_b = Eigen::Matrix3d::Scalar(0.5) *
+				(c0 + c2_over_3 * (Eigen::Matrix3d::Scalar(2) * c2_over_3 * c2_over_3 - c1));
 
 		Eigen::Matrix3d::Scalar q = half_b * half_b + a_over_3 * a_over_3 * a_over_3;
 		if (q > Eigen::Matrix3d::Scalar(0))
@@ -196,7 +201,7 @@ void Math::computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots)
 
 		// Compute the eigenvalues by solving for the roots of the polynomial.
 		Eigen::Matrix3d::Scalar rho = sqrt(-a_over_3);
-		Eigen::Matrix3d::Scalar theta = atan2(std::sqrt (-q), half_b) * s_inv3;
+		Eigen::Matrix3d::Scalar theta = atan2(std::sqrt(-q), half_b) * s_inv3;
 		Eigen::Matrix3d::Scalar cos_theta = cos(theta);
 		Eigen::Matrix3d::Scalar sin_theta = sin(theta);
 		roots(0) = c2_over_3 + Eigen::Matrix3d::Scalar(2) * rho * cos_theta;
@@ -218,13 +223,14 @@ void Math::computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots)
 		roots(1) = roots1;
 		roots(2) = roots2;
 
-		if (roots(0) <= 0) // eigenval for symetric positive semi-definite matrix can not be negative! Set it to 0
+		if (roots(0) <= 0) // eigenvalue for symmetric positive semi-definite matrix can not be negative! Set it to 0
 			computeRoots2(c2, c1, roots);
 	}
 }
 
 
-void Math::computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scalar& c, Eigen::Vector3d& roots)
+void Math::computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scalar& c,
+		Eigen::Vector3d& roots)
 {
 	roots(0) = Eigen::Matrix3d::Scalar(0);
 	Eigen::Matrix3d::Scalar d = Eigen::Matrix3d::Scalar(b * b - 4.0 * c);

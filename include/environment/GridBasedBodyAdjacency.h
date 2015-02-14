@@ -12,7 +12,8 @@ namespace environment
 
 /**
  * @class GridBasedBodyAdjacency
- * @brief Class for building a grid-based body adjacency map of the environment
+ * @brief Class for building a grid-based body adjacency map of the environment. This class derives from
+ * AdjacencyEnvironment class
  */
 class GridBasedBodyAdjacency : public AdjacencyEnvironment
 {
@@ -25,16 +26,16 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 
 		/**
 		 * @brief Computes the whole adjacency map
-		 * @param dwl::AdjacencyMap& adjacency_map Adjacency map
-		 * @param dwl::Vertex source Source vertex
-		 * @param dwl::Vertex target Target vertex
+		 * @param AdjacencyMap& Adjacency map
+		 * @param Vertex Source vertex
+		 * @param Vertex Target vertex
 		 */
 		void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target);
 
 		/**
 		 * @brief Gets the successors of the current vertex
-		 * @param std::list<Edge>& successors List of successors
-		 * @param dwl::Vertex state_vertex Current state vertex
+		 * @param std::list<Edge>& List of successors
+		 * @param Vertex Current state vertex
 		 */
 		void getSuccessors(std::list<Edge>& successors, Vertex state_vertex);
 
@@ -42,14 +43,14 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 	private:
 		/**
 		 * @brief Searches the neighbors of a current vertex
-		 * @param std::vector<Vertex>& neighbor_states The set of states neighbors
-		 * @param dwl::Vertex state_vertex Current state vertex
+		 * @param std::vector<Vertex>& The set of states neighbors
+		 * @param Vertex Current state vertex
 		 */
 		void searchNeighbors(std::vector<Vertex>& neighbor_states, Vertex state_vertex);
 
 		/**
 		 * @brief Computes the body cost of a current vertex
-		 * @param dwl::Vertex state_vertex Current state vertex
+		 * @param Vertex Current state vertex
 		 */
 		void computeBodyCost(double& cost, Vertex state_vertex);
 
@@ -68,11 +69,11 @@ class GridBasedBodyAdjacency : public AdjacencyEnvironment
 		/** @brief Number of top reward for computing the stance cost */
 		int number_top_reward_;
 
-		/** @brief Uncertainty factor which is applicated in non-perceived environment */
+		/** @brief Uncertainty factor which is applied in non-perceived environment */
 		double uncertainty_factor_; // For unknown (non-perceive) areas
 };
 
-} //@namespace hyq
+} //@namespace environment
 } //@namespace dwl
 
 #endif

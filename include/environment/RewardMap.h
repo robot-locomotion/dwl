@@ -32,118 +32,118 @@ class RewardMap
 
 		/**
 		 * @brief Adds a feature of the reward map
-		 * @param dwl::environment::Feature* feature the pointer of the feature to add
+		 * @param Feature* the pointer of the feature to add
 		 */
 		void addFeature(Feature* feature);
 
 		/**
 		 * @brief Removes a feature of the reward map
-		 * @param std::string feature_name the name of the feature to remove
+		 * @param std::string the name of the feature to remove
 		 */
 		void removeFeature(std::string feature_name);
 
 		/**
 		 * @brief Abstract method for computing the reward map according the robot position and model of the terrain
-		 * @param dwl::TerrainModel model The model of the environment
-		 * @param Eigen::Vector4d robot_state The position of the robot and the yaw angle
+		 * @param TerrainModel The model of the environment
+		 * @param Eigen::Vector4d The position of the robot and the yaw angle
 		 */
 		virtual void compute(TerrainModel model, Eigen::Vector4d robot_state) = 0;
 
 		/**
 		 * @brief Removes reward values outside the interest region
-		 * @param Eigen::Vector3d robot_state State of the robot, i.e. 3D position and yaw orientation
+		 * @param Eigen::Vector3d State of the robot, i.e. 3D position and yaw orientation
 		 */
 		void removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state);
 
 		/**
 		 * @brief Sets a interest region
-		 * @param double radius_x Radius along the x-axis
-		 * @param double radius_y Radius along the x-axis
+		 * @param double Radius along the x-axis
+		 * @param double Radius along the x-axis
 		 */
 		void setInterestRegion(double radius_x, double radius_y);
 
 		/**
 		 * @brief Gets the properties of the cell
-		 * @param dwl::RewardCell& cell Values of the cell
-		 * @param double reward Reward value of the cell
-		 * @param dwl::environment::Terrain terrain_info Information of the terrain in the specific cell
+		 * @param RewardCell& Values of the cell
+		 * @param double Reward value of the cell
+		 * @param Terrain Information of the terrain in the specific cell
 		 */
 		void getCell(RewardCell& cell, double reward, Terrain terrain_info);
 
 		/**
 		 * @brief Gets the properties of the cell
-		 * @param dwl::Key& key Key of the cell
-		 * @param Eigen::Vector3d position Cartesian position of the cell
+		 * @param Key& Key of the cell
+		 * @param Eigen::Vector3d Cartesian position of the cell
 		 */
 		void getCell(Key& key, Eigen::Vector3d position);
 
 		/**
 		 * @brief Adds a cell to the reward map
-		 * @param dwl::RewardCell cell Cell values for adding to the reward map
+		 * @param RewardCell Cell values for adding to the reward map
 		 */
 		void addCellToRewardMap(RewardCell cell);
 
 		/**
-		 * @brief Removes the cel to the reward map
-		 * @param Vertex cell_vertex Cell vertex for removing to the reward map
+		 * @brief Removes the cell to the reward map
+		 * @param Vertex Cell vertex for removing to the reward map
 		 */
 		void removeCellToRewardMap(Vertex cell_vertex);
 
 		/**
 		 * @brief Adds a cell to the height map
-		 * @param Vertex vertex Cell vertex for adding to the height map
-		 * @param double height Height value
+		 * @param Vertex Cell vertex for adding to the height map
+		 * @param double Height value
 		 */
 		void addCellToTerrainHeightMap(Vertex cell_vertex, double height);
 
 		/**
 		 * @brief Removes a cell to the height map
-		 * @para Vertex cell_vertex Cell vertex for removing to the height map
+		 * @param Vertex Cell vertex for removing to the height map
 		 */
 		void removeCellToTerrainHeightMap(Vertex cell_vertex);
 
 		/**
 		 * @brief Adds a new search area around the current position of the robot
-		 * @param double min_x Minimun cartesian position along the x-axis
-		 * @param double max_x Maximun cartesian position along the x-axis
-		 * @param double min_y Minimun cartesian position along the y-axis
-		 * @param double max_x Maximun cartesian position along the y-axis
-		 * @param double min_z Minimun cartesian position along the z-axis
-		 * @param double max_z Maximun cartesian position along the z-axis
-		 * @param double grid_size Resolution of the grid
+		 * @param double Minimum Cartesian position along the x-axis
+		 * @param double Maximum Cartesian position along the x-axis
+		 * @param double Minimum Cartesian position along the y-axis
+		 * @param double Maximum Cartesian position along the y-axis
+		 * @param double Minimum Cartesian position along the z-axis
+		 * @param double Maximum Cartesian position along the z-axis
+		 * @param double Resolution of the grid
 		 */
 		void addSearchArea(double min_x, double max_x, double min_y, double max_y,
 				double min_z, double max_z, double grid_size);
 
 		/**
 		 * @brief Sets the neighboring area for computing physical properties of the terrain
-		 * @param int back_neighbors Number of left neighbors
-		 * @param int front_neighbors Number of right neighbors
-		 * @param int left_neighbors Number of left neighbors
-		 * @param int right_neighbors Number of right neighbors
-		 * @param int bottom_neighbors Number of bottom neighbors
-		 * @param int top_neighbors Number of top neighbors
+		 * @param int Number of left neighbors
+		 * @param int Number of right neighbors
+		 * @param int Number of left neighbors
+		 * @param int Number of right neighbors
+		 * @param int Number of bottom neighbors
+		 * @param int Number of top neighbors
 		 */
 		void setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors,
 				int right_neighbors, int bottom_neighbors, int top_neighbors);
 
 		/**
 		 * @brief Gets the environment resolution of the reward map
-		 * @param double Returns the resolution of the gridmap or height
-		 * @param bool plane Indicates if the key represents a plane or a height
+		 * @param bool Indicates if the key represents a plane or a height
+		 * @return The resolution of the gridmap or height
 		 */
 		double getResolution(bool plane);
 
 		/**
 		 * @brief Sets the resolution of the environment discretization
-		 * @ double resolution Resolution of the environment
-		 * @param bool plane Indicates if the key represents a plane or a height
+		 * @param double Resolution of the environment
+		 * @param bool Indicates if the key represents a plane or a height
 		 */
 		void setResolution(double resolution, bool plane);
 
 		/**
 		 * @brief Gets the reward map
-		 * @return std::map<Vertex,RewardCell> Returns the cell value per each vertex
+		 * @return The cell value per each vertex
 		 */
 		const std::map<Vertex,RewardCell>& getRewardMap() const;
 

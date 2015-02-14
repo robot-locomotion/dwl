@@ -7,9 +7,9 @@ namespace dwl
 namespace environment
 {
 
-HeightDeviationFeature::HeightDeviationFeature(double flat_height_deviation, double max_height_deviation,
-		double min_allowed_height) : flat_height_deviation_(flat_height_deviation), max_height_deviation_(max_height_deviation),
-				min_allowed_height_(min_allowed_height)
+HeightDeviationFeature::HeightDeviationFeature(double flat_height_deviation,
+		double max_height_deviation, double min_allowed_height) : flat_height_deviation_(flat_height_deviation),
+				max_height_deviation_(max_height_deviation), min_allowed_height_(min_allowed_height)
 {
 	name_ = "Height Deviation";
 }
@@ -88,8 +88,9 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 					height_boundary_max(1) = neightboring_area_.max_y + coord(1);
 					double estimated_height = 0;
 					int height_counter = 0;
-					for (double y_e = height_boundary_min(1); y_e < height_boundary_max(1); y_e += neightboring_area_.resolution) {
-						for (double x_e = height_boundary_min(0); x_e < height_boundary_max(0); x_e += neightboring_area_.resolution) {
+					double resolution = neightboring_area_.resolution;
+					for (double y_e = height_boundary_min(1); y_e < height_boundary_max(1); y_e += resolution) {
+						for (double x_e = height_boundary_min(0); x_e < height_boundary_max(0); x_e += resolution) {
 							Eigen::Vector2d height_coord;
 							height_coord(0) = x_e;
 							height_coord(1) = y_e;
@@ -124,7 +125,8 @@ void HeightDeviationFeature::computeReward(double& reward_value, Terrain terrain
 		if (total_heigh_deviation <= flat_height_deviation_)
 			reward_value = 0;
 		else if (total_heigh_deviation < max_height_deviation_) {
-			reward_value = log(0.75 * (1 - (total_heigh_deviation - flat_height_deviation_) / (max_height_deviation_ - flat_height_deviation_)));
+			reward_value = log(0.75 * (1 - (total_heigh_deviation - flat_height_deviation_) /
+					(max_height_deviation_ - flat_height_deviation_)));
 			if (min_reward_ > reward_value)
 				reward_value = min_reward_;
 		} else
