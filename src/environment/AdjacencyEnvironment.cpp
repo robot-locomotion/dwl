@@ -214,10 +214,9 @@ double AdjacencyEnvironment::heuristicCost(Vertex source, Vertex target)
 	environment_->getTerrainSpaceModel().vertexToState(target_state, target);
 
 	// Normalizing the angles for a range of [-pi,pi]
-	utils::Math math;
 	double current_angle = source_state(2), target_angle = target_state(2);
-	math.normalizeAngle(current_angle, MinusPiToPi);
-	math.normalizeAngle(target_angle, MinusPiToPi);
+	math::normalizeAngle(current_angle, MinusPiToPi);
+	math::normalizeAngle(target_angle, MinusPiToPi);
 	source_state(2) = current_angle;
 	target_state(2) = target_angle;
 
@@ -243,10 +242,9 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 		environment_->getTerrainSpaceModel().vertexToState(target_state, target);
 
 		// Normalizing the angles for a range of [-pi,pi]
-		utils::Math math;
 		double current_angle = current_state(2), target_angle = target_state(2);
-		math.normalizeAngle(current_angle, MinusPiToPi);
-		math.normalizeAngle(target_angle, MinusPiToPi);
+		math::normalizeAngle(current_angle, MinusPiToPi);
+		math::normalizeAngle(target_angle, MinusPiToPi);
 		current_state(2) = current_angle;
 		target_state(2) = target_angle;
 

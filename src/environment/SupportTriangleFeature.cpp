@@ -53,9 +53,7 @@ void SupportTriangleFeature::computeReward(double& reward_value, RobotAndTerrain
 	double size_b = (foothold_2 - foothold_0).norm();
 	double size_c = (foothold_2 - foothold_1).norm();
 
-	utils::Math math;
-	math.inRadiiTriangle(inradii, size_a, size_b, size_c);
-
+	math::inRadiiTriangle(inradii, size_a, size_b, size_c);
 	if (inradii >= stable_inradii_)
 		reward_value = 0;
 	else if (inradii > unstable_inradii_) {

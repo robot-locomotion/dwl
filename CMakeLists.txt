@@ -100,6 +100,10 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							src/environment/KinematicFeasibilityFeature.cpp
 							src/robot/Robot.cpp
 							src/robot/StateCost.cpp
+							
+							src/model/FloatingBaseKinematics.cpp
+							src/robot/HyLFloatingBaseKinematics.cpp
+							
 							src/utils/Math.cpp
 							src/utils/Orientation.cpp
 							src/utils/YamlBridge.cpp) 
@@ -108,7 +112,7 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
-target_link_libraries(${PROJECT_NAME} yaml-cpp)# ${YAMLCPP_LIBRARY})
+target_link_libraries(${PROJECT_NAME} yaml-cpp iitgenhyq)# ${YAMLCPP_LIBRARY})
 
 
 add_executable(my_planner tests/HierarchicalPlanningTest.cpp)

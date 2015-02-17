@@ -44,9 +44,8 @@ void BodyOrientationFeature::computeReward(double& reward_value, RobotAndTerrain
 	}
 
 	// Computing the plane parameters
-	utils::Math math;
 	Eigen::Vector3d normal;
-	math.computePlaneParameters(normal, stance);
+	math::computePlaneParameters(normal, stance);
 
 	// Computing the roll and pitch angles
 	Eigen::Quaterniond normal_quaternion;

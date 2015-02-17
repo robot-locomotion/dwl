@@ -4,22 +4,10 @@
 namespace dwl
 {
 
-namespace utils
+namespace math
 {
 
-Math::Math()
-{
-
-}
-
-
-Math::~Math()
-{
-
-}
-
-
-void Math::normalizeAngle(double& angle, AngleRepresentation angle_notation)
+void normalizeAngle(double& angle, AngleRepresentation angle_notation)
 {
 	switch (angle_notation) {
 		case ZeroTo2Pi:
@@ -47,7 +35,7 @@ void Math::normalizeAngle(double& angle, AngleRepresentation angle_notation)
 }
 
 
-void Math::inRadiiTriangle(double& inradii, double size_a, double size_b, double size_c)
+void inRadiiTriangle(double& inradii, double size_a, double size_b, double size_c)
 {
 	double s = (size_a + size_b + size_c) / 2;
 	double a = (s - size_a) * (s - size_b) * (s - size_c) / s;
@@ -59,7 +47,7 @@ void Math::inRadiiTriangle(double& inradii, double size_a, double size_b, double
 }
 
 
-void Math::computePlaneParameters(Eigen::Vector3d& normal, std::vector<Eigen::Vector3f> points)
+void computePlaneParameters(Eigen::Vector3d& normal, std::vector<Eigen::Vector3f> points)
 {
 	if (points.size() <= 3)
 		printf(YELLOW "Warning: could not computed the plane parameter with less of 4 points\n" COLOR_RESET);
@@ -74,8 +62,8 @@ void Math::computePlaneParameters(Eigen::Vector3d& normal, std::vector<Eigen::Ve
 }
 
 
-unsigned int Math::computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> cloud,
-		Eigen::Matrix3d &covariance_matrix, Eigen::Vector3d &mean)
+unsigned int computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> cloud,
+											Eigen::Matrix3d &covariance_matrix, Eigen::Vector3d &mean)
 {
 	// create the buffer on the stack which is much faster than using cloud[indices[i]] and mean as a buffer
 	Eigen::VectorXd accu = Eigen::VectorXd::Zero(9, 1);
@@ -113,8 +101,7 @@ unsigned int Math::computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> c
 }
 
 
-void Math::solvePlaneParameters(Eigen::Vector3d &normal_vector, double &curvature,
-		const Eigen::Matrix3d covariance_matrix)
+void solvePlaneParameters(Eigen::Vector3d &normal_vector, double &curvature, const Eigen::Matrix3d covariance_matrix)
 {
 	// Extract the smallest eigenvalue and its eigenvector
 	EIGEN_ALIGN16 Eigen::Vector3d::Scalar eigenvalue;
@@ -163,7 +150,7 @@ void Math::solvePlaneParameters(Eigen::Vector3d &normal_vector, double &curvatur
 }
 
 
-void Math::computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots)
+void computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots)
 {
 	// The characteristic equation is x^3 - c2*x^2 + c1*x - c0 = 0. The
 	// eigenvalues are the roots to this equation, all guaranteed to be
@@ -229,8 +216,7 @@ void Math::computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots)
 }
 
 
-void Math::computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scalar& c,
-		Eigen::Vector3d& roots)
+void computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scalar& c, Eigen::Vector3d& roots)
 {
 	roots(0) = Eigen::Matrix3d::Scalar(0);
 	Eigen::Matrix3d::Scalar d = Eigen::Matrix3d::Scalar(b * b - 4.0 * c);
@@ -241,6 +227,63 @@ void Math::computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d
 
 	roots(2) = 0.5f * (b + sd);
 	roots(1) = 0.5f * (b - sd);
+}
+
+
+template <typename T, typename D>
+void dampedPseudoInverse(const Eigen::MatrixBase<T>& A, double damping_factor,
+						 Eigen::MatrixBase<D>& Apinv, unsigned int computation_options)
+{
+	using namespace Eigen;
+
+	int m = A.rows(), n = A.cols(), k = m < n ? m : n;
+	JacobiSVD<typename MatrixBase<T>::PlainObject> svd = A.jacobiSvd(computation_options);
+	const typename JacobiSVD<typename T::PlainObject>::SingularValuesType& singular_values = svd.singularValues();
+	MatrixXd sigma_damped = MatrixXd::Zero(k, k);
+
+	double damp = damping_factor * damping_factor;
+	for (int idx = 0; idx < k; idx++) {
+		sigma_damped(idx, idx) = singular_values(idx) / (singular_values(idx) * singular_values(idx) + damp);
+	}
+	Apinv = svd.matrixV() * sigma_damped * svd.matrixU().transpose(); // damped pseudoinverse
+}
+
+
+void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A, Eigen::Ref<Eigen::MatrixXd> Apinv,
+				   double tolerance, unsigned int computation_options)
+{
+	Eigen::JacobiSVD<typename Eigen::MatrixXd::PlainObject> svdDecomposition(A.rows(), A.cols());
+	pseudoInverse(A, svdDecomposition, Apinv, tolerance, computation_options);
+}
+
+
+void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A,
+				   Eigen::JacobiSVD<Eigen::MatrixXd::PlainObject>& svd_decomposition,
+				   Eigen::Ref<Eigen::MatrixXd> Apinv,
+				   double tolerance,
+				   unsigned int computation_options)
+{
+	using namespace Eigen;
+	svd_decomposition.compute(A, computation_options);
+	JacobiSVD<MatrixXd::PlainObject>::SingularValuesType singular_values = svd_decomposition.singularValues();
+	for (int idx = 0; idx < singular_values.size(); idx++) {
+		singular_values(idx) = tolerance > 0 && singular_values(idx) > tolerance ? 1.0 / singular_values(idx) : 0.0;
+	}
+	Apinv = svd_decomposition.matrixV() * singular_values.asDiagonal() * svd_decomposition.matrixU().adjoint();
+}
+
+
+void skewSymmentricMatrixFrom3DVector(const Eigen::Ref<const Eigen::Vector3d>& vector,
+									  Eigen::Ref<Eigen::Matrix3d> skew_symmetric_matrix)
+{
+	skew_symmetric_matrix.setZero();
+	// S = [ 0, -w(3), w(2);
+	// w(3), 0, -w(1);
+	// -w(2), w(1), 0 ];
+	skew_symmetric_matrix(0, 1) = -vector(2);
+	skew_symmetric_matrix(0, 2) = vector(1);
+	skew_symmetric_matrix(1, 2) = -vector(0);
+	skew_symmetric_matrix.bottomLeftCorner<2, 2>() = -skew_symmetric_matrix.topRightCorner<2, 2>().transpose();
 }
 
 } //@namespace utils

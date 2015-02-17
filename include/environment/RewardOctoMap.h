@@ -44,9 +44,6 @@ class RewardOctoMap : public RewardMap
 
 
 	private:
-		/** @brief Object of the Math class for the definition of math routines */
-		dwl::utils::Math math_;
-
 		/** @brief Indicates if it the first computation */
 		bool is_first_computation_;
 
