@@ -232,7 +232,7 @@ void computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scal
 
 template <typename T, typename D>
 void dampedPseudoInverse(const Eigen::MatrixBase<T>& A, double damping_factor,
-						 Eigen::MatrixBase<D>& Apinv, unsigned int computation_options)
+						 Eigen::MatrixBase<D>& Apinv, unsigned int computation_options)//TODO Change the arguments
 {
 	using namespace Eigen;
 
@@ -250,7 +250,7 @@ void dampedPseudoInverse(const Eigen::MatrixBase<T>& A, double damping_factor,
 
 
 void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A, Eigen::Ref<Eigen::MatrixXd> Apinv,
-				   double tolerance, unsigned int computation_options)
+				   double tolerance, unsigned int computation_options)//TODO Change the arguments
 {
 	Eigen::JacobiSVD<typename Eigen::MatrixXd::PlainObject> svdDecomposition(A.rows(), A.cols());
 	pseudoInverse(A, svdDecomposition, Apinv, tolerance, computation_options);
@@ -261,7 +261,7 @@ void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A,
 				   Eigen::JacobiSVD<Eigen::MatrixXd::PlainObject>& svd_decomposition,
 				   Eigen::Ref<Eigen::MatrixXd> Apinv,
 				   double tolerance,
-				   unsigned int computation_options)
+				   unsigned int computation_options)//TODO Change the arguments
 {
 	using namespace Eigen;
 	svd_decomposition.compute(A, computation_options);
@@ -273,17 +273,19 @@ void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A,
 }
 
 
-void skewSymmentricMatrixFrom3DVector(const Eigen::Ref<const Eigen::Vector3d>& vector,
-									  Eigen::Ref<Eigen::Matrix3d> skew_symmetric_matrix)
+Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector)
 {
+	Eigen::Matrix3d skew_symmetric_matrix;
 	skew_symmetric_matrix.setZero();
-	// S = [ 0, -w(3), w(2);
-	// w(3), 0, -w(1);
-	// -w(2), w(1), 0 ];
+	// S = [    0, -w(3),  w(2);
+	//       w(3),     0, -w(1);
+	//      -w(2),  w(1),   0 ];
 	skew_symmetric_matrix(0, 1) = -vector(2);
 	skew_symmetric_matrix(0, 2) = vector(1);
 	skew_symmetric_matrix(1, 2) = -vector(0);
 	skew_symmetric_matrix.bottomLeftCorner<2, 2>() = -skew_symmetric_matrix.topRightCorner<2, 2>().transpose();
+
+	return skew_symmetric_matrix;
 }
 
 } //@namespace utils

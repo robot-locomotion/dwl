@@ -12,8 +12,8 @@
 #include <environment/RewardMap.h>
 #include <environment/SlopeFeature.h>
 
-#include <model/FloatingBaseKinematics.h>
-#include <robot/HyLFloatingBaseKinematics.h>
+#include <model/WholeBodyKinematics.h>
+#include <robot/HyLWholeBodyKinematics.h>
 #include <iit/rbd/rbd.h>
 
 
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 //		std::cout << "Detect!" << std::endl;
 
 
-	dwl::model::FloatingBaseKinematics* kin_ptr = new dwl::robot::HyLFloatingBaseKinematics();
+	dwl::model::WholeBodyKinematics* kin_ptr = new dwl::robot::HyLWholeBodyKinematics();
 
 	iit::HyQ::JointState pos;
 //	Eigen::Matrix<double, 12, 1> pos;
@@ -105,12 +105,12 @@ int main(int argc, char **argv)
 
 	Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> jacobian;
 
-	dwl::model::ActiveContact active_contact;
-	active_contact["LF_foot"] = true;
-	active_contact["LH_foot"] = true;
-	kin_ptr->computeFloatingBaseJacobian(jacobian);
-//	kin_ptr->computeEffectorJacobian(jacobian, active_contact, dwl::model::Full);
-//	kin_ptr->computeWholeBodyJacobian(jacobian, active_contact, dwl::model::Full);
+	dwl::model::ActiveContact effector_set;
+	effector_set["LF_foot"] = true;
+	effector_set["LH_foot"] = true;
+//	kin_ptr->computeFloatingBaseJacobian(jacobian, dwl::model::Full);
+//	kin_ptr->computeFixedBaseJacobian(jacobian, active_contact, dwl::model::Full);
+	kin_ptr->computeWholeBodyJacobian(jacobian, effector_set, dwl::model::Full);
 
     return 0;
 }

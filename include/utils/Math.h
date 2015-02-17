@@ -85,8 +85,7 @@ void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A,
 				   double tolerance,
 				   unsigned int computation_options);
 
-void skewSymmentricMatrixFrom3DVector(const Eigen::Ref<const Eigen::Vector3d>& vector,
-									  Eigen::Ref<Eigen::Matrix3d> skew_symmetric_matrix);
+Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector);
 
 } //@namespace utils
 } //@namespace dwl

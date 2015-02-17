@@ -1,5 +1,5 @@
-#ifndef Typedefs_H
-#define Typedefs_H
+#ifndef DWL_Typedefs_H
+#define DWL_Typedefs_H
 
 #include <map>
 #include <list>

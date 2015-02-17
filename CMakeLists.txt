@@ -101,8 +101,8 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							src/robot/Robot.cpp
 							src/robot/StateCost.cpp
 							
-							src/model/FloatingBaseKinematics.cpp
-							src/robot/HyLFloatingBaseKinematics.cpp
+							src/model/WholeBodyKinematics.cpp
+							src/robot/HyLWholeBodyKinematics.cpp
 							
 							src/utils/Math.cpp
 							src/utils/Orientation.cpp
