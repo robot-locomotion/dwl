@@ -23,9 +23,8 @@ class HyLWholeBodyKinematics : public model::WholeBodyKinematics
 
 	private:
 		iit::HyQ::Jacobians jacs_;
-		iit::HyQ::HomogeneousTransforms tf_;
-
-//		typedef std::map<std::string, Eigen::Matrix<double, 4, 4>*> EndEffectorTransform;
+		iit::HyQ::HomogeneousTransforms homogeneous_tf_;
+		iit::HyQ::MotionTransforms motion_tf_;
 };
 
 } //@namespace robot

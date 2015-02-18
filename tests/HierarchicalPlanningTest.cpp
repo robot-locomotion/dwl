@@ -105,9 +105,9 @@ int main(int argc, char **argv)
 
 	Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> jacobian;
 
-	dwl::model::ActiveContact effector_set;
+	dwl::EndEffectorSelector effector_set;
 	effector_set["LF_foot"] = true;
-	effector_set["LH_foot"] = true;
+	effector_set["RF_foot"] = true;
 //	kin_ptr->computeFloatingBaseJacobian(jacobian, dwl::model::Full);
 //	kin_ptr->computeFixedBaseJacobian(jacobian, active_contact, dwl::model::Full);
 	kin_ptr->computeWholeBodyJacobian(jacobian, effector_set, dwl::model::Full);

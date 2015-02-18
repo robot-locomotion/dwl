@@ -23,7 +23,7 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 												   enum Component component)
 {
 	// Computing the jacobian for all end-effectors
-	ActiveContact effector_set;
+	EndEffectorSelector effector_set;
 	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
@@ -37,7 +37,7 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 
 
 void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
-												   std::map<std::string,bool> effector_set,
+												   EndEffectorSelector effector_set,
 												   enum Component component)
 {
 	// Resizing the jacobian matrix
@@ -72,8 +72,8 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 
 	// Adding the jacobian only for the active end-effectors
 	Eigen::MatrixXd floating_base_jacobian, fixed_base_jacobian;
-	computeFloatingBaseJacobian(floating_base_jacobian, effector_set, component);
-	computeFixedBaseJacobian(fixed_base_jacobian, effector_set, component);
+	computeBaseJacobian(floating_base_jacobian, effector_set, component);
+	computeEffectorJacobian(fixed_base_jacobian, effector_set, component);
 
 	jacobian << floating_base_jacobian, fixed_base_jacobian;
 
@@ -82,11 +82,11 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 }
 
 
-void WholeBodyKinematics::computeFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
-													  enum Component component)
+void WholeBodyKinematics::computeBaseJacobian(Eigen::MatrixXd& jacobian,
+											  enum Component component)
 {
 	// Computing the jacobian for all end-effectors
-	ActiveContact effector_set;
+	EndEffectorSelector effector_set;
 	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
@@ -95,13 +95,13 @@ void WholeBodyKinematics::computeFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 		effector_set[effector_name] = true;
 	}
 
-	computeFloatingBaseJacobian(jacobian, effector_set, component);
+	computeBaseJacobian(jacobian, effector_set, component);
 }
 
 
-void WholeBodyKinematics::computeFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
-													  std::map<std::string, bool> effector_set,
-													  enum Component component)
+void WholeBodyKinematics::computeBaseJacobian(Eigen::MatrixXd& jacobian,
+											  EndEffectorSelector effector_set,
+											  enum Component component)
 {
 	// Resizing the jacobian matrix
 	int num_vars;
@@ -170,11 +170,11 @@ void WholeBodyKinematics::computeFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 }
 
 
-void WholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jacobian,
-												   enum Component component)
+void WholeBodyKinematics::computeEffectorJacobian(Eigen::MatrixXd& jacobian,
+												  enum Component component)
 {
 	// Computing the jacobian for all end-effectors
-	ActiveContact effector_set;
+	EndEffectorSelector effector_set;
 	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
@@ -183,13 +183,13 @@ void WholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 		effector_set[effector_name] = true;
 	}
 
-	computeFixedBaseJacobian(jacobian, effector_set, component);
+	computeEffectorJacobian(jacobian, effector_set, component);
 }
 
 
-void WholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jacobian,
-												   ActiveContact effector_set,
-												   enum Component component)
+void WholeBodyKinematics::computeEffectorJacobian(Eigen::MatrixXd& jacobian,
+												  EndEffectorSelector effector_set,
+												  enum Component component)
 {
 	// Resizing the jacobian matrix
 	int num_vars;

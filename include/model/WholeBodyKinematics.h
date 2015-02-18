@@ -18,7 +18,7 @@ namespace model
 using namespace iit;
 
 enum Component {Linear, Angular, Full};
-typedef std::map<std::string,bool> ActiveContact;
+
 
 class WholeBodyKinematics
 {
@@ -31,20 +31,18 @@ class WholeBodyKinematics
 		virtual void updateJointState(Eigen::VectorXd position, Eigen::VectorXd velocity) = 0;
 
 		virtual void computeWholeBodyJacobian(Eigen::MatrixXd& jacobian, enum Component component = Full);
-		virtual void computeWholeBodyJacobian(Eigen::MatrixXd& jacobian, std::map<std::string,bool> effector_set,
+		virtual void computeWholeBodyJacobian(Eigen::MatrixXd& jacobian, EndEffectorSelector effector_set,
 											  enum Component component = Full);
 
-		virtual void computeFloatingBaseJacobian(Eigen::MatrixXd& jacobian, enum Component component = Full);
-		virtual void computeFloatingBaseJacobian(Eigen::MatrixXd& jacobian, std::map<std::string,bool> effector_set,
-												 enum Component component = Full);
+		virtual void computeBaseJacobian(Eigen::MatrixXd& jacobian, enum Component component = Full);
+		virtual void computeBaseJacobian(Eigen::MatrixXd& jacobian, EndEffectorSelector effector_set,
+										 enum Component component = Full);
 
-		virtual void computeFixedBaseJacobian(Eigen::MatrixXd& jacobian, enum Component component = Full);
-		virtual void computeFixedBaseJacobian(Eigen::MatrixXd& jacobian, std::map<std::string,bool> effector_set,
-											  enum Component component = Full);
+		virtual void computeEffectorJacobian(Eigen::MatrixXd& jacobian, enum Component component = Full);
+		virtual void computeEffectorJacobian(Eigen::MatrixXd& jacobian, EndEffectorSelector effector_set,
+											 enum Component component = Full);
 
-		typedef std::map<int,std::string> EndEffectorID;
 		typedef std::map<std::string, Eigen::Matrix<double, 6, Eigen::Dynamic> > EndEffectorJacobian;
-		typedef std::map<std::string, Eigen::Vector3d> EndEffectorPosition;
 
 
 	protected:
