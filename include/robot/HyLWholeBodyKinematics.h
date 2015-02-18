@@ -19,7 +19,7 @@ class HyLWholeBodyKinematics : public model::WholeBodyKinematics
 		~HyLWholeBodyKinematics();
 
 		void init();
-		void updateJointState(Eigen::VectorXd position, Eigen::VectorXd velocity);
+		void updateState(Eigen::VectorXd state, Eigen::VectorXd state_dot);
 
 	private:
 		iit::HyQ::Jacobians jacs_;

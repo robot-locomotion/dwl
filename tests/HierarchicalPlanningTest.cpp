@@ -97,11 +97,14 @@ int main(int argc, char **argv)
 
 	dwl::model::WholeBodyKinematics* kin_ptr = new dwl::robot::HyLWholeBodyKinematics();
 
-	iit::HyQ::JointState pos;
-//	Eigen::Matrix<double, 12, 1> pos;
-	pos << -0.2174, 0.5427, -1.2621, -0.29997, 0.6941, -1.2098, -0.2901, -0.6674, 1.1602, -0.2689, -0.5008, 1.2326;
+	Eigen::VectorXd base_pos = Eigen::VectorXd::Zero(6);
+	iit::HyQ::JointState jnt_pos;
+	jnt_pos << -0.2174, 0.5427, -1.2621, -0.29997, 0.6941, -1.2098, -0.2901, -0.6674, 1.1602, -0.2689, -0.5008, 1.2326;
+	Eigen::VectorXd pos = Eigen::VectorXd::Zero(18);
+	pos << base_pos, jnt_pos;
+
 	kin_ptr->init();
-	kin_ptr->updateJointState(pos, pos);
+	kin_ptr->updateState(pos, pos);
 
 	Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> jacobian;
 
