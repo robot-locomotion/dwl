@@ -10,9 +10,9 @@
 #include <locomotion/SearchBasedBodyMotionPlanning.h>
 #include <locomotion/ContactPlanning.h>
 #include <locomotion/GreedyFootstepPlanning.h>
-#include <locomotion/Dijkstrap.h>
-#include <locomotion/AStar.h>
-#include <locomotion/AnytimeRepairingAStar.h>
+#include <solver/Dijkstrap.h>
+#include <solver/AStar.h>
+#include <solver/AnytimeRepairingAStar.h>
 
 // Robot and Environment headers
 #include <robot/Robot.h>
@@ -148,7 +148,7 @@ class HierarchicalPlanners
 		dwl::WholeBodyLocomotion locomotor_;
 
 		/** @brief Planning of motion sequences pointer */
-		dwl::locomotion::PlanningOfMotionSequences* planning_ptr_;
+		dwl::locomotion::PlanningOfMotionSequence* planning_ptr_;
 
 		/** @brief Body planner */
 		dwl::locomotion::MotionPlanning* body_planner_ptr_;
@@ -157,7 +157,7 @@ class HierarchicalPlanners
 		dwl::locomotion::ContactPlanning* footstep_planner_ptr_;
 
 		/** @brief Solver pointer */
-		dwl::locomotion::Solver* body_path_solver_ptr_;
+		dwl::solver::Solver* body_path_solver_ptr_;
 
 
 		dwl::environment::AdjacencyEnvironment* adjacency_ptr_;

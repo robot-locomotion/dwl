@@ -142,13 +142,13 @@ void HierarchicalPlanners::initBodyPlanner()
 		// Reads the initial inflation value
 		double inflation = 3;
 		private_node_.param("body_planner/initial_inflation", inflation, inflation);
-		body_path_solver_ptr_ = new dwl::locomotion::AnytimeRepairingAStar(inflation);
+		body_path_solver_ptr_ = new dwl::solver::AnytimeRepairingAStar(inflation);
 	} else if (path_solver_name == "AStar")
-		body_path_solver_ptr_ = new dwl::locomotion::AStar();
+		body_path_solver_ptr_ = new dwl::solver::AStar();
 	else if (path_solver_name == "Dijkstrap")
-		body_path_solver_ptr_ = new dwl::locomotion::Dijkstrap();
+		body_path_solver_ptr_ = new dwl::solver::Dijkstrap();
 	else
-		body_path_solver_ptr_ = new dwl::locomotion::AnytimeRepairingAStar();
+		body_path_solver_ptr_ = new dwl::solver::AnytimeRepairingAStar();
 
 
 	// Getting the adjacency model
