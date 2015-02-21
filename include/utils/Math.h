@@ -72,18 +72,18 @@ void computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scal
 
 
 
-template <typename T, typename D>
-void dampedPseudoInverse(const Eigen::MatrixBase<T>& A, double damping_factor,
-						 Eigen::MatrixBase<D>& Apinv, unsigned int computation_options);
-
-void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A, Eigen::Ref<Eigen::MatrixXd> Apinv,
-				   double tolerance, unsigned int computation_options);
-
-void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A,
-				   Eigen::JacobiSVD<Eigen::MatrixXd::PlainObject>& svd_decomposition,
-				   Eigen::Ref<Eigen::MatrixXd> Apinv,
-				   double tolerance,
-				   unsigned int computation_options);
+//template <typename T, typename D>
+//void dampedPseudoInverse(const Eigen::MatrixBase<T>& A, double damping_factor,
+//						 Eigen::MatrixBase<D>& Apinv, unsigned int computation_options);
+//
+//void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A, Eigen::Ref<Eigen::MatrixXd> Apinv,
+//				   double tolerance, unsigned int computation_options);
+//
+//void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A,
+//				   Eigen::JacobiSVD<Eigen::MatrixXd::PlainObject>& svd_decomposition,
+//				   Eigen::Ref<Eigen::MatrixXd> Apinv,
+//				   double tolerance,
+//				   unsigned int computation_options);
 
 Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector);
 
