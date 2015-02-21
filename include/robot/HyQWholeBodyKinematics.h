@@ -1,5 +1,5 @@
-#ifndef DWL_HyLWholeBodyKinematics_H
-#define DWL_HyLWholeBodyKinematics_H
+#ifndef DWL_HyQWholeBodyKinematics_H
+#define DWL_HyQWholeBodyKinematics_H
 
 #include <model/WholeBodyKinematics.h>
 #include <iit/robots/hyq/jacobians.h>
@@ -12,11 +12,11 @@ namespace dwl
 namespace robot
 {
 
-class HyLWholeBodyKinematics : public model::WholeBodyKinematics
+class HyQWholeBodyKinematics : public model::WholeBodyKinematics
 {
 	public:
-		HyLWholeBodyKinematics();
-		~HyLWholeBodyKinematics();
+		HyQWholeBodyKinematics();
+		~HyQWholeBodyKinematics();
 
 		void init();
 		void updateState(Eigen::VectorXd state, Eigen::VectorXd state_dot);

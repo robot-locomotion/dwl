@@ -19,7 +19,9 @@ using namespace iit;
 
 enum Component {Linear, Angular, Full};
 
-
+/**
+ * @brief WholeBodyKinematics class implements all the kinematics methods for a floating-base robot
+ */
 class WholeBodyKinematics
 {
 	public:
@@ -124,10 +126,6 @@ class WholeBodyKinematics
 
 		/** @brief Floating-base rotation matrix for the current state of the robot */
 		Eigen::MatrixXd floating_base_rot_;
-
-
-	private:
-
 };
 
 } //@namespace model
