@@ -13,7 +13,9 @@
 #include <environment/SlopeFeature.h>
 
 #include <model/WholeBodyKinematics.h>
-#include <robot/HyLWholeBodyKinematics.h>
+#include <model/WholeBodyDynamics.h>
+#include <robot/HyQWholeBodyKinematics.h>
+#include <robot/HyLWholeBodyDynamics.h>
 #include <iit/rbd/rbd.h>
 
 
@@ -94,8 +96,8 @@ int main(int argc, char **argv)
 //	if (mymap.find('a')->first == 'a')
 //		std::cout << "Detect!" << std::endl;
 
-
-	dwl::model::WholeBodyKinematics* kin_ptr = new dwl::robot::HyLWholeBodyKinematics();
+/*
+	dwl::model::WholeBodyKinematics* kin_ptr = new dwl::robot::HyQWholeBodyKinematics();
 
 	Eigen::VectorXd base_pos = Eigen::VectorXd::Zero(6);
 	iit::HyQ::JointState jnt_pos;
@@ -114,6 +116,23 @@ int main(int argc, char **argv)
 //	kin_ptr->computeFloatingBaseJacobian(jacobian, dwl::model::Full);
 //	kin_ptr->computeFixedBaseJacobian(jacobian, active_contact, dwl::model::Full);
 	kin_ptr->computeWholeBodyJacobian(jacobian, effector_set, dwl::model::Full);
+*/
+
+
+	dwl::model::WholeBodyDynamics* dyn_ptr = new dwl::robot::HyLWholeBodyDynamics();
+
+	Eigen::Matrix<double, 6, 1> g = Eigen::Matrix<double, 6, 1>::Zero();
+	Eigen::Matrix<double, 6, 1> base_vel = Eigen::Matrix<double, 6, 1>::Zero();
+	Eigen::Matrix<double, 6, 1> base_accel = Eigen::Matrix<double, 6, 1>::Zero();
+	Eigen::Matrix<double, 6, 1> wrench;
+
+	Eigen::VectorXd tau, q, qd, qdd;
+	q = Eigen::VectorXd::Zero(4);
+	q << 0, 0.75, -1.5;
+	qd = Eigen::VectorXd::Zero(4);
+	qdd = Eigen::VectorXd::Zero(4);
+
+	dyn_ptr->computeWholeBodyInverseDynamics(wrench, tau, g, base_vel, base_accel, q, qd, qdd);
 
     return 0;
 }

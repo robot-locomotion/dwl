@@ -22,40 +22,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BASE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BASE_DIR}/bin)
 
 
-#if (UNIX)
-# find_library(YAMLCPP_LIBRARY NAMES yaml-cpp)
-# find_file(YAMLCPP_HAVE_H yaml-cpp/yaml.h )
-# find_path(YAMLCPP_H_INCLUDE_DIR yaml-cpp/yaml.h )
-# SET(YAMLCPP_INCLUDE_DIR ${YAMLCPP_H_INCLUDE_DIR}/yaml-cpp)
-#else()
-# find_library(
-#  YAMLCPP_LIBRARY
-#  NAMES yamlcpp.lib
-#  NO_DEFAULT_PATH 
-#  PATHS 
-#  $ENV{YAMLCPP_ROOT}/lib
-# )
-# find_file(YAMLCPP_HAVE_H include/yaml.h PATHS $ENV{YAMLCPP_ROOT} NO_DEFAULT_PATH)
-# find_path(YAMLCPP_H_INCLUDE_DIR include/yaml.h PATHS $ENV{YAMLCPP_ROOT} NO_DEFAULT_PATH)
-# SET(YAMLCPP_INCLUDE_DIR ${YAMLCPP_H_INCLUDE_DIR}/include)
-#endif(UNIX)
-#
-#SET(YAMLCPP_FOUND FALSE)
-#if (YAMLCPP_HAVE_H)
-# if (YAMLCPP_LIBRARY)
-#  SET(YAMLCPP_FOUND TRUE)
-# endif (YAMLCPP_LIBRARY)
-#endif (YAMLCPP_HAVE_H)
-#
-#if(NOT YAMLCPP_FOUND)
-# message(STATUS "YamlCpp Can't be found")
-# break()
-#else()
-# message(STATUS "YamlCpp Library: " ${YAMLCPP_LIBRARY} )
-# message(STATUS "YamlCpp Header: " ${YAMLCPP_INCLUDE_DIR} )
-#endif(NOT YAMLCPP_FOUND)
-
-
 #include_directories(include)
 set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")
 include_directories(${INCLUDE_DIRS})
@@ -103,6 +69,10 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							
 							src/model/WholeBodyKinematics.cpp
 							src/robot/HyLWholeBodyKinematics.cpp
+							src/robot/HyQWholeBodyKinematics.cpp
+							src/model/WholeBodyDynamics.cpp
+							src/robot/HyLWholeBodyDynamics.cpp
+#							src/robot/HyQWholeBodyDynamics.cpp
 							
 							src/utils/Math.cpp
 							src/utils/Orientation.cpp
@@ -112,7 +82,7 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
-target_link_libraries(${PROJECT_NAME} yaml-cpp iitgenhyq)# ${YAMLCPP_LIBRARY})
+target_link_libraries(${PROJECT_NAME} yaml-cpp iitgenhyq iitgenhyl)# ${YAMLCPP_LIBRARY}) TODO Clean the iitgens libraries
 
 
 add_executable(my_planner tests/HierarchicalPlanningTest.cpp)
