@@ -28,10 +28,16 @@ void HyQWholeBodyKinematics::init()
 	effector_id_[3] = "RH_foot";
 
 	// Defining the jacobians of the end-effectors
-	current_jacs_["LF_foot"] = jacs_.fr_trunk_J_LF_foot;
-	current_jacs_["RF_foot"] = jacs_.fr_trunk_J_RF_foot;
-	current_jacs_["LH_foot"] = jacs_.fr_trunk_J_LH_foot;
-	current_jacs_["RH_foot"] = jacs_.fr_trunk_J_RH_foot;
+	jacobians_["LF_foot"] = jacs_.fr_trunk_J_LF_foot;
+	jacobians_["RF_foot"] = jacs_.fr_trunk_J_RF_foot;
+	jacobians_["LH_foot"] = jacs_.fr_trunk_J_LH_foot;
+	jacobians_["RH_foot"] = jacs_.fr_trunk_J_RH_foot;
+
+	// Defining the homogeneous transformof the end-effectors
+	homogeneous_tf_["LF_foot"] = hom_tf_.fr_trunk_X_LF_foot;
+	homogeneous_tf_["RF_foot"] = hom_tf_.fr_trunk_X_RF_foot;
+	homogeneous_tf_["LH_foot"] = hom_tf_.fr_trunk_X_LH_foot;
+	homogeneous_tf_["RH_foot"] = hom_tf_.fr_trunk_X_RH_foot;
 
 	// Computing the number of joints given the jacobians
 	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
@@ -39,7 +45,7 @@ void HyQWholeBodyKinematics::init()
 			effector_iter++)
 	{
 		std::string effector_name = effector_iter->second;
-		Eigen::MatrixXd jac = current_jacs_.find(effector_name)->second;
+		Eigen::MatrixXd jac = jacobians_.find(effector_name)->second;
 		num_joints_ += jac.cols();
 	}
 
@@ -54,23 +60,17 @@ void HyQWholeBodyKinematics::updateState(Eigen::VectorXd state, Eigen::VectorXd 
 //	base_pose.orientation =
 	Eigen::VectorXd joint_position = state.tail(num_joints_);
 
-	jacs_.fr_trunk_J_LF_foot(joint_position);
-	jacs_.fr_trunk_J_RF_foot(joint_position);
-	jacs_.fr_trunk_J_LH_foot(joint_position);
-	jacs_.fr_trunk_J_RH_foot(joint_position);
-	current_jacs_["LF_foot"] = jacs_.fr_trunk_J_LF_foot;
-	current_jacs_["RF_foot"] = jacs_.fr_trunk_J_RF_foot;
-	current_jacs_["LH_foot"] = jacs_.fr_trunk_J_LH_foot;
-	current_jacs_["RH_foot"] = jacs_.fr_trunk_J_RH_foot;
+	// Updating the jacobians
+	jacobians_["LF_foot"] = jacs_.fr_trunk_J_LF_foot(joint_position);
+	jacobians_["RF_foot"] = jacs_.fr_trunk_J_RF_foot(joint_position);
+	jacobians_["LH_foot"] = jacs_.fr_trunk_J_LH_foot(joint_position);
+	jacobians_["RH_foot"] = jacs_.fr_trunk_J_RH_foot(joint_position);
 
-	homogeneous_tf_.fr_trunk_X_LF_foot(joint_position);
-	homogeneous_tf_.fr_trunk_X_RF_foot(joint_position);
-	homogeneous_tf_.fr_trunk_X_LH_foot(joint_position);
-	homogeneous_tf_.fr_trunk_X_RH_foot(joint_position);
-	current_effector_pos_["LF_foot"] = iit::rbd::Utils::positionVector(homogeneous_tf_.fr_trunk_X_LF_foot);
-	current_effector_pos_["RF_foot"] = iit::rbd::Utils::positionVector(homogeneous_tf_.fr_trunk_X_RF_foot);
-	current_effector_pos_["LH_foot"] = iit::rbd::Utils::positionVector(homogeneous_tf_.fr_trunk_X_LH_foot);
-	current_effector_pos_["RH_foot"] = iit::rbd::Utils::positionVector(homogeneous_tf_.fr_trunk_X_RH_foot);
+	// Updating the homogeneous transforms
+	homogeneous_tf_["LF_foot"] = hom_tf_.fr_trunk_X_LF_foot(joint_position);
+	homogeneous_tf_["RF_foot"] = hom_tf_.fr_trunk_X_RF_foot(joint_position);
+	homogeneous_tf_["LH_foot"] = hom_tf_.fr_trunk_X_LH_foot(joint_position);
+	homogeneous_tf_["RH_foot"] = hom_tf_.fr_trunk_X_RH_foot(joint_position);
 }
 
 } //@namespace robot

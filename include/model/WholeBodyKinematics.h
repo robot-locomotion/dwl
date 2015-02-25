@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 #include <map>
+#include <utils/Orientation.h>
 #include <utils/utils.h>
 #include <utils/Math.h>
 #include <iit/rbd/rbd.h>
@@ -37,6 +38,12 @@ class WholeBodyKinematics
 		 */
 		virtual void init() = 0;
 
+		void computeEffectorFK(Eigen::VectorXd& position, enum Component component = Full);
+		void computeEffectorFK(Eigen::VectorXd& position, EndEffectorSelector effector_set,
+							   enum Component component = Full);
+		Eigen::Matrix3d getBaseRotationMatrix();
+		Eigen::Matrix4d getHomogeneousTransform(std::string effector_name);
+
 		/**
 		 * @brief This abstract method updates the state of the robot, which as a convention is
 		 * [xb^T; q^T]^T where xb is the position and orientation of the robot base and q is joint
@@ -44,7 +51,7 @@ class WholeBodyKinematics
 		 * @param Eigen::VectorXd Current state vector
 		 * @param Eigen::VectorXd Current time derivative state vector
 		 */
-		virtual void updateState(Eigen::VectorXd state, Eigen::VectorXd state_dot) = 0;
+		virtual void updateState(Eigen::VectorXd state) = 0;
 
 		/**
 		 * @brief This method computes the whole-body jacobian for all end-effector of the robot.
@@ -109,6 +116,7 @@ class WholeBodyKinematics
 											 enum Component component = Full);
 
 		typedef std::map<std::string, Eigen::Matrix<double, 6, Eigen::Dynamic> > EndEffectorJacobian;
+		typedef std::map<std::string, Eigen::Matrix<double, 4, 4> > EndEffectorHomTransform;
 
 
 	protected:
@@ -116,16 +124,16 @@ class WholeBodyKinematics
 		EndEffectorID effector_id_;
 
 		/** @brief Jacobian matrix for the current state of the robot */
-		EndEffectorJacobian current_jacs_;
+		EndEffectorJacobian jacobians_;
 
-		/** @brief End-effector position for the current state of the robot */
-		EndEffectorPosition current_effector_pos_;
+		/** @brief End-effector homogeneous transforms for the current state of the robot */
+		EndEffectorHomTransform homogeneous_tf_;
 
 		/** @brief Number of joints of the robot */
 		int num_joints_;
 
 		/** @brief Floating-base rotation matrix for the current state of the robot */
-		Eigen::MatrixXd floating_base_rot_;
+		Eigen::Matrix3d floating_base_rot_;
 };
 
 } //@namespace model

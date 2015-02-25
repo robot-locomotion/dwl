@@ -172,7 +172,6 @@ struct NeighboringArea
 //TODO Add documentation
 typedef std::map<std::string,bool> EndEffectorSelector;
 typedef std::map<int,std::string> EndEffectorID;
-typedef std::map<std::string, Eigen::Vector3d> EndEffectorPosition;
 
 /**
  * @struct Contact
