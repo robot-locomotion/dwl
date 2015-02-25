@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-WholeBodyDynamics::WholeBodyDynamics()
+WholeBodyDynamics::WholeBodyDynamics() : kin_model_(NULL)
 {
 
 }
@@ -16,6 +16,12 @@ WholeBodyDynamics::WholeBodyDynamics()
 WholeBodyDynamics::~WholeBodyDynamics()
 {
 
+}
+
+
+void WholeBodyDynamics::setKinematicModel(model::WholeBodyKinematics* kinematics)
+{
+	kin_model_ = kinematics;
 }
 
 } //@namespace model
