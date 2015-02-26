@@ -242,10 +242,10 @@ void WholeBodyKinematics::computeBaseJacobian(Eigen::MatrixXd& jacobian,
 				jacobian.block(init_row, rbd::AX, 3, 3) = floating_base_rot_.transpose();
 				break;
 			case Full:
-				jacobian.block(init_row, rbd::AX, 3, 3) = -floating_base_rot_.transpose() *
+				jacobian.block(init_row, rbd::AX, 3, 3) = floating_base_rot_.transpose();
+				jacobian.block(init_row + 3, rbd::AX, 3, 3) = -floating_base_rot_.transpose() *
 						math::skewSymmentricMatrixFrom3DVector(foot_pos);
-				jacobian.block(init_row, rbd::LX, 3, 3) = floating_base_rot_.transpose();
-				jacobian.block(init_row + 3, rbd::AX, 3, 3) = floating_base_rot_.transpose();
+				jacobian.block(init_row + 3, rbd::LX, 3, 3) = floating_base_rot_.transpose();
 				break;
 			}
 			++effector_counter;
