@@ -44,8 +44,15 @@ void HyLWholeBodyKinematics::init()
 }
 
 
-void HyLWholeBodyKinematics::updateState(Eigen::VectorXd state)
+void HyLWholeBodyKinematics::updateState(const iit::rbd::Vector6D& base_pos, const Eigen::VectorXd& joint_pos)
 {
+//	if (joint_pos.size() > 2)
+//		printf("Error the joint position must be 2");
+
+	// Computing the HyL state
+	Eigen::Vector3d state;
+	state << base_pos(iit::rbd::LZ), joint_pos;
+
 	// Updating jacobians
 	jacobians_["foot"] = jacs_.fr_trunk_J_fr_foot(state);
 

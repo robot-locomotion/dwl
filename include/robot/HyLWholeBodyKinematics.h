@@ -19,7 +19,7 @@ class HyLWholeBodyKinematics : public model::WholeBodyKinematics
 		~HyLWholeBodyKinematics();
 
 		void init();
-		void updateState(Eigen::VectorXd state);
+		void updateState(const iit::rbd::Vector6D& base_pos, const Eigen::VectorXd& joint_pos);
 
 	private:
 		iit::HyL::Jacobians jacs_;

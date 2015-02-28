@@ -51,7 +51,7 @@ class WholeBodyKinematics
 		 * @param Eigen::VectorXd Current state vector
 		 * @param Eigen::VectorXd Current time derivative state vector
 		 */
-		virtual void updateState(Eigen::VectorXd state) = 0;
+		virtual void updateState(const iit::rbd::Vector6D& base_pos, const Eigen::VectorXd& joint_pos) = 0;
 
 		/**
 		 * @brief This method computes the whole-body jacobian for all end-effector of the robot.

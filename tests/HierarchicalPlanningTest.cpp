@@ -13,22 +13,20 @@ int main(int argc, char **argv)
 	dwl::model::WholeBodyDynamics* dyn_ptr = new dwl::robot::HyLWholeBodyDynamics();
 	dyn_ptr->setKinematicModel(kin_ptr);
 
-	Eigen::VectorXd tau, q, qd, qdd;
-	q = Eigen::VectorXd::Zero(2);
-	q << 0.75, -1.5;
-	qd = Eigen::VectorXd::Zero(2);
-	qdd = Eigen::VectorXd::Zero(2);
-	Eigen::Matrix<double, 6, 1> g = Eigen::Matrix<double, 6, 1>::Zero();
-	Eigen::Matrix<double, 6, 1> base_vel = Eigen::Matrix<double, 6, 1>::Zero();
-	Eigen::Matrix<double, 6, 1> base_accel = Eigen::Matrix<double, 6, 1>::Zero();
-	Eigen::Matrix<double, 6, 1> wrench;
-	Eigen::VectorXd state = Eigen::VectorXd::Zero(3);
-	state << 0, q;
-	Eigen::VectorXd state_dot = Eigen::VectorXd::Zero(3);
+	iit::rbd::Vector6D base_wrench, base_pos, base_vel, base_acc, g;
+	Eigen::VectorXd joint_forces(2), joint_pos(2), joint_vel(2), joint_acc(2);
+
+	base_pos = iit::rbd::Vector6D::Zero();
+	base_vel = iit::rbd::Vector6D::Zero();
+	base_acc = iit::rbd::Vector6D::Zero();
+	joint_pos << 0.75, -1.5;
+	joint_vel << 0., 0.;
+	joint_acc << 0., 0.;
+
 
 	// Testing kinematics
 	kin_ptr->init();
-	kin_ptr->updateState(state);
+	kin_ptr->updateState(base_pos, joint_pos);
 
 	Eigen::VectorXd effector_pos;
 	kin_ptr->computeEffectorFK(effector_pos, dwl::model::Full);
@@ -48,11 +46,16 @@ int main(int argc, char **argv)
 	// Testing dynamics
 	Eigen::VectorXd jacd_qd;
 	dyn_ptr->init();
-	dyn_ptr->computeJointVelocityContributionOfAcceleration(jacd_qd, state, state_dot);
-	std::cout << jacd_qd << std::endl;
-	std::cout << jacd_qd.tail(2) << std::endl;
+	dyn_ptr->updateState(base_pos, joint_pos);
+	dyn_ptr->computeJointVelocityContributionOfAcceleration(jacd_qd, base_pos, base_vel, joint_pos, joint_vel);
+	std::cout << "jacd_qd = " << jacd_qd.transpose() << std::endl;
+	std::cout << "jacd_qd2 = " << jacd_qd.transpose().tail(2) << std::endl;
 
-//	dyn_ptr->computeWholeBodyInverseDynamics(wrench, tau, g, base_vel, base_accel, q, qd, qdd);
+	dyn_ptr->computeWholeBodyInverseDynamics(base_wrench, joint_forces, g, base_pos, base_vel, base_acc, joint_pos, joint_vel, joint_acc);
+	Eigen::Vector3d tau;
+	tau << base_wrench(iit::rbd::LZ), joint_forces;
+	std::cout << "tau = " << tau.transpose() << std::endl;
+
 
     return 0;
 }
