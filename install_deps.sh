@@ -19,7 +19,7 @@ function install_eigen
 	mkdir -p build
 	cd build
 	cmake ../
-	make install
+	sudo make install
 	cd ../../
 	rm -rf 3.2.4.tar.bz2
 }
@@ -34,7 +34,7 @@ function install_yamlcpp
 	mkdir -p build
 	cd build
 	cmake ../
-	make install
+	sudo make install
 	cd ../../
 	rm -rf yaml-cpp-0.3.0.tar.gz
 }
@@ -49,7 +49,7 @@ function install_octomap
 	mkdir -p build
 	cd build
 	cmake ../
-	make install
+	sudo make install
 	cd ../../
 	rm -rf v1.6.8.tar.gz
 }
@@ -110,7 +110,7 @@ function install_ipopt
 	mkdir -p build
 	cd build
 	# start building
-	../configure --enable-static --prefix ~/Ipopt-3.9.3
+	../configure --enable-static --prefix ${SELF_PATH}/thirdparty/Ipopt-3.9.3
 	make install
 	cd ../../
 	rm -rf Ipopt-3.9.3.tgz
@@ -119,23 +119,7 @@ function install_ipopt
 
 
 
-
-
-# Check user and run as root if necessary
-if [ "$USER" != "root" ]; then
-	SUDO=$(sudo -v 2>&1)
-
-	if [ -z "$SUDO" ]; then  # We can run the command with sudo
-    	echo -e "${COLOR_INFO}Running the script with sudo${COLOR_RESET}"
-    	sudo $0 $*
-	else                        # We need to login as root
-    	echo -e "${COLOR_INFO}Login as root${COLOR_RESET}"
-    	su -c "$0 $*"
-	fi
-
-	exit
-fi
-
+##############################################  MAIN  ########################################################
 # Getting the path of the install_deps.sh file
 SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 
