@@ -23,7 +23,7 @@ class HyQWholeBodyKinematics : public model::WholeBodyKinematics
 
 	private:
 		iit::HyQ::Jacobians jacs_;
-		iit::HyQ::HomogeneousTransforms homogeneous_tf_;
+		iit::HyQ::HomogeneousTransforms hom_tf_;
 		iit::HyQ::MotionTransforms motion_tf_;
 };
 

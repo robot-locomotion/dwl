@@ -2,8 +2,8 @@
 #define DWL_HyLWholeBodyKinematics_H
 
 #include <model/WholeBodyKinematics.h>
-#include <iit/robots/hyq/jacobians.h>
-#include <iit/robots/hyq/transforms.h>
+#include <iit/robots/hyl/jacobians.h>
+#include <iit/robots/hyl/transforms.h>
 
 
 namespace dwl
@@ -19,12 +19,12 @@ class HyLWholeBodyKinematics : public model::WholeBodyKinematics
 		~HyLWholeBodyKinematics();
 
 		void init();
-		void updateState(Eigen::VectorXd state, Eigen::VectorXd state_dot);
+		void updateState(const iit::rbd::Vector6D& base_pos, const Eigen::VectorXd& joint_pos);
 
 	private:
-		iit::HyQ::Jacobians jacs_;
-		iit::HyQ::HomogeneousTransforms homogeneous_tf_;
-		iit::HyQ::MotionTransforms motion_tf_;
+		iit::HyL::Jacobians jacs_;
+		iit::HyL::HomogeneousTransforms hom_tf_;
+		iit::HyL::MotionTransforms motion_tf_;
 };
 
 } //@namespace robot
