@@ -8,6 +8,7 @@ message("Compiling the version ${DWL_VERSION} of Dynamic Whole-Body Locomotion (
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(Eigen REQUIRED)
+message("Eigen ${EIGEN_INCLUDE_DIRS}")
 find_package(IPOPT)
 find_package(octomap)
 #find_package(yaml-cpp REQUIRED)
@@ -79,7 +80,7 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							src/utils/YamlBridge.cpp) 
 
 # Adding Ipopt components of the project
-if (IPOPT_FOUND)
+if(IPOPT_FOUND)
     include_directories(${IPOPT_INCLUDE_DIRS})
     set(DEPENDENCIES_SOURCES ${DEPENDENCIES_SOURCES}
                              ${IPOPT_SOURCES})
@@ -87,14 +88,14 @@ if (IPOPT_FOUND)
                                ${IPOPT_LIBRARIES})
     set(${PROJECT_NAME}_SOURCES ${${PROJECT_NAME}_SOURCES}
                                 src/solver/IpoptWrapper.cpp)
-endif (IPOPT_FOUND)
+endif()
 
 # Adding Octomap components of the project
-if (octomap_FOUND)
+if(octomap_FOUND)
     set(${PROJECT_NAME}_SOURCES ${${PROJECT_NAME}_SOURCES}
                                 src/environment/RewardOctoMap.cpp
                                 src/environment/ObstacleMap.cpp)
-endif (octomap_FOUND)
+endif()
 
 
 # Adding the dwl library

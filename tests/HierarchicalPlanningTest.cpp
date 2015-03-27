@@ -4,7 +4,11 @@
 #include <robot/HyLWholeBodyDynamics.h>
 #include <iit/rbd/rbd.h>
 
-
+void get(Eigen::VectorXd& constraint, Eigen::VectorXd state)
+{
+	constraint = 2 * state;
+	std::cout << "get = " << constraint.transpose() << std::endl;
+}
 
 
 int main(int argc, char **argv)
@@ -55,6 +59,33 @@ int main(int argc, char **argv)
 	Eigen::Vector3d tau;
 	tau << base_wrench(iit::rbd::LZ), joint_forces;
 	std::cout << "tau = " << tau.transpose() << std::endl;
+
+
+
+	Eigen::VectorXd all_constraint(4);
+	all_constraint.setZero();
+
+	double x_raw[] = {1,2};
+	const double* x = x_raw;
+	for (int i = 0; i < 2; i++)
+		std::cout << x[i] << " ";
+	std::cout << std::endl;
+
+	Eigen::Map<const Eigen::VectorXd> state(x, 2);
+	Eigen::VectorXd constraint;
+	get(constraint, (Eigen::VectorXd) state);
+	std::cout << "size " << constraint.size() << std::endl;
+
+	all_constraint.segment(0,2) = constraint;
+	all_constraint.segment(2,2) = constraint;
+
+	std::cout << all_constraint.transpose() << std::endl;
+
+	double* data;
+	data = all_constraint.data();
+	for (int i = 0; i < 5; i++)
+		std::cout << data[i] << " ";
+	std::cout << std::endl;
 
 
     return 0;
