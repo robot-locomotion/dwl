@@ -34,11 +34,18 @@ class Cost
 		virtual void setCostMap(std::vector<RewardCell> reward_map);
 
 		/**
-		 * @brief Abstract method for getting the cost value given a certain state
+		 * @brief Computes the cost value given a certain state
 		 * @param Eigen::VectorXd State value
 		 * @return The cost at defined state
 		 */
-		virtual double get(Eigen::VectorXd state);
+		virtual double get(Eigen::VectorXd state) = 0;
+
+		/**
+		 * @brief Computes the gradient of the cost given a certain state
+		 * @param Eigen::VectorXd& Gradient of the cost
+		 * @param Eigen::VectorXd State value
+		 */
+		virtual void getGradient(Eigen::VectorXd& gradient, Eigen::VectorXd state) = 0;
 
 		/**
 		 * @brief Abstract method for getting the cost value given a certain node

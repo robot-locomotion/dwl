@@ -25,14 +25,6 @@ void Cost::setCostMap(std::vector<RewardCell> reward_map)
 }
 
 
-double Cost::get(Eigen::VectorXd state)
-{
-	printf(YELLOW "Could not get the cost because this was not defined\n" COLOR_RESET);
-
-	return 0;
-}
-
-
 void Cost::get(AdjacencyMap& adjacency_map, Eigen::Vector3d robot_state, bool terrain_cost)
 {
 	printf(YELLOW "Could not get the cost because this was not defined\n" COLOR_RESET);

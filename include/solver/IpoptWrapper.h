@@ -1,6 +1,7 @@
 #ifndef DWL_IpoptWrapper_H
 #define DWL_IpoptWrapper_H
 
+#include <locomotion/Cost.h>
 #include <constraint/Constraint.h>
 #include "IpTNLP.hpp"
 
@@ -26,6 +27,18 @@ class IpoptWrapper : public Ipopt::TNLP
 
 		/** @brief Destructor function */
 		~IpoptWrapper();
+
+		/**
+		 * @brief Adds an active or inactive constraints to the planning algorithm
+		 * @param Constraint* Constraint to add it
+		 */
+		void addConstraint(constraint::Constraint* constraint);
+
+		/**
+		 * @brief Adds a cost function for the planning algorithm
+		 * @param Cost* Cost to add it
+		 */
+		void addCost(locomotion::Cost* cost);
 
 		/**@name Overloaded from TNLP */
 		/**
@@ -62,15 +75,15 @@ class IpoptWrapper : public Ipopt::TNLP
 		 * @brief Method to return the constraint residuals
 		 */
 		bool eval_g(Index n, const Number* x,
-					  bool new_x, Index m, Number* g);
+				    bool new_x, Index m, Number* g);
 
 		/** Method to return:
 		 *   1) The structure of the jacobian (if "values" is NULL)
 		 *   2) The values of the jacobian (if "values" is not NULL)
 		 */
 		bool eval_jac_g(Index n, const Number* x, bool new_x,
-						  Index m, Index nele_jac, Index* iRow, Index *jCol,
-						  Number* values);
+					    Index m, Index nele_jac, Index* row_entries, Index* col_entries,
+					    Number* values);
 
 		/** Method to return:
 		 *   1) The structure of the hessian of the lagrangian (if "values" is NULL)
@@ -108,11 +121,18 @@ class IpoptWrapper : public Ipopt::TNLP
 		IpoptWrapper& operator=(const IpoptWrapper&);
 		//@}
 
+		/** @brief Vector of cost function pointers */
+		std::vector<locomotion::Cost*> costs_;
+
 		/** @brief Vector of active constraints pointers */
 		std::vector<constraint::Constraint*> active_constraints_;
 
 		/** @brief Vector of inactive constraints pointers */
 		std::vector<constraint::Constraint*> inactive_constraints_;
+
+		bool is_added_cost_;
+		bool is_added_active_constraint_;
+		bool is_added_inactive_constraint_;
 };
 
 } //@namespace solver

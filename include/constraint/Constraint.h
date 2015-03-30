@@ -24,11 +24,18 @@ class Constraint
 		virtual ~Constraint();
 
 		/**
-		 * @brief Abstract method for getting the constraint vector given a certain state
+		 * @brief Computes the constraint vector given a certain state
 		 * @param Eigen::VectorXd& Constraint vector
 		 * @param Eigen::VectorXd State vector
 		 */
 		virtual void get(Eigen::VectorXd& constraint, Eigen::VectorXd state) = 0;
+
+		/**
+		 * @brief Computes the Jacobian of the constraint give a certain state
+		 * @param Eigen::MatrixXd& Jacobian of the constraints
+		 * @param Eigen::VectorXd State value
+		 */
+		virtual void getJacobian(Eigen::MatrixXd& jacobian, Eigen::VectorXd state) = 0;
 
 		/**
 		 * @brief Indicates if the constraint is active [g(x) = 0] or inactive [g(x) > 0]
