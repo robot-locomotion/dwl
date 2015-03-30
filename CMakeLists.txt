@@ -87,7 +87,8 @@ if(IPOPT_FOUND)
     set(DEPENDENCIES_LIBRARIES ${DEPENDENCIES_LIBRARIES}
                                ${IPOPT_LIBRARIES})
     set(${PROJECT_NAME}_SOURCES ${${PROJECT_NAME}_SOURCES}
-                                src/solver/IpoptWrapper.cpp)
+                                src/solver/IpoptWrapper.cpp
+                                src/solver/IpoptNLP.cpp)
 endif()
 
 # Adding Octomap components of the project

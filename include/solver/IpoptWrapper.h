@@ -1,9 +1,9 @@
 #ifndef DWL_IpoptWrapper_H
 #define DWL_IpoptWrapper_H
 
+#include <IpTNLP.hpp>
 #include <model/Cost.h>
 #include <model/Constraint.h>
-#include "IpTNLP.hpp"
 
 
 namespace dwl

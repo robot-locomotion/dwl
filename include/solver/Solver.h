@@ -52,7 +52,7 @@ class Solver
 		 * @return True if it was computed a solution
 		 */
 		virtual bool compute(Vertex source, Vertex target,
-							   double computation_time = std::numeric_limits<double>::max());
+							   double computation_time = std::numeric_limits<double>::max()) = 0;
 
 		/**
 		 * @brief Abstract method for computing a solution of an optimization problem
@@ -67,7 +67,7 @@ class Solver
 		 */
 		virtual bool compute(Eigen::MatrixXd hessian, Eigen::VectorXd gradient,
 				Eigen::MatrixXd constraint, Eigen::VectorXd low_bound,Eigen::VectorXd upper_bound,
-				Eigen::VectorXd low_constraint, Eigen::VectorXd upper_constraint); //TODO represents as active, inactive and bound
+				Eigen::VectorXd low_constraint, Eigen::VectorXd upper_constraint) = 0; //TODO represents as active, inactive and bound
 
 		/**
 		 * @brief Gets the shortest-path only for graph searching algorithms

@@ -17,7 +17,20 @@ IpoptWrapper::IpoptWrapper() : is_added_cost_(false), is_added_active_constraint
 
 IpoptWrapper::~IpoptWrapper()
 {
-
+	typedef std::vector<model::Constraint*>::iterator ConstraintItr;
+	typedef std::vector<model::Cost*>::iterator CostItr;
+	if (is_added_active_constraint_) {
+		for (ConstraintItr i = active_constraints_.begin(); i != active_constraints_.end(); i++)
+			delete *i;
+	}
+	if (is_added_inactive_constraint_) {
+		for (ConstraintItr i = inactive_constraints_.begin(); i != inactive_constraints_.end(); i++)
+			delete *i;
+	}
+	if (is_added_cost_) {
+		for (CostItr i = costs_.begin(); i != costs_.end(); i++)
+			delete *i;
+	}
 }
 
 
