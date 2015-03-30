@@ -45,10 +45,12 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							src/solver/Dijkstrap.cpp
 							src/solver/AStar.cpp
 							src/solver/AnytimeRepairingAStar.cpp
-							src/constraint/Constraint.cpp
-							src/constraint/KinematicConstraints.cpp
-							src/constraint/StabilityConstraints.cpp
-							src/locomotion/Cost.cpp
+							src/model/Constraint.cpp
+							src/model/KinematicConstraints.cpp
+							src/model/StabilityConstraints.cpp
+							src/model/Cost.cpp
+							src/model/WholeBodyKinematics.cpp
+							src/model/WholeBodyDynamics.cpp
 							src/behavior/MotorPrimitives.cpp
 							src/behavior/BodyMotorPrimitives.cpp
 							src/environment/EnvironmentInformation.cpp
@@ -69,10 +71,8 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							src/environment/KinematicFeasibilityFeature.cpp
 							src/robot/Robot.cpp
 							src/robot/StateCost.cpp
-							src/model/WholeBodyKinematics.cpp
 							src/robot/HyLWholeBodyKinematics.cpp
 							src/robot/HyQWholeBodyKinematics.cpp
-							src/model/WholeBodyDynamics.cpp
 							src/robot/HyLWholeBodyDynamics.cpp
 #							src/robot/HyQWholeBodyDynamics.cpp
 							src/utils/Math.cpp

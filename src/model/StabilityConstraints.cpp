@@ -1,10 +1,10 @@
-#include <constraint/StabilityConstraints.h>
+#include <model/StabilityConstraints.h>
 
 
 namespace dwl
 {
 
-namespace constraint
+namespace model
 {
 
 StabilityConstraints::StabilityConstraints()
@@ -25,5 +25,5 @@ void StabilityConstraints::get(Eigen::VectorXd& constraint, Eigen::VectorXd stat
 	printf("Getting stability constraints\n");
 }
 
-} //@namespace constraint
+} //@namespace model
 } //@namespace dwl

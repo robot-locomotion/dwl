@@ -10,7 +10,7 @@
 namespace dwl
 {
 
-namespace locomotion
+namespace model
 {
 
 /**
@@ -76,7 +76,7 @@ class Cost
 		bool is_cost_map_;
 };
 
-} //@namespace locomotion
+} //@namespace model
 } //@namespace dwl
 
 #endif

@@ -26,7 +26,7 @@ void WholeBodyLocomotion::reset(locomotion::PlanningOfMotionSequence* planner)
 }
 
 
-void WholeBodyLocomotion::addConstraint(constraint::Constraint* constraint)
+void WholeBodyLocomotion::addConstraint(model::Constraint* constraint)
 {
 	if (is_set_planner_)
 		planner_->addConstraint(constraint);
@@ -48,7 +48,7 @@ void WholeBodyLocomotion::removeConstraint(std::string constraint_name)
 }
 
 
-void WholeBodyLocomotion::addCost(locomotion::Cost* cost)
+void WholeBodyLocomotion::addCost(model::Cost* cost)
 {
 	if (is_set_planner_)
 		planner_->addCost(cost);

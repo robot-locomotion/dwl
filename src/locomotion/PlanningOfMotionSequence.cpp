@@ -18,8 +18,8 @@ PlanningOfMotionSequence::PlanningOfMotionSequence() : motion_planner_(NULL), co
 
 PlanningOfMotionSequence::~PlanningOfMotionSequence()
 {
-	typedef std::vector<constraint::Constraint*>::iterator ConstraintItr;
-	typedef std::vector<Cost*>::iterator CostItr;
+	typedef std::vector<model::Constraint*>::iterator ConstraintItr;
+	typedef std::vector<model::Cost*>::iterator CostItr;
 	if (is_added_active_constraint_) {
 		for (ConstraintItr i = active_constraints_.begin(); i != active_constraints_.end(); i++)
 			delete *i;
@@ -36,7 +36,7 @@ PlanningOfMotionSequence::~PlanningOfMotionSequence()
 
 
 void PlanningOfMotionSequence::reset(robot::Robot* robot, solver::Solver* solver,
-										  environment::EnvironmentInformation* environment)
+									 environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the robot properties in the %s planner \n" COLOR_RESET, name_.c_str());
 	robot_ = robot;
@@ -52,8 +52,10 @@ void PlanningOfMotionSequence::reset(robot::Robot* robot, solver::Solver* solver
 }
 
 
-void PlanningOfMotionSequence::reset(robot::Robot* robot, MotionPlanning* motion_planner,
-		ContactPlanning* contact_planner, environment::EnvironmentInformation* environment)
+void PlanningOfMotionSequence::reset(robot::Robot* robot,
+									 MotionPlanning* motion_planner,
+									 ContactPlanning* contact_planner,
+									 environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the robot properties in the %s planner \n" COLOR_RESET, name_.c_str());
 	robot_ = robot;
@@ -73,7 +75,7 @@ void PlanningOfMotionSequence::reset(robot::Robot* robot, MotionPlanning* motion
 }
 
 
-void PlanningOfMotionSequence::addConstraint(constraint::Constraint* constraint)
+void PlanningOfMotionSequence::addConstraint(model::Constraint* constraint)
 {
 	if (constraint->isActive()) {
 		printf(GREEN "Adding the active %s constraint\n" COLOR_RESET, constraint->getName().c_str());
@@ -149,7 +151,7 @@ void PlanningOfMotionSequence::removeConstraint(std::string constraint_name)
 }
 
 
-void PlanningOfMotionSequence::addCost(Cost* cost)
+void PlanningOfMotionSequence::addCost(model::Cost* cost)
 {
 	printf(GREEN "Adding the %s cost\n" COLOR_RESET, cost->getName().c_str());
 

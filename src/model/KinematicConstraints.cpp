@@ -1,10 +1,10 @@
-#include <constraint/KinematicConstraints.h>
+#include <model/KinematicConstraints.h>
 
 
 namespace dwl
 {
 
-namespace constraint
+namespace model
 {
 
 KinematicConstraints::KinematicConstraints()
@@ -25,5 +25,5 @@ void KinematicConstraints::get(Eigen::VectorXd& constraint, Eigen::VectorXd stat
 	printf("Getting kinematic constraints\n");
 }
 
-} //@namespace constraint
+} //@namespace model
 } //@namespace dwl

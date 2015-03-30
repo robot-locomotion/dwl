@@ -1,10 +1,10 @@
-#include <locomotion/Cost.h>
+#include <model/Cost.h>
 
 
 namespace dwl
 {
 
-namespace locomotion
+namespace model
 {
 
 Cost::Cost() : is_cost_map_(false)
@@ -42,5 +42,5 @@ std::string Cost::getName()
 	return name_;
 }
 
-} //@namespace locomotion
+} //@namespace model
 } //@namespace dwl

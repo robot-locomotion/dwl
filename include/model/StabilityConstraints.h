@@ -1,16 +1,16 @@
 #ifndef DWL_StabilityConstraints_H
 #define DWL_StabilityConstraints_H
 
-#include <constraint/Constraint.h>
+#include <model/Constraint.h>
 
 
 namespace dwl
 {
 
-namespace constraint
+namespace model
 {
 
-class StabilityConstraints : public constraint::Constraint
+class StabilityConstraints : public Constraint
 {
 	public:
 		/** @brief Constructor function */
@@ -23,7 +23,7 @@ class StabilityConstraints : public constraint::Constraint
 
 };
 
-} //@namespace constraint
+} //@namespace model
 } //@namespace dwl
 
 #endif

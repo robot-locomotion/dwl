@@ -31,7 +31,7 @@ class WholeBodyLocomotion
 		 * @brief Adds a constraint to the locomotion approach
 		 * @param Constraint* Pointer to the constraint class
 		 */
-		void addConstraint(constraint::Constraint* constraint);
+		void addConstraint(model::Constraint* constraint);
 
 		/**
 		 * @brief Removes a constraint to the locomotion approach
@@ -43,7 +43,7 @@ class WholeBodyLocomotion
 		 * @brief Adds a cost to the locomotion approach
 		 * @param Cost* Pointer to the cost class
 		 */
-		void addCost(locomotion::Cost* cost);
+		void addCost(model::Cost* cost);
 
 		/**
 		 * @brief Removes a cost to the locomotion approach

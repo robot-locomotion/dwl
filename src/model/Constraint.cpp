@@ -1,10 +1,10 @@
-#include <constraint/Constraint.h>
+#include <model/Constraint.h>
 
 
 namespace dwl
 {
 
-namespace constraint
+namespace model
 {
 
 Constraint::Constraint() : is_active_constraint_(false)
@@ -30,5 +30,5 @@ bool Constraint::isActive()
 	return is_active_constraint_;
 }
 
-} //@namespace constraint
+} //@namespace model
 } //@namespace dwl

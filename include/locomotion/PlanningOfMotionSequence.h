@@ -5,8 +5,8 @@
 #include <locomotion/MotionPlanning.h>
 #include <locomotion/ContactPlanning.h>
 #include <solver/Solver.h>
-#include <constraint/Constraint.h>
-#include <locomotion/Cost.h>
+#include <model/Constraint.h>
+#include <model/Cost.h>
 #include <environment/EnvironmentInformation.h>
 
 #include <utils/utils.h>
@@ -56,7 +56,7 @@ class PlanningOfMotionSequence
 		 * @brief Adds an active or inactive constraints to the planning algorithm
 		 * @param Constraint* Constraint to add it
 		 */
-		void addConstraint(constraint::Constraint* constraint);
+		void addConstraint(model::Constraint* constraint);
 
 		/**
 		 * @brief Removes an active or inactive constraints to the planning algorithm
@@ -68,7 +68,7 @@ class PlanningOfMotionSequence
 		 * @brief Adds a cost function for the planning algorithm
 		 * @param Cost* Cost to add it
 		 */
-		void addCost(Cost* cost);
+		void addCost(model::Cost* cost);
 
 		/**
 		 * @brief Removes a cost function for the planning algorithm
@@ -175,13 +175,13 @@ class PlanningOfMotionSequence
 		environment::EnvironmentInformation* environment_;
 
 		/** @brief Vector of active constraints pointers */
-		std::vector<constraint::Constraint*> active_constraints_;
+		std::vector<model::Constraint*> active_constraints_;
 
 		/** @brief Vector of inactive constraints pointers */
-		std::vector<constraint::Constraint*> inactive_constraints_;
+		std::vector<model::Constraint*> inactive_constraints_;
 
 		/** @brief Vector of costs pointers */
-		std::vector<Cost*> costs_;
+		std::vector<model::Cost*> costs_;
 
 		/** @brief Initial pose of the robot */
 		Pose initial_pose_;

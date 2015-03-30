@@ -7,7 +7,7 @@
 namespace dwl
 {
 
-namespace constraint
+namespace model
 {
 
 /**
@@ -64,7 +64,7 @@ class Constraint
 		Eigen::VectorXd constraint_value_;
 };
 
-} //@namespace constraint
+} //@namespace model
 } //@namespace dwl
 
 #endif

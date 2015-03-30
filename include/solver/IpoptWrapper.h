@@ -1,8 +1,8 @@
 #ifndef DWL_IpoptWrapper_H
 #define DWL_IpoptWrapper_H
 
-#include <locomotion/Cost.h>
-#include <constraint/Constraint.h>
+#include <model/Cost.h>
+#include <model/Constraint.h>
 #include "IpTNLP.hpp"
 
 
@@ -32,13 +32,13 @@ class IpoptWrapper : public Ipopt::TNLP
 		 * @brief Adds an active or inactive constraints to the planning algorithm
 		 * @param Constraint* Constraint to add it
 		 */
-		void addConstraint(constraint::Constraint* constraint);
+		void addConstraint(model::Constraint* constraint);
 
 		/**
 		 * @brief Adds a cost function for the planning algorithm
 		 * @param Cost* Cost to add it
 		 */
-		void addCost(locomotion::Cost* cost);
+		void addCost(model::Cost* cost);
 
 		/**@name Overloaded from TNLP */
 		/**
@@ -122,13 +122,13 @@ class IpoptWrapper : public Ipopt::TNLP
 		//@}
 
 		/** @brief Vector of cost function pointers */
-		std::vector<locomotion::Cost*> costs_;
+		std::vector<model::Cost*> costs_;
 
 		/** @brief Vector of active constraints pointers */
-		std::vector<constraint::Constraint*> active_constraints_;
+		std::vector<model::Constraint*> active_constraints_;
 
 		/** @brief Vector of inactive constraints pointers */
-		std::vector<constraint::Constraint*> inactive_constraints_;
+		std::vector<model::Constraint*> inactive_constraints_;
 
 		bool is_added_cost_;
 		bool is_added_active_constraint_;

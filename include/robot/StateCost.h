@@ -1,7 +1,7 @@
 #ifndef DWL_StateCost_H
 #define DWL_StateCost_H
 
-#include <locomotion/Cost.h>
+#include <model/Cost.h>
 
 
 namespace dwl
@@ -10,7 +10,7 @@ namespace dwl
 namespace robot
 {
 
-class StateCost : public locomotion::Cost
+class StateCost : public model::Cost
 {
 	public:
 		/** @brief Constructor function */

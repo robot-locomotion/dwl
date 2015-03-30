@@ -21,7 +21,7 @@ IpoptWrapper::~IpoptWrapper()
 }
 
 
-void IpoptWrapper::addConstraint(constraint::Constraint* constraint)
+void IpoptWrapper::addConstraint(model::Constraint* constraint)
 {
 	if (constraint->isActive()) {
 		printf(GREEN "Adding the active %s constraint\n" COLOR_RESET, constraint->getName().c_str());
@@ -40,7 +40,7 @@ void IpoptWrapper::addConstraint(constraint::Constraint* constraint)
 }
 
 
-void IpoptWrapper::addCost(locomotion::Cost* cost)
+void IpoptWrapper::addCost(model::Cost* cost)
 {
 	printf(GREEN "Adding the %s cost\n" COLOR_RESET, cost->getName().c_str());
 
