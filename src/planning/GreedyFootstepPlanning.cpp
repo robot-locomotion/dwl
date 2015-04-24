@@ -45,17 +45,32 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 		orientation.getRPY(roll, pitch, yaw);
 
 		std::vector<Contact> planned_contacts;
+		std::vector<Contact> contacts_for_execution;
 		if (!computeContacts(planned_contacts, current_contacts, pose_trajectory[i])) {
 			printf(YELLOW "Could not computed the footholds \n" COLOR_RESET);
 			return false;
 		}
 
+		// Removing the small footsteps, that means to keep the same foothold position
+		if (remove_footholds_) {
+			for (int p = 0; p < robot_->getNumberOfLegs(); p++) {
+				for (int c = 0; c < robot_->getNumberOfLegs(); c++) {
+					if (planned_contacts[p].end_effector == current_contacts[c].end_effector) {
+						double distance = (planned_contacts[p].position - current_contacts[c].position).norm();
+						if (distance >= threshold_distance_)
+							contacts_for_execution.push_back(planned_contacts[p]);
+					}
+				}
+			}
+		} else
+			contacts_for_execution = planned_contacts;
+
 		// Setting the planned contacts as a currents
 		current_contacts = planned_contacts;
 
 		// Setting the planned contacts in the planned contact sequence
-		for (int i = 0; i < (int) planned_contacts.size(); i++)
-			contact_sequence.push_back(planned_contacts[i]);
+		for (int i = 0; i < (int) contacts_for_execution.size(); i++)
+			contact_sequence.push_back(contacts_for_execution[i]);
 	}
 
 	return true;
@@ -238,21 +253,6 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds, st
 			foothold.position(0) = body_state(0) + stance[current_leg_id](0) * cos(yaw) - stance[current_leg_id](1) * sin(yaw);
 			foothold.position(1) = body_state(1) + stance[current_leg_id](0) * sin(yaw) + stance[current_leg_id](1) * cos(yaw);
 			foothold.position(2) = robot_->getExpectedGround(current_leg_id);
-		}
-
-		// Removing the small footsteps, that means to keep the same foothold position
-		if (remove_footholds_) {
-			for (int l = 0; l < robot_->getNumberOfLegs(); l++) {
-				if (initial_contacts[l].end_effector == foothold.end_effector) {
-					double distance = (foothold.position - initial_contacts[l].position).norm();
-					if (distance <= threshold_distance_) {
-						Eigen::Vector3d initial_foothold = initial_contacts[l].position;
-
-						initial_contacts[l].position = foothold.position;
-						foothold.position = initial_foothold;
-					}
-				}
-			}
 		}
 
 		footholds.push_back(foothold);
