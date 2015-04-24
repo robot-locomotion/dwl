@@ -8,7 +8,7 @@ message("Compiling the version ${DWL_VERSION} of Dynamic Whole-Body Locomotion (
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(Eigen REQUIRED)
-message("Eigen ${EIGEN_INCLUDE_DIRS}")
+find_package(ROBOTS)
 find_package(IPOPT)
 find_package(octomap)
 #find_package(yaml-cpp REQUIRED)
@@ -72,13 +72,29 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							src/environment/StancePostureFeature.cpp
 							src/robot/Robot.cpp
 							src/robot/StateCost.cpp
-							src/robot/HyLWholeBodyKinematics.cpp
-							src/robot/HyQWholeBodyKinematics.cpp
-							src/robot/HyLWholeBodyDynamics.cpp
-#							src/robot/HyQWholeBodyDynamics.cpp
 							src/utils/Math.cpp
 							src/utils/Orientation.cpp
 							src/utils/YamlBridge.cpp) 
+
+# Adding robot components of the project
+if(hyl_FOUND)
+	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
+								 src/robot/HyLWholeBodyKinematics.cpp
+								 src/robot/HyLWholeBodyDynamics.cpp)
+    include_directories(${hyl_INCLUDE_DIRS})
+    set(DEPENDENCIES_LIBRARIES ${DEPENDENCIES_LIBRARIES}
+                               ${hyl_LIBRARIES})
+endif()
+
+if(hyq_FOUND)
+	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
+								 src/robot/HyQWholeBodyKinematics.cpp)
+								 #src/robot/HyQWholeBodyDynamics.cpp
+    include_directories(${hyq_INCLUDE_DIRS})
+    set(DEPENDENCIES_LIBRARIES ${DEPENDENCIES_LIBRARIES}
+                               ${hyq_LIBRARIES})
+endif()
+
 
 # Adding Ipopt components of the project
 if(IPOPT_FOUND)
@@ -101,7 +117,7 @@ endif()
 
 # Adding the dwl library
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${DEPENDENCIES_SOURCES})
-target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES} iitgenhyq iitgenhyl)# ${YAMLCPP_LIBRARY}) TODO Clean the iitgens libraries
+target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})# ${YAMLCPP_LIBRARY})
 
 
 add_executable(my_planner tests/HierarchicalPlanningTest.cpp)
