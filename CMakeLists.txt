@@ -69,6 +69,7 @@ set(${PROJECT_NAME}_SOURCES src/locomotion/WholeBodyLocomotion.cpp
 							src/environment/BodyOrientationFeature.cpp
 							src/environment/SupportTriangleFeature.cpp
 							src/environment/KinematicFeasibilityFeature.cpp
+							src/environment/StancePostureFeature.cpp
 							src/robot/Robot.cpp
 							src/robot/StateCost.cpp
 							src/robot/HyLWholeBodyKinematics.cpp
