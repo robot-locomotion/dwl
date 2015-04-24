@@ -26,6 +26,7 @@
 #include <environment/LegCollisionFeature.h>
 #include <environment/BodyOrientationFeature.h>
 #include <environment/KinematicFeasibilityFeature.h>
+#include <environment/StancePostureFeature.h>
 
 // Messages headers
 #include <dwl_planners/ContactSequence.h>
@@ -159,7 +160,7 @@ class HierarchicalPlanners
 		/** @brief Solver pointer */
 		dwl::solver::Solver* body_path_solver_ptr_;
 
-
+		/** @brief Adjacency environment pointer */
 		dwl::environment::AdjacencyEnvironment* adjacency_ptr_;
 
 		/** @brief Environment information */
