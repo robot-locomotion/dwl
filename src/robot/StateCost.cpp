@@ -27,5 +27,5 @@ double StateCost::get(Eigen::VectorXd state)
 	return cost;
 }
 
-} //@namespace hyq
+} //@namespace robot
 } //@namespace dwl

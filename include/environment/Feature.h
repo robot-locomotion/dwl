@@ -33,36 +33,36 @@ class Feature
 
 		/**
 		 * @brief Abstract method to compute reward value according some terrain information
-		 * @param double& reward_value Reference of the reward variable
-		 * @param dwl::environment::Terrain terrain_info Information about the terrain, i.e. position, surface and curvature
+		 * @param double& Reference of the reward variable
+		 * @param Terrain Information about the terrain, i.e. position, surface and curvature
 		 */
 		virtual void computeReward(double& reward_value, Terrain terrain_info);
 
 		/**
 		 * @brief Abstract method to compute reward value according some robot and terrain information
-		 * @param double& reward_value Reference of the reward variable
-		 * @param dwl::environment::RobotAndTerrain info Information of the robot and terrain
+		 * @param double& Reference of the reward variable
+		 * @param RobotAndTerrain Information of the robot and terrain
 		 */
 		virtual void computeReward(double& reward_value, RobotAndTerrain info);
 
 		/**
 		 * @brief Sets the weight of the feature
-		 * @param double weight Weight of the feature
+		 * @param double Weight of the feature
 		 */
 		void setWeight(double weight);
 
 		/**
 		 * @brief Gets the weight of the feature
-		 * @param double& weight Weight of the feature
+		 * @param double& Weight of the feature
 		 */
 		void getWeight(double& weight);
 
 		/**
 		 * @brief Sets the neighboring area for computing some feature
-		 * @param double min_x Minimun x
-		 * @param double max_x Maximun x
-		 * @param double min_y Minimun y
-		 * @param double max_y Maximun y
+		 * @param double Minimum x
+		 * @param double Maximum x
+		 * @param double Minimum y
+		 * @param double Maximum y
 		 * @param double resolution Resolution of the neighboring area
 		 */
 		void setNeighboringArea(double min_x, double max_x, double min_y, double max_y,
@@ -78,7 +78,7 @@ class Feature
 		/** @brief Name of the feature **/
 		std::string name_;
 
-		/** @brief Object of the SpaceDiscretization class for defining the space discretiization routines */
+		/** @brief Object of the SpaceDiscretization class for defining the space discretization routines */
 		SpaceDiscretization space_discretization_;
 
 		/** @brief Pointer to the robot properties */

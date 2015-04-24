@@ -1,7 +1,7 @@
 #ifndef DWL_StateCost_H
 #define DWL_StateCost_H
 
-#include <planning/Cost.h>
+#include <model/Cost.h>
 
 
 namespace dwl
@@ -10,7 +10,7 @@ namespace dwl
 namespace robot
 {
 
-class StateCost : public planning::Cost
+class StateCost : public model::Cost
 {
 	public:
 		/** @brief Constructor function */
@@ -26,7 +26,7 @@ class StateCost : public planning::Cost
 		//virtual void get(planning::AdjacencyMap& adjacency_map) {}
 };
 
-} //@namespace hyq
+} //@namespace robot
 } //@namespace dwl
 
 

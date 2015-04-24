@@ -79,9 +79,8 @@ void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotA
 	}
 
 	// Computing the plane parameters
-	utils::Math math;
 	Eigen::Vector3d normal;
-	math.computePlaneParameters(normal, stance);
+	math::computePlaneParameters(normal, stance);
 
 	// Computing the roll and pitch angles
 	Eigen::Quaterniond normal_quaternion;

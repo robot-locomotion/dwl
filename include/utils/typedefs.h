@@ -1,5 +1,5 @@
-#ifndef Typedefs_H
-#define Typedefs_H
+#ifndef DWL_Typedefs_H
+#define DWL_Typedefs_H
 
 #include <map>
 #include <list>
@@ -168,6 +168,10 @@ struct NeighboringArea
 	int min_y, max_y;
 	int min_z, max_z;
 };
+
+//TODO Add documentation
+typedef std::map<std::string,bool> EndEffectorSelector;
+typedef std::map<int,std::string> EndEffectorID;
 
 /**
  * @struct Contact

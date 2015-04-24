@@ -1,93 +1,92 @@
-#include <planning/Dijkstrap.h>
-#include <planning/HierarchicalPlanning.h>
-#include <planning/WholeBodyLocomotion.cpp>
+#include <model/WholeBodyKinematics.h>
+#include <model/WholeBodyDynamics.h>
+#include <robot/HyLWholeBodyKinematics.h>
+#include <robot/HyLWholeBodyDynamics.h>
+#include <iit/rbd/rbd.h>
 
-#include <robot/Robot.cpp>
-#include <robot/KinematicConstraints.cpp>
-#include <robot/StabilityConstraints.cpp>
-#include <robot/StateCost.cpp>
-#include <Eigen/Dense>
-
-#include <environment/EnvironmentInformation.h>
-#include <environment/RewardMap.h>
-#include <environment/SlopeFeature.h>
-
-
-template <typename Weight, typename Vertex>
-struct pair_first_less
+void get(Eigen::VectorXd& constraint, Eigen::VectorXd state)
 {
-    bool operator()(std::pair<Weight,Vertex> vertex_1, std::pair<Weight,Vertex> vertex_2)
-    {
-        return vertex_1.first < vertex_2.first;
-    }
-};
+	constraint = 2 * state;
+	std::cout << "get = " << constraint.transpose() << std::endl;
+}
 
 
 int main(int argc, char **argv)
 {
-	//  Setup of the locomotion approach
-	dwl::WholeBodyLocomotion locomotor;
+	dwl::model::WholeBodyKinematics* kin_ptr = new dwl::robot::HyLWholeBodyKinematics();
+	dwl::model::WholeBodyDynamics* dyn_ptr = new dwl::robot::HyLWholeBodyDynamics();
+	dyn_ptr->setKinematicModel(kin_ptr);
 
-	// Initialization of planning algorithm, which includes the initialization and setup of solver algorithm
-	dwl::robot::Robot* robot_ptr = NULL;
-	dwl::planning::Solver* solver_ptr = new dwl::planning::Dijkstrap();
-	dwl::planning::PlanningOfMotionSequences* planning_ptr = new dwl::planning::HierarchicalPlanning();
-	dwl::environment::EnvironmentInformation* environment_ptr = NULL;
-	planning_ptr->reset(robot_ptr, solver_ptr, environment_ptr);
+	iit::rbd::Vector6D base_wrench, base_pos, base_vel, base_acc, g;
+	Eigen::VectorXd joint_forces(2), joint_pos(2), joint_vel(2), joint_acc(2);
 
-	dwl::planning::Constraint* kin_constraint_ptr = new dwl::robot::KinematicConstraints();
-	dwl::planning::Constraint* stab_constraint_ptr = new dwl::robot::StabilityConstraints();
-	dwl::planning::Cost* state_cost_ptr = new dwl::robot::StateCost();
+	base_pos = iit::rbd::Vector6D::Zero();
+	base_vel = iit::rbd::Vector6D::Zero();
+	base_acc = iit::rbd::Vector6D::Zero();
+	joint_pos << 0.75, -1.5;
+	joint_vel << 0., 0.;
+	joint_acc << 0., 0.;
 
-	// Setting up the planner algorithm in the locomotion approach
-	locomotor.reset(planning_ptr);
-	locomotor.addConstraint(kin_constraint_ptr);
-	locomotor.addConstraint(stab_constraint_ptr);
-	locomotor.addCost(state_cost_ptr);
-	locomotor.removeConstraint("fake");
-	locomotor.removeConstraint(kin_constraint_ptr->getName());
-	//locomotor.removeCost(cost_ptr->getName());
 
-	// Initialization and computing of the whole-body locomotion problem
-	dwl::Pose start, goal, current;
-	std::vector<dwl::RewardCell> reward_map;
-	locomotor.init();
+	// Testing kinematics
+	kin_ptr->init();
+	kin_ptr->updateState(base_pos, joint_pos);
 
-	locomotor.compute(current);
+	Eigen::VectorXd effector_pos;
+	kin_ptr->computeEffectorFK(effector_pos, dwl::model::Full);
+	std::cout << effector_pos << std::endl;
+	std::cout << "---------------------------------------" << std::endl;
 
-	std::set< std::pair<double, int>, pair_first_less<double, int> > vertex_queue;
-	vertex_queue.insert(std::pair<double, int>(5, 1));
-	vertex_queue.insert(std::pair<double, int>(2.5, 2));
-	vertex_queue.insert(std::pair<double, int>(0.5, 3));
-	vertex_queue.insert(std::pair<double, int>(0.25, 4));
-	vertex_queue.insert(std::pair<double, int>(5.5, 5));
-	for (int i = 0; i < 2; i++) {
-		double weight = vertex_queue.begin()->first;
-		vertex_queue.erase(vertex_queue.begin());
 
-		std::cout << "Weight = " << weight << " ";
-	}
+	dwl::EndEffectorSelector effector_set;
+	effector_set["foot"] = true;
+	Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> jacobian;
+//	kin_ptr->computeFloatingBaseJacobian(jacobian, dwl::model::Full);
+//	kin_ptr->computeFixedBaseJacobian(jacobian, active_contact, dwl::model::Full);
+	kin_ptr->computeWholeBodyJacobian(jacobian, effector_set, dwl::model::Full);
+	std::cout << jacobian << std::endl;
+	std::cout << "---------------------------------------" << std::endl;
 
-	std::map<char,int> mymap;
-	  std::map<char,int>::iterator it;
+	// Testing dynamics
+	Eigen::VectorXd jacd_qd;
+	dyn_ptr->init();
+	dyn_ptr->updateState(base_pos, joint_pos);
+	dyn_ptr->computeJointVelocityContributionOfAcceleration(jacd_qd, base_pos, base_vel, joint_pos, joint_vel);
+	std::cout << "jacd_qd = " << jacd_qd.transpose() << std::endl;
+	std::cout << "jacd_qd2 = " << jacd_qd.transpose().tail(2) << std::endl;
 
-	  mymap['a']=50;
-	  mymap['b']=100;
-	  mymap['c']=150;
-	  mymap['d']=200;
+	dyn_ptr->computeWholeBodyInverseDynamics(base_wrench, joint_forces, g, base_pos, base_vel, base_acc, joint_pos, joint_vel, joint_acc);
+	Eigen::Vector3d tau;
+	tau << base_wrench(iit::rbd::LZ), joint_forces;
+	std::cout << "tau = " << tau.transpose() << std::endl;
 
-	  it=mymap.find('b');
-	  mymap.erase (it);
-	  mymap.erase (mymap.find('d'));
 
-	  // print content:
-	  std::cout << "elements in mymap:" << '\n';
-	  std::cout << "a => " << mymap.find('a')->second << '\n';
-	  std::cout << "c => " << mymap.find('c')->second << '\n';
-	  std::cout << "z => " << mymap.find('z')->second << '\n';
 
-	  if (mymap.find('a')->first == 'a')
-		  std::cout << "Detect!" << std::endl;
+	Eigen::VectorXd all_constraint(4);
+	all_constraint.setZero();
+
+	double x_raw[] = {1,2};
+	const double* x = x_raw;
+	for (int i = 0; i < 2; i++)
+		std::cout << x[i] << " ";
+	std::cout << std::endl;
+
+	Eigen::Map<const Eigen::VectorXd> state(x, 2);
+	Eigen::VectorXd constraint;
+	get(constraint, (Eigen::VectorXd) state);
+	std::cout << "size " << constraint.size() << std::endl;
+
+	all_constraint.segment(0,2) = constraint;
+	all_constraint.segment(2,2) = constraint;
+
+	std::cout << all_constraint.transpose() << std::endl;
+
+	double* data;
+	data = all_constraint.data();
+	for (int i = 0; i < 5; i++)
+		std::cout << data[i] << " ";
+	std::cout << std::endl;
+
 
     return 0;
 }

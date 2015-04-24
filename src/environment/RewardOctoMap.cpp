@@ -209,7 +209,7 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 		// Computing terrain info
 		EIGEN_ALIGN16 Eigen::Matrix3d covariance_matrix;
 		if (neighbors_position.size() < 3 ||
-				math_.computeMeanAndCovarianceMatrix(neighbors_position, covariance_matrix, terrain_info.position) == 0)
+				math::computeMeanAndCovarianceMatrix(neighbors_position, covariance_matrix, terrain_info.position) == 0)
 			return;
 
 		if (!using_cloud_mean_) {
@@ -218,7 +218,7 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 			terrain_info.position(2) = neighbors_position[0](2);
 		}
 
-		math_.solvePlaneParameters(terrain_info.surface_normal, terrain_info.curvature, covariance_matrix);
+		math::solvePlaneParameters(terrain_info.surface_normal, terrain_info.curvature, covariance_matrix);
 	}
 
 	terrain_info.height_map = terrain_heightmap_;
@@ -240,7 +240,8 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 		addCellToRewardMap(cell);
 	}
 	else {
-		printf(YELLOW "Could not computed the reward of the features because it is necessary to add at least one\n" COLOR_RESET);
+		printf(YELLOW "Could not computed the reward of the features because it is necessary to add at least one\n"
+				COLOR_RESET);
 	}
 }
 

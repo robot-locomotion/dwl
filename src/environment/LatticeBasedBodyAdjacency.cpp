@@ -48,7 +48,8 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 			environment_->getTerrainSpaceModel().stateToVertex(current_action_vertex, action_state);
 
 			// Converting state vertex to environment vertex
-			environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, current_action_vertex, XY_Y);
+			environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(environment_vertex,
+					current_action_vertex, XY_Y);
 
 			// Computing the current action
 			current_action_ = action_state - current_state;
@@ -108,15 +109,18 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 				double current_x = state(0);
 				double current_y = state(1);
 				double current_yaw = state(2);
-				point_position(0) = (x - current_x) * cos(current_yaw) - (y - current_y) * sin(current_yaw) + current_x;
-				point_position(1) = (x - current_x) * sin(current_yaw) + (y - current_y) * cos(current_yaw) + current_y;
+				point_position(0) = (x - current_x) * cos(current_yaw) -
+						(y - current_y) * sin(current_yaw) + current_x;
+				point_position(1) = (x - current_x) * sin(current_yaw) +
+						(y - current_y) * cos(current_yaw) + current_y;
 
 				Vertex current_2d_vertex;
 				environment_->getTerrainSpaceModel().coordToVertex(current_2d_vertex, point_position);
 
 				// Inserts the element in an organized vertex queue, according to the maximum value
 				if (terrain_costmap.count(current_2d_vertex) > 0) {
-					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(current_2d_vertex)->second, current_2d_vertex));
+					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(current_2d_vertex)->second,
+							current_2d_vertex));
 				}
 			}
 		}
@@ -169,7 +173,8 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 }
 
 
-bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body)
+bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation,
+		bool body)
 {
 	// Getting the terrain obstacle map
 	ObstacleMap obstacle_map;
@@ -213,8 +218,10 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 				for (double x = boundary_min(0); x <= boundary_max(0); x += obstacle_resolution) {
 					// Computing the rotated coordinate according to the orientation of the body
 					Eigen::Vector2d point_position;
-					point_position(0) = (x - current_x) * cos(current_yaw) - (y - current_y) * sin(current_yaw) + current_x;
-					point_position(1) = (x - current_x) * sin(current_yaw) + (y - current_y) * cos(current_yaw) + current_y;
+					point_position(0) = (x - current_x) * cos(current_yaw) -
+							(y - current_y) * sin(current_yaw) + current_x;
+					point_position(1) = (x - current_x) * sin(current_yaw) +
+							(y - current_y) * cos(current_yaw) + current_y;
 
 					Vertex current_2d_vertex;
 					environment_->getObstacleSpaceModel().coordToVertex(current_2d_vertex, point_position);
@@ -232,7 +239,8 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 		} else {
 			// Converting the state vertex to terrain vertex
 			Vertex environment_vertex;
-			environment_->getObstacleSpaceModel().stateVertexToEnvironmentVertex(environment_vertex, state_vertex, state_representation);
+			environment_->getObstacleSpaceModel().stateVertexToEnvironmentVertex(environment_vertex,
+					state_vertex, state_representation);
 
 			if (obstacle_map.count(environment_vertex) > 0) {
 				if (obstacle_map.find(environment_vertex)->second)
