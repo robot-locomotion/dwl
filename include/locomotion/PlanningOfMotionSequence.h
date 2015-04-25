@@ -5,8 +5,8 @@
 #include <locomotion/MotionPlanning.h>
 #include <locomotion/ContactPlanning.h>
 #include <solver/Solver.h>
-#include <model/Constraint.h>
-#include <model/Cost.h>
+//#include <model/Constraint.h>
+//#include <model/Cost.h>
 #include <environment/EnvironmentInformation.h>
 
 #include <utils/utils.h>
@@ -52,29 +52,29 @@ class PlanningOfMotionSequence
 		void reset(robot::Robot* robot, MotionPlanning* motion_planner, ContactPlanning* contact_planner,
 					environment::EnvironmentInformation* environment);
 
-		/**
-		 * @brief Adds an active or inactive constraints to the planning algorithm
-		 * @param Constraint* Constraint to add it
-		 */
-		void addConstraint(model::Constraint* constraint);
-
-		/**
-		 * @brief Removes an active or inactive constraints to the planning algorithm
-		 * @param Constraint* Constraint to remove it
-		 */
-		void removeConstraint(std::string constraint_name);
-
-		/**
-		 * @brief Adds a cost function for the planning algorithm
-		 * @param Cost* Cost to add it
-		 */
-		void addCost(model::Cost* cost);
-
-		/**
-		 * @brief Removes a cost function for the planning algorithm
-		 * @param Cost* Cost to remove it
-		 */
-		void removeCost(std::string cost_name);
+//		/**
+//		 * @brief Adds an active or inactive constraints to the planning algorithm
+//		 * @param Constraint* Constraint to add it
+//		 */
+//		void addConstraint(model::Constraint* constraint);
+//
+//		/**
+//		 * @brief Removes an active or inactive constraints to the planning algorithm
+//		 * @param Constraint* Constraint to remove it
+//		 */
+//		void removeConstraint(std::string constraint_name);
+//
+//		/**
+//		 * @brief Adds a cost function for the planning algorithm
+//		 * @param Cost* Cost to add it
+//		 */
+//		void addCost(model::Cost* cost);
+//
+//		/**
+//		 * @brief Removes a cost function for the planning algorithm
+//		 * @param Cost* Cost to remove it
+//		 */
+//		void removeCost(std::string cost_name);
 
 		/**
 		 * @brief Initializes the planner
@@ -174,15 +174,6 @@ class PlanningOfMotionSequence
 		/** @brief Pointer to the environment information */
 		environment::EnvironmentInformation* environment_;
 
-		/** @brief Vector of active constraints pointers */
-		std::vector<model::Constraint*> active_constraints_;
-
-		/** @brief Vector of inactive constraints pointers */
-		std::vector<model::Constraint*> inactive_constraints_;
-
-		/** @brief Vector of costs pointers */
-		std::vector<model::Cost*> costs_;
-
 		/** @brief Initial pose of the robot */
 		Pose initial_pose_;
 
@@ -205,15 +196,6 @@ class PlanningOfMotionSequence
 
 		/** @brief Indicates it was initialized the planning algorithm */
 		bool is_initialized_planning_;
-
-		/** @brief Indicates if it was added an active constraint in the solver */
-		bool is_added_active_constraint_;
-
-		/** @brief Indicates if it was added an inactive constraint in the solver */
-		bool is_added_inactive_constraint_;
-
-		/** @brief Indicates if it was added a cost in the solver */
-		bool is_added_cost_;
 };
 
 } //@namespace locomotion
