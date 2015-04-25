@@ -2,8 +2,7 @@
 #define DWL_IpoptWrapper_H
 
 #include <IpTNLP.hpp>
-#include <model/Cost.h>
-#include <model/Constraint.h>
+#include <model/Model.h>
 
 
 namespace dwl
@@ -20,6 +19,7 @@ class IpoptWrapper : public Ipopt::TNLP
 {
 	typedef Ipopt::Index Index;
 	typedef Ipopt::Number Number;
+	typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixRXd;
 
 	public:
 		/** @brief Constructor function */
@@ -29,37 +29,31 @@ class IpoptWrapper : public Ipopt::TNLP
 		~IpoptWrapper();
 
 		/**
-		 * @brief Adds an active or inactive constraints to the planning algorithm
-		 * @param Constraint* Constraint to add it
+		 * @brief Defines the model for the optimization
+		 * @param Model* A model consists of cost functions and constraints
 		 */
-		void addConstraint(model::Constraint* constraint);
-
-		/**
-		 * @brief Adds a cost function for the planning algorithm
-		 * @param Cost* Cost to add it
-		 */
-		void addCost(model::Cost* cost);
+		void reset(model::Model* model);
 
 		/**@name Overloaded from TNLP */
 		/**
 		 * @brief Method to return some info about the NLP
 		 */
 		bool get_nlp_info(Index& n, Index& m,
-							Index& nnz_jac_g, Index& nnz_h_lag,
-							IndexStyleEnum& index_style);
+						  Index& nnz_jac_g, Index& nnz_h_lag,
+						  IndexStyleEnum& index_style);
 
 		/**
 		 * @brief Method to return the bounds for my problem
 		 */
 		bool get_bounds_info(Index n, Number* x_l, Number* x_u,
-								Index m, Number* g_l, Number* g_u);
+							 Index m, Number* g_l, Number* g_u);
 
 		/**
 		 * @brief Method to return the starting point for the algorithm
 		 */
 		bool get_starting_point(Index n, bool init_x, Number* x,
-								   bool init_z, Number* z_L, Number* z_U,
-								   Index m, bool init_lambda, Number* lambda);
+								bool init_z, Number* z_L, Number* z_U,
+								Index m, bool init_lambda, Number* lambda);
 
 		/**
 		 * @brief Method to return the objective value
@@ -90,18 +84,18 @@ class IpoptWrapper : public Ipopt::TNLP
 		 *   2) The values of the hessian of the lagrangian (if "values" is not NULL)
 		 */
 		bool eval_h(Index n, const Number* x, bool new_x, Number obj_factor,
-					 Index m, const Number* lambda, bool new_lambda,
-					 Index nele_hess, Index* iRow, Index* jCol, Number* values);
+					Index m, const Number* lambda, bool new_lambda,
+					Index nele_hess, Index* iRow, Index* jCol, Number* values);
 		//@}
 
 		/** @name Solution Methods */
 		//@{
 		/** This method is called when the algorithm is complete so the TNLP can store/write the solution */
 		void finalize_solution(Ipopt::SolverReturn status,
-								  Index n, const Number* x, const Number* z_L, const Number* z_U,
-								  Index m, const Number* g, const Number* lambda,
-								  Number obj_value, const Ipopt::IpoptData* ip_data,
-								  Ipopt::IpoptCalculatedQuantities* ip_cq);
+							   Index n, const Number* x, const Number* z_L, const Number* z_U,
+							   Index m, const Number* g, const Number* lambda,
+							   Number obj_value, const Ipopt::IpoptData* ip_data,
+							   Ipopt::IpoptCalculatedQuantities* ip_cq);
 		//@}
 
 	private:
@@ -121,18 +115,7 @@ class IpoptWrapper : public Ipopt::TNLP
 		IpoptWrapper& operator=(const IpoptWrapper&);
 		//@}
 
-		/** @brief Vector of cost function pointers */
-		std::vector<model::Cost*> costs_;
-
-		/** @brief Vector of active constraints pointers */
-		std::vector<model::Constraint*> active_constraints_;
-
-		/** @brief Vector of inactive constraints pointers */
-		std::vector<model::Constraint*> inactive_constraints_;
-
-		bool is_added_cost_;
-		bool is_added_active_constraint_;
-		bool is_added_inactive_constraint_;
+		model::Model* model_;
 };
 
 } //@namespace solver
