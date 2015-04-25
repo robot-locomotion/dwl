@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <Eigen/Dense>
-
+#include <iit/rbd/rbd.h>
 #include <octomap/octomap.h>
 
 
@@ -67,9 +67,11 @@ struct pair_first_less
  */
 struct Edge
 {
+	Edge() : target(0), weight(0) {}
+	Edge(Vertex target, Weight weight) : target(target), weight(weight) {}
+
 	Vertex target;
 	Weight weight;
-	Edge(Vertex arg_target, Weight arg_weight) : target(arg_target), weight(arg_weight) { }
 };
 
 /** Defines an adjacency map for graph-searching algorithms */
@@ -192,6 +194,20 @@ struct ContactSearchRegion
 	int end_effector;
 	Eigen::Vector3d position;
 	SearchArea region;
+};
+
+struct StateModel
+{
+	double time;
+	iit::rbd::Vector6D base_pos;
+	iit::rbd::Vector6D base_vel;
+	iit::rbd::Vector6D base_acc;
+	Eigen::VectorXd joint_pos;
+	Eigen::VectorXd joint_vel;
+	Eigen::VectorXd joint_acc;
+	Contact contact_pos;
+	Contact contact_for;
+	Contact contact_tor;
 };
 
 /**
