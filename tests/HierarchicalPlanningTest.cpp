@@ -1,7 +1,7 @@
 #include <model/WholeBodyKinematics.h>
 #include <model/WholeBodyDynamics.h>
-#include <robot/HyLWholeBodyKinematics.h>
-#include <robot/HyLWholeBodyDynamics.h>
+//#include <robot/HyLWholeBodyKinematics.h>
+//#include <robot/HyLWholeBodyDynamics.h>
 #include <iit/rbd/rbd.h>
 
 
@@ -14,7 +14,7 @@ void get(Eigen::VectorXd& constraint, Eigen::VectorXd state)
 
 int main(int argc, char **argv)
 {
-	dwl::model::WholeBodyKinematics* kin_ptr = new dwl::robot::HyLWholeBodyKinematics();
+/*	dwl::model::WholeBodyKinematics* kin_ptr = new dwl::robot::HyLWholeBodyKinematics();
 	dwl::model::WholeBodyDynamics* dyn_ptr = new dwl::robot::HyLWholeBodyDynamics();
 	dyn_ptr->setKinematicModel(kin_ptr);
 
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 	tau << base_wrench(iit::rbd::LZ), joint_forces;
 	std::cout << "tau = " << tau.transpose() << std::endl;
 
-
+*/
 
 	Eigen::VectorXd all_constraint(4);
 	all_constraint.setZero();
