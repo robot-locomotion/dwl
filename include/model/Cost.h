@@ -1,9 +1,7 @@
 #ifndef DWL_Cost_H
 #define DWL_Cost_H
 
-#include <solver/Solver.h>
 #include <environment/RewardMap.h>
-
 #include <utils/utils.h>
 
 
@@ -35,17 +33,18 @@ class Cost
 
 		/**
 		 * @brief Computes the cost value given a certain state
-		 * @param Eigen::VectorXd State value
-		 * @return The cost at defined state
+		 * @param double& Cost value
+		 * @param const StateModel& State value
 		 */
-		virtual double get(Eigen::VectorXd state) = 0;
+		virtual void compute(double& cost, const StateModel& state) = 0;
 
 		/**
 		 * @brief Computes the gradient of the cost given a certain state
 		 * @param Eigen::VectorXd& Gradient of the cost
-		 * @param Eigen::VectorXd State value
+		 * @param const StateModel& State value
 		 */
-		virtual void getGradient(Eigen::VectorXd& gradient, Eigen::VectorXd state) = 0;
+		virtual void computeGradient(Eigen::VectorXd& gradient,
+									 const StateModel& state) = 0;
 
 		/**
 		 * @brief Abstract method for getting the cost value given a certain node

@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-Constraint::Constraint() : is_active_constraint_(false)
+Constraint::Constraint() : is_active_constraint_(false), constraint_dimension_(0)
 {
 
 }
@@ -16,6 +16,12 @@ Constraint::Constraint() : is_active_constraint_(false)
 Constraint::~Constraint()
 {
 
+}
+
+
+int Constraint::getConstraintDimension()
+{
+	return constraint_dimension_;
 }
 
 

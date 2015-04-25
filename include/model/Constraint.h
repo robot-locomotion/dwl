@@ -25,17 +25,21 @@ class Constraint
 
 		/**
 		 * @brief Computes the constraint vector given a certain state
-		 * @param Eigen::VectorXd& Constraint vector
-		 * @param Eigen::VectorXd State vector
+		 * @param Eigen::VectorXd& Evaluated constraint function
+		 * @param const StateModel& State vector
 		 */
-		virtual void get(Eigen::VectorXd& constraint, Eigen::VectorXd state) = 0;
+		virtual void compute(Eigen::VectorXd& constraint,
+							 const StateModel& state) = 0;
 
 		/**
 		 * @brief Computes the Jacobian of the constraint give a certain state
-		 * @param Eigen::MatrixXd& Jacobian of the constraints
-		 * @param Eigen::VectorXd State value
+		 * @param Eigen::MatrixXd& Jacobian of the constraint function
+		 * @param const StateModel& State vector
 		 */
-		virtual void getJacobian(Eigen::MatrixXd& jacobian, Eigen::VectorXd state) = 0;
+		virtual void computeJacobian(Eigen::MatrixXd& jacobian,
+									 const StateModel& state) = 0;
+
+		int getConstraintDimension();
 
 		/**
 		 * @brief Indicates if the constraint is active [g(x) = 0] or inactive [g(x) > 0]
@@ -56,6 +60,8 @@ class Constraint
 
 		/** @brief Indicates if the constraint is active */
 		bool is_active_constraint_;
+
+		int constraint_dimension_;
 
 		/** @brief Vector of the state */
 		Eigen::VectorXd state_value_;
