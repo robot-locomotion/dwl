@@ -1,7 +1,6 @@
 set(IPOPT_DIR ${PROJECT_SOURCE_DIR}/thirdparty/Ipopt-3.9.3)
 
 if(APPLE)
-
     # On APPLE we use PkgConfig to find IPOPT
     # TODO use it on UNIX as well
     find_package(PkgConfig QUIET)
@@ -37,9 +36,9 @@ if(APPLE)
     endif(PKG_CONFIG_FOUND)
     
 elseif(UNIX)
-
     set(IPOPT_INCLUDE_DIRS ${IPOPT_DIR}/include/coin)
-    find_library(IPOPT_LIBRARIES ipopt ${IPOPT_DIR}/lib/coin)
+    set(IPOPT_LIBRARY_DIR ${IPOPT_DIR}/lib/coin)
+    find_library(IPOPT_LIBRARIES ipopt ${IPOPT_LIBRARY_DIR})
     if(IPOPT_LIBRARIES)
         find_file(IPOPT_DEP_FILE ipopt_addlibs_cpp.txt ${IPOPT_DIR}/share/doc/coin/Ipopt
                                                        ${IPOPT_DIR}/share/coin/doc/Ipopt
