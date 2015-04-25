@@ -4,6 +4,7 @@
 #include <robot/HyLWholeBodyDynamics.h>
 #include <iit/rbd/rbd.h>
 
+
 void get(Eigen::VectorXd& constraint, Eigen::VectorXd state)
 {
 	constraint = 2 * state;

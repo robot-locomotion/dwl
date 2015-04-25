@@ -32,7 +32,7 @@ class AnytimeRepairingAStar : public Solver
 		 * @param double Allowed time for computing a solution (in seconds)
 		 * @return True if it was computed a solution
 		 */
-		bool compute(Vertex source, Vertex target,	double computation_time = std::numeric_limits<double>::max());
+		bool compute(Vertex source, Vertex target, double computation_time = std::numeric_limits<double>::max());
 
 		/** @brief Defines a ordered queue according to the less weight */
 		typedef std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > SetQueue;
