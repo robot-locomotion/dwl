@@ -2,6 +2,7 @@
 #define DWL_Solver_H
 
 #include <robot/Robot.h>
+#include <model/Model.h>
 #include <environment/AdjacencyEnvironment.h>
 #include <utils/utils.h>
 
@@ -34,9 +35,16 @@ class Solver
 
 		/**
 		 * @brief Defines the environment information
+		 * @param Robot* Encapsulated all the robot information
 		 * @param EnvironmentInformation* Encapsulates all the information of the environment
 		 */
 		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment);
+
+		/**
+		 * @brief Sets the model that is used for optimization solvers
+		 * @param Model* Encapsulate the constraints and cost functions (model) of the optimization problem
+		 */
+		void setModel(model::Model* model);
 
 		/**
 		 * @brief Sets the adjacency model that is used for graph searching solvers
@@ -52,22 +60,13 @@ class Solver
 		 * @return True if it was computed a solution
 		 */
 		virtual bool compute(Vertex source, Vertex target,
-							   double computation_time = std::numeric_limits<double>::max()) = 0;
+							 double computation_time = std::numeric_limits<double>::max());
 
 		/**
 		 * @brief Abstract method for computing a solution of an optimization problem
-		 * @param Eigen::MatrixXd Hessian matrix
-		 * @param Eigen::VectorXd Gradient vector
-		 * @param Eigen::MatrixXd Constraint matrix
-		 * @param Eigen::VectorXd Low bound
-		 * @param Eigen::VectorXd Upper bound
-		 * @param Eigen::VectorXd Low constraint
-		 * @param Eigen::VectorXd Upper constraint
 		 * @return True if it was computed a solution
 		 */
-		virtual bool compute(Eigen::MatrixXd hessian, Eigen::VectorXd gradient,
-				Eigen::MatrixXd constraint, Eigen::VectorXd low_bound,Eigen::VectorXd upper_bound,
-				Eigen::VectorXd low_constraint, Eigen::VectorXd upper_constraint) = 0; //TODO represents as active, inactive and bound
+		virtual bool compute(double computation_time = std::numeric_limits<double>::max());
 
 		/**
 		 * @brief Gets the shortest-path only for graph searching algorithms
@@ -99,6 +98,9 @@ class Solver
 		/** @brief Environment information */
 		environment::EnvironmentInformation* environment_;
 
+		/** @brief Optimizer' model which defines cost functions and constraints */
+		model::Model* model_;
+
 		/** @brief Adjacency model of the environment */
 		environment::AdjacencyEnvironment* adjacency_;
 
@@ -116,6 +118,9 @@ class Solver
 
 		/** @brief Initial time of computation */
 		clock_t time_started_;
+
+		/** @brief Indicates if it was set a model for the optimization problem */
+		bool is_set_model_;
 
 		/** @brief Indicates if it was set an adjacency model */
 		bool is_set_adjacency_model_;
