@@ -7,8 +7,9 @@ namespace dwl
 namespace model
 {
 
-Model::Model() : is_added_active_constraint_(false), is_added_inactive_constraint_(false),
-		is_added_cost_(false), state_dimension_(0), constraint_dimension_(0)
+Model::Model() : state_dimension_(0), constraint_dimension_(0),
+		is_added_active_constraint_(false), is_added_inactive_constraint_(false),
+		is_added_cost_(false)
 {
 
 }
@@ -179,10 +180,17 @@ std::vector<model::Cost*> Model::getCosts()
 void Model::convertDecisionVariablesToStateModel(StateModel& state_model,
 												 const Eigen::VectorXd& decision_var)
 {
+	state_dimension_ = 4;
 	state_model.base_pos(0) = decision_var(0);
 	state_model.base_pos(1) = decision_var(1);
 	state_model.base_pos(2) = decision_var(2);
 	state_model.base_pos(3) = decision_var(3);
+}
+
+
+int Model::getDimensionOfDecisionVariables()
+{
+	return state_dimension_;
 }
 
 
