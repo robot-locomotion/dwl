@@ -23,7 +23,9 @@ class IpoptNLP : public Solver
 
 
 	private:
+		solver::IpoptWrapper ipopt_;
 		Ipopt::SmartPtr<Ipopt::TNLP> nlp_ptr_;
+		Ipopt::SmartPtr<Ipopt::IpoptApplication> app_;
 };
 
 } //@namespace solver

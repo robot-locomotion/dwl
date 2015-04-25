@@ -21,21 +21,20 @@ IpoptNLP::~IpoptNLP()
 
 bool IpoptNLP::init()
 {
-	  // Create a new instance of your nlp
-	  //  (use a SmartPtr, not raw)
-	  nlp_ptr_ = new IpoptWrapper();
+	// Create a new instance of your nlp
+	nlp_ptr_ = &ipopt_;//new IpoptWrapper();
 
 	// Create a new instance of IpoptApplication
 	//  (use a SmartPtr, not raw)
 	// We are using the factory, since this allows us to compile this
 	// example with an Ipopt Windows DLL
-	Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
+	app_ = IpoptApplicationFactory();
 //	app->RethrowNonIpoptException(true);
 
 	// Change some options (do not touch these)
-	app->Options()->SetNumericValue("tol", 1e-7);
-	app->Options()->SetStringValue("mu_strategy", "adaptive");
-	app->Options()->SetStringValue("output_file", "ipopt.out");
+	app_->Options()->SetNumericValue("tol", 1e-7);
+	app_->Options()->SetStringValue("mu_strategy", "adaptive");
+	app_->Options()->SetStringValue("output_file", "ipopt.out");
 	//app->Options()->SetStringValue("print_user_options","yes");
 	//app->Options()->SetStringValue("check_derivatives_for_naninf","yes");
 //	app->Options()->SetIntegerValue("max_iter", (int)config_.get<int>("Optim.num_iter")); //set to 1 for debug/comment otherwise
@@ -47,9 +46,9 @@ bool IpoptNLP::init()
 
 	// Compute derivatives numerically
 	// Compute Jacobian numerically put return true in eval_grad and eval_jac_g
-	app->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
+//	app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
 	// compute Hessian numerically (do not need to implement)
-	app->Options()->SetStringValue("hessian_approximation", "limited-memory");
+//	app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
 
 	//test the derivatives
 	//app->Options()->SetStringValue("derivative_test","first-order");//first-order = check jacobians, second-order = check hessian
@@ -69,23 +68,12 @@ bool IpoptNLP::init()
 	//Finally, the number in square brackets is the relative difference between these two numbers.
 
 
-	// Intialize the IpoptApplication and process the options
+	// Initialize the IpoptApplication and process the options
 	Ipopt::ApplicationReturnStatus status;
-	status = app->Initialize();
+	status = app_->Initialize();
 	if (status != Ipopt::Solve_Succeeded) {
 		printf("\n\n*** Error during initialization!\n");
 		return (int) status;
-	}
-
-
-
-
-	status = app->OptimizeTNLP(nlp_ptr_);
-
-	if (status == Ipopt::Solve_Succeeded) {
-		printf("\n\n*** The problem solved!\n");
-	} else {
-		printf("\n\n*** The problem FAILED!\n");
 	}
 
 	return true;
@@ -94,15 +82,18 @@ bool IpoptNLP::init()
 
 bool IpoptNLP::compute()
 {
+	ipopt_.reset(model_);
+
 	// Ask Ipopt to solve the problem
-//	Ipopt::ApplicationReturnStatus status;
-//	status = app->OptimizeTNLP(nlp_ptr_);
-//
-//	if (status == Solve_Succeeded) {
-//		printf("\n\n*** The problem solved!\n");
-//	} else {
-//		printf("\n\n*** The problem FAILED!\n");
-//	}
+	Ipopt::ApplicationReturnStatus status;
+
+	status = app_->OptimizeTNLP(nlp_ptr_);
+
+	if (status == Ipopt::Solve_Succeeded) {
+		printf("\n\n*** The problem solved!\n");
+	} else {
+		printf("\n\n*** The problem FAILED!\n");
+	}
 
 	return true;
 }
