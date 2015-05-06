@@ -12,12 +12,20 @@ namespace dwl
 namespace model
 {
 
-
+/**
+ * @class Model
+ * @brief A NLP problem requires information of constraints (dynamic, active or inactive) and
+ * cost functions. Thus, Model is an abstract class that allows us to implement different
+ * locomotion (control and planning) models. For instance, we can defined different decision
+ * variables (time; base and joint position, velocity and acceleration; contact forces), i.e.
+ * the description of the state vector by implementing convertDecisionVariablesToStateModel method.
+ *
+ */
 class Model
 {
 	public:
 		Model();
-		~Model();
+		virtual ~Model();
 
 		/**
 		 * @brief Adds an active or inactive constraints to the planning algorithm
@@ -47,15 +55,15 @@ class Model
 		std::vector<Constraint*> getInactiveConstraints();
 		std::vector<Cost*> getCosts();
 
-		void convertDecisionVariablesToStateModel(StateModel& state_model,
-												  const Eigen::VectorXd& variables); //TODO make virtual
+		virtual void convertDecisionVariablesToStateModel(StateModel& state_model,
+												  	  	  const Eigen::VectorXd& decision_var) = 0;
 
-		void setDimensionOfDecisionVariables(); //TODO make virtual
+//		void setDimensionOfDecisionVariables(); //TODO make virtual
 		int getDimensionOfDecisionVariables();
 		int getDimensionOfConstraints();
 
 
-	private:
+	protected:
 		/** @brief Vector of active constraints pointers */
 		std::vector<Constraint*> active_constraints_;
 

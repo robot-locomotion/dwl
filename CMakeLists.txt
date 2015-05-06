@@ -136,6 +136,12 @@ target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})# ${YAMLCPP_LIBR
 add_executable(my_planner  tests/HierarchicalPlanningTest.cpp)
 target_link_libraries(my_planner ${PROJECT_NAME})# ${OCTOMAP_LIBRARIES})
 
+include_directories(tests)
+add_executable(ipopt_test  tests/IpoptDWLTest.cpp
+                           tests/model/HS071Constraint.cpp
+                           tests/model/HS071Cost.cpp)
+target_link_libraries(ipopt_test ${PROJECT_NAME})
+
 add_executable(yaml_bridge  tests/YamlBridgeTest.cpp)
 target_link_libraries(yaml_bridge ${PROJECT_NAME})
 
