@@ -32,10 +32,10 @@ bool IpoptWrapper::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 //	model_
 //	int num_knots = 0;
 
-	// The problem described in HS071_NLP.hpp has 4 variables, x[0] through x[3]
+	// Getting the dimension of decision variable for every knots
 	n = model_->getDimensionOfDecisionVariables();
 
-	// one equality constraint and one inequality constraint
+	// Getting the dimension of constraints
 	m = model_->getDimensionOfConstraints();
 
     // Assuming that Jacobian and Hessian are dense

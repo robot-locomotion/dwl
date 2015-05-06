@@ -22,7 +22,7 @@ namespace locomotion
  * @class PlanningOfMotionSequence
  * @brief Abstract class for solving the planning of motion sequence problem. This abstract class allow us to
  * implement different approaches such as: decoupled and coupled approaches. For instance, coupled approaches
- * required a one Solver, in contrast of decoupled approaches that require the MotionPlanning and
+ * required one Solver, in contrast of decoupled approaches that require the MotionPlanning and
  * ContactPlanning classes.
  */
 class PlanningOfMotionSequence
