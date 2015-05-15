@@ -42,7 +42,7 @@ function install_yamlcpp
 	cd yaml-cpp
 	mkdir -p build
 	cd build
-	cmake -D BUILD_SHARED_LIBRARIES:bool=ON ../
+	cmake -D BUILD_SHARED_LIBS:bool=ON ../
 	sudo make install
 	cd ../../
 	rm -rf yaml-cpp-0.3.0.tar.gz
