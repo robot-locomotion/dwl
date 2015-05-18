@@ -7,7 +7,7 @@ message("Compiling the version ${DWL_VERSION} of Dynamic Whole-Body Locomotion (
 # Appending the project module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(ROBOTS)
 find_package(IPOPT)
@@ -24,7 +24,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 # Setting the thirdparties directories and libraries
-set(DEPENDENCIES_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
+set(DEPENDENCIES_INCLUDE_DIRS ${EIGE3_INCLUDE_DIRS})
 set(DEPENDENCIES_LIBRARIES ${YAMLCPP_LIBRARY})
 set(DEPENDENCIES_LIBRARY_DIRS)
 
@@ -32,7 +32,7 @@ set(DEPENDENCIES_LIBRARY_DIRS)
 set(INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_DIRS})
 include_directories(src)
-include_directories(${EIGEN_INCLUDE_DIRS})
+include_directories(${EIGEN3_INCLUDE_DIRS})
 include_directories(${YAMLCPP_INCLUDE_DIRS})
 
 # Setting the project sources
