@@ -51,6 +51,9 @@ function install_yamlcpp
 
 function install_ipopt
 {
+	# Installing necessary packages
+	sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
+
 	# Getting Ipopt 3.11.8
 	wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.11.8.tgz
 	mkdir ipopt && tar xzvf Ipopt-3.11.8.tgz -C ipopt --strip-components 1
