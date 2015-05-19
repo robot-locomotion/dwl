@@ -25,7 +25,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 # Setting the thirdparties directories and libraries
 set(DEPENDENCIES_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIRS})
-set(DEPENDENCIES_LIBRARIES ${YAMLCPP_LIBRARY})
+set(DEPENDENCIES_LIBRARIES ${YAMLCPP_LIBRARIES})
 set(DEPENDENCIES_LIBRARY_DIRS)
 
 # Including directories
@@ -34,6 +34,7 @@ include_directories(${INCLUDE_DIRS})
 include_directories(src)
 include_directories(${EIGEN3_INCLUDE_DIRS})
 include_directories(${YAMLCPP_INCLUDE_DIRS})
+
 
 # Setting the project sources
 set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
