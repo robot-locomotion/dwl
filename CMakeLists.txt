@@ -4,7 +4,6 @@ project(dwl_planners)
 
 find_package(catkin REQUIRED COMPONENTS
   dwl
-#  hyq_gen
   roscpp
   std_msgs
   message_generation
@@ -12,7 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
   tf_conversions)
 
 find_package(dwl REQUIRED)
-#find_package(hyq_gen REQUIRED)
 
 
 add_message_files(
@@ -51,20 +49,23 @@ catkin_package(
   DEPENDS system_lib)
 
 
-include_directories(include
-                    ${catkin_INCLUDE_DIRS}
-                    ${dwl_INCLUDE_DIRS})
+include_directories(include)
+include_directories(${catkin_INCLUDE_DIRS})
+include_directories(${dwl_INCLUDE_DIRS})
 
-link_directories(${catkin_LIBRARY_DIRS}
-                 ${dwl_LIBRARY_DIRS})
+link_directories(${catkin_LIBRARY_DIRS})
+link_directories(${dwl_LIBRARY_DIRS})
 
 
-add_executable(hierarchical_planner_node src/HierarchicalPlanner.cpp)
-add_dependencies(hierarchical_planner_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(hierarchical_planner_node
-   ${catkin_LIBRARIES}
-   ${dwl_LIBRARIES})
+add_executable(hierarchical_planner_node  src/HierarchicalPlanner.cpp)
+add_dependencies(hierarchical_planner_node  ${catkin_EXPORTED_TARGETS})
+target_link_libraries(hierarchical_planner_node  ${catkin_LIBRARIES}
+                                                 ${dwl_LIBRARIES})
 
+add_executable(dynamic_whole_body_planner_node  src/WholeBodyPlanner.cpp)
+add_dependencies(dynamic_whole_body_planner_node  ${catkin_EXPORTED_TARGETS})
+target_link_libraries(dynamic_whole_body_planner_node  ${catkin_LIBRARIES}
+                                                       ${dwl_LIBRARIES})
 
 #############
 ## Install ##
