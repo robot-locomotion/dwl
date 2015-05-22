@@ -71,19 +71,18 @@ void computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots);
 void computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scalar& c, Eigen::Vector3d& roots);
 
 
-
 //template <typename T, typename D>
 //void dampedPseudoInverse(const Eigen::MatrixBase<T>& A, double damping_factor,
 //						 Eigen::MatrixBase<D>& Apinv, unsigned int computation_options);
-//
-//void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A, Eigen::Ref<Eigen::MatrixXd> Apinv,
-//				   double tolerance, unsigned int computation_options);
-//
-//void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A,
-//				   Eigen::JacobiSVD<Eigen::MatrixXd::PlainObject>& svd_decomposition,
-//				   Eigen::Ref<Eigen::MatrixXd> Apinv,
-//				   double tolerance,
-//				   unsigned int computation_options);
+
+/**
+ * @brief Computes the pseudo inverse using Moore Penrose algorithm
+ * @param Eigen::MatrixXd& Pseudo-inverse matrix
+ * @param const Eigen::MatrixXd& Matrix
+ * @param double Tolerance of the singular value decomposition
+ */
+void pseudoInverse(Eigen::MatrixXd& pinv_matrix, const Eigen::MatrixXd& matrix, double tolerance = 1E-9);
+
 
 Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector);
 

@@ -247,30 +247,20 @@ void computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scal
 //	}
 //	Apinv = svd.matrixV() * sigma_damped * svd.matrixU().transpose(); // damped pseudoinverse
 //}
-//
-//
-//void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A, Eigen::Ref<Eigen::MatrixXd> Apinv,
-//				   double tolerance, unsigned int computation_options)//TODO Change the arguments
-//{
-//	Eigen::JacobiSVD<typename Eigen::MatrixXd::PlainObject> svdDecomposition(A.rows(), A.cols());
-//	pseudoInverse(A, svdDecomposition, Apinv, tolerance, computation_options);
-//}
-//
-//
-//void pseudoInverse(const Eigen::Ref<const Eigen::MatrixXd>& A,
-//				   Eigen::JacobiSVD<Eigen::MatrixXd::PlainObject>& svd_decomposition,
-//				   Eigen::Ref<Eigen::MatrixXd> Apinv,
-//				   double tolerance,
-//				   unsigned int computation_options)//TODO Change the arguments
-//{
-//	using namespace Eigen;
-//	svd_decomposition.compute(A, computation_options);
-//	JacobiSVD<MatrixXd::PlainObject>::SingularValuesType singular_values = svd_decomposition.singularValues();
-//	for (int idx = 0; idx < singular_values.size(); idx++) {
-//		singular_values(idx) = tolerance > 0 && singular_values(idx) > tolerance ? 1.0 / singular_values(idx) : 0.0;
-//	}
-//	Apinv = svd_decomposition.matrixV() * singular_values.asDiagonal() * svd_decomposition.matrixU().adjoint();
-//}
+
+
+void pseudoInverse(Eigen::MatrixXd& Apinv, const Eigen::MatrixXd& A, double tolerance)
+{
+	typedef Eigen::JacobiSVD<Eigen::MatrixXd> SVD;
+	SVD svd_decomposition(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
+
+
+	SVD::SingularValuesType singular_values = svd_decomposition.singularValues();
+	for (int idx = 0; idx < singular_values.size(); idx++) {
+		singular_values(idx) = tolerance > 0 && singular_values(idx) > tolerance ? 1.0 / singular_values(idx) : 0.0;
+	}
+	Apinv = svd_decomposition.matrixV() * singular_values.asDiagonal() * svd_decomposition.matrixU().adjoint();
+}
 
 
 Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector)
@@ -288,5 +278,5 @@ Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector)
 	return skew_symmetric_matrix;
 }
 
-} //@namespace utils
+} //@namespace math
 } //@namespace dwl
