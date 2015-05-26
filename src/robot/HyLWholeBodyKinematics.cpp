@@ -44,6 +44,40 @@ void HyLWholeBodyKinematics::init()
 }
 
 
+void HyLWholeBodyKinematics::computeEffectorIK(Eigen::VectorXd& joint_pos, Eigen::VectorXd& joint_vel,
+					   	   	   	   	   	   	   const Eigen::VectorXd& op_pos, const Eigen::VectorXd& op_vel)
+{
+
+	Eigen::Vector3d hipassembly2hfe = iit::rbd::Utils::positionVector(hom_tf_.fr_trunk_X_fr_upperleg);
+//	double hipassembly_length = hipassembly2hfe.norm();
+	double upperleg_length =
+			(iit::rbd::Utils::positionVector(hom_tf_.fr_upperleg_X_fr_lowerleg)).norm();
+	double lowerleg_length =
+			(iit::rbd::Utils::positionVector(hom_tf_.fr_lowerleg_X_fr_foot)).norm();
+
+	Eigen::Vector3d hipassembly2foot = op_pos - hipassembly2hfe;
+	double hfe2foot_dist = sqrt((double) (hipassembly2foot(iit::rbd::X) * hipassembly2foot(iit::rbd::X)) +
+			(double) (hipassembly2foot(iit::rbd::Z) * hipassembly2foot(iit::rbd::Z)));
+
+	// Joint positions
+	joint_pos(iit::HyL::HFE-1) = -asin((double) hipassembly2foot(iit::rbd::X) / hfe2foot_dist) +
+			acos((upperleg_length * upperleg_length + hfe2foot_dist * hfe2foot_dist -
+			lowerleg_length * lowerleg_length) / (2 * upperleg_length * hfe2foot_dist));
+
+	joint_pos(iit::HyL::KFE-1) = acos((upperleg_length * upperleg_length +
+			lowerleg_length * lowerleg_length - hfe2foot_dist * hfe2foot_dist) /
+			(2 * upperleg_length * lowerleg_length)) - M_PI;
+
+	// Joint velocities
+	Eigen::MatrixXd jacobian;
+	computeEffectorJacobian(jacobian, joint_pos, model::Linear);
+
+	Eigen::MatrixXd pinv_jac;
+	math::pseudoInverse(pinv_jac, jacobian);
+	joint_vel = pinv_jac * op_vel;
+}
+
+
 void HyLWholeBodyKinematics::updateState(const iit::rbd::Vector6D& base_pos, const Eigen::VectorXd& joint_pos)
 {
 //	if (joint_pos.size() > 2)
@@ -59,6 +93,9 @@ void HyLWholeBodyKinematics::updateState(const iit::rbd::Vector6D& base_pos, con
 	// Updating homogeneous transforms
 	homogeneous_tf_["foot"] = hom_tf_.fr_trunk_X_fr_foot(state);
 }
+
+
+
 
 } //@namespace robot
 } //@namespace dwl

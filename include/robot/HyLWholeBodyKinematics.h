@@ -21,6 +21,9 @@ class HyLWholeBodyKinematics : public model::WholeBodyKinematics
 		void init();
 		void updateState(const iit::rbd::Vector6D& base_pos, const Eigen::VectorXd& joint_pos);
 
+		void computeEffectorIK(Eigen::VectorXd& joint_pos, Eigen::VectorXd& joint_vel,
+							   const Eigen::VectorXd& position, const Eigen::VectorXd& velocity);
+
 	private:
 		iit::HyL::Jacobians jacs_;
 		iit::HyL::HomogeneousTransforms hom_tf_;
