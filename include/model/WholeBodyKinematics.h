@@ -41,6 +41,10 @@ class WholeBodyKinematics
 		void computeEffectorFK(Eigen::VectorXd& position, enum Component component = Full);
 		void computeEffectorFK(Eigen::VectorXd& position, EndEffectorSelector effector_set,
 							   enum Component component = Full);
+
+		virtual void computeEffectorIK(Eigen::VectorXd& joint_pos, Eigen::VectorXd& joint_vel,
+									   const Eigen::VectorXd& position, const Eigen::VectorXd& velocity) = 0;
+
 		Eigen::Matrix3d getBaseRotationMatrix();
 		Eigen::Matrix4d getHomogeneousTransform(std::string effector_name);
 
@@ -58,61 +62,83 @@ class WholeBodyKinematics
 		 * The whole-body jacobian represents a stack of floating-base effector jacobians in which
 		 * there are base and effector contributions
 		 * @param Eigen::MatrixXd& Whole-body jacobian
+		 * @param const iit::rbd::Vector6D& Base position
+		 * @param const Eigen::VectorXd& Joint position
 		 * @param enum Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		virtual void computeWholeBodyJacobian(Eigen::MatrixXd& jacobian, enum Component component = Full);
+		virtual void computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
+											  const iit::rbd::Vector6D& base_pos,
+											  const Eigen::VectorXd& joint_pos,
+											  enum Component component = Full);
 
 		/**
 		 * @brief This method computes the whole-body jacobian given a predefined set of end-effectors
 		 * of the robot. The whole-body jacobian represents a stack of floating-base effector jacobians
 		 * in which there are base and effector contributions
 		 * @param Eigen::MatrixXd& Whole-body jacobian
+		 * @param const iit::rbd::Vector6D& Base position
+		 * @param const Eigen::VectorXd& Joint position
 		 * @param EndEffectorSelector A predefined set of end-effectors
 		 * @param enum Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		virtual void computeWholeBodyJacobian(Eigen::MatrixXd& jacobian, EndEffectorSelector effector_set,
+		virtual void computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
+											  const iit::rbd::Vector6D& base_pos,
+											  const Eigen::VectorXd& joint_pos,
+											  EndEffectorSelector effector_set,
 											  enum Component component = Full);
 
 		/**
 		 * @brief This method computes the base jacobian contribution for all the end-effectors of the
 		 * robot.
 		 * @param Eigen::MatrixXd& Base jacobian
+		 * @param const iit::rbd::Vector6D& Base position
 		 * @param enum Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		virtual void computeBaseJacobian(Eigen::MatrixXd& jacobian, enum Component component = Full);
+		virtual void computeBaseJacobian(Eigen::MatrixXd& jacobian,
+										 const iit::rbd::Vector6D& base_pos,
+										 enum Component component = Full);
 
 		/**
 		 * @brief This method computes the base jacobian contribution give a predefined set of end-effectors
 		 * of the robot.
 		 * @param Eigen::MatrixXd& Base jacobian
+		 * @param const iit::rbd::Vector6D& Base position
 		 * @param EndEffectorSelector A predefined set of end-effectors
 		 * @param enum Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		virtual void computeBaseJacobian(Eigen::MatrixXd& jacobian, EndEffectorSelector effector_set,
+		virtual void computeBaseJacobian(Eigen::MatrixXd& jacobian,
+										 const iit::rbd::Vector6D& base_pos,
+										 EndEffectorSelector effector_set,
 										 enum Component component = Full);
 
 		/**
 		 * @brief This method computes the effector jacobian contribution for all the end-effectors of the
 		 * robot.
 		 * @param Eigen::MatrixXd& Effector jacobian
+		 * @param const Eigen::VectorXd& Joint position
 		 * @param enum Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		virtual void computeEffectorJacobian(Eigen::MatrixXd& jacobian, enum Component component = Full);
+		virtual void computeEffectorJacobian(Eigen::MatrixXd& jacobian,
+											 const Eigen::VectorXd& joint_pos,
+											 enum Component component = Full);
 
 		/**
 		 * @brief This method computes the effector jacobian contribution give a predefined set of end-effectors
 		 * of the robot.
 		 * @param Eigen::MatrixXd& Effector jacobian
+		 * @param const Eigen::VectorXd& Joint position
 		 * @param EndEffectorSelector A predefined set of end-effectors
 		 * @param enum Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		virtual void computeEffectorJacobian(Eigen::MatrixXd& jacobian, EndEffectorSelector effector_set,
+		virtual void computeEffectorJacobian(Eigen::MatrixXd& jacobian,
+											 const Eigen::VectorXd& joint_pos,
+											 EndEffectorSelector effector_set,
 											 enum Component component = Full);
 
 		typedef std::map<std::string, Eigen::Matrix<double, 6, Eigen::Dynamic> > EndEffectorJacobian;

@@ -105,6 +105,8 @@ void WholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& position,
 
 
 void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
+												   const iit::rbd::Vector6D& base_pos,
+												   const Eigen::VectorXd& joint_pos,
 												   enum Component component)
 {
 	// Computing the jacobian for all end-effectors
@@ -117,11 +119,13 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 		effector_set[effector_name] = true;
 	}
 
-	computeWholeBodyJacobian(jacobian, effector_set, component);
+	computeWholeBodyJacobian(jacobian, base_pos, joint_pos, effector_set, component);
 }
 
 
 void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
+												   const iit::rbd::Vector6D& base_pos,
+												   const Eigen::VectorXd& joint_pos,
 												   EndEffectorSelector effector_set,
 												   enum Component component)
 {
@@ -157,8 +161,8 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 
 	// Adding the jacobian only for the active end-effectors
 	Eigen::MatrixXd floating_base_jacobian, fixed_base_jacobian;
-	computeBaseJacobian(floating_base_jacobian, effector_set, component);
-	computeEffectorJacobian(fixed_base_jacobian, effector_set, component);
+	computeBaseJacobian(floating_base_jacobian, base_pos, effector_set, component);
+	computeEffectorJacobian(fixed_base_jacobian, joint_pos, effector_set, component);
 
 	jacobian << floating_base_jacobian, fixed_base_jacobian;
 
@@ -168,6 +172,7 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 
 
 void WholeBodyKinematics::computeBaseJacobian(Eigen::MatrixXd& jacobian,
+											  const iit::rbd::Vector6D& base_pos,
 											  enum Component component)
 {
 	// Computing the jacobian for all end-effectors
@@ -180,11 +185,12 @@ void WholeBodyKinematics::computeBaseJacobian(Eigen::MatrixXd& jacobian,
 		effector_set[effector_name] = true;
 	}
 
-	computeBaseJacobian(jacobian, effector_set, component);
+	computeBaseJacobian(jacobian, base_pos, effector_set, component);
 }
 
 
 void WholeBodyKinematics::computeBaseJacobian(Eigen::MatrixXd& jacobian,
+											  const iit::rbd::Vector6D& base_pos,
 											  EndEffectorSelector effector_set,
 											  enum Component component)
 {
@@ -236,7 +242,7 @@ void WholeBodyKinematics::computeBaseJacobian(Eigen::MatrixXd& jacobian,
 			case Linear:
 				jacobian.block(init_row, rbd::AX, 3, 3) = -floating_base_rot_.transpose() *
 						math::skewSymmentricMatrixFrom3DVector(foot_pos);
-				jacobian.block(init_row, rbd::LX, 3, 3) = floating_base_rot_.transpose();
+				jacobian.block(init_row, rbd::LX, 3, 3) = floating_base_rot_.transpose();// TODO compute rotation matrix from base_pos
 				break;
 			case Angular:
 				jacobian.block(init_row, rbd::AX, 3, 3) = floating_base_rot_.transpose();
@@ -260,6 +266,7 @@ void WholeBodyKinematics::computeBaseJacobian(Eigen::MatrixXd& jacobian,
 
 
 void WholeBodyKinematics::computeEffectorJacobian(Eigen::MatrixXd& jacobian,
+												  const Eigen::VectorXd& joint_pos,
 												  enum Component component)
 {
 	// Computing the jacobian for all end-effectors
@@ -272,14 +279,18 @@ void WholeBodyKinematics::computeEffectorJacobian(Eigen::MatrixXd& jacobian,
 		effector_set[effector_name] = true;
 	}
 
-	computeEffectorJacobian(jacobian, effector_set, component);
+	computeEffectorJacobian(jacobian, joint_pos, effector_set, component);
 }
 
 
 void WholeBodyKinematics::computeEffectorJacobian(Eigen::MatrixXd& jacobian,
+												  const Eigen::VectorXd& joint_pos,
 												  EndEffectorSelector effector_set,
 												  enum Component component)
 {
+	// Updating the state of the kinematic model
+	updateState(iit::rbd::Vector6D::Zero(), joint_pos);
+
 	// Resizing the jacobian matrix
 	int num_vars;
 	switch (component) {
