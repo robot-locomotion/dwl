@@ -9,18 +9,6 @@ namespace robot
 
 HyLWholeBodyKinematics::HyLWholeBodyKinematics()
 {
-
-}
-
-
-HyLWholeBodyKinematics::~HyLWholeBodyKinematics()
-{
-
-}
-
-
-void HyLWholeBodyKinematics::init()
-{
 	// Defining the end-effector ids
 	effector_id_[0] = "foot";
 
@@ -44,12 +32,38 @@ void HyLWholeBodyKinematics::init()
 }
 
 
-void HyLWholeBodyKinematics::computeEffectorIK(Eigen::VectorXd& joint_pos, Eigen::VectorXd& joint_vel,
-					   	   	   	   	   	   	   const Eigen::VectorXd& op_pos, const Eigen::VectorXd& op_vel)
+HyLWholeBodyKinematics::~HyLWholeBodyKinematics()
+{
+
+}
+
+
+void HyLWholeBodyKinematics::updateState(const iit::rbd::Vector6D& base_pos,
+										 const Eigen::VectorXd& joint_pos)
+{
+//	if (joint_pos.size() > 2)
+//		printf("Error the joint position must be 2");
+
+	// Computing the HyL state
+	Eigen::Vector3d state;
+	state << base_pos(iit::rbd::LZ), joint_pos;
+
+	// Updating jacobians
+	jacobians_["foot"] = jacs_.fr_trunk_J_fr_foot(state);
+
+	// Updating homogeneous transforms
+	homogeneous_tf_["foot"] = hom_tf_.fr_trunk_X_fr_foot(state);
+}
+
+
+void HyLWholeBodyKinematics::computeEffectorIK(Eigen::VectorXd& joint_pos,
+											   Eigen::VectorXd& joint_vel,
+					   	   	   	   	   	   	   const Eigen::VectorXd& op_pos,
+											   const Eigen::VectorXd& op_vel)
 {
 
 	Eigen::Vector3d hipassembly2hfe = iit::rbd::Utils::positionVector(hom_tf_.fr_trunk_X_fr_upperleg);
-//	double hipassembly_length = hipassembly2hfe.norm();
+
 	double upperleg_length =
 			(iit::rbd::Utils::positionVector(hom_tf_.fr_upperleg_X_fr_lowerleg)).norm();
 	double lowerleg_length =
@@ -70,32 +84,11 @@ void HyLWholeBodyKinematics::computeEffectorIK(Eigen::VectorXd& joint_pos, Eigen
 
 	// Joint velocities
 	Eigen::MatrixXd jacobian;
-	computeEffectorJacobian(jacobian, joint_pos, model::Linear);
+	computeFixedBaseJacobian(jacobian, joint_pos, model::Linear);
 
-	Eigen::MatrixXd pinv_jac;
-	math::pseudoInverse(pinv_jac, jacobian);
+	Eigen::MatrixXd pinv_jac = math::pseudoInverse(jacobian);
 	joint_vel = pinv_jac * op_vel;
 }
-
-
-void HyLWholeBodyKinematics::updateState(const iit::rbd::Vector6D& base_pos, const Eigen::VectorXd& joint_pos)
-{
-//	if (joint_pos.size() > 2)
-//		printf("Error the joint position must be 2");
-
-	// Computing the HyL state
-	Eigen::Vector3d state;
-	state << base_pos(iit::rbd::LZ), joint_pos;
-
-	// Updating jacobians
-	jacobians_["foot"] = jacs_.fr_trunk_J_fr_foot(state);
-
-	// Updating homogeneous transforms
-	homogeneous_tf_["foot"] = hom_tf_.fr_trunk_X_fr_foot(state);
-}
-
-
-
 
 } //@namespace robot
 } //@namespace dwl
