@@ -77,13 +77,17 @@ void computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scal
 
 /**
  * @brief Computes the pseudo inverse using Moore Penrose algorithm
- * @param Eigen::MatrixXd& Pseudo-inverse matrix
  * @param const Eigen::MatrixXd& Matrix
  * @param double Tolerance of the singular value decomposition
+ * @return Returns the pseudo-inverse matrix
  */
-void pseudoInverse(Eigen::MatrixXd& pinv_matrix, const Eigen::MatrixXd& matrix, double tolerance = 1E-9);
+Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& matrix, double tolerance = 1E-9);
 
-
+/**
+ * @brief Computes the skew symmetric matrix from a 3d vector
+ * @param Eigen::Vector3d 3d vector
+ * @return Returns the skew symmetric matrix
+ */
 Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector);
 
 } //@namespace utils
