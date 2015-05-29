@@ -249,7 +249,7 @@ void computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scal
 //}
 
 
-void pseudoInverse(Eigen::MatrixXd& Apinv, const Eigen::MatrixXd& A, double tolerance)
+Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& A, double tolerance)
 {
 	typedef Eigen::JacobiSVD<Eigen::MatrixXd> SVD;
 	SVD svd_decomposition(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
@@ -259,7 +259,7 @@ void pseudoInverse(Eigen::MatrixXd& Apinv, const Eigen::MatrixXd& A, double tole
 	for (int idx = 0; idx < singular_values.size(); idx++) {
 		singular_values(idx) = tolerance > 0 && singular_values(idx) > tolerance ? 1.0 / singular_values(idx) : 0.0;
 	}
-	Apinv = svd_decomposition.matrixV() * singular_values.asDiagonal() * svd_decomposition.matrixU().adjoint();
+	return svd_decomposition.matrixV() * singular_values.asDiagonal() * svd_decomposition.matrixU().adjoint();
 }
 
 
