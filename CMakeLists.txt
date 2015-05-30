@@ -7,7 +7,7 @@ message("Compiling the version ${DWL_VERSION} of Dynamic Whole-Body Locomotion (
 # Appending the project module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(ROBOTS)
 find_package(IPOPT)
@@ -17,22 +17,24 @@ find_package(octomap)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
 
+
 # Seting the output directories for libraries and executables
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 # Setting the thirdparties directories and libraries
-set(DEPENDENCIES_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
-set(DEPENDENCIES_LIBRARIES ${YAMLCPP_LIBRARY}) #/usr/local/lib/libyaml-cpp.so)
+set(DEPENDENCIES_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIRS})
+set(DEPENDENCIES_LIBRARIES ${YAMLCPP_LIBRARIES})
 set(DEPENDENCIES_LIBRARY_DIRS)
 
 # Including directories
 set(INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_DIRS})
 include_directories(src)
-include_directories(${EIGEN_INCLUDE_DIRS})
+include_directories(${EIGEN3_INCLUDE_DIRS})
 include_directories(${YAMLCPP_INCLUDE_DIRS})
+
 
 # Setting the project sources
 set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
@@ -130,11 +132,11 @@ endif()
 
 # Adding the dwl library
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
-target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})# ${YAMLCPP_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
 
 
 add_executable(my_planner  tests/HierarchicalPlanningTest.cpp)
-target_link_libraries(my_planner ${PROJECT_NAME})# ${OCTOMAP_LIBRARIES})
+target_link_libraries(my_planner ${PROJECT_NAME})
 
 include_directories(tests)
 add_executable(ipopt_test  tests/IpoptDWLTest.cpp

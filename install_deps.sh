@@ -42,7 +42,7 @@ function install_yamlcpp
 	cd yaml-cpp
 	mkdir -p build
 	cd build
-	cmake -D BUILD_SHARED_LIBRARIES:bool=ON ../
+	cmake -D BUILD_SHARED_LIBS:bool=ON ../
 	sudo make install
 	cd ../../
 	rm -rf yaml-cpp-0.3.0.tar.gz
@@ -51,6 +51,9 @@ function install_yamlcpp
 
 function install_ipopt
 {
+	# Installing necessary packages
+	sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
+
 	# Getting Ipopt 3.11.8
 	wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.11.8.tgz
 	mkdir ipopt && tar xzvf Ipopt-3.11.8.tgz -C ipopt --strip-components 1
