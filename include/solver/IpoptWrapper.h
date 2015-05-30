@@ -191,6 +191,9 @@ class IpoptWrapper : public Ipopt::TNLP
 
 		/** @brief Pointer to the defined model of the NLP problem */
 		model::Model* model_;
+
+		int state_dimension_;
+		int horizon_;
 };
 
 } //@namespace solver

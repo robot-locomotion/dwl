@@ -24,7 +24,10 @@ namespace model
 class Model
 {
 	public:
+		/** @brief Constructor function */
 		Model();
+
+		/** @brief Destructor function */
 		virtual ~Model();
 
 		/**
@@ -58,9 +61,10 @@ class Model
 		virtual void convertDecisionVariablesToStateModel(StateModel& state_model,
 												  	  	  const Eigen::VectorXd& decision_var) = 0;
 
-//		void setDimensionOfDecisionVariables(); //TODO make virtual
-		int getDimensionOfDecisionVariables();
+
+		int getDimensionOfStateVariables();
 		int getDimensionOfConstraints();
+		int getHorizon();
 
 
 	protected:
@@ -75,6 +79,7 @@ class Model
 
 		int state_dimension_;
 		int constraint_dimension_;
+		int horizon_;
 
 		/** @brief Indicates if it was added an active constraint in the solver */
 		bool is_added_active_constraint_;

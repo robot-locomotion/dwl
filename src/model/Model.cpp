@@ -7,12 +7,13 @@ namespace dwl
 namespace model
 {
 
-Model::Model() : state_dimension_(0), constraint_dimension_(0),
+Model::Model() : state_dimension_(0), constraint_dimension_(0), horizon_(1),
 		is_added_active_constraint_(false), is_added_inactive_constraint_(false),
 		is_added_cost_(false)
 {
 
 }
+
 
 Model::~Model()
 {
@@ -177,7 +178,7 @@ std::vector<model::Cost*> Model::getCosts()
 }
 
 
-int Model::getDimensionOfDecisionVariables()
+int Model::getDimensionOfStateVariables()
 {
 	return state_dimension_;
 }
@@ -186,6 +187,12 @@ int Model::getDimensionOfDecisionVariables()
 int Model::getDimensionOfConstraints()
 {
 	return constraint_dimension_;
+}
+
+
+int Model::getHorizon()
+{
+	return horizon_;
 }
 
 } //@namespace model
