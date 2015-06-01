@@ -82,38 +82,29 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 
 # Adding robot components of the project
 if(hyl_FOUND)
-    set(DEPENDENCIES_INCLUDE_DIRS  ${DEPENDENCIES_INCLUDE_DIRS}
-                                   ${hyl_INCLUDE_DIRS})
-    set(DEPENDENCIES_LIBRARIES  ${DEPENDENCIES_LIBRARIES}
-                                ${hyl_LIBRARIES})
+    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${hyl_INCLUDE_DIRS})
+    list(APPEND DEPENDENCIES_LIBRARIES  ${hyl_LIBRARIES})
 
     include_directories(${hyl_INCLUDE_DIRS})
-	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
-								 src/robot/HyLWholeBodyKinematics.cpp
-								 src/robot/HyLWholeBodyDynamics.cpp)
+	list(APPEND ${PROJECT_NAME}_SOURCES  src/robot/HyLWholeBodyKinematics.cpp
+								         src/robot/HyLWholeBodyDynamics.cpp)
 endif()
 
 if(hyq_FOUND)
-    set(DEPENDENCIES_INCLUDE_DIRS  ${DEPENDENCIES_INCLUDE_DIRS}
-                                   ${hyq_INCLUDE_DIRS})
-    set(DEPENDENCIES_LIBRARIES  ${DEPENDENCIES_LIBRARIES}
-                                ${hyq_LIBRARIES})
+    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${hyq_INCLUDE_DIRS})
+    list(APPEND DEPENDENCIES_LIBRARIES  ${hyq_LIBRARIES})
 
     include_directories(${hyq_INCLUDE_DIRS})
-	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
-								 src/robot/HyQWholeBodyKinematics.cpp)
-								 #src/robot/HyQWholeBodyDynamics.cpp
+	list(APPEND ${PROJECT_NAME}_SOURCES  src/robot/HyQWholeBodyKinematics.cpp)
+								         #src/robot/HyQWholeBodyDynamics.cpp
 endif()
 
 
 # Adding Ipopt components of the project
 if(IPOPT_FOUND)
-    set(DEPENDENCIES_INCLUDE_DIRS  ${DEPENDENCIES_INCLUDE_DIRS}
-                                   ${IPOPT_INCLUDE_DIRS})
-    set(DEPENDENCIES_LIBRARY_DIRS  ${DEPENDENCIES_LIBRARY_DIRS}
-                                   ${IPOPT_LIBRARY_DIR})
-    set(DEPENDENCIES_LIBRARIES  ${DEPENDENCIES_LIBRARIES}
-                                ${IPOPT_LIBRARIES})
+    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${IPOPT_INCLUDE_DIRS})
+    list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${IPOPT_LIBRARY_DIR})
+    list(APPEND DEPENDENCIES_LIBRARIES  ${IPOPT_LIBRARIES})
     
     include_directories(${IPOPT_INCLUDE_DIRS})
     set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
@@ -124,9 +115,8 @@ endif()
 # Adding Octomap components of the project
 if(octomap_FOUND)
     include_directories(${OCTOMAP_INCLUDE_DIRS}) 
-    set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
-                                 src/environment/RewardOctoMap.cpp
-                                 src/environment/ObstacleMap.cpp)
+    list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/RewardOctoMap.cpp
+                                         src/environment/ObstacleMap.cpp)
 endif()
 
 
