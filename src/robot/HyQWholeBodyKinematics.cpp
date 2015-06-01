@@ -22,10 +22,10 @@ HyQWholeBodyKinematics::~HyQWholeBodyKinematics()
 void HyQWholeBodyKinematics::init()
 {
 	// Defining the end-effector ids
-	effector_id_[0] = "LF_foot";
-	effector_id_[1] = "RF_foot";
-	effector_id_[2] = "LH_foot";
-	effector_id_[3] = "RH_foot";
+	effector_id_["LF_foot"] = 0;
+	effector_id_["RF_foot"] = 1;
+	effector_id_["LH_foot"] = 2;
+	effector_id_["RH_foot"] = 3;
 
 	// Defining the jacobians of the end-effectors
 	jacobians_["LF_foot"] = jacs_.fr_trunk_J_LF_foot;
@@ -44,7 +44,7 @@ void HyQWholeBodyKinematics::init()
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
+		std::string effector_name = effector_iter->first;
 		Eigen::MatrixXd jac = jacobians_.find(effector_name)->second;
 		num_joints_ += jac.cols();
 	}

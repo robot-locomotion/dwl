@@ -43,7 +43,7 @@ void WholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eigen::Vecto
 			effector_iter != kin_model_->getEndEffectorList().end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
+		std::string effector_name = effector_iter->first;
 		effector_set[effector_name] = true;
 	}
 
@@ -64,14 +64,13 @@ void WholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eigen::Vecto
 
 	// Computing the number of active end-effectors
 	int num_effector_set = 0;
-	for (EndEffectorID::iterator effector_iter = kin_model_->getEndEffectorList().begin();
-			effector_iter != kin_model_->getEndEffectorList().end();
+	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
-		if ((effector_set.find(effector_name)->second) && (effector_set.count(effector_name) > 0)) {
+		std::string effector_name = effector_iter->first;
+		if (kin_model_->getEndEffectorList().count(effector_name) > 0)
 			++num_effector_set;
-		}
 	}
 	jacd_qd.resize(3 * num_effector_set);
 	jacd_qd.setZero();
@@ -85,13 +84,13 @@ void WholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eigen::Vecto
 	// Computing the acceleration contribution from joint velocity, i.e. J_d*q_d
 	iit::rbd::VelocityVector effector_vel;
 	iit::rbd::VelocityVector effector_acc;
-	for (EndEffectorID::iterator effector_iter = kin_model_->getEndEffectorList().begin();
-			effector_iter != kin_model_->getEndEffectorList().end();
+	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+			effector_iter != effector_set.end();
 			effector_iter++)
 	{
 		int effector_counter = 0;
-		std::string effector_name = effector_iter->second;
-		if ((effector_set.find(effector_name)->second) && (effector_set.count(effector_name) > 0)) {
+		std::string effector_name = effector_iter->first;
+		if (kin_model_->getEndEffectorList().count(effector_name) > 0) {
 			effector_vel = closest_link_motion_tf_.find(effector_name)->second *
 					closest_link_velocity_.find(effector_name)->second;
 			effector_acc = closest_link_motion_tf_.find(effector_name)->second *

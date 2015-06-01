@@ -23,13 +23,13 @@ void WholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 											const Eigen::VectorXd& joint_pos,
 											enum Component component)
 {
-	// Computing the jacobian for all end-effectors
+	// Computing the forward kinematics for all end-effectors
 	EndEffectorSelector effector_set;
 	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
+		std::string effector_name = effector_iter->first;
 		effector_set[effector_name] = true;
 	}
 
@@ -47,14 +47,15 @@ void WholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 
 	// Computing the number of active end-effectors
 	int num_effector_set = 0;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
-			effector_iter != effector_id_.end();
+	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
-		if ((effector_set.find(effector_name)->second) && (effector_set.count(effector_name) > 0)) {
+		std::string effector_name = effector_iter->first;
+		if (effector_id_.count(effector_name) > 0) {
 			++num_effector_set;
-		}
+		} else
+			printf(YELLOW "WARNING: The %s link is not an end-effector\n" COLOR_RESET, effector_name.c_str());
 	}
 
 	switch (component) {
@@ -70,12 +71,12 @@ void WholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 	}
 	op_pos.setZero();
 
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
-			effector_iter != effector_id_.end();
+	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
-		if ((effector_set.find(effector_name)->second) && (effector_set.count(effector_name) > 0)) {
+		std::string effector_name = effector_iter->first;
+		if (effector_id_.count(effector_name) > 0) {
 			Eigen::Matrix4d homogeneous_tf = homogeneous_tf_.find(effector_name)->second;
 
 			Orientation orientation(iit::rbd::Utils::rotationMx(homogeneous_tf));
@@ -109,7 +110,7 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
+		std::string effector_name = effector_iter->first;
 		effector_set[effector_name] = true;
 	}
 
@@ -141,14 +142,13 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 
 	// Computing the number of active end-effectors
 	int num_effector_set = 0;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
-			effector_iter != effector_id_.end();
+	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
-		if ((effector_set.find(effector_name)->second) && (effector_set.count(effector_name) > 0)) {
+		std::string effector_name = effector_iter->first;
+		if (effector_id_.count(effector_name) > 0)
 			++num_effector_set;
-		}
 	}
 	jacobian.resize(num_vars * num_effector_set, 6 + num_joints_);
 	jacobian.setZero();
@@ -176,7 +176,7 @@ void WholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacobian,
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
+		std::string effector_name = effector_iter->first;
 		effector_set[effector_name] = true;
 	}
 
@@ -211,14 +211,15 @@ void WholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacobian,
 
 	// Computing the number of active end-effectors
 	int num_effector_set = 0;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
-			effector_iter != effector_id_.end();
+	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
-		if ((effector_set.find(effector_name)->second) && (effector_set.count(effector_name) > 0)) {
+		std::string effector_name = effector_iter->first;
+		if (effector_id_.count(effector_name) > 0)
 			++num_effector_set;
-		}
+		else
+			printf(YELLOW "WARNING: The %s link is not an end-effector\n" COLOR_RESET, effector_name.c_str());
 	}
 	jacobian.resize(num_vars * num_effector_set, 6);
 	jacobian.setZero();
@@ -229,12 +230,12 @@ void WholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacobian,
 
 	// Adding the jacobian only for the active end-effectors
 	int effector_counter = 0;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
-			effector_iter != effector_id_.end();
+	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
-		if ((effector_set.find(effector_name)->second) && (effector_set.count(effector_name) > 0)) {
+		std::string effector_name = effector_iter->first;
+		if (effector_id_.count(effector_name) > 0) {
 			int init_row = effector_counter * num_vars;
 			Eigen::Vector3d foot_pos = effector_positions.segment(effector_counter * 3, 3);
 			switch(component) {
@@ -274,7 +275,7 @@ void WholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
+		std::string effector_name = effector_iter->first;
 		effector_set[effector_name] = true;
 	}
 
@@ -308,28 +309,30 @@ void WholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 
 	// Computing the number of active end-effectors
 	int num_effector_set = 0;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
-			effector_iter != effector_id_.end();
+	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
-		if ((effector_set.find(effector_name)->second) && (effector_set.count(effector_name) > 0)) {
+		std::string effector_name = effector_iter->first;
+		if (effector_id_.count(effector_name) > 0)
 			++num_effector_set;
-		}
+		else
+			printf(YELLOW "WARNING: The %s link is not an end-effector\n" COLOR_RESET, effector_name.c_str());
 	}
 	jacobian.resize(num_vars * num_effector_set, num_joints_);
 	jacobian.setZero();
 
 	// Adding the jacobian only for the active end-effectors
 	int effector_counter = 0;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
-			effector_iter != effector_id_.end();
+	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		int effector_id = effector_iter->first;
-		std::string effector_name = effector_iter->second;
-		if ((effector_set.find(effector_name)->second) && (effector_set.count(effector_name) > 0)) {
+		std::string effector_name = effector_iter->first;
+		int effector_id = effector_id_.find(effector_name)->second;
+		if (effector_id_.count(effector_name) > 0) {
 			Eigen::MatrixXd jac = jacobians_.find(effector_name)->second;
+
 			int num_jnts = jac.cols();
 			int init_row = effector_counter * num_vars;
 			int init_col = effector_id * num_jnts;
@@ -370,7 +373,7 @@ void WholeBodyKinematics::opVelocityFromJointSpace(Eigen::VectorXd& op_vel,
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
+		std::string effector_name = effector_iter->first;
 		effector_set[effector_name] = true;
 	}
 
@@ -410,7 +413,7 @@ void WholeBodyKinematics::opAccelerationContributionFromJointAcceleration(Eigen:
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
+		std::string effector_name = effector_iter->first;
 		effector_set[effector_name] = true;
 	}
 

@@ -10,7 +10,7 @@ namespace robot
 HyLWholeBodyKinematics::HyLWholeBodyKinematics()
 {
 	// Defining the end-effector ids
-	effector_id_[0] = "foot";
+	effector_id_["foot"] = 0;
 
 	// Defining the jacobians of the end-effectors
 	jacobians_["foot"] = jacs_.fr_trunk_J_fr_foot;
@@ -23,7 +23,7 @@ HyLWholeBodyKinematics::HyLWholeBodyKinematics()
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->second;
+		std::string effector_name = effector_iter->first;
 		Eigen::MatrixXd jac = jacobians_.find(effector_name)->second;
 		num_joints_ += jac.cols();
 	}
