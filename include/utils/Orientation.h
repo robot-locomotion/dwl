@@ -7,88 +7,61 @@
 namespace dwl
 {
 
-/**
- * @class Orientation
- * @brief Class for converting the orientation between roll, pitch and yaw angles, rotation matrix and quaternions
- */
-class Orientation
+enum TypeOfOrientation {RollPitchYaw, Quaternion, RotationMatrix};
+
+namespace math
 {
-	public:
-		/**
-		 * @brief Constructor function
-		 * @param Eigen::Matrix3d Rotation matrix
-		 */
-		Orientation(Eigen::Matrix3d rotation_matrix);
 
-		/**
-		 * @brief Constructor function
-		 * @param Eigen::Quaterniond Quaternion
-		 */
-		Orientation(Eigen::Quaterniond q);
+/**
+ * @brief Gets the roll, pitch and yaw angles from rotation matrix
+ * @param const Eigen::Matrix3d& Rotation matrix
+ * @return Eigen::Vector3d Roll, pitch and yaw angles
+ */
+Eigen::Vector3d getRPY(const Eigen::Matrix3d& rotation_mtx);
 
-		/**
-		 * @brief Constructor function
-		 * @param double Roll angle
-		 * @param double Pitch angle
-		 * @param double Yaw angle
-		 */
-		Orientation(double roll, double pitch, double yaw);
+/**
+ * @brief Gets the roll, pitch and yaw angles from quaternion
+ * @param const Eigen::Quaterniond& Quaternion
+ * @return Eigen::Vector3d Roll, pitch and yaw angles
+ */
+Eigen::Vector3d getRPY(const Eigen::Quaterniond& quaternion);
 
-		/**
-		 * @brief Constructor function
-		 * @param double& X component of the vector
-		 * @param double& Y component of the vector
-		 * @param double& Z component of the vector
-		 * @param double& W Scalar
-		 */
-		Orientation(double x, double y, double z, double w);
+/**
+ * @brief Gets the quaternion, i.e. the scalar (w) and vector (x,y,z) components from
+ * rotation matrix
+ * @param const Eigen::Matrix3d& Rotation matrix
+ * @return Eigen::Quaterniond Quaternion
+ */
+Eigen::Quaterniond getQuaternion(const Eigen::Matrix3d& rotation_mtx);
 
-		/** @brief Destructor function */
-		~Orientation();
+/**
+ * @brief Gets the quaternion, i.e. the scalar (w) and vector (x,y,z) components from
+ * roll, pitch and yaw angles
+ * @param const Eigen::Matrix3d& Roll, pitch and yaw angles
+ * @return Eigen::Quaterniond Quaternion
+ */
+Eigen::Quaterniond getQuaternion(const Eigen::Vector3d& rpy);
 
-		/**
-		 * @brief Gets the roll, pitch and yaw angles
-		 * @param double& Roll angle
-		 * @param double& Pitch angle
-		 * @param double& Yaw angle
-		 */
-		void getRPY(double& roll, double& pitch, double& yaw);
+/**
+ * @brief Gets the rotation matrix from quaternion
+ * @param const Eigen::Quaterniond& Quaternion
+ * @return Eigen::Matrix3d Rotation matrix
+ */
+Eigen::Matrix3d getRotationMatrix(const Eigen::Quaterniond& quaternion);
 
-		/**
-		 * @brief Gets quaternion, i.e. the scalar (w) and vector (x,y,z) components
-		 * @param double& X component of the vector
-		 * @param double& Y component of the vector
-		 * @param double& Z component of the vector
-		 * @param double& W Scalar
-		 */
-		void getQuaternion(double& x, double& y, double& z, double& w);
-
-		/**
-		 * @brief Gets the quaternion
-		 * @param Eigen::Quaterniond& Quaternion
-		 */
-		void getQuaternion(Eigen::Quaterniond& q);
-
-		/**
-		 * @brief Gets the rotation matrix
-		 * @param Eigen::Matrix3d& Rotation matrix
-		 */
-		void getRotationMatrix(Eigen::Matrix3d& rotation_matrix);
+/**
+ * @brief Gets the rotation matrix from the roll, pitch and yaw angles
+ * @param const Eigen::Quaterniond& Quaternion
+ * @return Eigen::Matrix3d Rotation matrix
+ */
+Eigen::Matrix3d getRotationMatrix(const Eigen::Vector3d& rpy);
 
 
-	private:
-		/**
-		 * @brief Returns the quaternion from roll, pitch and yaw angles
-		 * @param double Roll angle
-		 * @param double Pitch angle
-		 * @param double Yaw angle
-		 */
-		Eigen::Quaterniond RPYToQuaternion(double roll, double pitch, double yaw);
+double getRoll(const Eigen::Vector3d& rpy);
+double getPitch(const Eigen::Vector3d& rpy);
+double getYaw(const Eigen::Vector3d& rpy);
 
-		/* * @brief Quaternion */
-		Eigen::Quaterniond quaternion_;
-};
-
+}
 }
 
 #endif

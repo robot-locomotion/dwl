@@ -25,9 +25,7 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 {
 	// Setting the current discretized body state
 	Pose current_body_pose = robot_->getCurrentPose();
-	double current_roll, current_pitch, current_yaw;
-	Orientation current_orientation(current_body_pose.orientation);
-	current_orientation.getRPY(current_roll, current_pitch, current_yaw);
+	double current_yaw = math::getYaw(math::getRPY(current_body_pose.orientation));
 	current_body_state_ << current_body_pose.position.head(2), current_yaw;
 	Vertex current_state_vertex;
 	environment_->getTerrainSpaceModel().stateToVertex(current_state_vertex, current_body_state_);
@@ -42,10 +40,6 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 
 	std::vector<Contact> current_contacts = robot_->getCurrentContacts();
 	for (int i = 1; i < contact_horizon; i++) {
-		Orientation orientation(pose_trajectory[i].orientation);
-		double roll, pitch, yaw;
-		orientation.getRPY(roll, pitch, yaw);
-
 		std::vector<Contact> planned_contacts;
 		std::vector<Contact> contacts_for_execution;
 		if (!computeContacts(planned_contacts, current_contacts, pose_trajectory[i])) {
@@ -86,9 +80,7 @@ bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds,
 	footholds.clear();
 
 	// Converting quaternion to roll, pitch and yaw angles
-	double roll, pitch, yaw;
-	Orientation orientation(goal_pose.orientation);
-	orientation.getRPY(roll, pitch, yaw);
+	double yaw = math::getYaw(math::getRPY(goal_pose.orientation));
 
 	// Getting the vertex position
 	Eigen::Vector3d body_state;

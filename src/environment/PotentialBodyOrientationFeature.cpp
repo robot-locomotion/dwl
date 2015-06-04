@@ -88,27 +88,25 @@ void PotentialBodyOrientationFeature::computeReward(double& reward_value, RobotA
 	origin << 0, 0, 1;
 	normal_quaternion.setFromTwoVectors(origin, normal);
 
-	double r, p, y;
-	Orientation orientation(normal_quaternion);
-	orientation.getRPY(r, p, y);
 
 	// Computing the reward value
 	double roll_reward, pitch_reward;
-	r = fabs(r);
-	p = fabs(p);
-	if (r < flat_orientation_)
+	Eigen::Vector3d rpy = math::getRPY(normal_quaternion);
+	double roll = fabs(math::getRoll(rpy));
+	double pitch = fabs(math::getPitch(rpy));
+	if (roll < flat_orientation_)
 		roll_reward = 0.0;
-	else if (r < max_roll_) {
-		roll_reward = log(0.75 * (1 - (r - flat_orientation_) / (max_roll_ - flat_orientation_)));
+	else if (roll < max_roll_) {
+		roll_reward = log(0.75 * (1 - (roll - flat_orientation_) / (max_roll_ - flat_orientation_)));
 		if (min_reward_ > roll_reward)
 			roll_reward = min_reward_;
 	} else
 		roll_reward = min_reward_;
 
-	if (p < flat_orientation_)
+	if (pitch < flat_orientation_)
 		pitch_reward = 0.0;
-	else if (p < max_pitch_) {
-		pitch_reward = log(0.75 * (1 - (p - flat_orientation_) / (max_pitch_ - flat_orientation_)));
+	else if (pitch < max_pitch_) {
+		pitch_reward = log(0.75 * (1 - (pitch - flat_orientation_) / (max_pitch_ - flat_orientation_)));
 		if (min_reward_ > roll_reward)
 			pitch_reward = min_reward_;
 	} else

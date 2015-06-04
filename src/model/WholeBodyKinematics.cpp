@@ -79,19 +79,17 @@ void WholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 		if (effector_id_.count(effector_name) > 0) {
 			Eigen::Matrix4d homogeneous_tf = homogeneous_tf_.find(effector_name)->second;
 
-			Orientation orientation(iit::rbd::Utils::rotationMx(homogeneous_tf));
-			double r,p,y;
-			orientation.getRPY(r,p,y);
+			Eigen::Vector3d rpy = math::getRPY((Eigen::Matrix3d) iit::rbd::Utils::rotationMx(homogeneous_tf));
 
 			switch (component) {
 			case Linear:
 				op_pos = iit::rbd::Utils::positionVector(homogeneous_tf);
 				break;
 			case Angular:
-				op_pos << r, p, y;
+				op_pos << rpy;
 				break;
 			case Full:
-				op_pos << iit::rbd::Utils::positionVector(homogeneous_tf), r, p, y;
+				op_pos << iit::rbd::Utils::positionVector(homogeneous_tf), rpy;
 				break;
 			}
 		}
