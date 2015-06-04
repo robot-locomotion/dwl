@@ -76,7 +76,8 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/environment/StancePostureFeature.cpp
 							 src/robot/Robot.cpp
 							 src/robot/StateCost.cpp
-							 src/utils/Math.cpp
+							 src/utils/Geometry.cpp
+							 src/utils/Algebra.cpp
 							 src/utils/Orientation.cpp
 							 src/utils/YamlBridge.cpp)
 

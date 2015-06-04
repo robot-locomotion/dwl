@@ -1,5 +1,5 @@
-#ifndef DWL_Rotation_H
-#define DWL_Rotation_H
+#ifndef DWL_Orientation_H
+#define DWL_Orientation_H
 
 #include <Eigen/Dense>
 
