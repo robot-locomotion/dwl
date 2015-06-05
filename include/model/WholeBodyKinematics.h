@@ -13,7 +13,6 @@ namespace dwl
 namespace model
 {
 
-
 /**
  * @brief WholeBodyKinematics class implements the kinematics methods for a floating-base robot
  */
