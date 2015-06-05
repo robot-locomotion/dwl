@@ -28,6 +28,16 @@ set(DEPENDENCIES_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIRS})
 set(DEPENDENCIES_LIBRARIES ${YAMLCPP_LIBRARIES})
 set(DEPENDENCIES_LIBRARY_DIRS)
 
+
+find_package(PkgConfig)
+pkg_check_modules(RBDL rbdl REQUIRED)
+message(${RBDL_LIBRARY_DIRS})
+include_directories(${RBDL_INCLUDE_DIRS})
+message(${RBDL_LIBRARIES})
+list(APPEND DEPENDENCIES_LIBRARIES ${RBDL_LIBRARIES} rbdl_urdfreader)
+#find_package(rbdl REQUIRED) 
+
+
 # Including directories
 set(INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_DIRS})
@@ -55,6 +65,8 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/model/Cost.cpp
 							 src/model/RobCoGenWholeBodyKinematics.cpp
 							 src/model/RobCoGenWholeBodyDynamics.cpp
+							 src/model/WholeBodyKinematics.cpp
+							 #src/model/WholeBodyDynamics.cpp
 							 src/behavior/MotorPrimitives.cpp
 							 src/behavior/BodyMotorPrimitives.cpp
 							 src/environment/EnvironmentInformation.cpp
