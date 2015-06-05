@@ -48,15 +48,11 @@ void WholeBodyDynamics::computeWholeBodyInverseDynamics(Vector6d& base_wrench,
 	Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
 	Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(robot_model_, base_vel, joint_vel);
 	Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(robot_model_, base_acc, joint_acc);
-	Eigen::VectorXd tau = rbd::toGeneralizedJointState(robot_model_, base_wrench, joint_forces);
-
-	std::cout << q.transpose() << std::endl;
-	std::cout << q_dot.transpose() << std::endl;
-	std::cout << q_ddot.transpose() << std::endl;
+	Eigen::VectorXd tau = Eigen::VectorXd::Zero(robot_model_.dof_count);
 
 	RigidBodyDynamics::InverseDynamics(robot_model_, q, q_dot, q_ddot, tau);
 
-	std::cout << tau.transpose() << std::endl;
+	// Converting the generalized joint forces to base wrench and joint forces
 	rbd::fromGeneralizedJointState(robot_model_, base_wrench, joint_forces, tau);
 }
 
