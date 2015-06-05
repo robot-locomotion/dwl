@@ -1,7 +1,5 @@
 #include <model/WholeBodyKinematics.h>
 
-#include <rbdl/rbdl_mathutils.h>
-
 
 namespace dwl
 {

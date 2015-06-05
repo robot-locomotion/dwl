@@ -3,11 +3,8 @@
 
 #include <rbdl/rbdl.h>
 #include <rbdl/addons/urdfreader/urdfreader.h>
-#include <Eigen/Dense>
-#include <map>
-#include <utils/utils.h>
 #include <utils/Math.h>
-
+#include <utils/utils.h>
 
 
 namespace dwl
