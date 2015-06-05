@@ -66,7 +66,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/model/RobCoGenWholeBodyKinematics.cpp
 							 src/model/RobCoGenWholeBodyDynamics.cpp
 							 src/model/WholeBodyKinematics.cpp
-							 #src/model/WholeBodyDynamics.cpp
+							 src/model/WholeBodyDynamics.cpp
 							 src/behavior/MotorPrimitives.cpp
 							 src/behavior/BodyMotorPrimitives.cpp
 							 src/environment/EnvironmentInformation.cpp
@@ -91,6 +91,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/utils/Geometry.cpp
 							 src/utils/Algebra.cpp
 							 src/utils/Orientation.cpp
+							 src/utils/RigidBodyDynamics.cpp
 							 src/utils/YamlBridge.cpp)
 
 # Adding robot components of the project

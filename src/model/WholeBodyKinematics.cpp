@@ -114,7 +114,7 @@ void WholeBodyKinematics::computeWholeBodyFK(Eigen::VectorXd& op_pos,
 			int init_ang_col = effector_counter * ang_vars;
 			int init_lin_col = effector_counter * lin_vars;
 
-			Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
 
 			Eigen::Matrix3d rotation_mtx;
 			switch (component) {
@@ -198,11 +198,11 @@ void WholeBodyKinematics::computeWholeBodyIK(Vector6d& base_pos,
 	}
 
 
-	Eigen::VectorXd q_init = toGeneralizedJointState(base_pos_init, joint_pos_init);
+	Eigen::VectorXd q_init = rbd::toGeneralizedJointState(robot_model_, base_pos_init, joint_pos_init);
 	Eigen::VectorXd q_res;
 	RigidBodyDynamics::InverseKinematics(robot_model_, q_init, body_id, body_point, target_pos, q_res);
 
-	fromGeneralizedJointState(base_pos, joint_pos, q_res);
+	rbd::fromGeneralizedJointState(robot_model_, base_pos, joint_pos, q_res);
 }
 
 
@@ -257,7 +257,7 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 		if (effector_id_.count(effector_name) > 0) {
 			int effector_id = effector_id_.find(effector_name)->second;
 
-			Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
 
 			Eigen::MatrixXd jac(Eigen::MatrixXd::Zero(6, robot_model_.dof_count));
 			computePointJacobian(q, effector_id, Eigen::VectorXd::Zero(robot_model_.dof_count), jac, true);
@@ -280,9 +280,9 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 
 
 void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
-															const Eigen::MatrixXd& full_jacobian)
+														 const Eigen::MatrixXd& full_jacobian)
 {
-	if (isFloatingBaseRobot())
+	if (rbd::isFloatingBaseRobot(robot_model_))
 		jacobian = full_jacobian.block<6,6>(0,0);
 	else {
 		printf(YELLOW "Warning: this is a fixed-base robot\n" COLOR_RESET);
@@ -292,9 +292,9 @@ void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 
 
 void WholeBodyKinematics::getFixedBaseJacobian(Eigen::MatrixXd& jacobian,
-												   const Eigen::MatrixXd& full_jacobian)
+													 const Eigen::MatrixXd& full_jacobian)
 {
-	if (isFloatingBaseRobot())
+	if (rbd::isFloatingBaseRobot(robot_model_))
 		jacobian = full_jacobian.rightCols(robot_model_.dof_count - 6);
 	else
 		jacobian = full_jacobian;
@@ -353,8 +353,8 @@ void WholeBodyKinematics::computeWholeBodyVelocity(Eigen::VectorXd& op_vel,
 			int effector_id = effector_id_.find(effector_name)->second;
 			int init_col = effector_counter * num_vars;
 
-			Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
-			Eigen::VectorXd q_dot = toGeneralizedJointState(base_vel, joint_vel);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
+			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(robot_model_, base_vel, joint_vel);
 
 			switch (component) {
 			case Linear:
@@ -434,9 +434,9 @@ void WholeBodyKinematics::computeWholeBodyAcceleration(Eigen::VectorXd& op_acc,
 			int effector_id = effector_id_.find(effector_name)->second;
 			int init_col = effector_counter * num_vars;
 
-			Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
-			Eigen::VectorXd q_dot = toGeneralizedJointState(base_vel, joint_vel);
-			Eigen::VectorXd q_ddot = toGeneralizedJointState(base_acc, joint_acc);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
+			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(robot_model_, base_vel, joint_vel);
+			Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(robot_model_, base_acc, joint_acc);
 
 			switch (component) {
 			case Linear:
@@ -525,47 +525,6 @@ void WholeBodyKinematics::computeWholeBodyJdotQdot(Eigen::VectorXd& jacd_qd,
 			jacd_qd.segment(i * num_vars + 3, 3) = op_acc.segment(i * num_vars + 3, 3) + ang_vel.cross(lin_vel);
 			break;}
 		}
-	}
-}
-
-
-bool WholeBodyKinematics::isFloatingBaseRobot()
-{
-	bool is_floating_base = false;
-	int i = 1;
-	while (robot_model_.mBodies[i].mIsVirtual) {
-		i = robot_model_.mu[i][0];
-		if (i == 6)
-			is_floating_base = true;
-	}
-
-	return is_floating_base;
-}
-
-
-Eigen::VectorXd WholeBodyKinematics::toGeneralizedJointState(const Vector6d& base_state,
-																   const Eigen::VectorXd& joint_state)
-{
-	Eigen::VectorXd q(robot_model_.dof_count);
-	if (isFloatingBaseRobot())
-		q << base_state, joint_state;
-	else
-		q = joint_state;
-
-	return q;
-}
-
-
-void WholeBodyKinematics::fromGeneralizedJointState(Vector6d& base_state,
-										   	   	   	   	   Eigen::VectorXd& joint_state,
-										   	   	   	   	   const Eigen::VectorXd& generalized_state)
-{
-	if (isFloatingBaseRobot()) {
-		base_state = generalized_state.head<6>();
-		joint_state = generalized_state.tail(robot_model_.dof_count - 6);
-	} else {
-		base_state = Vector6d::Zero();
-		joint_state = generalized_state;
 	}
 }
 

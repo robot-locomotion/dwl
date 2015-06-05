@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-WholeBodyDynamics::WholeBodyDynamics() : kin_model_(NULL), initialized_kinematics_(false)
+WholeBodyDynamics::WholeBodyDynamics()
 {
 
 }
@@ -19,93 +19,45 @@ WholeBodyDynamics::~WholeBodyDynamics()
 }
 
 
-void WholeBodyDynamics::setKinematicModel(WholeBodyKinematics* kinematics)
+void WholeBodyDynamics::modelFromURDF(std::string model_file, bool info)
 {
-	kin_model_ = kinematics;
+	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
 
-	initialized_kinematics_ = true;
+	if (info) {
+		std::cout << "Degree of freedom overview:" << std::endl;
+		std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(robot_model_);
+		std::cout << RigidBodyDynamics::Utils::GetNamedBodyOriginsOverview(robot_model_);
+
+		std::cout << "Model Hierarchy:" << std::endl;
+		std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(robot_model_);
+	}
 }
 
 
-void WholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eigen::VectorXd& jacd_qd,
-																	const iit::rbd::Vector6D& base_pos,
-																	const Eigen::VectorXd& joint_pos,
-																	const iit::rbd::Vector6D& base_vel,
-																	const Eigen::VectorXd& joint_vel,
-																	enum Component component)
+void WholeBodyDynamics::computeWholeBodyInverseDynamics(Vector6d& base_wrench,
+															   Eigen::VectorXd& joint_forces,
+															   const Vector6d& g,
+															   const Vector6d& base_pos,
+															   const Eigen::VectorXd& joint_pos,
+															   const Vector6d& base_vel,
+															   const Eigen::VectorXd& joint_vel,
+															   const Vector6d& base_acc,
+															   const Eigen::VectorXd& joint_acc)
 {
-	if (!initialized_kinematics_)
-		printf(RED "The kinematics model must be initialized " COLOR_RESET);
+	// Converting base and joint states to generalized joint states
+	Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
+	Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(robot_model_, base_vel, joint_vel);
+	Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(robot_model_, base_acc, joint_acc);
+	Eigen::VectorXd tau = rbd::toGeneralizedJointState(robot_model_, base_wrench, joint_forces);
 
-	// Computing the acceleration contribution from joint velocity for all end-effectors
-	EndEffectorSelector effector_set;
-	for (EndEffectorID::iterator effector_iter = kin_model_->getEndEffectorList().begin();
-			effector_iter != kin_model_->getEndEffectorList().end();
-			effector_iter++)
-	{
-		std::string effector_name = effector_iter->first;
-		effector_set[effector_name] = true;
-	}
+	std::cout << q.transpose() << std::endl;
+	std::cout << q_dot.transpose() << std::endl;
+	std::cout << q_ddot.transpose() << std::endl;
 
-	opAccelerationContributionFromJointVelocity(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, effector_set, component);
-}
+	RigidBodyDynamics::InverseDynamics(robot_model_, q, q_dot, q_ddot, tau);
 
-
-void WholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eigen::VectorXd& jacd_qd,
-																	const iit::rbd::Vector6D& base_pos,
-																	const Eigen::VectorXd& joint_pos,
-																	const iit::rbd::Vector6D& base_vel,
-																	const Eigen::VectorXd& joint_vel,
-																	EndEffectorSelector effector_set,
-																	enum Component component) // TODO Compute for other cases (Angular and full)
-{
-	if (!initialized_kinematics_)
-		printf(RED "The kinematics model must be initialized " COLOR_RESET);
-
-	// Computing the number of active end-effectors
-	int num_effector_set = 0;
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
-			effector_iter != effector_set.end();
-			effector_iter++)
-	{
-		std::string effector_name = effector_iter->first;
-		if (kin_model_->getEndEffectorList().count(effector_name) > 0)
-			++num_effector_set;
-	}
-	jacd_qd.resize(3 * num_effector_set);
-	jacd_qd.setZero();
-
-	// Updating the dynamic and kinematic information
-	propagateWholeBodyInverseDynamics(base_pos, joint_pos, base_vel, joint_vel,
-									  iit::rbd::Vector6D::Zero(), Eigen::VectorXd::Zero(joint_pos.size()));
-	kin_model_->updateState(base_pos, joint_pos);
-	updateState(base_pos, joint_pos);
-
-	// Computing the acceleration contribution from joint velocity, i.e. J_d*q_d
-	iit::rbd::VelocityVector effector_vel;
-	iit::rbd::VelocityVector effector_acc;
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
-			effector_iter != effector_set.end();
-			effector_iter++)
-	{
-		int effector_counter = 0;
-		std::string effector_name = effector_iter->first;
-		if (kin_model_->getEndEffectorList().count(effector_name) > 0) {
-			effector_vel = closest_link_motion_tf_.find(effector_name)->second *
-					closest_link_velocity_.find(effector_name)->second;
-			effector_acc = closest_link_motion_tf_.find(effector_name)->second *
-								closest_link_acceleration_.find(effector_name)->second;
-
-			effector_acc.segment(iit::rbd::LX, 3) = iit::rbd::linearPart(effector_acc) +
-					iit::rbd::angularPart(effector_vel).cross(iit::rbd::linearPart(effector_vel));
-
-			Eigen::Matrix4d homogeneous_tf = kin_model_->getHomogeneousTransform(effector_name);
-			jacd_qd.segment(effector_counter * 3, 3) = kin_model_->getBaseRotationMatrix().transpose()
-					* iit::rbd::Utils::rotationMx(homogeneous_tf) * iit::rbd::linearPart(effector_acc);
-
-			++effector_counter;
-		}
-	}
+	std::cout << tau.transpose() << std::endl;
+	rbd::fromGeneralizedJointState(robot_model_, base_wrench, joint_forces, tau);
 }
 
 } //@namespace model
