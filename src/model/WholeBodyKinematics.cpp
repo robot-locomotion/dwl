@@ -9,25 +9,30 @@ namespace dwl
 namespace model
 {
 
-WholeBodyKinematics::WholeBodyKinematics() //: num_joints_(0)
+WholeBodyKinematics::WholeBodyKinematics()
 {
-	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
-	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
 
-
-	std::cout << "Degree of freedom overview:" << std::endl;
-	std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(robot_model_);
-	std::cout << RigidBodyDynamics::Utils::GetNamedBodyOriginsOverview(robot_model_);
-
-
-	std::cout << "Model Hierarchy:" << std::endl;
-	std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(robot_model_);
 }
 
 
 WholeBodyKinematics::~WholeBodyKinematics()
 {
 
+}
+
+
+void WholeBodyKinematics::modelFromURDF(std::string model_file, bool info)
+{
+	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
+
+	if (info) {
+		std::cout << "Degree of freedom overview:" << std::endl;
+		std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(robot_model_);
+		std::cout << RigidBodyDynamics::Utils::GetNamedBodyOriginsOverview(robot_model_);
+
+		std::cout << "Model Hierarchy:" << std::endl;
+		std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(robot_model_);
+	}
 }
 
 
@@ -38,13 +43,11 @@ void WholeBodyKinematics::addEndEffector(std::string name)
 }
 
 
-
-
 void WholeBodyKinematics::computeWholeBodyFK(Eigen::VectorXd& op_pos,
-											const Vector6d& base_pos,
-											const Eigen::VectorXd& joint_pos,
-											enum Component component,
-											enum TypeOfOrientation type)
+												   const Vector6d& base_pos,
+												   const Eigen::VectorXd& joint_pos,
+												   enum Component component,
+												   enum TypeOfOrientation type)
 {
 	// Computing the forward kinematics for all end-effectors
 	EndEffectorSelector effector_set;
@@ -55,11 +58,11 @@ void WholeBodyKinematics::computeWholeBodyFK(Eigen::VectorXd& op_pos,
 
 
 void WholeBodyKinematics::computeWholeBodyFK(Eigen::VectorXd& op_pos,
-											const Vector6d& base_pos,
-											const Eigen::VectorXd& joint_pos,
-											EndEffectorSelector effector_set,
-											enum Component component,
-											enum TypeOfOrientation type)
+												   const Vector6d& base_pos,
+												   const Eigen::VectorXd& joint_pos,
+												   EndEffectorSelector effector_set,
+												   enum Component component,
+												   enum TypeOfOrientation type)
 {
 	// Computing the number of active end-effectors
 	int num_effector_set = getNumberOfActiveEndEffectors(effector_set);
@@ -158,10 +161,10 @@ void WholeBodyKinematics::computeWholeBodyFK(Eigen::VectorXd& op_pos,
 
 
 void WholeBodyKinematics::computeWholeBodyIK(Vector6d& base_pos,
-								   Eigen::VectorXd& joint_pos,
-								   const Vector6d& base_pos_init,
-								   const Eigen::VectorXd& joint_pos_init,
-								   const Eigen::VectorXd& op_pos)
+								   	   	   	   	   Eigen::VectorXd& joint_pos,
+								   	   	   	   	   const Vector6d& base_pos_init,
+								   	   	   	   	   const Eigen::VectorXd& joint_pos_init,
+								   	   	   	   	   const Eigen::VectorXd& op_pos)
 {
 	// Computing the inverse kinematics for all end-effectors
 	EndEffectorSelector effector_set;
@@ -172,17 +175,12 @@ void WholeBodyKinematics::computeWholeBodyIK(Vector6d& base_pos,
 
 
 void WholeBodyKinematics::computeWholeBodyIK(Vector6d& base_pos,
-								   Eigen::VectorXd& joint_pos,
-								   const Vector6d& base_pos_init,
-								   const Eigen::VectorXd& joint_pos_init,
-								   const Eigen::VectorXd& op_pos,
-								   EndEffectorSelector effector_set)
+								   	   	   	   	   Eigen::VectorXd& joint_pos,
+								   	   	   	   	   const Vector6d& base_pos_init,
+								   	   	   	   	   const Eigen::VectorXd& joint_pos_init,
+								   	   	   	   	   const Eigen::VectorXd& op_pos,
+								   	   	   	   	   EndEffectorSelector effector_set)
 {
-	// Computing the number of active end-effectors
-	int num_effector_set = getNumberOfActiveEndEffectors(effector_set);
-
-	assert(op_pos.size() == (num_effector_set*3));
-
 	int effector_counter = 0;
 	std::vector<unsigned int> body_id;
 	std::vector<RigidBodyDynamics::Math::Vector3d> body_point;
@@ -211,9 +209,9 @@ void WholeBodyKinematics::computeWholeBodyIK(Vector6d& base_pos,
 
 
 void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
-												   const Vector6d& base_pos,
-												   const Eigen::VectorXd& joint_pos,
-												   enum Component component)
+												   	   	  const Vector6d& base_pos,
+												   	   	  const Eigen::VectorXd& joint_pos,
+												   	   	  enum Component component)
 {
 	// Computing the jacobian for all end-effectors
 	EndEffectorSelector effector_set;
@@ -224,10 +222,10 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 
 
 void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
-												   const Vector6d& base_pos,
-												   const Eigen::VectorXd& joint_pos,
-												   EndEffectorSelector effector_set,
-												   enum Component component)
+												   	   	  const Vector6d& base_pos,
+												   	   	  const Eigen::VectorXd& joint_pos,
+												   	   	  EndEffectorSelector effector_set,
+												   	   	  enum Component component)
 {
 	// Resizing the jacobian matrix
 	int num_vars = 0;
@@ -382,13 +380,13 @@ void WholeBodyKinematics::computeWholeBodyVelocity(Eigen::VectorXd& op_vel,
 
 
 void WholeBodyKinematics::computeWholeBodyAcceleration(Eigen::VectorXd& op_acc,
-								  const Vector6d& base_pos,
-								  const Eigen::VectorXd& joint_pos,
-								  const Vector6d& base_vel,
-								  const Eigen::VectorXd& joint_vel,
-								  const Vector6d& base_acc,
-								  const Eigen::VectorXd& joint_acc,
-								  enum Component component)
+															  const Vector6d& base_pos,
+															  const Eigen::VectorXd& joint_pos,
+															  const Vector6d& base_vel,
+															  const Eigen::VectorXd& joint_vel,
+															  const Vector6d& base_acc,
+															  const Eigen::VectorXd& joint_acc,
+															  enum Component component)
 {
 	// Computing the acceleration for all end-effectors
 	EndEffectorSelector effector_set;
@@ -400,14 +398,14 @@ void WholeBodyKinematics::computeWholeBodyAcceleration(Eigen::VectorXd& op_acc,
 
 
 void WholeBodyKinematics::computeWholeBodyAcceleration(Eigen::VectorXd& op_acc,
-								  const Vector6d& base_pos,
-								  const Eigen::VectorXd& joint_pos,
-								  const Vector6d& base_vel,
-								  const Eigen::VectorXd& joint_vel,
-								  const Vector6d& base_acc,
-								  const Eigen::VectorXd& joint_acc,
-								  EndEffectorSelector effector_set,
-								  enum Component component)
+								  	  	  	  	  	  	  	  const Vector6d& base_pos,
+								  	  	  	  	  	  	  	  const Eigen::VectorXd& joint_pos,
+								  	  	  	  	  	  	  	  const Vector6d& base_vel,
+								  	  	  	  	  	  	  	  const Eigen::VectorXd& joint_vel,
+								  	  	  	  	  	  	  	  const Vector6d& base_acc,
+								  	  	  	  	  	  	  	  const Eigen::VectorXd& joint_acc,
+								  	  	  	  	  	  	  	  EndEffectorSelector effector_set,
+								  	  	  	  	  	  	  	  enum Component component)
 {
 	// Computing the number of active end-effectors
 	int num_effector_set = getNumberOfActiveEndEffectors(effector_set);
@@ -463,13 +461,74 @@ void WholeBodyKinematics::computeWholeBodyAcceleration(Eigen::VectorXd& op_acc,
 }
 
 
-
-/*
-EndEffectorID& WholeBodyKinematics::getEndEffectorList()
+void WholeBodyKinematics::computeWholeBodyJdotQdot(Eigen::VectorXd& jacd_qd,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  const iit::rbd::Vector6D& base_pos,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  const Eigen::VectorXd& joint_pos,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  const iit::rbd::Vector6D& base_vel,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  const Eigen::VectorXd& joint_vel,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  enum Component component)
 {
-	return effector_id_;
+	// Computing the forward kinematics for all end-effectors
+	EndEffectorSelector effector_set;
+	activeAllEndEffector(effector_set);
+
+	computeWholeBodyJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, effector_set, component);
 }
-*/
+
+
+void WholeBodyKinematics::computeWholeBodyJdotQdot(Eigen::VectorXd& jacd_qd,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  const iit::rbd::Vector6D& base_pos,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  const Eigen::VectorXd& joint_pos,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  const iit::rbd::Vector6D& base_vel,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  const Eigen::VectorXd& joint_vel,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  EndEffectorSelector effector_set,
+  	  	  	  	  	  	  	  	  	  	  	  	  	  	  enum Component component)
+{
+	Eigen::VectorXd op_vel, op_acc;
+	computeWholeBodyAcceleration(op_acc, base_pos, joint_pos,
+								 base_vel, joint_vel,
+								 Vector6d::Zero(), Eigen::VectorXd::Zero(robot_model_.dof_count),
+								 effector_set, component);
+
+	// Resizing the acceleration contribution vector
+	int num_effector_set = getNumberOfActiveEndEffectors(effector_set);
+	int num_vars = 0;
+	switch (component) {
+	case Linear:
+		computeWholeBodyVelocity(op_vel, base_pos, joint_pos, base_vel, joint_vel, effector_set);
+		num_vars = 3;
+		break;
+	case Angular:
+		num_vars = 3;
+		break;
+	case Full:
+		computeWholeBodyVelocity(op_vel, base_pos, joint_pos, base_vel, joint_vel, effector_set);
+		num_vars = 6;
+		break;
+	}
+	jacd_qd.resize(num_effector_set * num_vars);
+
+	for (int i = 0; i < num_effector_set; i++) {
+		switch (component) {
+		case Linear: {
+			Eigen::Vector3d ang_vel, lin_vel;
+			ang_vel = op_vel.segment(i * num_vars, 3);
+			lin_vel = op_vel.segment(i * num_vars + 3, 3);
+			jacd_qd.segment(i * num_vars, num_vars) = op_acc.segment(i * num_vars, num_vars) + ang_vel.cross(lin_vel);
+			break;
+		} case Angular: {
+			jacd_qd.segment(i * num_vars, num_vars) = op_acc.segment(i * num_vars, num_vars);
+			break;
+		} case Full: {
+			Eigen::Vector3d ang_vel, lin_vel;
+			ang_vel = op_vel.segment(i * num_vars, 3);
+			lin_vel = op_vel.segment(i * num_vars + 3, 3);
+			jacd_qd.segment(i * num_vars, 3) = op_acc.segment(i * num_vars, 3);
+			jacd_qd.segment(i * num_vars + 3, 3) = op_acc.segment(i * num_vars + 3, 3) + ang_vel.cross(lin_vel);
+			break;}
+		}
+	}
+}
 
 
 bool WholeBodyKinematics::isFloatingBaseRobot()
@@ -487,7 +546,7 @@ bool WholeBodyKinematics::isFloatingBaseRobot()
 
 
 Eigen::VectorXd WholeBodyKinematics::toGeneralizedJointState(const Vector6d& base_state,
-																	  const Eigen::VectorXd& joint_state)
+																   const Eigen::VectorXd& joint_state)
 {
 	Eigen::VectorXd q(robot_model_.dof_count);
 	if (isFloatingBaseRobot())
@@ -500,8 +559,8 @@ Eigen::VectorXd WholeBodyKinematics::toGeneralizedJointState(const Vector6d& bas
 
 
 void WholeBodyKinematics::fromGeneralizedJointState(Vector6d& base_state,
-										   Eigen::VectorXd& joint_state,
-										   const Eigen::VectorXd& generalized_state)
+										   	   	   	   	   Eigen::VectorXd& joint_state,
+										   	   	   	   	   const Eigen::VectorXd& generalized_state)
 {
 	if (isFloatingBaseRobot()) {
 		base_state = generalized_state.head<6>();
@@ -545,10 +604,10 @@ void WholeBodyKinematics::activeAllEndEffector(EndEffectorSelector& effector_set
 
 
 void WholeBodyKinematics::computePointJacobian(const Eigen::VectorXd& q,
-		  				     	 	 	 	 	 	 	unsigned int body_id,
-		  				     	 	 	 	 	 	 	const Eigen::Vector3d& point_position,
-		  				     	 	 	 	 	 	 	Eigen::MatrixXd& jacobian,
-		  				     	 	 	 	 	 	 	bool update_kinematics)
+		  				     	 	 	 	 	 	 unsigned int body_id,
+		  				     	 	 	 	 	 	 const Eigen::Vector3d& point_position,
+		  				     	 	 	 	 	 	 Eigen::MatrixXd& jacobian,
+		  				     	 	 	 	 	 	 bool update_kinematics)
 {
 	using namespace RigidBodyDynamics;
 	using namespace RigidBodyDynamics::Math;
@@ -589,10 +648,10 @@ void WholeBodyKinematics::computePointJacobian(const Eigen::VectorXd& q,
 
 
 Vector6d WholeBodyKinematics::computePointVelocity(const Eigen::VectorXd& q,
-		const Eigen::VectorXd& q_dot,
-		unsigned int body_id,
-		const Eigen::Vector3d point_position,
-		bool update_kinematics)
+														 const Eigen::VectorXd& q_dot,
+														 unsigned int body_id,
+														 const Eigen::Vector3d point_position,
+														 bool update_kinematics)
 {
 	using namespace RigidBodyDynamics;
 	using namespace RigidBodyDynamics::Math;
@@ -629,11 +688,11 @@ Vector6d WholeBodyKinematics::computePointVelocity(const Eigen::VectorXd& q,
 
 
 Vector6d WholeBodyKinematics::computePointAcceleration(const Eigen::VectorXd& q,
-		const Eigen::VectorXd& q_dot,
-		const Eigen::VectorXd& q_ddot,
-		unsigned int body_id,
-		const Eigen::Vector3d point_position,
-		bool update_kinematics)
+															 const Eigen::VectorXd& q_dot,
+															 const Eigen::VectorXd& q_ddot,
+															 unsigned int body_id,
+															 const Eigen::Vector3d point_position,
+															 bool update_kinematics)
 {
 	using namespace RigidBodyDynamics;
 	using namespace RigidBodyDynamics::Math;
