@@ -1,7 +1,7 @@
 #ifndef DWL_HyQWholeBodyDynamics_H
 #define DWL_HyQWholeBodyDynamics_H
 
-#include <model/WholeBodyDynamics.h>
+#include <model/RobCoGenWholeBodyDynamics.h>
 #include <iit/robots/hyq/inverse_dynamics.h>
 #include <iit/robots/hyq/inertia_properties.h>
 #include <iit/robots/hyq/transforms.h>
@@ -15,7 +15,7 @@ namespace dwl
 namespace robot
 {
 
-class HyQWholeBodyDynamics : public model::WholeBodyDynamics
+class HyQWholeBodyDynamics : public model::RobCoGenWholeBodyDynamics
 {
 	public:
 		HyQWholeBodyDynamics();

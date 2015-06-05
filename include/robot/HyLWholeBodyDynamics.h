@@ -1,7 +1,7 @@
 #ifndef DWL_HyLWholeBodyDynamics_H
 #define DWL_HyLWholeBodyDynamics_H
 
-#include <model/WholeBodyDynamics.h>
+#include <model/RobCoGenWholeBodyDynamics.h>
 #include <iit/robots/hyl/inverse_dynamics.h>
 #include <iit/robots/hyl/inertia_properties.h>
 #include <iit/robots/hyl/transforms.h>
@@ -16,7 +16,7 @@ namespace robot
 /**
  * @class This class implements methods for computing whole-body dynamics of HyL
  */
-class HyLWholeBodyDynamics : public model::WholeBodyDynamics
+class HyLWholeBodyDynamics : public model::RobCoGenWholeBodyDynamics
 {
 	public:
 		HyLWholeBodyDynamics();

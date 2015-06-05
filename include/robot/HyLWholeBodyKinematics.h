@@ -1,7 +1,7 @@
 #ifndef DWL_HyLWholeBodyKinematics_H
 #define DWL_HyLWholeBodyKinematics_H
 
-#include <model/WholeBodyKinematics.h>
+#include <model/RobCoGenWholeBodyKinematics.h>
 #include <iit/robots/hyl/jacobians.h>
 #include <iit/robots/hyl/transforms.h>
 
@@ -15,7 +15,7 @@ namespace robot
 /**
  * @class This class implements methods for computing kinematics of HyL
  */
-class HyLWholeBodyKinematics : public model::WholeBodyKinematics
+class HyLWholeBodyKinematics : public model::RobCoGenWholeBodyKinematics
 {
 	public:
 		/** @brief Constructor function */

@@ -84,7 +84,7 @@ void HyLWholeBodyKinematics::computeEffectorIK(Eigen::VectorXd& joint_pos,
 
 	// Joint velocities
 	Eigen::MatrixXd jacobian;
-	computeFixedBaseJacobian(jacobian, joint_pos, model::Linear);
+	computeFixedBaseJacobian(jacobian, joint_pos, Linear);
 
 	Eigen::MatrixXd pinv_jac = math::pseudoInverse(jacobian);
 	joint_vel = pinv_jac * op_vel;

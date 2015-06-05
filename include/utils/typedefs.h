@@ -50,6 +50,10 @@ enum TypeOfState {XY, XY_Y, XYZ_RPY};
 /** @brief Enumarates types of solvers */
 enum TypeOfSolver {BodyPathSolver, BodyPoseSolver, ContactSolver};
 
+enum Component {Linear, Angular, Full};
+
+typedef Eigen::Matrix<double,6,1> Vector6d;
+
 /**
  * @brief Template struct that orders vertex
  */
@@ -173,7 +177,7 @@ struct NeighboringArea
 
 //TODO Add documentation
 typedef std::map<std::string,bool> EndEffectorSelector;
-typedef std::map<std::string,int> EndEffectorID;
+typedef std::map<std::string,unsigned int> EndEffectorID;
 
 /**
  * @struct Contact

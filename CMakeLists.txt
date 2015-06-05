@@ -53,8 +53,8 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/model/KinematicConstraints.cpp
 							 src/model/StabilityConstraints.cpp
 							 src/model/Cost.cpp
-							 src/model/WholeBodyKinematics.cpp
-							 src/model/WholeBodyDynamics.cpp
+							 src/model/RobCoGenWholeBodyKinematics.cpp
+							 src/model/RobCoGenWholeBodyDynamics.cpp
 							 src/behavior/MotorPrimitives.cpp
 							 src/behavior/BodyMotorPrimitives.cpp
 							 src/environment/EnvironmentInformation.cpp
