@@ -56,9 +56,6 @@ void HyLWholeBodyDynamics::computeWholeBodyInverseDynamics(iit::rbd::Vector6D& b
 	q_vel << base_vel(iit::rbd::LZ), joint_vel;
 	q_acc << base_acc(iit::rbd::LZ), joint_acc;
 
-	id_.setJointStatus(q_pos);
-	id_.propagateVelAcc(q_vel, q_acc);
-
 	// Computing the inverse dynamics using the generated code of HyL
 	id_.id(tau, q_pos, q_vel, q_acc);//const ExtForces& fext = zeroExtForces)
 
@@ -68,10 +65,6 @@ void HyLWholeBodyDynamics::computeWholeBodyInverseDynamics(iit::rbd::Vector6D& b
 
 	// Joint forces according the ID model
 	joint_forces = tau.tail(2);
-
-
-//	std::cout << "Base wrench = " << base_wrench.transpose() << std::endl;
-//	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
 }
 
 
