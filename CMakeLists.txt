@@ -31,7 +31,8 @@ set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} rbdl_urdfreader ${YAMLCPP_LIBRARIE
 set(DEPENDENCIES_LIBRARY_DIRS  ${RBDL_LIBRARY_DIRS})
 
 # Including directories
-include_directories(include)
+set(INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
+include_directories(${INCLUDE_DIRS})
 include_directories(src)
 include_directories(${EIGEN3_INCLUDE_DIRS})
 include_directories(${RBDL_INCLUDE_DIRS})
