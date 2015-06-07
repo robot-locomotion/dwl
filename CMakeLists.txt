@@ -7,7 +7,10 @@ message("Compiling the version ${DWL_VERSION} of Dynamic Whole-Body Locomotion (
 # Appending the project module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+# Finding dependencies
 find_package(Eigen3 REQUIRED)
+find_package(PkgConfig)
+pkg_check_modules(RBDL rbdl REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(ROBOTS)
 find_package(IPOPT)
@@ -17,34 +20,22 @@ find_package(octomap)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
 
-
 # Seting the output directories for libraries and executables
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
 
 # Setting the thirdparties directories and libraries
-set(DEPENDENCIES_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIRS})
-set(DEPENDENCIES_LIBRARIES ${YAMLCPP_LIBRARIES})
-set(DEPENDENCIES_LIBRARY_DIRS)
-
-
-find_package(PkgConfig)
-pkg_check_modules(RBDL rbdl REQUIRED)
-message(${RBDL_LIBRARY_DIRS})
-include_directories(${RBDL_INCLUDE_DIRS})
-message(${RBDL_LIBRARIES})
-list(APPEND DEPENDENCIES_LIBRARIES ${RBDL_LIBRARIES} rbdl_urdfreader)
-#find_package(rbdl REQUIRED) 
-
+set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS})
+set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} rbdl_urdfreader ${YAMLCPP_LIBRARIES})
+set(DEPENDENCIES_LIBRARY_DIRS  ${RBDL_LIBRARY_DIRS})
 
 # Including directories
-set(INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
-include_directories(${INCLUDE_DIRS})
+include_directories(include)
 include_directories(src)
 include_directories(${EIGEN3_INCLUDE_DIRS})
+include_directories(${RBDL_INCLUDE_DIRS})
 include_directories(${YAMLCPP_INCLUDE_DIRS})
-
 
 # Setting the project sources
 set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
