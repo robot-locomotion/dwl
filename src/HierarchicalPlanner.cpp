@@ -99,9 +99,8 @@ void HierarchicalPlanners::init()
 	private_node_.getParam("goal/yaw", yaw);
 	goal_pose.position[0] = x;
 	goal_pose.position[1] = y;
-	dwl::Orientation orientation(0, 0, yaw);
-	Eigen::Quaterniond q;
-	orientation.getQuaternion(q);
+	
+	Eigen::Quaterniond q = dwl::math::getQuaternion(Eigen::Vector3d(0.0, 0.0, yaw));
 	goal_pose.orientation = q;
 	locomotor_.resetGoal(goal_pose);
 
@@ -473,9 +472,7 @@ void HierarchicalPlanners::resetGoalCallback(const geometry_msgs::PoseStampedCon
 						 msg->pose.orientation.y, msg->pose.orientation.z);
 	goal_pose.orientation = q;
 
-	dwl::Orientation orientation(q);
-	double roll, pitch, yaw;
-	orientation.getRPY(roll, pitch, yaw);
+	double yaw = dwl::math::getYaw(dwl::math::getRPY(q));
 
 	// Setting the new goal pose
 	locomotor_.resetGoal(goal_pose);
