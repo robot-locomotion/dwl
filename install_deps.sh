@@ -25,6 +25,22 @@ function install_eigen
 }
 
 
+function install_rbdl
+{
+	# get RBDL 2.4.0
+	wget https://bitbucket.org/rbdl/rbdl/get/default.zip
+	unzip default.zip
+	mv rbdl-rbdl-de94c4fadf94 rbdl
+	cd rbdl
+	mkdir -p build
+	cd build
+	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON ../
+	sudo make install
+	cd ../../
+	rm default.zip
+}
+
+
 function install_odeint
 {
 	# Getting Odeint 2
@@ -182,6 +198,22 @@ else
 	install_eigen
 fi
 
+
+##---------------------------------------------------------------##
+##----------------------- Installing RBDL -----------------------##
+##---------------------------------------------------------------##
+echo ""
+echo -e "${COLOR_BOLD}Installing RBDL ...${COLOR_RESET}"
+echo ""
+if [ -d "/usr/local/include/rbdl" ]; then
+	echo -e "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? (Y/N)${COLOR_RESET}"
+	read ANSWER_RBDL
+	if [ "$ANSWER_RBDL" == "Y" ] || [ "$ANSWER_RBDL" == "y" ]; then
+		install_rbdl
+    fi
+else
+	install_rbdl
+fi
 
 ##---------------------------------------------------------------##
 ##--------------------- Installing Odeint -----------------------##
