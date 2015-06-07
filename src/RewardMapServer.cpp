@@ -170,9 +170,7 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 
 	// Computing the yaw angle
 	tf::Quaternion q = tf_transform.getRotation();
-	dwl::Orientation orientation(q.getX(), q.getY(), q.getZ(), q.getW());
-	double roll, pitch, yaw;
-	orientation.getRPY(roll, pitch, yaw);
+	double yaw = dwl::math::getYaw(dwl::math::getRPY(Eigen::Quaterniond(q.getW(), q.getX(), q.getY(), q.getZ())));
 	robot_position(3) = yaw;
 
 	// Computing the reward map
