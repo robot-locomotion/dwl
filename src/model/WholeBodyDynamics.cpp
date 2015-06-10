@@ -94,5 +94,18 @@ void WholeBodyDynamics::computeWholeBodyInverseDynamics(rbd::Vector6d& base_wren
 	rbd::fromGeneralizedJointState(robot_model_, base_wrench, joint_forces, tau);
 }
 
+
+void WholeBodyDynamics::computeConstrainedWholeBodyInverseDynamics(Eigen::VectorXd& joint_forces,
+																			const rbd::Vector6d& base_pos,
+																			const Eigen::VectorXd& joint_pos,
+																			const rbd::Vector6d& base_vel,
+																			const Eigen::VectorXd& joint_vel,
+																			const rbd::Vector6d& base_acc,
+																			const Eigen::VectorXd& joint_acc,
+																			const rbd::EndEffectorSelector& contacts)
+{
+
+}
+
 } //@namespace model
 } //@namespace dwl
