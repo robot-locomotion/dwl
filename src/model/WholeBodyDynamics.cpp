@@ -31,23 +31,6 @@ void WholeBodyDynamics::modelFromURDF(std::string model_file, bool info)
 		std::cout << "Model Hierarchy:" << std::endl;
 		std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(robot_model_);
 	}
-
-	std::cout << "Bodies:" << std::endl;
-	for (unsigned int body_id = 0; body_id < robot_model_.mBodies.size(); body_id++) {
-		std::string body_name = robot_model_.GetBodyName(body_id);
-		std::cout << body_name << std::endl;
-	}
-	std::cout << "Fixed bodies:" << std::endl;
-	unsigned int i = 0;
-	for (unsigned int body_id = robot_model_.fixed_body_discriminator;
-			body_id < (robot_model_.fixed_body_discriminator + robot_model_.mFixedBodies.size()); body_id++) {
-		std::string body_name = robot_model_.GetBodyName(body_id);
-		std::cout << body_name << std::endl;
-		std::cout << "Movable parent: " << robot_model_.GetBodyName(robot_model_.mFixedBodies[i].mMovableParent) << std::endl;
-		std::cout << "Parent tf: " << robot_model_.mFixedBodies[i].mParentTransform << std::endl;
-		i++;
-	}
-
 }
 
 
@@ -59,7 +42,7 @@ void WholeBodyDynamics::computeWholeBodyInverseDynamics(rbd::Vector6d& base_wren
 															   const Eigen::VectorXd& joint_vel,
 															   const rbd::Vector6d& base_acc,
 															   const Eigen::VectorXd& joint_acc,
-															   const rbd::Vector6d& ext_force)
+															   const rbd::EndEffectorForce& ext_force)
 {
 	// Converting base and joint states to generalized joint states
 	Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
@@ -67,13 +50,45 @@ void WholeBodyDynamics::computeWholeBodyInverseDynamics(rbd::Vector6d& base_wren
 	Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(robot_model_, base_acc, joint_acc);
 	Eigen::VectorXd tau = Eigen::VectorXd::Zero(robot_model_.dof_count);
 
-	SpatialVector_t fext(ext_force);
-//	fext->push_back(SpatialVector_t(ext_force));
+	// Computing the applied external spatial forces for every body
+	std::vector<SpatialVector_t>* fext = NULL;
+	if (ext_force.size() > 0) {
+		fext = new std::vector<SpatialVector_t>();
+		fext->resize(robot_model_.mBodies.size());
+		// Searching over the movable bodies
+		for (unsigned int body_id = 0; body_id < robot_model_.mBodies.size(); body_id++) {
+			std::string body_name = robot_model_.GetBodyName(body_id);
 
-	std::cout << "fext1 = " << ext_force.transpose() << std::endl;
-	std::cout << "fext2 = " << SpatialVector_t(ext_force).base() << std::endl;
+			if (ext_force.count(body_name) > 0) {
+				// Converting the applied force to spatial force vector in base coordinates
+				rbd::Vector6d force = ext_force.at(body_name);
+				Eigen::Vector3d force_point =
+						CalcBodyToBaseCoordinates(robot_model_, q, body_id, Eigen::Vector3d::Zero(), true);
+				rbd::Vector6d spatial_force = rbd::convertForceToSpatialForce(force, force_point);
+				fext->at(body_id) = spatial_force;
+			} else
+				fext->at(body_id) = rbd::Vector6d::Zero();
+		}
 
-	RigidBodyDynamics::InverseDynamics(robot_model_, q, q_dot, q_ddot, tau);//, &fext);
+		// Searching over the fixed bodies
+		for (unsigned int it = 0; it < robot_model_.mFixedBodies.size(); it++) {
+			unsigned int body_id = it + robot_model_.fixed_body_discriminator;
+			std::string body_name = robot_model_.GetBodyName(body_id);
+			if (ext_force.count(body_name) > 0) {
+				// Converting the applied force to spatial force vector in base coordinates
+				rbd::Vector6d force = ext_force.at(body_name);
+				Eigen::Vector3d force_point =
+						CalcBodyToBaseCoordinates(robot_model_, q, body_id, Eigen::Vector3d::Zero(), true);
+				rbd::Vector6d spatial_force = rbd::convertForceToSpatialForce(force, force_point);
+
+				unsigned parent_id = robot_model_.mFixedBodies[it].mMovableParent;
+				fext->at(parent_id) += spatial_force;
+			}
+		}
+	}
+
+	// Computing the inverse dynamics with Recursive Newton-Euler Algorithm (RNEA)
+	RigidBodyDynamics::InverseDynamics(robot_model_, q, q_dot, q_ddot, tau, fext);
 
 	// Converting the generalized joint forces to base wrench and joint forces
 	rbd::fromGeneralizedJointState(robot_model_, base_wrench, joint_forces, tau);

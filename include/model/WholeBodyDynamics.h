@@ -43,7 +43,7 @@ class WholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint velocity
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
-		 * @param const rbd::Vector6d& External force applied to the robot
+		 * @param const rbd::EndEffectorForce External force applied to the robot
 		 */
 		void computeWholeBodyInverseDynamics(rbd::Vector6d& base_wrench,
 												  Eigen::VectorXd& joint_forces,
@@ -53,12 +53,15 @@ class WholeBodyDynamics
 												  const Eigen::VectorXd& joint_vel,
 												  const rbd::Vector6d& base_acc,
 												  const Eigen::VectorXd& joint_acc,
-												  const rbd::Vector6d& ext_force = rbd::Vector6d::Zero());
+												  const rbd::EndEffectorForce& ext_force = rbd::EndEffectorForce());
 
 
 	private:
 		/** @brief Model of the rigid-body system */
 		RigidBodyDynamics::Model robot_model_;
+
+		/* @brief Body ids */
+		rbd::EndEffectorID body_id_;
 };
 
 } //@namespace model

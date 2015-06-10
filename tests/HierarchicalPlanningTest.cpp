@@ -156,7 +156,13 @@ int main(int argc, char **argv)
 	std::cout << "---------------------------------------" << std::endl;
 //	std::cout << jacd_qd2.transpose() << " = Michi jacd_qd" << std::endl;
 
-	dyn.computeWholeBodyInverseDynamics(base_wrench, joint_forces, dwl::rbd::Vector6d::Zero(), base_pos, joint_pos2, base_vel, joint_vel2, base_acc, joint_acc2);
+	dwl::rbd::EndEffectorForce fext;
+	dwl::rbd::Vector6d forc;
+	forc << 0,0,0,0,0,10;//67;
+//	fext["trunk"] = forc;
+	fext["foot"] = forc;
+//	fext["lowerleg"] = forc;
+	dyn.computeWholeBodyInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos2, base_vel, joint_vel2, base_acc, joint_acc2, fext);
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = tau" << std::endl;
 

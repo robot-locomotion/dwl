@@ -2,7 +2,7 @@
 #define DWL_RigidBodyDynamics_H
 
 #include <rbdl/rbdl.h>
-#include <utils/typedefs.h>
+#include <utils/Math.h>
 
 
 namespace dwl
@@ -24,19 +24,13 @@ typedef std::map<std::string,Vector6d> EndEffectorForce;
  * @brief The 3-coordinate vector with the angular components (angular velocity or torque) of the given
  * 6d vector
  */
-inline Part3d angularPart(Vector6d& spatial_vector)
-{
-	return spatial_vector.topRows<3>();
-}
+Part3d angularPart(Vector6d& vector);
 
 /**
  * @brief The 3-coordinate vector with the linear components (linear
  * velocity or force) of the given 6D vector.
  */
-inline Part3d linearPart(Vector6d& spatial_vector)
-{
-	return spatial_vector.bottomRows<3>();
-}
+Part3d linearPart(Vector6d& vector);
 
 /**
  * @brief Vector coordinates
@@ -68,6 +62,11 @@ void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
 								   Vector6d& base_state,
 								   Eigen::VectorXd& joint_state,
 								   const Eigen::VectorXd& generalized_state);
+
+Vector6d convertVelocityToSpatialVelocity(Vector6d& velocity,
+											  const Eigen::Vector3d& point);
+Vector6d convertForceToSpatialForce(Vector6d& force,
+									    const Eigen::Vector3d& point);
 
 } //@namespace rbd
 } //@namespace dwl
