@@ -19,7 +19,7 @@ HyLWholeBodyKinematics::HyLWholeBodyKinematics()
 	homogeneous_tf_["foot"] = hom_tf_.fr_trunk_X_fr_foot;
 
 	// Computing the number of joints given the jacobians
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
+	for (rbd::EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
@@ -38,8 +38,8 @@ HyLWholeBodyKinematics::~HyLWholeBodyKinematics()
 }
 
 
-void HyLWholeBodyKinematics::updateState(const iit::rbd::Vector6D& base_pos,
-										 const Eigen::VectorXd& joint_pos)
+void HyLWholeBodyKinematics::updateState(const rbd::Vector6d& base_pos,
+										 	  const Eigen::VectorXd& joint_pos)
 {
 //	if (joint_pos.size() > 2)
 //		printf("Error the joint position must be 2");
@@ -84,7 +84,7 @@ void HyLWholeBodyKinematics::computeEffectorIK(Eigen::VectorXd& joint_pos,
 
 	// Joint velocities
 	Eigen::MatrixXd jacobian;
-	computeFixedBaseJacobian(jacobian, joint_pos, Linear);
+	computeFixedBaseJacobian(jacobian, joint_pos, rbd::Linear);
 
 	Eigen::MatrixXd pinv_jac = math::pseudoInverse(jacobian);
 	joint_vel = pinv_jac * op_vel;

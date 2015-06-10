@@ -28,18 +28,18 @@ void RobCoGenWholeBodyDynamics::setKinematicModel(RobCoGenWholeBodyKinematics* k
 
 
 void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eigen::VectorXd& jacd_qd,
-																					  const iit::rbd::Vector6D& base_pos,
+																					  const rbd::Vector6d& base_pos,
 																					  const Eigen::VectorXd& joint_pos,
-																					  const iit::rbd::Vector6D& base_vel,
+																					  const rbd::Vector6d& base_vel,
 																					  const Eigen::VectorXd& joint_vel,
-																					  enum Component component)
+																					  enum rbd::Component component)
 {
 	if (!initialized_kinematics_)
 		printf(RED "The kinematics model must be initialized " COLOR_RESET);
 
 	// Computing the acceleration contribution from joint velocity for all end-effectors
-	EndEffectorSelector effector_set;
-	for (EndEffectorID::iterator effector_iter = kin_model_->getEndEffectorList().begin();
+	rbd::EndEffectorSelector effector_set;
+	for (rbd::EndEffectorID::iterator effector_iter = kin_model_->getEndEffectorList().begin();
 			effector_iter != kin_model_->getEndEffectorList().end();
 			effector_iter++)
 	{
@@ -52,19 +52,19 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 
 
 void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eigen::VectorXd& jacd_qd,
-																					  const iit::rbd::Vector6D& base_pos,
+																					  const rbd::Vector6d& base_pos,
 																					  const Eigen::VectorXd& joint_pos,
-																					  const iit::rbd::Vector6D& base_vel,
+																					  const rbd::Vector6d& base_vel,
 																					  const Eigen::VectorXd& joint_vel,
-																					  EndEffectorSelector effector_set,
-																					  enum Component component) // TODO Compute for other cases (Angular and full)
+																					  rbd::EndEffectorSelector effector_set,
+																					  enum rbd::Component component) // TODO Compute for other cases (Angular and full)
 {
 	if (!initialized_kinematics_)
 		printf(RED "The kinematics model must be initialized " COLOR_RESET);
 
 	// Computing the number of active end-effectors
 	int num_effector_set = 0;
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
@@ -77,14 +77,14 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 
 	// Updating the dynamic and kinematic information
 	propagateWholeBodyInverseDynamics(base_pos, joint_pos, base_vel, joint_vel,
-									  iit::rbd::Vector6D::Zero(), Eigen::VectorXd::Zero(joint_pos.size()));
+									  rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(joint_pos.size()));
 	kin_model_->updateState(base_pos, joint_pos);
 	updateState(base_pos, joint_pos);
 
 	// Computing the acceleration contribution from joint velocity, i.e. J_d*q_d
 	iit::rbd::VelocityVector effector_vel;
 	iit::rbd::VelocityVector effector_acc;
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{

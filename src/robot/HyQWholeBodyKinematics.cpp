@@ -33,14 +33,14 @@ void HyQWholeBodyKinematics::init()
 	jacobians_["LH_foot"] = jacs_.fr_trunk_J_LH_foot;
 	jacobians_["RH_foot"] = jacs_.fr_trunk_J_RH_foot;
 
-	// Defining the homogeneous transformof the end-effectors
+	// Defining the homogeneous transform of the end-effectors
 	homogeneous_tf_["LF_foot"] = hom_tf_.fr_trunk_X_LF_foot;
 	homogeneous_tf_["RF_foot"] = hom_tf_.fr_trunk_X_RF_foot;
 	homogeneous_tf_["LH_foot"] = hom_tf_.fr_trunk_X_LH_foot;
 	homogeneous_tf_["RH_foot"] = hom_tf_.fr_trunk_X_RH_foot;
 
 	// Computing the number of joints given the jacobians
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
+	for (rbd::EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{

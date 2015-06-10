@@ -2,7 +2,7 @@
 #define DWL_RobCoGenWholeBodyDynamics_H
 
 #include <model/RobCoGenWholeBodyKinematics.h>
-#include <iit/rbd/rbd.h>
+#include <utils/RigidBodyDynamics.h>
 
 
 namespace dwl
@@ -28,10 +28,10 @@ class RobCoGenWholeBodyDynamics
 		 * @brief This abstract method updates the state of the robot, which as a convention is
 		 * [xb^T; q^T]^T where xb is the position and orientation of the robot base and q is joint
 		 * configuration of the rigid body
-		 * @param const iit::rbd::Vector6D& Base position
+		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 */
-		virtual void updateState(const iit::rbd::Vector6D& base_pos,
+		virtual void updateState(const rbd::Vector6d& base_pos,
 								 	const Eigen::VectorXd& joint_pos) = 0;
 
 		/**
@@ -42,80 +42,80 @@ class RobCoGenWholeBodyDynamics
 
 		/**
 		 * @brief An abstract method for computing whole-body inverse dynamics
-		 * @param iit::rbd::Vector6D& Base wrench
+		 * @param rbd::Vector6d& Base wrench
 		 * @param Eigen::VectorXd& Joint forces
-		 * @param const iit::rbd::Vector6D& Gravity vector
-		 * @param const iit::rbd::Vector6D& Base position
+		 * @param const rbd::Vector6d& Gravity vector
+		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
-		 * @param const iit::rbd::Vector6D& Base velocity
+		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param const iit::rbd::Vector6D& Base acceleration
+		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 */
-		virtual void computeWholeBodyInverseDynamics(iit::rbd::Vector6D& base_wrench,
+		virtual void computeWholeBodyInverseDynamics(rbd::Vector6d& base_wrench,
 														   Eigen::VectorXd& joint_forces,
-														   const iit::rbd::Vector6D& g,
-														   const iit::rbd::Vector6D& base_pos,
+														   const rbd::Vector6d& g,
+														   const rbd::Vector6d& base_pos,
 														   const Eigen::VectorXd& joint_pos,
-														   const iit::rbd::Vector6D& base_vel,
+														   const rbd::Vector6d& base_vel,
 														   const Eigen::VectorXd& joint_vel,
-														   const iit::rbd::Vector6D& base_acc,
+														   const rbd::Vector6d& base_acc,
 														   const Eigen::VectorXd& joint_acc) = 0;
 		//													 const ExtForces& fext = zeroExtForces) = 0;
 
 		/**
 		 * @brief An abstract method for propagating the states for whole-body inverse dynamics
-		 * @param const iit::rbd::Vector6D& Base position
+		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
-		 * @param const iit::rbd::Vector6D& Base velocity
+		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param const iit::rbd::Vector6D& Base acceleration
+		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 */
-		virtual void propagateWholeBodyInverseDynamics(const iit::rbd::Vector6D& base_pos,
+		virtual void propagateWholeBodyInverseDynamics(const rbd::Vector6d& base_pos,
 													   	   	 const Eigen::VectorXd& joint_pos,
-													   	   	 const iit::rbd::Vector6D& base_vel,
+													   	   	 const rbd::Vector6d& base_vel,
 													   	   	 const Eigen::VectorXd& joint_vel,
-													   	   	 const iit::rbd::Vector6D& base_acc,
+													   	   	 const rbd::Vector6d& base_acc,
 													   	   	 const Eigen::VectorXd& joint_acc) = 0;
 
 		/**
 		 * @brief Computes the operational acceleration contribution from the joint velocity for all
 		 * end-effectors of the robot, i.e. Jac_d * q_d
 		 * @param Eigen::VectorXd& Operational acceleration contribution from joint velocity
-		 * @param const iit::rbd::Vector6D& Base position
+		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
-		 * @param const iit::rbd::Vector6D& Base velocity
+		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param enum Component There are three different important kind of jacobian such as: linear,
+		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
 		virtual void opAccelerationContributionFromJointVelocity(Eigen::VectorXd& jacd_qd,
-																 	 	const iit::rbd::Vector6D& base_pos,
+																 	 	const rbd::Vector6d& base_pos,
 																 	 	const Eigen::VectorXd& joint_pos,
-																 	 	const iit::rbd::Vector6D& base_vel,
+																 	 	const rbd::Vector6d& base_vel,
 																 	 	const Eigen::VectorXd& joint_vel,
-																 	 	enum Component component = Full);
+																 	 	enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the operational acceleration contribution from the joint velocity for a
 		 * predefined set of end-effectors of the robot, i.e. Jac_d * q_d
 		 * @param Eigen::VectorXd& Operational acceleration contribution from joint velocity
-		 * @param const iit::rbd::Vector6D& Base position
+		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
-		 * @param const iit::rbd::Vector6D& Base velocity
+		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param EndEffectorSelector A predefined set of end-effectors
-		 * @param enum Component There are three different important kind of jacobian such as: linear,
+		 * @param rbd::EndEffectorSelector A predefined set of end-effectors
+		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
 		virtual void opAccelerationContributionFromJointVelocity(Eigen::VectorXd& jacd_qd,
-																 	 	const iit::rbd::Vector6D& base_pos,
+																 	 	const rbd::Vector6d& base_pos,
 																 	 	const Eigen::VectorXd& joint_pos,
-																 	 	const iit::rbd::Vector6D& base_vel,
+																 	 	const rbd::Vector6d& base_vel,
 																 	 	const Eigen::VectorXd& joint_vel,
-																 	 	EndEffectorSelector effector_set,
-																 	 	enum Component component = Full);
+																 	 	rbd::EndEffectorSelector effector_set,
+																 	 	enum rbd::Component component = rbd::Full);
 
 		typedef std::map<std::string, Eigen::Matrix<double, 6, 6> > EndEffectorSpatialTransform;
 		typedef std::map<std::string, Eigen::Matrix<double, 6, 1> > EndEffectorSpatialVector;

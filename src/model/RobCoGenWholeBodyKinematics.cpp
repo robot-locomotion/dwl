@@ -21,11 +21,11 @@ RobCoGenWholeBodyKinematics::~RobCoGenWholeBodyKinematics()
 
 void RobCoGenWholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 														   const Eigen::VectorXd& joint_pos,
-														   enum Component component)
+														   enum rbd::Component component)
 {
 	// Computing the forward kinematics for all end-effectors
-	EndEffectorSelector effector_set;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
+	rbd::EndEffectorSelector effector_set;
+	for (rbd::EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
@@ -39,15 +39,15 @@ void RobCoGenWholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 
 void RobCoGenWholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 														   const Eigen::VectorXd& joint_pos,
-														   EndEffectorSelector effector_set,
-														   enum Component component)
+														   rbd::EndEffectorSelector effector_set,
+														   enum rbd::Component component)
 {
 	// Updating the states
 	updateState(iit::rbd::Vector6D::Zero(), joint_pos);
 
 	// Computing the number of active end-effectors
 	int num_effector_set = 0;
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
@@ -59,19 +59,19 @@ void RobCoGenWholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 	}
 
 	switch (component) {
-	case Linear:
+	case rbd::Linear:
 		op_pos.resize(3 * num_effector_set);
 		break;
-	case Angular:
+	case rbd::Angular:
 		op_pos.resize(3 * num_effector_set);
 		break;
-	case Full:
+	case rbd::Full:
 		op_pos.resize(6 * num_effector_set);
 		break;
 	}
 	op_pos.setZero();
 
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
@@ -82,13 +82,13 @@ void RobCoGenWholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 			Eigen::Vector3d rpy = math::getRPY((Eigen::Matrix3d) iit::rbd::Utils::rotationMx(homogeneous_tf));
 
 			switch (component) {
-			case Linear:
+			case rbd::Linear:
 				op_pos = iit::rbd::Utils::positionVector(homogeneous_tf);
 				break;
-			case Angular:
+			case rbd::Angular:
 				op_pos << rpy;
 				break;
-			case Full:
+			case rbd::Full:
 				op_pos << iit::rbd::Utils::positionVector(homogeneous_tf), rpy;
 				break;
 			}
@@ -98,13 +98,13 @@ void RobCoGenWholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 
 
 void RobCoGenWholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
-												   	   	   	   	   const iit::rbd::Vector6D& base_pos,
+												   	   	   	   	   const rbd::Vector6d& base_pos,
 												   	   	   	   	   const Eigen::VectorXd& joint_pos,
-												   	   	   	   	   enum Component component)
+												   	   	   	   	   enum rbd::Component component)
 {
 	// Computing the jacobian for all end-effectors
-	EndEffectorSelector effector_set;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
+	rbd::EndEffectorSelector effector_set;
+	for (rbd::EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
@@ -117,21 +117,21 @@ void RobCoGenWholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jaco
 
 
 void RobCoGenWholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
-												   	   	   	   	   const iit::rbd::Vector6D& base_pos,
+												   	   	   	   	   const rbd::Vector6d& base_pos,
 												   	   	   	   	   const Eigen::VectorXd& joint_pos,
-												   	   	   	   	   EndEffectorSelector effector_set,
-												   	   	   	   	   enum Component component)
+												   	   	   	   	   rbd::EndEffectorSelector effector_set,
+												   	   	   	   	   enum rbd::Component component)
 {
 	// Resizing the jacobian matrix
 	int num_vars;
 	switch (component) {
-	case Linear:
+	case rbd::Linear:
 		num_vars = 3;
 		break;
-	case Angular:
+	case rbd::Angular:
 		num_vars = 3;
 		break;
-	case Full:
+	case rbd::Full:
 		num_vars = 6;
 		break;
 	default:
@@ -140,7 +140,7 @@ void RobCoGenWholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jaco
 
 	// Computing the number of active end-effectors
 	int num_effector_set = 0;
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
@@ -161,13 +161,13 @@ void RobCoGenWholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jaco
 
 
 void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacobian,
-												  	  	  	  	  const iit::rbd::Vector6D& base_pos,
+												  	  	  	  	  const rbd::Vector6d& base_pos,
 												  	  	  	  	  const Eigen::VectorXd& joint_pos,
-												  	  	  	  	  enum Component component)
+												  	  	  	  	  enum rbd::Component component)
 {
 	// Computing the jacobian for all end-effectors
-	EndEffectorSelector effector_set;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
+	rbd::EndEffectorSelector effector_set;
+	for (rbd::EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
@@ -180,10 +180,10 @@ void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacob
 
 
 void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacobian,
-												  	  	  	  	  const iit::rbd::Vector6D& base_pos,
+												  	  	  	  	  const rbd::Vector6d& base_pos,
 												  	  	  	  	  const Eigen::VectorXd& joint_pos,
-												  	  	  	  	  EndEffectorSelector effector_set,
-												  	  	  	  	  enum Component component)
+												  	  	  	  	  rbd::EndEffectorSelector effector_set,
+												  	  	  	  	  enum rbd::Component component)
 {
 	// Updating the state
 	updateState(base_pos, joint_pos);
@@ -191,13 +191,13 @@ void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacob
 	// Resizing the jacobian matrix
 	int num_vars;
 	switch (component) {
-	case Linear:
+	case rbd::Linear:
 		num_vars = 3;
 		break;
-	case Angular:
+	case rbd::Angular:
 		num_vars = 3;
 		break;
-	case Full:
+	case rbd::Full:
 		num_vars = 6;
 		break;
 	default:
@@ -206,7 +206,7 @@ void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacob
 
 	// Computing the number of active end-effectors
 	int num_effector_set = 0;
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
@@ -221,11 +221,11 @@ void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacob
 
 	// Computing the current position of each end-effector
 	Eigen::VectorXd effector_positions;
-	computeEffectorFK(effector_positions, joint_pos, effector_set, Linear);
+	computeEffectorFK(effector_positions, joint_pos, effector_set, rbd::Linear);
 
 	// Adding the jacobian only for the active end-effectors
 	int effector_counter = 0;
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
@@ -234,15 +234,15 @@ void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacob
 			int init_row = effector_counter * num_vars;
 			Eigen::Vector3d foot_pos = effector_positions.segment(effector_counter * 3, 3);
 			switch(component) {
-			case Linear:
+			case rbd::Linear:
 				jacobian.block(init_row, rbd::AX, 3, 3) = -floating_base_rot_.transpose() *
 						math::skewSymmentricMatrixFrom3DVector(foot_pos);
 				jacobian.block(init_row, rbd::LX, 3, 3) = floating_base_rot_.transpose();// TODO compute rotation matrix from base_pos
 				break;
-			case Angular:
+			case rbd::Angular:
 				jacobian.block(init_row, rbd::AX, 3, 3) = floating_base_rot_.transpose();
 				break;
-			case Full:
+			case rbd::Full:
 				jacobian.block(init_row, rbd::AX, 3, 3) = floating_base_rot_.transpose();
 				jacobian.block(init_row + 3, rbd::AX, 3, 3) = -floating_base_rot_.transpose() *
 						math::skewSymmentricMatrixFrom3DVector(foot_pos);
@@ -257,11 +257,11 @@ void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacob
 
 void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 												   	   	   	   	   const Eigen::VectorXd& joint_pos,
-												   	   	   	   	   enum Component component)
+												   	   	   	   	   enum rbd::Component component)
 {
 	// Computing the jacobian for all end-effectors
-	EndEffectorSelector effector_set;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
+	rbd::EndEffectorSelector effector_set;
+	for (rbd::EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
@@ -275,8 +275,8 @@ void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jaco
 
 void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 												   	   	   	   	   const Eigen::VectorXd& joint_pos,
-												   	   	   	   	   EndEffectorSelector effector_set,
-												   	   	   	   	   enum Component component)
+												   	   	   	   	   rbd::EndEffectorSelector effector_set,
+												   	   	   	   	   enum rbd::Component component)
 {
 	// Updating the state of the kinematic model
 	updateState(iit::rbd::Vector6D::Zero(), joint_pos);
@@ -284,13 +284,13 @@ void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jaco
 	// Resizing the jacobian matrix
 	int num_vars;
 	switch (component) {
-	case Linear:
+	case rbd::Linear:
 		num_vars = 3;
 		break;
-	case Angular:
+	case rbd::Angular:
 		num_vars = 3;
 		break;
-	case Full:
+	case rbd::Full:
 		num_vars = 6;
 		break;
 	default:
@@ -299,7 +299,7 @@ void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jaco
 
 	// Computing the number of active end-effectors
 	int num_effector_set = 0;
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
@@ -314,7 +314,7 @@ void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jaco
 
 	// Adding the jacobian only for the active end-effectors
 	int effector_counter = 0;
-	for (EndEffectorSelector::iterator effector_iter = effector_set.begin();
+	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
@@ -327,14 +327,14 @@ void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jaco
 			int init_row = effector_counter * num_vars;
 			int init_col = effector_id * num_jnts;
 			switch (component) {
-			case Linear:
+			case rbd::Linear:
 				jacobian.block(init_row, init_col, num_vars, num_jnts) =
 						floating_base_rot_.transpose() * jac.block(rbd::LX, 0, num_vars, num_jnts);
 				break;
-			case Angular:
+			case rbd::Angular:
 				jacobian.block(init_row, init_col, num_vars, num_jnts) = jac.block(rbd::AX, 0, num_vars, num_jnts);
 				break;
-			case Full:
+			case rbd::Full:
 				jacobian.block(init_row + rbd::AX, init_col, num_vars / 2, num_jnts) = jac.block(rbd::AX, 0, num_vars / 2, num_jnts);
 				jacobian.block(init_row + rbd::LX, init_col, num_vars / 2, num_jnts) = floating_base_rot_.transpose() *
 						jac.block(rbd::LX, 0, num_vars / 2, num_jnts);
@@ -347,15 +347,15 @@ void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jaco
 
 
 void RobCoGenWholeBodyKinematics::opVelocityFromJointSpace(Eigen::VectorXd& op_vel,
-												   	   	   	   	   const iit::rbd::Vector6D& base_pos,
+												   	   	   	   	   const rbd::Vector6d& base_pos,
 												   	   	   	   	   const Eigen::VectorXd& joint_pos,
-												   	   	   	   	   const iit::rbd::Vector6D& base_vel,
+												   	   	   	   	   const rbd::Vector6d& base_vel,
 												   	   	   	   	   const Eigen::VectorXd& joint_vel,
-												   	   	   	   	   enum Component component)
+												   	   	   	   	   enum rbd::Component component)
 {
 	// Computing the operational velocities for all end-effectors
-	EndEffectorSelector effector_set;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
+	rbd::EndEffectorSelector effector_set;
+	for (rbd::EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
@@ -368,12 +368,12 @@ void RobCoGenWholeBodyKinematics::opVelocityFromJointSpace(Eigen::VectorXd& op_v
 
 
 void RobCoGenWholeBodyKinematics::opVelocityFromJointSpace(Eigen::VectorXd& op_vel,
-												   	   	   	   	   const iit::rbd::Vector6D& base_pos,
+												   	   	   	   	   const rbd::Vector6d& base_pos,
 												   	   	   	   	   const Eigen::VectorXd& joint_pos,
-												   	   	   	   	   const iit::rbd::Vector6D& base_vel,
+												   	   	   	   	   const rbd::Vector6d& base_vel,
 												   	   	   	   	   const Eigen::VectorXd& joint_vel,
-												   	   	   	   	   EndEffectorSelector effector_set,
-												   	   	   	   	   enum Component component)
+												   	   	   	   	   rbd::EndEffectorSelector effector_set,
+												   	   	   	   	   enum rbd::Component component)
 {
 	// Computing the effector Jacobian
 	Eigen::MatrixXd jacobian;
@@ -387,15 +387,15 @@ void RobCoGenWholeBodyKinematics::opVelocityFromJointSpace(Eigen::VectorXd& op_v
 
 
 void RobCoGenWholeBodyKinematics::opAccelerationContributionFromJointAcceleration(Eigen::VectorXd& jac_qdd,
-																		  	  	  	  	  	 const iit::rbd::Vector6D& base_pos,
+																		  	  	  	  	  	 const rbd::Vector6d& base_pos,
 																		  	  	  	  	  	 const Eigen::VectorXd& joint_pos,
-																		  	  	  	  	  	 const iit::rbd::Vector6D& base_acc,
+																		  	  	  	  	  	 const rbd::Vector6d& base_acc,
 																		  	  	  	  	  	 const Eigen::VectorXd& joint_acc,
-																		  	  	  	  	  	 enum Component component)
+																		  	  	  	  	  	 enum rbd::Component component)
 {
 	// Computing the operational accelerations for all end-effectors
-	EndEffectorSelector effector_set;
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
+	rbd::EndEffectorSelector effector_set;
+	for (rbd::EndEffectorID::iterator effector_iter = effector_id_.begin();
 			effector_iter != effector_id_.end();
 			effector_iter++)
 	{
@@ -409,12 +409,12 @@ void RobCoGenWholeBodyKinematics::opAccelerationContributionFromJointAcceleratio
 
 
 void RobCoGenWholeBodyKinematics::opAccelerationContributionFromJointAcceleration(Eigen::VectorXd& jac_qdd,
-																		  	  	  	  	  	 const iit::rbd::Vector6D& base_pos,
+																		  	  	  	  	  	 const rbd::Vector6d& base_pos,
 																		  	  	  	  	  	 const Eigen::VectorXd& joint_pos,
-																		  	  	  	  	  	 const iit::rbd::Vector6D& base_acc,
+																		  	  	  	  	  	 const rbd::Vector6d& base_acc,
 																		  	  	  	  	  	 const Eigen::VectorXd& joint_acc,
-																		  	  	  	  	  	 EndEffectorSelector effector_set,
-																		  	  	  	  	  	 enum Component component)
+																		  	  	  	  	  	 rbd::EndEffectorSelector effector_set,
+																		  	  	  	  	  	 enum rbd::Component component)
 {
 	// Computing the effector Jacobian
 	Eigen::MatrixXd jacobian;
@@ -427,7 +427,7 @@ void RobCoGenWholeBodyKinematics::opAccelerationContributionFromJointAcceleratio
 }
 
 
-EndEffectorID& RobCoGenWholeBodyKinematics::getEndEffectorList()
+rbd::EndEffectorID& RobCoGenWholeBodyKinematics::getEndEffectorList()
 {
 	return effector_id_;
 }

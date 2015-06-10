@@ -26,11 +26,11 @@ class HyLWholeBodyKinematics : public model::RobCoGenWholeBodyKinematics
 
 		/**
 		 * @brief Updates the state of the HyL
-		 * @param const iit::rbd::Vector6D& Base position
+		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 */
-		void updateState(const iit::rbd::Vector6D& base_pos,
-						 const Eigen::VectorXd& joint_pos);
+		void updateState(const rbd::Vector6d& base_pos,
+						   const Eigen::VectorXd& joint_pos);
 
 		void computeEffectorIK(Eigen::VectorXd& joint_pos,
 							   Eigen::VectorXd& joint_vel,

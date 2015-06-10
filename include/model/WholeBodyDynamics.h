@@ -35,26 +35,25 @@ class WholeBodyDynamics
 
 		/**
 		 * @brief An abstract method for computing whole-body inverse dynamics
-		 * @param Vector6d& Base wrench
+		 * @param rbd::Vector6d& Base wrench
 		 * @param Eigen::VectorXd& Joint forces
-		 * @param const Vector6d& Gravity vector
-		 * @param const Vector6d& Base position
+		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
-		 * @param const Vector6d& Base velocity
+		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param const Vector6d& Base acceleration
+		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
+		 * @param const rbd::Vector6d& External force applied to the robot
 		 */
-		void computeWholeBodyInverseDynamics(Vector6d& base_wrench,
+		void computeWholeBodyInverseDynamics(rbd::Vector6d& base_wrench,
 												  Eigen::VectorXd& joint_forces,
-												  const Vector6d& g,
-												  const Vector6d& base_pos,
+												  const rbd::Vector6d& base_pos,
 												  const Eigen::VectorXd& joint_pos,
-												  const Vector6d& base_vel,
+												  const rbd::Vector6d& base_vel,
 												  const Eigen::VectorXd& joint_vel,
-												  const Vector6d& base_acc,
-												  const Eigen::VectorXd& joint_acc);
-//												  const ExtForces& fext = zeroExtForces) = 0;
+												  const rbd::Vector6d& base_acc,
+												  const Eigen::VectorXd& joint_acc,
+												  const rbd::Vector6d& ext_force = rbd::Vector6d::Zero());
 
 
 	private:
