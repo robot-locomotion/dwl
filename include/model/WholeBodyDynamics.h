@@ -60,6 +60,15 @@ class WholeBodyDynamics
 												  const Eigen::VectorXd& joint_acc,
 												  const rbd::EndEffectorForce& ext_force = rbd::EndEffectorForce());
 
+		void computeWholeBodyInverseDynamics(rbd::Vector6d& base_acc,
+												  Eigen::VectorXd& joint_forces,
+												  const rbd::Vector6d& base_pos,
+												  const Eigen::VectorXd& joint_pos,
+												  const rbd::Vector6d& base_vel,
+												  const Eigen::VectorXd& joint_vel,
+												  const Eigen::VectorXd& joint_acc,
+												  const rbd::EndEffectorForce& ext_force = rbd::EndEffectorForce());
+
 		/**
 		 * @brief Computes the constrained whole-body inverse dynamics using the Recursive Newton-Euler
 		 * Algorithm (RNEA). Constrained are defined by the contacts of the robot. Contacts could be defined
@@ -86,7 +95,17 @@ class WholeBodyDynamics
 															  const rbd::EndEffectorSelector& contacts);
 
 
+
+
 	private:
+		void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
+											 const RigidBodyDynamics::Math::VectorNd &Q,
+											 const RigidBodyDynamics::Math::VectorNd &QDot,
+											 const RigidBodyDynamics::Math::VectorNd &QDDot,
+											 RigidBodyDynamics::Math::SpatialVector& base_acc,
+											 RigidBodyDynamics::Math::VectorNd &Tau,
+											 std::vector<RigidBodyDynamics::Math::SpatialVector> *f_ext = NULL);
+
 		/** @brief Model of the rigid-body system */
 		RigidBodyDynamics::Model robot_model_;
 

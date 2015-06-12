@@ -37,9 +37,10 @@ Eigen::VectorXd toGeneralizedJointState(const RigidBodyDynamics::Model& model,
 										   const Vector6d& base_state,
 										   const Eigen::VectorXd& joint_state)
 {
+	// Note that RBDL defines the floating base state as [linear states, angular states]
 	Eigen::VectorXd q(model.dof_count);
 	if (isFloatingBaseRobot(model))
-		q << base_state, joint_state;
+		q << base_state.segment(rbd::LX,3), base_state.segment(rbd::AX,3), joint_state;
 	else
 		q = joint_state;
 
@@ -52,8 +53,10 @@ void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
 								   Eigen::VectorXd& joint_state,
 								   const Eigen::VectorXd& generalized_state)
 {
+	// Note that RBDL defines the floating base state as [linear states, angular states]. So, here we convert
+	// to the standard convention [angular states, linear states]
 	if (isFloatingBaseRobot(model)) {
-		base_state = generalized_state.head<6>();
+		base_state << generalized_state.segment(rbd::LX,3), generalized_state.segment(rbd::AX,3);
 		joint_state = generalized_state.tail(model.dof_count - 6);
 	} else {
 		base_state = Vector6d::Zero();
