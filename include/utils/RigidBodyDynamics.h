@@ -63,8 +63,21 @@ void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
 								   Eigen::VectorXd& joint_state,
 								   const Eigen::VectorXd& generalized_state);
 
+/**
+ * @brief Converts coordinated veloticy to spatial velocity
+ * @param rbd::Vector6d& Velocity
+ * @param const Eigen::Vector3d& Point
+ * @return rbd::Vector6d Spatial velocity
+ */
 Vector6d convertVelocityToSpatialVelocity(Vector6d& velocity,
 											  const Eigen::Vector3d& point);
+
+/**
+ * @brief Converts coordinated force to spatial force
+ * @param rbd::Vector6d& Force
+ * @param const Eigen::Vector3d& Point
+ * @return rbd::Vector6d Spatial force
+ */
 Vector6d convertForceToSpatialForce(Vector6d& force,
 									    const Eigen::Vector3d& point);
 
