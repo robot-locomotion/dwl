@@ -133,7 +133,15 @@ rbd::Vector6d computePointAcceleration(RigidBodyDynamics::Model& model,
 									   const Eigen::Vector3d point_position,
 									   bool update_kinematics);
 
-
+/**
+ * @brief Computes the floating-base inverse dynamics
+ * @param RigidBodyDynamcis::Model& Model of the rigid-body system
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint position
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint velocity
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint acceleration
+ * @param RigidBodyDynamics::Math::VectorNd& Joint forces
+ * @param std::vector<RigidBodyDynamcis::Math::SpatialVector>* Applied external forces
+ */
 void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
 								 const RigidBodyDynamics::Math::VectorNd &Q,
 								 const RigidBodyDynamics::Math::VectorNd &QDot,
