@@ -151,14 +151,14 @@ int main(int argc, char **argv)
 	dwl::rbd::EndEffectorForce fext;
 	dwl::rbd::Vector6d forc;
 	forc << 0,0,0,0,0,10;//67;
-//	fext["trunk"] = forc;
-	fext["foot"] = forc;
+	fext["trunk"] = forc;
+//	fext["foot"] = forc;
 //	fext["lowerleg"] = forc;
 
 
 
-	//base_pos(dwl::rbd::AX) = 0;
-	//base_pos(dwl::rbd::AY) = 1.57;
+//	base_pos(dwl::rbd::AX) = 1.57;
+//	base_pos(dwl::rbd::AY) = 1.57;
 	//base_pos(dwl::rbd::AZ) = 3;
 	base_pos(dwl::rbd::LX) = 10;
 	base_pos(dwl::rbd::LY) = 20;
@@ -169,14 +169,19 @@ int main(int argc, char **argv)
 	joint_vel2 << 1;
 	joint_acc2 << -9.81;
 
-	dyn.computeWholeBodyInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos2, base_vel, joint_vel2, base_acc, joint_acc2);//, fext);
+	dyn.computeWholeBodyInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos2, base_vel, joint_vel2, base_acc, joint_acc2, fext);
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = tau" << std::endl;
 
 //	dyn_ptr->computeWholeBodyInverseDynamics(base_wrench, joint_forces, dwl::rbd::Vector6d::Zero(), base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc);
 //	std::cout << "---------------------------------------" << std::endl;
 //	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = robcogen tau" << std::endl;
-	dyn.computeWholeBodyInverseDynamics(base_acc, joint_forces, base_pos, joint_pos2, base_vel, joint_vel2, joint_acc2);
+	dyn.computeWholeBodyInverseDynamics(base_acc, joint_forces, base_pos, joint_pos2, base_vel, joint_vel2, joint_acc2, fext);
+
+
+	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
+	std::cout << "Base wrench = " << base_wrench.transpose() << std::endl;
+	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
 
     return 0;
 }
