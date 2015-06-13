@@ -29,6 +29,7 @@ void WholeBodyKinematics::modelFromURDF(std::string model_file, bool info)
 		std::string body_name = robot_model_.GetBodyName(body_id);
 
 		effector_id_[body_name.c_str()] = body_id;
+		full_effector_set_[body_name.c_str()] = true;
 	}
 
 	if (info) {
@@ -558,14 +559,7 @@ int WholeBodyKinematics::getNumberOfActiveEndEffectors(rbd::EndEffectorSelector 
 
 void WholeBodyKinematics::activeAllEndEffector(rbd::EndEffectorSelector& effector_set)
 {
-	for (rbd::EndEffectorID::iterator effector_iter = effector_id_.begin();
-			effector_iter != effector_id_.end();
-			effector_iter++)
-	{
-		std::string effector_name = effector_iter->first;
-		effector_set[effector_name] = true;
-	}
-
+	effector_set = full_effector_set_;
 }
 
 } //@namespace model

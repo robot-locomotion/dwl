@@ -301,6 +301,9 @@ class WholeBodyKinematics
 
 			/* @brief End-effector ids */
 			rbd::EndEffectorID effector_id_;
+
+			/* @brief Full set of active end-effectors */
+			rbd::EndEffectorSelector full_effector_set_;
 };
 
 } //@namespace model
