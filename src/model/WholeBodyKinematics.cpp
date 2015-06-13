@@ -23,6 +23,14 @@ void WholeBodyKinematics::modelFromURDF(std::string model_file, bool info)
 {
 	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
 
+	// Adding the fixed body in the end-effector list
+	for (unsigned int it = 0; it < robot_model_.mFixedBodies.size(); it++) {
+		unsigned int body_id = it + robot_model_.fixed_body_discriminator;
+		std::string body_name = robot_model_.GetBodyName(body_id);
+
+		effector_id_[body_name.c_str()] = body_id;
+	}
+
 	if (info) {
 		std::cout << "Degree of freedom overview:" << std::endl;
 		std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(robot_model_);
@@ -31,13 +39,6 @@ void WholeBodyKinematics::modelFromURDF(std::string model_file, bool info)
 		std::cout << "Model Hierarchy:" << std::endl;
 		std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(robot_model_);
 	}
-}
-
-
-void WholeBodyKinematics::addEndEffector(std::string name)
-{
-	int effector_id = robot_model_.GetBodyId(name.c_str());
-	effector_id_[name.c_str()] = effector_id;
 }
 
 
@@ -111,25 +112,24 @@ void WholeBodyKinematics::computeWholeBodyFK(Eigen::VectorXd& op_pos,
 		std::string effector_name = effector_iter->first;
 		if (effector_id_.count(effector_name) > 0) {
 			unsigned int effector_id = effector_id_.find(effector_name)->second;
-			int init_ang_col = effector_counter * ang_vars;
-			int init_lin_col = effector_counter * lin_vars;
+			int init_col = effector_counter * (ang_vars + lin_vars);
 
 			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
 
 			Eigen::Matrix3d rotation_mtx;
 			switch (component) {
 			case rbd::Linear:
-				op_pos.segment(init_lin_col, lin_vars) =
+				op_pos.segment(init_col, lin_vars) =
 						CalcBodyToBaseCoordinates(robot_model_, q, effector_id, Eigen::Vector3d::Zero(), true);
 				break;
 			case rbd::Angular:
 				rotation_mtx = RigidBodyDynamics::CalcBodyWorldOrientation(robot_model_, q, effector_id, false);
 				switch (type) {
 					case RollPitchYaw:
-						op_pos.segment(init_ang_col, ang_vars) = math::getRPY(rotation_mtx);
+						op_pos.segment(init_col, ang_vars) = math::getRPY(rotation_mtx);
 						break;
 					case Quaternion:
-						op_pos.segment(init_ang_col, ang_vars) = math::getQuaternion(rotation_mtx).vec();
+						op_pos.segment(init_col, ang_vars) = math::getQuaternion(rotation_mtx).coeffs();
 						break;
 					case RotationMatrix:
 						break;
@@ -139,20 +139,22 @@ void WholeBodyKinematics::computeWholeBodyFK(Eigen::VectorXd& op_pos,
 				rotation_mtx = RigidBodyDynamics::CalcBodyWorldOrientation(robot_model_, q, effector_id, false);
 				switch (type) {
 					case RollPitchYaw:
-						op_pos.segment(init_ang_col, ang_vars) = math::getRPY(rotation_mtx);
+						op_pos.segment(init_col, ang_vars) = math::getRPY(rotation_mtx);
 						break;
 					case Quaternion:
-						op_pos.segment(init_ang_col, ang_vars) = math::getQuaternion(rotation_mtx).vec();
+						op_pos.segment(init_col, ang_vars) = math::getQuaternion(rotation_mtx).coeffs();
 						break;
 					case RotationMatrix:
 						break;
 				}
 
 				// Computing the linear component
-				op_pos.segment(init_ang_col + init_lin_col + ang_vars, lin_vars) =
+				op_pos.segment(init_col + ang_vars, lin_vars) =
 						CalcBodyToBaseCoordinates(robot_model_, q, effector_id, Eigen::Vector3d::Zero(), true);
 				break;
 			}
+
+			++effector_counter;
 		}
 	}
 }

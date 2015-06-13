@@ -34,12 +34,6 @@ class WholeBodyKinematics
 		void modelFromURDF(std::string file, bool info = false);
 
 		/**
-		 * @brief Adds an end-effector to the list
-		 * @param std::string End-effector name
-		 */
-		void addEndEffector(std::string name);
-
-		/**
 		 * @brief Computes the forward kinematics for all end-effectors of the robot
 		 * @param Eigen::VectorXd& Operation position of end-effectors of the robot
 		 * @param const rbd::Vector6d& Base position
