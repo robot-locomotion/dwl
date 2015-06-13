@@ -113,14 +113,6 @@ class WholeBodyDynamics
 
 
 	private:
-		void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
-											 const RigidBodyDynamics::Math::VectorNd &Q,
-											 const RigidBodyDynamics::Math::VectorNd &QDot,
-											 const RigidBodyDynamics::Math::VectorNd &QDDot,
-											 RigidBodyDynamics::Math::SpatialVector& base_acc,
-											 RigidBodyDynamics::Math::VectorNd &Tau,
-											 std::vector<RigidBodyDynamics::Math::SpatialVector> *f_ext = NULL);
-
 		/**
 		 * Converts the applied external forces to RBDL format
 		 * @param std::vector<RigidBodyDynamcis::Math::SpatialVector>& RBDL external forces format

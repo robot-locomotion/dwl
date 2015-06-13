@@ -84,7 +84,7 @@ void WholeBodyDynamics::computeWholeBodyInverseDynamics(rbd::Vector6d& base_acc,
 
 	// Computing the inverse dynamics with Recursive Newton-Euler Algorithm (RNEA)
 	RigidBodyDynamics::Math::SpatialVector base_ddot = RigidBodyDynamics::Math::SpatialVector(base_acc);
-	FloatingBaseInverseDynamics(robot_model_, q, q_dot, q_ddot, base_ddot, tau, &fext);
+	rbd::FloatingBaseInverseDynamics(robot_model_, q, q_dot, q_ddot, base_ddot, tau, &fext);
 
 	// Converting the base acceleration
 	base_acc = base_ddot;
@@ -108,95 +108,12 @@ void WholeBodyDynamics::computeConstrainedWholeBodyInverseDynamics(Eigen::Vector
 }
 
 
-void WholeBodyDynamics::FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
-														   const RigidBodyDynamics::Math::VectorNd &Q,
-														   const RigidBodyDynamics::Math::VectorNd &QDot,
-														   const RigidBodyDynamics::Math::VectorNd &QDDot,
-														   RigidBodyDynamics::Math::SpatialVector &base_acc,
-														   RigidBodyDynamics::Math::VectorNd &Tau,
-														   std::vector<RigidBodyDynamics::Math::SpatialVector> *f_ext)
-{
-	using namespace RigidBodyDynamics;
-	using namespace RigidBodyDynamics::Math;
-
-	LOG << "-------- " << __func__ << " --------" << std::endl;
-
-	// First pass
-	for (unsigned int i = 1; i < 7; i++) {
-		unsigned int lambda = model.lambda[i];
-
-		jcalc (model, i, Q, QDot);
-		model.X_base[i] = model.X_lambda[i] * model.X_base[lambda];
-	}
-
-	for (unsigned int i = 7; i < model.mBodies.size(); i++) {
-		unsigned int q_index = model.mJoints[i].q_index;
-		unsigned int lambda = model.lambda[i];
-		jcalc (model, i, Q, QDot);
-
-		model.X_base[i] = model.X_lambda[i] * model.X_base[lambda];
-
-		model.v[i] = model.X_lambda[i].apply(model.v[lambda]) + model.v_J[i];
-		model.c[i] = model.c_J[i] + crossm(model.v[i],model.v_J[i]);
-
-		if (model.mJoints[i].mDoFCount == 3) {
-			model.a[i] = model.X_lambda[i].apply(model.a[lambda]) + model.c[i] +
-					model.multdof3_S[i] * Vector3d (QDDot[q_index], QDDot[q_index + 1], QDDot[q_index + 2]);
-		} else {
-			model.a[i] = model.X_lambda[i].apply(model.a[lambda]) + model.c[i] + model.S[i] * QDDot[q_index];
-		}
-
-		model.Ic[i] = model.I[i];
-
-		if (!model.mBodies[i].mIsVirtual) {
-			model.f[i] = model.I[i] * model.a[i] + crossf(model.v[i],model.I[i] * model.v[i]);
-		} else {
-			model.f[i].setZero();
-		}
-
-		if (f_ext != NULL && (*f_ext)[i] != SpatialVectorZero)
-			model.f[i] -= model.X_base[i].toMatrixAdjoint() * (*f_ext)[i];
-	}
-
-	// Second pass
-	model.Ic[6] = model.I[6];
-	model.f[6] = model.I[6] * model.a[6] + crossf(model.v[6],model.I[6] * model.v[6]);
-	if (f_ext != NULL && (*f_ext)[6] != SpatialVectorZero)
-		model.f[6] -= (*f_ext)[6];
-
-	for (unsigned int i = model.mBodies.size() - 1; i > 6; i--) {
-		unsigned int lambda = model.lambda[i];
-
-		model.Ic[lambda] = model.Ic[lambda] + model.X_lambda[i].apply(model.Ic[i]);
-		model.f[lambda] = model.f[lambda] + model.X_lambda[i].applyTranspose(model.f[i]);
-	}
-
-	// Third pass
-	model.a[6] = - model.Ic[6].toMatrix().inverse() * model.f[6];
-
-	for (unsigned int i = 7; i < model.mBodies.size(); i++) {
-		unsigned int lambda = model.lambda[i];
-		model.a[i] = model.X_lambda[i].apply(model.a[lambda]);
-
-		if (model.mJoints[i].mDoFCount == 3) {
-			Tau.block<3,1>(model.mJoints[i].q_index, 0) = model.multdof3_S[i].transpose() *
-					(model.Ic[i] * model.a[i] + model.f[i]);
-		} else {
-			Tau[model.mJoints[i].q_index] = model.S[i].dot(model.Ic[i] * model.a[i] + model.f[i]);
-		}
-	}
-
-	base_acc = model.a[6];
-}
-
-
 void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynamics::Math::SpatialVector>& fext,
 													 const rbd::EndEffectorForce& ext_force,
 													 const Eigen::VectorXd& q)
 {
 	// Computing the applied external spatial forces for every body
 	if (ext_force.size() > 0) {
-		//fext = new std::vector<SpatialVector_t>();
 		fext.resize(robot_model_.mBodies.size());
 		// Searching over the movable bodies
 		for (unsigned int body_id = 0; body_id < robot_model_.mBodies.size(); body_id++) {

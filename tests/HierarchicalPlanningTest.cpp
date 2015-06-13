@@ -143,10 +143,6 @@ int main(int argc, char **argv)
 //	std::cout << "---------------------------------------" << std::endl;
 //	std::cout << jacd_qd.transpose() << " = jacd_qd" << std::endl;
 
-//	Eigen::VectorXd jacd_qd2;
-//	dyn_ptr->opAccelerationContributionFromJointVelocity(jacd_qd2, base_pos, joint_pos, base_vel, joint_vel, effector_set);
-//	std::cout << "---------------------------------------" << std::endl;
-//	std::cout << jacd_qd2.transpose() << " = Michi jacd_qd" << std::endl;
 
 	dwl::rbd::EndEffectorForce fext;
 	dwl::rbd::Vector6d forc;
