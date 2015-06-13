@@ -295,15 +295,15 @@ class WholeBodyKinematics
 		void activeAllEndEffector(rbd::EndEffectorSelector& effector_set);
 
 
-		private:
-			/** @brief Model of the rigid-body system */
-			RigidBodyDynamics::Model robot_model_;
+	private:
+		/** @brief Model of the rigid-body system */
+		RigidBodyDynamics::Model robot_model_;
 
-			/* @brief End-effector ids */
-			rbd::EndEffectorID effector_id_;
+		/* @brief End-effector ids */
+		rbd::EndEffectorID effector_id_;
 
-			/* @brief Full set of active end-effectors */
-			rbd::EndEffectorSelector full_effector_set_;
+		/* @brief Full set of active end-effectors */
+		rbd::EndEffectorSelector full_effector_set_;
 };
 
 } //@namespace model
