@@ -287,13 +287,13 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 
 
 void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
-														 const Eigen::MatrixXd& full_jacobian)
+												  const Eigen::MatrixXd& full_jacobian)
 {
 	if (rbd::isFloatingBaseRobot(robot_model_))
-		jacobian = full_jacobian.block<6,6>(0,0);
+		jacobian = full_jacobian.leftCols(6);
 	else {
 		printf(YELLOW "Warning: this is a fixed-base robot\n" COLOR_RESET);
-		jacobian = Eigen::MatrixXd::Zero(6,6);
+		jacobian = Eigen::MatrixXd::Zero(1,1);
 	}
 }
 
