@@ -34,12 +34,12 @@ class WholeBodyDynamics
 		void modelFromURDF(std::string file, bool info = false);
 
 		/**
-		 * @brief Computes the whole-body inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).
-		 * An applied external force is defined for a certain body, movable or fixed body, where a fixed
-		 * body is considered a fixed point of a movable one. These forces are represented as Cartesian forces
-		 * applied to the body, where the first three elements are the moments and the last three elements are
-		 * the linear forces. In general a point only has linear forces, but with this representation we can
-		 * model the forces applied by a surface of contact in the center of pressure of it.
+		 * @brief Computes the whole-body inverse dynamics, asssuming a fully actuated robot, using the
+		 * Recursive Newton-Euler Algorithm (RNEA). An applied external force is defined for a certain body, movable or
+		 * fixed body, where a fixed body is considered a fixed point of a movable one. These forces are represented as
+		 * Cartesian forces applied to the body, where the first three elements are the moments and the last three
+		 * elements are the linear forces. In general a point only has linear forces, but with this representation we
+		 * can model the forces applied by a surface of contact in the center of pressure of it.
 		 * @param rbd::Vector6d& Base wrench
 		 * @param Eigen::VectorXd& Joint forces
 		 * @param const rbd::Vector6d& Base position
@@ -59,7 +59,22 @@ class WholeBodyDynamics
 												  const rbd::Vector6d& base_acc,
 												  const Eigen::VectorXd& joint_acc,
 												  const rbd::EndEffectorForce& ext_force = rbd::EndEffectorForce());
-
+		/**
+		 * @brief Computes the whole-body inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA) for a
+		 * floating-based robot (RX,RY,RZ,TX,TY,TZ). An applied external force is defined for a certain body, movable
+		 * or fixed body, where a fixed body is considered a fixed point of a movable one. These forces are represented
+		 * as Cartesian forces applied to the body, where the first three elements are the moments and the last three
+		 * elements are the linear forces. In general a point only has linear forces, but with this representation we
+		 * can model the forces applied by a surface of contact in the center of pressure of it.
+		 * @param rbd::Vector6d& Base acceleration
+		 * @param Eigen::VectorXd& Joint forces
+		 * @param const rbd::Vector6d& Base position
+		 * @param const Eigen::VectorXd& Joint position
+		 * @param const rbd::Vector6d& Base velocity
+		 * @param const Eigen::VectorXd& Joint velocity
+		 * @param const Eigen::VectorXd& Joint acceleration
+		 * @param const rbd::EndEffectorForce External force applied to a certain body of the robot
+		 */
 		void computeWholeBodyInverseDynamics(rbd::Vector6d& base_acc,
 												  Eigen::VectorXd& joint_forces,
 												  const rbd::Vector6d& base_pos,
@@ -98,13 +113,15 @@ class WholeBodyDynamics
 
 
 	private:
-		void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
-											 const RigidBodyDynamics::Math::VectorNd &Q,
-											 const RigidBodyDynamics::Math::VectorNd &QDot,
-											 const RigidBodyDynamics::Math::VectorNd &QDDot,
-											 RigidBodyDynamics::Math::SpatialVector& base_acc,
-											 RigidBodyDynamics::Math::VectorNd &Tau,
-											 std::vector<RigidBodyDynamics::Math::SpatialVector> *f_ext = NULL);
+		/**
+		 * Converts the applied external forces to RBDL format
+		 * @param std::vector<RigidBodyDynamcis::Math::SpatialVector>& RBDL external forces format
+		 * @param const rbd::EndEffectorForce& External forces
+		 * @param const Eigen::VectorXd& Generalized joint position
+		 */
+		void convertAppliedExternalForces(std::vector<RigidBodyDynamics::Math::SpatialVector>& f_ext,
+										  const rbd::EndEffectorForce& ext_force,
+										  const Eigen::VectorXd& generalized_joint_pos);
 
 		/** @brief Model of the rigid-body system */
 		RigidBodyDynamics::Model robot_model_;

@@ -63,10 +63,93 @@ void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
 								   Eigen::VectorXd& joint_state,
 								   const Eigen::VectorXd& generalized_state);
 
+/**
+ * @brief Converts coordinated veloticy to spatial velocity
+ * @param rbd::Vector6d& Velocity
+ * @param const Eigen::Vector3d& Point
+ * @return rbd::Vector6d Spatial velocity
+ */
 Vector6d convertVelocityToSpatialVelocity(Vector6d& velocity,
 											  const Eigen::Vector3d& point);
+
+/**
+ * @brief Converts coordinated force to spatial force
+ * @param rbd::Vector6d& Force
+ * @param const Eigen::Vector3d& Point
+ * @return rbd::Vector6d Spatial force
+ */
 Vector6d convertForceToSpatialForce(Vector6d& force,
 									    const Eigen::Vector3d& point);
+
+
+
+/**
+ * @brief Computes the Jacobian in certain point of a specific body
+ * @param const RigidBodyDynamics::Model& Model of the rigid-body system
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint position
+ * @param unsigned int Body id
+ * @param const RigidBodyDynamics::Math::Vector3d& 3d Position of the point
+ * @param RigidBodyDynamics::Math::MatrixNd& Jacobian
+ * @param bool Update kinematic state
+ */
+void computePointJacobian(RigidBodyDynamics::Model& model,
+						  const RigidBodyDynamics::Math::VectorNd &Q,
+						  unsigned int body_id,
+						  const RigidBodyDynamics::Math::Vector3d& point_position,
+						  RigidBodyDynamics::Math::MatrixNd& jacobian,
+						  bool update_kinematics);
+
+/**
+ * @brief Computes the velocity in certain point of a specific body
+ * @param RigidBodyDynamics::Model& Model of the rigid-body system
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint position
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint velocity
+ * @param unsigned int Body id
+ * @param const Eigen::Vector3d& 3d Position of the point
+ * @param bool Update kinematic state
+ */
+rbd::Vector6d computePointVelocity(RigidBodyDynamics::Model& model,
+								   const RigidBodyDynamics::Math::VectorNd& Q,
+								   const RigidBodyDynamics::Math::VectorNd& QDot,
+								   unsigned int body_id,
+								   const RigidBodyDynamics::Math::Vector3d point_position,
+								   bool update_kinematics);
+
+/**
+ * @brief Computes the acceleration in certain point of a specific body
+ * @param RigidBodyDynamics::Model& Model of the rigid-body system
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint position
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint velocity
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint acceleration
+ * @param unsigned int Body id
+ * @param const Eigen::Vector3d& 3d Position of the point
+ * @param bool Update kinematic state
+ */
+rbd::Vector6d computePointAcceleration(RigidBodyDynamics::Model& model,
+									   const RigidBodyDynamics::Math::VectorNd& Q,
+									   const RigidBodyDynamics::Math::VectorNd& QDot,
+									   const RigidBodyDynamics::Math::VectorNd& QDDot,
+									   unsigned int body_id,
+									   const Eigen::Vector3d point_position,
+									   bool update_kinematics);
+
+/**
+ * @brief Computes the floating-base inverse dynamics
+ * @param RigidBodyDynamcis::Model& Model of the rigid-body system
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint position
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint velocity
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint acceleration
+ * @param RigidBodyDynamics::Math::VectorNd& Joint forces
+ * @param std::vector<RigidBodyDynamcis::Math::SpatialVector>* Applied external forces
+ */
+void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
+								 const RigidBodyDynamics::Math::VectorNd &Q,
+								 const RigidBodyDynamics::Math::VectorNd &QDot,
+								 const RigidBodyDynamics::Math::VectorNd &QDDot,
+								 RigidBodyDynamics::Math::SpatialVector& base_acc,
+								 RigidBodyDynamics::Math::VectorNd &Tau,
+								 std::vector<RigidBodyDynamics::Math::SpatialVector> *f_ext = NULL);
+
 
 } //@namespace rbd
 } //@namespace dwl

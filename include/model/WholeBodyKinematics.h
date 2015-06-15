@@ -24,7 +24,7 @@ class WholeBodyKinematics
 		WholeBodyKinematics();
 
 		/** @brief Destructor function */
-		virtual ~WholeBodyKinematics();
+		~WholeBodyKinematics();
 
 		/**
 		 * @brief Build the model rigid-body system from an URDF file
@@ -32,12 +32,6 @@ class WholeBodyKinematics
 		 * @param Print model information
 		 */
 		void modelFromURDF(std::string file, bool info = false);
-
-		/**
-		 * @brief Adds an end-effector to the list
-		 * @param std::string End-effector name
-		 */
-		void addEndEffector(std::string name);
 
 		/**
 		 * @brief Computes the forward kinematics for all end-effectors of the robot
@@ -301,58 +295,15 @@ class WholeBodyKinematics
 		void activeAllEndEffector(rbd::EndEffectorSelector& effector_set);
 
 
-		private:
-			/**
-			 * @brief Computes the Jacobian in certain point of a specific body
-			 * @param const Eigen::VectorXd& Generalized joint position
-			 * @param unsigned int Body id
-			 * @param const Eigen::Vector3d& 3d Position of the point
-			 * @param Eigen::MatrixXd& Jacobian
-			 * @param bool Update kinematic state
-			 */
-			void computePointJacobian(const Eigen::VectorXd& q,
-										 unsigned int body_id,
-										 const Eigen::Vector3d& point_position,
-										 Eigen::MatrixXd& jacobian,
-										 bool update_kinematics);
+	private:
+		/** @brief Model of the rigid-body system */
+		RigidBodyDynamics::Model robot_model_;
 
-			/**
-			 * @brief Computes the velocity in certain point of a specific body
-			 * @param const Eigen::VectorXd& Generalized joint position
-			 * @param const Eigen::VectorXd& Generalized joint velocity
-			 * @param unsigned int Body id
-			 * @param const Eigen::Vector3d& 3d Position of the point
-			 * @param Eigen::MatrixXd& Jacobian
-			 * @param bool Update kinematic state
-			 */
-			rbd::Vector6d computePointVelocity(const Eigen::VectorXd& q,
-												  const Eigen::VectorXd& q_dot,
-												  unsigned int body_id,
-												  const Eigen::Vector3d point_position,
-												  bool update_kinematics);
+		/* @brief End-effector ids */
+		rbd::EndEffectorID effector_id_;
 
-			/**
-			 * @brief Computes the acceleration in certain point of a specific body
-			 * @param const Eigen::VectorXd& Generalized joint position
-			 * @param const Eigen::VectorXd& Generalized joint velocity
-			 * @param const Eigen::VectorXd& Generalized joint acceleration
-			 * @param unsigned int Body id
-			 * @param const Eigen::Vector3d& 3d Position of the point
-			 * @param Eigen::MatrixXd& Jacobian
-			 * @param bool Update kinematic state
-			 */
-			rbd::Vector6d computePointAcceleration(const Eigen::VectorXd& q,
-													  const Eigen::VectorXd& q_dot,
-													  const Eigen::VectorXd& q_ddot,
-													  unsigned int body_id,
-													  const Eigen::Vector3d point_position,
-													  bool update_kinematics);
-
-			/** @brief Model of the rigid-body system */
-			RigidBodyDynamics::Model robot_model_;
-
-			/* @brief End-effector ids */
-			rbd::EndEffectorID effector_id_;
+		/* @brief Full set of active end-effectors */
+		rbd::EndEffectorSelector full_effector_set_;
 };
 
 } //@namespace model

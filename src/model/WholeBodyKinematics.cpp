@@ -23,6 +23,15 @@ void WholeBodyKinematics::modelFromURDF(std::string model_file, bool info)
 {
 	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
 
+	// Adding the fixed body in the end-effector list
+	for (unsigned int it = 0; it < robot_model_.mFixedBodies.size(); it++) {
+		unsigned int body_id = it + robot_model_.fixed_body_discriminator;
+		std::string body_name = robot_model_.GetBodyName(body_id);
+
+		effector_id_[body_name.c_str()] = body_id;
+		full_effector_set_[body_name.c_str()] = true;
+	}
+
 	if (info) {
 		std::cout << "Degree of freedom overview:" << std::endl;
 		std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(robot_model_);
@@ -31,13 +40,6 @@ void WholeBodyKinematics::modelFromURDF(std::string model_file, bool info)
 		std::cout << "Model Hierarchy:" << std::endl;
 		std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(robot_model_);
 	}
-}
-
-
-void WholeBodyKinematics::addEndEffector(std::string name)
-{
-	int effector_id = robot_model_.GetBodyId(name.c_str());
-	effector_id_[name.c_str()] = effector_id;
 }
 
 
@@ -111,25 +113,24 @@ void WholeBodyKinematics::computeWholeBodyFK(Eigen::VectorXd& op_pos,
 		std::string effector_name = effector_iter->first;
 		if (effector_id_.count(effector_name) > 0) {
 			unsigned int effector_id = effector_id_.find(effector_name)->second;
-			int init_ang_col = effector_counter * ang_vars;
-			int init_lin_col = effector_counter * lin_vars;
+			int init_col = effector_counter * (ang_vars + lin_vars);
 
 			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
 
 			Eigen::Matrix3d rotation_mtx;
 			switch (component) {
 			case rbd::Linear:
-				op_pos.segment(init_lin_col, lin_vars) =
+				op_pos.segment(init_col, lin_vars) =
 						CalcBodyToBaseCoordinates(robot_model_, q, effector_id, Eigen::Vector3d::Zero(), true);
 				break;
 			case rbd::Angular:
 				rotation_mtx = RigidBodyDynamics::CalcBodyWorldOrientation(robot_model_, q, effector_id, false);
 				switch (type) {
 					case RollPitchYaw:
-						op_pos.segment(init_ang_col, ang_vars) = math::getRPY(rotation_mtx);
+						op_pos.segment(init_col, ang_vars) = math::getRPY(rotation_mtx);
 						break;
 					case Quaternion:
-						op_pos.segment(init_ang_col, ang_vars) = math::getQuaternion(rotation_mtx).vec();
+						op_pos.segment(init_col, ang_vars) = math::getQuaternion(rotation_mtx).coeffs();
 						break;
 					case RotationMatrix:
 						break;
@@ -139,20 +140,22 @@ void WholeBodyKinematics::computeWholeBodyFK(Eigen::VectorXd& op_pos,
 				rotation_mtx = RigidBodyDynamics::CalcBodyWorldOrientation(robot_model_, q, effector_id, false);
 				switch (type) {
 					case RollPitchYaw:
-						op_pos.segment(init_ang_col, ang_vars) = math::getRPY(rotation_mtx);
+						op_pos.segment(init_col, ang_vars) = math::getRPY(rotation_mtx);
 						break;
 					case Quaternion:
-						op_pos.segment(init_ang_col, ang_vars) = math::getQuaternion(rotation_mtx).vec();
+						op_pos.segment(init_col, ang_vars) = math::getQuaternion(rotation_mtx).coeffs();
 						break;
 					case RotationMatrix:
 						break;
 				}
 
 				// Computing the linear component
-				op_pos.segment(init_ang_col + init_lin_col + ang_vars, lin_vars) =
+				op_pos.segment(init_col + ang_vars, lin_vars) =
 						CalcBodyToBaseCoordinates(robot_model_, q, effector_id, Eigen::Vector3d::Zero(), true);
 				break;
 			}
+
+			++effector_counter;
 		}
 	}
 }
@@ -267,7 +270,7 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
 
 			Eigen::MatrixXd jac(Eigen::MatrixXd::Zero(6, robot_model_.dof_count));
-			computePointJacobian(q, effector_id, Eigen::VectorXd::Zero(robot_model_.dof_count), jac, true);
+			rbd::computePointJacobian(robot_model_, q, effector_id, Eigen::VectorXd::Zero(robot_model_.dof_count), jac, true);
 
 			switch(component) {
 			case rbd::Linear:
@@ -366,15 +369,15 @@ void WholeBodyKinematics::computeWholeBodyVelocity(Eigen::VectorXd& op_vel,
 			switch (component) {
 			case rbd::Linear:
 				op_vel.segment(init_col, num_vars) =
-						computePointVelocity(q, q_dot, effector_id, Eigen::Vector3d::Zero(), true).tail(3);
+						rbd::computePointVelocity(robot_model_, q, q_dot, effector_id, Eigen::Vector3d::Zero(), true).tail(3);
 				break;
 			case rbd::Angular:
 				op_vel.segment(init_col, num_vars) =
-						computePointVelocity(q, q_dot, effector_id, Eigen::Vector3d::Zero(), true).head(3);
+						rbd::computePointVelocity(robot_model_, q, q_dot, effector_id, Eigen::Vector3d::Zero(), true).head(3);
 				break;
 			case rbd::Full:
 				op_vel.segment(init_col, num_vars) =
-						computePointVelocity(q, q_dot, effector_id, Eigen::Vector3d::Zero(), true);
+						rbd::computePointVelocity(robot_model_, q, q_dot, effector_id, Eigen::Vector3d::Zero(), true);
 				break;
 			}
 
@@ -448,15 +451,15 @@ void WholeBodyKinematics::computeWholeBodyAcceleration(Eigen::VectorXd& op_acc,
 			switch (component) {
 			case rbd::Linear:
 				op_acc.segment(init_col, num_vars) =
-						computePointAcceleration(q, q_dot, q_ddot, effector_id, Eigen::Vector3d::Zero(), true).tail(3);
+						rbd::computePointAcceleration(robot_model_, q, q_dot, q_ddot, effector_id, Eigen::Vector3d::Zero(), true).tail(3);
 				break;
 			case rbd::Angular:
 				op_acc.segment(init_col, num_vars) =
-						computePointAcceleration(q, q_dot, q_ddot, effector_id, Eigen::Vector3d::Zero(), true).head(3);
+						rbd::computePointAcceleration(robot_model_, q, q_dot, q_ddot, effector_id, Eigen::Vector3d::Zero(), true).head(3);
 				break;
 			case rbd::Full:
 				op_acc.segment(init_col, num_vars) =
-						computePointAcceleration(q, q_dot, q_ddot, effector_id, Eigen::Vector3d::Zero(), true);
+						rbd::computePointAcceleration(robot_model_, q, q_dot, q_ddot, effector_id, Eigen::Vector3d::Zero(), true);
 				break;
 			}
 
@@ -556,143 +559,7 @@ int WholeBodyKinematics::getNumberOfActiveEndEffectors(rbd::EndEffectorSelector 
 
 void WholeBodyKinematics::activeAllEndEffector(rbd::EndEffectorSelector& effector_set)
 {
-	for (rbd::EndEffectorID::iterator effector_iter = effector_id_.begin();
-			effector_iter != effector_id_.end();
-			effector_iter++)
-	{
-		std::string effector_name = effector_iter->first;
-		effector_set[effector_name] = true;
-	}
-
-}
-
-
-void WholeBodyKinematics::computePointJacobian(const Eigen::VectorXd& q,
-		  				     	 	 	 	 	 	 unsigned int body_id,
-		  				     	 	 	 	 	 	 const Eigen::Vector3d& point_position,
-		  				     	 	 	 	 	 	 Eigen::MatrixXd& jacobian,
-		  				     	 	 	 	 	 	 bool update_kinematics)
-{
-	using namespace RigidBodyDynamics;
-	using namespace RigidBodyDynamics::Math;
-	LOG << "-------- " << __func__ << " --------" << std::endl;
-
-	// update the Kinematics if necessary
-	if (update_kinematics) {
-		UpdateKinematicsCustom(robot_model_, &q, NULL, NULL);
-	}
-
-	SpatialTransform point_trans = SpatialTransform (Matrix3d::Identity(), CalcBodyToBaseCoordinates(robot_model_, q, body_id, point_position, false));
-
-	assert (G.rows() == 6 && G.cols() == robot_model_.qdot_size );
-
-	unsigned int reference_body_id = body_id;
-
-	if (robot_model_.IsFixedBodyId(body_id)) {
-		unsigned int fbody_id = body_id - robot_model_.fixed_body_discriminator;
-		reference_body_id = robot_model_.mFixedBodies[fbody_id].mMovableParent;
-	}
-
-	unsigned int j = reference_body_id;
-
-	// e[j] is set to 1 if joint j contributes to the jacobian that we are
-	// computing. For all other joints the column will be zero.
-	while (j != 0) {
-		unsigned int q_index = robot_model_.mJoints[j].q_index;
-
-		if (robot_model_.mJoints[j].mDoFCount == 3) {
-			jacobian.block(0, q_index, 6, 3) = ((point_trans * robot_model_.X_base[j].inverse()).toMatrix() * robot_model_.multdof3_S[j]);
-		} else {
-			jacobian.block(0,q_index, 6, 1) = point_trans.apply(robot_model_.X_base[j].inverse().apply(robot_model_.S[j]));
-		}
-
-		j = robot_model_.lambda[j];
-	}
-}
-
-
-rbd::Vector6d WholeBodyKinematics::computePointVelocity(const Eigen::VectorXd& q,
-															  const Eigen::VectorXd& q_dot,
-															  unsigned int body_id,
-															  const Eigen::Vector3d point_position,
-															  bool update_kinematics)
-{
-	using namespace RigidBodyDynamics;
-	using namespace RigidBodyDynamics::Math;
-
-	LOG << "-------- " << __func__ << " --------" << std::endl;
-	assert (robot_model_.IsBodyId(body_id));
-	assert (robot_model_.q_size == q.size());
-	assert (robot_model_.qdot_size == q_dot.size());
-
-	// Reset the velocity of the root body
-	robot_model_.v[0].setZero();
-
-	// update the Kinematics with zero acceleration
-	if (update_kinematics) {
-		UpdateKinematicsCustom(robot_model_, &q, &q_dot, NULL);
-	}
-
-	unsigned int reference_body_id = body_id;
-	Vector3d reference_point = point_position;
-
-	if (robot_model_.IsFixedBodyId(body_id)) {
-		unsigned int fbody_id = body_id - robot_model_.fixed_body_discriminator;
-		reference_body_id = robot_model_.mFixedBodies[fbody_id].mMovableParent;
-		Vector3d base_coords = CalcBodyToBaseCoordinates(robot_model_, q, body_id, point_position, false);
-		reference_point = CalcBaseToBodyCoordinates(robot_model_, q, reference_body_id, base_coords, false);
-	}
-
-	SpatialVector point_spatial_velocity =
-			SpatialTransform(CalcBodyWorldOrientation(robot_model_, q, reference_body_id, false).transpose(),
-					reference_point).apply(robot_model_.v[reference_body_id]);
-
-	return point_spatial_velocity;
-}
-
-
-rbd::Vector6d WholeBodyKinematics::computePointAcceleration(const Eigen::VectorXd& q,
-																  const Eigen::VectorXd& q_dot,
-																  const Eigen::VectorXd& q_ddot,
-																  unsigned int body_id,
-																  const Eigen::Vector3d point_position,
-																  bool update_kinematics)
-{
-	using namespace RigidBodyDynamics;
-	using namespace RigidBodyDynamics::Math;
-
-	LOG << "-------- " << __func__ << " --------" << std::endl;
-
-	// Reset the velocity of the root body
-	robot_model_.v[0].setZero();
-	robot_model_.a[0].setZero();
-
-	if (update_kinematics)
-		UpdateKinematics(robot_model_, q, q_dot, q_ddot);
-
-	LOG << std::endl;
-
-	unsigned int reference_body_id = body_id;
-	Vector3d reference_point = point_position;
-
-	if (robot_model_.IsFixedBodyId(body_id)) {
-		unsigned int fbody_id = body_id - robot_model_.fixed_body_discriminator;
-		reference_body_id = robot_model_.mFixedBodies[fbody_id].mMovableParent;
-		Vector3d base_coords = CalcBodyToBaseCoordinates(robot_model_, q, body_id, point_position, false);
-		reference_point = CalcBaseToBodyCoordinates(robot_model_, q, reference_body_id, base_coords, false);
-	}
-
-	SpatialTransform p_X_i (CalcBodyWorldOrientation(robot_model_, q, reference_body_id, false).transpose(), reference_point);
-
-	SpatialVector p_v_i = p_X_i.apply(robot_model_.v[reference_body_id]);
-	Vector3d a_dash = Vector3d (p_v_i[0], p_v_i[1], p_v_i[2]).cross(Vector3d (p_v_i[3], p_v_i[4], p_v_i[5]));
-	SpatialVector p_a_i = p_X_i.apply(robot_model_.a[reference_body_id]);
-
-	rbd::Vector6d point_spatial_acceleration;
-	point_spatial_acceleration << p_a_i[0], p_a_i[1], p_a_i[2],
-								  p_a_i[3] + a_dash[0], p_a_i[4] + a_dash[1], p_a_i[5] + a_dash[2];
-
-	return point_spatial_acceleration;
+	effector_set = full_effector_set_;
 }
 
 } //@namespace model
