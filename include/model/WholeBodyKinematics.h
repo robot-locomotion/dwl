@@ -24,7 +24,7 @@ class WholeBodyKinematics
 		WholeBodyKinematics();
 
 		/** @brief Destructor function */
-		virtual ~WholeBodyKinematics();
+		~WholeBodyKinematics();
 
 		/**
 		 * @brief Build the model rigid-body system from an URDF file
