@@ -30,7 +30,7 @@ void RobCoGenWholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 			effector_iter++)
 	{
 		std::string effector_name = effector_iter->first;
-		effector_set[effector_name] = true;
+		effector_set.push_back(effector_name);
 	}
 
 	computeEffectorFK(op_pos, joint_pos, effector_set, component);
@@ -51,7 +51,7 @@ void RobCoGenWholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
+		std::string effector_name = *effector_iter;
 		if (effector_id_.count(effector_name) > 0) {
 			++num_effector_set;
 		} else
@@ -75,7 +75,7 @@ void RobCoGenWholeBodyKinematics::computeEffectorFK(Eigen::VectorXd& op_pos,
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
+		std::string effector_name = *effector_iter;
 		if (effector_id_.count(effector_name) > 0) {
 			Eigen::Matrix4d homogeneous_tf = homogeneous_tf_.find(effector_name)->second;
 
@@ -109,7 +109,7 @@ void RobCoGenWholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jaco
 			effector_iter++)
 	{
 		std::string effector_name = effector_iter->first;
-		effector_set[effector_name] = true;
+		effector_set.push_back(effector_name);
 	}
 
 	computeWholeBodyJacobian(jacobian, base_pos, joint_pos, effector_set, component);
@@ -144,7 +144,7 @@ void RobCoGenWholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jaco
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
+		std::string effector_name = *effector_iter;
 		if (effector_id_.count(effector_name) > 0)
 			++num_effector_set;
 	}
@@ -172,7 +172,7 @@ void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacob
 			effector_iter++)
 	{
 		std::string effector_name = effector_iter->first;
-		effector_set[effector_name] = true;
+		effector_set.push_back(effector_name);
 	}
 
 	computeFreeBaseJacobian(jacobian, base_pos, joint_pos, effector_set, component);
@@ -210,7 +210,7 @@ void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacob
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
+		std::string effector_name = *effector_iter;
 		if (effector_id_.count(effector_name) > 0)
 			++num_effector_set;
 		else
@@ -229,7 +229,7 @@ void RobCoGenWholeBodyKinematics::computeFreeBaseJacobian(Eigen::MatrixXd& jacob
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
+		std::string effector_name = *effector_iter;
 		if (effector_id_.count(effector_name) > 0) {
 			int init_row = effector_counter * num_vars;
 			Eigen::Vector3d foot_pos = effector_positions.segment(effector_counter * 3, 3);
@@ -266,7 +266,7 @@ void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jaco
 			effector_iter++)
 	{
 		std::string effector_name = effector_iter->first;
-		effector_set[effector_name] = true;
+		effector_set.push_back(effector_name);
 	}
 
 	computeFixedBaseJacobian(jacobian, joint_pos, effector_set, component);
@@ -303,7 +303,7 @@ void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jaco
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
+		std::string effector_name = *effector_iter;
 		if (effector_id_.count(effector_name) > 0)
 			++num_effector_set;
 		else
@@ -318,7 +318,7 @@ void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jaco
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
+		std::string effector_name = *effector_iter;
 		int effector_id = effector_id_.find(effector_name)->second;
 		if (effector_id_.count(effector_name) > 0) {
 			Eigen::MatrixXd jac = jacobians_.find(effector_name)->second;
@@ -360,7 +360,7 @@ void RobCoGenWholeBodyKinematics::opVelocityFromJointSpace(Eigen::VectorXd& op_v
 			effector_iter++)
 	{
 		std::string effector_name = effector_iter->first;
-		effector_set[effector_name] = true;
+		effector_set.push_back(effector_name);
 	}
 
 	opVelocityFromJointSpace(op_vel, base_pos, joint_pos, base_vel, joint_vel, effector_set, component);
@@ -400,7 +400,7 @@ void RobCoGenWholeBodyKinematics::opAccelerationContributionFromJointAcceleratio
 			effector_iter++)
 	{
 		std::string effector_name = effector_iter->first;
-		effector_set[effector_name] = true;
+		effector_set.push_back(effector_name);
 	}
 
 	opAccelerationContributionFromJointAcceleration(jac_qdd, base_pos, joint_pos, base_acc, joint_acc,

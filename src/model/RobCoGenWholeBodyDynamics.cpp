@@ -44,7 +44,7 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 			effector_iter++)
 	{
 		std::string effector_name = effector_iter->first;
-		effector_set[effector_name] = true;
+		effector_set.push_back(effector_name);
 	}
 
 	opAccelerationContributionFromJointVelocity(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, effector_set, component);
@@ -68,7 +68,7 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
+		std::string effector_name = *effector_iter;
 		if (kin_model_->getEndEffectorList().count(effector_name) > 0)
 			++num_effector_set;
 	}
@@ -89,7 +89,7 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 			effector_iter++)
 	{
 		int effector_counter = 0;
-		std::string effector_name = effector_iter->first;
+		std::string effector_name = *effector_iter;
 		if (kin_model_->getEndEffectorList().count(effector_name) > 0) {
 			effector_vel = closest_link_motion_tf_.find(effector_name)->second *
 					closest_link_velocity_.find(effector_name)->second;

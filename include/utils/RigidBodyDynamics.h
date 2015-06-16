@@ -15,7 +15,7 @@ enum Component {Linear, Angular, Full};
 
 typedef Eigen::Matrix<double,6,1> Vector6d;
 typedef Eigen::Block<Vector6d,3,1> Part3d;///< a 3D subvector of a 6D vector
-typedef std::map<std::string,bool> EndEffectorSelector;
+typedef std::vector<std::string> EndEffectorSelector;
 typedef std::map<std::string,unsigned int> EndEffectorID;
 typedef std::map<std::string,Eigen::Vector3d> EndEffectorPosition;
 typedef std::map<std::string,Vector6d> EndEffectorForce;

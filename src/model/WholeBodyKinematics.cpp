@@ -28,13 +28,15 @@ void WholeBodyKinematics::modelFromURDF(std::string model_file, bool info)
 		unsigned int body_id = it + robot_model_.fixed_body_discriminator;
 		std::string body_name = robot_model_.GetBodyName(body_id);
 
-		effector_id_[body_name.c_str()] = body_id;
-		full_effector_set_[body_name.c_str()] = true;
+		body_id_[body_name] = body_id;
+		full_effector_set_.push_back(body_name);
 	}
 
 	if (info) {
 		std::cout << "Degree of freedom overview:" << std::endl;
 		std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(robot_model_);
+
+		std::cout << "Body origins overview:" << std::endl;
 		std::cout << RigidBodyDynamics::Utils::GetNamedBodyOriginsOverview(robot_model_);
 
 		std::cout << "Model Hierarchy:" << std::endl;
@@ -110,9 +112,9 @@ void WholeBodyKinematics::computeWholeBodyFK(Eigen::VectorXd& op_pos,
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
-		if (effector_id_.count(effector_name) > 0) {
-			unsigned int effector_id = effector_id_.find(effector_name)->second;
+		std::string effector_name = *effector_iter;
+		if (body_id_.count(effector_name) > 0) {
+			unsigned int effector_id = body_id_.find(effector_name)->second;
 			int init_col = effector_counter * (ang_vars + lin_vars);
 
 			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
@@ -196,9 +198,9 @@ void WholeBodyKinematics::computeWholeBodyIK(rbd::Vector6d& base_pos,
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
-		if (effector_id_.count(effector_name) > 0) {
-			body_id.push_back(effector_id_.find(effector_name)->second);
+		std::string effector_name = *effector_iter;
+		if (body_id_.count(effector_name) > 0) {
+			body_id.push_back(body_id_.find(effector_name)->second);
 			body_point.push_back(RigidBodyDynamics::Math::Vector3d::Zero());
 			target_pos.push_back((Eigen::Vector3d) op_pos.find(effector_name)->second);
 
@@ -263,9 +265,9 @@ void WholeBodyKinematics::computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
 	{
 		int init_row = effector_counter * num_vars;
 
-		std::string effector_name = effector_iter->first;
-		if (effector_id_.count(effector_name) > 0) {
-			int effector_id = effector_id_.find(effector_name)->second;
+		std::string effector_name = *effector_iter;
+		if (body_id_.count(effector_name) > 0) {
+			int effector_id = body_id_.find(effector_name)->second;
 
 			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
 
@@ -358,9 +360,9 @@ void WholeBodyKinematics::computeWholeBodyVelocity(Eigen::VectorXd& op_vel,
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
-		if (effector_id_.count(effector_name) > 0) {
-			int effector_id = effector_id_.find(effector_name)->second;
+		std::string effector_name = *effector_iter;
+		if (body_id_.count(effector_name) > 0) {
+			int effector_id = body_id_.find(effector_name)->second;
 			int init_col = effector_counter * num_vars;
 
 			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
@@ -416,7 +418,7 @@ void WholeBodyKinematics::computeWholeBodyAcceleration(Eigen::VectorXd& op_acc,
 								  	  	  	  	  	  	  	  enum rbd::Component component)
 {
 	// Computing the number of active end-effectors
-	int num_effector_set = getNumberOfActiveEndEffectors(effector_set);
+	int num_effector_set = 3;//getNumberOfActiveEndEffectors(effector_set);
 
 	// Resizing the velocity vector
 	int num_vars = 0;
@@ -439,9 +441,9 @@ void WholeBodyKinematics::computeWholeBodyAcceleration(Eigen::VectorXd& op_acc,
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
-		if (effector_id_.count(effector_name) > 0) {
-			int effector_id = effector_id_.find(effector_name)->second;
+		std::string effector_name = *effector_iter;
+		if (body_id_.count(effector_name) > 0) {
+			unsigned int effector_id = body_id_.find(effector_name)->second;
 			int init_col = effector_counter * num_vars;
 
 			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
@@ -495,7 +497,7 @@ void WholeBodyKinematics::computeWholeBodyJdotQdot(Eigen::VectorXd& jacd_qd,
 	Eigen::VectorXd op_vel, op_acc;
 	computeWholeBodyAcceleration(op_acc, base_pos, joint_pos,
 								 base_vel, joint_vel,
-								 rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(robot_model_.dof_count),
+								 rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(robot_model_.dof_count-6),
 								 effector_set, component);
 
 	// Resizing the acceleration contribution vector
@@ -546,8 +548,8 @@ int WholeBodyKinematics::getNumberOfActiveEndEffectors(rbd::EndEffectorSelector 
 			effector_iter != effector_set.end();
 			effector_iter++)
 	{
-		std::string effector_name = effector_iter->first;
-		if (effector_id_.count(effector_name) > 0) {
+		std::string effector_name = *effector_iter;
+		if (body_id_.count(effector_name) > 0) {
 			++num_effector_set;
 		} else
 			printf(YELLOW "WARNING: The %s link is not an end-effector\n" COLOR_RESET, effector_name.c_str());
