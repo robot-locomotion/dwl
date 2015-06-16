@@ -48,8 +48,10 @@ int main(int argc, char **argv)
 	base_pos = dwl::rbd::Vector6d::Zero();
 	base_vel = dwl::rbd::Vector6d::Zero();
 	base_acc = dwl::rbd::Vector6d::Zero();
-	base_acc << 0., 0., 0., 1., 0., 0.;
-	joint_pos << 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.;
+//	base_pos << 0., 0., 0., 0., 0., 0.;
+	base_vel << 0., 0., 0., 0., 0., 0.;
+	base_acc << 0., 0., 0., 0., 0., 0.;
+	joint_pos << 0., 0.75, -1.5, 0., -0.75, 1.5, 0., 0.75, -1.5, 0., -0.75, 1.5;
 	joint_vel << 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
 	joint_acc << 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
 //	joint_vel << 0., 1.;
@@ -187,7 +189,7 @@ int main(int argc, char **argv)
 	contacts.push_back("lf_foot");
 	contacts.push_back("lh_foot");
 	contacts.push_back("rf_foot");
-//	contacts.push_back("rh_foot");
+	contacts.push_back("rh_foot");
 	dyn.computeConstrainedWholeBodyInverseDynamics(joint_forces, base_pos, joint_pos,
 												   base_vel, joint_vel, base_acc, joint_acc, contacts);
 
