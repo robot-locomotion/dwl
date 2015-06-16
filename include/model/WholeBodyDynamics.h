@@ -1,6 +1,7 @@
 #ifndef DWL_WholeBodyDynamics_H
 #define DWL_WholeBodyDynamics_H
 
+#include <model/WholeBodyKinematics.h>
 #include <rbdl/rbdl.h>
 #include <rbdl/addons/urdfreader/urdfreader.h>
 #include <utils/RigidBodyDynamics.h>
@@ -128,6 +129,9 @@ class WholeBodyDynamics
 
 		/* @brief Body ids */
 		rbd::EndEffectorID body_id_;
+
+		/** @brief Kinematic model */
+		WholeBodyKinematics kinematics_;
 };
 
 } //@namespace model

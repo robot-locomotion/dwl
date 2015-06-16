@@ -22,6 +22,7 @@ WholeBodyDynamics::~WholeBodyDynamics()
 void WholeBodyDynamics::modelFromURDF(std::string model_file, bool info)
 {
 	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
+	kinematics_.modelFromURDF(model_file, false);
 
 	if (info) {
 		std::cout << "Degree of freedom overview:" << std::endl;
@@ -102,9 +103,47 @@ void WholeBodyDynamics::computeConstrainedWholeBodyInverseDynamics(Eigen::Vector
 																			const Eigen::VectorXd& joint_vel,
 																			const rbd::Vector6d& base_acc,
 																			const Eigen::VectorXd& joint_acc,
-																			const rbd::EndEffectorSelector& contacts)
+																			const rbd::EndEffectorSelector& contacts) //TODO finish it
 {
+	// Computing the stance jacobians
+	Eigen::MatrixXd full_jacobian, jacobian;
+	kinematics_.computeWholeBodyJacobian(full_jacobian, base_pos, joint_pos, contacts, dwl::rbd::Full);
+	kinematics_.getFixedBaseJacobian(jacobian, full_jacobian);
+	std::cout << jacobian << " = jac" << std::endl;
 
+
+	// Computing the feasible accelerations
+//	Eigen::VectorXd op_acc;
+//	kinematics_.computeWholeBodyAcceleration(op_acc, base_pos, joint_pos, base_vel, joint_vel,
+//											 base_acc, joint_acc, contacts, dwl::rbd::Full);
+//	Eigen::VectorXd jacd_qd;
+//	kinematics_.computeWholeBodyJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, contacts, dwl::rbd::Full);
+//	std::cout << jacd_qd << " = jacd_qd" << std::endl;
+//
+//	rbd::Vector6d base_feas_acc = base_acc;
+//	Eigen::VectorXd joint_feas_acc = math::pseudoInverse(jacobian) * (op_acc - jacd_qd);
+//	std::cout << base_feas_acc << " = base_feas_acc" << std::endl;
+//	std::cout << joint_feas_acc << " = joint_feas_acc" << std::endl;
+
+	rbd::Vector6d base_feas_acc = base_acc;
+	Eigen::VectorXd joint_feas_acc = joint_acc;
+
+	// Computing the base wrench assuming a fully actuation on the floating-base
+	rbd::Vector6d base_wrench;
+	computeWholeBodyInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
+									base_vel, joint_vel, base_feas_acc, joint_feas_acc);
+	std::cout << base_wrench << " = base_wrench" << std::endl;
+
+	// Computing the contact forces that generates the desired base wrench
+	Eigen::MatrixXd base_contact_jac;// = full_jacobian.topRows(6);
+	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jacobian);
+	std::cout << base_contact_jac << " = base_contact_jac" << std::endl;
+	std::cout << math::pseudoInverse(base_contact_jac) << " = pseudoinv(base_contact_jac)" << std::endl;
+
+	Eigen::VectorXd contact_forces = math::pseudoInverse(base_contact_jac) * base_wrench;
+	std::cout << contact_forces << " = contact_forces" << std::endl;
+
+	// Computing the inverse dynamic algorithm
 }
 
 
@@ -113,37 +152,35 @@ void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynami
 													 const Eigen::VectorXd& q)
 {
 	// Computing the applied external spatial forces for every body
-	if (ext_force.size() > 0) {
-		fext.resize(robot_model_.mBodies.size());
-		// Searching over the movable bodies
-		for (unsigned int body_id = 0; body_id < robot_model_.mBodies.size(); body_id++) {
-			std::string body_name = robot_model_.GetBodyName(body_id);
+	fext.resize(robot_model_.mBodies.size());
+	// Searching over the movable bodies
+	for (unsigned int body_id = 0; body_id < robot_model_.mBodies.size(); body_id++) {
+		std::string body_name = robot_model_.GetBodyName(body_id);
 
-			if (ext_force.count(body_name) > 0) {
-				// Converting the applied force to spatial force vector in base coordinates
-				rbd::Vector6d force = ext_force.at(body_name);
-				Eigen::Vector3d force_point =
-						CalcBodyToBaseCoordinates(robot_model_, q, body_id, Eigen::Vector3d::Zero(), true);
-				rbd::Vector6d spatial_force = rbd::convertForceToSpatialForce(force, force_point);
-				fext.at(body_id) = spatial_force;
-			} else
-				fext.at(body_id) = rbd::Vector6d::Zero();
-		}
+		if (ext_force.count(body_name) > 0) {
+			// Converting the applied force to spatial force vector in base coordinates
+			rbd::Vector6d force = ext_force.at(body_name);
+			Eigen::Vector3d force_point =
+					CalcBodyToBaseCoordinates(robot_model_, q, body_id, Eigen::Vector3d::Zero(), true);
+			rbd::Vector6d spatial_force = rbd::convertForceToSpatialForce(force, force_point);
+			fext.at(body_id) = spatial_force;
+		} else
+			fext.at(body_id) = rbd::Vector6d::Zero();
+	}
 
-		// Searching over the fixed bodies
-		for (unsigned int it = 0; it < robot_model_.mFixedBodies.size(); it++) {
-			unsigned int body_id = it + robot_model_.fixed_body_discriminator;
-			std::string body_name = robot_model_.GetBodyName(body_id);
-			if (ext_force.count(body_name) > 0) {
-				// Converting the applied force to spatial force vector in base coordinates
-				rbd::Vector6d force = ext_force.at(body_name);
-				Eigen::Vector3d force_point =
-						CalcBodyToBaseCoordinates(robot_model_, q, body_id, Eigen::Vector3d::Zero(), true);
-				rbd::Vector6d spatial_force = rbd::convertForceToSpatialForce(force, force_point);
+	// Searching over the fixed bodies
+	for (unsigned int it = 0; it < robot_model_.mFixedBodies.size(); it++) {
+		unsigned int body_id = it + robot_model_.fixed_body_discriminator;
+		std::string body_name = robot_model_.GetBodyName(body_id);
+		if (ext_force.count(body_name) > 0) {
+			// Converting the applied force to spatial force vector in base coordinates
+			rbd::Vector6d force = ext_force.at(body_name);
+			Eigen::Vector3d force_point =
+					CalcBodyToBaseCoordinates(robot_model_, q, body_id, Eigen::Vector3d::Zero(), true);
+			rbd::Vector6d spatial_force = rbd::convertForceToSpatialForce(force, force_point);
 
-				unsigned parent_id = robot_model_.mFixedBodies[it].mMovableParent;
-				fext.at(parent_id) += spatial_force;
-			}
+			unsigned parent_id = robot_model_.mFixedBodies[it].mMovableParent;
+			fext.at(parent_id) += spatial_force;
 		}
 	}
 }
