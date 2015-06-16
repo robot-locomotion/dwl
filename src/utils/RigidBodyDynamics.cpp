@@ -64,30 +64,6 @@ void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
 }
 
 
-Vector6d convertVelocityToSpatialVelocity(Vector6d& velocity,
-											  const Eigen::Vector3d& point)
-{
-	rbd::Vector6d spatial_velocity;
-	spatial_velocity.segment(rbd::AX,3) = angularPart(velocity);
-	spatial_velocity.segment(rbd::LX,3) = linearPart(velocity) +
-	math::skewSymmentricMatrixFrom3DVector(point) * angularPart(velocity);
-
-	return spatial_velocity;
-}
-
-
-Vector6d convertForceToSpatialForce(Vector6d& force,
-									   const Eigen::Vector3d& point)
-{
-	rbd::Vector6d spatial_force;
-	spatial_force.segment(rbd::AX,3) = angularPart(force) +
-			math::skewSymmentricMatrixFrom3DVector(point) * linearPart(force);
-	spatial_force.segment(rbd::LX,3) = linearPart(force);
-
-	return spatial_force;
-}
-
-
 void computePointJacobian(RigidBodyDynamics::Model& model,
 						  const RigidBodyDynamics::Math::VectorNd &Q,
 						  unsigned int body_id,
