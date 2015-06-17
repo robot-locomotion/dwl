@@ -34,7 +34,7 @@ inline double timer_stop (TimerInfo *timer) {
 int main(int argc, char **argv)
 {
 	dwl::model::WholeBodyKinematics kin;
-	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyq2max_fb.urdf";
+	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl_fb.urdf";
 	kin.modelFromURDF(model_file, true);
 	dwl::model::WholeBodyDynamics dyn;
 	dyn.modelFromURDF(model_file);
@@ -44,16 +44,16 @@ int main(int argc, char **argv)
 	dyn_ptr->setKinematicModel(kin_ptr);
 
 	iit::rbd::Vector6D base_wrench, base_pos, base_vel, base_acc, g;
-	Eigen::VectorXd joint_forces(12), joint_pos(12), joint_vel(12), joint_acc(12);
+	Eigen::VectorXd joint_forces(2), joint_pos(2), joint_vel(2), joint_acc(2);
 	base_pos = dwl::rbd::Vector6d::Zero();
 	base_vel = dwl::rbd::Vector6d::Zero();
 	base_acc = dwl::rbd::Vector6d::Zero();
 //	base_pos << 0., 0., 0., 0., 0., 0.;
 	base_vel << 0., 0., 0., 0., 0., 0.;
 	base_acc << 0., 0., 0., 0., 0., 0.;
-	joint_pos << 0., 0.75, -1.5, 0., -0.75, 1.5, 0., 0.75, -1.5, 0., -0.75, 1.5;
-	joint_vel << 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
-	joint_acc << 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
+	joint_pos << 0.75, -1.5;//, 0., -0.75, 1.5, 0., 0.75, -1.5, 0., -0.75, 1.5;
+	joint_vel << 0., 0.;//, 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
+	joint_acc <<  0., 0.;//, 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
 //	joint_vel << 0., 1.;
 //	joint_acc << 0., 1.;
 //	joint_pos << 0., 0.;//0.504653, -1.45204;
@@ -186,12 +186,20 @@ int main(int argc, char **argv)
 //	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
 
 	dwl::rbd::EndEffectorSelector contacts;
-	contacts.push_back("lf_foot");
-	contacts.push_back("lh_foot");
-	contacts.push_back("rf_foot");
-	contacts.push_back("rh_foot");
+//	contacts.push_back("lf_foot");
+//	contacts.push_back("lh_foot");
+//	contacts.push_back("rf_foot");
+//	contacts.push_back("rh_foot");
+	contacts.push_back("foot");
+	dwl::rbd::FloatingBaseConstraint base_constraint;
+	base_constraint.AX = true;
+	base_constraint.AY = true;
+	base_constraint.AZ = true;
+	base_constraint.LX = true;
+	base_constraint.LY = true;
 	dyn.computeConstrainedWholeBodyInverseDynamics(joint_forces, base_pos, joint_pos,
-												   base_vel, joint_vel, base_acc, joint_acc, contacts);
+												   base_vel, joint_vel, base_acc, joint_acc,
+												   contacts, &base_constraint);
 
     return 0;
 }

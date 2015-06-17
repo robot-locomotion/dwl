@@ -62,7 +62,7 @@ class WholeBodyDynamics
 												  const rbd::EndEffectorForce& ext_force = rbd::EndEffectorForce());
 		/**
 		 * @brief Computes the whole-body inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA) for a
-		 * floating-based robot (RX,RY,RZ,TX,TY,TZ). An applied external force is defined for a certain body, movable
+		 * floating-base robot (RX,RY,RZ,TX,TY,TZ). An applied external force is defined for a certain body, movable
 		 * or fixed body, where a fixed body is considered a fixed point of a movable one. These forces are represented
 		 * as Cartesian forces applied to the body, where the first three elements are the moments and the last three
 		 * elements are the linear forces. In general a point only has linear forces, but with this representation we
@@ -100,6 +100,8 @@ class WholeBodyDynamics
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 * @param const rbd::EndEffectorForce External force applied to a certain body of the robot
+		 * @param struct rbd::FloatingBaseConstraint* Defined only when it's not fully floating-base, i.e. a floating-
+		 * base with physical constraints
 		 */
 		void computeConstrainedWholeBodyInverseDynamics(Eigen::VectorXd& joint_forces,
 															  const rbd::Vector6d& base_pos,
@@ -108,9 +110,8 @@ class WholeBodyDynamics
 															  const Eigen::VectorXd& joint_vel,
 															  const rbd::Vector6d& base_acc,
 															  const Eigen::VectorXd& joint_acc,
-															  const rbd::EndEffectorSelector& contacts);
-
-
+															  const rbd::EndEffectorSelector& contacts,
+															  struct rbd::FloatingBaseConstraint* base_constraint = NULL);
 
 
 	private:

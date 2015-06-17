@@ -20,6 +20,22 @@ typedef std::map<std::string,unsigned int> EndEffectorID;
 typedef std::map<std::string,Eigen::Vector3d> EndEffectorPosition;
 typedef std::map<std::string,Vector6d> EndEffectorForce;
 
+struct FloatingBaseConstraint {
+	FloatingBaseConstraint() : LX(false), LY(false), LZ(false), AX(false), AY(false), AZ(false) {}
+	bool isFullyFree() {
+		if (!LX && !LY && !LZ && !AX && !AY && !AZ)
+			return true;
+		else
+			return false;
+	}
+	bool LX;
+	bool LY;
+	bool LZ;
+	bool AX;
+	bool AY;
+	bool AZ;
+};
+
 /**
  * @brief The 3-coordinate vector with the angular components (angular velocity or torque) of the given
  * 6d vector

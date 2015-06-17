@@ -103,22 +103,10 @@ void WholeBodyDynamics::computeConstrainedWholeBodyInverseDynamics(Eigen::Vector
 																			const Eigen::VectorXd& joint_vel,
 																			const rbd::Vector6d& base_acc,
 																			const Eigen::VectorXd& joint_acc,
-																			const rbd::EndEffectorSelector& contacts) //TODO finish it
+																			const rbd::EndEffectorSelector& contacts,
+																			struct rbd::FloatingBaseConstraint* base_constraint) //TODO finish it
 {
 	// Computing the feasible accelerations
-//	Eigen::VectorXd op_acc;
-//	kinematics_.computeWholeBodyAcceleration(op_acc, base_pos, joint_pos, base_vel, joint_vel,
-//											 base_acc, joint_acc, contacts, dwl::rbd::Full);
-//	Eigen::VectorXd jacd_qd;
-//	kinematics_.computeWholeBodyJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, contacts, dwl::rbd::Full);
-//	std::cout << jacd_qd << " = jacd_qd" << std::endl;
-//
-//	rbd::Vector6d base_feas_acc = base_acc;
-//	Eigen::VectorXd joint_feas_acc = math::pseudoInverse(jacobian) * (op_acc - jacd_qd);
-//	std::cout << base_feas_acc << " = base_feas_acc" << std::endl;
-//	std::cout << joint_feas_acc << " = joint_feas_acc" << std::endl;
-
-
 	rbd::Vector6d base_feas_acc = base_acc;
 	Eigen::VectorXd joint_feas_acc = joint_acc;
 
@@ -134,19 +122,49 @@ void WholeBodyDynamics::computeConstrainedWholeBodyInverseDynamics(Eigen::Vector
 	kinematics_.computeWholeBodyJacobian(full_jacobian, base_pos, joint_pos, contacts, dwl::rbd::Linear);
 	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jacobian);
 
-	// Computing the contact forces that generates the desired base wrench
-	Eigen::VectorXd linear_contact_forces =
-			math::pseudoInverse((Eigen::MatrixXd) base_contact_jac.transpose()) * base_wrench;
+
+	// Computing the contact forces that generates the desired base wrench with possible physical constraints
+	// This approach builds an augmented jacobian matrix as [base contact jacobian; base constraint jacobian]
 	rbd::EndEffectorForce contact_forces;
-	for (unsigned int i = 0; i < contacts.size(); i++)
-		contact_forces[contacts[i]] << 0., 0., 0., linear_contact_forces.segment(3*i, 3);
+	if (base_constraint != NULL && !base_constraint->isFullyFree()) {
+		Eigen::MatrixXd constraint_base_jac = Eigen::MatrixXd::Zero(6,6);
+		constraint_base_jac(0,0) = base_constraint->LX;
+		constraint_base_jac(1,1) = base_constraint->LY;
+		constraint_base_jac(2,2) = base_constraint->LZ;
+		constraint_base_jac(3,3) = base_constraint->AX;
+		constraint_base_jac(4,4) = base_constraint->AY;
+		constraint_base_jac(5,5) = base_constraint->AZ;
+
+		// Computing the augmented jacobian
+		Eigen::MatrixXd augmented_jac = Eigen::MatrixXd::Zero(base_contact_jac.rows() + 6, base_contact_jac.cols());
+		augmented_jac.block(0,0,base_contact_jac.rows(), base_contact_jac.cols()) = base_contact_jac;
+		augmented_jac.block(base_contact_jac.rows(),0,6,6) = constraint_base_jac;
+
+		// Computing the external forces from the augmented forces [contact forces; base constraint forces]
+		Eigen::VectorXd augmented_forces =
+				math::pseudoInverse((Eigen::MatrixXd) augmented_jac.transpose()) * base_wrench;
+		unsigned int num_active_contacts = contacts.size();
+		contact_forces[robot_model_.GetBodyName(6)] << augmented_forces.segment(3 * num_active_contacts + 3, 3),
+				augmented_forces.segment(3 * num_active_contacts, 3);
+		for (unsigned int i = 0; i < num_active_contacts; i++)
+			contact_forces[contacts[i]] << 0., 0., 0., augmented_forces.segment(3*i, 3);
+	} else {
+		// Computing the external forces from contact forces
+		Eigen::VectorXd endeffector_forces =
+				math::pseudoInverse((Eigen::MatrixXd) base_contact_jac.transpose()) * base_wrench;
+		unsigned int num_active_contacts = contacts.size();
+		for (unsigned int i = 0; i < num_active_contacts; i++)
+			contact_forces[contacts[i]] << 0., 0., 0., endeffector_forces.segment(3*i, 3);
+	}
 
 
-	// Computing the inverse dynamic algorithm
+	// Computing the inverse dynamic algorithm with the desired contact forces, and the base constraint forces for
+	// floating-base with physical constraints. This should generate the joint forces with a null base wrench
 	computeWholeBodyInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
 									base_vel, joint_vel, base_feas_acc, joint_feas_acc, contact_forces);
-	std::cout << "base wrench = " << base_wrench.transpose() << std::endl;
 	std::cout << "joint forces = " << joint_forces.transpose() << std::endl;
+	std::cout << "base wrench = " << base_wrench.transpose() << std::endl;
+
 
 //	rbd::Vector6d base_acc2;
 //	joint_forces.setZero();
@@ -170,7 +188,10 @@ void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynami
 
 		if (ext_force.count(body_name) > 0) {
 			// Converting the applied force to spatial force vector in base coordinates
-			rbd::Vector6d spatial_force = robot_model_.X_base[6].toMatrixAdjoint() * ext_force.at(body_name);
+			rbd::Vector6d force = ext_force.at(body_name);
+			Eigen::Vector3d force_point =
+					CalcBodyToBaseCoordinates(robot_model_, q, body_id, Eigen::Vector3d::Zero(), true);
+			rbd::Vector6d spatial_force = rbd::convertPointForceToSpatialForce(force, force_point);
 
 			fext.at(body_id) = spatial_force;
 		} else
@@ -181,9 +202,13 @@ void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynami
 	for (unsigned int it = 0; it < robot_model_.mFixedBodies.size(); it++) {
 		unsigned int body_id = it + robot_model_.fixed_body_discriminator;
 		std::string body_name = robot_model_.GetBodyName(body_id);
+
 		if (ext_force.count(body_name) > 0) {
 			// Converting the applied force to spatial force vector in base coordinates
-			rbd::Vector6d spatial_force = robot_model_.X_base[6].toMatrixAdjoint() * ext_force.at(body_name);
+			rbd::Vector6d force = ext_force.at(body_name);
+			Eigen::Vector3d force_point =
+					CalcBodyToBaseCoordinates(robot_model_, q, body_id, Eigen::Vector3d::Zero(), true);
+			rbd::Vector6d spatial_force = rbd::convertPointForceToSpatialForce(force, force_point);
 
 			unsigned parent_id = robot_model_.mFixedBodies[it].mMovableParent;
 			fext.at(parent_id) += spatial_force;
