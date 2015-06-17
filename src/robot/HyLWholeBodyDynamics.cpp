@@ -39,15 +39,15 @@ void HyLWholeBodyDynamics::updateState(const rbd::Vector6d& base_pos, const Eige
 }
 
 
-void HyLWholeBodyDynamics::computeWholeBodyInverseDynamics(rbd::Vector6d& base_wrench,
-														   	   	   Eigen::VectorXd& joint_forces,
-														   	   	   const rbd::Vector6d& g,
-														   	   	   const rbd::Vector6d& base_pos,
-														   	   	   const Eigen::VectorXd& joint_pos,
-														   	   	   const rbd::Vector6d& base_vel,
-														   	   	   const Eigen::VectorXd& joint_vel,
-														   	   	   const rbd::Vector6d& base_acc,
-														   	   	   const Eigen::VectorXd& joint_acc)
+void HyLWholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
+												  Eigen::VectorXd& joint_forces,
+												  const rbd::Vector6d& g,
+												  const rbd::Vector6d& base_pos,
+												  const Eigen::VectorXd& joint_pos,
+												  const rbd::Vector6d& base_vel,
+												  const Eigen::VectorXd& joint_vel,
+												  const rbd::Vector6d& base_acc,
+												  const Eigen::VectorXd& joint_acc)
 {
 	// HyL model defines the slider as actuated joint, which is the floating-base. Therefore, the floating-base wrench,
 	// velocity and acceleration is converted as joint variables to the ID algorithm
@@ -68,12 +68,12 @@ void HyLWholeBodyDynamics::computeWholeBodyInverseDynamics(rbd::Vector6d& base_w
 }
 
 
-void HyLWholeBodyDynamics::propagateWholeBodyInverseDynamics(const rbd::Vector6d& base_pos,
-											   	   	   	   	 	 	 const Eigen::VectorXd& joint_pos,
-											   	   	   	   	 	 	 const rbd::Vector6d& base_vel,
-											   	   	   	   	 	 	 const Eigen::VectorXd& joint_vel,
-											   	   	   	   	 	 	 const rbd::Vector6d& base_acc,
-											   	   	   	   	 	 	 const Eigen::VectorXd& joint_acc)
+void HyLWholeBodyDynamics::propagateInverseDynamics(const rbd::Vector6d& base_pos,
+													const Eigen::VectorXd& joint_pos,
+													const rbd::Vector6d& base_vel,
+													const Eigen::VectorXd& joint_vel,
+													const rbd::Vector6d& base_acc,
+													const Eigen::VectorXd& joint_acc)
 {
 	// HyL model defines the slider as actuated joint, which is the floating-base. Therefore, the floating-base wrench,
 	// velocity and acceleration is converted as joint variables to the ID algorithm

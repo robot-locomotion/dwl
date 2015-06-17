@@ -28,11 +28,11 @@ void RobCoGenWholeBodyDynamics::setKinematicModel(RobCoGenWholeBodyKinematics* k
 
 
 void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eigen::VectorXd& jacd_qd,
-																					  const rbd::Vector6d& base_pos,
-																					  const Eigen::VectorXd& joint_pos,
-																					  const rbd::Vector6d& base_vel,
-																					  const Eigen::VectorXd& joint_vel,
-																					  enum rbd::Component component)
+																			const rbd::Vector6d& base_pos,
+																			const Eigen::VectorXd& joint_pos,
+																			const rbd::Vector6d& base_vel,
+																			const Eigen::VectorXd& joint_vel,
+																			enum rbd::Component component)
 {
 	if (!initialized_kinematics_)
 		printf(RED "The kinematics model must be initialized " COLOR_RESET);
@@ -52,12 +52,12 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 
 
 void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eigen::VectorXd& jacd_qd,
-																					  const rbd::Vector6d& base_pos,
-																					  const Eigen::VectorXd& joint_pos,
-																					  const rbd::Vector6d& base_vel,
-																					  const Eigen::VectorXd& joint_vel,
-																					  rbd::EndEffectorSelector effector_set,
-																					  enum rbd::Component component) // TODO Compute for other cases (Angular and full)
+																			const rbd::Vector6d& base_pos,
+																			const Eigen::VectorXd& joint_pos,
+																			const rbd::Vector6d& base_vel,
+																			const Eigen::VectorXd& joint_vel,
+																			rbd::EndEffectorSelector effector_set,
+																			enum rbd::Component component) // TODO Compute for other cases (Angular and full)
 {
 	if (!initialized_kinematics_)
 		printf(RED "The kinematics model must be initialized " COLOR_RESET);
@@ -76,8 +76,8 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 	jacd_qd.setZero();
 
 	// Updating the dynamic and kinematic information
-	propagateWholeBodyInverseDynamics(base_pos, joint_pos, base_vel, joint_vel,
-									  rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(joint_pos.size()));
+	propagateInverseDynamics(base_pos, joint_pos, base_vel, joint_vel,
+							 rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(joint_pos.size()));
 	kin_model_->updateState(base_pos, joint_pos);
 	updateState(base_pos, joint_pos);
 

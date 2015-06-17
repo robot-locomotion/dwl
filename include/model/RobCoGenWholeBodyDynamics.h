@@ -52,16 +52,16 @@ class RobCoGenWholeBodyDynamics
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 */
-		virtual void computeWholeBodyInverseDynamics(rbd::Vector6d& base_wrench,
-														   Eigen::VectorXd& joint_forces,
-														   const rbd::Vector6d& g,
-														   const rbd::Vector6d& base_pos,
-														   const Eigen::VectorXd& joint_pos,
-														   const rbd::Vector6d& base_vel,
-														   const Eigen::VectorXd& joint_vel,
-														   const rbd::Vector6d& base_acc,
-														   const Eigen::VectorXd& joint_acc) = 0;
-		//													 const ExtForces& fext = zeroExtForces) = 0;
+		virtual void computeInverseDynamics(rbd::Vector6d& base_wrench,
+											Eigen::VectorXd& joint_forces,
+											const rbd::Vector6d& g,
+											const rbd::Vector6d& base_pos,
+											const Eigen::VectorXd& joint_pos,
+											const rbd::Vector6d& base_vel,
+											const Eigen::VectorXd& joint_vel,
+											const rbd::Vector6d& base_acc,
+											const Eigen::VectorXd& joint_acc) = 0;
+		//									const ExtForces& fext = zeroExtForces) = 0;
 
 		/**
 		 * @brief An abstract method for propagating the states for whole-body inverse dynamics
@@ -72,12 +72,12 @@ class RobCoGenWholeBodyDynamics
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 */
-		virtual void propagateWholeBodyInverseDynamics(const rbd::Vector6d& base_pos,
-													   	   	 const Eigen::VectorXd& joint_pos,
-													   	   	 const rbd::Vector6d& base_vel,
-													   	   	 const Eigen::VectorXd& joint_vel,
-													   	   	 const rbd::Vector6d& base_acc,
-													   	   	 const Eigen::VectorXd& joint_acc) = 0;
+		virtual void propagateInverseDynamics(const rbd::Vector6d& base_pos,
+											  const Eigen::VectorXd& joint_pos,
+											  const rbd::Vector6d& base_vel,
+											  const Eigen::VectorXd& joint_vel,
+											  const rbd::Vector6d& base_acc,
+											  const Eigen::VectorXd& joint_acc) = 0;
 
 		/**
 		 * @brief Computes the operational acceleration contribution from the joint velocity for all
@@ -91,11 +91,11 @@ class RobCoGenWholeBodyDynamics
 		 * angular and full
 		 */
 		virtual void opAccelerationContributionFromJointVelocity(Eigen::VectorXd& jacd_qd,
-																 	 	const rbd::Vector6d& base_pos,
-																 	 	const Eigen::VectorXd& joint_pos,
-																 	 	const rbd::Vector6d& base_vel,
-																 	 	const Eigen::VectorXd& joint_vel,
-																 	 	enum rbd::Component component = rbd::Full);
+																 const rbd::Vector6d& base_pos,
+																 const Eigen::VectorXd& joint_pos,
+																 const rbd::Vector6d& base_vel,
+																 const Eigen::VectorXd& joint_vel,
+																 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the operational acceleration contribution from the joint velocity for a
@@ -110,12 +110,12 @@ class RobCoGenWholeBodyDynamics
 		 * angular and full
 		 */
 		virtual void opAccelerationContributionFromJointVelocity(Eigen::VectorXd& jacd_qd,
-																 	 	const rbd::Vector6d& base_pos,
-																 	 	const Eigen::VectorXd& joint_pos,
-																 	 	const rbd::Vector6d& base_vel,
-																 	 	const Eigen::VectorXd& joint_vel,
-																 	 	rbd::EndEffectorSelector effector_set,
-																 	 	enum rbd::Component component = rbd::Full);
+																 const rbd::Vector6d& base_pos,
+																 const Eigen::VectorXd& joint_pos,
+																 const rbd::Vector6d& base_vel,
+																 const Eigen::VectorXd& joint_vel,
+																 rbd::EndEffectorSelector effector_set,
+																 enum rbd::Component component = rbd::Full);
 
 		typedef std::map<std::string, Eigen::Matrix<double, 6, 6> > EndEffectorSpatialTransform;
 		typedef std::map<std::string, Eigen::Matrix<double, 6, 1> > EndEffectorSpatialVector;

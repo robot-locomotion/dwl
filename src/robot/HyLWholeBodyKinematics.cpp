@@ -56,10 +56,10 @@ void HyLWholeBodyKinematics::updateState(const rbd::Vector6d& base_pos,
 }
 
 
-void HyLWholeBodyKinematics::computeEffectorIK(Eigen::VectorXd& joint_pos,
-											   Eigen::VectorXd& joint_vel,
-					   	   	   	   	   	   	   const Eigen::VectorXd& op_pos,
-											   const Eigen::VectorXd& op_vel)
+void HyLWholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
+													  Eigen::VectorXd& joint_vel,
+													  const Eigen::VectorXd& op_pos,
+													  const Eigen::VectorXd& op_vel)
 {
 
 	Eigen::Vector3d hipassembly2hfe = iit::rbd::Utils::positionVector(hom_tf_.fr_trunk_X_fr_upperleg);

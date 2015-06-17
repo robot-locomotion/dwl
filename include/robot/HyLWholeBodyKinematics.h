@@ -32,10 +32,10 @@ class HyLWholeBodyKinematics : public model::RobCoGenWholeBodyKinematics
 		void updateState(const rbd::Vector6d& base_pos,
 						   const Eigen::VectorXd& joint_pos);
 
-		void computeEffectorIK(Eigen::VectorXd& joint_pos,
-							   Eigen::VectorXd& joint_vel,
-							   const Eigen::VectorXd& op_pos,
-							   const Eigen::VectorXd& op_vel);
+		void computeInverseKinematics(Eigen::VectorXd& joint_pos,
+									  Eigen::VectorXd& joint_vel,
+									  const Eigen::VectorXd& op_pos,
+									  const Eigen::VectorXd& op_vel);
 
 	private:
 		/** @brief Jacobians of HyL */

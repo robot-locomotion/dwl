@@ -41,15 +41,15 @@ class HyLWholeBodyDynamics : public model::RobCoGenWholeBodyDynamics
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 */
-		void computeWholeBodyInverseDynamics(rbd::Vector6d& base_wrench,
-											 	  Eigen::VectorXd& joint_forces,
-											 	  const rbd::Vector6d& g,
-											 	  const rbd::Vector6d& base_pos,
-											 	  const Eigen::VectorXd& joint_pos,
-											 	  const rbd::Vector6d& base_vel,
-											 	  const Eigen::VectorXd& joint_vel,
-											 	  const rbd::Vector6d& base_acc,
-											 	  const Eigen::VectorXd& joint_acc);
+		void computeInverseDynamics(rbd::Vector6d& base_wrench,
+									Eigen::VectorXd& joint_forces,
+									const rbd::Vector6d& g,
+									const rbd::Vector6d& base_pos,
+									const Eigen::VectorXd& joint_pos,
+									const rbd::Vector6d& base_vel,
+									const Eigen::VectorXd& joint_vel,
+									const rbd::Vector6d& base_acc,
+									const Eigen::VectorXd& joint_acc);
 
 		/**
 		 * @brief Propagates the states for whole-body inverse dynamics of HyL
@@ -60,12 +60,12 @@ class HyLWholeBodyDynamics : public model::RobCoGenWholeBodyDynamics
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 */
-		void propagateWholeBodyInverseDynamics(const rbd::Vector6d& base_pos,
-											   	   	const Eigen::VectorXd& joint_pos,
-											   	   	const rbd::Vector6d& base_vel,
-											   	   	const Eigen::VectorXd& joint_vel,
-											   	   	const rbd::Vector6d& base_acc,
-											   	   	const Eigen::VectorXd& joint_acc);
+		void propagateInverseDynamics(const rbd::Vector6d& base_pos,
+									  const Eigen::VectorXd& joint_pos,
+									  const rbd::Vector6d& base_vel,
+									  const Eigen::VectorXd& joint_vel,
+									  const rbd::Vector6d& base_acc,
+									  const Eigen::VectorXd& joint_acc);
 
 	private:
 		/** @brief Inverse Dynamics of HyL */

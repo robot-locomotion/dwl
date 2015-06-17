@@ -51,15 +51,15 @@ class WholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 * @param const rbd::EndEffectorForce External force applied to a certain body of the robot
 		 */
-		void computeWholeBodyInverseDynamics(rbd::Vector6d& base_wrench,
-												  Eigen::VectorXd& joint_forces,
-												  const rbd::Vector6d& base_pos,
-												  const Eigen::VectorXd& joint_pos,
-												  const rbd::Vector6d& base_vel,
-												  const Eigen::VectorXd& joint_vel,
-												  const rbd::Vector6d& base_acc,
-												  const Eigen::VectorXd& joint_acc,
-												  const rbd::EndEffectorForce& ext_force = rbd::EndEffectorForce());
+		void computeInverseDynamics(rbd::Vector6d& base_wrench,
+									Eigen::VectorXd& joint_forces,
+									const rbd::Vector6d& base_pos,
+									const Eigen::VectorXd& joint_pos,
+									const rbd::Vector6d& base_vel,
+									const Eigen::VectorXd& joint_vel,
+									const rbd::Vector6d& base_acc,
+									const Eigen::VectorXd& joint_acc,
+									const rbd::EndEffectorForce& ext_force = rbd::EndEffectorForce());
 		/**
 		 * @brief Computes the whole-body inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA) for a
 		 * floating-base robot (RX,RY,RZ,TX,TY,TZ). An applied external force is defined for a certain body, movable
@@ -76,14 +76,14 @@ class WholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 * @param const rbd::EndEffectorForce External force applied to a certain body of the robot
 		 */
-		void computeWholeBodyInverseDynamics(rbd::Vector6d& base_acc,
-												  Eigen::VectorXd& joint_forces,
-												  const rbd::Vector6d& base_pos,
-												  const Eigen::VectorXd& joint_pos,
-												  const rbd::Vector6d& base_vel,
-												  const Eigen::VectorXd& joint_vel,
-												  const Eigen::VectorXd& joint_acc,
-												  const rbd::EndEffectorForce& ext_force = rbd::EndEffectorForce());
+		void computeFloatingBaseInverseDynamics(rbd::Vector6d& base_acc,
+												Eigen::VectorXd& joint_forces,
+												const rbd::Vector6d& base_pos,
+												const Eigen::VectorXd& joint_pos,
+												const rbd::Vector6d& base_vel,
+												const Eigen::VectorXd& joint_vel,
+												const Eigen::VectorXd& joint_acc,
+												const rbd::EndEffectorForce& ext_force = rbd::EndEffectorForce());
 
 		/**
 		 * @brief Computes the constrained whole-body inverse dynamics using the Recursive Newton-Euler
@@ -103,15 +103,15 @@ class WholeBodyDynamics
 		 * @param struct rbd::FloatingBaseConstraint* Defined only when it's not fully floating-base, i.e. a floating-
 		 * base with physical constraints
 		 */
-		void computeConstrainedWholeBodyInverseDynamics(Eigen::VectorXd& joint_forces,
-															  const rbd::Vector6d& base_pos,
-															  const Eigen::VectorXd& joint_pos,
-															  const rbd::Vector6d& base_vel,
-															  const Eigen::VectorXd& joint_vel,
-															  const rbd::Vector6d& base_acc,
-															  const Eigen::VectorXd& joint_acc,
-															  const rbd::EndEffectorSelector& contacts,
-															  struct rbd::FloatingBaseConstraint* base_constraint = NULL);
+		void computeConstrainedFloatingBaseInverseDynamics(Eigen::VectorXd& joint_forces,
+														   const rbd::Vector6d& base_pos,
+														   const Eigen::VectorXd& joint_pos,
+														   const rbd::Vector6d& base_vel,
+														   const Eigen::VectorXd& joint_vel,
+														   const rbd::Vector6d& base_acc,
+														   const Eigen::VectorXd& joint_acc,
+														   const rbd::EndEffectorSelector& contacts,
+														   struct rbd::FloatingBaseConstraint* base_constraint = NULL);
 
 
 	private:

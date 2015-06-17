@@ -35,15 +35,15 @@ void WholeBodyDynamics::modelFromURDF(std::string model_file, bool info)
 }
 
 
-void WholeBodyDynamics::computeWholeBodyInverseDynamics(rbd::Vector6d& base_wrench,
-															   Eigen::VectorXd& joint_forces,
-															   const rbd::Vector6d& base_pos,
-															   const Eigen::VectorXd& joint_pos,
-															   const rbd::Vector6d& base_vel,
-															   const Eigen::VectorXd& joint_vel,
-															   const rbd::Vector6d& base_acc,
-															   const Eigen::VectorXd& joint_acc,
-															   const rbd::EndEffectorForce& ext_force)
+void WholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
+											   Eigen::VectorXd& joint_forces,
+											   const rbd::Vector6d& base_pos,
+											   const Eigen::VectorXd& joint_pos,
+											   const rbd::Vector6d& base_vel,
+											   const Eigen::VectorXd& joint_vel,
+											   const rbd::Vector6d& base_acc,
+											   const Eigen::VectorXd& joint_acc,
+											   const rbd::EndEffectorForce& ext_force)
 {
 	// Converting base and joint states to generalized joint states
 	Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
@@ -64,14 +64,14 @@ void WholeBodyDynamics::computeWholeBodyInverseDynamics(rbd::Vector6d& base_wren
 
 
 
-void WholeBodyDynamics::computeWholeBodyInverseDynamics(rbd::Vector6d& base_acc,
-															   Eigen::VectorXd& joint_forces,
-															   const rbd::Vector6d& base_pos,
-															   const Eigen::VectorXd& joint_pos,
-															   const rbd::Vector6d& base_vel,
-															   const Eigen::VectorXd& joint_vel,
-															   const Eigen::VectorXd& joint_acc,
-															   const rbd::EndEffectorForce& ext_force)
+void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_acc,
+														   Eigen::VectorXd& joint_forces,
+														   const rbd::Vector6d& base_pos,
+														   const Eigen::VectorXd& joint_pos,
+														   const rbd::Vector6d& base_vel,
+														   const Eigen::VectorXd& joint_vel,
+														   const Eigen::VectorXd& joint_acc,
+														   const rbd::EndEffectorForce& ext_force)
 {
 	// Converting base and joint states to generalized joint states
 	Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
@@ -96,30 +96,29 @@ void WholeBodyDynamics::computeWholeBodyInverseDynamics(rbd::Vector6d& base_acc,
 }
 
 
-void WholeBodyDynamics::computeConstrainedWholeBodyInverseDynamics(Eigen::VectorXd& joint_forces,
-																			const rbd::Vector6d& base_pos,
-																			const Eigen::VectorXd& joint_pos,
-																			const rbd::Vector6d& base_vel,
-																			const Eigen::VectorXd& joint_vel,
-																			const rbd::Vector6d& base_acc,
-																			const Eigen::VectorXd& joint_acc,
-																			const rbd::EndEffectorSelector& contacts,
-																			struct rbd::FloatingBaseConstraint* base_constraint) //TODO finish it
+void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::VectorXd& joint_forces,
+																	  const rbd::Vector6d& base_pos,
+																	  const Eigen::VectorXd& joint_pos,
+																	  const rbd::Vector6d& base_vel,
+																	  const Eigen::VectorXd& joint_vel,
+																	  const rbd::Vector6d& base_acc,
+																	  const Eigen::VectorXd& joint_acc,
+																	  const rbd::EndEffectorSelector& contacts,
+																	  struct rbd::FloatingBaseConstraint* base_constraint)
 {
-	// Computing the feasible accelerations
+	// Computing the feasible accelerations //TODO figure out about this topic
 	rbd::Vector6d base_feas_acc = base_acc;
 	Eigen::VectorXd joint_feas_acc = joint_acc;
 
 
-
 	// Computing the base wrench assuming a fully actuation on the floating-base
 	rbd::Vector6d base_wrench;
-	computeWholeBodyInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
-									base_vel, joint_vel, base_feas_acc, joint_feas_acc);
+	computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
+						   base_vel, joint_vel, base_feas_acc, joint_feas_acc);
 
 	// Computing the base contribution of contact jacobian
 	Eigen::MatrixXd base_contact_jac, full_jacobian;
-	kinematics_.computeWholeBodyJacobian(full_jacobian, base_pos, joint_pos, contacts, dwl::rbd::Linear);
+	kinematics_.computeJacobian(full_jacobian, base_pos, joint_pos, contacts, dwl::rbd::Linear);
 	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jacobian);
 
 
@@ -160,8 +159,8 @@ void WholeBodyDynamics::computeConstrainedWholeBodyInverseDynamics(Eigen::Vector
 
 	// Computing the inverse dynamic algorithm with the desired contact forces, and the base constraint forces for
 	// floating-base with physical constraints. This should generate the joint forces with a null base wrench
-	computeWholeBodyInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
-									base_vel, joint_vel, base_feas_acc, joint_feas_acc, contact_forces);
+	computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
+						   base_vel, joint_vel, base_feas_acc, joint_feas_acc, contact_forces);
 	std::cout << "joint forces = " << joint_forces.transpose() << std::endl;
 	std::cout << "base wrench = " << base_wrench.transpose() << std::endl;
 

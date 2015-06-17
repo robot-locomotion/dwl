@@ -42,11 +42,11 @@ class WholeBodyKinematics
 		 * angular and full
 		 * @param enum TypeOfOrientation Desired type of orientation
 		 */
-		void computeWholeBodyFK(Eigen::VectorXd& op_pos,
-								   const rbd::Vector6d& base_pos,
-								   const Eigen::VectorXd& joint_pos,
-								   enum rbd::Component component = rbd::Full,
-								   enum TypeOfOrientation type = RollPitchYaw);
+		void computeForwardKinematics(Eigen::VectorXd& op_pos,
+									  const rbd::Vector6d& base_pos,
+									  const Eigen::VectorXd& joint_pos,
+									  enum rbd::Component component = rbd::Full,
+									  enum TypeOfOrientation type = RollPitchYaw);
 
 		/**
 		 * @brief Computes the forward kinematics for a predefined set of end-effectors
@@ -58,12 +58,12 @@ class WholeBodyKinematics
 		 * angular and full
 		 * @param enum TypeOfOrientation Desired type of orientation
 		 */
-		void computeWholeBodyFK(Eigen::VectorXd& op_pos,
-								   const rbd::Vector6d& base_pos,
-								   const Eigen::VectorXd& joint_pos,
-								   rbd::EndEffectorSelector effector_set,
-								   enum rbd::Component component = rbd::Full,
-								   enum TypeOfOrientation type = RollPitchYaw);
+		void computeForwardKinematics(Eigen::VectorXd& op_pos,
+									  const rbd::Vector6d& base_pos,
+									  const Eigen::VectorXd& joint_pos,
+									  rbd::EndEffectorSelector effector_set,
+									  enum rbd::Component component = rbd::Full,
+									  enum TypeOfOrientation type = RollPitchYaw);
 
 		/**
 		 * @brief Computes the inverse kinematics for all set of end-effectors. This inverse kinematics
@@ -79,14 +79,14 @@ class WholeBodyKinematics
 		 * @param double Lambda value for singularities
 		 * @param unsigned int Maximum number of iterations
 		 */
-		void computeWholeBodyIK(rbd::Vector6d& base_pos,
-								   Eigen::VectorXd& joint_pos,
-								   const rbd::Vector6d& base_pos_init,
-								   const Eigen::VectorXd& joint_pos_init,
-								   rbd::EndEffectorPosition op_pos,
-								   double step_tol = 1.0e-12,
-								   double lambda = 0.01,
-								   unsigned int max_iter = 50);
+		void computeInverseKinematics(rbd::Vector6d& base_pos,
+									  Eigen::VectorXd& joint_pos,
+									  const rbd::Vector6d& base_pos_init,
+									  const Eigen::VectorXd& joint_pos_init,
+									  rbd::EndEffectorPosition op_pos,
+									  double step_tol = 1.0e-12,
+									  double lambda = 0.01,
+									  unsigned int max_iter = 50);
 		/**
 		 * @brief Computes the inverse kinematics for a predefined set of end-effectors. This inverse kinematics
 		 * algorithm uses an operational position which consists of the desired 3d position for the base and
@@ -101,15 +101,15 @@ class WholeBodyKinematics
 		 * @param double Lambda value for singularities
 		 * @param unsigned int Maximum number of iterations
 		 */
-		void computeWholeBodyIK(rbd::Vector6d& base_pos,
-								   Eigen::VectorXd& joint_pos,
-								   const rbd::Vector6d& base_pos_init,
-								   const Eigen::VectorXd& joint_pos_init,
-								   rbd::EndEffectorPosition op_pos,
-								   rbd::EndEffectorSelector effector_set,
-								   double step_tol = 1.0e-12,
-								   double lambda = 0.01,
-								   unsigned int max_iter = 50);
+		void computeInverseKinematics(rbd::Vector6d& base_pos,
+									  Eigen::VectorXd& joint_pos,
+									  const rbd::Vector6d& base_pos_init,
+									  const Eigen::VectorXd& joint_pos_init,
+									  rbd::EndEffectorPosition op_pos,
+									  rbd::EndEffectorSelector effector_set,
+									  double step_tol = 1.0e-12,
+									  double lambda = 0.01,
+									  unsigned int max_iter = 50);
 
 		/**
 		 * @brief Computes the whole-body jacobian for all end-effector of the robot. A whole-body jacobian is
@@ -122,10 +122,10 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
-										  const rbd::Vector6d& base_pos,
-										  const Eigen::VectorXd& joint_pos,
-										  enum rbd::Component component = rbd::Full);
+		void computeJacobian(Eigen::MatrixXd& jacobian,
+							 const rbd::Vector6d& base_pos,
+							 const Eigen::VectorXd& joint_pos,
+							 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the whole-body jacobian for a predefined set of end-effectors. A whole-body jacobian
@@ -139,11 +139,11 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeWholeBodyJacobian(Eigen::MatrixXd& jacobian,
-										  const rbd::Vector6d& base_pos,
-										  const Eigen::VectorXd& joint_pos,
-										  rbd::EndEffectorSelector effector_set,
-										  enum rbd::Component component = rbd::Full);
+		void computeJacobian(Eigen::MatrixXd& jacobian,
+							 const rbd::Vector6d& base_pos,
+							 const Eigen::VectorXd& joint_pos,
+							 rbd::EndEffectorSelector effector_set,
+							 enum rbd::Component component = rbd::Full);
 
 
 		/**
@@ -152,7 +152,7 @@ class WholeBodyKinematics
 		 * @param const Eigen::MatrixXd& Whole-body jacobian
 		 */
 		void getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
-										 const Eigen::MatrixXd& full_jacobian);
+									 const Eigen::MatrixXd& full_jacobian);
 
 
 		/**
@@ -161,7 +161,7 @@ class WholeBodyKinematics
 		 * @param const Eigen::MatrixXd& Whole-body jacobian
 		 */
 		void getFixedBaseJacobian(Eigen::MatrixXd& jacobian,
-									 const Eigen::MatrixXd& full_jacobian);
+								  const Eigen::MatrixXd& full_jacobian);
 
 		/**
 		 * @brief Computes the operational velocity from the joint space for all end-effectors of the
@@ -174,11 +174,11 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeWholeBodyVelocity(Eigen::VectorXd& op_vel,
-										  const rbd::Vector6d& base_pos,
-										  const Eigen::VectorXd& joint_pos,
-										  const rbd::Vector6d& base_vel,
-										  const Eigen::VectorXd& joint_vel,
+		void computeVelocity(Eigen::VectorXd& op_vel,
+							 const rbd::Vector6d& base_pos,
+							 const Eigen::VectorXd& joint_pos,
+							 const rbd::Vector6d& base_vel,
+							 const Eigen::VectorXd& joint_vel,
 										  enum rbd::Component component = rbd::Full);
 		/**
 		 * @brief Computes the operational velocity from the joint space for a predefined set of
@@ -192,13 +192,13 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeWholeBodyVelocity(Eigen::VectorXd& op_vel,
-										  const rbd::Vector6d& base_pos,
-										  const Eigen::VectorXd& joint_pos,
-										  const rbd::Vector6d& base_vel,
-										  const Eigen::VectorXd& joint_vel,
-										  rbd::EndEffectorSelector effector_set,
-										  enum rbd::Component component = rbd::Full);
+		void computeVelocity(Eigen::VectorXd& op_vel,
+							 const rbd::Vector6d& base_pos,
+							 const Eigen::VectorXd& joint_pos,
+							 const rbd::Vector6d& base_vel,
+							 const Eigen::VectorXd& joint_vel,
+							 rbd::EndEffectorSelector effector_set,
+							 enum rbd::Component component = rbd::Full);
 		/**
 		 * @brief Computes the operational acceleration from the joint space for all end-effectors of the
 		 * robot
@@ -212,14 +212,14 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeWholeBodyAcceleration(Eigen::VectorXd& op_acc,
-											  const rbd::Vector6d& base_pos,
-											  const Eigen::VectorXd& joint_pos,
-											  const rbd::Vector6d& base_vel,
-											  const Eigen::VectorXd& joint_vel,
-											  const rbd::Vector6d& base_acc,
-											  const Eigen::VectorXd& joint_acc,
-											  enum rbd::Component component = rbd::Full);
+		void computeAcceleration(Eigen::VectorXd& op_acc,
+								 const rbd::Vector6d& base_pos,
+								 const Eigen::VectorXd& joint_pos,
+								 const rbd::Vector6d& base_vel,
+								 const Eigen::VectorXd& joint_vel,
+								 const rbd::Vector6d& base_acc,
+								 const Eigen::VectorXd& joint_acc,
+								 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the operational acceleration from the joint space for a predefined set of
@@ -235,15 +235,15 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeWholeBodyAcceleration(Eigen::VectorXd& op_acc,
-											  const rbd::Vector6d& base_pos,
-											  const Eigen::VectorXd& joint_pos,
-											  const rbd::Vector6d& base_vel,
-											  const Eigen::VectorXd& joint_vel,
-											  const rbd::Vector6d& base_acc,
-											  const Eigen::VectorXd& joint_acc,
-											  rbd::EndEffectorSelector effector_set,
-											  enum rbd::Component component = rbd::Full);
+		void computeAcceleration(Eigen::VectorXd& op_acc,
+								 const rbd::Vector6d& base_pos,
+								 const Eigen::VectorXd& joint_pos,
+								 const rbd::Vector6d& base_vel,
+								 const Eigen::VectorXd& joint_vel,
+								 const rbd::Vector6d& base_acc,
+								 const Eigen::VectorXd& joint_acc,
+								 rbd::EndEffectorSelector effector_set,
+								 enum rbd::Component component = rbd::Full);
 		/**
 		 * @brief Computes the operational acceleration contribution from the joint velocity for all
 		 * end-effectors of the robot, i.e. Jac_d * q_d
@@ -255,12 +255,12 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeWholeBodyJdotQdot(Eigen::VectorXd& jacd_qd,
-										  const rbd::Vector6d& base_pos,
-										  const Eigen::VectorXd& joint_pos,
-										  const rbd::Vector6d& base_vel,
-										  const Eigen::VectorXd& joint_vel,
-										  enum rbd::Component component = rbd::Full);
+		void computeJdotQdot(Eigen::VectorXd& jacd_qd,
+							 const rbd::Vector6d& base_pos,
+							 const Eigen::VectorXd& joint_pos,
+							 const rbd::Vector6d& base_vel,
+							 const Eigen::VectorXd& joint_vel,
+							 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the operational acceleration contribution from the joint velocity for a
@@ -274,13 +274,13 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeWholeBodyJdotQdot(Eigen::VectorXd& jacd_qd,
-										  const rbd::Vector6d& base_pos,
-										  const Eigen::VectorXd& joint_pos,
-										  const rbd::Vector6d& base_vel,
-										  const Eigen::VectorXd& joint_vel,
-										  rbd::EndEffectorSelector effector_set,
-										  enum rbd::Component component = rbd::Full);
+		void computeJdotQdot(Eigen::VectorXd& jacd_qd,
+							 const rbd::Vector6d& base_pos,
+							 const Eigen::VectorXd& joint_pos,
+							 const rbd::Vector6d& base_vel,
+							 const Eigen::VectorXd& joint_vel,
+							 rbd::EndEffectorSelector effector_set,
+							 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Gets the number of active end-effectors
