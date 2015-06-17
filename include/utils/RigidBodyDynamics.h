@@ -64,6 +64,24 @@ void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
 								   const Eigen::VectorXd& generalized_state);
 
 /**
+ * @brief Converts an applied velocity acting at a certain point to spatial velocity
+ * @param rbd::Vector6d& Velocity
+ * @param const Eigen::Vector3d& Point
+ * @return rbd::Vector6d Spatial velocity
+ */
+Vector6d convertPointVelocityToSpatialVelocity(Vector6d& velocity,
+										  	   const Eigen::Vector3d& point);
+
+/**
+ * @brief Converts an applied force acting at a certain point to spatial force
+ * @param rbd::Vector6d& Force
+ * @param const Eigen::Vector3d& Point
+ * @return rbd::Vector6d Spatial force
+ */
+Vector6d convertPointForceToSpatialForce(Vector6d& force,
+										 const Eigen::Vector3d& point);
+
+/**
  * @brief Computes the Jacobian in certain point of a specific body
  * @param const RigidBodyDynamics::Model& Model of the rigid-body system
  * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint position
