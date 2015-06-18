@@ -21,7 +21,8 @@ typedef std::map<std::string,Eigen::Vector3d> EndEffectorPosition;
 typedef std::map<std::string,Vector6d> EndEffectorForce;
 
 struct FloatingBaseConstraint {
-	FloatingBaseConstraint() : LX(false), LY(false), LZ(false), AX(false), AY(false), AZ(false) {}
+	FloatingBaseConstraint(bool full_constrained = false) : LX(full_constrained), LY(full_constrained),
+			LZ(full_constrained), AX(full_constrained), AY(full_constrained), AZ(full_constrained) {}
 	bool isFullyFree() {
 		if (!LX && !LY && !LZ && !AX && !AY && !AZ)
 			return true;
