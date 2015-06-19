@@ -30,12 +30,14 @@ class WholeBodyDynamics
 		/**
 		 * @brief Build the model rigid-body system from an URDF file
 		 * @param std::string URDF file
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+		 * base with physical constraints
 		 * @param Print model information
 		 */
-		void modelFromURDF(std::string file, bool info = false);
+		void modelFromURDF(std::string file, struct rbd::ReducedFloatingBase* reduce_base = NULL, bool info = false);
 
 		/**
-		 * @brief Computes the whole-body inverse dynamics, asssuming a fully actuated robot, using the
+		 * @brief Computes the whole-body inverse dynamics, assuming a fully actuated robot, using the
 		 * Recursive Newton-Euler Algorithm (RNEA). An applied external force is defined for a certain body, movable or
 		 * fixed body, where a fixed body is considered a fixed point of a movable one. These forces are represented as
 		 * Cartesian forces applied to the body, where the first three elements are the moments and the last three
@@ -100,8 +102,6 @@ class WholeBodyDynamics
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 * @param const rbd::EndEffectorForce External force applied to a certain body of the robot
-		 * @param struct rbd::FloatingBaseConstraint* Defined only when it's not fully floating-base, i.e. a floating-
-		 * base with physical constraints
 		 */
 		void computeConstrainedFloatingBaseInverseDynamics(Eigen::VectorXd& joint_forces,
 														   const rbd::Vector6d& base_pos,
@@ -110,9 +110,15 @@ class WholeBodyDynamics
 														   const Eigen::VectorXd& joint_vel,
 														   const rbd::Vector6d& base_acc,
 														   const Eigen::VectorXd& joint_acc,
-														   const rbd::EndEffectorSelector& contacts,
-														   struct rbd::FloatingBaseConstraint* base_constraint = NULL);
-
+														   const rbd::EndEffectorSelector& contacts);
+		void computeConstrainedInverseDynamics(Eigen::VectorXd& joint_forces,
+				const rbd::Vector6d& base_pos,
+				const Eigen::VectorXd& joint_pos,
+				const rbd::Vector6d& base_vel,
+				const Eigen::VectorXd& joint_vel,
+				const rbd::Vector6d& base_acc,
+				const Eigen::VectorXd& joint_acc,
+				const rbd::EndEffectorSelector& contacts);
 
 	private:
 		/**
@@ -133,6 +139,8 @@ class WholeBodyDynamics
 
 		/** @brief Kinematic model */
 		WholeBodyKinematics kinematics_;
+
+		rbd::ReducedFloatingBase* reduced_base_;
 };
 
 } //@namespace model

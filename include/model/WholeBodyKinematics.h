@@ -29,9 +29,11 @@ class WholeBodyKinematics
 		/**
 		 * @brief Build the model rigid-body system from an URDF file
 		 * @param std::string URDF file
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+		 * base with physical constraints
 		 * @param Print model information
 		 */
-		void modelFromURDF(std::string file, bool info = false);
+		void modelFromURDF(std::string file, struct rbd::ReducedFloatingBase* reduce_base = NULL, bool info = false);
 
 		/**
 		 * @brief Computes the forward kinematics for all end-effectors of the robot
@@ -150,6 +152,8 @@ class WholeBodyKinematics
 		 * @brief Gets the floating-base contribution of a given whole-body jacobian
 		 * @param Eigen::MatrixXd& Floating-base jacobian
 		 * @param const Eigen::MatrixXd& Whole-body jacobian
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+		 * base with physical constraints
 		 */
 		void getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 									 const Eigen::MatrixXd& full_jacobian);
@@ -159,6 +163,8 @@ class WholeBodyKinematics
 		 * @brief Gets the fixed-base jacobian contribution of a given whole-body jacobian
 		 * @param Eigen::MatrixXd& Fixed-base jacobian
 		 * @param const Eigen::MatrixXd& Whole-body jacobian
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+		 * base with physical constraints
 		 */
 		void getFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 								  const Eigen::MatrixXd& full_jacobian);
@@ -179,7 +185,7 @@ class WholeBodyKinematics
 							 const Eigen::VectorXd& joint_pos,
 							 const rbd::Vector6d& base_vel,
 							 const Eigen::VectorXd& joint_vel,
-										  enum rbd::Component component = rbd::Full);
+							 enum rbd::Component component = rbd::Full);
 		/**
 		 * @brief Computes the operational velocity from the joint space for a predefined set of
 		 * end-effectors of the robot
@@ -304,6 +310,8 @@ class WholeBodyKinematics
 
 		/* @brief Full set of active end-effectors */
 		rbd::EndEffectorSelector full_effector_set_;
+
+		rbd::ReducedFloatingBase* reduced_base_;
 };
 
 } //@namespace model

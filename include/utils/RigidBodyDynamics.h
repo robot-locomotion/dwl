@@ -20,34 +20,46 @@ typedef std::map<std::string,unsigned int> EndEffectorID;
 typedef std::map<std::string,Eigen::Vector3d> EndEffectorPosition;
 typedef std::map<std::string,Vector6d> EndEffectorForce;
 
-struct FloatingBaseConstraint {
-	FloatingBaseConstraint(bool full_constrained = false) : LX(full_constrained), LY(full_constrained),
-			LZ(full_constrained), AX(full_constrained), AY(full_constrained), AZ(full_constrained) {}
+
+struct FloatingBaseJoint {
+	FloatingBaseJoint(bool status) : active(status), id(0) {}
+	bool active;
+	unsigned id;
+};
+struct ReducedFloatingBase {
+	ReducedFloatingBase(bool full_floating_base = false) : TX(full_floating_base), TY(full_floating_base),
+			TZ(full_floating_base), RX(full_floating_base), RY(full_floating_base), RZ(full_floating_base) {}
 	bool isFullyFree() {
-		if (!LX && !LY && !LZ && !AX && !AY && !AZ)
+		if (!TX.active && !TY.active && !TZ.active && !RX.active && !RY.active && !RZ.active)
 			return true;
 		else
 			return false;
 	}
-	bool LX;
-	bool LY;
-	bool LZ;
-	bool AX;
-	bool AY;
-	bool AZ;
+	unsigned int getFloatingBaseDOF() {
+		return TX.active + TY.active + TZ.active + RX.active + RY.active + RZ.active;
+	}
+	FloatingBaseJoint TX;
+	FloatingBaseJoint TY;
+	FloatingBaseJoint TZ;
+	FloatingBaseJoint RX;
+	FloatingBaseJoint RY;
+	FloatingBaseJoint RZ;
 };
 
 /**
  * @brief The 3-coordinate vector with the angular components (angular velocity or torque) of the given
- * 6d vector
+ * spatial vector
  */
 Part3d angularPart(Vector6d& vector);
 
 /**
  * @brief The 3-coordinate vector with the linear components (linear
- * velocity or force) of the given 6D vector.
+ * velocity or force) of the given spatial vector.
  */
 Part3d linearPart(Vector6d& vector);
+
+Part3d linearFloatingBaseState(Vector6d& vector);
+Part3d angularFloatingBaseState(Vector6d& vector);
 
 /**
  * @brief Vector coordinates
@@ -55,30 +67,41 @@ Part3d linearPart(Vector6d& vector);
  */
 enum Coords3d {X = 0, Y, Z};
 enum Coords6d {AX = 0, AY, AZ, LX, LY, LZ };
+enum FloatingBaseState {TX = 0, TY, TZ, RX, RY, RZ };
 
 /** @brief Returns true if it's a floating-base robot */
 bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model);
+
+/** @brief Returns the number of dof of the floating base */
+unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& mode,
+								struct rbd::ReducedFloatingBase* reduced_base = NULL);
 
 /**
  * @brief Converts the base and joint states to a generalized joint state
  * @param const Vector6d& Base state
  * @param const Eigen::VectorXd& Joint state
+ * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+ * base with physical constraints
  * @return Eigen::VectorXd Generalized joint state
  */
 Eigen::VectorXd toGeneralizedJointState(const RigidBodyDynamics::Model& model,
-										   const Vector6d& base_state,
-										   const Eigen::VectorXd& joint_state);
+										const Vector6d& base_state,
+										const Eigen::VectorXd& joint_state,
+										struct rbd::ReducedFloatingBase* reduced_base = NULL);
 
 /**
  * @brief Converts the generalized joint state to base and joint states
  * @param Vector6d& Base state
  * @param Eigen::VectorXd& Joint state
+ * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+ * base with physical constraints
  * @return const Eigen::VectorXd Generalized joint state
  */
 void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
-								   Vector6d& base_state,
-								   Eigen::VectorXd& joint_state,
-								   const Eigen::VectorXd& generalized_state);
+							   Vector6d& base_state,
+							   Eigen::VectorXd& joint_state,
+							   const Eigen::VectorXd& generalized_state,
+							   struct rbd::ReducedFloatingBase* reduced_base = NULL);
 
 /**
  * @brief Converts an applied velocity acting at a certain point to spatial velocity

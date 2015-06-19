@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-WholeBodyKinematics::WholeBodyKinematics()
+WholeBodyKinematics::WholeBodyKinematics() : reduced_base_(NULL)
 {
 
 }
@@ -19,9 +19,11 @@ WholeBodyKinematics::~WholeBodyKinematics()
 }
 
 
-void WholeBodyKinematics::modelFromURDF(std::string model_file, bool info)
+void WholeBodyKinematics::modelFromURDF(std::string model_file, struct rbd::ReducedFloatingBase* reduce_base, bool info)
 {
 	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
+
+	reduced_base_ = reduce_base;
 
 	// Adding the fixed body in the end-effector list
 	for (unsigned int it = 0; it < robot_model_.mFixedBodies.size(); it++) {
@@ -117,7 +119,7 @@ void WholeBodyKinematics::computeForwardKinematics(Eigen::VectorXd& op_pos,
 			unsigned int effector_id = body_id_.find(effector_name)->second;
 			int init_col = effector_counter * (ang_vars + lin_vars);
 
-			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos, reduced_base_);
 
 			Eigen::Matrix3d rotation_mtx;
 			switch (component) {
@@ -209,12 +211,12 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 	}
 
 
-	Eigen::VectorXd q_init = rbd::toGeneralizedJointState(robot_model_, base_pos_init, joint_pos_init);
+	Eigen::VectorXd q_init = rbd::toGeneralizedJointState(robot_model_, base_pos_init, joint_pos_init, reduced_base_);
 	Eigen::VectorXd q_res;
 	RigidBodyDynamics::InverseKinematics(robot_model_, q_init, body_id, body_point, target_pos,
 										q_res, step_tol, lambda, max_iter);
 
-	rbd::fromGeneralizedJointState(robot_model_, base_pos, joint_pos, q_res);
+	rbd::fromGeneralizedJointState(robot_model_, base_pos, joint_pos, q_res, reduced_base_);
 }
 
 
@@ -269,7 +271,7 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 		if (body_id_.count(effector_name) > 0) {
 			int effector_id = body_id_.find(effector_name)->second;
 
-			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos, reduced_base_);
 
 			Eigen::MatrixXd jac(Eigen::MatrixXd::Zero(6, robot_model_.dof_count));
 			rbd::computePointJacobian(robot_model_, q, effector_id, Eigen::VectorXd::Zero(robot_model_.dof_count), jac, true);
@@ -296,9 +298,25 @@ void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 {
 	if (rbd::isFloatingBaseRobot(robot_model_))
 		jacobian = full_jacobian.leftCols(6);
-	else {
+	else if (reduced_base_ != NULL) {
+		unsigned int num_virtual_jnts = reduced_base_->getFloatingBaseDOF();
+		jacobian = Eigen::MatrixXd::Zero(full_jacobian.rows(), num_virtual_jnts);
+
+		if (reduced_base_->TX.active)
+			jacobian.col(reduced_base_->TX.id) = full_jacobian.col(reduced_base_->TX.id);
+		if (reduced_base_->TY.active)
+			jacobian.col(reduced_base_->TY.id) = full_jacobian.col(reduced_base_->TY.id);
+		if (reduced_base_->TZ.active)
+			jacobian.col(reduced_base_->TZ.id) = full_jacobian.col(reduced_base_->TZ.id);
+		if (reduced_base_->RX.active)
+			jacobian.col(reduced_base_->RX.id) = full_jacobian.col(reduced_base_->RX.id);
+		if (reduced_base_->RY.active)
+			jacobian.col(reduced_base_->RY.id) = full_jacobian.col(reduced_base_->RY.id);
+		if (reduced_base_->RZ.active)
+			jacobian.col(reduced_base_->RZ.id) = full_jacobian.col(reduced_base_->RZ.id);
+	} else {
 		printf(YELLOW "Warning: this is a fixed-base robot\n" COLOR_RESET);
-		jacobian = Eigen::MatrixXd::Zero(1,1);
+		jacobian = Eigen::MatrixXd::Zero(0,0);
 	}
 }
 
@@ -308,7 +326,10 @@ void WholeBodyKinematics::getFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 {
 	if (rbd::isFloatingBaseRobot(robot_model_))
 		jacobian = full_jacobian.rightCols(robot_model_.dof_count - 6);
-	else
+	else if (reduced_base_ != NULL) {
+		unsigned int num_virtual_jnts = reduced_base_->getFloatingBaseDOF();
+		jacobian = full_jacobian.rightCols(robot_model_.dof_count - num_virtual_jnts);
+	} else
 		jacobian = full_jacobian;
 }
 
@@ -365,8 +386,8 @@ void WholeBodyKinematics::computeVelocity(Eigen::VectorXd& op_vel,
 			int effector_id = body_id_.find(effector_name)->second;
 			int init_col = effector_counter * num_vars;
 
-			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
-			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(robot_model_, base_vel, joint_vel);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos, reduced_base_);
+			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(robot_model_, base_vel, joint_vel, reduced_base_);
 
 			switch (component) {
 			case rbd::Linear:
@@ -446,9 +467,9 @@ void WholeBodyKinematics::computeAcceleration(Eigen::VectorXd& op_acc,
 			unsigned int effector_id = body_id_.find(effector_name)->second;
 			int init_col = effector_counter * num_vars;
 
-			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos);
-			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(robot_model_, base_vel, joint_vel);
-			Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(robot_model_, base_acc, joint_acc);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos, reduced_base_);
+			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(robot_model_, base_vel, joint_vel, reduced_base_);
+			Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(robot_model_, base_acc, joint_acc, reduced_base_);
 
 			switch (component) {
 			case rbd::Linear:
@@ -494,10 +515,13 @@ void WholeBodyKinematics::computeJdotQdot(Eigen::VectorXd& jacd_qd,
 										  rbd::EndEffectorSelector effector_set,
 										  enum rbd::Component component)
 {
+	// Getting the floating-base dof
+	unsigned int floating_base_dof = rbd::getFloatingBaseDOF(robot_model_, reduced_base_);
+
 	Eigen::VectorXd op_vel, op_acc;
 	computeAcceleration(op_acc, base_pos, joint_pos,
 						base_vel, joint_vel,
-						rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(robot_model_.dof_count-6),
+						rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(robot_model_.dof_count - floating_base_dof),
 						effector_set, component);
 
 	// Resizing the acceleration contribution vector

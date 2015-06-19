@@ -18,6 +18,17 @@ Part3d linearPart(Vector6d& vector)
 	return vector.bottomRows<3>();
 }
 
+Part3d linearFloatingBaseState(Vector6d& vector)
+{
+	return vector.topRows<3>();
+}
+
+
+Part3d angularFloatingBaseState(Vector6d& vector)
+{
+	return vector.bottomRows<3>();
+}
+
 
 bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model)
 {
@@ -33,15 +44,45 @@ bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model)
 }
 
 
+unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
+								struct rbd::ReducedFloatingBase* reduced_base)
+{
+	unsigned int floating_base_dof = 0;
+	if (isFloatingBaseRobot(model))
+		floating_base_dof = 6;
+	else if (reduced_base != NULL)
+		floating_base_dof = reduced_base->getFloatingBaseDOF();
+
+	return floating_base_dof;
+}
+
+
 Eigen::VectorXd toGeneralizedJointState(const RigidBodyDynamics::Model& model,
-										   const Vector6d& base_state,
-										   const Eigen::VectorXd& joint_state)
+										const Vector6d& base_state,
+										const Eigen::VectorXd& joint_state,
+										struct rbd::ReducedFloatingBase* reduced_base)
 {
 	// Note that RBDL defines the floating base state as [linear states, angular states]
 	Eigen::VectorXd q(model.dof_count);
 	if (isFloatingBaseRobot(model))
 		q << base_state, joint_state;
-	else
+	else if (reduced_base != NULL) {
+		Eigen::VectorXd virtual_base(reduced_base->getFloatingBaseDOF());
+		if (reduced_base->TX.active)
+			virtual_base(reduced_base->TX.id) = base_state(TX);
+		if (reduced_base->TY.active)
+			virtual_base(reduced_base->TY.id) = base_state(TY);
+		if (reduced_base->TZ.active)
+			virtual_base(reduced_base->TZ.id) = base_state(TZ);
+		if (reduced_base->RX.active)
+			virtual_base(reduced_base->RX.id) = base_state(RX);
+		if (reduced_base->RY.active)
+			virtual_base(reduced_base->RY.id) = base_state(RY);
+		if (reduced_base->RZ.active)
+			virtual_base(reduced_base->RZ.id) = base_state(RZ);
+
+		q << virtual_base, joint_state;
+	} else
 		q = joint_state;
 
 	return q;
@@ -49,14 +90,30 @@ Eigen::VectorXd toGeneralizedJointState(const RigidBodyDynamics::Model& model,
 
 
 void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
-								   Vector6d& base_state,
-								   Eigen::VectorXd& joint_state,
-								   const Eigen::VectorXd& generalized_state)
+							   Vector6d& base_state,
+							   Eigen::VectorXd& joint_state,
+							   const Eigen::VectorXd& generalized_state,
+							   struct rbd::ReducedFloatingBase* reduced_base)
 {
 	// Note that RBDL defines the floating base state as [linear states, angular states]
 	if (isFloatingBaseRobot(model)) {
 		base_state = generalized_state;
 		joint_state = generalized_state.tail(model.dof_count - 6);
+	} else if (reduced_base != NULL) {
+		if (reduced_base->TX.active)
+			base_state(TX) = generalized_state(reduced_base->TX.id);
+		if (reduced_base->TY.active)
+			base_state(TY) = generalized_state(reduced_base->TY.id);
+		if (reduced_base->TZ.active)
+			base_state(TZ) = generalized_state(reduced_base->TZ.id);
+		if (reduced_base->RX.active)
+			base_state(RX) = generalized_state(reduced_base->RX.id);
+		if (reduced_base->RY.active)
+			base_state(RY) = generalized_state(reduced_base->RY.id);
+		if (reduced_base->RZ.active)
+			base_state(RZ) = generalized_state(reduced_base->RZ.id);
+
+		joint_state = generalized_state.tail(model.dof_count - reduced_base->getFloatingBaseDOF());
 	} else {
 		base_state = Vector6d::Zero();
 		joint_state = generalized_state;

@@ -33,11 +33,16 @@ inline double timer_stop (TimerInfo *timer) {
 
 int main(int argc, char **argv)
 {
+
+	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
+	dwl::rbd::ReducedFloatingBase reduced_base;
+	reduced_base.TZ.active = true;
+	reduced_base.TZ.id = 0;
+
 	dwl::model::WholeBodyKinematics kin;
-	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl_fb.urdf";
-	kin.modelFromURDF(model_file, true);
+	kin.modelFromURDF(model_file, &reduced_base, true);
 	dwl::model::WholeBodyDynamics dyn;
-	dyn.modelFromURDF(model_file);
+	dyn.modelFromURDF(model_file, &reduced_base);
 
 	dwl::model::RobCoGenWholeBodyKinematics* kin_ptr = new dwl::robot::HyLWholeBodyKinematics();
 	dwl::model::RobCoGenWholeBodyDynamics* dyn_ptr = new dwl::robot::HyLWholeBodyDynamics();
@@ -53,7 +58,7 @@ int main(int argc, char **argv)
 	base_acc << 0., 0., 0., 0., 0., 0.;
 	joint_pos << 0.75, -1.5;//, 0., -0.75, 1.5, 0., 0.75, -1.5, 0., -0.75, 1.5;
 	joint_vel << 0., 0.;//, 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
-	joint_acc <<  0., 0.;//, 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
+	joint_acc << 0., 0.;//, 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
 //	joint_vel << 0., 1.;
 //	joint_acc << 0., 1.;
 //	joint_pos << 0., 0.;//0.504653, -1.45204;
@@ -191,15 +196,15 @@ int main(int argc, char **argv)
 //	contacts.push_back("rf_foot");
 //	contacts.push_back("rh_foot");
 	contacts.push_back("foot");
-	dwl::rbd::FloatingBaseConstraint base_constraint;
-	base_constraint.AX = true;
-	base_constraint.AY = true;
-	base_constraint.AZ = true;
-	base_constraint.LX = true;
-	base_constraint.LY = true;
-	dyn.computeConstrainedFloatingBaseInverseDynamics(joint_forces, base_pos, joint_pos,
-													  base_vel, joint_vel, base_acc, joint_acc,
-													  contacts, &base_constraint);
+
+//	dyn.computeConstrainedFloatingBaseInverseDynamics(joint_forces, base_pos, joint_pos,
+//													  base_vel, joint_vel, base_acc, joint_acc,
+//													  contacts);
+	dyn.computeConstrainedInverseDynamics(joint_forces, base_pos, joint_pos,
+										  base_vel, joint_vel, base_acc, joint_acc,
+										  contacts);
+
+
 
     return 0;
 }
