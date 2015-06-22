@@ -34,7 +34,7 @@ inline double timer_stop (TimerInfo *timer) {
 int main(int argc, char **argv)
 {
 
-	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
+	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl_fb.urdf";
 	dwl::rbd::ReducedFloatingBase reduced_base;
 	reduced_base.TZ.active = true;
 	reduced_base.TZ.id = 0;
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 	base_pos = dwl::rbd::Vector6d::Zero();
 	base_vel = dwl::rbd::Vector6d::Zero();
 	base_acc = dwl::rbd::Vector6d::Zero();
-//	base_pos << 0., 0., 0., 0., 0., 0.;
+	base_pos << 0., 0., 0., 0., 0., 0.;
 	base_vel << 0., 0., 0., 0., 0., 0.;
 	base_acc << 0., 0., 0., 0., 0., 0.;
 	joint_pos << 0.75, -1.5;//, 0., -0.75, 1.5, 0., 0.75, -1.5, 0., -0.75, 1.5;
@@ -180,10 +180,24 @@ int main(int argc, char **argv)
 //	std::cout << "---------------------------------------" << std::endl;
 //	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = tau" << std::endl;
 
-//	dyn_ptr->computeInverseDynamics(base_wrench, joint_forces, dwl::rbd::Vector6d::Zero(), base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc);
+//	dyn_ptr->updateState(base_pos, joint_pos);
+//	TimerInfo tinfo1, tinfo2;
+//	timer_start (&tinfo1);
+//	for (int i = 0; i < 1000000; i++)
+//		dyn_ptr->computeInverseDynamics(base_wrench, joint_forces, dwl::rbd::Vector6d::Zero(), base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc);
 //	std::cout << "---------------------------------------" << std::endl;
+//	double duration = timer_stop (&tinfo1);
+//	std::cout << duration << " = time duration" << std::endl;
 //	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = robcogen tau" << std::endl;
-//	dyn.computeInverseDynamics(base_acc, joint_forces, base_pos, joint_pos2, base_vel, joint_vel2, joint_acc2, fext);
+//	base_wrench.setZero();
+//	joint_forces.setZero();
+//	timer_start (&tinfo2);
+//	for (int i = 0; i < 1000000; i++)
+//		dyn.computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc);
+//	std::cout << "---------------------------------------" << std::endl;
+//	duration = timer_stop (&tinfo2);
+//	std::cout << duration << " = time duration" << std::endl;
+//	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = rbdl tau" << std::endl;
 //
 //
 //	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
@@ -197,13 +211,11 @@ int main(int argc, char **argv)
 //	contacts.push_back("rh_foot");
 	contacts.push_back("foot");
 
-//	dyn.computeConstrainedFloatingBaseInverseDynamics(joint_forces, base_pos, joint_pos,
-//													  base_vel, joint_vel, base_acc, joint_acc,
-//													  contacts);
-	dyn.computeConstrainedInverseDynamics(joint_forces, base_pos, joint_pos,
-										  base_vel, joint_vel, base_acc, joint_acc,
-										  contacts);
-
+	dyn.computeConstrainedFloatingBaseInverseDynamics(joint_forces, base_pos, joint_pos,
+													  base_vel, joint_vel, base_acc, joint_acc,
+													  contacts);
+	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
+	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
 
 
     return 0;

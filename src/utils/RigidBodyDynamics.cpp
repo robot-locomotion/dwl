@@ -44,13 +44,31 @@ bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model)
 }
 
 
+bool isConstrainedFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base)
+{
+	if (reduced_base != NULL && !reduced_base->isFullyFree())
+		return true;
+	else
+		return false;
+}
+
+
+bool isVirtualFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base)
+{
+	if ((reduced_base != NULL) && (reduced_base->getFloatingBaseDOF() != 0))
+		return true;
+	else
+		return false;
+}
+
+
 unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
 								struct rbd::ReducedFloatingBase* reduced_base)
 {
 	unsigned int floating_base_dof = 0;
 	if (isFloatingBaseRobot(model))
 		floating_base_dof = 6;
-	else if (reduced_base != NULL)
+	else if (isVirtualFloatingBaseRobot(reduced_base))
 		floating_base_dof = reduced_base->getFloatingBaseDOF();
 
 	return floating_base_dof;
@@ -66,7 +84,7 @@ Eigen::VectorXd toGeneralizedJointState(const RigidBodyDynamics::Model& model,
 	Eigen::VectorXd q(model.dof_count);
 	if (isFloatingBaseRobot(model))
 		q << base_state, joint_state;
-	else if (reduced_base != NULL) {
+	else if (isVirtualFloatingBaseRobot(reduced_base)) {
 		Eigen::VectorXd virtual_base(reduced_base->getFloatingBaseDOF());
 		if (reduced_base->TX.active)
 			virtual_base(reduced_base->TX.id) = base_state(TX);
@@ -99,7 +117,7 @@ void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
 	if (isFloatingBaseRobot(model)) {
 		base_state = generalized_state;
 		joint_state = generalized_state.tail(model.dof_count - 6);
-	} else if (reduced_base != NULL) {
+	} else if (isVirtualFloatingBaseRobot(reduced_base)) {
 		if (reduced_base->TX.active)
 			base_state(TX) = generalized_state(reduced_base->TX.id);
 		if (reduced_base->TY.active)
@@ -341,6 +359,7 @@ void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
 			model.Ic[lambda] = model.Ic[lambda] + model.X_lambda[i].apply(model.Ic[i]);
 			model.f[lambda] = model.f[lambda] + model.X_lambda[i].applyTranspose(model.f[i]);
 		}
+		base_acc << model.a[6].segment<3>(3) + model.gravity, model.a[6].segment<3>(0);
 
 		// Third pass
 		model.a[6] = - model.Ic[6].toMatrix().inverse() * model.f[6];
@@ -356,8 +375,6 @@ void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
 				Tau[model.mJoints[i].q_index] = model.S[i].dot(model.Ic[i] * model.a[i] + model.f[i]);
 			}
 		}
-
-		base_acc = model.a[6];
 	}
 }
 

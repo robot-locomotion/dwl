@@ -21,11 +21,14 @@ typedef std::map<std::string,Eigen::Vector3d> EndEffectorPosition;
 typedef std::map<std::string,Vector6d> EndEffectorForce;
 
 
+/** @brief Defines a floating base joint status */
 struct FloatingBaseJoint {
 	FloatingBaseJoint(bool status) : active(status), id(0) {}
 	bool active;
 	unsigned id;
 };
+
+/** @brief Defines a reduced floating-base system */
 struct ReducedFloatingBase {
 	ReducedFloatingBase(bool full_floating_base = false) : TX(full_floating_base), TY(full_floating_base),
 			TZ(full_floating_base), RX(full_floating_base), RY(full_floating_base), RZ(full_floating_base) {}
@@ -71,6 +74,12 @@ enum FloatingBaseState {TX = 0, TY, TZ, RX, RY, RZ };
 
 /** @brief Returns true if it's a floating-base robot */
 bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model);
+
+/** @brief Returns true if it's a constrained floating-base robot */
+bool isConstrainedFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base);
+
+/** @brief Returns true if it's a virtual floating-base robot */
+bool isVirtualFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base);
 
 /** @brief Returns the number of dof of the floating base */
 unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& mode,

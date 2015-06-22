@@ -297,8 +297,8 @@ void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 												  const Eigen::MatrixXd& full_jacobian)
 {
 	if (rbd::isFloatingBaseRobot(robot_model_))
-		jacobian = full_jacobian.leftCols(6);
-	else if (reduced_base_ != NULL) {
+		jacobian = full_jacobian.leftCols<6>();
+	else if (rbd::isVirtualFloatingBaseRobot(reduced_base_)) {
 		unsigned int num_virtual_jnts = reduced_base_->getFloatingBaseDOF();
 		jacobian = Eigen::MatrixXd::Zero(full_jacobian.rows(), num_virtual_jnts);
 
@@ -326,7 +326,7 @@ void WholeBodyKinematics::getFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 {
 	if (rbd::isFloatingBaseRobot(robot_model_))
 		jacobian = full_jacobian.rightCols(robot_model_.dof_count - 6);
-	else if (reduced_base_ != NULL) {
+	else if (rbd::isVirtualFloatingBaseRobot(reduced_base_)) {
 		unsigned int num_virtual_jnts = reduced_base_->getFloatingBaseDOF();
 		jacobian = full_jacobian.rightCols(robot_model_.dof_count - num_virtual_jnts);
 	} else

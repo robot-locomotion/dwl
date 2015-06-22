@@ -67,7 +67,6 @@ void WholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 }
 
 
-
 void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_acc,
 														   Eigen::VectorXd& joint_forces,
 														   const rbd::Vector6d& base_pos,
@@ -88,64 +87,21 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 	convertAppliedExternalForces(fext, ext_force, q);
 
 	// Computing the inverse dynamics with Recursive Newton-Euler Algorithm (RNEA)
-	RigidBodyDynamics::Math::SpatialVector base_ddot = RigidBodyDynamics::Math::SpatialVector(base_acc);
-	rbd::FloatingBaseInverseDynamics(robot_model_, q, q_dot, q_ddot, base_ddot, tau, &fext);
+	if (rbd::isFloatingBaseRobot(robot_model_)) {
+		RigidBodyDynamics::Math::SpatialVector base_ddot = RigidBodyDynamics::Math::SpatialVector(base_acc);
+		rbd::FloatingBaseInverseDynamics(robot_model_, q, q_dot, q_ddot, base_ddot, tau, &fext);
 
-	// Converting the base acceleration
-	base_acc = base_ddot;
+		// Converting the base acceleration
+		base_acc = base_ddot;
+	} else {
+		RigidBodyDynamics::InverseDynamics(robot_model_, q, q_dot, q_ddot, tau, &fext);
+		if (!rbd::isVirtualFloatingBaseRobot(reduced_base_))
+			printf(YELLOW "Warning: this is not a floating-base system\n" COLOR_RESET);
+	}
 
 	// Converting the generalized joint forces to base wrench and joint forces
 	rbd::Vector6d base_wrench;
 	rbd::fromGeneralizedJointState(robot_model_, base_wrench, joint_forces, tau, reduced_base_);
-}
-
-void WholeBodyDynamics::computeConstrainedInverseDynamics(Eigen::VectorXd& joint_forces,
-		  const rbd::Vector6d& base_pos,
-		  const Eigen::VectorXd& joint_pos,
-		  const rbd::Vector6d& base_vel,
-		  const Eigen::VectorXd& joint_vel,
-		  const rbd::Vector6d& base_acc,
-		  const Eigen::VectorXd& joint_acc,
-		  const rbd::EndEffectorSelector& contacts)
-{
-	if (reduced_base_ == NULL) {
-		printf(RED "Error: this is not a floating-base platform\n" COLOR_RESET);
-		return;
-	}
-
-	// Computing the feasible accelerations //TODO figure out about this topic
-	rbd::Vector6d base_feas_acc = base_acc;
-	Eigen::VectorXd joint_feas_acc = joint_acc;
-
-
-	// Computing the base wrench assuming a fully actuation on the floating-base
-	rbd::Vector6d base_wrench;
-	computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
-						   base_vel, joint_vel, base_feas_acc, joint_feas_acc);
-
-
-
-
-	// Computing the base contribution of contact jacobian
-	Eigen::MatrixXd base_contact_jac, full_jacobian;
-	kinematics_.computeJacobian(full_jacobian, base_pos, joint_pos, contacts, dwl::rbd::Linear);
-	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jacobian);
-
-	std::cout << full_jacobian << " = full_jac" << std::endl;
-	std::cout << base_contact_jac << " = virtual_contact_jac" << std::endl;
-
-
-	// Computing the contact forces that generates the desired base wrench in the case of n dof floating-base, where
-	// n is less than 6. Note that we describe this floating-base as an unactuated virtual floating-base joints
-	rbd::EndEffectorForce contact_forces;
-	Eigen::VectorXd endeffector_forces =
-			math::pseudoInverse((Eigen::MatrixXd) base_contact_jac.transpose()) * rbd::linearFloatingBaseState(base_wrench);
-	unsigned int num_active_contacts = contacts.size();
-	for (unsigned int i = 0; i < num_active_contacts; i++)
-		contact_forces[contacts[i]] << 0., 0., 0., endeffector_forces.segment(3*i, 3);
-
-
-
 }
 
 
@@ -174,56 +130,82 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jacobian);
 
 
-	// Computing the contact forces that generates the desired base wrench with possible physical constraints
-	// This approach builds an augmented jacobian matrix as [base contact jacobian; base constraint jacobian]
+	// Computing the contact forces that generates the desired base wrench. A floating-base system can be described as
+	// floating-base with or without physical constraints or virtual floating-base. Note that with a virtual floating-base
+	// we can describe a n-dimensional floating-base, witch n less than 6
 	rbd::EndEffectorForce contact_forces;
-	if (reduced_base_ != NULL && !reduced_base_->isFullyFree()) {
-		Eigen::MatrixXd constraint_base_jac = Eigen::MatrixXd::Zero(6,6);
-		constraint_base_jac(rbd::TX,rbd::TX) = reduced_base_->TX.active;
-		constraint_base_jac(rbd::TY,rbd::TY) = reduced_base_->TY.active;
-		constraint_base_jac(rbd::TZ,rbd::TZ) = reduced_base_->TZ.active;
-		constraint_base_jac(rbd::RX,rbd::RX) = reduced_base_->TX.active;
-		constraint_base_jac(rbd::RY,rbd::RY) = reduced_base_->TY.active;
-		constraint_base_jac(rbd::RZ,rbd::RZ) = reduced_base_->TZ.active;
+	if (rbd::isFloatingBaseRobot(robot_model_)) {
+		// This approach builds an augmented jacobian matrix as [base contact jacobian; base constraint jacobian].
+		// Therefore, we computed constrained reaction forces in the base.
+		if (rbd::isConstrainedFloatingBaseRobot(reduced_base_)) {
+			// Computing the base constraint contribution to the jacobian
+			Eigen::MatrixXd base_constraint_jac = Eigen::MatrixXd::Zero(6,6);
+			base_constraint_jac(rbd::TX,rbd::TX) = !reduced_base_->TX.active;
+			base_constraint_jac(rbd::TY,rbd::TY) = !reduced_base_->TY.active;
+			base_constraint_jac(rbd::TZ,rbd::TZ) = !reduced_base_->TZ.active;
+			base_constraint_jac(rbd::RX,rbd::RX) = !reduced_base_->RX.active;
+			base_constraint_jac(rbd::RY,rbd::RY) = !reduced_base_->RY.active;
+			base_constraint_jac(rbd::RZ,rbd::RZ) = !reduced_base_->RZ.active;
 
-		// Computing the augmented jacobian
-		Eigen::MatrixXd augmented_jac = Eigen::MatrixXd::Zero(base_contact_jac.rows() + 6, base_contact_jac.cols());
-		augmented_jac.block(0,0,base_contact_jac.rows(), base_contact_jac.cols()) = base_contact_jac;
-		augmented_jac.block(base_contact_jac.rows(),0,6,6) = constraint_base_jac;
+			// Computing the augmented jacobian [base contact jacobian; base constraint jacobian]
+			Eigen::MatrixXd augmented_jac = Eigen::MatrixXd::Zero(base_contact_jac.rows() + 6, base_contact_jac.cols());
+			augmented_jac.block(0,0,base_contact_jac.rows(), base_contact_jac.cols()) = base_contact_jac;
+			augmented_jac.block<6,6>(base_contact_jac.rows(),0) = base_constraint_jac;
 
-		// Computing the external forces from the augmented forces [contact forces; base constraint forces]
-		Eigen::VectorXd augmented_forces =
-				math::pseudoInverse((Eigen::MatrixXd) augmented_jac.transpose()) * base_wrench;
-		unsigned int num_active_contacts = contacts.size();
-		contact_forces[robot_model_.GetBodyName(6)] << augmented_forces.segment(3 * num_active_contacts + 3, 3),
-				augmented_forces.segment(3 * num_active_contacts, 3);
-		for (unsigned int i = 0; i < num_active_contacts; i++)
-			contact_forces[contacts[i]] << 0., 0., 0., augmented_forces.segment(3*i, 3);
-	} else {
-		// Computing the external forces from contact forces
+			// Computing the external forces from the augmented forces [contact forces; base constraint forces]
+			Eigen::VectorXd augmented_forces =
+					math::pseudoInverse((Eigen::MatrixXd) augmented_jac.transpose()) * base_wrench;
+
+			// Adding the base reaction forces in the set of external forces
+			unsigned int num_active_contacts = contacts.size();
+			contact_forces[robot_model_.GetBodyName(6)] << augmented_forces.segment<3>(3 * num_active_contacts + 3),
+					augmented_forces.segment<3>(3 * num_active_contacts);
+
+			// Adding the contact forces in the set of external forces
+			for (unsigned int i = 0; i < num_active_contacts; i++)
+				contact_forces[contacts[i]] << 0., 0., 0., augmented_forces.segment<3>(3 * i);
+		} else {
+			// This is a floating-base without physical constraints. So, we don't need to augment the jacobian
+			// Computing the external forces from contact forces
+			Eigen::VectorXd endeffector_forces =
+					math::pseudoInverse((Eigen::MatrixXd) base_contact_jac.transpose()) * base_wrench;
+
+			// Adding the contact forces in the set of external forces
+			unsigned int num_active_contacts = contacts.size();
+			for (unsigned int i = 0; i < num_active_contacts; i++)
+				contact_forces[contacts[i]] << 0., 0., 0., endeffector_forces.segment<3>(3 * i);
+		}
+	} else if (rbd::isVirtualFloatingBaseRobot(reduced_base_)) {
+		// This is n-dimensional floating-base system. So, we need to compute a virtual base wrench
+		Eigen::VectorXd virtual_base_wrench = Eigen::VectorXd::Zero(reduced_base_->getFloatingBaseDOF());
+		if (reduced_base_->TX.active)
+			virtual_base_wrench(reduced_base_->TX.id) = base_wrench(rbd::TX);
+		if (reduced_base_->TY.active)
+			virtual_base_wrench(reduced_base_->TY.id) = base_wrench(rbd::TY);
+		if (reduced_base_->TZ.active)
+			virtual_base_wrench(reduced_base_->TZ.id) = base_wrench(rbd::TZ);
+		if (reduced_base_->RX.active)
+			virtual_base_wrench(reduced_base_->RX.id) = base_wrench(rbd::RX);
+		if (reduced_base_->RY.active)
+			virtual_base_wrench(reduced_base_->RY.id) = base_wrench(rbd::RY);
+		if (reduced_base_->RZ.active)
+			virtual_base_wrench(reduced_base_->RZ.id) = base_wrench(rbd::RZ);
+
+		// Computing the contact forces that generates the desired base wrench in the case of n dof floating-base, where
+		// n is less than 6. Note that we describe this floating-base as an unactuated virtual floating-base joints
 		Eigen::VectorXd endeffector_forces =
-				math::pseudoInverse((Eigen::MatrixXd) base_contact_jac.transpose()) * base_wrench;
+				math::pseudoInverse((Eigen::MatrixXd) base_contact_jac.transpose()) * virtual_base_wrench;
+
+		// Adding the contact forces in the set of external forces
 		unsigned int num_active_contacts = contacts.size();
 		for (unsigned int i = 0; i < num_active_contacts; i++)
-			contact_forces[contacts[i]] << 0., 0., 0., endeffector_forces.segment(3*i, 3);
+			contact_forces[contacts[i]] << 0., 0., 0., endeffector_forces.segment<3>(3 * i);
 	}
-
 
 	// Computing the inverse dynamic algorithm with the desired contact forces, and the base constraint forces for
 	// floating-base with physical constraints. This should generate the joint forces with a null base wrench
 	computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
 						   base_vel, joint_vel, base_feas_acc, joint_feas_acc, contact_forces);
-	std::cout << "joint forces = " << joint_forces.transpose() << std::endl;
-	std::cout << "base wrench = " << base_wrench.transpose() << std::endl;
-
-
-//	rbd::Vector6d base_acc2;
-//	joint_forces.setZero();
-//	computeWholeBodyInverseDynamics(base_acc2, joint_forces, base_pos,
-//									joint_pos, base_vel, joint_vel,
-//									joint_acc, contact_forces);
-//	std::cout << "base acc = " << base_acc2.transpose() << std::endl;
-//	std::cout << "joint forces = " << joint_forces.transpose() << std::endl;
 }
 
 

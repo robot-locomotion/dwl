@@ -46,7 +46,7 @@ void HyLWholeBodyKinematics::updateState(const rbd::Vector6d& base_pos,
 
 	// Computing the HyL state
 	Eigen::Vector3d state;
-	state << base_pos(iit::rbd::LZ), joint_pos;
+	state << base_pos(rbd::TZ), joint_pos;
 
 	// Updating jacobians
 	jacobians_["foot"] = jacs_.fr_trunk_J_fr_foot(state);

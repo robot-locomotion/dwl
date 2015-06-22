@@ -49,7 +49,7 @@ class WholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param const rbd::Vector6d& Base acceleration
+		 * @param const rbd::Vector6d& Base acceleration with respect to a gravity field
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 * @param const rbd::EndEffectorForce External force applied to a certain body of the robot
 		 */
@@ -69,7 +69,7 @@ class WholeBodyDynamics
 		 * as Cartesian forces applied to the body, where the first three elements are the moments and the last three
 		 * elements are the linear forces. In general a point only has linear forces, but with this representation we
 		 * can model the forces applied by a surface of contact in the center of pressure of it.
-		 * @param rbd::Vector6d& Base acceleration
+		 * @param rbd::Vector6d& Base acceleration with respect to a gravity field
 		 * @param Eigen::VectorXd& Joint forces
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
@@ -99,7 +99,7 @@ class WholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param const rbd::Vector6d& Base acceleration
+		 * @param const rbd::Vector6d& Base acceleration with respect to a gravity field
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 * @param const rbd::EndEffectorForce External force applied to a certain body of the robot
 		 */
@@ -111,14 +111,7 @@ class WholeBodyDynamics
 														   const rbd::Vector6d& base_acc,
 														   const Eigen::VectorXd& joint_acc,
 														   const rbd::EndEffectorSelector& contacts);
-		void computeConstrainedInverseDynamics(Eigen::VectorXd& joint_forces,
-				const rbd::Vector6d& base_pos,
-				const Eigen::VectorXd& joint_pos,
-				const rbd::Vector6d& base_vel,
-				const Eigen::VectorXd& joint_vel,
-				const rbd::Vector6d& base_acc,
-				const Eigen::VectorXd& joint_acc,
-				const rbd::EndEffectorSelector& contacts);
+
 
 	private:
 		/**
