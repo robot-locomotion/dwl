@@ -21,34 +21,6 @@ typedef std::map<std::string,Eigen::Vector3d> EndEffectorPosition;
 typedef std::map<std::string,Vector6d> EndEffectorForce;
 
 
-/** @brief Defines a floating base joint status */
-struct FloatingBaseJoint {
-	FloatingBaseJoint(bool status) : active(status), id(0) {}
-	bool active;
-	unsigned id;
-};
-
-/** @brief Defines a reduced floating-base system */
-struct ReducedFloatingBase {
-	ReducedFloatingBase(bool full_floating_base = false) : TX(full_floating_base), TY(full_floating_base),
-			TZ(full_floating_base), RX(full_floating_base), RY(full_floating_base), RZ(full_floating_base) {}
-	bool isFullyFree() {
-		if (!TX.active && !TY.active && !TZ.active && !RX.active && !RY.active && !RZ.active)
-			return true;
-		else
-			return false;
-	}
-	unsigned int getFloatingBaseDOF() {
-		return TX.active + TY.active + TZ.active + RX.active + RY.active + RZ.active;
-	}
-	FloatingBaseJoint TX;
-	FloatingBaseJoint TY;
-	FloatingBaseJoint TZ;
-	FloatingBaseJoint RX;
-	FloatingBaseJoint RY;
-	FloatingBaseJoint RZ;
-};
-
 /**
  * @brief The 3-coordinate vector with the angular components (angular velocity or torque) of the given
  * spatial vector
@@ -71,6 +43,52 @@ Part3d angularFloatingBaseState(Vector6d& vector);
 enum Coords3d {X = 0, Y, Z};
 enum Coords6d {AX = 0, AY, AZ, LX, LY, LZ };
 enum FloatingBaseState {TX = 0, TY, TZ, RX, RY, RZ };
+
+/** @brief Defines a floating base joint status */
+struct FloatingBaseJoint {
+	FloatingBaseJoint(bool status) : active(status), id(0) {}
+	bool active;
+	unsigned id;
+};
+
+/** @brief Defines a reduced floating-base system */
+struct ReducedFloatingBase {
+	ReducedFloatingBase(bool full_floating_base = false) : TX(full_floating_base), TY(full_floating_base),
+			TZ(full_floating_base), RX(full_floating_base), RY(full_floating_base), RZ(full_floating_base) {}
+	bool isFullyFree() {
+		if (!TX.active && !TY.active && !TZ.active && !RX.active && !RY.active && !RZ.active)
+			return true;
+		else
+			return false;
+	}
+	unsigned int getFloatingBaseDOF() {
+		return TX.active + TY.active + TZ.active + RX.active + RY.active + RZ.active;
+	}
+	unsigned int getJoint(unsigned int id) {
+		if (TX.active && TX.id == id)
+			return rbd::TX;
+		else if (TY.active && TY.id == id)
+			return rbd::TY;
+		else if (TZ.active && TZ.id == id)
+			return rbd::TZ;
+		else if (RX.active && RX.id == id)
+			return rbd::RX;
+		else if (RY.active && RY.id == id)
+			return rbd::RY;
+		else if (RZ.active && RZ.id == id)
+			return rbd::RZ;
+		else {
+			printf(RED "Error: this id doesn't bellow to floating-base joint\n" COLOR_RESET);
+			return 0;
+		}
+	}
+	FloatingBaseJoint TX;
+	FloatingBaseJoint TY;
+	FloatingBaseJoint TZ;
+	FloatingBaseJoint RX;
+	FloatingBaseJoint RY;
+	FloatingBaseJoint RZ;
+};
 
 /** @brief Returns true if it's a floating-base robot */
 bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model);
