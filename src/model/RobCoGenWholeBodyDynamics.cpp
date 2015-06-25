@@ -38,16 +38,16 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 		printf(RED "The kinematics model must be initialized " COLOR_RESET);
 
 	// Computing the acceleration contribution from joint velocity for all end-effectors
-	rbd::EndEffectorSelector effector_set;
-	for (rbd::EndEffectorID::iterator effector_iter = kin_model_->getEndEffectorList().begin();
-			effector_iter != kin_model_->getEndEffectorList().end();
-			effector_iter++)
+	rbd::BodySelector body_set;
+	for (rbd::BodyID::iterator body_iter = kin_model_->getBodyList().begin();
+			body_iter != kin_model_->getBodyList().end();
+			body_iter++)
 	{
-		std::string effector_name = effector_iter->first;
-		effector_set.push_back(effector_name);
+		std::string body_name = body_iter->first;
+		body_set.push_back(body_name);
 	}
 
-	opAccelerationContributionFromJointVelocity(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, effector_set, component);
+	opAccelerationContributionFromJointVelocity(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, body_set, component);
 }
 
 
@@ -56,23 +56,23 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 																			const Eigen::VectorXd& joint_pos,
 																			const rbd::Vector6d& base_vel,
 																			const Eigen::VectorXd& joint_vel,
-																			rbd::EndEffectorSelector effector_set,
+																			rbd::BodySelector body_set,
 																			enum rbd::Component component) // TODO Compute for other cases (Angular and full)
 {
 	if (!initialized_kinematics_)
 		printf(RED "The kinematics model must be initialized " COLOR_RESET);
 
 	// Computing the number of active end-effectors
-	int num_effector_set = 0;
-	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
-			effector_iter != effector_set.end();
-			effector_iter++)
+	int num_body_set = 0;
+	for (rbd::BodySelector::iterator body_iter = body_set.begin();
+			body_iter != body_set.end();
+			body_iter++)
 	{
-		std::string effector_name = *effector_iter;
-		if (kin_model_->getEndEffectorList().count(effector_name) > 0)
-			++num_effector_set;
+		std::string body_name = *body_iter;
+		if (kin_model_->getBodyList().count(body_name) > 0)
+			++num_body_set;
 	}
-	jacd_qd.resize(3 * num_effector_set);
+	jacd_qd.resize(3 * num_body_set);
 	jacd_qd.setZero();
 
 	// Updating the dynamic and kinematic information
@@ -82,26 +82,26 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 	updateState(base_pos, joint_pos);
 
 	// Computing the acceleration contribution from joint velocity, i.e. J_d*q_d
-	iit::rbd::VelocityVector effector_vel;
-	iit::rbd::VelocityVector effector_acc;
-	for (rbd::EndEffectorSelector::iterator effector_iter = effector_set.begin();
-			effector_iter != effector_set.end();
-			effector_iter++)
+	iit::rbd::VelocityVector body_vel;
+	iit::rbd::VelocityVector body_acc;
+	for (rbd::BodySelector::iterator body_iter = body_set.begin();
+			body_iter != body_set.end();
+			body_iter++)
 	{
 		int effector_counter = 0;
-		std::string effector_name = *effector_iter;
-		if (kin_model_->getEndEffectorList().count(effector_name) > 0) {
-			effector_vel = closest_link_motion_tf_.find(effector_name)->second *
-					closest_link_velocity_.find(effector_name)->second;
-			effector_acc = closest_link_motion_tf_.find(effector_name)->second *
-								closest_link_acceleration_.find(effector_name)->second;
+		std::string body_name = *body_iter;
+		if (kin_model_->getBodyList().count(body_name) > 0) {
+			body_vel = closest_link_motion_tf_.find(body_name)->second *
+					closest_link_velocity_.find(body_name)->second;
+			body_acc = closest_link_motion_tf_.find(body_name)->second *
+								closest_link_acceleration_.find(body_name)->second;
 
-			effector_acc.segment(iit::rbd::LX, 3) = iit::rbd::linearPart(effector_acc) +
-					iit::rbd::angularPart(effector_vel).cross(iit::rbd::linearPart(effector_vel));
+			body_acc.segment(iit::rbd::LX, 3) = iit::rbd::linearPart(body_acc) +
+					iit::rbd::angularPart(body_vel).cross(iit::rbd::linearPart(body_vel)); //TODO
 
-			Eigen::Matrix4d homogeneous_tf = kin_model_->getHomogeneousTransform(effector_name);
+			Eigen::Matrix4d homogeneous_tf = kin_model_->getHomogeneousTransform(body_name);
 			jacd_qd.segment(effector_counter * 3, 3) = kin_model_->getBaseRotationMatrix().transpose()
-					* iit::rbd::Utils::rotationMx(homogeneous_tf) * iit::rbd::linearPart(effector_acc);
+					* iit::rbd::Utils::rotationMx(homogeneous_tf) * iit::rbd::linearPart(body_acc);
 
 			++effector_counter;
 		}

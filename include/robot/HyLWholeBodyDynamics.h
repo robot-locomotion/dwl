@@ -40,6 +40,7 @@ class HyLWholeBodyDynamics : public model::RobCoGenWholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint velocity
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
+		 * @param const rbd::BodyForce External force applied to a certain body of the robot
 		 */
 		void computeInverseDynamics(rbd::Vector6d& base_wrench,
 									Eigen::VectorXd& joint_forces,
@@ -49,7 +50,8 @@ class HyLWholeBodyDynamics : public model::RobCoGenWholeBodyDynamics
 									const rbd::Vector6d& base_vel,
 									const Eigen::VectorXd& joint_vel,
 									const rbd::Vector6d& base_acc,
-									const Eigen::VectorXd& joint_acc);
+									const Eigen::VectorXd& joint_acc,
+									const rbd::BodyForce& ext_force = rbd::BodyForce());
 
 		/**
 		 * @brief Propagates the states for whole-body inverse dynamics of HyL
@@ -73,6 +75,9 @@ class HyLWholeBodyDynamics : public model::RobCoGenWholeBodyDynamics
 
 		/** @brief Motion transform of HyL */
 		iit::HyL::MotionTransforms motion_tf_;
+
+		/** @brief Force transform of HyL */
+		iit::HyL::ForceTransforms force_tf_;
 
 		/** @brief Inertia properties of HyL */
 		iit::HyL::dyn::InertiaProperties inertia_;

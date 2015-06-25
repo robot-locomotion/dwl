@@ -47,7 +47,8 @@ void HyLWholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 												  const rbd::Vector6d& base_vel,
 												  const Eigen::VectorXd& joint_vel,
 												  const rbd::Vector6d& base_acc,
-												  const Eigen::VectorXd& joint_acc)
+												  const Eigen::VectorXd& joint_acc,
+												  const rbd::BodyForce& ext_force)
 {
 	// HyL model defines the slider as actuated joint, which is the floating-base. Therefore, the floating-base wrench,
 	// velocity and acceleration is converted as joint variables to the ID algorithm
@@ -56,8 +57,20 @@ void HyLWholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 	q_vel << base_vel(rbd::TZ), joint_vel;
 	q_acc << base_acc(rbd::TZ), joint_acc;
 
+	/*
+	iit::HyL::dyn::InverseDynamics::ExtForces fext(iit::rbd::ForceVector::Zero());
+	iit::rbd::ForceVector grf = ext_force.at("foot");
+	Eigen::VectorXd foot_pos;
+	rbd::BodySelector foot;
+	foot.push_back("foot");
+	kin_model_->computeForwardKinematics(foot_pos, joint_pos, foot, dwl::rbd::Linear);
+
+	iit::rbd::ForceVector grf_wrench = rbd::convertPointForceToSpatialForce(grf, foot_pos);
+//	fext[iit::HyL::LOWERLEG] << force_tf_.fr_lowerleg_X_fr_trunk(q_pos) * grf_wrench;
+*/
+
 	// Computing the inverse dynamics using the generated code of HyL
-	id_.id(tau, q_pos, q_vel, q_acc);//const ExtForces& fext = zeroExtForces)
+	id_.id(tau, q_pos, q_vel, q_acc);//, fext);
 
 	// HyL only generate z force in the base
 	base_wrench = iit::rbd::Vector6D::Zero();

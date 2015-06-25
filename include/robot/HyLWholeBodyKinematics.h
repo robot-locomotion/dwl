@@ -32,6 +32,12 @@ class HyLWholeBodyKinematics : public model::RobCoGenWholeBodyKinematics
 		void updateState(const rbd::Vector6d& base_pos,
 						   const Eigen::VectorXd& joint_pos);
 
+		/**
+		 * @brief Computes the inverse kinematics for all end-effectors of the robot
+		 * @param Eigen::VectorXd& Operation position of end-effectors of the robot
+		 * @param enum Component There are three different important kind of jacobian such as: linear,
+		 * angular and full
+		 */
 		void computeInverseKinematics(Eigen::VectorXd& joint_pos,
 									  Eigen::VectorXd& joint_vel,
 									  const Eigen::VectorXd& op_pos,
