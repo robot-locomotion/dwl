@@ -15,10 +15,10 @@ enum Component {Linear, Angular, Full};
 
 typedef Eigen::Matrix<double,6,1> Vector6d;
 typedef Eigen::Block<Vector6d,3,1> Part3d;///< a 3D subvector of a 6D vector
-typedef std::vector<std::string> EndEffectorSelector;
-typedef std::map<std::string,unsigned int> EndEffectorID;
-typedef std::map<std::string,Eigen::Vector3d> EndEffectorPosition;
-typedef std::map<std::string,Vector6d> EndEffectorForce;
+typedef std::vector<std::string> BodySelector;
+typedef std::map<std::string,unsigned int> BodyID;
+typedef std::map<std::string,Eigen::Vector3d> BodyPosition;
+typedef std::map<std::string,Vector6d> BodyForce;
 
 
 /**
@@ -43,6 +43,7 @@ Part3d angularFloatingBaseState(Vector6d& vector);
 enum Coords3d {X = 0, Y, Z};
 enum Coords6d {AX = 0, AY, AZ, LX, LY, LZ };
 enum FloatingBaseState {TX = 0, TY, TZ, RX, RY, RZ };
+enum TypeOfSystem {FixedBase, FloatingBase, ConstrainedFloatingBase, VirtualFloatingBase};
 
 /** @brief Defines a floating base joint status */
 struct FloatingBaseJoint {
@@ -107,27 +108,29 @@ unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& mode,
  * @brief Converts the base and joint states to a generalized joint state
  * @param const Vector6d& Base state
  * @param const Eigen::VectorXd& Joint state
+ * @param enum TypeOfSystem Defines the type of system, e.g. fixed or floating- base system
  * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
  * base with physical constraints
  * @return Eigen::VectorXd Generalized joint state
  */
-Eigen::VectorXd toGeneralizedJointState(const RigidBodyDynamics::Model& model,
-										const Vector6d& base_state,
+Eigen::VectorXd toGeneralizedJointState(const Vector6d& base_state,
 										const Eigen::VectorXd& joint_state,
+										enum TypeOfSystem type_of_system,
 										struct rbd::ReducedFloatingBase* reduced_base = NULL);
 
 /**
  * @brief Converts the generalized joint state to base and joint states
  * @param Vector6d& Base state
  * @param Eigen::VectorXd& Joint state
+ * @param const Eigen::VectorXd Generalized joint state
+ * @param enum TypeOfSystem Defines the type of system, e.g. fixed or floating- base system
  * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
  * base with physical constraints
- * @return const Eigen::VectorXd Generalized joint state
  */
-void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
-							   Vector6d& base_state,
+void fromGeneralizedJointState(Vector6d& base_state,
 							   Eigen::VectorXd& joint_state,
 							   const Eigen::VectorXd& generalized_state,
+							   enum TypeOfSystem type_of_system,
 							   struct rbd::ReducedFloatingBase* reduced_base = NULL);
 
 /**

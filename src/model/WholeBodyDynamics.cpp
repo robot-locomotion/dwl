@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-WholeBodyDynamics::WholeBodyDynamics() : reduced_base_(NULL)
+WholeBodyDynamics::WholeBodyDynamics() : type_of_system_(rbd::FixedBase), reduced_base_(NULL)
 {
 
 }
@@ -36,6 +36,15 @@ void WholeBodyDynamics::modelFromURDF(std::string model_file, struct rbd::Reduce
 		std::cout << "Model Hierarchy:" << std::endl;
 		std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(robot_model_);
 	}
+
+	// Getting the type of dynamic system
+	if (rbd::isFloatingBaseRobot(robot_model_)) {
+		if (rbd::isConstrainedFloatingBaseRobot(reduced_base_))
+			type_of_system_ = rbd::ConstrainedFloatingBase;
+		else
+			type_of_system_ = rbd::FloatingBase;
+	} else if (rbd::isVirtualFloatingBaseRobot(reduced_base_))
+		type_of_system_ = rbd::VirtualFloatingBase;
 }
 
 
@@ -47,12 +56,12 @@ void WholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 											   const Eigen::VectorXd& joint_vel,
 											   const rbd::Vector6d& base_acc,
 											   const Eigen::VectorXd& joint_acc,
-											   const rbd::EndEffectorForce& ext_force)
+											   const rbd::BodyForce& ext_force)
 {
 	// Converting base and joint states to generalized joint states
-	Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos, reduced_base_);
-	Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(robot_model_, base_vel, joint_vel, reduced_base_);
-	Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(robot_model_, base_acc, joint_acc, reduced_base_);
+	Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, type_of_system_, reduced_base_);
+	Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, type_of_system_, reduced_base_);
+	Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(base_acc, joint_acc, type_of_system_, reduced_base_);
 	Eigen::VectorXd tau = Eigen::VectorXd::Zero(robot_model_.dof_count);
 
 	// Computing the applied external spatial forces for every body
@@ -63,7 +72,7 @@ void WholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 	RigidBodyDynamics::InverseDynamics(robot_model_, q, q_dot, q_ddot, tau, &fext);
 
 	// Converting the generalized joint forces to base wrench and joint forces
-	rbd::fromGeneralizedJointState(robot_model_, base_wrench, joint_forces, tau, reduced_base_);
+	rbd::fromGeneralizedJointState(base_wrench, joint_forces, tau, type_of_system_, reduced_base_);
 }
 
 
@@ -74,12 +83,12 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 														   const rbd::Vector6d& base_vel,
 														   const Eigen::VectorXd& joint_vel,
 														   const Eigen::VectorXd& joint_acc,
-														   const rbd::EndEffectorForce& ext_force)
+														   const rbd::BodyForce& ext_force)
 {
 	// Converting base and joint states to generalized joint states
-	Eigen::VectorXd q = rbd::toGeneralizedJointState(robot_model_, base_pos, joint_pos, reduced_base_);
-	Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(robot_model_, base_vel, joint_vel, reduced_base_);
-	Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(robot_model_, base_acc, joint_acc, reduced_base_);
+	Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, type_of_system_, reduced_base_);
+	Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, type_of_system_, reduced_base_);
+	Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(base_acc, joint_acc, type_of_system_, reduced_base_);
 	Eigen::VectorXd tau = Eigen::VectorXd::Zero(robot_model_.dof_count);
 
 	// Computing the applied external spatial forces for every body
@@ -101,7 +110,7 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 
 	// Converting the generalized joint forces to base wrench and joint forces
 	rbd::Vector6d base_wrench;
-	rbd::fromGeneralizedJointState(robot_model_, base_wrench, joint_forces, tau, reduced_base_);
+	rbd::fromGeneralizedJointState(base_wrench, joint_forces, tau, type_of_system_, reduced_base_);
 }
 
 
@@ -112,7 +121,7 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 																	  const Eigen::VectorXd& joint_vel,
 																	  const rbd::Vector6d& base_acc,
 																	  const Eigen::VectorXd& joint_acc,
-																	  const rbd::EndEffectorSelector& contacts)
+																	  const rbd::BodySelector& contacts)
 {
 	// Computing the feasible accelerations //TODO figure out about this topic
 	rbd::Vector6d base_feas_acc = base_acc;
@@ -133,7 +142,7 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 	// Computing the contact forces that generates the desired base wrench. A floating-base system can be described as
 	// floating-base with or without physical constraints or virtual floating-base. Note that with a virtual floating-base
 	// we can describe a n-dimensional floating-base, witch n less than 6
-	rbd::EndEffectorForce contact_forces;
+	rbd::BodyForce contact_forces;
 	if (rbd::isFloatingBaseRobot(robot_model_)) {
 		// This approach builds an augmented jacobian matrix as [base contact jacobian; base constraint jacobian].
 		// Therefore, we computed constrained reaction forces in the base.
@@ -210,7 +219,7 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 
 
 void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynamics::Math::SpatialVector>& fext,
-													 const rbd::EndEffectorForce& ext_force,
+													 const rbd::BodyForce& ext_force,
 													 const Eigen::VectorXd& q)
 {
 	// Computing the applied external spatial forces for every body

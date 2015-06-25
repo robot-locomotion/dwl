@@ -75,16 +75,17 @@ unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
 }
 
 
-Eigen::VectorXd toGeneralizedJointState(const RigidBodyDynamics::Model& model,
-										const Vector6d& base_state,
+Eigen::VectorXd toGeneralizedJointState(const Vector6d& base_state,
 										const Eigen::VectorXd& joint_state,
+										enum TypeOfSystem type_of_system,
 										struct rbd::ReducedFloatingBase* reduced_base)
 {
 	// Note that RBDL defines the floating base state as [linear states, angular states]
-	Eigen::VectorXd q(model.dof_count);
-	if (isFloatingBaseRobot(model))
+	Eigen::VectorXd q;
+	if (type_of_system == FloatingBase || type_of_system == ConstrainedFloatingBase) {
+		q.resize(base_state.size() + joint_state.size());
 		q << base_state, joint_state;
-	else if (isVirtualFloatingBaseRobot(reduced_base)) {
+	} else if (type_of_system == VirtualFloatingBase) {
 		Eigen::VectorXd virtual_base(reduced_base->getFloatingBaseDOF());
 		if (reduced_base->TX.active)
 			virtual_base(reduced_base->TX.id) = base_state(TX);
@@ -99,6 +100,7 @@ Eigen::VectorXd toGeneralizedJointState(const RigidBodyDynamics::Model& model,
 		if (reduced_base->RZ.active)
 			virtual_base(reduced_base->RZ.id) = base_state(RZ);
 
+		q.resize(virtual_base.size() + joint_state.size());
 		q << virtual_base, joint_state;
 	} else
 		q = joint_state;
@@ -107,17 +109,17 @@ Eigen::VectorXd toGeneralizedJointState(const RigidBodyDynamics::Model& model,
 }
 
 
-void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
-							   Vector6d& base_state,
+void fromGeneralizedJointState(Vector6d& base_state,
 							   Eigen::VectorXd& joint_state,
 							   const Eigen::VectorXd& generalized_state,
+							   enum TypeOfSystem type_of_system,
 							   struct rbd::ReducedFloatingBase* reduced_base)
 {
 	// Note that RBDL defines the floating base state as [linear states, angular states]
-	if (isFloatingBaseRobot(model)) {
-		base_state = generalized_state;
-		joint_state = generalized_state.tail(model.dof_count - 6);
-	} else if (isVirtualFloatingBaseRobot(reduced_base)) {
+	if (type_of_system == FloatingBase || type_of_system == ConstrainedFloatingBase) {
+		base_state = generalized_state.head<6>();
+		joint_state = generalized_state.tail(generalized_state.size() - 6);
+	} else if (type_of_system == VirtualFloatingBase) {
 		if (reduced_base->TX.active)
 			base_state(TX) = generalized_state(reduced_base->TX.id);
 		if (reduced_base->TY.active)
@@ -131,7 +133,8 @@ void fromGeneralizedJointState(const RigidBodyDynamics::Model& model,
 		if (reduced_base->RZ.active)
 			base_state(RZ) = generalized_state(reduced_base->RZ.id);
 
-		joint_state = generalized_state.tail(model.dof_count - reduced_base->getFloatingBaseDOF());
+		unsigned int num_virtual_jnts = reduced_base->getFloatingBaseDOF();
+		joint_state = generalized_state.tail(generalized_state.size() - num_virtual_jnts);
 	} else {
 		base_state = Vector6d::Zero();
 		joint_state = generalized_state;
