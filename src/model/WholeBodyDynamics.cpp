@@ -127,6 +127,62 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 	rbd::Vector6d base_feas_acc = base_acc;
 	Eigen::VectorXd joint_feas_acc = joint_acc;
 
+	// Computing angular and linear floating-base velocity and acceleration
+	rbd::Vector6d base_des_vel(base_vel);
+	Eigen::Vector3d base_ang_vel = rbd::angularFloatingBaseState(base_des_vel);
+	Eigen::Vector3d base_lin_vel = rbd::linearFloatingBaseState(base_des_vel);
+
+	rbd::Vector6d base_des_acc(base_acc);
+	Eigen::Vector3d base_ang_acc = rbd::angularFloatingBaseState(base_des_acc);
+	Eigen::Vector3d base_lin_acc = rbd::linearFloatingBaseState(base_des_acc);
+
+	// Computing contact linear positions
+	Eigen::VectorXd op_pos;
+	kinematics_.computeForwardKinematics(op_pos, base_pos, joint_pos, contacts, rbd::Linear);
+
+	// Computing the fixed-base jacobian
+	Eigen::MatrixXd full_jac, fixed_jac;
+	kinematics_.computeJacobian(full_jac, base_pos, joint_pos, contacts, rbd::Linear);
+	kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
+
+//	std::cout << fixed_jac << std::endl;
+
+	Eigen::VectorXd jacd_qd;
+	kinematics_.computeJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, contacts, rbd::Linear);
+
+	// Computing the consistent joint acceleration given a base state
+	for (unsigned int i = 0; i < contacts.size(); i++) {
+		Eigen::Vector3d contact_pos = op_pos.segment<3>(i * 3);
+
+		// Computing the desired contact velocity
+		Eigen::Vector3d contact_vel = -base_lin_vel - base_ang_vel.cross(contact_pos);
+
+//		std::cout << contact_vel.transpose() << " = contact vel" << std::endl;
+
+		Eigen::Vector3d contact_acc = -base_lin_acc - base_ang_acc.cross(contact_pos) - base_ang_vel.cross(contact_pos)
+				- 2 * base_ang_vel.cross(contact_vel);
+
+//		std::cout << contact_acc.transpose() << " = contact acc" << std::endl;
+
+		// Computing the join acceleration from x_dd = J*q_dd + J_d*q_d since we are doing computation in the base frame
+		Eigen::Vector2d q_dd = math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd.segment<3>(i * 3));
+
+		joint_feas_acc = q_dd;
+	}
+
+	std::cout << joint_feas_acc.transpose() << std::endl;
+	// TODO: this is a really bad code, only for hyl
+
+
+
+
+
+
+
+
+
+
+
 
 	// Computing the base wrench assuming a fully actuation on the floating-base
 	rbd::Vector6d base_wrench;

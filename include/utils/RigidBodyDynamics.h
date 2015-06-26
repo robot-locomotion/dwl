@@ -79,7 +79,7 @@ struct ReducedFloatingBase {
 		else if (RZ.active && RZ.id == id)
 			return rbd::RZ;
 		else {
-			printf(RED "Error: this id doesn't bellow to floating-base joint\n" COLOR_RESET);
+			printf(RED "ERROR: the %i id doesn't bellow to floating-base joint\n" COLOR_RESET, id);
 			return 0;
 		}
 	}
