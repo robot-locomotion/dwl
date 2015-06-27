@@ -101,7 +101,7 @@ bool isConstrainedFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_bas
 bool isVirtualFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base);
 
 /** @brief Returns the number of dof of the floating base */
-unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& mode,
+unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
 								struct rbd::ReducedFloatingBase* reduced_base = NULL);
 
 /**
@@ -132,6 +132,20 @@ void fromGeneralizedJointState(Vector6d& base_state,
 							   const Eigen::VectorXd& generalized_state,
 							   enum TypeOfSystem type_of_system,
 							   struct rbd::ReducedFloatingBase* reduced_base = NULL);
+
+/**
+ * @brief Sets the joint state given a branch values
+ * @param Eigen::VectorXd& Joint state vector
+ * @param cons Eigen::VectorXd& Branch state
+ * @param unsigned int Body id
+ * @param RigidBodyDynamics::Model& Rigid-body dynamic model
+ * @param rbd::ReducedFloatingBase* Reduced floating-base model
+ */
+void setBranchState(Eigen::VectorXd& new_joint_state,
+					const Eigen::VectorXd& branch_state,
+					unsigned int body_id,
+					RigidBodyDynamics::Model& model,
+					struct rbd::ReducedFloatingBase* reduced_base = NULL);
 
 /**
  * @brief Converts an applied velocity acting at a certain point to spatial velocity

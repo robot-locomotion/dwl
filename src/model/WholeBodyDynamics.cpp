@@ -123,11 +123,20 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 																	  const Eigen::VectorXd& joint_acc,
 																	  const rbd::BodySelector& contacts)
 {
-	// Computing the feasible accelerations //TODO figure out about this topic
+	// Computing the fixed-base jacobian and base contact jacobian. These jacobians are used for computing a consistent
+	// joint acceleration, and for mapping desired base wrench to joint forces
+	Eigen::MatrixXd full_jac, fixed_jac, base_contact_jac;
+	kinematics_.computeJacobian(full_jac, base_pos, joint_pos, contacts, rbd::Linear);
+	kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
+	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jac);
+
+
+	// Computing the consistent joint accelerations given a desired base acceleration and contact definition. We assume
+	// that contacts are static, which it allows us to computed a consistent joint accelerations.
 	rbd::Vector6d base_feas_acc = base_acc;
 	Eigen::VectorXd joint_feas_acc = joint_acc;
 
-	// Computing angular and linear floating-base velocity and acceleration
+	// At the first step, we compute the angular and linear floating-base velocity and acceleration
 	rbd::Vector6d base_des_vel(base_vel);
 	Eigen::Vector3d base_ang_vel = rbd::angularFloatingBaseState(base_des_vel);
 	Eigen::Vector3d base_lin_vel = rbd::linearFloatingBaseState(base_des_vel);
@@ -136,18 +145,9 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 	Eigen::Vector3d base_ang_acc = rbd::angularFloatingBaseState(base_des_acc);
 	Eigen::Vector3d base_lin_acc = rbd::linearFloatingBaseState(base_des_acc);
 
-	// Computing contact linear positions
-	Eigen::VectorXd op_pos;
+	// Computing contact linear positions and the J_d*q_d component, which are used for computing the joint accelerations
+	Eigen::VectorXd op_pos, jacd_qd;
 	kinematics_.computeForwardKinematics(op_pos, base_pos, joint_pos, contacts, rbd::Linear);
-
-	// Computing the fixed-base jacobian
-	Eigen::MatrixXd full_jac, fixed_jac;
-	kinematics_.computeJacobian(full_jac, base_pos, joint_pos, contacts, rbd::Linear);
-	kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
-
-//	std::cout << fixed_jac << std::endl;
-
-	Eigen::VectorXd jacd_qd;
 	kinematics_.computeJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, contacts, rbd::Linear);
 
 	// Computing the consistent joint acceleration given a base state
@@ -156,43 +156,21 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 
 		// Computing the desired contact velocity
 		Eigen::Vector3d contact_vel = -base_lin_vel - base_ang_vel.cross(contact_pos);
-
-//		std::cout << contact_vel.transpose() << " = contact vel" << std::endl;
-
 		Eigen::Vector3d contact_acc = -base_lin_acc - base_ang_acc.cross(contact_pos) - base_ang_vel.cross(contact_pos)
 				- 2 * base_ang_vel.cross(contact_vel);
 
-//		std::cout << contact_acc.transpose() << " = contact acc" << std::endl;
-
 		// Computing the join acceleration from x_dd = J*q_dd + J_d*q_d since we are doing computation in the base frame
-		Eigen::Vector2d q_dd = math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd.segment<3>(i * 3));
+		Eigen::VectorXd q_dd = math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd.segment<3>(i * 3));
 
-		joint_feas_acc = q_dd;
+		unsigned int body_contact_id = robot_model_.GetBodyId(contacts[i].c_str());
+		rbd::setBranchState(joint_feas_acc, q_dd, body_contact_id, robot_model_, reduced_base_);
 	}
 
-	std::cout << joint_feas_acc.transpose() << std::endl;
-	// TODO: this is a really bad code, only for hyl
 
-
-
-
-
-
-
-
-
-
-
-
-	// Computing the base wrench assuming a fully actuation on the floating-base
+	// Computing the desired base wrench assuming a fully actuation on the floating-base
 	rbd::Vector6d base_wrench;
 	computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
 						   base_vel, joint_vel, base_feas_acc, joint_feas_acc);
-
-	// Computing the base contribution of contact jacobian
-	Eigen::MatrixXd base_contact_jac, full_jacobian;
-	kinematics_.computeJacobian(full_jacobian, base_pos, joint_pos, contacts, dwl::rbd::Linear);
-	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jacobian);
 
 
 	// Computing the contact forces that generates the desired base wrench. A floating-base system can be described as
