@@ -30,7 +30,7 @@ function install_rbdl
 	# get RBDL 2.4.0
 	wget https://bitbucket.org/rbdl/rbdl/get/default.zip
 	unzip default.zip
-	mv rbdl-rbdl-de94c4fadf94 rbdl
+	mv rbdl-rbdl-cfd302b3b418 rbdl
 	cd rbdl
 	mkdir -p build
 	cd build
