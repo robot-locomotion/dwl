@@ -171,10 +171,6 @@ struct NeighboringArea
 	int min_z, max_z;
 };
 
-//TODO Add documentation
-typedef std::map<std::string,bool> EndEffectorSelector;
-typedef std::map<int,std::string> EndEffectorID;
-
 /**
  * @struct Contact
  * @brief Struct that defines a contact

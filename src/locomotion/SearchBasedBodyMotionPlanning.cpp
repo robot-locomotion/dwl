@@ -23,10 +23,8 @@ bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path, Po
 		Pose goal_pose)
 {
 	// Computing the yaw angle of the start and goal pose
-	double start_roll, goal_roll, start_pitch, goal_pitch, start_yaw, goal_yaw;
-	Orientation start_orientation(start_pose.orientation), goal_orientation(goal_pose.orientation);
-	start_orientation.getRPY(start_roll, start_pitch, start_yaw);
-	goal_orientation.getRPY(goal_roll, goal_pitch, goal_yaw);
+	double start_yaw = math::getYaw(math::getRPY(start_pose.orientation));
+	double goal_yaw = math::getYaw(math::getRPY(goal_pose.orientation));
 
 	// Computing the start and goal state
 	Eigen::Vector3d start_state, goal_state;
@@ -54,14 +52,12 @@ bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path, Po
 		Eigen::Vector3d path;
 		environment_->getTerrainSpaceModel().vertexToState(path, *path_iter);
 
-		// Converting the yaw angle to quaternion
-		Eigen::Quaterniond q;
-		Orientation orientation(0, 0, path(2));
-		orientation.getQuaternion(q);
-
 		// Setting the planned body pose
 		body_pose.position.head(2) = path.head(2);
-		body_pose.orientation = q;
+
+		// Converting the yaw angle to quaternion
+		Eigen::Vector3d rpy(0,0,path(2));
+		body_pose.orientation = math::getQuaternion(rpy);
 
 		body_path.push_back(body_pose);
 	}

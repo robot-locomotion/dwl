@@ -19,8 +19,7 @@ class IpoptNLP : public Solver
 		~IpoptNLP();
 
 		bool init();
-		bool compute(); //TODO Define function name
-
+		bool compute(double computation_time = std::numeric_limits<double>::max());
 
 	private:
 		solver::IpoptWrapper ipopt_;

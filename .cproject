@@ -24,8 +24,10 @@
 								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.1806599936" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.2059009696" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1487864102" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/opt/ros/hydro/include"/>
-									<listOptionValue builtIn="false" value="/usr/include/eigen3"/>
+									<listOptionValue builtIn="false" value="/usr/local/include"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/eigen3"/>
+									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/include"/>
+									<listOptionValue builtIn="false" value="/home/cmastalli/ros_workspace/src/dwl/thirdparty/ipopt/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1044205154" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>

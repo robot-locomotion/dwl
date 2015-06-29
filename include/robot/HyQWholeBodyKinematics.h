@@ -1,7 +1,7 @@
 #ifndef DWL_HyQWholeBodyKinematics_H
 #define DWL_HyQWholeBodyKinematics_H
 
-#include <model/WholeBodyKinematics.h>
+#include <model/RobCoGenWholeBodyKinematics.h>
 #include <iit/robots/hyq/jacobians.h>
 #include <iit/robots/hyq/transforms.h>
 
@@ -12,7 +12,7 @@ namespace dwl
 namespace robot
 {
 
-class HyQWholeBodyKinematics : public model::WholeBodyKinematics
+class HyQWholeBodyKinematics : public model::RobCoGenWholeBodyKinematics
 {
 	public:
 		HyQWholeBodyKinematics();

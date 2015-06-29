@@ -7,32 +7,44 @@ message("Compiling the version ${DWL_VERSION} of Dynamic Whole-Body Locomotion (
 # Appending the project module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(Eigen REQUIRED)
+# Finding dependencies
+find_package(Eigen3 REQUIRED)
+find_package(PkgConfig)
+pkg_check_modules(RBDL rbdl REQUIRED)
+find_package(YAMLCPP REQUIRED)
 find_package(ROBOTS)
 find_package(IPOPT)
 find_package(octomap)
-#find_package(yaml-cpp REQUIRED)
 
-# Setting the release mode, and flags for optimization
-set(CMAKE_BUILD_TYPE Release)
+
+# Set a default build type to 'Release' if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to 'Release' as none was specified.")
+	set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
+# Setting lags for optimization
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
 
 # Seting the output directories for libraries and executables
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
 
 # Setting the thirdparties directories and libraries
-set(DEPENDENCIES_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
-set(DEPENDENCIES_LIBRARIES yaml-cpp)
-set(DEPENDENCIES_LIBRARY_DIRS)
+set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS})
+set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} rbdl_urdfreader ${YAMLCPP_LIBRARIES})
+set(DEPENDENCIES_LIBRARY_DIRS  ${RBDL_LIBRARY_DIRS})
 
 # Including directories
 set(INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
-
 include_directories(${INCLUDE_DIRS})
 include_directories(src)
-include_directories(${EIGEN_INCLUDE_DIRS})
+include_directories(${EIGEN3_INCLUDE_DIRS})
+include_directories(${RBDL_INCLUDE_DIRS})
+include_directories(${YAMLCPP_INCLUDE_DIRS})
 
 # Setting the project sources
 set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
@@ -51,6 +63,8 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/model/KinematicConstraints.cpp
 							 src/model/StabilityConstraints.cpp
 							 src/model/Cost.cpp
+							 src/model/RobCoGenWholeBodyKinematics.cpp
+							 src/model/RobCoGenWholeBodyDynamics.cpp
 							 src/model/WholeBodyKinematics.cpp
 							 src/model/WholeBodyDynamics.cpp
 							 src/behavior/MotorPrimitives.cpp
@@ -74,44 +88,37 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/environment/StancePostureFeature.cpp
 							 src/robot/Robot.cpp
 							 src/robot/StateCost.cpp
-							 src/utils/Math.cpp
+							 src/utils/Geometry.cpp
+							 src/utils/Algebra.cpp
 							 src/utils/Orientation.cpp
+							 src/utils/RigidBodyDynamics.cpp
 							 src/utils/YamlBridge.cpp)
 
 # Adding robot components of the project
 if(hyl_FOUND)
-    set(DEPENDENCIES_INCLUDE_DIRS  ${DEPENDENCIES_INCLUDE_DIRS}
-                                   ${hyl_INCLUDE_DIRS})
-    set(DEPENDENCIES_LIBRARIES  ${DEPENDENCIES_LIBRARIES}
-                                ${hyl_LIBRARIES})
+    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${hyl_INCLUDE_DIRS})
+    list(APPEND DEPENDENCIES_LIBRARIES  ${hyl_LIBRARIES})
 
     include_directories(${hyl_INCLUDE_DIRS})
-	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
-								 src/robot/HyLWholeBodyKinematics.cpp
-								 src/robot/HyLWholeBodyDynamics.cpp)
+	list(APPEND ${PROJECT_NAME}_SOURCES  src/robot/HyLWholeBodyKinematics.cpp
+								         src/robot/HyLWholeBodyDynamics.cpp)
 endif()
 
 if(hyq_FOUND)
-    set(DEPENDENCIES_INCLUDE_DIRS  ${DEPENDENCIES_INCLUDE_DIRS}
-                                   ${hyq_INCLUDE_DIRS})
-    set(DEPENDENCIES_LIBRARIES  ${DEPENDENCIES_LIBRARIES}
-                                ${hyq_LIBRARIES})
+    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${hyq_INCLUDE_DIRS})
+    list(APPEND DEPENDENCIES_LIBRARIES  ${hyq_LIBRARIES})
 
     include_directories(${hyq_INCLUDE_DIRS})
-	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
-								 src/robot/HyQWholeBodyKinematics.cpp)
-								 #src/robot/HyQWholeBodyDynamics.cpp
+	list(APPEND ${PROJECT_NAME}_SOURCES  src/robot/HyQWholeBodyKinematics.cpp)
+								         #src/robot/HyQWholeBodyDynamics.cpp
 endif()
 
 
 # Adding Ipopt components of the project
 if(IPOPT_FOUND)
-    set(DEPENDENCIES_INCLUDE_DIRS  ${DEPENDENCIES_INCLUDE_DIRS}
-                                   ${IPOPT_INCLUDE_DIRS})
-    set(DEPENDENCIES_LIBRARY_DIRS  ${DEPENDENCIES_LIBRARY_DIRS}
-                                   ${IPOPT_LIBRARY_DIR})
-    set(DEPENDENCIES_LIBRARIES  ${DEPENDENCIES_LIBRARIES}
-                                ${IPOPT_LIBRARIES})
+    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${IPOPT_INCLUDE_DIRS})
+    list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${IPOPT_LIBRARY_DIR})
+    list(APPEND DEPENDENCIES_LIBRARIES  ${IPOPT_LIBRARIES})
     
     include_directories(${IPOPT_INCLUDE_DIRS})
     set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
@@ -122,19 +129,24 @@ endif()
 # Adding Octomap components of the project
 if(octomap_FOUND)
     include_directories(${OCTOMAP_INCLUDE_DIRS}) 
-    set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
-                                 src/environment/RewardOctoMap.cpp
-                                 src/environment/ObstacleMap.cpp)
+    list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/RewardOctoMap.cpp
+                                         src/environment/ObstacleMap.cpp)
 endif()
 
 
 # Adding the dwl library
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
-target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})# ${YAMLCPP_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
 
 
 add_executable(my_planner  tests/HierarchicalPlanningTest.cpp)
-target_link_libraries(my_planner ${PROJECT_NAME})# ${OCTOMAP_LIBRARIES})
+target_link_libraries(my_planner ${PROJECT_NAME})
+
+include_directories(tests)
+add_executable(ipopt_test  tests/IpoptDWLTest.cpp
+                           tests/model/HS071Constraint.cpp
+                           tests/model/HS071Cost.cpp)
+target_link_libraries(ipopt_test ${PROJECT_NAME})
 
 add_executable(yaml_bridge  tests/YamlBridgeTest.cpp)
 target_link_libraries(yaml_bridge ${PROJECT_NAME})

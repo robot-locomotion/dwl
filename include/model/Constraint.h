@@ -32,7 +32,7 @@ class Constraint
 							 const StateModel& state) = 0;
 
 		/**
-		 * @brief Computes the Jacobian of the constraint give a certain state
+		 * @brief Computes the Jacobian of the constraint given a certain state
 		 * @param Eigen::MatrixXd& Jacobian of the constraint function
 		 * @param const StateModel& State vector
 		 */

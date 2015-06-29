@@ -22,10 +22,10 @@ HyQWholeBodyKinematics::~HyQWholeBodyKinematics()
 void HyQWholeBodyKinematics::init()
 {
 	// Defining the end-effector ids
-	effector_id_[0] = "LF_foot";
-	effector_id_[1] = "RF_foot";
-	effector_id_[2] = "LH_foot";
-	effector_id_[3] = "RH_foot";
+	body_id_["LF_foot"] = 0;
+	body_id_["RF_foot"] = 1;
+	body_id_["LH_foot"] = 2;
+	body_id_["RH_foot"] = 3;
 
 	// Defining the jacobians of the end-effectors
 	jacobians_["LF_foot"] = jacs_.fr_trunk_J_LF_foot;
@@ -33,18 +33,18 @@ void HyQWholeBodyKinematics::init()
 	jacobians_["LH_foot"] = jacs_.fr_trunk_J_LH_foot;
 	jacobians_["RH_foot"] = jacs_.fr_trunk_J_RH_foot;
 
-	// Defining the homogeneous transformof the end-effectors
+	// Defining the homogeneous transform of the end-effectors
 	homogeneous_tf_["LF_foot"] = hom_tf_.fr_trunk_X_LF_foot;
 	homogeneous_tf_["RF_foot"] = hom_tf_.fr_trunk_X_RF_foot;
 	homogeneous_tf_["LH_foot"] = hom_tf_.fr_trunk_X_LH_foot;
 	homogeneous_tf_["RH_foot"] = hom_tf_.fr_trunk_X_RH_foot;
 
 	// Computing the number of joints given the jacobians
-	for (EndEffectorID::iterator effector_iter = effector_id_.begin();
-			effector_iter != effector_id_.end();
-			effector_iter++)
+	for (rbd::BodyID::iterator body_iter = body_id_.begin();
+			body_iter != body_id_.end();
+			body_iter++)
 	{
-		std::string effector_name = effector_iter->second;
+		std::string effector_name = body_iter->first;
 		Eigen::MatrixXd jac = jacobians_.find(effector_name)->second;
 		num_joints_ += jac.cols();
 	}

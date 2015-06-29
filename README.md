@@ -8,13 +8,17 @@ Visit the [DWL installation page](http://.html) for detailed installation instru
 DWL has the following required dependencies:
 
 * [Boost](http://www.boost.org) (version x.x or higher)
-* [CMake](http://www.cmake.org) (version x.x.x or higher)
+* [CMake](http://www.cmake.org) (version 2.8.3 or higher)
 * [Eigen](http://eigen.tuxfamily.org) (version 3.2.2 or higher)
-* [yaml-cpp](https://code.google.com/p/yaml-cpp/) (version 0.2.7 or higher)
+* [Odeint](http://headmyshoulder.github.io/odeint-v2/index.html) (version 2 or higher)
+* [Yaml-cpp](https://code.google.com/p/yaml-cpp/) (version 0.2.7 or higher)
 
 The following dependece are optional:
 * [Doxygen](http://www.doxygen.org)
+* [Ipopt](https://projects.coin-or.org/Ipopt) (version 3.11.8 or higher)
 * [Octomap](http://octomap.github.io) (version 1.6.6 or higher)
+
+All these required dependencies can be installed using install_deps.sh script.
 
 Once dependencies are installed, you can build DWL on Linux. Go to the top-level directory of DWL and type the
 following commands:

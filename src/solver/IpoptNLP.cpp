@@ -9,7 +9,8 @@ namespace solver
 
 IpoptNLP::IpoptNLP()
 {
-
+	name_ = "IpoptNLP";
+	is_optimization_algorithm_ = true;
 }
 
 
@@ -29,7 +30,7 @@ bool IpoptNLP::init()
 	// We are using the factory, since this allows us to compile this
 	// example with an Ipopt Windows DLL
 	app_ = IpoptApplicationFactory();
-//	app->RethrowNonIpoptException(true);
+	app_->RethrowNonIpoptException(true);
 
 	// Change some options (do not touch these)
 	app_->Options()->SetNumericValue("tol", 1e-7);
@@ -80,7 +81,7 @@ bool IpoptNLP::init()
 }
 
 
-bool IpoptNLP::compute()
+bool IpoptNLP::compute(double computation_time)
 {
 	ipopt_.reset(model_);
 

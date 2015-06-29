@@ -14,14 +14,39 @@ function install_eigen
 {
 	# get Eigen 3.2.4
 	wget http://www.bitbucket.org/eigen/eigen/get/3.2.4.tar.bz2
-	tar jxf 3.2.4.tar.bz2
-	cd eigen-eigen-10219c95fe65
+	mkdir eigen && tar jxf 3.2.4.tar.bz2 -C eigen --strip-components 1
+	cd eigen
 	mkdir -p build
 	cd build
 	cmake ../
 	sudo make install
 	cd ../../
 	rm -rf 3.2.4.tar.bz2
+}
+
+
+function install_rbdl
+{
+	# get RBDL 2.4.0
+	wget https://bitbucket.org/rbdl/rbdl/get/default.zip
+	unzip default.zip
+	mv rbdl-rbdl-cfd302b3b418 rbdl
+	cd rbdl
+	mkdir -p build
+	cd build
+	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON CMAKE_INSTALL_INCLUDEDIR:string=lib ../
+	sudo make install
+	cd ../../
+	rm default.zip
+}
+
+
+function install_odeint
+{
+	# Getting Odeint 2
+	wget http://github.com/headmyshoulder/odeint-v2/tarball/master/headmyshoulder-odeint-v2-v2.4-141-g656e146.tar.gz
+	mkdir odeint && tar zxf headmyshoulder-odeint-v2-v2.4-141-g656e146.tar.gz -C odeint --strip-components 1
+	rm -rf headmyshoulder-odeint-v2-v2.4-141-g656e146.tar.gz
 }
 
 
@@ -33,36 +58,24 @@ function install_yamlcpp
 	cd yaml-cpp
 	mkdir -p build
 	cd build
-	cmake ../
+	cmake -D BUILD_SHARED_LIBS:bool=ON ../
 	sudo make install
 	cd ../../
 	rm -rf yaml-cpp-0.3.0.tar.gz
 }
 
 
-function install_octomap
-{
-	# get Octomap 1.6.8
-	wget https://github.com/OctoMap/octomap/archive/v1.6.8.tar.gz
-	tar zxf v1.6.8.tar.gz
-	cd octomap-1.6.8
-	mkdir -p build
-	cd build
-	cmake ../
-	sudo make install
-	cd ../../
-	rm -rf v1.6.8.tar.gz
-}
-
-
 function install_ipopt
 {
-	# Getting Ipopt 3.9.3
-	wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.9.3.tgz
-	tar xzvf Ipopt-3.9.3.tgz
+	# Installing necessary packages
+	sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
+
+	# Getting Ipopt 3.11.8
+	wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.11.8.tgz
+	mkdir ipopt && tar xzvf Ipopt-3.11.8.tgz -C ipopt --strip-components 1
 	# Documentation for Ipopt Third Party modules:
 	# http://www.coin-or.org/Ipopt/documentation/node13.html
-	cd Ipopt-3.9.3/ThirdParty
+	cd ipopt/ThirdParty
 	# Getting Blas dependency
 	cd Blas
 	sed -i 's/ftp:/http:/g' get.Blas
@@ -75,9 +88,9 @@ function install_ipopt
 	cd ..
 	# Getting Metis dependency
 	cd Metis
-	sed -i 's/metis\/metis/metis\/OLD\/metis/g' get.Metis
-	sed -i 's/metis-4\.0/metis-4\.0\.1/g' get.Metis
-	sed -i 's/mv metis/#mv metis/g' get.Metis
+#	sed -i 's/metis\/metis/metis\/OLD\/metis/g' get.Metis
+#	sed -i 's/metis-4\.0/metis-4\.0\.3/g' get.Metis
+#	sed -i 's/mv metis/#mv metis/g' get.Metis
 	./get.Metis
 	# Patching is necessary. See http://www.math-linux.com/mathematics/Linear-Systems/How-to-patch-metis-4-0-error
 	wget http://www.math-linux.com/IMG/patch/metis-4.0.patch
@@ -110,13 +123,26 @@ function install_ipopt
 	mkdir -p build
 	cd build
 	# start building
-	../configure --enable-static --prefix ${SELF_PATH}/thirdparty/Ipopt-3.9.3
+	../configure --enable-static --prefix ${SELF_PATH}/thirdparty/ipopt
 	make install
 	cd ../../
-	rm -rf Ipopt-3.9.3.tgz
+	rm -rf Ipopt-3.11.8.tgz
 }
 
 
+function install_octomap
+{
+	# Getting Octomap 1.6.8
+	wget https://github.com/OctoMap/octomap/archive/v1.6.8.tar.gz
+	mkdir octomap && tar zxf v1.6.8.tar.gz -C octomap --strip-components 1
+	cd octomap
+	mkdir -p build
+	cd build
+	cmake ../
+	sudo make install
+	cd ../../
+	rm -rf v1.6.8.tar.gz
+}
 
 
 ##############################################  MAIN  ########################################################
@@ -172,6 +198,40 @@ else
 	install_eigen
 fi
 
+
+##---------------------------------------------------------------##
+##----------------------- Installing RBDL -----------------------##
+##---------------------------------------------------------------##
+echo ""
+echo -e "${COLOR_BOLD}Installing RBDL ...${COLOR_RESET}"
+echo ""
+if [ -d "/usr/local/include/rbdl" ]; then
+	echo -e "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? (Y/N)${COLOR_RESET}"
+	read ANSWER_RBDL
+	if [ "$ANSWER_RBDL" == "Y" ] || [ "$ANSWER_RBDL" == "y" ]; then
+		install_rbdl
+    fi
+else
+	install_rbdl
+fi
+
+##---------------------------------------------------------------##
+##--------------------- Installing Odeint -----------------------##
+##---------------------------------------------------------------##
+echo -e "${COLOR_BOLD}Installing Odeint ...${COLOR_RESET}"
+echo ""
+if [ -d "odeint" ]; then
+	# Control will enter here if $DIRECTORY exists.
+	echo -e "${COLOR_QUES}Do you want to re-install Odeint 2? (Y/N)${COLOR_RESET}"
+	read ANSWER_ODEINT
+	if [ "$ANSWER_ODEINT" == "Y" ] || [ "$ANSWER_ODEINT" == "y" ]; then
+		install_odeint
+    fi
+else
+	install_odeint
+fi
+
+
 ##---------------------------------------------------------------##
 ##-------------------- Installing YAML-CPP ----------------------##
 ##---------------------------------------------------------------##
@@ -180,12 +240,29 @@ echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
 echo ""
 if [ -d "/usr/local/include/yaml-cpp" ]; then
 	echo -e "${COLOR_QUES}Do you want to re-install YAML-CPP 0.3.0? (Y/N)${COLOR_RESET}"
-	read ANSWER_EIGEN
-	if [ "$ANSWER_EIGEN" == "Y" ] || [ "$ANSWER_EIGEN" == "y" ]; then
+	read ANSWER_YAMLCPP
+	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
 		install_yamlcpp
     fi
 else
 	install_yamlcpp
+fi
+
+
+##---------------------------------------------------------------##
+##---------------------- Installing Ipopt -----------------------##
+##---------------------------------------------------------------##
+echo -e "${COLOR_BOLD}Installing Ipopt ...${COLOR_RESET}"
+echo ""
+if [ -d "ipopt" ]; then
+	# Control will enter here if $DIRECTORY exists.
+	echo -e "${COLOR_QUES}Do you want to re-install Ipopt 3.11.8? (Y/N)${COLOR_RESET}"
+	read ANSWER_IPOPT
+	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
+		install_ipopt
+    fi
+else
+	install_ipopt
 fi
 
 
@@ -203,20 +280,4 @@ if [ -d "/usr/local/include/octomap" ]; then
     fi
 else
 	install_octomap
-fi
-
-##---------------------------------------------------------------##
-##---------------------- Installing Ipopt -----------------------##
-##---------------------------------------------------------------##
-echo -e "${COLOR_BOLD}Installing Ipopt ...${COLOR_RESET}"
-echo ""
-if [ -d "Ipopt-3.9.3" ]; then
-	# Control will enter here if $DIRECTORY exists.
-	echo -e "${COLOR_QUES}Do you want to re-install Ipopt 3.9.3? (Y/N)${COLOR_RESET}"
-	read ANSWER_IPOPT
-	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
-		install_ipopt
-    fi
-else
-	install_ipopt
 fi
