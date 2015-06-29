@@ -1,5 +1,5 @@
-#ifndef Typedefs_H
-#define Typedefs_H
+#ifndef DWL_Typedefs_H
+#define DWL_Typedefs_H
 
 #include <map>
 #include <list>
@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <Eigen/Dense>
-
+#include <iit/rbd/rbd.h>
 #include <octomap/octomap.h>
 
 
@@ -67,9 +67,11 @@ struct pair_first_less
  */
 struct Edge
 {
+	Edge() : target(0), weight(0) {}
+	Edge(Vertex target, Weight weight) : target(target), weight(weight) {}
+
 	Vertex target;
 	Weight weight;
-	Edge(Vertex arg_target, Weight arg_weight) : target(arg_target), weight(arg_weight) { }
 };
 
 /** Defines an adjacency map for graph-searching algorithms */
@@ -156,7 +158,7 @@ struct SearchArea
 };
 
 /** @brief Defines a search area map */
-typedef std::map<unsigned int, SearchArea> SearchAreaMap;//TODO
+typedef std::map<unsigned int, SearchArea> SearchAreaMap;
 
 /**
  * @struct NeighboringArea
@@ -168,6 +170,10 @@ struct NeighboringArea
 	int min_y, max_y;
 	int min_z, max_z;
 };
+
+//TODO Add documentation
+typedef std::map<std::string,bool> EndEffectorSelector;
+typedef std::map<int,std::string> EndEffectorID;
 
 /**
  * @struct Contact
@@ -188,6 +194,20 @@ struct ContactSearchRegion
 	int end_effector;
 	Eigen::Vector3d position;
 	SearchArea region;
+};
+
+struct StateModel
+{
+	double time;
+	iit::rbd::Vector6D base_pos;
+	iit::rbd::Vector6D base_vel;
+	iit::rbd::Vector6D base_acc;
+	Eigen::VectorXd joint_pos;
+	Eigen::VectorXd joint_vel;
+	Eigen::VectorXd joint_acc;
+	Contact contact_pos;
+	Contact contact_for;
+	Contact contact_tor;
 };
 
 /**

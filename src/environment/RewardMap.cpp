@@ -75,7 +75,8 @@ void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 		double xc = point(0) - robot_state(0);
 		double yc = point(1) - robot_state(1);
 		if (xc * cos(yaw) + yc * sin(yaw) >= 0.0) {
-			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) + pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1) {
+			if (pow(xc * cos(yaw) + yc * sin(yaw), 2) / pow(interest_radius_y_, 2) +
+					pow(xc * sin(yaw) - yc * cos(yaw), 2) / pow(interest_radius_x_, 2) > 1) {
 				terrain_rewardmap_.erase(v);
 				terrain_heightmap_.erase(v);
 			}
@@ -140,7 +141,8 @@ void RewardMap::removeCellToTerrainHeightMap(Vertex cell_vertex)
 }
 
 
-void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double max_y, double min_z, double max_z, double grid_resolution)
+void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double max_y,
+		double min_z, double max_z, double grid_resolution)
 {
 	SearchArea search_area;
 	search_area.min_x = min_x;
@@ -162,7 +164,8 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 }
 
 
-void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors, int right_neighbors, int bottom_neighbors, int top_neighbors)
+void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors,
+		int right_neighbors, int bottom_neighbors, int top_neighbors)
 {
 	neighboring_area_.min_x = back_neighbors;
 	neighboring_area_.max_x = front_neighbors;

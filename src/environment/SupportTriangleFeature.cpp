@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-SupportTriangleFeature::SupportTriangleFeature() : stable_inradii_(0.13), unstable_inradii_(0.08)
+SupportTriangleFeature::SupportTriangleFeature(double stable_inradii, double unstable_inradii) :
+		stable_inradii_(stable_inradii), unstable_inradii_(unstable_inradii)
 {
 	name_ = "Support Triangle";
 }
@@ -52,9 +53,7 @@ void SupportTriangleFeature::computeReward(double& reward_value, RobotAndTerrain
 	double size_b = (foothold_2 - foothold_0).norm();
 	double size_c = (foothold_2 - foothold_1).norm();
 
-	utils::Math math;
-	math.inRadiiTriangle(inradii, size_a, size_b, size_c);
-
+	math::inRadiiTriangle(inradii, size_a, size_b, size_c);
 	if (inradii >= stable_inradii_)
 		reward_value = 0;
 	else if (inradii > unstable_inradii_) {

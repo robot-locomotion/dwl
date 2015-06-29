@@ -29,16 +29,21 @@ class BodyMotorPrimitives : public MotorPrimitives
 		/** @brief Destructor function */
 		~BodyMotorPrimitives();
 
+		/**
+		 * @brief Reads the information of the motor primitives from a file path
+		 * @param std::string File path
+		 */
 		void read(std::string filepath);
 
 		/**
 		 * @brief Abstract method for generation 3D actions
-		 * @param std::vector<dwl::Action3d>& actions Set of actions
-		 * @param dwl::Action3d state Current 3D pose
+		 * @param std::vector<Action3d>& Set of actions
+		 * @param Action3d Current 3D pose
 		 */
 		void generateActions(std::vector<Action3d>& actions, Pose3d state);
 
 	private:
+		/** @brief Vector of body actions */
 		std::vector<BodyMotorPrimitive> actions_;
 
 };

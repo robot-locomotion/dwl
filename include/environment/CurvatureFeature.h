@@ -24,8 +24,8 @@ class CurvatureFeature : public Feature
 
 		/**
 		 * @brief Compute the reward value given a terrain information
-		 * @param double& reward_value Reward value
-		 * @param dwl::environment::Terrain terrain_info Information of the terrain
+		 * @param double& Reward value
+		 * @param Terrain Information of the terrain
 		 */
 		void computeReward(double& reward_value, Terrain terrain_info);
 

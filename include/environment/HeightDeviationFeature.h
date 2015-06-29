@@ -18,15 +18,16 @@ class HeightDeviationFeature : public Feature
 {
 	public:
 		/** @brief Constructor function */
-		HeightDeviationFeature();
+		HeightDeviationFeature(double flat_height_deviation, double max_height_deviation,
+				double min_allowed_height = -std::numeric_limits<double>::max());
 
 		/** @brief Destructor function */
 		~HeightDeviationFeature();
 
 		/**
 		 * @brief Compute the reward value given a terrain information
-		 * @param double& reward_value Reward value
-		 * @param dwl::Terrain terrain_info Information of the terrain
+		 * @param double& Reward value
+		 * @param Terrain Information of the terrain
 		 */
 		void computeReward(double& reward_value, Terrain terrain_info);
 
@@ -37,6 +38,9 @@ class HeightDeviationFeature : public Feature
 
 		/** @brief Maximum height deviation */
 		double max_height_deviation_;
+
+		/** @brief Minimum allowed height */
+		double min_allowed_height_;
 };
 
 } //@namespace environment

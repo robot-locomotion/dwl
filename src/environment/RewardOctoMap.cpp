@@ -46,8 +46,8 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 		boundary_max(1) = search_areas_[n].max_y + robot_state(1);
 
 		double resolution = search_areas_[n].resolution;
-		for (double y = boundary_min(1); y < boundary_max(1); y += resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
+		for (double y = boundary_min(1); y <= boundary_max(1); y += resolution) {
+			for (double x = boundary_min(0); x <= boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate of the point inside the search area
 				double xr = (x - robot_state(0)) * cos(yaw) - (y - robot_state(1)) * sin(yaw) + robot_state(0);
 				double yr = (x - robot_state(0)) * sin(yaw) + (y - robot_state(1)) * cos(yaw) + robot_state(1);
@@ -55,7 +55,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 				// Checking if the cell belongs to dimensions of the map, and also getting the key of this cell
 				double z = search_areas_[n].max_z + robot_state(2);
 				octomap::OcTreeKey init_key;
-				if (!octomap->coordToKeyChecked(xr, yr, z, depth_, init_key)) {//TODO Analysing the depth value
+				if (!octomap->coordToKeyChecked(xr, yr, z, depth_, init_key)) {
 					printf(RED "Cell out of bounds\n" COLOR_RESET);
 
 					return;
@@ -91,7 +91,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 								addCellToTerrainHeightMap(vertex_id, (double) cell_position(2));
 							else {
 								bool new_status = true;
-								if ((terrain_rewardmap_.count(vertex_id) > 0)) {//find(vertex_id)->first == vertex_id)) {
+								if ((terrain_rewardmap_.count(vertex_id) > 0)) {
 									// Evaluating if it changed status (height)
 									RewardCell reward_cell = terrain_rewardmap_.find(vertex_id)->second;
 									if (reward_cell.key.z != cell_key.z) {
@@ -114,9 +114,8 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 	}
 
 	// Computing the total reward
-	std::map<Vertex, double> terrain_heightmap = terrain_heightmap_;
-	for (std::map<Vertex, double>::iterator terrain_iter = terrain_heightmap.begin();
-			terrain_iter != terrain_heightmap.end();
+	for (std::map<Vertex, double>::iterator terrain_iter = terrain_heightmap_.begin();
+			terrain_iter != terrain_heightmap_.end();
 			terrain_iter++)
 	{
 		octomap::OcTreeKey heightmap_key;
@@ -135,7 +134,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 			computeRewards(octomap, heightmap_key);
 		else {
 			bool new_status = true;
-			if (terrain_rewardmap_.count(vertex_id) > 0) {//find(vertex_id)->first == vertex_id) {
+			if (terrain_rewardmap_.count(vertex_id) > 0) {
 				// Evaluating if it's changed status (height)
 				RewardCell reward_cell = terrain_rewardmap_.find(vertex_id)->second;
 
@@ -143,7 +142,7 @@ void RewardOctoMap::compute(TerrainModel model, Eigen::Vector4d robot_state)
 					removeCellToRewardMap(vertex_id);
 					removeCellToTerrainHeightMap(vertex_id);
 				} else
-					new_status = false; //TODO Evaluating if we can do it at time! This is done by commenting this
+					new_status = true;//false;
 			}
 
 			if (new_status)
@@ -209,7 +208,8 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 	if (is_there_neighboring) {
 		// Computing terrain info
 		EIGEN_ALIGN16 Eigen::Matrix3d covariance_matrix;
-		if (neighbors_position.size() < 3 || math_.computeMeanAndCovarianceMatrix(neighbors_position, covariance_matrix, terrain_info.position) == 0)
+		if (neighbors_position.size() < 3 ||
+				math::computeMeanAndCovarianceMatrix(neighbors_position, covariance_matrix, terrain_info.position) == 0)
 			return;
 
 		if (!using_cloud_mean_) {
@@ -218,7 +218,7 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 			terrain_info.position(2) = neighbors_position[0](2);
 		}
 
-		math_.solvePlaneParameters(terrain_info.surface_normal, terrain_info.curvature, covariance_matrix);
+		math::solvePlaneParameters(terrain_info.surface_normal, terrain_info.curvature, covariance_matrix);
 	}
 
 	terrain_info.height_map = terrain_heightmap_;
@@ -231,9 +231,6 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 		unsigned int num_feature = features_.size();
 		for (unsigned int i = 0; i < num_feature; i++) {
 			features_[i]->computeReward(reward_value, terrain_info);
-			if (reward_value != reward_value) {
-				std::cout << "Feature name = " << features_[i]->getName().c_str() << std::endl;
-			}
 			features_[i]->getWeight(weight);
 			total_reward += weight * reward_value;
 		}
@@ -243,7 +240,8 @@ void RewardOctoMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey 
 		addCellToRewardMap(cell);
 	}
 	else {
-		printf(YELLOW "Could not computed the reward of the features because it is necessary to add at least one\n" COLOR_RESET);
+		printf(YELLOW "Could not computed the reward of the features because it is necessary to add at least one\n"
+				COLOR_RESET);
 	}
 }
 

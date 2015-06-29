@@ -7,8 +7,8 @@ namespace dwl
 namespace environment
 {
 
-PotentialLegCollisionFeature::PotentialLegCollisionFeature() :
-		potential_clearance_(0.04), potential_collision_(0.2)
+PotentialLegCollisionFeature::PotentialLegCollisionFeature(double clearance, double collision) :
+		potential_clearance_(clearance), potential_collision_(collision)
 {
 	name_ = "Potential Leg Collision";
 }
@@ -52,13 +52,13 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 		boundary_max(0) = position(0) + leg_position(0) + leg_area.max_x;
 		boundary_max(1) = position(1) + leg_position(1) + leg_area.max_y;
 
-		// Computing the maximum and minimun height around the leg area
+		// Computing the maximum and minimum height around the leg area
 		double max_height = -std::numeric_limits<double>::max();
 		double mean_height = 0;
 		int counter = 0;
 		bool is_there_height_values = false;
-		for (double y = boundary_min(1); y < boundary_max(1); y += leg_area.resolution) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += leg_area.resolution) {
+		for (double y = boundary_min(1); y <= boundary_max(1); y += leg_area.resolution) {
+			for (double x = boundary_min(0); x <= boundary_max(0); x += leg_area.resolution) {
 				Eigen::Vector2d coord;
 				coord(0) = (x - position(0)) * cos(yaw) - (y - position(1)) * sin(yaw) + position(0);
 				coord(1) = (x - position(0)) * sin(yaw) + (y - position(1)) * cos(yaw) + position(1);
@@ -88,7 +88,8 @@ void PotentialLegCollisionFeature::computeReward(double& reward_value, RobotAndT
 			if (max_diff_height < potential_clearance_)
 				reward_value += 0.0;
 			else if (max_diff_height < potential_collision_) {
-				double potential_reward_value = log(0.75 * (1 - (max_diff_height - potential_clearance_) / (potential_collision_ - potential_clearance_)));
+				double potential_reward_value = log(0.75 * (1 - (max_diff_height - potential_clearance_) /
+						(potential_collision_ - potential_clearance_)));
 				if (min_reward_ > potential_reward_value)
 					reward_value += min_reward_;
 				else

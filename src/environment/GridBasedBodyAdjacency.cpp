@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true), neighboring_definition_(3), number_top_reward_(5), uncertainty_factor_(1.15)
+GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true),
+		neighboring_definition_(3), number_top_reward_(5), uncertainty_factor_(1.15)
 {
 	name_ = "Grid-based Body";
 	is_lattice_ = false;
@@ -82,7 +83,8 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Ve
 			}
 		}
 	} else
-		printf(RED "Could not computed the adjacency map because there is not terrain information \n" COLOR_RESET);
+		printf(RED "Could not computed the adjacency map because there is not terrain information \n"
+				COLOR_RESET);
 }
 
 
@@ -102,7 +104,8 @@ void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex s
 		for (unsigned int i = 0; i < action_size; i++) {
 			// Converting the state vertex (x,y,yaw) to a terrain vertex (x,y)
 			Vertex terrain_vertex;
-			environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, neighbor_actions[i], XY_Y);
+			environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex,
+					neighbor_actions[i], XY_Y);
 
 			if (!isStanceAdjacency()) {
 				double terrain_cost = terrain_costmap.find(terrain_vertex)->second;
@@ -115,7 +118,8 @@ void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex s
 			}
 		}
 	} else
-		printf(RED "Could not computed the successors because there is not terrain information \n" COLOR_RESET);
+		printf(RED "Could not computed the successors because there is not terrain information \n"
+				COLOR_RESET);
 }
 
 
@@ -308,19 +312,22 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost, Vertex state_vertex)
 		std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > stance_cost_queue;
 		double stance_cost = 0;
 		double resolution = stance_areas_[n].resolution;
-		for (double y = boundary_min(1); y < boundary_max(1); y += resolution ) {
-			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
+		for (double y = boundary_min(1); y <= boundary_max(1); y += resolution ) {
+			for (double x = boundary_min(0); x <= boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate according to the orientation of the body
 				Eigen::Vector2d point_position;
-				point_position(0) = (x - state(0)) * cos((double) state(2)) - (y - state(1)) * sin((double) state(2)) + state(0);
-				point_position(1) = (x - state(0)) * sin((double) state(2)) + (y - state(1)) * cos((double) state(2)) + state(1);
+				point_position(0) = (x - state(0)) * cos((double) state(2)) -
+						(y - state(1)) * sin((double) state(2)) + state(0);
+				point_position(1) = (x - state(0)) * sin((double) state(2)) +
+						(y - state(1)) * cos((double) state(2)) + state(1);
 
 				Vertex current_2d_vertex;
 				environment_->getTerrainSpaceModel().coordToVertex(current_2d_vertex, point_position);
 
-				// Inserts the element in an organized vertex queue, according to the maximun value
+				// Inserts the element in an organized vertex queue, according to the maximum value
 				if (terrain_costmap.count(current_2d_vertex) > 0)
-					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(current_2d_vertex)->second, current_2d_vertex));
+					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(current_2d_vertex)->second,
+							current_2d_vertex));
 			}
 		}
 

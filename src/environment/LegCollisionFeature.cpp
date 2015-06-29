@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-LegCollisionFeature::LegCollisionFeature() : potential_clearance_(0.04), potential_collision_(0.2)
+LegCollisionFeature::LegCollisionFeature(double clearance, double collision) :
+		potential_clearance_(clearance), potential_collision_(collision)
 {
 	name_ = "Leg Collision";
 }
@@ -39,11 +40,11 @@ void LegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain in
 	boundary_max(0) = foothold(0) + leg_workspace.max_x;
 	boundary_max(1) = foothold(1) + leg_workspace.max_y;
 
-	// Computing the maximum and minimun height around the leg area
+	// Computing the maximum and minimum height around the leg area
 	double max_height = -std::numeric_limits<double>::max();
 	bool is_there_height_values = false;
-	for (double y = boundary_min(1); y < boundary_max(1); y += leg_workspace.resolution) {
-		for (double x = boundary_min(0); x < boundary_max(0); x += leg_workspace.resolution) {
+	for (double y = boundary_min(1); y <= boundary_max(1); y += leg_workspace.resolution) {
+		for (double x = boundary_min(0); x <= boundary_max(0); x += leg_workspace.resolution) {
 			Eigen::Vector2d coord;
 			coord(0) = (x - position(0)) * cos(yaw) - (y - position(1)) * sin(yaw) + position(0);
 			coord(1) = (x - position(0)) * sin(yaw) + (y - position(1)) * cos(yaw) + position(1);
@@ -65,12 +66,12 @@ void LegCollisionFeature::computeReward(double& reward_value, RobotAndTerrain in
 
 	if (is_there_height_values) {
 		double max_diff_height = max_height - foothold(2);
-
-		if (max_diff_height > 0) {
+		if (max_diff_height > 0.0) {
 			if (max_diff_height < potential_clearance_)
 				reward_value = 0.0;
 			else if (max_diff_height < potential_collision_) {
-				reward_value = log(0.75 * (1 - (max_diff_height - potential_clearance_) / (potential_collision_ - potential_clearance_)));
+				reward_value = log(0.75 * (1 - (max_diff_height - potential_clearance_) /
+						(potential_collision_ - potential_clearance_)));
 				if (min_reward_ > reward_value)
 					reward_value = min_reward_;
 			} else

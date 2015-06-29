@@ -21,15 +21,15 @@ class PotentialBodyOrientationFeature : public Feature
 {
 	public:
 		/** @brief Constructor function */
-		PotentialBodyOrientationFeature();
+		PotentialBodyOrientationFeature(double max_roll, double max_pitch);
 
 		/** @brief Destructor function */
 		~PotentialBodyOrientationFeature();
 
 		/**
 		 * @brief Compute the reward value given a robot and terrain information
-		 * @param double& reward_value Reward value
-		 * @param dwl::environment::RobotAndTerrain info Information of the robot and terrain
+		 * @param double& Reward value
+		 * @param RobotAndTerrain Information of the robot and terrain
 		 */
 		void computeReward(double& reward_value, RobotAndTerrain info);
 

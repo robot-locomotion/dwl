@@ -19,23 +19,23 @@ class SupportTriangleFeature : public Feature
 {
 	public:
 		/** @brief Constructor function */
-		SupportTriangleFeature();
+		SupportTriangleFeature(double stable_inradii, double unstable_inradii);
 
 		/** @brief Destructor function */
 		~SupportTriangleFeature();
 
 		/**
 		 * @brief Compute the reward value given a terrain information
-		 * @param double& reward_value Reward value
-		 * @param dwl::environment::RobotAndTerrain info Information of the robot and terrain
+		 * @param double& Reward value
+		 * @param RobotAndTerrain Information of the robot and terrain
 		 */
 		void computeReward(double& reward_value, RobotAndTerrain info);
 
 	private:
-		/** @brief Stable suppport triangle area */
+		/** @brief Stable support triangle area */
 		double stable_inradii_;
 
-		/** @brief Unstable suppport triangle area */
+		/** @brief Unstable support triangle area */
 		double unstable_inradii_;
 };
 

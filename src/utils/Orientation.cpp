@@ -63,10 +63,14 @@ void Orientation::getRotationMatrix(Eigen::Matrix3d& rotation_matrix)
 
 Eigen::Quaterniond Orientation::RPYToQuaternion(double roll, double pitch, double yaw)
 {
-	double w = cos(roll / 2.0) * cos(pitch / 2.0) * cos(yaw / 2.0) + sin(roll / 2.0) * sin(pitch / 2.0) * sin(yaw / 2.0);
-	double x = sin(roll / 2.0) * cos(pitch / 2.0) * cos(yaw / 2.0) - cos(roll / 2.0) * sin(pitch / 2.0) * sin(yaw / 2.0);
-	double y = cos(roll / 2.0) * sin(pitch / 2.0) * cos(yaw / 2.0) + sin(roll / 2.0) * cos(pitch / 2.0) * sin(yaw / 2.0);
-	double z = cos(roll / 2.0) * cos(pitch / 2.0) * sin(yaw / 2.0) - sin(roll / 2.0) * sin(pitch / 2.0) * cos(yaw / 2.0);
+	double w = cos(roll / 2.0) * cos(pitch / 2.0) * cos(yaw / 2.0) +
+			sin(roll / 2.0) * sin(pitch / 2.0) * sin(yaw / 2.0);
+	double x = sin(roll / 2.0) * cos(pitch / 2.0) * cos(yaw / 2.0) -
+			cos(roll / 2.0) * sin(pitch / 2.0) * sin(yaw / 2.0);
+	double y = cos(roll / 2.0) * sin(pitch / 2.0) * cos(yaw / 2.0) +
+			sin(roll / 2.0) * cos(pitch / 2.0) * sin(yaw / 2.0);
+	double z = cos(roll / 2.0) * cos(pitch / 2.0) * sin(yaw / 2.0) -
+			sin(roll / 2.0) * sin(pitch / 2.0) * cos(yaw / 2.0);
 	Eigen::Quaterniond quaternion(w, x, y, z);
 
 	return quaternion;

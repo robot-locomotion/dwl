@@ -108,7 +108,8 @@ void Robot::read(std::string filepath)
 
 							pattern_locomotion_[leg_id] = next_leg_id;
 						} else
-							printf(YELLOW "Warning: the next leg of %s was not read\n" COLOR_RESET, leg_name.c_str());
+							printf(YELLOW "Warning: the next leg of %s was not read\n" COLOR_RESET,
+									leg_name.c_str());
 					}
 				} else
 					printf(YELLOW "Warning: the pattern of locomotion was not read\n" COLOR_RESET);
@@ -128,7 +129,8 @@ void Robot::read(std::string filepath)
 							stance(2) = estimated_ground_from_body_;
 							nominal_stance_[leg_id] = stance;
 						} else
-							printf(YELLOW "Warning: the position of %s leg was not read\n" COLOR_RESET, leg_name.c_str());
+							printf(YELLOW "Warning: the position of %s leg was not read\n" COLOR_RESET,
+									leg_name.c_str());
 					}
 
 					if (const YAML::Node* pleg_offset = nom_stance.FindValue("lateral_offset"))
@@ -158,10 +160,9 @@ void Robot::read(std::string filepath)
 							yaml_reader_.read(*pfootstep, footstep_area);
 							footstep_window_[leg_id] = footstep_area;
 						} else
-							printf(YELLOW "Warning: the footstep search window of %s leg was not read\n" COLOR_RESET, leg_name.c_str());
+							printf(YELLOW "Warning: the footstep search window of %s leg was not read\n"
+									COLOR_RESET, leg_name.c_str());
 					}
-
-//					yaml_reader_.read(*pfootstep_area, footstep_window_);
 				} else
 					printf(YELLOW "Warning: the footstep search window was not read\n" COLOR_RESET);
 
@@ -181,7 +182,8 @@ void Robot::read(std::string filepath)
 
 							leg_workspaces_[leg_id] = leg_area;
 						} else
-							printf(YELLOW "Warning: the workspace of %s leg was not read\n" COLOR_RESET, leg_name.c_str());
+							printf(YELLOW "Warning: the workspace of %s leg was not read\n" COLOR_RESET,
+									leg_name.c_str());
 					}
 				} else
 					printf(YELLOW "Warning: the leg workspace description was not read\n" COLOR_RESET);
@@ -261,27 +263,27 @@ Vector3dMap Robot::getStance(Eigen::Vector3d action) //TODO Virtual method
 		displacement_pattern = 1;
 
 
-	//TODO Clean this shit
+	// Getting the initial leg and lateral displacement
 	int past_leg_id;
 	double angular_tolerance = 0.2;
 	if ((action(2) >= -M_PI_2 - angular_tolerance) && (action(2) <= -M_PI_2 + angular_tolerance)) {
-		past_leg_id = 0;//LF_foot;//
-		lateral_pattern = -1;//leg_offset = -0.06;
+		past_leg_id = 0;
+		lateral_pattern = -1;
 	} else if ((action(2) >= M_PI_2 - angular_tolerance) && (action(2) <= M_PI_2 + angular_tolerance)) {
-		past_leg_id = 1;//RF_foot;//
-		lateral_pattern = 1;//leg_offset = 0.06;
+		past_leg_id = 1;
+		lateral_pattern = 1;
 	} else if (action(2) > angular_tolerance) {
-		past_leg_id = 0;//LF_foot;//
-		lateral_pattern = 0;//leg_offset = 0;
+		past_leg_id = 0;
+		lateral_pattern = 0;
 	} else if (action(2) < -angular_tolerance) {
-		past_leg_id = 1;//RF_foot;//
-		lateral_pattern = 0;//leg_offset = 0;
+		past_leg_id = 1;
+		lateral_pattern = 0;
 	} else {
 		past_leg_id = last_past_leg_;
 		if (past_leg_id == 0)
-			lateral_pattern = -1;//leg_offset = -0.06;
+			lateral_pattern = -1;
 		else
-			lateral_pattern = 1;//leg_offset = 0.06;
+			lateral_pattern = 1;
 	}
 	last_past_leg_ = past_leg_id;
 
@@ -294,9 +296,11 @@ Vector3dMap Robot::getStance(Eigen::Vector3d action) //TODO Virtual method
 
 		Eigen::Vector3d leg_position;
 		if ((leg_name == "LF_foot") || (leg_name == "LH_foot"))
-			leg_position(0) = nominal_stance_[leg_id](0) - lateral_pattern * leg_lateral_offset_ + displacement_pattern * displacement_;
+			leg_position(0) = nominal_stance_[leg_id](0) - lateral_pattern * leg_lateral_offset_ +
+			displacement_pattern * displacement_;
 		else
-			leg_position(0) = nominal_stance_[leg_id](0) + lateral_pattern * leg_lateral_offset_ + displacement_pattern * displacement_;
+			leg_position(0) = nominal_stance_[leg_id](0) + lateral_pattern * leg_lateral_offset_ +
+			displacement_pattern * displacement_;
 
 
 		leg_position(1) = nominal_stance_[leg_id](1);
@@ -305,6 +309,12 @@ Vector3dMap Robot::getStance(Eigen::Vector3d action) //TODO Virtual method
 	}
 
 	return stance;
+}
+
+
+Vector3dMap Robot::getNominalStance()
+{
+	return nominal_stance_;
 }
 
 
@@ -337,7 +347,8 @@ SearchAreaMap Robot::getFootstepSearchAreas(Eigen::Vector3d action)
 
 SearchAreaMap Robot::getFootstepSearchSize(Eigen::Vector3d action)
 {
-	// Determining if the movements is forward or backward because the footstep search areas changes according the action
+	// Determining if the movements is forward or backward because the footstep search areas
+	// changes according the action
 	int displacement_pattern;
 	double frontal_action = action(0);
 	if (frontal_action >= 0)
@@ -347,9 +358,9 @@ SearchAreaMap Robot::getFootstepSearchSize(Eigen::Vector3d action)
 
 	SearchAreaMap footstep_areas;
 	SearchArea footstep_area;
-	footstep_area.resolution = 0.04;
 	for (EndEffectorMap::iterator l = feet_.begin(); l != feet_.end(); l++) {
 		unsigned int leg_id = l->first;
+		footstep_area.resolution = footstep_window_[leg_id].resolution;
 		footstep_area.max_x = displacement_pattern * footstep_window_[leg_id].max_x;
 		footstep_area.min_x = displacement_pattern * footstep_window_[leg_id].min_x;
 		footstep_area.max_y = footstep_window_[leg_id].max_y;

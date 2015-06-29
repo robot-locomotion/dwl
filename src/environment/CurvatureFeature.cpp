@@ -38,8 +38,7 @@ void CurvatureFeature::computeReward(double& reward_value, Terrain terrain_info)
 		reward_value = min_reward_;
 	else
 		reward_value = min_reward_
-				+ log(
-						(curvature - negative_threshold_)
+				+ log((curvature - negative_threshold_)
 								/ (positive_threshold_ - negative_threshold_));
 }
 

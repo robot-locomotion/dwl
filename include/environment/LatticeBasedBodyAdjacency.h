@@ -12,7 +12,8 @@ namespace environment
 
 /**
  * @class LatticeBasedBodyAdjacency
- * @brief Class for building a lattice-based adjacency map of the environment
+ * @brief Class for building a lattice-based adjacency map of the environment. This class derives from
+ * AdjacencyEnvironment class
  */
 class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 {
@@ -25,38 +26,38 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 
 		/**
 		 * @brief Gets the successors of the current vertex
-		 * @param std::list<Edge>& successors List of successors
-		 * @param dwl::Vertex state_vertex Current state vertex
+		 * @param std::list<Edge>& List of successors
+		 * @param Vertex Current state vertex
 		 */
 		void getSuccessors(std::list<Edge>& successors, Vertex state_vertex);
 
 
 	private:
 		/**
-		 * @brief Searchs the neighbors of a current vertex
-		 * @param std::vector<Vertex>& neighbors The set of neighbors
-		 * @param dwl::Vertex vertex_id Current vertex
+		 * @brief Searches the neighbors of a current vertex
+		 * @param std::vector<Vertex>& The set of neighbors
+		 * @param Vertex Current vertex
 		 */
 		void searchNeighbors(std::vector<Vertex>& neighbors, Vertex vertex_id);
 
 		/**
 		 * @brief Computes the body cost of a current vertex
-		 * @param Eigen::Vector3d robot_state Current robot state (x,y,yaw)
+		 * @param Eigen::Vector3d Current robot state (x,y,yaw)
 		 */
 		void computeBodyCost(double& cost, Eigen::Vector3d state);
 
 		/**
 		 * @brief Indicates if the free of obstacle
-		 * @param dwl::Vertex state_vertex State vertex
-		 * @param dwl::TypeOfState state_representation State representation
-		 * @param bool body Indicates it is desired to use the body space definition
-		 * @return bool Returns true if it is free of obstacle, and false otherwise
+		 * @param Vertex State vertex
+		 * @param TypeOfState State representation
+		 * @param bool Indicates it is desired to use the body space definition
+		 * @return True if it is free of obstacle, and false otherwise
 		 */
 		bool isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body=false);
 
 		/**
 		 * @brief Indicates if it is requested a stance adjacency
-		 * @return Returns true it is requested a stance adjacency (body cost), false otherwise
+		 * @return True it is requested a stance adjacency (body cost), false otherwise
 		 */
 		bool isStanceAdjacency();
 
@@ -73,7 +74,7 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		int number_top_reward_;
 };
 
-} //@namespace environmet
+} //@namespace environment
 } //@namespace dwl
 
 #endif

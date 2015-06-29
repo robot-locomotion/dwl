@@ -7,9 +7,8 @@ namespace dwl
 namespace environment
 {
 
-AdjacencyEnvironment::AdjacencyEnvironment() :
-		robot_(NULL), environment_(NULL), is_lattice_(false), is_added_feature_(
-				false), uncertainty_factor_(1.15)
+AdjacencyEnvironment::AdjacencyEnvironment() :	robot_(NULL), environment_(NULL), is_lattice_(false),
+		is_added_feature_(false), uncertainty_factor_(1.15)
 {
 
 }
@@ -21,8 +20,7 @@ AdjacencyEnvironment::~AdjacencyEnvironment()
 }
 
 
-void AdjacencyEnvironment::reset(robot::Robot* robot,
-		EnvironmentInformation* environment)
+void AdjacencyEnvironment::reset(robot::Robot* robot, EnvironmentInformation* environment)
 {
 	printf(	BLUE "Setting the robot information in the %s adjacency model \n" COLOR_RESET, name_.c_str());
 	robot_ = robot;
@@ -37,7 +35,8 @@ void AdjacencyEnvironment::reset(robot::Robot* robot,
 
 void AdjacencyEnvironment::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target)
 {
-	printf(	YELLOW "Could compute the whole adjacency map because it was not defined an adjacency model\n" COLOR_RESET);
+	printf(	YELLOW "Could compute the whole adjacency map because it was not defined an adjacency model\n"
+			COLOR_RESET);
 }
 
 
@@ -47,7 +46,8 @@ void AdjacencyEnvironment::getSuccessors(std::list<Edge>& successors, Vertex sta
 }
 
 
-void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_source, Vertex& closest_target, Vertex source, Vertex target)
+void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_source, Vertex& closest_target,
+		Vertex source, Vertex target)
 {
 	// Checking if the start and goal vertex are part of the terrain information
 	bool is_there_start_vertex, is_there_goal_vertex = false;
@@ -74,7 +74,8 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 		}
 	} else {
 		printf(
-				RED "Could not get the closest start and goal vertex because there is not terrain information \n" COLOR_RESET);
+				RED "Could not get the closest start and goal vertex because there is not terrain information \n"
+				COLOR_RESET);
 		return;
 	}
 
@@ -175,7 +176,8 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 		}
 	} else
 	{
-		printf(	RED "Could not get the closest start and goal vertex because there is not terrain information \n" COLOR_RESET);
+		printf(	RED "Could not get the closest start and goal vertex because there is not terrain information \n"
+				COLOR_RESET);
 		return;
 	}
 
@@ -212,10 +214,9 @@ double AdjacencyEnvironment::heuristicCost(Vertex source, Vertex target)
 	environment_->getTerrainSpaceModel().vertexToState(target_state, target);
 
 	// Normalizing the angles for a range of [-pi,pi]
-	utils::Math math;
 	double current_angle = source_state(2), target_angle = target_state(2);
-	math.normalizeAngle(current_angle, MinusPiToPi);
-	math.normalizeAngle(target_angle, MinusPiToPi);
+	math::normalizeAngle(current_angle, MinusPiToPi);
+	math::normalizeAngle(target_angle, MinusPiToPi);
 	source_state(2) = current_angle;
 	target_state(2) = target_angle;
 
@@ -225,7 +226,7 @@ double AdjacencyEnvironment::heuristicCost(Vertex source, Vertex target)
 			pow(((double) target_state(2) - (double) source_state(2)), 2));
 
 	double heuristic = (5 * distance + 2.5 * dist_orientation)
-			* uncertainty_factor_ * (environment_->getAverageCostOfTerrain() + 0.1); //TODO Tunning the heuristic function
+			* uncertainty_factor_ * (environment_->getAverageCostOfTerrain() + 0.1);
 
 	return heuristic;
 }
@@ -234,25 +235,24 @@ double AdjacencyEnvironment::heuristicCost(Vertex source, Vertex target)
 bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 {
 	if (isLatticeRepresentation()) {
-		double epsilon = 0.1; //TODO Define this variable
+		double min_error = 0.1;
 
 		Eigen::Vector3d current_state, target_state;
 		environment_->getTerrainSpaceModel().vertexToState(current_state, current);
 		environment_->getTerrainSpaceModel().vertexToState(target_state, target);
 
 		// Normalizing the angles for a range of [-pi,pi]
-		utils::Math math;
 		double current_angle = current_state(2), target_angle = target_state(2);
-		math.normalizeAngle(current_angle, MinusPiToPi);
-		math.normalizeAngle(target_angle, MinusPiToPi);
+		math::normalizeAngle(current_angle, MinusPiToPi);
+		math::normalizeAngle(target_angle, MinusPiToPi);
 		current_state(2) = current_angle;
 		target_state(2) = target_angle;
 
 		double distant = ((Eigen::Vector2d) target_state.head(2) - (Eigen::Vector2d) current_state.head(2)).norm();
-		if (distant < epsilon) {
+		if (distant < min_error) {
 			double angular_error = (double) target_state(2) - (double) current_state(2);
 
-			if (std::abs(angular_error) < epsilon) {
+			if (std::abs(angular_error) < min_error) {
 				// Reconstructing path
 
 				return true;
