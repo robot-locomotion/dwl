@@ -92,6 +92,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/utils/Algebra.cpp
 							 src/utils/Orientation.cpp
 							 src/utils/RigidBodyDynamics.cpp
+							 src/utils/SplineInterpolation.cpp
 							 src/utils/YamlBridge.cpp)
 
 # Adding robot components of the project
