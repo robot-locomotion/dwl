@@ -167,8 +167,6 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 			q_index = model.mJoints[parent_id].q_index - 1;
 			parent_id = model.lambda[parent_id];
 			++num_dof;
-
-			std::cout << model.GetBodyName(parent_id) << std::endl;
 		} while (parent_id != base_id);
 
 		assert(branch_state.size() == num_dof);

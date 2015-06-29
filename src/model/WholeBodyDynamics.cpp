@@ -125,10 +125,9 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 {
 	// Computing the fixed-base jacobian and base contact jacobian. These jacobians are used for computing a consistent
 	// joint acceleration, and for mapping desired base wrench to joint forces
-	Eigen::MatrixXd full_jac, fixed_jac, base_contact_jac;
+	Eigen::MatrixXd full_jac, fixed_jac;
 	kinematics_.computeJacobian(full_jac, base_pos, joint_pos, contacts, rbd::Linear);
 	kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
-	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jac);
 
 
 	// Computing the consistent joint accelerations given a desired base acceleration and contact definition. We assume
@@ -172,6 +171,9 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 	computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
 						   base_vel, joint_vel, base_feas_acc, joint_feas_acc);
 
+	// Computing the base contribution of contact jacobian
+	Eigen::MatrixXd base_contact_jac;
+	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jac);
 
 	// Computing the contact forces that generates the desired base wrench. A floating-base system can be described as
 	// floating-base with or without physical constraints or virtual floating-base. Note that with a virtual floating-base
