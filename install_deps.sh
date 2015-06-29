@@ -34,7 +34,7 @@ function install_rbdl
 	cd rbdl
 	mkdir -p build
 	cd build
-	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON ../
+	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON CMAKE_INSTALL_INCLUDEDIR:string=lib ../
 	sudo make install
 	cd ../../
 	rm default.zip
