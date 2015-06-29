@@ -50,16 +50,6 @@ inline void Spline::setBoundary(double T, const double& start_p, const double& e
 }
 
 
-//Spline::Point& operator = (const Spline::Point& rhs)
-//{
-//	Spline::Point out;
-//	out.x = rhs.x;
-//	out.xd = rhs.xd;
-//	out.xdd = rhs.xdd;
-//	return out;
-//}
-
-
 inline CubicSpline::CubicSpline(double duration, const Point& start, const Point& end) :
 	Spline(duration, start, end)
 {
