@@ -3,6 +3,7 @@
 
 #include <model/WholeBodyKinematics.h>
 #include <utils/RigidBodyDynamics.h>
+#include <rbdl/addons/urdfreader/urdfreader.h>
 #include <utils/Math.h>
 #include <utils/utils.h>
 

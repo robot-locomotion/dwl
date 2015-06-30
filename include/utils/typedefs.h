@@ -7,7 +7,6 @@
 #include <vector>
 
 #include <Eigen/Dense>
-#include <iit/rbd/rbd.h>
 #include <octomap/octomap.h>
 
 
@@ -195,9 +194,9 @@ struct ContactSearchRegion
 struct StateModel
 {
 	double time;
-	iit::rbd::Vector6D base_pos;
-	iit::rbd::Vector6D base_vel;
-	iit::rbd::Vector6D base_acc;
+	Eigen::Matrix<double,6,1> base_pos;
+	Eigen::Matrix<double,6,1> base_vel;
+	Eigen::Matrix<double,6,1> base_acc;//rbd::Vector6d
 	Eigen::VectorXd joint_pos;
 	Eigen::VectorXd joint_vel;
 	Eigen::VectorXd joint_acc;

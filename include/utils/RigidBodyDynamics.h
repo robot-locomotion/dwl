@@ -2,7 +2,6 @@
 #define DWL_RigidBodyDynamics_H
 
 #include <rbdl/rbdl.h>
-#include <rbdl/addons/urdfreader/urdfreader.h>
 #include <utils/Math.h>
 
 
