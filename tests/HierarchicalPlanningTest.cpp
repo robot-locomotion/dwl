@@ -40,9 +40,9 @@ int main(int argc, char **argv)
 	reduced_base.TZ.id = 0;
 
 	dwl::model::WholeBodyKinematics kin;
-	kin.modelFromURDF(model_file, &reduced_base, true);
+	kin.modelFromURDFFile(model_file, &reduced_base, true);
 	dwl::model::WholeBodyDynamics dyn;
-	dyn.modelFromURDF(model_file, &reduced_base);
+	dyn.modelFromURDFFile(model_file, &reduced_base);
 
 	dwl::model::RobCoGenWholeBodyKinematics* kin_ptr = new dwl::robot::HyLWholeBodyKinematics();
 	dwl::model::RobCoGenWholeBodyDynamics* dyn_ptr = new dwl::robot::HyLWholeBodyDynamics();

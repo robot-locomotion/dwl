@@ -19,32 +19,41 @@ WholeBodyDynamics::~WholeBodyDynamics()
 }
 
 
-void WholeBodyDynamics::modelFromURDF(std::string model_file, struct rbd::ReducedFloatingBase* reduce_base, bool info)
+void WholeBodyDynamics::modelFromURDFFile(std::string model_file,
+										  struct rbd::ReducedFloatingBase* reduced_base,
+										  bool info)
 {
 	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
-	reduced_base_ = reduce_base;
+	reduced_base_ = reduced_base;
 
-	kinematics_.modelFromURDF(model_file, reduce_base, false);
-
-	if (info) {
-		std::cout << "Degree of freedom overview:" << std::endl;
-		std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(robot_model_);
-
-		std::cout << "Body origins overview:" << std::endl;
-		std::cout << RigidBodyDynamics::Utils::GetNamedBodyOriginsOverview(robot_model_);
-
-		std::cout << "Model Hierarchy:" << std::endl;
-		std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(robot_model_);
-	}
+	kinematics_.modelFromURDFFile(model_file.c_str(), reduced_base, false);
 
 	// Getting the type of dynamic system
-	if (rbd::isFloatingBaseRobot(robot_model_)) {
-		if (rbd::isConstrainedFloatingBaseRobot(reduced_base_))
-			type_of_system_ = rbd::ConstrainedFloatingBase;
-		else
-			type_of_system_ = rbd::FloatingBase;
-	} else if (rbd::isVirtualFloatingBaseRobot(reduced_base_))
-		type_of_system_ = rbd::VirtualFloatingBase;
+	rbd::getTypeOfDynamicSystem(type_of_system_, robot_model_, reduced_base);
+
+	// Printing the information of the rigid-body system
+	if (info)
+		rbd::printModelInfo(robot_model_);
+
+}
+
+
+void WholeBodyDynamics::modelFromURDFModel(std::string urdf_model,
+										   struct rbd::ReducedFloatingBase* reduced_base,
+										   bool info)
+{
+	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &robot_model_, false);
+	reduced_base_ = reduced_base;
+
+	kinematics_.modelFromURDFModel(urdf_model.c_str(), reduced_base, false);
+
+	// Getting the type of dynamic system
+	rbd::getTypeOfDynamicSystem(type_of_system_, robot_model_, reduced_base);
+
+	// Printing the information of the rigid-body system
+	if (info)
+		rbd::printModelInfo(robot_model_);
+
 }
 
 

@@ -1,8 +1,6 @@
 #ifndef DWL_WholeBodyKinematics_H
 #define DWL_WholeBodyKinematics_H
 
-#include <rbdl/rbdl.h>
-#include <rbdl/addons/urdfreader/urdfreader.h>
 #include <utils/RigidBodyDynamics.h>
 #include <utils/Math.h>
 #include <utils/utils.h>
@@ -33,7 +31,20 @@ class WholeBodyKinematics
 		 * base with physical constraints
 		 * @param Print model information
 		 */
-		void modelFromURDF(std::string file, struct rbd::ReducedFloatingBase* reduce_base = NULL, bool info = false);
+		void modelFromURDFFile(std::string urdf_model,
+							   struct rbd::ReducedFloatingBase* reduced_base = NULL,
+							   bool info = false);
+
+		/**
+		 * @brief Build the model rigid-body system from an URDF model (xml)
+		 * @param std::string URDF model
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+		 * base with physical constraints
+		 * @param Print model information
+		 */
+		void modelFromURDFModel(std::string urdf_model,
+								struct rbd::ReducedFloatingBase* reduced_base = NULL,
+								bool info = false);
 
 		/**
 		 * @brief Computes the forward kinematics for a predefined set of bodies

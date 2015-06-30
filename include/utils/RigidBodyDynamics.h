@@ -2,6 +2,7 @@
 #define DWL_RigidBodyDynamics_H
 
 #include <rbdl/rbdl.h>
+#include <rbdl/addons/urdfreader/urdfreader.h>
 #include <utils/Math.h>
 
 
@@ -95,28 +96,51 @@ struct ReducedFloatingBase {
 bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model);
 
 /** @brief Returns true if it's a constrained floating-base robot */
-bool isConstrainedFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base);
+bool isConstrainedFloatingBaseRobot(struct ReducedFloatingBase* reduced_base);
 
 /** @brief Returns true if it's a virtual floating-base robot */
-bool isVirtualFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base);
+bool isVirtualFloatingBaseRobot(struct ReducedFloatingBase* reduced_base);
 
 /** @brief Returns the number of dof of the floating base */
 unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
-								struct rbd::ReducedFloatingBase* reduced_base = NULL);
+								struct ReducedFloatingBase* reduced_base = NULL);
+
+/**
+ * @brief Gets the type of rigid body dynamic system, i.e fixed-base, floating-base, constrained floating-base or
+ * virtual floating-base
+ * @param TypeOfSystem Type of rigid body dynamic system
+ * @param const RigidBodyDynamics::Model& Model of the rigid-body system
+ * @param struct ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+ * base with physical constraints
+ */
+void getTypeOfDynamicSystem(TypeOfSystem& type_of_system,
+							const RigidBodyDynamics::Model& model,
+							struct ReducedFloatingBase* reduced_base = NULL);
+
+/**
+ * @brief Gets list of bodies (movable and fixed) of the rigid-body system
+ * @param Body& Body ids
+ * @param const RigidBodyDynamics::Model& Model of the rigid-body system
+ */
+void getListOfBodies(BodyID& list_body_id,
+					 const RigidBodyDynamics::Model& model);
+
+/** @brief Print the model information */
+void printModelInfo(const RigidBodyDynamics::Model& model);
 
 /**
  * @brief Converts the base and joint states to a generalized joint state
  * @param const Vector6d& Base state
  * @param const Eigen::VectorXd& Joint state
  * @param enum TypeOfSystem Defines the type of system, e.g. fixed or floating- base system
- * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+ * @param struct ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
  * base with physical constraints
  * @return Eigen::VectorXd Generalized joint state
  */
 Eigen::VectorXd toGeneralizedJointState(const Vector6d& base_state,
 										const Eigen::VectorXd& joint_state,
 										enum TypeOfSystem type_of_system,
-										struct rbd::ReducedFloatingBase* reduced_base = NULL);
+										struct ReducedFloatingBase* reduced_base = NULL);
 
 /**
  * @brief Converts the generalized joint state to base and joint states
@@ -124,14 +148,14 @@ Eigen::VectorXd toGeneralizedJointState(const Vector6d& base_state,
  * @param Eigen::VectorXd& Joint state
  * @param const Eigen::VectorXd Generalized joint state
  * @param enum TypeOfSystem Defines the type of system, e.g. fixed or floating- base system
- * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+ * @param struct ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
  * base with physical constraints
  */
 void fromGeneralizedJointState(Vector6d& base_state,
 							   Eigen::VectorXd& joint_state,
 							   const Eigen::VectorXd& generalized_state,
 							   enum TypeOfSystem type_of_system,
-							   struct rbd::ReducedFloatingBase* reduced_base = NULL);
+							   struct ReducedFloatingBase* reduced_base = NULL);
 
 /**
  * @brief Sets the joint state given a branch values
@@ -139,28 +163,28 @@ void fromGeneralizedJointState(Vector6d& base_state,
  * @param cons Eigen::VectorXd& Branch state
  * @param unsigned int Body id
  * @param RigidBodyDynamics::Model& Rigid-body dynamic model
- * @param rbd::ReducedFloatingBase* Reduced floating-base model
+ * @param ReducedFloatingBase* Reduced floating-base model
  */
 void setBranchState(Eigen::VectorXd& new_joint_state,
 					const Eigen::VectorXd& branch_state,
 					unsigned int body_id,
 					RigidBodyDynamics::Model& model,
-					struct rbd::ReducedFloatingBase* reduced_base = NULL);
+					struct ReducedFloatingBase* reduced_base = NULL);
 
 /**
  * @brief Converts an applied velocity acting at a certain point to spatial velocity
- * @param rbd::Vector6d& Velocity
+ * @param Vector6d& Velocity
  * @param const Eigen::Vector3d& Point
- * @return rbd::Vector6d Spatial velocity
+ * @return Vector6d Spatial velocity
  */
 Vector6d convertPointVelocityToSpatialVelocity(Vector6d& velocity,
 										  	   const Eigen::Vector3d& point);
 
 /**
  * @brief Converts an applied force acting at a certain point to spatial force
- * @param rbd::Vector6d& Force
+ * @param Vector6d& Force
  * @param const Eigen::Vector3d& Point
- * @return rbd::Vector6d Spatial force
+ * @return Vector6d Spatial force
  */
 Vector6d convertPointForceToSpatialForce(Vector6d& force,
 										 const Eigen::Vector3d& point);

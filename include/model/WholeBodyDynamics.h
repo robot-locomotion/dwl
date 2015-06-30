@@ -2,8 +2,6 @@
 #define DWL_WholeBodyDynamics_H
 
 #include <model/WholeBodyKinematics.h>
-#include <rbdl/rbdl.h>
-#include <rbdl/addons/urdfreader/urdfreader.h>
 #include <utils/RigidBodyDynamics.h>
 #include <utils/Math.h>
 #include <utils/utils.h>
@@ -21,7 +19,7 @@ namespace model
 class WholeBodyDynamics
 {
 	public:
-		/** @bried Constructor function */
+		/** @brief Constructor function */
 		WholeBodyDynamics();
 
 		/** @brief Destructor function */
@@ -34,7 +32,20 @@ class WholeBodyDynamics
 		 * base with physical constraints
 		 * @param Print model information
 		 */
-		void modelFromURDF(std::string file, struct rbd::ReducedFloatingBase* reduce_base = NULL, bool info = false);
+		void modelFromURDFFile(std::string urdf_model,
+							   struct rbd::ReducedFloatingBase* reduced_base = NULL,
+							   bool info = false);
+
+		/**
+		 * @brief Build the model rigid-body system from an URDF model (xml)
+		 * @param std::string URDF model
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+		 * base with physical constraints
+		 * @param Print model information
+		 */
+		void modelFromURDFModel(std::string urdf_model,
+								struct rbd::ReducedFloatingBase* reduced_base = NULL,
+								bool info = false);
 
 		/**
 		 * @brief Computes the whole-body inverse dynamics, assuming a fully actuated robot, using the

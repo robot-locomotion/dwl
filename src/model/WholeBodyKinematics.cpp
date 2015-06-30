@@ -19,48 +19,43 @@ WholeBodyKinematics::~WholeBodyKinematics()
 }
 
 
-void WholeBodyKinematics::modelFromURDF(std::string model_file, struct rbd::ReducedFloatingBase* reduce_base, bool info)
+void WholeBodyKinematics::modelFromURDFFile(std::string model_file,
+											struct rbd::ReducedFloatingBase* reduced_base,
+											bool info)
 {
 	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
 
-	reduced_base_ = reduce_base;
+	reduced_base_ = reduced_base;
 
-	// Adding the movable body in the end-effector list
-	for (unsigned int it = 0; it < robot_model_.mBodies.size(); it++) {
-		unsigned int body_id = it;
-		std::string body_name = robot_model_.GetBodyName(body_id);
-
-		body_id_[body_name] = body_id;
-	}
-
-	// Adding the fixed body in the end-effector list
-	for (unsigned int it = 0; it < robot_model_.mFixedBodies.size(); it++) {
-		unsigned int body_id = it + robot_model_.fixed_body_discriminator;
-		std::string body_name = robot_model_.GetBodyName(body_id);
-
-		body_id_[body_name] = body_id;
-	}
-
-	if (info) {
-		std::cout << "Degree of freedom overview:" << std::endl;
-		std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(robot_model_);
-
-		std::cout << "Body origins overview:" << std::endl;
-		std::cout << RigidBodyDynamics::Utils::GetNamedBodyOriginsOverview(robot_model_);
-
-		std::cout << "Model Hierarchy:" << std::endl;
-		std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(robot_model_);
-	}
-
+	// Getting the list of movable and fixed bodies
+	rbd::getListOfBodies(body_id_, robot_model_);
 
 	// Getting the type of dynamic system
-	if (rbd::isFloatingBaseRobot(robot_model_)) {
-		if (rbd::isConstrainedFloatingBaseRobot(reduced_base_))
-			type_of_system_ = rbd::ConstrainedFloatingBase;
-		else
-			type_of_system_ = rbd::FloatingBase;
-	} else if (rbd::isVirtualFloatingBaseRobot(reduced_base_))
-		type_of_system_ = rbd::VirtualFloatingBase;
+	rbd::getTypeOfDynamicSystem(type_of_system_, robot_model_, reduced_base);
+
+	// Printing the information of the rigid-body system
+	if (info)
+		rbd::printModelInfo(robot_model_);
+}
+
+
+void WholeBodyKinematics::modelFromURDFModel(std::string urdf_model,
+											 struct rbd::ReducedFloatingBase* reduced_base,
+											 bool info)
+{
+	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &robot_model_, false);
+
+	reduced_base_ = reduced_base;
+
+	// Getting the list of movable and fixed bodies
+	rbd::getListOfBodies(body_id_, robot_model_);
+
+	// Getting the type of dynamic system
+	rbd::getTypeOfDynamicSystem(type_of_system_, robot_model_, reduced_base);
+
+	// Printing the information of the rigid-body system
+	if (info)
+		rbd::printModelInfo(robot_model_);
 }
 
 

@@ -44,7 +44,7 @@ bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model)
 }
 
 
-bool isConstrainedFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base)
+bool isConstrainedFloatingBaseRobot(struct ReducedFloatingBase* reduced_base)
 {
 	if (reduced_base != NULL && !reduced_base->isFullyFree())
 		return true;
@@ -53,7 +53,7 @@ bool isConstrainedFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_bas
 }
 
 
-bool isVirtualFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base)
+bool isVirtualFloatingBaseRobot(struct ReducedFloatingBase* reduced_base)
 {
 	if ((reduced_base != NULL) && (reduced_base->getFloatingBaseDOF() != 0))
 		return true;
@@ -63,7 +63,7 @@ bool isVirtualFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base)
 
 
 unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
-								struct rbd::ReducedFloatingBase* reduced_base)
+								struct ReducedFloatingBase* reduced_base)
 {
 	unsigned int floating_base_dof = 0;
 	if (isFloatingBaseRobot(model))
@@ -75,10 +75,58 @@ unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
 }
 
 
+void getTypeOfDynamicSystem(TypeOfSystem& type_of_system,
+							const RigidBodyDynamics::Model& model,
+							struct ReducedFloatingBase* reduced_base)
+{
+	if (isFloatingBaseRobot(model)) {
+		if (isConstrainedFloatingBaseRobot(reduced_base))
+			type_of_system = ConstrainedFloatingBase;
+		else
+			type_of_system = FloatingBase;
+	} else if (isVirtualFloatingBaseRobot(reduced_base))
+		type_of_system = VirtualFloatingBase;
+}
+
+
+void getListOfBodies(BodyID& list_body_id,
+					 const RigidBodyDynamics::Model& model)
+{
+	for (unsigned int it = 0; it < model.mBodies.size(); it++) {
+		unsigned int body_id = it;
+		std::string body_name = model.GetBodyName(body_id);
+
+		list_body_id[body_name] = body_id;
+	}
+
+	// Adding the fixed body in the end-effector list
+	for (unsigned int it = 0; it < model.mFixedBodies.size(); it++) {
+		unsigned int body_id = it + model.fixed_body_discriminator;
+		std::string body_name = model.GetBodyName(body_id);
+
+		list_body_id[body_name] = body_id;
+	}
+}
+
+
+void printModelInfo(const RigidBodyDynamics::Model& model)
+{
+	std::cout << "Degree of freedom overview:" << std::endl;
+	std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(model);
+
+	std::cout << "Body origins overview:" << std::endl;
+	RigidBodyDynamics::Model copy_model = model;
+	std::cout << RigidBodyDynamics::Utils::GetNamedBodyOriginsOverview(copy_model);
+
+	std::cout << "Model Hierarchy:" << std::endl;
+	std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(model);
+}
+
+
 Eigen::VectorXd toGeneralizedJointState(const Vector6d& base_state,
 										const Eigen::VectorXd& joint_state,
 										enum TypeOfSystem type_of_system,
-										struct rbd::ReducedFloatingBase* reduced_base)
+										struct ReducedFloatingBase* reduced_base)
 {
 	// Note that RBDL defines the floating base state as [linear states, angular states]
 	Eigen::VectorXd q;
@@ -113,7 +161,7 @@ void fromGeneralizedJointState(Vector6d& base_state,
 							   Eigen::VectorXd& joint_state,
 							   const Eigen::VectorXd& generalized_state,
 							   enum TypeOfSystem type_of_system,
-							   struct rbd::ReducedFloatingBase* reduced_base)
+							   struct ReducedFloatingBase* reduced_base)
 {
 	// Note that RBDL defines the floating base state as [linear states, angular states]
 	if (type_of_system == FloatingBase || type_of_system == ConstrainedFloatingBase) {
@@ -146,7 +194,7 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 					const Eigen::VectorXd& branch_state,
 					unsigned int body_id,
 					RigidBodyDynamics::Model& model,
-					struct rbd::ReducedFloatingBase* reduced_base)
+					struct ReducedFloatingBase* reduced_base)
 {
 	// Getting the base id
 	unsigned int base_id = 0;
