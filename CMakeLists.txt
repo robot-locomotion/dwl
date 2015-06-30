@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 2.8.3)
 project(dwl)
 
 set(DWL_VERSION 0.2.0 CACHE STRING "DWL version")
-message("Compiling the version ${DWL_VERSION} of Dynamic Whole-Body Locomotion (DWL) library")
+message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
+message("Copyright (C) 2014-2016 Carlos Mastalli - Istituto Italiano di Tecnologia.")
+message("Released under the XXX License.")
+
 
 # Appending the project module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
