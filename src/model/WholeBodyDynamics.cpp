@@ -132,53 +132,54 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 																	  const Eigen::VectorXd& joint_acc,
 																	  const rbd::BodySelector& contacts)
 {
+	// Computing the contact forces that generates the desired base wrench. A floating-base system can be described as
+	// floating-base with or without physical constraints or virtual floating-base. Note that with a virtual floating-base
+	// we can describe a n-dimensional floating-base, witch n less than 6
+	rbd::BodyForce contact_forces;
+	rbd::Vector6d base_feas_acc = base_acc;
+	Eigen::VectorXd joint_feas_acc = joint_acc;
+	computeContactForces(contact_forces, joint_forces, base_pos, joint_pos,
+						 base_vel, joint_vel, base_feas_acc, joint_feas_acc, contacts);
+
+	// Computing the inverse dynamic algorithm with the desired contact forces, and the base constraint forces for
+	// floating-base with physical constraints. This should generate the joint forces with a null base wrench
+	rbd::Vector6d base_wrench;
+	computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
+						   base_vel, joint_vel, base_feas_acc, joint_feas_acc, contact_forces);
+}
+
+
+void WholeBodyDynamics::computeContactForces(rbd::BodyForce& contact_forces,
+											 Eigen::VectorXd& joint_forces,
+											 const rbd::Vector6d& base_pos,
+											 const Eigen::VectorXd& joint_pos,
+											 const rbd::Vector6d& base_vel,
+											 const Eigen::VectorXd& joint_vel,
+											 rbd::Vector6d& base_acc,
+											 Eigen::VectorXd& joint_acc,
+											 const rbd::BodySelector& contacts)
+{
 	// Computing the fixed-base jacobian and base contact jacobian. These jacobians are used for computing a consistent
 	// joint acceleration, and for mapping desired base wrench to joint forces
-	Eigen::MatrixXd full_jac, fixed_jac;
+	Eigen::MatrixXd full_jac;
 	kinematics_.computeJacobian(full_jac, base_pos, joint_pos, contacts, rbd::Linear);
-	kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
-
 
 	// Computing the consistent joint accelerations given a desired base acceleration and contact definition. We assume
 	// that contacts are static, which it allows us to computed a consistent joint accelerations.
-	rbd::Vector6d base_feas_acc = base_acc;
-	Eigen::VectorXd joint_feas_acc = joint_acc;
-
-	// At the first step, we compute the angular and linear floating-base velocity and acceleration
-	rbd::Vector6d base_des_vel(base_vel);
-	Eigen::Vector3d base_ang_vel = rbd::angularFloatingBaseState(base_des_vel);
-	Eigen::Vector3d base_lin_vel = rbd::linearFloatingBaseState(base_des_vel);
-
-	rbd::Vector6d base_des_acc(base_acc);
-	Eigen::Vector3d base_ang_acc = rbd::angularFloatingBaseState(base_des_acc);
-	Eigen::Vector3d base_lin_acc = rbd::linearFloatingBaseState(base_des_acc);
-
-	// Computing contact linear positions and the J_d*q_d component, which are used for computing the joint accelerations
-	Eigen::VectorXd op_pos, jacd_qd;
-	kinematics_.computeForwardKinematics(op_pos, base_pos, joint_pos, contacts, rbd::Linear);
-	kinematics_.computeJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, contacts, rbd::Linear);
-
-	// Computing the consistent joint acceleration given a base state
-	for (unsigned int i = 0; i < contacts.size(); i++) {
-		Eigen::Vector3d contact_pos = op_pos.segment<3>(i * 3);
-
-		// Computing the desired contact velocity
-		Eigen::Vector3d contact_vel = -base_lin_vel - base_ang_vel.cross(contact_pos);
-		Eigen::Vector3d contact_acc = -base_lin_acc - base_ang_acc.cross(contact_pos) - base_ang_vel.cross(contact_pos)
-				- 2 * base_ang_vel.cross(contact_vel);
-
-		// Computing the join acceleration from x_dd = J*q_dd + J_d*q_d since we are doing computation in the base frame
-		Eigen::VectorXd q_dd = math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd.segment<3>(i * 3));
-
-		unsigned int body_contact_id = robot_model_.GetBodyId(contacts[i].c_str());
-		rbd::setBranchState(joint_feas_acc, q_dd, body_contact_id, robot_model_, reduced_base_);
-	}
+	rbd::Vector6d base_feas_acc;
+	Eigen::VectorXd joint_feas_acc;
+	computeConstrainedConsistentAcceleration(base_feas_acc, joint_feas_acc, base_pos, joint_pos,
+											 base_vel, joint_vel, base_acc, joint_acc, contacts);
 
 
 	// Computing the desired base wrench assuming a fully actuation on the floating-base
 	rbd::Vector6d base_wrench;
 	computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
 						   base_vel, joint_vel, base_feas_acc, joint_feas_acc);
+
+	// Rewriting the base and joint acceleration
+	base_acc = base_feas_acc;
+	joint_acc = joint_feas_acc;
 
 	// Computing the base contribution of contact jacobian
 	Eigen::MatrixXd base_contact_jac;
@@ -187,7 +188,6 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 	// Computing the contact forces that generates the desired base wrench. A floating-base system can be described as
 	// floating-base with or without physical constraints or virtual floating-base. Note that with a virtual floating-base
 	// we can describe a n-dimensional floating-base, witch n less than 6
-	rbd::BodyForce contact_forces;
 	if (rbd::isFloatingBaseRobot(robot_model_)) {
 		// This approach builds an augmented jacobian matrix as [base contact jacobian; base constraint jacobian].
 		// Therefore, we computed constrained reaction forces in the base.
@@ -255,11 +255,6 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 		for (unsigned int i = 0; i < num_active_contacts; i++)
 			contact_forces[contacts[i]] << 0., 0., 0., endeffector_forces.segment<3>(3 * i);
 	}
-
-	// Computing the inverse dynamic algorithm with the desired contact forces, and the base constraint forces for
-	// floating-base with physical constraints. This should generate the joint forces with a null base wrench
-	computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
-						   base_vel, joint_vel, base_feas_acc, joint_feas_acc, contact_forces);
 }
 
 
@@ -300,6 +295,60 @@ void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynami
 			unsigned parent_id = robot_model_.mFixedBodies[it].mMovableParent;
 			fext.at(parent_id) += spatial_force;
 		}
+	}
+}
+
+
+void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& base_feas_acc,
+																 Eigen::VectorXd& joint_feas_acc,
+																 const rbd::Vector6d& base_pos,
+																 const Eigen::VectorXd& joint_pos,
+																 const rbd::Vector6d& base_vel,
+																 const Eigen::VectorXd& joint_vel,
+																 const rbd::Vector6d& base_acc,
+																 const Eigen::VectorXd& joint_acc,
+																 const rbd::BodySelector& contacts)
+{
+	// Computing the fixed-base jacobian and base contact jacobian. These jacobians are used for computing a consistent
+	// joint acceleration, and for mapping desired base wrench to joint forces
+	Eigen::MatrixXd full_jac, fixed_jac;
+	kinematics_.computeJacobian(full_jac, base_pos, joint_pos, contacts, rbd::Linear);
+	kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
+
+
+	// Computing the consistent joint accelerations given a desired base acceleration and contact definition. We assume
+	// that contacts are static, which it allows us to computed a consistent joint accelerations.
+	base_feas_acc = base_acc;
+	joint_feas_acc = joint_acc;
+
+	// At the first step, we compute the angular and linear floating-base velocity and acceleration
+	rbd::Vector6d base_des_vel(base_vel);
+	Eigen::Vector3d base_ang_vel = rbd::angularFloatingBaseState(base_des_vel);
+	Eigen::Vector3d base_lin_vel = rbd::linearFloatingBaseState(base_des_vel);
+
+	rbd::Vector6d base_des_acc(base_acc);
+	Eigen::Vector3d base_ang_acc = rbd::angularFloatingBaseState(base_des_acc);
+	Eigen::Vector3d base_lin_acc = rbd::linearFloatingBaseState(base_des_acc);
+
+	// Computing contact linear positions and the J_d*q_d component, which are used for computing the joint accelerations
+	Eigen::VectorXd op_pos, jacd_qd;
+	kinematics_.computeForwardKinematics(op_pos, base_pos, joint_pos, contacts, rbd::Linear);
+	kinematics_.computeJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, contacts, rbd::Linear);
+
+	// Computing the consistent joint acceleration given a base state
+	for (unsigned int i = 0; i < contacts.size(); i++) {
+		Eigen::Vector3d contact_pos = op_pos.segment<3>(i * 3);
+
+		// Computing the desired contact velocity
+		Eigen::Vector3d contact_vel = -base_lin_vel - base_ang_vel.cross(contact_pos);
+		Eigen::Vector3d contact_acc = -base_lin_acc - base_ang_acc.cross(contact_pos) - base_ang_vel.cross(contact_pos)
+				- 2 * base_ang_vel.cross(contact_vel);
+
+		// Computing the join acceleration from x_dd = J*q_dd + J_d*q_d since we are doing computation in the base frame
+		Eigen::VectorXd q_dd = math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd.segment<3>(i * 3));
+
+		unsigned int body_contact_id = robot_model_.GetBodyId(contacts[i].c_str());
+		rbd::setBranchState(joint_feas_acc, q_dd, body_contact_id, robot_model_, reduced_base_);
 	}
 }
 

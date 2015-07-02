@@ -122,10 +122,34 @@ class WholeBodyDynamics
 														   const Eigen::VectorXd& joint_acc,
 														   const rbd::BodySelector& contacts);
 
+		/**
+		 * @brief Computing the contact forces that generates the desired base wrench. This desired base wrench is
+		 * computed by using robot state, i.e. position, velocity, acceleration and contacts. This function overwrite
+		 * the base and joint acceleration in case that it isn't consistent with the constrained contacts
+		 * @param rbd::BodyForces& Contact forces applied to the defined set of contacts
+		 * @param Eigen::VectorXd& Joint forces
+		 * @param const rbd::Vector6d& Base position
+		 * @param const Eigen::VectorXd& Joint position
+		 * @param const rbd::Vector6d& Base velocity
+		 * @param const Eigen::VectorXd& Joint velocity
+		 * @param const rbd::Vector6d& Base acceleration with respect to a gravity field
+		 * @param const Eigen::VectorXd& Joint acceleration
+		 * @param const rbd::BodySelector& Bodies that are constrained to be in contact
+		 */
+		void computeContactForces(rbd::BodyForce& contact_forces,
+								  Eigen::VectorXd& joint_forces,
+								  const rbd::Vector6d& base_pos,
+								  const Eigen::VectorXd& joint_pos,
+								  const rbd::Vector6d& base_vel,
+								  const Eigen::VectorXd& joint_vel,
+								  rbd::Vector6d& base_acc,
+								  Eigen::VectorXd& joint_acc,
+								  const rbd::BodySelector& contacts);
+
 
 	private:
 		/**
-		 * Converts the applied external forces to RBDL format
+		 * @brief Converts the applied external forces to RBDL format
 		 * @param std::vector<RigidBodyDynamcis::Math::SpatialVector>& RBDL external forces format
 		 * @param const rbd::BodyForce& External forces
 		 * @param const Eigen::VectorXd& Generalized joint position
@@ -133,6 +157,28 @@ class WholeBodyDynamics
 		void convertAppliedExternalForces(std::vector<RigidBodyDynamics::Math::SpatialVector>& f_ext,
 										  const rbd::BodyForce& ext_force,
 										  const Eigen::VectorXd& generalized_joint_pos);
+
+		/**
+		 * @brief Computes a consistent acceleration for a defined constrained contact
+		 * @param rbd::Vector6d& Consistent base acceleration
+		 * @param Eigen::VectorXd& Consistent joint acceleration
+		 * @param const rbd::Vector6d& Base position
+		 * @param const Eigen::VectorXd& Joint position
+		 * @param const rbd::Vector6d& Base velocity
+		 * @param const Eigen::VectorXd& Joint velocity
+		 * @param const rbd::Vector6d& Base acceleration with respect to a gravity field
+		 * @param const Eigen::VectorXd& Joint acceleration
+		 * @param const rbd::BodySelector& Bodies that are constrained to be in contact
+		 */
+		void computeConstrainedConsistentAcceleration(rbd::Vector6d& base_feas_acc,
+													  Eigen::VectorXd& joint_feas_acc,
+													  const rbd::Vector6d& base_pos,
+													  const Eigen::VectorXd& joint_pos,
+													  const rbd::Vector6d& base_vel,
+													  const Eigen::VectorXd& joint_vel,
+													  const rbd::Vector6d& base_acc,
+													  const Eigen::VectorXd& joint_acc,
+													  const rbd::BodySelector& contacts);
 
 		/** @brief Model of the rigid-body system */
 		RigidBodyDynamics::Model robot_model_;
