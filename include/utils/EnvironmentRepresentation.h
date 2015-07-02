@@ -34,6 +34,8 @@ struct Key
  */
 struct Cell
 {
+	Cell() : plane_size(0.), height_size(0.) {}
+	Cell(Key key_value, double plane, double height) : key(key_value), plane_size(plane), height_size(height) {}
 	Key key;
 	double plane_size;
 	double height_size;
@@ -44,6 +46,9 @@ struct Cell
  */
 struct RewardCell
 {
+	RewardCell() : reward(0.), plane_size(0.), height_size(0.) {}
+	RewardCell(Key key_value, double reward_value, double plane, double height) : key(key_value), reward(reward_value),
+			plane_size(plane), height_size(height) {}
 	Key key;
 	double reward;
 	double plane_size;

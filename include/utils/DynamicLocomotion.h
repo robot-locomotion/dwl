@@ -7,7 +7,6 @@
 #include <Eigen/Dense>
 #include <utils/GraphSearching.h>
 #include <utils/RigidBodyDynamics.h>
-//#include <utils/EnvironmentRepresentation.h> //TODO not sure
 
 
 namespace dwl
