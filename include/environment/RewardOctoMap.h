@@ -3,8 +3,6 @@
 
 #include <environment/RewardMap.h>
 #include <octomap/octomap.h>
-#include <utils/Math.h>
-#include <utils/macros.h>
 
 
 namespace dwl

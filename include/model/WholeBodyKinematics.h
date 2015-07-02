@@ -1,9 +1,7 @@
 #ifndef DWL_WholeBodyKinematics_H
 #define DWL_WholeBodyKinematics_H
 
-#include <utils/RigidBodyDynamics.h>
 #include <rbdl/addons/urdfreader/urdfreader.h>
-#include <utils/Math.h>
 #include <utils/utils.h>
 
 

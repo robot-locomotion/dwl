@@ -5,8 +5,6 @@
 #include <environment/Feature.h>
 #include <utils/utils.h>
 
-#include <octomap/octomap.h>
-
 
 namespace dwl
 {

@@ -1,3 +1,6 @@
+#ifndef DWL_YamlBridge_H
+#define DWL_YamlBridge_H
+
 #include <utils/utils.h>
 #include <fstream>
 #include <yaml-cpp/yaml.h>
@@ -99,3 +102,5 @@ class YamlBridge
 };
 
 } //@namespace dwl
+
+#endif

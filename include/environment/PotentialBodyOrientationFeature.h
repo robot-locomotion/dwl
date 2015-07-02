@@ -3,8 +3,6 @@
 
 #include <environment/Feature.h>
 #include <utils/utils.h>
-#include <utils/Math.h>
-#include <utils/Orientation.h>
 
 
 namespace dwl

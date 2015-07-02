@@ -13,7 +13,8 @@ class HS071Cost : public Cost
 		HS071Cost() {name_ = "HS071";}
 		~HS071Cost() {}
 
-		void compute(double& cost, const StateModel& state)
+		void compute(double& cost,
+					 const LocomotionState& state)
 		{
 //			assert(n == 4);
 
@@ -22,7 +23,7 @@ class HS071Cost : public Cost
 		}
 
 		void computeGradient(Eigen::VectorXd& gradient,
-						 	 const StateModel& state)
+						 	 const LocomotionState& state)
 		{
 //			assert(n == 4);
 

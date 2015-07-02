@@ -2,7 +2,7 @@
 #define DWL_SupportTriangleFeature_H
 
 #include <environment/Feature.h>
-#include <utils/Math.h>
+#include <utils/utils.h>
 
 
 namespace dwl

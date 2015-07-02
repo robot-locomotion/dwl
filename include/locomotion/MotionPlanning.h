@@ -4,7 +4,6 @@
 #include <solver/Solver.h>
 #include <environment/EnvironmentInformation.h>
 #include <utils/utils.h>
-#include <utils/Orientation.h>
 
 
 namespace dwl

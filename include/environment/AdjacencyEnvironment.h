@@ -4,9 +4,8 @@
 #include <environment/EnvironmentInformation.h>
 #include <environment/Feature.h>
 #include <robot/Robot.h>
-#include <utils/Math.h>
 #include <utils/utils.h>
-#include <utils/Orientation.h>
+
 
 namespace dwl
 {

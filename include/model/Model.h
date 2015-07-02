@@ -58,7 +58,7 @@ class Model
 		std::vector<Constraint*> getInactiveConstraints();
 		std::vector<Cost*> getCosts();
 
-		virtual void convertDecisionVariablesToStateModel(StateModel& state_model,
+		virtual void convertDecisionVariablesToStateModel(LocomotionState& state_model,
 												  	  	  const Eigen::VectorXd& decision_var) = 0;
 
 

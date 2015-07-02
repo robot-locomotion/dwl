@@ -17,7 +17,7 @@ class HS071Model : public Model
 
 		~HS071Model() {}
 
-		void convertDecisionVariablesToStateModel(StateModel& state_model,
+		void convertDecisionVariablesToStateModel(LocomotionState& state_model,
 												  const Eigen::VectorXd& decision_var)
 		{
 			state_model.base_pos(0) = decision_var(0);

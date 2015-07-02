@@ -20,7 +20,7 @@ class HS071Constraint : public Constraint
 		~HS071Constraint() {}
 
 		void compute(Eigen::VectorXd& constraint,
-					 const StateModel& state)
+					 const LocomotionState& state)
 		{
 //			  assert(n == 4);
 //			  assert(m == 2);
@@ -33,7 +33,7 @@ class HS071Constraint : public Constraint
 		}
 
 		void computeJacobian(Eigen::MatrixXd& jacobian,
-							 const StateModel& state)
+							 const LocomotionState& state)
 		{
 			jacobian = Eigen::MatrixXd::Zero(constraint_dimension_,4);
 		    jacobian(0,0) = state.base_pos(1) * state.base_pos(2) * state.base_pos(3);

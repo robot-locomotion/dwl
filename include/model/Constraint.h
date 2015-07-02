@@ -26,18 +26,18 @@ class Constraint
 		/**
 		 * @brief Computes the constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const StateModel& State vector
+		 * @param const LocomotionState& State vector
 		 */
 		virtual void compute(Eigen::VectorXd& constraint,
-							 const StateModel& state) = 0;
+							 const LocomotionState& state) = 0;
 
 		/**
 		 * @brief Computes the Jacobian of the constraint given a certain state
 		 * @param Eigen::MatrixXd& Jacobian of the constraint function
-		 * @param const StateModel& State vector
+		 * @param const LocomotionState& State vector
 		 */
 		virtual void computeJacobian(Eigen::MatrixXd& jacobian,
-									 const StateModel& state) = 0;
+									 const LocomotionState& state) = 0;
 
 		int getConstraintDimension();
 

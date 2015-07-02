@@ -93,16 +93,20 @@ bool IpoptWrapper::eval_f(Index n, const Number* x, bool new_x, Number& obj_valu
 {
 	obj_value = 0;
 
+	// Eigen interfacing to raw buffers
 	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
 
-	StateModel state;
-	for (int i = 0; i < horizon_; i++) {
+	// Computing the cost for predefined horizon
+	LocomotionState state;
+	for (unsigned int i = 0; i < horizon_; i++) {
+		// Converting the decision variable for a certain time to a robot state
 		model_->convertDecisionVariablesToStateModel(state,
 				(const Eigen::VectorXd) decision_var.segment(i * state_dimension_, state_dimension_));
 
+		// Computing the function cost for a certain time
 		double cost;
-		int num_cost_functions = model_->getCosts().size();
-		for (int j = 0; j < num_cost_functions; j++) {
+		unsigned int num_cost_functions = model_->getCosts().size();
+		for (unsigned int j = 0; j < num_cost_functions; j++) {
 			model_->getCosts()[j]->compute(cost, state);
 			obj_value += cost;
 		}
@@ -114,20 +118,22 @@ bool IpoptWrapper::eval_f(Index n, const Number* x, bool new_x, Number& obj_valu
 
 bool IpoptWrapper::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
-	// Eigen Interfacing to raw buffers
+	// Eigen interfacing to raw buffers
 	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
 	Eigen::Map<Eigen::VectorXd> total_gradient(grad_f, n);
 
-	StateModel state;
-	for (int i = 0; i < horizon_; i++) {
+	// Computing the gradient of the cost function for a predefined horizon
+	LocomotionState state;
+	for (unsigned int i = 0; i < horizon_; i++) {
+		// Converting the decision variable for a certain time to a robot state
 		model_->convertDecisionVariablesToStateModel(state,
 				(const Eigen::VectorXd) decision_var.segment(i * state_dimension_, state_dimension_));
 
 		// Computing the gradient for each defined cost function
 		Eigen::VectorXd gradient(state_dimension_);
 		total_gradient.setZero();
-		int num_cost_functions = model_->getCosts().size();
-		for (int j = 0; j < num_cost_functions; j++) {
+		unsigned int num_cost_functions = model_->getCosts().size();
+		for (unsigned int j = 0; j < num_cost_functions; j++) {
 			model_->getCosts()[j]->computeGradient(gradient, state);
 			total_gradient.segment(i * state_dimension_, state_dimension_) += gradient;
 		}
@@ -139,21 +145,24 @@ bool IpoptWrapper::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 
 bool IpoptWrapper::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
+	// Eigen interfacing to raw buffers
 	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
 	Eigen::VectorXd constraint;
 	Eigen::Map<Eigen::VectorXd> full_constraint(g, m);
 	full_constraint.setZero();
 
-	StateModel state;
+	// Computing the active and inactive constraints for a predefined horizon
+	LocomotionState state;
 	int index = 0;
-	for (int i = 0; i < horizon_; i++) {
+	for (unsigned int i = 0; i < horizon_; i++) {
+		// Converting the decision variable for a certain time to a robot state
 		model_->convertDecisionVariablesToStateModel(state,
 				(const Eigen::VectorXd) decision_var.segment(i * state_dimension_, state_dimension_));
 
-		int	num_constraint;
-		int num_active_constraints = model_->getActiveConstraints().size();
-		std::cout << "Number of active constraints " << num_active_constraints << std::endl;
-		for (int j = 0; j < num_active_constraints; j++) {
+		// Computing the active constraints for a certain time
+		int num_constraint;
+		unsigned int num_active_constraints = model_->getActiveConstraints().size();
+		for (unsigned int j = 0; j < num_active_constraints; j++) {
 			model_->getActiveConstraints()[j]->compute(constraint, state);
 
 			num_constraint = constraint.size();
@@ -162,9 +171,9 @@ bool IpoptWrapper::eval_g(Index n, const Number* x, bool new_x, Index m, Number*
 			index += num_constraint;
 		}
 
-		int num_inactive_constraints = model_->getInactiveConstraints().size();
-		std::cout << "Number of inactive constraints " << num_inactive_constraints << std::endl;
-		for (int j = 0; j < num_inactive_constraints; j++) {
+		// Computing the inactive constraints for a certain time
+		unsigned int num_inactive_constraints = model_->getInactiveConstraints().size();
+		for (unsigned int j = 0; j < num_inactive_constraints; j++) {
 			model_->getInactiveConstraints()[j]->compute(constraint, state);
 
 			num_constraint = constraint.size();
@@ -194,21 +203,24 @@ bool IpoptWrapper::eval_jac_g(Index n, const Number* x, bool new_x,
 		}
 	} else {
 		// Returns the values of the Jacobian of the constraints
+		// Eigen interfacing to raw buffers
 		Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
 		Eigen::Map<MatrixRXd> full_jacobian(values, m, n);
 		full_jacobian.setZero();
 		Eigen::MatrixXd jacobian;
 
-		StateModel state;
+		// Computing the Jacobian for a predefined horizon
+		LocomotionState state;
 		int row_index = 0, col_index = 0;
-		for (int i = 0; i < horizon_; i++) {
+		for (unsigned int i = 0; i < horizon_; i++) {
+			// Converting the decision variable for a certain time to a robot state
 			model_->convertDecisionVariablesToStateModel(state,
 					(const Eigen::VectorXd) decision_var.segment(i * state_dimension_, state_dimension_));
 
+			// Computing the Jacobian of active constraints for a certain time
 			int num_constraints, num_variables;
-
-			int num_active_constraints = model_->getActiveConstraints().size();
-			for (int j = 0; j < num_active_constraints; j++) {
+			unsigned int num_active_constraints = model_->getActiveConstraints().size();
+			for (unsigned int j = 0; j < num_active_constraints; j++) {
 				model_->getActiveConstraints()[j]->computeJacobian(jacobian, state);
 
 				num_constraints = jacobian.rows();
@@ -219,8 +231,9 @@ bool IpoptWrapper::eval_jac_g(Index n, const Number* x, bool new_x,
 				col_index += num_variables;
 			}
 
-			int num_inactive_constraints = model_->getInactiveConstraints().size();
-			for (int j = 0; j < num_inactive_constraints; j++) {
+			// Computing the Jacobian of inactive constraints for a certain time
+			unsigned int num_inactive_constraints = model_->getInactiveConstraints().size();
+			for (unsigned int j = 0; j < num_inactive_constraints; j++) {
 				model_->getInactiveConstraints()[j]->computeJacobian(jacobian, state);
 
 				num_constraints = jacobian.rows();
@@ -246,7 +259,7 @@ bool IpoptWrapper::eval_h(Index n, const Number* x, bool new_x, Number obj_facto
 		// triangle only.
 
 		// the hessian for this problem is actually dense
-		Index idx=0;
+		Index idx = 0;
 		for (Index row = 0; row < 4; row++) {
 			for (Index col = 0; col <= row; col++) {
 				row_entries[idx] = row;

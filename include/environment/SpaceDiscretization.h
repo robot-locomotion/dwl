@@ -1,7 +1,6 @@
 #ifndef DWL_SpaceDiscretization_H
 #define DWL_SpaceDiscretization_H
 
-#include <utils/Math.h>
 #include <utils/utils.h>
 
 

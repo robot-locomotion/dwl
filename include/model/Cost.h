@@ -34,17 +34,17 @@ class Cost
 		/**
 		 * @brief Computes the cost value given a certain state
 		 * @param double& Cost value
-		 * @param const StateModel& State value
+		 * @param const LocomotionState& State value
 		 */
-		virtual void compute(double& cost, const StateModel& state) = 0;
+		virtual void compute(double& cost, const LocomotionState& state) = 0;
 
 		/**
 		 * @brief Computes the gradient of the cost given a certain state
 		 * @param Eigen::VectorXd& Gradient of the cost
-		 * @param const StateModel& State value
+		 * @param const LocomotionState& State value
 		 */
 		virtual void computeGradient(Eigen::VectorXd& gradient,
-									 const StateModel& state) = 0;
+									 const LocomotionState& state) = 0;
 
 		/**
 		 * @brief Abstract method for getting the cost value given a certain node

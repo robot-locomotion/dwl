@@ -3,6 +3,8 @@
 
 #include <behavior/MotorPrimitives.h>
 #include <utils/utils.h>
+#include <utils/YamlBridge.h>
+
 
 namespace dwl
 {

@@ -3,7 +3,6 @@
 
 #include <utils/utils.h>
 #include <utils/RigidBodyDynamics.h>
-#include <utils/Math.h>
 
 #include <Eigen/Dense>
 #include <map>

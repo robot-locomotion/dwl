@@ -1,3 +1,6 @@
+#ifndef DWL_FullDynamcSystem_H
+#define DWL_FullDynamicSytem_H
+
 #include <model/Constraint.h>
 #include <model/WholeBodyDynamics.h>
 
@@ -35,3 +38,5 @@ class FullDynamicSystem : public Constraint
 
 } //@namespace model
 } //@namespace dwl
+
+#endif

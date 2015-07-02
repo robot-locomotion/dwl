@@ -5,7 +5,6 @@
 #include <environment/Feature.h>
 #include <robot/Robot.h>
 #include <utils/utils.h>
-#include <utils/Orientation.h>
 
 
 namespace dwl
