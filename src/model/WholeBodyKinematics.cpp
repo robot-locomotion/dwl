@@ -62,7 +62,7 @@ void WholeBodyKinematics::modelFromURDFModel(std::string urdf_model,
 void WholeBodyKinematics::computeForwardKinematics(Eigen::VectorXd& op_pos,
 												   const rbd::Vector6d& base_pos,
 												   const Eigen::VectorXd& joint_pos,
-												   rbd::BodySelector body_set,
+												   const rbd::BodySelector& body_set,
 												   enum rbd::Component component,
 												   enum TypeOfOrientation type)
 {
@@ -108,7 +108,7 @@ void WholeBodyKinematics::computeForwardKinematics(Eigen::VectorXd& op_pos,
 	op_pos.resize(num_body_set * (ang_vars + lin_vars));
 
 	int body_counter = 0;
-	for (rbd::BodySelector::iterator body_iter = body_set.begin();
+	for (rbd::BodySelector::const_iterator body_iter = body_set.begin();
 			body_iter != body_set.end();
 			body_iter++)
 	{
@@ -167,7 +167,7 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 												   Eigen::VectorXd& joint_pos,
 												   const rbd::Vector6d& base_pos_init,
 												   const Eigen::VectorXd& joint_pos_init,
-												   rbd::BodyPosition op_pos,
+												   const rbd::BodyPosition& op_pos,
 												   double step_tol,
 												   double lambda,
 												   unsigned int max_iter)
@@ -176,7 +176,7 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 	std::vector<unsigned int> body_id;
 	std::vector<RigidBodyDynamics::Math::Vector3d> body_point;
 	std::vector<RigidBodyDynamics::Math::Vector3d> target_pos;
-	for (rbd::BodyPosition::iterator body_iter = op_pos.begin();
+	for (rbd::BodyPosition::const_iterator body_iter = op_pos.begin();
 			body_iter != op_pos.end();
 			body_iter++)
 	{
@@ -204,7 +204,7 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 										  const rbd::Vector6d& base_pos,
 										  const Eigen::VectorXd& joint_pos,
-										  rbd::BodySelector body_set,
+										  const rbd::BodySelector& body_set,
 										  enum rbd::Component component)
 {
 	// Resizing the jacobian matrix
@@ -229,7 +229,7 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 
 	// Adding the jacobian only for the active end-effectors
 	int body_counter = 0;
-	for (rbd::BodySelector::iterator body_iter = body_set.begin();
+	for (rbd::BodySelector::const_iterator body_iter = body_set.begin();
 			body_iter != body_set.end();
 			body_iter++)
 	{
@@ -307,7 +307,7 @@ void WholeBodyKinematics::computeVelocity(Eigen::VectorXd& op_vel,
 										  const Eigen::VectorXd& joint_pos,
 										  const rbd::Vector6d& base_vel,
 										  const Eigen::VectorXd& joint_vel,
-										  rbd::BodySelector body_set,
+										  const rbd::BodySelector& body_set,
 										  enum rbd::Component component)
 {
 	// Computing the number of active end-effectors
@@ -330,7 +330,7 @@ void WholeBodyKinematics::computeVelocity(Eigen::VectorXd& op_vel,
 
 	// Adding the velocity only for the active end-effectors
 	int body_counter = 0;
-	for (rbd::BodySelector::iterator body_iter = body_set.begin();
+	for (rbd::BodySelector::const_iterator body_iter = body_set.begin();
 			body_iter != body_set.end();
 			body_iter++)
 	{
@@ -369,7 +369,7 @@ void WholeBodyKinematics::computeAcceleration(Eigen::VectorXd& op_acc,
 											  const Eigen::VectorXd& joint_vel,
 											  const rbd::Vector6d& base_acc,
 											  const Eigen::VectorXd& joint_acc,
-											  rbd::BodySelector body_set,
+											  const rbd::BodySelector& body_set,
 											  enum rbd::Component component)
 {
 	// Computing the number of active end-effectors
@@ -392,7 +392,7 @@ void WholeBodyKinematics::computeAcceleration(Eigen::VectorXd& op_acc,
 
 	// Adding the velocity only for the active end-effectors
 	int body_counter = 0;
-	for (rbd::BodySelector::iterator body_iter = body_set.begin();
+	for (rbd::BodySelector::const_iterator body_iter = body_set.begin();
 			body_iter != body_set.end();
 			body_iter++)
 	{
@@ -430,7 +430,7 @@ void WholeBodyKinematics::computeJdotQdot(Eigen::VectorXd& jacd_qd,
 										  const Eigen::VectorXd& joint_pos,
 										  const rbd::Vector6d& base_vel,
 										  const Eigen::VectorXd& joint_vel,
-										  rbd::BodySelector body_set,
+										  const rbd::BodySelector& body_set,
 										  enum rbd::Component component)
 {
 	// Getting the floating-base dof
@@ -492,10 +492,10 @@ void WholeBodyKinematics::computeJdotQdot(Eigen::VectorXd& jacd_qd,
 }
 
 
-int WholeBodyKinematics::getNumberOfActiveEndEffectors(rbd::BodySelector body_set)
+int WholeBodyKinematics::getNumberOfActiveEndEffectors(const rbd::BodySelector& body_set)
 {
 	int num_body_set = 0;
-	for (rbd::BodySelector::iterator body_iter = body_set.begin();
+	for (rbd::BodySelector::const_iterator body_iter = body_set.begin();
 			body_iter != body_set.end();
 			body_iter++)
 	{

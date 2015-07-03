@@ -50,7 +50,7 @@ class WholeBodyKinematics
 		 * @param Eigen::VectorXd& Operational position of bodies
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
-		 * @param rbd::BodySelector A predefined set of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 * @param enum TypeOfOrientation Desired type of orientation
@@ -58,7 +58,7 @@ class WholeBodyKinematics
 		void computeForwardKinematics(Eigen::VectorXd& op_pos,
 									  const rbd::Vector6d& base_pos,
 									  const Eigen::VectorXd& joint_pos,
-									  rbd::BodySelector body_set,
+									  const rbd::BodySelector& body_set,
 									  enum rbd::Component component = rbd::Full,
 									  enum TypeOfOrientation type = RollPitchYaw);
 
@@ -70,7 +70,7 @@ class WholeBodyKinematics
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Initial base position for the iteration
 		 * @param const Eigen::VectorXd& Initial joint position for the iteration
-		 * @param rbd::BodyPosition Operational position of bodies
+		 * @param const rbd::BodyPosition& Operational position of bodies
 		 * @param double Step tolerance
 		 * @param double Lambda value for singularities
 		 * @param unsigned int Maximum number of iterations
@@ -79,7 +79,7 @@ class WholeBodyKinematics
 									  Eigen::VectorXd& joint_pos,
 									  const rbd::Vector6d& base_pos_init,
 									  const Eigen::VectorXd& joint_pos_init,
-									  rbd::BodyPosition op_pos,
+									  const rbd::BodyPosition& op_pos,
 									  double step_tol = 1.0e-12,
 									  double lambda = 0.01,
 									  unsigned int max_iter = 50);
@@ -92,14 +92,14 @@ class WholeBodyKinematics
 		 * @param Eigen::MatrixXd& Whole-body jacobian
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
-		 * @param rbd::BodySelector A predefined set of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
 		void computeJacobian(Eigen::MatrixXd& jacobian,
 							 const rbd::Vector6d& base_pos,
 							 const Eigen::VectorXd& joint_pos,
-							 rbd::BodySelector body_set,
+							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
 
 		/**
@@ -130,7 +130,7 @@ class WholeBodyKinematics
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param rbd::BodySelector A predefined set of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
@@ -139,7 +139,7 @@ class WholeBodyKinematics
 							 const Eigen::VectorXd& joint_pos,
 							 const rbd::Vector6d& base_vel,
 							 const Eigen::VectorXd& joint_vel,
-							 rbd::BodySelector body_set,
+							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
 
 		/**
@@ -152,7 +152,7 @@ class WholeBodyKinematics
 		 * @param const Eigen::VectorXd& Joint velocity
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
-		 * @param rbd::BodySelector A predefined set of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
@@ -163,7 +163,7 @@ class WholeBodyKinematics
 								 const Eigen::VectorXd& joint_vel,
 								 const rbd::Vector6d& base_acc,
 								 const Eigen::VectorXd& joint_acc,
-								 rbd::BodySelector body_set,
+								 const rbd::BodySelector& body_set,
 								 enum rbd::Component component = rbd::Full);
 
 		/**
@@ -174,7 +174,7 @@ class WholeBodyKinematics
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param rbd::BodySelector A predefined set of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
@@ -183,14 +183,14 @@ class WholeBodyKinematics
 							 const Eigen::VectorXd& joint_pos,
 							 const rbd::Vector6d& base_vel,
 							 const Eigen::VectorXd& joint_vel,
-							 rbd::BodySelector body_set,
+							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Gets the number of active end-effectors
-		 * @param EndEffectorSelector End-effector set
+		 * @param cons rbd::EndEffectorSelector& End-effector set
 		 */
-		int getNumberOfActiveEndEffectors(rbd::BodySelector effector_set);
+		int getNumberOfActiveEndEffectors(const rbd::BodySelector& effector_set);
 
 
 	private:
