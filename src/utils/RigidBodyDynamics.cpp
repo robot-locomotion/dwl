@@ -223,6 +223,41 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 }
 
 
+Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
+							   unsigned int body_id,
+							   RigidBodyDynamics::Model& model,
+							   struct ReducedFloatingBase* reduced_base)
+{
+	unsigned int q_index, num_dof = 0;
+
+	// Getting the base id
+	unsigned int base_id = 0;
+	if (rbd::isFloatingBaseRobot(model) || rbd::isVirtualFloatingBaseRobot(reduced_base))
+		base_id = getFloatingBaseDOF(model, reduced_base);;
+
+	// Setting the state values of a specific branch to the joint state
+	unsigned int parent_id = body_id;
+	if (model.IsFixedBodyId(body_id)) {
+		parent_id = model.mFixedBodies[body_id - model.fixed_body_discriminator].mMovableParent;
+	}
+
+	// Adding the branch state to the joint state. Two safety checking are done; checking that this branch has at least
+	// one joint, and checking the size of the new branch state
+	if (parent_id != base_id) {
+		do {
+			q_index = model.mJoints[parent_id].q_index - 1;
+			parent_id = model.lambda[parent_id];
+			++num_dof;
+		} while (parent_id != base_id);
+	}
+
+	Eigen::VectorXd branch_state(num_dof);
+	branch_state = joint_state.segment(q_index, num_dof);
+
+	return branch_state;
+}
+
+
 Vector6d convertPointVelocityToSpatialVelocity(Vector6d& velocity,
 											   const Eigen::Vector3d& point)
 {

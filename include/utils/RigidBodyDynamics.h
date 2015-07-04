@@ -170,6 +170,11 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 					RigidBodyDynamics::Model& model,
 					struct ReducedFloatingBase* reduced_base = NULL);
 
+Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
+							   unsigned int body_id,
+							   RigidBodyDynamics::Model& model,
+							   struct ReducedFloatingBase* reduced_base = NULL);
+
 /**
  * @brief Converts an applied velocity acting at a certain point to spatial velocity
  * @param Vector6d& Velocity

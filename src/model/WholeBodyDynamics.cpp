@@ -34,7 +34,6 @@ void WholeBodyDynamics::modelFromURDFFile(std::string model_file,
 	// Printing the information of the rigid-body system
 	if (info)
 		rbd::printModelInfo(robot_model_);
-
 }
 
 
@@ -53,7 +52,6 @@ void WholeBodyDynamics::modelFromURDFModel(std::string urdf_model,
 	// Printing the information of the rigid-body system
 	if (info)
 		rbd::printModelInfo(robot_model_);
-
 }
 
 
@@ -254,6 +252,46 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyForce& contact_forces,
 		unsigned int num_active_contacts = contacts.size();
 		for (unsigned int i = 0; i < num_active_contacts; i++)
 			contact_forces[contacts[i]] << 0., 0., 0., endeffector_forces.segment<3>(3 * i);
+	}
+}
+
+
+void WholeBodyDynamics::computeContactForces(rbd::BodyForce& contact_forces,
+											 const rbd::Vector6d& base_pos,
+											 const Eigen::VectorXd& joint_pos,
+											 const rbd::Vector6d& base_vel,
+											 const Eigen::VectorXd& joint_vel,
+											 const rbd::Vector6d& base_acc,
+											 const Eigen::VectorXd& joint_acc,
+											 const Eigen::VectorXd& joint_forces,
+											 const rbd::BodySelector& contacts)
+{
+	// Computing the estimated joint forces assuming that there aren't contact forces
+	dwl::rbd::Vector6d base_wrench;
+	Eigen::VectorXd estimated_joint_forces;
+	computeInverseDynamics(base_wrench, estimated_joint_forces, base_pos, joint_pos,
+						   base_vel, joint_vel, base_acc, joint_acc);
+
+	// Computing the joint force error
+	Eigen::VectorXd joint_force_error = estimated_joint_forces - joint_forces;
+
+	// Computing the contact forces
+	for (rbd::BodySelector::const_iterator contact_iter = contacts.begin();
+			contact_iter != contacts.end();
+			contact_iter++)
+	{
+		std::string body_name = *contact_iter;
+		unsigned int body_id = robot_model_.GetBodyId(body_name.c_str());
+		rbd::BodySelector body(contact_iter, contact_iter + 1);
+
+		Eigen::MatrixXd full_jac, fixed_jac;
+		kinematics_.computeJacobian(full_jac, base_pos, joint_pos, body, rbd::Linear);
+		kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
+
+		Eigen::Vector3d force = dwl::math::pseudoInverse((Eigen::MatrixXd) fixed_jac.transpose()) *
+				(rbd::getBranchState(joint_force_error, body_id, robot_model_, reduced_base_));
+
+		contact_forces[body_name] << 0, 0, 0, force;
 	}
 }
 

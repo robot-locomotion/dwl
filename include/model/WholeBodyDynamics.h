@@ -146,6 +146,16 @@ class WholeBodyDynamics
 								  Eigen::VectorXd& joint_acc,
 								  const rbd::BodySelector& contacts);
 
+		void computeContactForces(rbd::BodyForce& contact_forces,
+								  const rbd::Vector6d& base_pos,
+								  const Eigen::VectorXd& joint_pos,
+								  const rbd::Vector6d& base_vel,
+								  const Eigen::VectorXd& joint_vel,
+								  const rbd::Vector6d& base_acc,
+								  const Eigen::VectorXd& joint_acc,
+								  const Eigen::VectorXd& joint_forces,
+								  const rbd::BodySelector& contacts);
+
 
 	private:
 		/**
