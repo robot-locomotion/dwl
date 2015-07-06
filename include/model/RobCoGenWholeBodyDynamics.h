@@ -51,7 +51,7 @@ class RobCoGenWholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint velocity
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
-		 * @param const rbd::BodyForce External force applied to a certain body of the robot
+		 * @param const rbd::BodyWrench External force applied to a certain body of the robot
 		 */
 		virtual void computeInverseDynamics(rbd::Vector6d& base_wrench,
 											Eigen::VectorXd& joint_forces,
@@ -62,7 +62,7 @@ class RobCoGenWholeBodyDynamics
 											const Eigen::VectorXd& joint_vel,
 											const rbd::Vector6d& base_acc,
 											const Eigen::VectorXd& joint_acc,
-											const rbd::BodyForce& ext_force = rbd::BodyForce()) = 0;
+											const rbd::BodyWrench& ext_force = rbd::BodyWrench()) = 0;
 
 		/**
 		 * @brief An abstract method for propagating the states for whole-body inverse dynamics

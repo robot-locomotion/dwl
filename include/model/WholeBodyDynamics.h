@@ -61,7 +61,7 @@ class WholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint velocity
 		 * @param const rbd::Vector6d& Base acceleration with respect to a gravity field
 		 * @param const Eigen::VectorXd& Joint acceleration
-		 * @param const rbd::BodyForce External force applied to a certain body of the robot
+		 * @param const rbd::BodyWrench External force applied to a certain body of the robot
 		 */
 		void computeInverseDynamics(rbd::Vector6d& base_wrench,
 									Eigen::VectorXd& joint_forces,
@@ -71,7 +71,7 @@ class WholeBodyDynamics
 									const Eigen::VectorXd& joint_vel,
 									const rbd::Vector6d& base_acc,
 									const Eigen::VectorXd& joint_acc,
-									const rbd::BodyForce& ext_force = rbd::BodyForce());
+									const rbd::BodyWrench& ext_force = rbd::BodyWrench());
 		/**
 		 * @brief Computes the whole-body inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA) for a
 		 * floating-base robot (RX,RY,RZ,TX,TY,TZ). An applied external force is defined for a certain body, movable
@@ -86,7 +86,7 @@ class WholeBodyDynamics
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
 		 * @param const Eigen::VectorXd& Joint acceleration
-		 * @param const rbd::BodyForce External force applied to a certain body of the robot
+		 * @param const rbd::BodyWrench External force applied to a certain body of the robot
 		 */
 		void computeFloatingBaseInverseDynamics(rbd::Vector6d& base_acc,
 												Eigen::VectorXd& joint_forces,
@@ -95,7 +95,7 @@ class WholeBodyDynamics
 												const rbd::Vector6d& base_vel,
 												const Eigen::VectorXd& joint_vel,
 												const Eigen::VectorXd& joint_acc,
-												const rbd::BodyForce& ext_force = rbd::BodyForce());
+												const rbd::BodyWrench& ext_force = rbd::BodyWrench());
 
 		/**
 		 * @brief Computes the constrained whole-body inverse dynamics using the Recursive Newton-Euler
@@ -126,7 +126,7 @@ class WholeBodyDynamics
 		 * @brief Computing the contact forces that generates the desired base wrench. This desired base wrench is
 		 * computed by using robot state, i.e. position, velocity, acceleration and contacts. This function overwrite
 		 * the base and joint acceleration in case that it isn't consistent with the constrained contacts
-		 * @param rbd::BodyForces& Contact forces applied to the defined set of contacts
+		 * @param rbd::BodyWrench& Contact forces applied to the defined set of contacts
 		 * @param Eigen::VectorXd& Joint forces
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
@@ -136,7 +136,7 @@ class WholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 * @param const rbd::BodySelector& Bodies that are constrained to be in contact
 		 */
-		void computeContactForces(rbd::BodyForce& contact_forces,
+		void computeContactForces(rbd::BodyWrench& contact_forces,
 								  Eigen::VectorXd& joint_forces,
 								  const rbd::Vector6d& base_pos,
 								  const Eigen::VectorXd& joint_pos,
@@ -146,7 +146,7 @@ class WholeBodyDynamics
 								  Eigen::VectorXd& joint_acc,
 								  const rbd::BodySelector& contacts);
 
-		void computeContactForces(rbd::BodyForce& contact_forces,
+		void computeContactForces(rbd::BodyWrench& contact_forces,
 								  const rbd::Vector6d& base_pos,
 								  const Eigen::VectorXd& joint_pos,
 								  const rbd::Vector6d& base_vel,
@@ -161,11 +161,11 @@ class WholeBodyDynamics
 		/**
 		 * @brief Converts the applied external forces to RBDL format
 		 * @param std::vector<RigidBodyDynamcis::Math::SpatialVector>& RBDL external forces format
-		 * @param const rbd::BodyForce& External forces
+		 * @param const rbd::BodyWrench& External forces
 		 * @param const Eigen::VectorXd& Generalized joint position
 		 */
 		void convertAppliedExternalForces(std::vector<RigidBodyDynamics::Math::SpatialVector>& f_ext,
-										  const rbd::BodyForce& ext_force,
+										  const rbd::BodyWrench& ext_force,
 										  const Eigen::VectorXd& generalized_joint_pos);
 
 		/**

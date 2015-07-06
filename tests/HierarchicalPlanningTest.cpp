@@ -158,7 +158,7 @@ int main(int argc, char **argv)
 //	joint_vel2 << 1;
 //	joint_acc2 << -9.81;
 
-	dwl::rbd::BodyForce grf;
+	dwl::rbd::BodyWrench grf;
 	grf["foot"] << 0, 0, 0, 0, 0, 67.3149;
 //	dyn.computeWholeDynamics(base_wrench, joint_forces, base_pos, joint_pos2, base_vel, joint_vel2, base_acc, joint_acc2, fext);
 //	std::cout << "---------------------------------------" << std::endl;

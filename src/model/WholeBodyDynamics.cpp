@@ -63,7 +63,7 @@ void WholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 											   const Eigen::VectorXd& joint_vel,
 											   const rbd::Vector6d& base_acc,
 											   const Eigen::VectorXd& joint_acc,
-											   const rbd::BodyForce& ext_force)
+											   const rbd::BodyWrench& ext_force)
 {
 	// Converting base and joint states to generalized joint states
 	Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, type_of_system_, reduced_base_);
@@ -90,7 +90,7 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 														   const rbd::Vector6d& base_vel,
 														   const Eigen::VectorXd& joint_vel,
 														   const Eigen::VectorXd& joint_acc,
-														   const rbd::BodyForce& ext_force)
+														   const rbd::BodyWrench& ext_force)
 {
 	// Converting base and joint states to generalized joint states
 	Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, type_of_system_, reduced_base_);
@@ -133,7 +133,7 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 	// Computing the contact forces that generates the desired base wrench. A floating-base system can be described as
 	// floating-base with or without physical constraints or virtual floating-base. Note that with a virtual floating-base
 	// we can describe a n-dimensional floating-base, witch n less than 6
-	rbd::BodyForce contact_forces;
+	rbd::BodyWrench contact_forces;
 	rbd::Vector6d base_feas_acc = base_acc;
 	Eigen::VectorXd joint_feas_acc = joint_acc;
 	computeContactForces(contact_forces, joint_forces, base_pos, joint_pos,
@@ -147,7 +147,7 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 }
 
 
-void WholeBodyDynamics::computeContactForces(rbd::BodyForce& contact_forces,
+void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 											 Eigen::VectorXd& joint_forces,
 											 const rbd::Vector6d& base_pos,
 											 const Eigen::VectorXd& joint_pos,
@@ -256,7 +256,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyForce& contact_forces,
 }
 
 
-void WholeBodyDynamics::computeContactForces(rbd::BodyForce& contact_forces,
+void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 											 const rbd::Vector6d& base_pos,
 											 const Eigen::VectorXd& joint_pos,
 											 const rbd::Vector6d& base_vel,
@@ -297,7 +297,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyForce& contact_forces,
 
 
 void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynamics::Math::SpatialVector>& fext,
-													 const rbd::BodyForce& ext_force,
+													 const rbd::BodyWrench& ext_force,
 													 const Eigen::VectorXd& q)
 {
 	// Computing the applied external spatial forces for every body
