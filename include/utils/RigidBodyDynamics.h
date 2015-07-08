@@ -14,6 +14,7 @@ namespace rbd
 enum Component {Linear, Angular, Full};
 
 typedef Eigen::Matrix<double,6,1> Vector6d;
+typedef Eigen::Matrix<double,6,6> Matrix6d;
 typedef Eigen::Block<Vector6d,3,1> Part3d;///< a 3D subvector of a 6D vector
 typedef std::vector<std::string> BodySelector;
 typedef std::map<std::string,unsigned int> BodyID;
