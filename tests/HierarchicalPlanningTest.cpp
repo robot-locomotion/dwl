@@ -36,8 +36,8 @@ int main(int argc, char **argv)
 
 	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
 	dwl::rbd::ReducedFloatingBase reduced_base;
-	reduced_base.TZ.active = true;
-	reduced_base.TZ.id = 0;
+	reduced_base.LZ.active = true;
+	reduced_base.LZ.id = 0;
 
 	dwl::model::WholeBodyKinematics kin;
 	kin.modelFromURDFFile(model_file, &reduced_base, true);

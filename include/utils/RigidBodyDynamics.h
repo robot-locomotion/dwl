@@ -34,8 +34,8 @@ Part3d angularPart(Vector6d& vector);
  */
 Part3d linearPart(Vector6d& vector);
 
-Part3d linearFloatingBaseState(Vector6d& vector);
-Part3d angularFloatingBaseState(Vector6d& vector);
+//Part3d linearFloatingBaseState(Vector6d& vector);
+//Part3d angularFloatingBaseState(Vector6d& vector);
 
 /**
  * @brief Vector coordinates
@@ -43,7 +43,7 @@ Part3d angularFloatingBaseState(Vector6d& vector);
  */
 enum Coords3d {X = 0, Y, Z};
 enum Coords6d {AX = 0, AY, AZ, LX, LY, LZ };
-enum FloatingBaseState {TX = 0, TY, TZ, RX, RY, RZ };
+//enum FloatingBaseState {TX = 0, TY, TZ, RX, RY, RZ };
 enum TypeOfSystem {FixedBase, FloatingBase, ConstrainedFloatingBase, VirtualFloatingBase};
 
 /** @brief Defines a floating base joint status */
@@ -55,41 +55,41 @@ struct FloatingBaseJoint {
 
 /** @brief Defines a reduced floating-base system */
 struct ReducedFloatingBase {
-	ReducedFloatingBase(bool full_floating_base = false) : TX(full_floating_base), TY(full_floating_base),
-			TZ(full_floating_base), RX(full_floating_base), RY(full_floating_base), RZ(full_floating_base) {}
+	ReducedFloatingBase(bool full_floating_base = false) : AX(full_floating_base), AY(full_floating_base),
+			AZ(full_floating_base), LX(full_floating_base), LY(full_floating_base), LZ(full_floating_base) {}
 	bool isFullyFree() {
-		if (!TX.active && !TY.active && !TZ.active && !RX.active && !RY.active && !RZ.active)
+		if (!AX.active && !AY.active && !AZ.active && !LX.active && !LY.active && !LZ.active)
 			return true;
 		else
 			return false;
 	}
 	unsigned int getFloatingBaseDOF() {
-		return TX.active + TY.active + TZ.active + RX.active + RY.active + RZ.active;
+		return AX.active + AY.active + AZ.active + LX.active + LY.active + LZ.active;
 	}
 	unsigned int getJoint(unsigned int id) {
-		if (TX.active && TX.id == id)
-			return rbd::TX;
-		else if (TY.active && TY.id == id)
-			return rbd::TY;
-		else if (TZ.active && TZ.id == id)
-			return rbd::TZ;
-		else if (RX.active && RX.id == id)
-			return rbd::RX;
-		else if (RY.active && RY.id == id)
-			return rbd::RY;
-		else if (RZ.active && RZ.id == id)
-			return rbd::RZ;
+		if (AX.active && AX.id == id)
+			return rbd::AX;
+		else if (AY.active && AY.id == id)
+			return rbd::AY;
+		else if (AZ.active && AZ.id == id)
+			return rbd::AZ;
+		else if (LX.active && LX.id == id)
+			return rbd::LX;
+		else if (LY.active && LY.id == id)
+			return rbd::LY;
+		else if (LZ.active && LZ.id == id)
+			return rbd::LZ;
 		else {
 			printf(RED "ERROR: the %i id doesn't bellow to floating-base joint\n" COLOR_RESET, id);
 			return 0;
 		}
 	}
-	FloatingBaseJoint TX;
-	FloatingBaseJoint TY;
-	FloatingBaseJoint TZ;
-	FloatingBaseJoint RX;
-	FloatingBaseJoint RY;
-	FloatingBaseJoint RZ;
+	FloatingBaseJoint AX;
+	FloatingBaseJoint AY;
+	FloatingBaseJoint AZ;
+	FloatingBaseJoint LX;
+	FloatingBaseJoint LY;
+	FloatingBaseJoint LZ;
 };
 
 /** @brief Returns true if it's a floating-base robot */

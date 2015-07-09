@@ -270,18 +270,18 @@ void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 		unsigned int num_virtual_jnts = reduced_base_->getFloatingBaseDOF();
 		jacobian = Eigen::MatrixXd::Zero(full_jacobian.rows(), num_virtual_jnts);
 
-		if (reduced_base_->TX.active)
-			jacobian.col(reduced_base_->TX.id) = full_jacobian.col(reduced_base_->TX.id);
-		if (reduced_base_->TY.active)
-			jacobian.col(reduced_base_->TY.id) = full_jacobian.col(reduced_base_->TY.id);
-		if (reduced_base_->TZ.active)
-			jacobian.col(reduced_base_->TZ.id) = full_jacobian.col(reduced_base_->TZ.id);
-		if (reduced_base_->RX.active)
-			jacobian.col(reduced_base_->RX.id) = full_jacobian.col(reduced_base_->RX.id);
-		if (reduced_base_->RY.active)
-			jacobian.col(reduced_base_->RY.id) = full_jacobian.col(reduced_base_->RY.id);
-		if (reduced_base_->RZ.active)
-			jacobian.col(reduced_base_->RZ.id) = full_jacobian.col(reduced_base_->RZ.id);
+		if (reduced_base_->AX.active)
+			jacobian.col(reduced_base_->AX.id) = full_jacobian.col(reduced_base_->AX.id);
+		if (reduced_base_->AY.active)
+			jacobian.col(reduced_base_->AY.id) = full_jacobian.col(reduced_base_->AY.id);
+		if (reduced_base_->AZ.active)
+			jacobian.col(reduced_base_->AZ.id) = full_jacobian.col(reduced_base_->AZ.id);
+		if (reduced_base_->LX.active)
+			jacobian.col(reduced_base_->LX.id) = full_jacobian.col(reduced_base_->LX.id);
+		if (reduced_base_->LY.active)
+			jacobian.col(reduced_base_->LY.id) = full_jacobian.col(reduced_base_->LY.id);
+		if (reduced_base_->LZ.active)
+			jacobian.col(reduced_base_->LZ.id) = full_jacobian.col(reduced_base_->LZ.id);
 	} else {
 		printf(YELLOW "Warning: this is a fixed-base robot\n" COLOR_RESET);
 		jacobian = Eigen::MatrixXd::Zero(0,0);

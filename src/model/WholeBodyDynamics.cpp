@@ -192,28 +192,27 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 		if (rbd::isConstrainedFloatingBaseRobot(reduced_base_)) {
 			// Computing the base constraint contribution to the jacobian
 			Eigen::MatrixXd base_constraint_jac = Eigen::MatrixXd::Zero(6,6);
-			base_constraint_jac(rbd::TX,rbd::TX) = !reduced_base_->TX.active;
-			base_constraint_jac(rbd::TY,rbd::TY) = !reduced_base_->TY.active;
-			base_constraint_jac(rbd::TZ,rbd::TZ) = !reduced_base_->TZ.active;
-			base_constraint_jac(rbd::RX,rbd::RX) = !reduced_base_->RX.active;
-			base_constraint_jac(rbd::RY,rbd::RY) = !reduced_base_->RY.active;
-			base_constraint_jac(rbd::RZ,rbd::RZ) = !reduced_base_->RZ.active;
+			base_constraint_jac(rbd::AX, rbd::AX) = !reduced_base_->AX.active;
+			base_constraint_jac(rbd::AY, rbd::AY) = !reduced_base_->AY.active;
+			base_constraint_jac(rbd::AZ, rbd::AZ) = !reduced_base_->AZ.active;
+			base_constraint_jac(rbd::LX, rbd::LX) = !reduced_base_->LX.active;
+			base_constraint_jac(rbd::LY, rbd::LY) = !reduced_base_->LY.active;
+			base_constraint_jac(rbd::LZ, rbd::LZ) = !reduced_base_->LZ.active;
 
 			// Computing the augmented jacobian [base contact jacobian; base constraint jacobian]
 			Eigen::MatrixXd augmented_jac = Eigen::MatrixXd::Zero(base_contact_jac.rows() + 6, base_contact_jac.cols());
 			augmented_jac.block(0,0,base_contact_jac.rows(), base_contact_jac.cols()) = base_contact_jac;
-			augmented_jac.block<6,6>(base_contact_jac.rows(),0) = base_constraint_jac;
+			augmented_jac.block<6,6>(base_contact_jac.rows(), 0) = base_constraint_jac;
 
 			// Computing the external forces from the augmented forces [contact forces; base constraint forces]
 			Eigen::VectorXd augmented_forces =
 					math::pseudoInverse((Eigen::MatrixXd) augmented_jac.transpose()) * base_wrench;
 
 			// Adding the base reaction forces in the set of external forces
-			unsigned int num_active_contacts = contacts.size();
-			contact_forces[robot_model_.GetBodyName(6)] << augmented_forces.segment<3>(3 * num_active_contacts + 3),
-					augmented_forces.segment<3>(3 * num_active_contacts);
+			contact_forces[robot_model_.GetBodyName(6)] = augmented_forces.tail<6>();
 
 			// Adding the contact forces in the set of external forces
+			unsigned int num_active_contacts = contacts.size();
 			for (unsigned int i = 0; i < num_active_contacts; i++)
 				contact_forces[contacts[i]] << 0., 0., 0., augmented_forces.segment<3>(3 * i);
 		} else {
@@ -230,18 +229,18 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 	} else if (rbd::isVirtualFloatingBaseRobot(reduced_base_)) {
 		// This is n-dimensional floating-base system. So, we need to compute a virtual base wrench
 		Eigen::VectorXd virtual_base_wrench = Eigen::VectorXd::Zero(reduced_base_->getFloatingBaseDOF());
-		if (reduced_base_->TX.active)
-			virtual_base_wrench(reduced_base_->TX.id) = base_wrench(rbd::TX);
-		if (reduced_base_->TY.active)
-			virtual_base_wrench(reduced_base_->TY.id) = base_wrench(rbd::TY);
-		if (reduced_base_->TZ.active)
-			virtual_base_wrench(reduced_base_->TZ.id) = base_wrench(rbd::TZ);
-		if (reduced_base_->RX.active)
-			virtual_base_wrench(reduced_base_->RX.id) = base_wrench(rbd::RX);
-		if (reduced_base_->RY.active)
-			virtual_base_wrench(reduced_base_->RY.id) = base_wrench(rbd::RY);
-		if (reduced_base_->RZ.active)
-			virtual_base_wrench(reduced_base_->RZ.id) = base_wrench(rbd::RZ);
+		if (reduced_base_->AX.active)
+			virtual_base_wrench(reduced_base_->AX.id) = base_wrench(rbd::AX);
+		if (reduced_base_->AY.active)
+			virtual_base_wrench(reduced_base_->AY.id) = base_wrench(rbd::AY);
+		if (reduced_base_->AZ.active)
+			virtual_base_wrench(reduced_base_->AZ.id) = base_wrench(rbd::AZ);
+		if (reduced_base_->LX.active)
+			virtual_base_wrench(reduced_base_->LX.id) = base_wrench(rbd::LX);
+		if (reduced_base_->LY.active)
+			virtual_base_wrench(reduced_base_->LY.id) = base_wrench(rbd::LY);
+		if (reduced_base_->LZ.active)
+			virtual_base_wrench(reduced_base_->LZ.id) = base_wrench(rbd::LZ);
 
 		// Computing the contact forces that generates the desired base wrench in the case of n dof floating-base, where
 		// n is less than 6. Note that we describe this floating-base as an unactuated virtual floating-base joints
@@ -361,12 +360,12 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 
 	// At the first step, we compute the angular and linear floating-base velocity and acceleration
 	rbd::Vector6d base_des_vel(base_vel);
-	Eigen::Vector3d base_ang_vel = rbd::angularFloatingBaseState(base_des_vel);
-	Eigen::Vector3d base_lin_vel = rbd::linearFloatingBaseState(base_des_vel);
+	Eigen::Vector3d base_ang_vel = rbd::angularPart(base_des_vel);
+	Eigen::Vector3d base_lin_vel = rbd::linearPart(base_des_vel);
 
 	rbd::Vector6d base_des_acc(base_acc);
-	Eigen::Vector3d base_ang_acc = rbd::angularFloatingBaseState(base_des_acc);
-	Eigen::Vector3d base_lin_acc = rbd::linearFloatingBaseState(base_des_acc);
+	Eigen::Vector3d base_ang_acc = rbd::angularPart(base_des_acc);
+	Eigen::Vector3d base_lin_acc = rbd::linearPart(base_des_acc);
 
 	// Computing contact linear positions and the J_d*q_d component, which are used for computing the joint accelerations
 	Eigen::VectorXd op_pos, jacd_qd;
@@ -374,7 +373,8 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 	kinematics_.computeJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, contacts, rbd::Linear);
 
 	// Computing the consistent joint acceleration given a base state
-	for (unsigned int i = 0; i < contacts.size(); i++) {
+	unsigned num_active_contacts = contacts.size();
+	for (unsigned int i = 0; i < num_active_contacts; i++) {
 		Eigen::Vector3d contact_pos = op_pos.segment<3>(i * 3);
 
 		// Computing the desired contact velocity
