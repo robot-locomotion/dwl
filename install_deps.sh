@@ -34,7 +34,8 @@ function install_rbdl
 	cd rbdl
 	mkdir -p build
 	cd build
-	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON CMAKE_INSTALL_INCLUDEDIR:string=lib ../
+	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON ../
+	cmake -D CMAKE_INSTALL_LIBDIR:string=lib ../
 	sudo make install
 	cd ../../
 	rm default.zip
@@ -70,9 +71,9 @@ function install_ipopt
 	# Installing necessary packages
 	sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
 
-	# Getting Ipopt 3.11.8
-	wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.11.8.tgz
-	mkdir ipopt && tar xzvf Ipopt-3.11.8.tgz -C ipopt --strip-components 1
+	# Getting Ipopt 3.12.2
+	wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.2.tgz
+	mkdir ipopt && tar xzvf Ipopt-3.12.2.tgz -C ipopt --strip-components 1
 	# Documentation for Ipopt Third Party modules:
 	# http://www.coin-or.org/Ipopt/documentation/node13.html
 	cd ipopt/ThirdParty
@@ -126,7 +127,7 @@ function install_ipopt
 	../configure --enable-static --prefix ${SELF_PATH}/thirdparty/ipopt
 	make install
 	cd ../../
-	rm -rf Ipopt-3.11.8.tgz
+	rm -rf Ipopt-3.12.2.tgz
 }
 
 
@@ -150,7 +151,7 @@ function install_octomap
 SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 
 # Printing the information of the shell script
-echo -e "${COLOR_BOLD}install_deps.sh - DWL Installation Script for Ubuntu Precise Pangolin 12.04${COLOR_RESET}"
+echo -e "${COLOR_BOLD}install_deps.sh - DWL Installation Script for Ubuntu Precise Pangolin 12.04 and Ubuntu Trusty Tahr 14.04${COLOR_RESET}"
 echo ""
 echo "Copyright (C) 2015 Carlos Mastalli"
 echo ""
@@ -256,7 +257,7 @@ echo -e "${COLOR_BOLD}Installing Ipopt ...${COLOR_RESET}"
 echo ""
 if [ -d "ipopt" ]; then
 	# Control will enter here if $DIRECTORY exists.
-	echo -e "${COLOR_QUES}Do you want to re-install Ipopt 3.11.8? (Y/N)${COLOR_RESET}"
+	echo -e "${COLOR_QUES}Do you want to re-install Ipopt 3.12.2? (Y/N)${COLOR_RESET}"
 	read ANSWER_IPOPT
 	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
 		install_ipopt
