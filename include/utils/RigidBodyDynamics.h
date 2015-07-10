@@ -15,7 +15,7 @@ enum Component {Linear, Angular, Full};
 
 typedef Eigen::Matrix<double,6,1> Vector6d;
 typedef Eigen::Matrix<double,6,6> Matrix6d;
-typedef Eigen::Block<Vector6d,3,1> Part3d;///< a 3D subvector of a 6D vector
+typedef Eigen::Block<Vector6d,3,1> Part3d;///< a 3D sub-vector of a 6D vector
 typedef std::vector<std::string> BodySelector;
 typedef std::map<std::string,unsigned int> BodyID;
 typedef std::map<std::string,Eigen::Vector3d> BodyPosition;
@@ -34,16 +34,12 @@ Part3d angularPart(Vector6d& vector);
  */
 Part3d linearPart(Vector6d& vector);
 
-//Part3d linearFloatingBaseState(Vector6d& vector);
-//Part3d angularFloatingBaseState(Vector6d& vector);
-
 /**
  * @brief Vector coordinates
  * Constants to index either 6d or 3d coordinate vectors.
  */
 enum Coords3d {X = 0, Y, Z};
 enum Coords6d {AX = 0, AY, AZ, LX, LY, LZ };
-//enum FloatingBaseState {TX = 0, TY, TZ, RX, RY, RZ };
 enum TypeOfSystem {FixedBase, FloatingBase, ConstrainedFloatingBase, VirtualFloatingBase};
 
 /** @brief Defines a floating base joint status */

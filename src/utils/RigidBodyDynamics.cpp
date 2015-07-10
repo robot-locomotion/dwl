@@ -18,17 +18,6 @@ Part3d linearPart(Vector6d& vector)
 	return vector.bottomRows<3>();
 }
 
-//Part3d linearFloatingBaseState(Vector6d& vector)
-//{
-//	return vector.topRows<3>();
-//}
-
-
-//Part3d angularFloatingBaseState(Vector6d& vector)
-//{
-//	return vector.bottomRows<3>();
-//}
-
 
 bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model)
 {
