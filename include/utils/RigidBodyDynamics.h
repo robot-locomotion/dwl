@@ -19,6 +19,7 @@ typedef Eigen::Block<Vector6d,3,1> Part3d;///< a 3D sub-vector of a 6D vector
 typedef std::vector<std::string> BodySelector;
 typedef std::map<std::string,unsigned int> BodyID;
 typedef std::map<std::string,Eigen::Vector3d> BodyPosition;
+typedef std::map<std::string,Eigen::VectorXd> BodyVector;
 typedef std::map<std::string,Vector6d> BodyWrench;
 
 

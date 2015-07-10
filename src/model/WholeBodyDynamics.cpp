@@ -243,7 +243,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 			virtual_base_wrench(reduced_base_->LZ.id) = base_wrench(rbd::LZ);
 
 		// Computing the contact forces that generates the desired base wrench in the case of n dof floating-base, where
-		// n is less than 6. Note that we describe this floating-base as an unactuated virtual floating-base joints
+		// n is less than 6. Note that we describe this floating-base as an under-actuated virtual floating-base joints
 		Eigen::VectorXd endeffector_forces =
 				math::pseudoInverse((Eigen::MatrixXd) base_contact_jac.transpose()) * virtual_base_wrench;
 
@@ -346,13 +346,6 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 																 const Eigen::VectorXd& joint_acc,
 																 const rbd::BodySelector& contacts)
 {
-	// Computing the fixed-base jacobian and base contact jacobian. These jacobians are used for computing a consistent
-	// joint acceleration, and for mapping desired base wrench to joint forces
-	Eigen::MatrixXd full_jac, fixed_jac;
-	kinematics_.computeJacobian(full_jac, base_pos, joint_pos, contacts, rbd::Linear);
-	kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
-
-
 	// Computing the consistent joint accelerations given a desired base acceleration and contact definition. We assume
 	// that contacts are static, which it allows us to computed a consistent joint accelerations.
 	base_feas_acc = base_acc;
@@ -368,25 +361,36 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 	Eigen::Vector3d base_lin_acc = rbd::linearPart(base_des_acc);
 
 	// Computing contact linear positions and the J_d*q_d component, which are used for computing the joint accelerations
-	Eigen::VectorXd op_pos, jacd_qd;
+	rbd::BodyVector op_pos, jacd_qd;
 	kinematics_.computeForwardKinematics(op_pos, base_pos, joint_pos, contacts, rbd::Linear);
 	kinematics_.computeJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, contacts, rbd::Linear);
 
 	// Computing the consistent joint acceleration given a base state
-	unsigned num_active_contacts = contacts.size();
-	for (unsigned int i = 0; i < num_active_contacts; i++) {
-		Eigen::Vector3d contact_pos = op_pos.segment<3>(i * 3);
+	for (rbd::BodySelector::const_iterator contact_iter = contacts.begin();
+			contact_iter != contacts.end();
+			contact_iter++)
+	{
+		std::string contact_name = *contact_iter;
+		if (body_id_.count(contact_name) > 0) {
+			Eigen::Vector3d contact_pos = op_pos[contact_name];
 
-		// Computing the desired contact velocity
-		Eigen::Vector3d contact_vel = -base_lin_vel - base_ang_vel.cross(contact_pos);
-		Eigen::Vector3d contact_acc = -base_lin_acc - base_ang_acc.cross(contact_pos) - base_ang_vel.cross(contact_pos)
-				- 2 * base_ang_vel.cross(contact_vel);
+			// Computing the desired contact velocity
+			Eigen::Vector3d contact_vel = -base_lin_vel - base_ang_vel.cross(contact_pos);
+			Eigen::Vector3d contact_acc = -base_lin_acc - base_ang_acc.cross(contact_pos) - base_ang_vel.cross(contact_pos)
+						- 2 * base_ang_vel.cross(contact_vel);
 
-		// Computing the join acceleration from x_dd = J*q_dd + J_d*q_d since we are doing computation in the base frame
-		Eigen::VectorXd q_dd = math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd.segment<3>(i * 3));
+			// Computing the fixed-base jacobian
+			Eigen::MatrixXd full_jac, fixed_jac;
+			rbd::BodySelector endeffector(contact_iter, contact_iter + 1);
+			kinematics_.computeJacobian(full_jac, base_pos, joint_pos, endeffector, rbd::Linear);
+			kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
 
-		unsigned int body_contact_id = robot_model_.GetBodyId(contacts[i].c_str());
-		rbd::setBranchState(joint_feas_acc, q_dd, body_contact_id, robot_model_, reduced_base_);
+			// Computing the join acceleration from x_dd = J*q_dd + J_d*q_d since we are doing computation in the base frame
+			Eigen::VectorXd q_dd = math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd[contact_name]);
+
+			unsigned int body_contact_id = robot_model_.GetBodyId(contact_name.c_str());
+			rbd::setBranchState(joint_feas_acc, q_dd, body_contact_id, robot_model_, reduced_base_);
+		}
 	}
 }
 
