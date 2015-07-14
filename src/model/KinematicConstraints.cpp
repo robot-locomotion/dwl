@@ -10,7 +10,6 @@ namespace model
 KinematicConstraints::KinematicConstraints()
 {
 	name_ = "kinematic";
-	is_active_constraint_ = true;
 }
 
 

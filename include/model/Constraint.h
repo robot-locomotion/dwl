@@ -2,6 +2,7 @@
 #define DWL_Constraint_H
 
 #include <utils/utils.h>
+#define NO_BOUND 2e19
 
 
 namespace dwl
@@ -39,13 +40,11 @@ class Constraint
 		virtual void computeJacobian(Eigen::MatrixXd& jacobian,
 									 const LocomotionState& state) = 0;
 
-		int getConstraintDimension();
+		virtual void getBounds(Eigen::VectorXd& lower_bound,
+							   Eigen::VectorXd& upper_bound) = 0;
 
-		/**
-		 * @brief Indicates if the constraint is active [g(x) = 0] or inactive [g(x) > 0]
-		 * @return True for active constraints, and false for inactive one
-		 */
-		bool isActive();
+		/** @brief Gets the dimension of the constraint */
+		unsigned int getConstraintDimension();
 
 		/**
 		 * @brief Gets the name of the constraint
@@ -58,10 +57,8 @@ class Constraint
 		/** @brief Name of the constraint */
 		std::string name_;
 
-		/** @brief Indicates if the constraint is active */
-		bool is_active_constraint_;
-
-		int constraint_dimension_;
+		/** @brief Dimension of the constraint */
+		unsigned int constraint_dimension_;
 
 		/** @brief Vector of the state */
 		Eigen::VectorXd state_value_;

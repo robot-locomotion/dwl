@@ -2,7 +2,7 @@
 #define DWL_Solver_H
 
 #include <robot/Robot.h>
-#include <model/Model.h>
+#include <model/OptimizationModel.h>
 #include <environment/AdjacencyEnvironment.h>
 #include <utils/utils.h>
 
@@ -42,9 +42,10 @@ class Solver
 
 		/**
 		 * @brief Sets the model that is used for optimization solvers
-		 * @param Model* Encapsulate the constraints and cost functions (model) of the optimization problem
+		 * @param model::OptimizationModel* Encapsulate the constraints and cost functions (model) of
+		 * the optimization problem
 		 */
-		void setModel(model::Model* model);
+		void setModel(model::OptimizationModel* model);
 
 		/**
 		 * @brief Sets the adjacency model that is used for graph searching solvers
@@ -99,7 +100,7 @@ class Solver
 		environment::EnvironmentInformation* environment_;
 
 		/** @brief Optimizer' model which defines cost functions and constraints */
-		model::Model* model_;
+		model::OptimizationModel* model_;
 
 		/** @brief Adjacency model of the environment */
 		environment::AdjacencyEnvironment* adjacency_;

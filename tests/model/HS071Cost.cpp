@@ -18,8 +18,8 @@ class HS071Cost : public Cost
 		{
 //			assert(n == 4);
 
-			cost = state.base_pos(0) * state.base_pos(3) * (state.base_pos(0) +
-					state.base_pos(1) + state.base_pos(2)) + state.base_pos(2);
+			cost = state.joint_pos(0) * state.joint_pos(3) * (state.joint_pos(0) +
+					state.joint_pos(1) + state.joint_pos(2)) + state.joint_pos(2);
 		}
 
 		void computeGradient(Eigen::VectorXd& gradient,
@@ -27,11 +27,11 @@ class HS071Cost : public Cost
 		{
 //			assert(n == 4);
 
-			gradient(0) = state.base_pos(0) * state.base_pos(3) +
-					state.base_pos(3) * (state.base_pos(0) + state.base_pos(1) + state.base_pos(2));
-			gradient(1) = state.base_pos(0) * state.base_pos(3);
-			gradient(2) = state.base_pos(0) * state.base_pos(3) + 1;
-			gradient(3) = state.base_pos(0) * (state.base_pos(0) + state.base_pos(1) + state.base_pos(2));
+			gradient(0) = state.joint_pos(0) * state.joint_pos(3) +
+					state.joint_pos(3) * (state.joint_pos(0) + state.joint_pos(1) + state.joint_pos(2));
+			gradient(1) = state.joint_pos(0) * state.joint_pos(3);
+			gradient(2) = state.joint_pos(0) * state.joint_pos(3) + 1;
+			gradient(3) = state.joint_pos(0) * (state.joint_pos(0) + state.joint_pos(1) + state.joint_pos(2));
 		}
 };
 

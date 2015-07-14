@@ -61,8 +61,9 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/solver/Dijkstrap.cpp
 							 src/solver/AStar.cpp
 							 src/solver/AnytimeRepairingAStar.cpp
-							 src/model/Model.cpp
+							 src/model/OptimizationModel.cpp
 							 src/model/Constraint.cpp
+							 src/model/DynamicalSystem.cpp
 							 src/model/KinematicConstraints.cpp
 							 src/model/StabilityConstraints.cpp
 							 src/model/Cost.cpp
@@ -148,7 +149,7 @@ target_link_libraries(my_planner ${PROJECT_NAME})
 
 include_directories(tests)
 add_executable(ipopt_test  tests/IpoptDWLTest.cpp
-                           tests/model/HS071Constraint.cpp
+                           tests/model/HS071DynamicalSystem.cpp
                            tests/model/HS071Cost.cpp)
 target_link_libraries(ipopt_test ${PROJECT_NAME})
 

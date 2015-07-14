@@ -10,7 +10,6 @@ namespace model
 StabilityConstraints::StabilityConstraints()
 {
 	name_ = "stability";
-	is_active_constraint_ = true;
 }
 
 

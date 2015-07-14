@@ -40,7 +40,7 @@ void Solver::reset(robot::Robot* robot, environment::EnvironmentInformation* env
 }
 
 
-void Solver::setModel(model::Model* model)
+void Solver::setModel(model::OptimizationModel* model)
 {
 	printf(BLUE "Setting the optimization model in the %s solver\n" COLOR_RESET,
 		   getName().c_str());
