@@ -1,5 +1,5 @@
-#ifndef DWL_AnytimeRepairingAStar_H
-#define DWL_AnytimeRepairingAStar_H
+#ifndef DWL__SOLVER__ANYTIME_REPAIRING_ASTAR__H
+#define DWL__SOLVER__ANYTIME_REPAIRING_ASTAR__H
 
 #include <solver/Solver.h>
 

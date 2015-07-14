@@ -1,5 +1,5 @@
-#ifndef DWL_Dijktra_H
-#define DWL_Dijktra_H
+#ifndef DWL__SOLVER__DIJKSTRAP__H
+#define DWL__SOLVER__DIJKSTRAP__H
 
 #include <solver/Solver.h>
 

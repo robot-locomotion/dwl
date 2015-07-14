@@ -1,5 +1,5 @@
-#ifndef DWL_Cost_H
-#define DWL_Cost_H
+#ifndef DWL__MODEL__COST__H
+#define DWL__MODEL__COST__H
 
 #include <environment/RewardMap.h>
 #include <utils/utils.h>

@@ -1,5 +1,5 @@
-#ifndef DWL_EnvironmentRepresentation_H
-#define DWL_EnvironmentRepresentation_H
+#ifndef DWL__ENVIRONMENT_REPRESENTATION__H
+#define DWL__ENVIRONMENT_REPRESENTATION__H
 
 #include <map>
 #include <utils/GraphSearching.h>

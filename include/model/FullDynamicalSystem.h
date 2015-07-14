@@ -1,7 +1,7 @@
-#ifndef DWL_FullDynamcSystem_H
-#define DWL_FullDynamicSytem_H
+#ifndef DWL__MODEL__FULL_DYNAMICAL_SYSTEM__H
+#define DWL__MODEL__FULL_DYNAMICAL_SYSTEM__H
 
-#include <model/Constraint.h>
+#include <model/DynamicalSystem.h>
 #include <model/WholeBodyDynamics.h>
 
 
@@ -11,29 +11,29 @@ namespace dwl
 namespace model
 {
 
-class FullDynamicSystem : public Constraint
+class FullDynamicalSystem : public DynamicalSystem
 {
 	public:
 		/** @brief Constructor function */
-		FullDynamicSystem();
+		FullDynamicalSystem();
 
 		/** @brief Destructor function */
-		~FullDynamicSystem();
+		~FullDynamicalSystem();
 
 		/**
 		 * @brief Computes the full dynamic constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const StateModel& State vector
+		 * @param const LocomotionState& State vector
 		 */
-		void compute(Eigen::VectorXd& constraint, const StateModel& state);
+		void compute(Eigen::VectorXd& constraint, const LocomotionState& state);
 
 		/**
 		 * @brief Computes the Jacobian of the full dynamic constraint given a certain state
 		 * @param Eigen::MatrixXd& Jacobian of the constraint function
-		 * @param const StateModel& State vector
+		 * @param const LocomotionState& State vector
 		 */
 		void computeJacobian(Eigen::MatrixXd& jacobian,
-							 const StateModel& state);
+							 const LocomotionState& state);
 };
 
 } //@namespace model

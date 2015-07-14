@@ -1,5 +1,5 @@
-#ifndef DWL_KinematicFeasibilityFeature_H
-#define DWL_KinematicFeasibilityFeature_H
+#ifndef DWL__ENVIRONMENT__KINEMATIC_FEASIBILITY_FEATURE__H
+#define DWL__ENVIRONMENT__KINEMATIC_FEASIBILITY_FEATURE__H
 
 #include <environment/Feature.h>
 #include <utils/utils.h>

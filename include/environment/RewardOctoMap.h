@@ -1,5 +1,5 @@
-#ifndef DWL_RewardOctoMap_H
-#define DWL_RewardOctoMap_H
+#ifndef DWL__ENVIRONMENT__REWARD_OCTO_MAP__H
+#define DWL__ENVIRONMENT__REWARD_OCTO_MAP__H
 
 #include <environment/RewardMap.h>
 #include <octomap/octomap.h>

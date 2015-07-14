@@ -1,5 +1,5 @@
-#ifndef DWL_Geometry_H
-#define DWL_Geometry_H
+#ifndef DWL__MATH__GEOMETRY__H
+#define DWL__MATH__GEOMETRY__H
 
 #include <utils/macros.h>
 #include <Eigen/Dense>

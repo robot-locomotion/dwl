@@ -1,5 +1,5 @@
-#ifndef DWL_RewardMap_H
-#define DWL_RewardMap_H
+#ifndef DWL__ENVIRONMENT__REWARD_MAP__H
+#define DWL__ENVIRONMENT__REWARD_MAP__H
 
 #include <environment/SpaceDiscretization.h>
 #include <environment/Feature.h>

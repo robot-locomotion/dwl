@@ -1,4 +1,4 @@
-#include <utils/YamlBridge.h>
+#include <utils/YamlWrapper.h>
 
 
 int main(int argc, char **argv)
@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 	dwl::SearchArea search_area;
 
 	// Yaml reader
-	dwl::YamlBridge yaml_reader;
+	dwl::YamlWrapper yaml_reader;
 
 	// Reading and parsing the yaml document
 	std::ifstream fin("../tests/test.yaml");

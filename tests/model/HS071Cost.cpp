@@ -1,3 +1,7 @@
+#ifndef DWL__MODEL__HS071_COST__H
+#define DWL__MODEL__HS071_COST__H
+
+
 #include <model/Cost.h>
 
 
@@ -37,3 +41,5 @@ class HS071Cost : public Cost
 
 } //@namespace model
 } //@namespace dwl
+
+#endif

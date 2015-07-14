@@ -1,5 +1,5 @@
-#ifndef DWL_DynamicLocomotion_H
-#define DWL_DynamicLocomotion_H
+#ifndef DWL__DYNAMIC_LOCOMOTION__H
+#define DWL__DYNAMIC_LOCOMOTION__H
 
 #include <map>
 #include <vector>

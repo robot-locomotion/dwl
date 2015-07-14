@@ -5,7 +5,7 @@ namespace dwl
 {
 
 
-namespace utils
+namespace math
 {
 
 Spline::Spline() : initial_time_(0.), duration_(0.)

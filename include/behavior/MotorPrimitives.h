@@ -1,5 +1,5 @@
-#ifndef DWL_MotorPrimitives_H
-#define DWL_MotorPrimitives_H
+#ifndef DWL__BEHAVIOR__MOTOR_PRIMITIVES__H
+#define DWL__BEHAVIOR__MOTOR_PRIMITIVES__H
 
 #include <utils/utils.h>
 

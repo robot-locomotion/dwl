@@ -1,5 +1,5 @@
-#ifndef DWL_RigidBodyDynamics_H
-#define DWL_RigidBodyDynamics_H
+#ifndef DWL__RBD__RIGID_BODY_DYNAMICS__H
+#define DWL__RBD__RIGID_BODY_DYNAMICS__H
 
 #include <rbdl/rbdl.h>
 #include <utils/Math.h>

@@ -1,5 +1,5 @@
-#ifndef DWL_StancePostureFeature_H
-#define DWL_StancePostureFeature_H
+#ifndef DWL__ENVIRONMENT__STANCE_POSTURE_FEATURE__H
+#define DWL__ENVIRONMENT__STANCE_POSTURE_FEATURE__H
 
 #include <environment/Feature.h>
 #include <utils/utils.h>

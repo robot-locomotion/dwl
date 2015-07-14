@@ -1,5 +1,5 @@
-#ifndef DWL_GridBasedBodyAdjacency_H
-#define DWL_GridBasedBodyAdjacency_H
+#ifndef DWL__ENVIRONMENT__GRID_BASED_BODY_ADJACENCY__H
+#define DWL__ENVIRONMENT__GRID_BASED_BODY_ADJACENCY__H
 
 #include <environment/AdjacencyEnvironment.h>
 

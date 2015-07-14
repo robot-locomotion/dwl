@@ -1,5 +1,5 @@
-#ifndef DWL_PlanningOfMotionSequence_H
-#define DWL_PlanningOfMotionSequence_H
+#ifndef DWL__LOCOMOTION__PLANNING_OF_MOTION_SEQUENCE__H
+#define DWL__LOCOMOTION__PLANNING_OF_MOTION_SEQUENCE__H
 
 #include <robot/Robot.h>
 #include <locomotion/MotionPlanning.h>

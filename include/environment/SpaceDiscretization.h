@@ -1,5 +1,5 @@
-#ifndef DWL_SpaceDiscretization_H
-#define DWL_SpaceDiscretization_H
+#ifndef DWL__ENVIRONMENT__SPACE_DISCRETIZATION__H
+#define DWL__ENVIRONMENT__SPACE_DISCRETIZATION__H
 
 #include <utils/utils.h>
 

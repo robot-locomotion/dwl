@@ -1,5 +1,5 @@
-#ifndef DWL_DynamicalSystem_H
-#define DWL_DynamicalSystem_H
+#ifndef DWL__MODEL__DYNAMICAL_SYSTEM__H
+#define DWL__MODEL__DYNAMICAL_SYSTEM__H
 
 #include <model/Constraint.h>
 

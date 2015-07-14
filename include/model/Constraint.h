@@ -1,5 +1,5 @@
-#ifndef DWL_Constraint_H
-#define DWL_Constraint_H
+#ifndef DWL__MODEL__CONSTRAINT__H
+#define DWL__MODEL__CONSTRAINT__H
 
 #include <utils/utils.h>
 #define NO_BOUND 2e19

@@ -1,5 +1,5 @@
-#ifndef DWL_HyLWholeBodyDynamics_H
-#define DWL_HyLWholeBodyDynamics_H
+#ifndef DWL__ROBOT__HYL_WHOLE_BODY_DYNAMICS__H
+#define DWL__ROBOT__HYL_WHOLE_BODY_DYNAMICS__H
 
 #include <model/RobCoGenWholeBodyDynamics.h>
 #include <iit/robots/hyl/inverse_dynamics.h>

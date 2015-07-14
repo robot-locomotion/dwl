@@ -64,8 +64,8 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/model/OptimizationModel.cpp
 							 src/model/Constraint.cpp
 							 src/model/DynamicalSystem.cpp
-							 src/model/KinematicConstraints.cpp
-							 src/model/StabilityConstraints.cpp
+							 src/model/KinematicConstraint.cpp
+							 src/model/StabilityConstraint.cpp
 							 src/model/Cost.cpp
 							 src/model/RobCoGenWholeBodyKinematics.cpp
 							 src/model/RobCoGenWholeBodyDynamics.cpp
@@ -97,7 +97,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/utils/Orientation.cpp
 							 src/utils/RigidBodyDynamics.cpp
 							 src/utils/SplineInterpolation.cpp
-							 src/utils/YamlBridge.cpp)
+							 src/utils/YamlWrapper.cpp)
 
 # Adding robot components of the project
 if(hyl_FOUND)
@@ -153,7 +153,7 @@ add_executable(ipopt_test  tests/IpoptDWLTest.cpp
                            tests/model/HS071Cost.cpp)
 target_link_libraries(ipopt_test ${PROJECT_NAME})
 
-add_executable(yaml_bridge  tests/YamlBridgeTest.cpp)
+add_executable(yaml_bridge  tests/YamlWrapperTest.cpp)
 target_link_libraries(yaml_bridge ${PROJECT_NAME})
 
 add_executable(dikstrap_algorithm  tests/DijkstraExample.cpp)

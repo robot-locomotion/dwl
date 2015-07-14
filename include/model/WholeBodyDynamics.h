@@ -1,5 +1,5 @@
-#ifndef DWL_WholeBodyDynamics_H
-#define DWL_WholeBodyDynamics_H
+#ifndef DWL__MODEL__WHOLE_BODY_DYNAMICS__H
+#define DWL__MODEL__WHOLE_BODY_DYNAMICS__H
 
 #include <model/WholeBodyKinematics.h>
 #include <rbdl/addons/urdfreader/urdfreader.h>

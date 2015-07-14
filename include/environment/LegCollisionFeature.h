@@ -1,5 +1,5 @@
-#ifndef DWL_LegCollisionFeature_H
-#define DWL_LegCollisionFeature_H
+#ifndef DWL__ENVIRONMENT__LEG_COLLISION_FEASURE__H
+#define DWL__ENVIRONMENT__LEG_COLLISION_FEASURE__H
 
 #include <environment/Feature.h>
 #include <utils/utils.h>

@@ -1,5 +1,5 @@
-#ifndef DWL_StabilityConstraints_H
-#define DWL_StabilityConstraints_H
+#ifndef DWL__MODEL__KINEMATIC_CONSTRAINT__H
+#define DWL__MODEL__KINEMATIC_CONSTRAINT__H
 
 #include <model/Constraint.h>
 
@@ -10,17 +10,16 @@ namespace dwl
 namespace model
 {
 
-class StabilityConstraints : public Constraint
+class KinematicConstraint : public Constraint
 {
 	public:
 		/** @brief Constructor function */
-		StabilityConstraints();
+		KinematicConstraint();
 
 		/** @brief Destructor function */
-		~StabilityConstraints();
+		~KinematicConstraint();
 
 		void get(Eigen::VectorXd& constraint, Eigen::VectorXd state);
-
 };
 
 } //@namespace model

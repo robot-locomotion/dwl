@@ -1,5 +1,5 @@
-#ifndef DWL_ContactPlanning_H
-#define DWL_ContactPlanning_H
+#ifndef DWL__LOCOMOTION__CONTACT_PLANNING__H
+#define DWL__LOCOMOTION__CONTACT_PLANNING__H
 
 #include <environment/EnvironmentInformation.h>
 #include <environment/Feature.h>

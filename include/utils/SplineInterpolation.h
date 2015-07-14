@@ -1,5 +1,5 @@
-#ifndef DWL_SplineInterpolation_H
-#define DWL_SplineInterpolation_H
+#ifndef DWL__MATH__SPLINE_INTERPOLATION__H
+#define DWL__MATH__SPLINE_INTERPOLATION__H
 
 #include <stdexcept>
 
@@ -7,7 +7,7 @@
 namespace dwl
 {
 
-namespace utils
+namespace math
 {
 
 /**

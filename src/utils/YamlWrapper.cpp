@@ -1,34 +1,34 @@
-#include <utils/YamlBridge.h>
+#include <utils/YamlWrapper.h>
 
 
 namespace dwl
 {
 
-YamlBridge::YamlBridge()
+YamlWrapper::YamlWrapper()
 {
 
 }
 
 
-YamlBridge::~YamlBridge()
+YamlWrapper::~YamlWrapper()
 {
 
 }
 
 
-void YamlBridge::read(const YAML::Node& node, double& data)
-{
-	node >> data;
-}
-
-
-void YamlBridge::read(const YAML::Node& node, std::string& data)
+void YamlWrapper::read(const YAML::Node& node, double& data)
 {
 	node >> data;
 }
 
 
-void YamlBridge::read(const YAML::Node& node, std::vector<double>& data)
+void YamlWrapper::read(const YAML::Node& node, std::string& data)
+{
+	node >> data;
+}
+
+
+void YamlWrapper::read(const YAML::Node& node, std::vector<double>& data)
 {
 	int node_size = node.size();
 	for (int i = 0; i < node_size; i++) {
@@ -40,7 +40,7 @@ void YamlBridge::read(const YAML::Node& node, std::vector<double>& data)
 }
 
 
-void YamlBridge::read(const YAML::Node& node, std::vector<std::string>& data)
+void YamlWrapper::read(const YAML::Node& node, std::vector<std::string>& data)
 {
 	int node_size = node.size();
 	for (int i = 0; i < node_size; i++) {
@@ -52,14 +52,14 @@ void YamlBridge::read(const YAML::Node& node, std::vector<std::string>& data)
 }
 
 
-void YamlBridge::read(const YAML::Node& node, Eigen::Vector2d& data)
+void YamlWrapper::read(const YAML::Node& node, Eigen::Vector2d& data)
 {
 	node[0] >> data(0);
 	node[1] >> data(1);
 }
 
 
-void YamlBridge::read(const YAML::Node& node, Eigen::Vector3d& data)
+void YamlWrapper::read(const YAML::Node& node, Eigen::Vector3d& data)
 {
 	node[0] >> data(0);
 	node[1] >> data(1);
@@ -67,7 +67,7 @@ void YamlBridge::read(const YAML::Node& node, Eigen::Vector3d& data)
 }
 
 
-void YamlBridge::read(const YAML::Node& node, Eigen::Quaterniond& data)
+void YamlWrapper::read(const YAML::Node& node, Eigen::Quaterniond& data)
 {
 	double w, x, y, z;
 	read(node[0], w);
@@ -80,7 +80,7 @@ void YamlBridge::read(const YAML::Node& node, Eigen::Quaterniond& data)
 }
 
 
-void YamlBridge::read(const YAML::Node& node, Pose& data)
+void YamlWrapper::read(const YAML::Node& node, Pose& data)
 {
 	if (const YAML::Node* pposition = node.FindValue("position"))
 		read(*pposition, data.position);
@@ -96,7 +96,7 @@ void YamlBridge::read(const YAML::Node& node, Pose& data)
 }
 
 
-void YamlBridge::read(const YAML::Node& node, Pose3d& data)
+void YamlWrapper::read(const YAML::Node& node, Pose3d& data)
 {
 	if (const YAML::Node* pposition = node.FindValue("position"))
 		read(*pposition, data.position);
@@ -110,7 +110,7 @@ void YamlBridge::read(const YAML::Node& node, Pose3d& data)
 }
 
 
-void YamlBridge::read(const YAML::Node& node, Action3d& data)
+void YamlWrapper::read(const YAML::Node& node, Action3d& data)
 {
 	if (const YAML::Node* ppose = node.FindValue("pose"))
 		read(*ppose, data.pose);
@@ -126,7 +126,7 @@ void YamlBridge::read(const YAML::Node& node, Action3d& data)
 }
 
 
-void YamlBridge::read(const YAML::Node& node, SearchArea& data)
+void YamlWrapper::read(const YAML::Node& node, SearchArea& data)
 {
 	if (const YAML::Node* pmin_x = node.FindValue("min_x"))
 		read(*pmin_x, data.min_x);

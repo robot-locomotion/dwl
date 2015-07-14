@@ -1,5 +1,5 @@
-#ifndef DWL_Solver_H
-#define DWL_Solver_H
+#ifndef DWL__SOLVER__SOLVER__H
+#define DWL__SOLVER__SOLVER__H
 
 #include <robot/Robot.h>
 #include <model/OptimizationModel.h>

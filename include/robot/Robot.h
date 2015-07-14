@@ -1,9 +1,9 @@
-#ifndef DWL_Robot_H
-#define DWL_Robot_H
+#ifndef DWL__ROBOT__ROBOT__H
+#define DWL__ROBOT__ROBOT__H
 
 #include <behavior/MotorPrimitives.h>
 #include <utils/utils.h>
-#include <utils/YamlBridge.h>
+#include <utils/YamlWrapper.h>
 
 
 namespace dwl
@@ -139,7 +139,7 @@ class Robot
 		behavior::MotorPrimitives* body_behavior_;
 
 		/** @brief Yaml bridge */
-		YamlBridge yaml_reader_;
+		YamlWrapper yaml_reader_;
 
 		/** @brief End-Effector map */
 		EndEffectorMap end_effectors_;

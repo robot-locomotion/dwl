@@ -1,5 +1,5 @@
-#ifndef DWL_IpoptWrapper_H
-#define DWL_IpoptWrapper_H
+#ifndef DWL__SOLVER__IPOPT_WRAPPER__H
+#define DWL__SOLVER__IPOPT_WRAPPER__H
 
 #include <IpTNLP.hpp>
 #include <model/OptimizationModel.h>

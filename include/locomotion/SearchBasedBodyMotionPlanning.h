@@ -1,3 +1,6 @@
+#ifndef DWL__LOCOMOTION__SEARCH_BASED_BODY_MOTION_PLANNING__H
+#define DWL__LOCOMOTION__SEARCH_BASED_BODY_MOTION_PLANNING__H
+
 #include <locomotion/MotionPlanning.h>
 
 
@@ -32,3 +35,5 @@ class SearchBasedBodyMotionPlanning : public MotionPlanning
 
 } //@namespace locomotion
 } //@namespace dwl
+
+#endif

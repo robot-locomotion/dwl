@@ -1,5 +1,5 @@
-#ifndef DWL_LatticeBasedBodyAdjacency_H
-#define DWL_LatticeBasedBodyAdjacency_H
+#ifndef DWL__ENVIRONMENT__LATTICE_BASED_BODY_ADJACENCY__H
+#define DWL__ENVIRONMENT__LATTICE_BASED_BODY_ADJACENCY__H
 
 #include <environment/AdjacencyEnvironment.h>
 

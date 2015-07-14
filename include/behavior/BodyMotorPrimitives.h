@@ -1,9 +1,9 @@
-#ifndef DWL_BodyMotorPrimitives_H
-#define DWL_BodyMotorPrimitives_H
+#ifndef DWL__BEHAVIOR__BODY_PRIMITIVES__H
+#define DWL__BEHAVIOR__BODY_PRIMITIVES__H
 
 #include <behavior/MotorPrimitives.h>
 #include <utils/utils.h>
-#include <utils/YamlBridge.h>
+#include <utils/YamlWrapper.h>
 
 
 namespace dwl

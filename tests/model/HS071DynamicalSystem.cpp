@@ -1,5 +1,5 @@
-#ifndef DWL_HS071DynamicalSystem_H
-#define DWL_HS071DynamicalSystem_H
+#ifndef DWL__MODEL__HS071_DYNAMICAL_SYSTEM__H
+#define DWL__MODEL__HS071_DYNAMICAL_SYSTEM__H
 
 #include <model/DynamicalSystem.h>
 

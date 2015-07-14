@@ -1,5 +1,5 @@
-#ifndef DWL_RobCoGenWholeBodyDynamics_H
-#define DWL_RobCoGenWholeBodyDynamics_H
+#ifndef DWL__MODEL__ROBCOGEN_WHOLE_BODY_DYNAMICS__H
+#define DWL__MODEL__ROBCOGEN_WHOLE_BODY_DYNAMICS__H
 
 #include <model/RobCoGenWholeBodyKinematics.h>
 #include <utils/RigidBodyDynamics.h>

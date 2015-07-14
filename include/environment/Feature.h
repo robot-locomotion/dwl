@@ -1,5 +1,5 @@
-#ifndef DWL_Feature_H
-#define DWL_Feature_H
+#ifndef DWL__ENVIRONEMT__FEATURE__H
+#define DWL__ENVIRONEMT__FEATURE__H
 
 #include <environment/SpaceDiscretization.h>
 #include <robot/Robot.h>

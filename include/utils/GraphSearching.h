@@ -1,5 +1,5 @@
-#ifndef DWL_GraphSearching_H
-#define DWL_GraphSearching_H
+#ifndef DWL__GRAPH_SEARCHING__H
+#define DWL__GRAPH_SEARCHING__H
 
 #include <map>
 #include <list>

@@ -1,5 +1,5 @@
-#ifndef DWL_AStar_H
-#define DWL_AStar_H
+#ifndef DWL__SOLVER__ASTAR__H
+#define DWL__SOLVER__ASTAR__H
 
 #include <solver/Solver.h>
 

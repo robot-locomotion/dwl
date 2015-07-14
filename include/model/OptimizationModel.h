@@ -1,5 +1,5 @@
-#ifndef DWL_OptimizationModel_H
-#define DWL_OptimizationModel_H
+#ifndef DWL__MODEL__OPTIMIZATION_MODEL__H
+#define DWL__MODEL__OPTIMIZATION_MODEL__H
 
 #include <model/DynamicalSystem.h>
 #include <model/Constraint.h>
