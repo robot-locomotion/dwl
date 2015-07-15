@@ -229,7 +229,11 @@ if [ -d "odeint" ]; then
 		install_odeint
     fi
 else
-	install_odeint
+	echo -e "${COLOR_QUES}Do you want to install Odeint 2? (Y/N)${COLOR_RESET}"
+	read ANSWER_ODEINT
+	if [ "$ANSWER_ODEINT" == "Y" ] || [ "$ANSWER_ODEINT" == "y" ]; then
+		install_odeint
+	fi
 fi
 
 
@@ -263,7 +267,11 @@ if [ -d "ipopt" ]; then
 		install_ipopt
     fi
 else
-	install_ipopt
+	echo -e "${COLOR_QUES}Do you want to install Ipopt 3.12.2? (Y/N)${COLOR_RESET}"
+	read ANSWER_IPOPT
+	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
+		install_ipopt
+	fi
 fi
 
 
@@ -280,5 +288,9 @@ if [ -d "/usr/local/include/octomap" ]; then
 		install_octomap
     fi
 else
-	install_octomap
+	echo -e "${COLOR_QUES}Do you want to install Octomap 1.6.8? (Y/N)${COLOR_RESET}"
+	read ANSWER_OCTOMAP
+	if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
+		install_octomap
+	fi
 fi
