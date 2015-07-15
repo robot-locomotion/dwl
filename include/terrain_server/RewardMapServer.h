@@ -37,7 +37,7 @@ class RewardMapServer
 {
 	public:
 		/** @brief Constructor function */
-		RewardMapServer();
+		RewardMapServer(ros::NodeHandle node = ros::NodeHandle("~"));
 
 		/** @brief Destructor function */
 		~RewardMapServer();
@@ -51,16 +51,19 @@ class RewardMapServer
 		 */
 		void octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg);
 
-		/** @brief Publishes a reward map */
-		void publishRewardMap();
-
 		/** @brief Resets the reward map */
 		bool reset(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
+
+		/** @brief Publishes a reward map */
+		void publishRewardMap();
 
 
 	private:
 		/** @brief ROS node handle */
 		ros::NodeHandle node_;
+
+		/** @brief Private ROS node handle */
+		ros::NodeHandle private_node_;
 
 		/** @brief Pointer to the reward map class */
 		dwl::environment::RewardMap* reward_map_;

@@ -9,7 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   message_generation
   tf
-  tf_conversions)
+  tf_conversions
+  pcl_ros)
 
 find_package(dwl REQUIRED)
 find_package(octomap REQUIRED)
@@ -76,7 +77,13 @@ target_link_libraries(obstacle_map_server
                       ${catkin_LIBRARIES}
                       ${dwl_LIBRARIES}
                       ${OCTOMAP_LIBRARIES})
-
+                      
+add_executable(default_flat_terrain src/DefaultFlatTerrain.cpp)
+add_dependencies(default_flat_terrain ${catkin_EXPORTED_TARGETS})
+target_link_libraries(default_flat_terrain
+                      ${catkin_LIBRARIES}
+                      ${dwl_LIBRARIES}
+                      ${OCTOMAP_LIBRARIES})
 
 #############
 ## Install ##
