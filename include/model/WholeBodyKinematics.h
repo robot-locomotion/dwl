@@ -26,8 +26,8 @@ class WholeBodyKinematics
 		/**
 		 * @brief Build the model rigid-body system from an URDF file
 		 * @param std::string URDF file
-		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
-		 * base with physical constraints
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base,
+		 * i.e. a floating-base with physical constraints
 		 * @param Print model information
 		 */
 		void modelFromURDFFile(std::string urdf_model,
@@ -37,8 +37,8 @@ class WholeBodyKinematics
 		/**
 		 * @brief Build the model rigid-body system from an URDF model (xml)
 		 * @param std::string URDF model
-		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
-		 * base with physical constraints
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base,
+		 * i.e. a floating-base with physical constraints
 		 * @param Print model information
 		 */
 		void modelFromURDFModel(std::string urdf_model,
@@ -51,8 +51,8 @@ class WholeBodyKinematics
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::BodySelector& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
-		 * angular and full
+		 * @param enum rbd::Component There are three different important kind of jacobian such as:
+		 * linear, angular and full
 		 * @param enum TypeOfOrientation Desired type of orientation
 		 */
 		void computeForwardKinematics(rbd::BodyVector& op_pos,
@@ -63,9 +63,9 @@ class WholeBodyKinematics
 									  enum TypeOfOrientation type = RollPitchYaw);
 
 		/**
-		 * @brief Computes the inverse kinematics for a predefined set of bodies positions. This inverse kinematics
-		 * algorithm uses an operational position which consists of the desired 3d position for the base and
-		 * each body
+		 * @brief Computes the inverse kinematics for a predefined set of bodies positions. This
+		 * inverse kinematics algorithm uses an operational position which consists of the desired
+		 * 3d position for the base and each body
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Initial base position for the iteration
@@ -85,16 +85,16 @@ class WholeBodyKinematics
 									  unsigned int max_iter = 50);
 
 		/**
-		 * @brief Computes the whole-body jacobian for a predefined set of bodies. A whole-body jacobian
-		 * is defined as end-effector (body) jacobian with respect to the inertial frame of the robot. Additionally,
-		 * the whole-body jacobian represents a stack of floating-base effector jacobians in which there are
-		 * base and end-effector (body) contributions
+		 * @brief Computes the whole-body jacobian for a predefined set of bodies. A whole-body
+		 * jacobian is defined as end-effector (body) jacobian with respect to the inertial frame
+		 * of the robot. Additionally, the whole-body jacobian represents a stack of floating-base
+		 * effector jacobians in which there are base and end-effector (body) contributions
 		 * @param Eigen::MatrixXd& Whole-body jacobian
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::BodySelector& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
-		 * angular and full
+		 * @param enum rbd::Component There are three different important kind of jacobian such as:
+		 * linear, angular and full
 		 */
 		void computeJacobian(Eigen::MatrixXd& jacobian,
 							 const rbd::Vector6d& base_pos,
@@ -106,8 +106,8 @@ class WholeBodyKinematics
 		 * @brief Gets the floating-base contribution of a given whole-body jacobian
 		 * @param Eigen::MatrixXd& Floating-base jacobian
 		 * @param const Eigen::MatrixXd& Whole-body jacobian
-		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
-		 * base with physical constraints
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base,
+		 * i.e. a floating-base with physical constraints
 		 */
 		void getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 									 const Eigen::MatrixXd& full_jacobian);
@@ -116,8 +116,8 @@ class WholeBodyKinematics
 		 * @brief Gets the fixed-base jacobian contribution of a given whole-body jacobian
 		 * @param Eigen::MatrixXd& Fixed-base jacobian
 		 * @param const Eigen::MatrixXd& Whole-body jacobian
-		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
-		 * base with physical constraints
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base,
+		 * i.e. a floating-base with physical constraints
 		 */
 		void getFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 								  const Eigen::MatrixXd& full_jacobian);
@@ -131,8 +131,8 @@ class WholeBodyKinematics
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
 		 * @param const rbd::BodySelector& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
-		 * angular and full
+		 * @param enum rbd::Component There are three different important kind of jacobian such as:
+		 * linear, angular and full
 		 */
 		void computeVelocity(rbd::BodyVector& op_vel,
 							 const rbd::Vector6d& base_pos,
@@ -153,8 +153,8 @@ class WholeBodyKinematics
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 * @param const rbd::BodySelector& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
-		 * angular and full
+		 * @param enum rbd::Component There are three different important kind of jacobian such as:
+		 * linear, angular and full
 		 */
 		void computeAcceleration(rbd::BodyVector& op_acc,
 								 const rbd::Vector6d& base_pos,
@@ -175,8 +175,8 @@ class WholeBodyKinematics
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
 		 * @param const rbd::BodySelector& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
-		 * angular and full
+		 * @param enum rbd::Component There are three different important kind of jacobian such as:
+		 * linear, angular and full
 		 */
 		void computeJdotQdot(rbd::BodyVector& jacd_qd,
 							 const rbd::Vector6d& base_pos,
