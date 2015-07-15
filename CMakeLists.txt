@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(terrain_server)
 
-
+# Finding external libraries
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
@@ -14,28 +14,16 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(dwl REQUIRED)
 find_package(octomap REQUIRED)
-find_package(Eigen REQUIRED)
-#find_library(DWL_LIBRARY REQUIRED NAMES dwl HINTS ${dwl_LIBRARY_DIRS})
 
 
-add_message_files(
-  FILES
-  RewardCell.msg
-  RewardMap.msg
-  Cell.msg
-  ObstacleMap.msg)
+# Adding the message files
+add_message_files(FILES    RewardCell.msg
+                           RewardMap.msg
+                           Cell.msg
+                           ObstacleMap.msg)
 
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
-
-
-generate_messages(
-  DEPENDENCIES
-  std_msgs)
+# Generating the messages
+generate_messages(DEPENDENCIES    std_msgs)
 
 
 catkin_package(
@@ -45,45 +33,35 @@ catkin_package(
   DEPENDS system_lib eigen)
 
 
-include_directories(include
-                    ${catkin_INCLUDE_DIRS}
-                    ${dwl_INCLUDE_DIRS}
-                    ${OCTOMAP_INCLUDE_DIRS})
+# Include directories
+include_directories(include    ${catkin_INCLUDE_DIRS}
+                               ${dwl_INCLUDE_DIRS}
+                               ${OCTOMAP_INCLUDE_DIRS})
 
 
 link_directories(${catkin_LIBRARY_DIRS}
-                 ${OCTOMAP_LIBRARY_DIRS}
                  ${dwl_LIBRARY_DIRS}
-                 ${Eigen_LIBRARY_DIRS}) 
+                 ${OCTOMAP_LIBRARY_DIRS})
 
-
-## Declare a cpp library
-# add_library(reward_map
-#   src/${PROJECT_NAME}/reward_map.cpp
-# )
 
 ## Declare a cpp executable
-add_executable(reward_map_server src/RewardMapServer.cpp)
-add_dependencies(reward_map_server ${catkin_EXPORTED_TARGETS})
-target_link_libraries(reward_map_server
-                      ${catkin_LIBRARIES}
-                      ${dwl_LIBRARIES}
-                      ${OCTOMAP_LIBRARIES})
+add_executable(reward_map_server    src/RewardMapServer.cpp)
+add_dependencies(reward_map_server    ${catkin_EXPORTED_TARGETS})
+target_link_libraries(reward_map_server    ${catkin_LIBRARIES}
+                                           ${dwl_LIBRARIES}
+                                           ${OCTOMAP_LIBRARIES})
 
-
-add_executable(obstacle_map_server src/ObstacleMapServer.cpp)
-add_dependencies(obstacle_map_server ${catkin_EXPORTED_TARGETS})
-target_link_libraries(obstacle_map_server
-                      ${catkin_LIBRARIES}
-                      ${dwl_LIBRARIES}
-                      ${OCTOMAP_LIBRARIES})
+add_executable(obstacle_map_server    src/ObstacleMapServer.cpp)
+add_dependencies(obstacle_map_server    ${catkin_EXPORTED_TARGETS})
+target_link_libraries(obstacle_map_server    ${catkin_LIBRARIES}
+                                             ${dwl_LIBRARIES}
+                                             ${OCTOMAP_LIBRARIES})
                       
-add_executable(default_flat_terrain src/DefaultFlatTerrain.cpp)
-add_dependencies(default_flat_terrain ${catkin_EXPORTED_TARGETS})
-target_link_libraries(default_flat_terrain
-                      ${catkin_LIBRARIES}
-                      ${dwl_LIBRARIES}
-                      ${OCTOMAP_LIBRARIES})
+add_executable(default_flat_terrain    src/DefaultFlatTerrain.cpp)
+add_dependencies(default_flat_terrain    ${catkin_EXPORTED_TARGETS})
+target_link_libraries(default_flat_terrain    ${catkin_LIBRARIES}
+                                              ${dwl_LIBRARIES}
+                                              ${OCTOMAP_LIBRARIES})
 
 #############
 ## Install ##

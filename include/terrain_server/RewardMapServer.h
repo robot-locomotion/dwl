@@ -7,7 +7,7 @@
 #include <octomap_msgs/conversions.h>
 #include <octomap/math/Utils.h>
 
-#include <environment/RewardOctoMap.h>
+#include <environment/RewardMap.h>
 #include <environment/SlopeFeature.h>
 #include <environment/HeightDeviationFeature.h>
 #include <environment/CurvatureFeature.h>
@@ -66,7 +66,7 @@ class RewardMapServer
 		ros::NodeHandle private_node_;
 
 		/** @brief Pointer to the reward map class */
-		dwl::environment::RewardMap* reward_map_;
+		dwl::environment::RewardMap reward_map_;
 
 		/** @brief Reward map publisher */
 		ros::Publisher reward_pub_;

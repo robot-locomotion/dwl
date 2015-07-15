@@ -11,8 +11,6 @@ RewardMapServer::RewardMapServer(ros::NodeHandle node) : private_node_(node), ba
 	private_node_.param("world_frame", world_frame_, world_frame_);
 	reward_map_msg_.header.frame_id = world_frame_;
 
-	reward_map_ = new dwl::environment::RewardOctoMap();
-
 	// Declaring the subscriber to octomap and tf messages
 	octomap_sub_ = new message_filters::Subscriber<octomap_msgs::Octomap> (node_, "octomap_binary", 5);
 	tf_octomap_sub_ = new tf::MessageFilter<octomap_msgs::Octomap> (*octomap_sub_, tf_listener_, world_frame_, 5);
@@ -27,7 +25,6 @@ RewardMapServer::RewardMapServer(ros::NodeHandle node) : private_node_(node), ba
 
 RewardMapServer::~RewardMapServer()
 {
-	delete reward_map_;
 	//octomap_sub_.shutdown();
 
 	if (tf_octomap_sub_){
@@ -66,7 +63,7 @@ bool RewardMapServer::init()
 			private_node_.getParam((std::string) area_names[i] + "/resolution", resolution);
 
 			// Adding the search areas
-			reward_map_->addSearchArea(min_x, max_x, min_y, max_y, min_z, max_z, resolution);
+			reward_map_.addSearchArea(min_x, max_x, min_y, max_y, min_z, max_z, resolution);
 		}
 	}
 
@@ -74,7 +71,7 @@ bool RewardMapServer::init()
 	double radius_x = 1, radius_y = 1;
 	private_node_.getParam("interest_region/radius_x", radius_x);
 	private_node_.getParam("interest_region/radius_y", radius_y);
-	reward_map_->setInterestRegion(radius_x, radius_y);
+	reward_map_.setInterestRegion(radius_x, radius_y);
 
 	// Getting the feature information
 	bool enable_slope, enable_height_dev, enable_curvature;
@@ -92,7 +89,7 @@ bool RewardMapServer::init()
 		slope_ptr->setWeight(weight);
 
 		// Adding the feature
-		reward_map_->addFeature(slope_ptr);
+		reward_map_.addFeature(slope_ptr);
 	}
 
 	// Adding the height deviation feature if it's enable
@@ -114,7 +111,7 @@ bool RewardMapServer::init()
 		height_dev_ptr->setNeighboringArea(-size, size, -size, size, resolution);
 
 		// Adding the feature
-		reward_map_->addFeature(height_dev_ptr);
+		reward_map_.addFeature(height_dev_ptr);
 	}
 
 	// Adding the curvature feature if it's enable
@@ -125,7 +122,7 @@ bool RewardMapServer::init()
 		curvature_ptr->setWeight(weight);
 
 		// Adding the feature
-		reward_map_->addFeature(curvature_ptr);
+		reward_map_.addFeature(curvature_ptr);
 	}
 
 	return true;
@@ -147,11 +144,8 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 		return;
 	}
 
-	dwl::TerrainModel model;
-	model.octomap = octomap;
-
 	// Setting the resolution of the gridmap
-	reward_map_->setResolution(octomap->getResolution(), false);
+	reward_map_.setResolution(octomap->getResolution(), false);
 
 	// Getting the transformation between the world to robot frame
 	tf::StampedTransform tf_transform;
@@ -176,7 +170,7 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 	// Computing the reward map
 	timespec start_rt, end_rt;
 	clock_gettime(CLOCK_REALTIME, &start_rt);
-	reward_map_->compute(model, robot_position);
+	reward_map_.compute(octomap, robot_position);
 	clock_gettime(CLOCK_REALTIME, &end_rt);
 	double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9*(end_rt.tv_nsec - start_rt.tv_nsec);
 	ROS_INFO("The duration of computation of reward map is %f seg.", duration);
@@ -187,7 +181,7 @@ void RewardMapServer::octomapCallback(const octomap_msgs::Octomap::ConstPtr& msg
 
 bool RewardMapServer::reset(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp)
 {
-	reward_map_->reset();
+	reward_map_.reset();
 
 	ROS_INFO("Reset reward map");
 
@@ -203,11 +197,11 @@ void RewardMapServer::publishRewardMap()
 			reward_map_msg_.header.stamp = ros::Time::now();
 
 			std::map<dwl::Vertex, dwl::RewardCell> reward_gridmap;
-			reward_gridmap = reward_map_->getRewardMap();
+			reward_gridmap = reward_map_.getRewardMap();
 
 			terrain_server::RewardCell cell;
-			reward_map_msg_.plane_size = reward_map_->getResolution(true);
-			reward_map_msg_.height_size = reward_map_->getResolution(false);
+			reward_map_msg_.plane_size = reward_map_.getResolution(true);
+			reward_map_msg_.height_size = reward_map_.getResolution(false);
 
 			// Converting the vertexes into a cell message
 			for (std::map<dwl::Vertex, dwl::RewardCell>::iterator vertex_iter = reward_gridmap.begin();

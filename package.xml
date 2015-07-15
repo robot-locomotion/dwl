@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>terrain_server</name>
-  <version>0.0.0</version>
+  <version>0.0.5</version>
   <description>The terrain_server package</description>
 
   <maintainer email="carlos.mastalli@iit.it">Carlos Mastalli</maintainer>
