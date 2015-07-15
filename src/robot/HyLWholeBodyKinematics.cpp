@@ -62,19 +62,19 @@ void HyLWholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos
 													  const Eigen::VectorXd& op_vel)
 {
 
-	Eigen::Vector3d hipassembly2hfe = iit::rbd::Utils::positionVector(hom_tf_.fr_trunk_X_fr_upperleg);
+	Eigen::Vector3d hipassembly2hfe = rbd::translationVector(hom_tf_.fr_trunk_X_fr_upperleg);
 
 	double upperleg_length =
-			(iit::rbd::Utils::positionVector(hom_tf_.fr_upperleg_X_fr_lowerleg)).norm();
+			(rbd::translationVector(hom_tf_.fr_upperleg_X_fr_lowerleg)).norm();
 	double lowerleg_length =
-			(iit::rbd::Utils::positionVector(hom_tf_.fr_lowerleg_X_fr_foot)).norm();
+			(rbd::translationVector(hom_tf_.fr_lowerleg_X_fr_foot)).norm();
 
 	Eigen::Vector3d hipassembly2foot = op_pos - hipassembly2hfe;
-	double hfe2foot_dist = sqrt((double) (hipassembly2foot(iit::rbd::X) * hipassembly2foot(iit::rbd::X)) +
-			(double) (hipassembly2foot(iit::rbd::Z) * hipassembly2foot(iit::rbd::Z)));
+	double hfe2foot_dist = sqrt((double) (hipassembly2foot(rbd::X) * hipassembly2foot(rbd::X)) +
+			(double) (hipassembly2foot(rbd::Z) * hipassembly2foot(rbd::Z)));
 
 	// Joint positions
-	joint_pos(iit::HyL::HFE-1) = -asin((double) hipassembly2foot(iit::rbd::X) / hfe2foot_dist) +
+	joint_pos(iit::HyL::HFE-1) = -asin((double) hipassembly2foot(rbd::X) / hfe2foot_dist) +
 			acos((upperleg_length * upperleg_length + hfe2foot_dist * hfe2foot_dist -
 			lowerleg_length * lowerleg_length) / (2 * upperleg_length * hfe2foot_dist));
 

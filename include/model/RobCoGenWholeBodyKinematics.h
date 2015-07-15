@@ -6,7 +6,6 @@
 
 #include <Eigen/Dense>
 #include <map>
-#include <iit/rbd/utils.h>
 
 
 namespace dwl
@@ -14,8 +13,6 @@ namespace dwl
 
 namespace model
 {
-
-using namespace iit;
 
 /**
  * @brief RobCoGenWholeBodyKinematics class implements the kinematics methods for a floating-base robot using

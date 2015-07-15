@@ -19,6 +19,18 @@ Part3d linearPart(Vector6d& vector)
 }
 
 
+TranslationPart translationVector(Eigen::Matrix4d& hom_transform)
+{
+    return hom_transform.block<3,1>(0,3);
+}
+
+
+RotationPart rotationMatrix(Eigen::MatrixBase<Eigen::Matrix4d>& hom_transform)
+{
+    return hom_transform.block<3,3>(0,0);
+}
+
+
 bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model)
 {
 	bool is_floating_base = false;

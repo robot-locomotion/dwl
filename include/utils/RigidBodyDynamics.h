@@ -16,12 +16,13 @@ enum Component {Linear, Angular, Full};
 typedef Eigen::Matrix<double,6,1> Vector6d;
 typedef Eigen::Matrix<double,6,6> Matrix6d;
 typedef Eigen::Block<Vector6d,3,1> Part3d;///< a 3D sub-vector of a 6D vector
+typedef Eigen::Block<Eigen::Matrix4d,3,1> TranslationPart;
+typedef Eigen::Block<Eigen::Matrix4d,3,3> RotationPart;
 typedef std::vector<std::string> BodySelector;
 typedef std::map<std::string,unsigned int> BodyID;
 typedef std::map<std::string,Eigen::Vector3d> BodyPosition;
 typedef std::map<std::string,Eigen::VectorXd> BodyVector;
 typedef std::map<std::string,Vector6d> BodyWrench;
-
 
 /**
  * @brief The 3-coordinate vector with the angular components (angular velocity or torque) of the given
@@ -34,6 +35,12 @@ Part3d angularPart(Vector6d& vector);
  * velocity or force) of the given spatial vector.
  */
 Part3d linearPart(Vector6d& vector);
+
+/** @brief The translation vector of a homogeneous transform */
+TranslationPart translationVector(Eigen::Matrix4d& hom_transform);
+
+/** @brief The rotation matrix of a homogeneous transform */
+RotationPart rotationMatrix(Eigen::MatrixBase<Eigen::Matrix4d>& hom_transform);
 
 /**
  * @brief Vector coordinates

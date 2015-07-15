@@ -25,7 +25,7 @@ void RobCoGenWholeBodyKinematics::computeForwardKinematics(Eigen::VectorXd& op_p
 														   enum rbd::Component component)
 {
 	// Updating the states
-	updateState(iit::rbd::Vector6D::Zero(), joint_pos);
+	updateState(rbd::Vector6d::Zero(), joint_pos);
 
 	// Computing the number of active end-effectors
 	int num_body_set = 0;
@@ -61,17 +61,17 @@ void RobCoGenWholeBodyKinematics::computeForwardKinematics(Eigen::VectorXd& op_p
 		if (body_id_.count(body_name) > 0) {
 			Eigen::Matrix4d homogeneous_tf = homogeneous_tf_.find(body_name)->second;
 
-			Eigen::Vector3d rpy = math::getRPY((Eigen::Matrix3d) iit::rbd::Utils::rotationMx(homogeneous_tf));
+			Eigen::Vector3d rpy = math::getRPY((Eigen::Matrix3d) rbd::rotationMatrix(homogeneous_tf));
 
 			switch (component) {
 			case rbd::Linear:
-				op_pos = iit::rbd::Utils::positionVector(homogeneous_tf);
+				op_pos = rbd::translationVector(homogeneous_tf);
 				break;
 			case rbd::Angular:
 				op_pos << rpy;
 				break;
 			case rbd::Full:
-				op_pos << iit::rbd::Utils::positionVector(homogeneous_tf), rpy;
+				op_pos << rbd::translationVector(homogeneous_tf), rpy;
 				break;
 			}
 		}
@@ -205,7 +205,7 @@ void RobCoGenWholeBodyKinematics::computeFixedBaseJacobian(Eigen::MatrixXd& jaco
 														   enum rbd::Component component)
 {
 	// Updating the state of the kinematic model
-	updateState(iit::rbd::Vector6D::Zero(), joint_pos);
+	updateState(rbd::Vector6d::Zero(), joint_pos);
 
 	// Resizing the jacobian matrix
 	int num_vars;
