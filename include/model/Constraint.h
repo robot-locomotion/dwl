@@ -40,8 +40,19 @@ class Constraint
 		virtual void computeJacobian(Eigen::MatrixXd& jacobian,
 									 const LocomotionState& state) = 0;
 
+		/**
+		 * @brief Gets the lower and upper bounds of the constraint
+		 * @param Eigen::VectorXd& Lower constraint bound
+		 * @param Eigen::VectorXd& Upper constraint bound
+		 */
 		virtual void getBounds(Eigen::VectorXd& lower_bound,
 							   Eigen::VectorXd& upper_bound) = 0;
+
+		/**
+		 * @brief Sets the last state that could be used for the constraint
+		 * @param LocomotionState& Last state
+		 */
+		void setLastState(LocomotionState& last_state);
 
 		/** @brief Gets the dimension of the constraint */
 		unsigned int getConstraintDimension();
@@ -65,6 +76,9 @@ class Constraint
 
 		/** @brief Vector of the values of the constraint */
 		Eigen::VectorXd constraint_value_;
+
+		/** @brief Sets the last state */
+		LocomotionState last_state_;
 };
 
 } //@namespace model

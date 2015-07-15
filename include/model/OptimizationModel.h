@@ -71,7 +71,7 @@ class OptimizationModel
 		void setHorizon(unsigned int horizon);
 
 		/** @brief Gets the dynamical system constraint */
-		DynamicalSystem* getDynamicSystem();
+		DynamicalSystem* getDynamicalSystem();
 
 		/** @brief Gets the active and inactive constraints, which not include the dynamical one */
 		std::vector<Constraint*> getConstraints();

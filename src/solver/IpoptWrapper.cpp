@@ -56,12 +56,12 @@ bool IpoptWrapper::get_bounds_info(Index n, Number* x_l, Number* x_u,
 
 	// Getting the lower and upper bound of the locomotion state
 	LocomotionState locomotion_lower_bound, locomotion_upper_bound;
-	opt_model_->getDynamicSystem()->getStateBounds(locomotion_lower_bound, locomotion_upper_bound);
+	opt_model_->getDynamicalSystem()->getStateBounds(locomotion_lower_bound, locomotion_upper_bound);
 
 	// Converting locomotion state bounds to state bounds
 	Eigen::VectorXd state_lower_bound, state_upper_bound;
-	opt_model_->getDynamicSystem()->fromLocomotionState(state_lower_bound, locomotion_lower_bound);
-	opt_model_->getDynamicSystem()->fromLocomotionState(state_upper_bound, locomotion_upper_bound);
+	opt_model_->getDynamicalSystem()->fromLocomotionState(state_lower_bound, locomotion_lower_bound);
+	opt_model_->getDynamicalSystem()->fromLocomotionState(state_upper_bound, locomotion_upper_bound);
 
 	// Getting the lower and upper constraint bounds for a certain time
 	unsigned int index = 0;
@@ -70,7 +70,7 @@ bool IpoptWrapper::get_bounds_info(Index n, Number* x_l, Number* x_u,
 	for (unsigned int i = 0; i < num_constraints + 1; i++) {
 		Eigen::VectorXd lower_bound, upper_bound;
 		if (i == 0)
-			opt_model_->getDynamicSystem()->getBounds(lower_bound, upper_bound);
+			opt_model_->getDynamicalSystem()->getBounds(lower_bound, upper_bound);
 		else
 			opt_model_->getConstraints()[i]->getBounds(lower_bound, upper_bound);
 
@@ -107,11 +107,11 @@ bool IpoptWrapper::get_starting_point(Index n, bool init_x, Number* x,
 
 	// Getting the initial locomotion state
 	LocomotionState starting_locomotion_state;
-	opt_model_->getDynamicSystem()->getStartingState(starting_locomotion_state);
+	opt_model_->getDynamicalSystem()->getStartingState(starting_locomotion_state);
 
 	// Getting the initial state vector
 	Eigen::VectorXd starting_state;
-	opt_model_->getDynamicSystem()->fromLocomotionState(starting_state, starting_locomotion_state);
+	opt_model_->getDynamicalSystem()->fromLocomotionState(starting_state, starting_locomotion_state);
 
 	// Setting the full starting state for the predefined horizon
 	unsigned int state_dim = n / opt_model_->getHorizon();
@@ -135,7 +135,7 @@ bool IpoptWrapper::eval_f(Index n, const Number* x, bool new_x, Number& obj_valu
 	for (unsigned int i = 0; i < opt_model_->getHorizon(); i++) {
 		// Converting the decision variable for a certain time to a robot state
 		Eigen::VectorXd decision_state = decision_var.segment(i * state_dim, state_dim);
-		opt_model_->getDynamicSystem()->toLocomotionState(locomotion_state, decision_state);
+		opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
 
 		// Computing the function cost for a certain time
 		double cost;
@@ -162,7 +162,7 @@ bool IpoptWrapper::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 	for (unsigned int i = 0; i < opt_model_->getHorizon(); i++) {
 		// Converting the decision variable for a certain time to a robot state
 		Eigen::VectorXd decision_state = decision_var.segment(i * state_dim, state_dim);
-		opt_model_->getDynamicSystem()->toLocomotionState(locomotion_state, decision_state);
+		opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
 
 		// Computing the gradient for each defined cost function
 		Eigen::VectorXd gradient(state_dim);
@@ -185,23 +185,38 @@ bool IpoptWrapper::eval_g(Index n, const Number* x, bool new_x, Index m, Number*
 	Eigen::Map<Eigen::VectorXd> full_constraint(g, m);
 	full_constraint.setZero();
 
-	// Computing the active and inactive constraints for a predefined horizon
-	LocomotionState locomotion_state;
-	unsigned int index = 0;
+	// Computing state dimension
 	unsigned int state_dim = n / opt_model_->getHorizon();
+
+	// Setting the initial state
+	LocomotionState locomotion_state;
+	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
+	opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
+	unsigned int num_constraints = opt_model_->getConstraints().size();
+	for (unsigned int j = 0; j < num_constraints + 1; j++) {
+		if (j == 0) // dynamic system constraint
+			opt_model_->getDynamicalSystem()->setLastState(locomotion_state);
+		else
+			opt_model_->getConstraints()[j-1]->setLastState(locomotion_state);
+	}
+
+	// Computing the active and inactive constraints for a predefined horizon
+	unsigned int index = 0;
 	for (unsigned int i = 0; i < opt_model_->getHorizon(); i++) {
 		// Converting the decision variable for a certain time to a robot state
-		Eigen::VectorXd decision_state = decision_var.segment(i * state_dim, state_dim);
-		opt_model_->getDynamicSystem()->toLocomotionState(locomotion_state, decision_state);
+		decision_state = decision_var.segment(i * state_dim, state_dim);
+		opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
 
 		// Computing the constraints for a certain time
-		unsigned int num_constraints = opt_model_->getConstraints().size();
 		Eigen::VectorXd constraint;
 		for (unsigned int j = 0; j < num_constraints + 1; j++) {
-			if (j == 0) // dynamic system constraint
-				opt_model_->getDynamicSystem()->compute(constraint, locomotion_state);
-			else
-				opt_model_->getConstraints()[j]->compute(constraint, locomotion_state);
+			if (j == 0) {// dynamic system constraint
+				opt_model_->getDynamicalSystem()->compute(constraint, locomotion_state);
+				opt_model_->getDynamicalSystem()->setLastState(locomotion_state);
+			} else {
+				opt_model_->getConstraints()[j-1]->compute(constraint, locomotion_state);
+				opt_model_->getConstraints()[j-1]->setLastState(locomotion_state);
+			}
 
 			unsigned int constraint_size = constraint.size();
 			full_constraint.segment(index, constraint_size) = constraint;
@@ -236,22 +251,34 @@ bool IpoptWrapper::eval_jac_g(Index n, const Number* x, bool new_x,
 		full_jacobian.setZero();
 		Eigen::MatrixXd jacobian;
 
-		// Computing the Jacobian for a predefined horizon
-		LocomotionState locomotion_state;
-		unsigned int row_index = 0, col_index = 0;
+		// Computing state dimension
 		unsigned int state_dim = n / opt_model_->getHorizon();
+
+		// Setting the initial state
+		LocomotionState locomotion_state;
+		Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
+		opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
+		unsigned int num_constraints = opt_model_->getConstraints().size();
+		for (unsigned int j = 0; j < num_constraints + 1; j++) {
+			if (j == 0) // dynamic system constraint
+				opt_model_->getDynamicalSystem()->setLastState(locomotion_state);
+			else
+				opt_model_->getConstraints()[j-1]->setLastState(locomotion_state);
+		}
+
+		// Computing the Jacobian for a predefined horizon
+		unsigned int row_index = 0, col_index = 0;
 		for (unsigned int i = 0; i < opt_model_->getHorizon(); i++) {
 			// Converting the decision variable for a certain time to a robot state
-			Eigen::VectorXd decision_state = decision_var.segment(i * state_dim, state_dim);
-			opt_model_->getDynamicSystem()->toLocomotionState(locomotion_state, decision_state);
+			decision_state = decision_var.segment(i * state_dim, state_dim);
+			opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
 
 			// Computing the Jacobian of the constraints for a certain time
-			unsigned int num_constraints = opt_model_->getConstraints().size();
 			for (unsigned int j = 0; j < num_constraints + 1; j++) {
 				if (j == 0)
-					opt_model_->getDynamicSystem()->computeJacobian(jacobian, locomotion_state);
+					opt_model_->getDynamicalSystem()->computeJacobian(jacobian, locomotion_state);
 				else
-					opt_model_->getConstraints()[j]->computeJacobian(jacobian, locomotion_state);
+					opt_model_->getConstraints()[j-1]->computeJacobian(jacobian, locomotion_state);
 
 				unsigned int constraint_size = jacobian.rows();
 				unsigned int num_variables = jacobian.cols();

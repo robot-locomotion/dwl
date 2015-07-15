@@ -43,7 +43,7 @@ void OptimizationModel::addDynamicSystem(DynamicalSystem* dynamical_system)
 	dynamical_system_ = dynamical_system;
 
 	// Reading the state dimension
-	state_dimension_ = getDynamicSystem()->getDimensionOfState();
+	state_dimension_ = getDynamicalSystem()->getDimensionOfState();
 
 	// Updating the constraint dimension
 	constraint_dimension_ += dynamical_system->getConstraintDimension();
@@ -149,7 +149,7 @@ void OptimizationModel::setHorizon(unsigned int horizon)
 }
 
 
-DynamicalSystem* OptimizationModel::getDynamicSystem()
+DynamicalSystem* OptimizationModel::getDynamicalSystem()
 {
 	return dynamical_system_;
 }
