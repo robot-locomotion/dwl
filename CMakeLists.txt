@@ -28,7 +28,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-# Setting lags for optimization
+# Setting flags for optimization
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
 
 # Seting the output directories for libraries and executables
@@ -77,7 +77,6 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/environment/AdjacencyEnvironment.cpp
 							 src/environment/GridBasedBodyAdjacency.cpp
 							 src/environment/LatticeBasedBodyAdjacency.cpp
-							 src/environment/RewardMap.cpp
 							 src/environment/SpaceDiscretization.cpp
 							 src/environment/Feature.cpp
 							 src/environment/SlopeFeature.cpp
@@ -120,7 +119,7 @@ endif()
 
 
 # Adding Ipopt components of the project
-if(IPOPT_FOUND)
+if(ipopt_FOUND)
     list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${IPOPT_INCLUDE_DIRS})
     list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${IPOPT_LIBRARY_DIR})
     list(APPEND DEPENDENCIES_LIBRARIES  ${IPOPT_LIBRARIES})
@@ -134,7 +133,7 @@ endif()
 # Adding Octomap components of the project
 if(octomap_FOUND)
     include_directories(${OCTOMAP_INCLUDE_DIRS}) 
-    list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/RewardOctoMap.cpp
+    list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/RewardMap.cpp
                                          src/environment/ObstacleMap.cpp)
 endif()
 

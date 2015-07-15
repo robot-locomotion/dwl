@@ -41,11 +41,20 @@ class RewardMap
 		void removeFeature(std::string feature_name);
 
 		/**
-		 * @brief Abstract method for computing the reward map according the robot position and model of the terrain
-		 * @param TerrainModel The model of the environment
+		 * @brief Abstract method for computing the reward map according the robot position and
+		 * model of the terrain
+		 * @param octomap::OcTree* The model of the environment
 		 * @param Eigen::Vector4d The position of the robot and the yaw angle
 		 */
-		virtual void compute(TerrainModel model, Eigen::Vector4d robot_state) = 0;
+		void compute(octomap::OcTree* model, Eigen::Vector4d robot_state);
+
+		/**
+		 * @brief Computes the features and reward of the terrain given the octomap model and the key
+		 * of the topmost cell of a certain position of the grid
+		 * @param octomap::OcTree* Pointer to the octomap model of the environment
+		 * @param octomap::OcTreeKey The key of the topmost cell of a certain position of the grid
+		 */
+		void computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey heightmap_key);
 
 		/**
 		 * @brief Removes reward values outside the interest region
@@ -146,7 +155,7 @@ class RewardMap
 		const std::map<Vertex,RewardCell>& getRewardMap() const;
 
 
-	protected:
+	private:
 		/** @brief Object of the SpaceDiscretization class for defining the grid routines */
 		SpaceDiscretization space_discretization_;
 
@@ -176,6 +185,15 @@ class RewardMap
 
 		/** @brief Object of the NeighboringArea struct that defines the neighboring area */
 		NeighboringArea neighboring_area_;
+
+		/** @brief Indicates if it the first computation */
+		bool is_first_computation_;
+
+		/** @brief Defines if it is using the mean of the cloud */
+		bool using_cloud_mean_;
+
+		/** @brief Depth of the octomap */
+		int depth_;
 };
 
 } //@namespace environment

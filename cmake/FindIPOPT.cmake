@@ -108,3 +108,8 @@ find_package_handle_standard_args(IPOPT DEFAULT_MSG IPOPT_LIBRARIES)
 
 # Compatibility with previous versions
 set(IPOPT_LINK_FLAGS ${IPOPT_DEFINITIONS})
+
+set(ipopt_FOUND IPOPT_FOUND})
+set(ipopt_INCLUDE_DIRS IPOPT_INCLUDE_DIRS})
+set(ipopt_LIBRARIES IPOPT_LIBRARIES})
+set(ipopt_LIBRARY_DIR IPOPT_LIBRARY_DIR})

@@ -5,7 +5,7 @@
 #include <environment/ObstacleMap.h>
 #include <environment/Feature.h>
 #include <environment/GridBasedBodyAdjacency.h>
-#include <environment/RewardOctoMap.h>
+#include <environment/RewardMap.h>
 #include <environment/BodyOrientationFeature.h>
 #include <environment/CurvatureFeature.h>
 #include <environment/HeightDeviationFeature.h>
