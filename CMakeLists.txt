@@ -147,10 +147,12 @@ add_executable(my_planner  tests/HierarchicalPlanningTest.cpp)
 target_link_libraries(my_planner ${PROJECT_NAME})
 
 include_directories(tests)
-add_executable(ipopt_test  tests/IpoptDWLTest.cpp
-                           tests/model/HS071DynamicalSystem.cpp
-                           tests/model/HS071Cost.cpp)
-target_link_libraries(ipopt_test ${PROJECT_NAME})
+if(ipopt_FOUND)
+	add_executable(ipopt_test  tests/IpoptDWLTest.cpp
+	                           tests/model/HS071DynamicalSystem.cpp
+	                           tests/model/HS071Cost.cpp)
+	target_link_libraries(ipopt_test ${PROJECT_NAME})
+endif()
 
 add_executable(yaml_bridge  tests/YamlWrapperTest.cpp)
 target_link_libraries(yaml_bridge ${PROJECT_NAME})
