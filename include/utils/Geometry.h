@@ -1,5 +1,5 @@
-#ifndef DWL_Geometry_H
-#define DWL_Geometry_H
+#ifndef DWL__MATH__GEOMETRY__H
+#define DWL__MATH__GEOMETRY__H
 
 #include <utils/macros.h>
 #include <Eigen/Dense>
@@ -13,6 +13,24 @@ enum AngleRepresentation {ZeroTo2Pi, MinusPiToPi};
 
 namespace math
 {
+
+/**
+ * @brief Struct that defines the area
+ */
+struct Area
+{
+	Area() : min_x(0.), max_x(0.), min_y(0.), max_y(0.), min_z(0.), max_z(0.) {}
+	Area(double x_min, double x_max,
+		 double y_min, double y_max,
+		 double z_min, double z_max) : min_x(x_min), max_x(x_max), min_y(y_min), max_y(y_max),
+				 min_z(z_min), max_z(z_max) {}
+	double min_x;
+	double max_x;
+	double min_y;
+	double max_y;
+	double min_z;
+	double max_z;
+};
 
 /**
  * @brief Normalizes the angles according to an angle representation

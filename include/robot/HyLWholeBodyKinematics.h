@@ -1,5 +1,5 @@
-#ifndef DWL_HyLWholeBodyKinematics_H
-#define DWL_HyLWholeBodyKinematics_H
+#ifndef DWL__ROBOT__HYL_WHOLE_BODY_KINEMATICS__H
+#define DWL__ROBOT__HYL_WHOLE_BODY_KINEMATICS__H
 
 #include <model/RobCoGenWholeBodyKinematics.h>
 #include <iit/robots/hyl/jacobians.h>

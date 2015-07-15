@@ -1,5 +1,5 @@
-#ifndef DWL_WholeBodyLocomotion_H
-#define DWL_WholeBodyLocomotion_H
+#ifndef DWL__LOCOMOTION__WHOLE_BODY_LOCOMOTION__H
+#define DWL__LOCOMOTION__WHOLE_BODY_LOCOMOTION__H
 
 #include <locomotion/PlanningOfMotionSequence.h>
 

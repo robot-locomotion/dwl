@@ -1,10 +1,9 @@
-#ifndef DWL_BodyOrientationFeature_H
-#define DWL_BodyOrientationFeature_H
+#ifndef DWL__ENVIRONMENT__BODY_ORIENTATION_FEATURE__H
+#define DWL__ENVIRONMENT__BODY_ORIENTATION_FEATURE__H
 
 #include <environment/Feature.h>
 #include <utils/utils.h>
-#include <utils/Math.h>
-#include <utils/Orientation.h>
+
 
 namespace dwl
 {

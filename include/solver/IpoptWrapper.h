@@ -1,8 +1,8 @@
-#ifndef DWL_IpoptWrapper_H
-#define DWL_IpoptWrapper_H
+#ifndef DWL__SOLVER__IPOPT_WRAPPER__H
+#define DWL__SOLVER__IPOPT_WRAPPER__H
 
 #include <IpTNLP.hpp>
-#include <model/Model.h>
+#include <model/OptimizationModel.h>
 
 
 namespace dwl
@@ -33,9 +33,9 @@ class IpoptWrapper : public Ipopt::TNLP
 
 		/**
 		 * @brief Defines the model for the optimization
-		 * @param Model* A model consists of cost functions and constraints
+		 * @param model::OptimizationModel* A model consists of cost functions and constraints
 		 */
-		void reset(model::Model* model);
+		void reset(model::OptimizationModel* model);
 
 		/**@name Overloaded from TNLP */
 		/**
@@ -190,10 +190,7 @@ class IpoptWrapper : public Ipopt::TNLP
 		IpoptWrapper& operator=(const IpoptWrapper&);
 
 		/** @brief Pointer to the defined model of the NLP problem */
-		model::Model* model_;
-
-		int state_dimension_;
-		int horizon_;
+		model::OptimizationModel* opt_model_;
 };
 
 } //@namespace solver

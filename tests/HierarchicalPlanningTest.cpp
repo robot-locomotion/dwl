@@ -1,11 +1,7 @@
 #include <model/WholeBodyKinematics.h>
 #include <model/WholeBodyDynamics.h>
-#include <model/RobCoGenWholeBodyKinematics.h>
-#include <model/RobCoGenWholeBodyDynamics.h>
-#include <robot/HyLWholeBodyKinematics.h>
-#include <robot/HyLWholeBodyDynamics.h>
-#include <iit/rbd/rbd.h>
 #include "ctime"
+
 
 struct TimerInfo {
 	/// time stamp when timer_start() gets called
@@ -33,22 +29,19 @@ inline double timer_stop (TimerInfo *timer) {
 
 int main(int argc, char **argv)
 {
-
 	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
 	dwl::rbd::ReducedFloatingBase reduced_base;
-	reduced_base.TZ.active = true;
-	reduced_base.TZ.id = 0;
+	reduced_base.LZ.active = true;
+	reduced_base.LZ.id = 0;
 
 	dwl::model::WholeBodyKinematics kin;
-	kin.modelFromURDF(model_file, &reduced_base, true);
+	kin.modelFromURDFFile(model_file, &reduced_base, true);
 	dwl::model::WholeBodyDynamics dyn;
-	dyn.modelFromURDF(model_file, &reduced_base);
+	dyn.modelFromURDFFile(model_file, &reduced_base);
 
-	dwl::model::RobCoGenWholeBodyKinematics* kin_ptr = new dwl::robot::HyLWholeBodyKinematics();
-	dwl::model::RobCoGenWholeBodyDynamics* dyn_ptr = new dwl::robot::HyLWholeBodyDynamics();
-	dyn_ptr->setKinematicModel(kin_ptr);
 
-	iit::rbd::Vector6D base_wrench, base_pos, base_vel, base_acc, g;
+
+	dwl::rbd::Vector6d base_wrench, base_pos, base_vel, base_acc;
 	Eigen::VectorXd joint_forces(2), joint_pos(2), joint_vel(2), joint_acc(2);
 	base_pos = dwl::rbd::Vector6d::Zero();
 	base_vel = dwl::rbd::Vector6d::Zero();
@@ -61,9 +54,6 @@ int main(int argc, char **argv)
 	joint_acc << 0., 0.;//, 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
 
 
-	// Updating kinematics and dynamics
-//	kin_ptr->updateState(base_pos, joint_pos);
-//	dyn_ptr->updateState(base_pos, joint_pos);
 
 	// Defining contacts
 	dwl::rbd::BodySelector contacts;
@@ -72,130 +62,78 @@ int main(int argc, char **argv)
 //	contacts.push_back("rf_foot");
 //	contacts.push_back("rh_foot");
 	contacts.push_back("foot");
-//	contacts.push_back("foot");
 
 
 	// Computing the jacobians
-//	Eigen::MatrixXd jacobian, fixed_jac, floating_jac;
-//	kin.computeJacobian(jacobian, base_pos, joint_pos, contacts, dwl::rbd::Full);
-//	kin.getFixedBaseJacobian(fixed_jac, jacobian);
-//	kin.getFloatingBaseJacobian(floating_jac, jacobian);
-//	std::cout << "---------------------------------------" << std::endl;
-//	std::cout << jacobian << " = jacobian" << std::endl;
-//	std::cout << "---------------------------------------" << std::endl;
-//	std::cout << fixed_jac << " = fixed jacobian" << std::endl;
-//	std::cout << "---------------------------------------" << std::endl;
-//	std::cout << floating_jac << " = floating jacobian" << std::endl;
+	Eigen::MatrixXd jacobian, fixed_jac, floating_jac;
+	kin.computeJacobian(jacobian, base_pos, joint_pos, contacts, dwl::rbd::Full);
+	kin.getFixedBaseJacobian(fixed_jac, jacobian);
+	kin.getFloatingBaseJacobian(floating_jac, jacobian);
+	std::cout << "---------------------------------------" << std::endl;
+	std::cout << jacobian << " = jacobian" << std::endl;
+	std::cout << "---------------------------------------" << std::endl;
+	std::cout << fixed_jac << " = fixed jacobian" << std::endl;
+	std::cout << "---------------------------------------" << std::endl;
+	std::cout << floating_jac << " = floating jacobian" << std::endl;
+
 
 	// Computing forward kinematics
-//	Eigen::VectorXd fk_pos;
-//	kin.computeForwardKinematics(fk_pos, base_pos, joint_pos, contacts, dwl::rbd::Linear, dwl::RollPitchYaw);
-//	std::cout << "---------------------------------------" << std::endl;
-//	std::cout << fk_pos << " = Body tf" << std::endl;
+	dwl::rbd::BodyVector fk_pos;
+	kin.computeForwardKinematics(fk_pos, base_pos, joint_pos, contacts, dwl::rbd::Linear, dwl::RollPitchYaw);
+	std::cout << "---------------------------------------" << std::endl;
+	std::cout << fk_pos["foot"].transpose() << " = Body tf" << std::endl;
 
-/*
-	dwl::rbd::EndEffectorPosition ik_pos;
+
+	// Computing inverse kinematics
+	dwl::rbd::BodyPosition ik_pos;
 	ik_pos["trunk"] = Eigen::Vector3d::Zero();
-	ik_pos["foot"] = fk_pos.tail(3);
+	ik_pos["foot"] = fk_pos["foot"].tail(3);
 	dwl::rbd::Vector6d base_pos_init = dwl::rbd::Vector6d::Zero();
-	base_pos_init(dwl::rbd::TZ) = 0.1;
+	base_pos_init(dwl::rbd::LZ) = 0.1;
 	Eigen::VectorXd joint_pos_init(2);// = Eigen::VectorXd::Zero(2);
 	joint_pos_init << 0.2, -1;
 	kin.computeInverseKinematics(base_pos, joint_pos, base_pos_init, joint_pos_init, ik_pos);
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << base_pos.transpose() << " | " << joint_pos.transpose() << " = Body ik" << std::endl;
-	std::cout << joint_pos_init.transpose() << " = jnt init" << std::endl;
-*/
 
 
-
-//	Eigen::VectorXd position;
-//	kin_ptr->computeForwardKinematics(position, joint_pos, dwl::model::Linear);
-//	std::cout << "---------------------------------------" << std::endl;
-//	std::cout << position << " = MarcoF tf" << std::endl;
-
-//	Eigen::VectorXd velocity;
-//	kin.computeVelocity(velocity, base_pos, joint_pos, base_vel, joint_vel, contacts, dwl::rbd::Full);
-//	std::cout << "---------------------------------------" << std::endl;
-//	std::cout << velocity << " = Body vel" << std::endl;
-
-//	kin_ptr->opVelocityFromJointSpace(velocity, base_pos, joint_pos, base_vel, joint_vel, effector_set, dwl::Full);
-//	std::cout << "---------------------------------------" << std::endl;
-//	std::cout << velocity << " = robcogen Body vel" << std::endl;
-
-//	Eigen::VectorXd acceleration;
-//	kin.computeAcceleration(acceleration, base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc, contacts, dwl::rbd::Full);
-//	std::cout << "---------------------------------------" << std::endl;
-//	std::cout << acceleration << " = Body acc" << std::endl;
+	// Computing body velocity
+	dwl::rbd::BodyVector velocity;
+	kin.computeVelocity(velocity, base_pos, joint_pos, base_vel, joint_vel, contacts, dwl::rbd::Full);
+	std::cout << "---------------------------------------" << std::endl;
+	std::cout << velocity["foot"].transpose() << " = Body vel" << std::endl;
 
 
+	// Computing body acceleration
+	dwl::rbd::BodyVector acceleration;
+	kin.computeAcceleration(acceleration, base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc, contacts, dwl::rbd::Full);
+	std::cout << "---------------------------------------" << std::endl;
+	std::cout << acceleration["foot"].transpose() << " = Body acc" << std::endl;
 
 
-	Eigen::VectorXd jacd_qd;
+	// Computing body Jacd*Qd
+	dwl::rbd::BodyVector jacd_qd;
 	kin.computeJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, contacts, dwl::rbd::Full);
 	std::cout << "---------------------------------------" << std::endl;
-	std::cout << jacd_qd.transpose() << " = jacd_qd" << std::endl;
+	std::cout << jacd_qd["foot"].transpose() << " = jacd_qd" << std::endl;
 
 
-//	dwl::rbd::EndEffectorForce fext;
-//	dwl::rbd::Vector6d forc;
-//	forc << 0,0,0,0,0,10;//67;
-//	fext["trunk"] = forc;
-//	fext["foot"] = forc;
-//	fext["lowerleg"] = forc;
-
-
-
-//	base_pos(dwl::rbd::AX) = 1.57;
-//	base_pos(dwl::rbd::AY) = 1.57;
-	//base_pos(dwl::rbd::AZ) = 3;
-//	base_pos(dwl::rbd::LX) = 10;
-//	base_pos(dwl::rbd::LY) = 20;
-//	base_pos(dwl::rbd::LZ) = 30;
-//	base_acc(dwl::rbd::LZ) = -9.81;
-//	base_vel(dwl::rbd::LX) = 1;
-//	base_vel(dwl::rbd::LZ) = 2;
-//	joint_vel2 << 1;
-//	joint_acc2 << -9.81;
-
-	dwl::rbd::BodyForce grf;
+	// Computing the ID
+	dwl::rbd::BodyWrench grf;
 	grf["foot"] << 0, 0, 0, 0, 0, 67.3149;
-//	dyn.computeWholeDynamics(base_wrench, joint_forces, base_pos, joint_pos2, base_vel, joint_vel2, base_acc, joint_acc2, fext);
-//	std::cout << "---------------------------------------" << std::endl;
-//	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = tau" << std::endl;
-
-//	dyn_ptr->updateState(base_pos, joint_pos);
-//	TimerInfo tinfo1, tinfo2;
-//	timer_start (&tinfo1);
-//	for (int i = 0; i < 1000000; i++)
-//		dyn_ptr->computeInverseDynamics(base_wrench, joint_forces, dwl::rbd::Vector6d::Zero(), base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc, grf);
-//	std::cout << "---------------------------------------" << std::endl;
-//	double duration = timer_stop (&tinfo1);
-//	std::cout << duration << " = time duration" << std::endl;
-//	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = robcogen tau" << std::endl;
-//	base_wrench.setZero();
-//	joint_forces.setZero();
-//	timer_start (&tinfo2);
-//	for (int i = 0; i < 1000000; i++)
-//		dyn.computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc, grf);
+	dyn.computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc, grf);
 	std::cout << "---------------------------------------" << std::endl;
-//	duration = timer_stop (&tinfo2);
-//	std::cout << duration << " = time duration" << std::endl;
-//	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = rbdl tau" << std::endl;
-//
-//
-//	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
-//	std::cout << "Base wrench = " << base_wrench.transpose() << std::endl;
-//	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
+	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = tau" << std::endl;
 
-///*
 
+	// Computing the constrained ID
 	dyn.computeConstrainedFloatingBaseInverseDynamics(joint_forces, base_pos, joint_pos,
 													  base_vel, joint_vel, base_acc, joint_acc,
 													  contacts);
+	std::cout << "---------------------------------------" << std::endl;
 	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
 	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
-//*/
+
 
     return 0;
 }

@@ -1,3 +1,6 @@
+#ifndef DWL__YAML_WRAPPER__H
+#define DWL__YAML_WRAPPER__H
+
 #include <utils/utils.h>
 #include <fstream>
 #include <yaml-cpp/yaml.h>
@@ -7,17 +10,17 @@ namespace dwl
 {
 
 /**
- * @class YamlBridge
+ * @class YamlWrapper
  * @brief Class for reading different yaml structures of the DWL
  */
-class YamlBridge
+class YamlWrapper
 {
 	public:
 		/** @brief Constructor function */
-		YamlBridge();
+		YamlWrapper();
 
 		/** @brief Destructor function */
-		~YamlBridge();
+		~YamlWrapper();
 
 		/**
 		 * @brief Reads a double
@@ -99,3 +102,5 @@ class YamlBridge
 };
 
 } //@namespace dwl
+
+#endif

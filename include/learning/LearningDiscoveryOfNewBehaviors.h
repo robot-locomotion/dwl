@@ -1,5 +1,5 @@
-#ifndef DWL_LearningDiscoveryOfNewBehaviors_H
-#define DWL_LearningDiscoveryOfNewBehaviors_H
+#ifndef DWL__LEARNING__LEARNING_DISCOVERY_OF_NEW_BEHAVIORS__H
+#define DWL__LEARNING__LEARNING_DISCOVERY_OF_NEW_BEHAVIORS__H
 
 #include <vector>
 

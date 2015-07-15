@@ -1,5 +1,5 @@
-#ifndef DWL_HeightDeviationFeature_H
-#define DWL_HeightDeviationFeature_H
+#ifndef DWL__ENVIRONMENT__HEIGHT_DEVIATION_FEATURE__H
+#define DWL__ENVIRONMENT__HEIGHT_DEVIATION_FEATURE__H
 
 #include <environment/Feature.h>
 

@@ -1,5 +1,5 @@
-#ifndef DWL_HierarchicalPlanning_H
-#define DWL_HierarchicalPlanning_H
+#ifndef DWL__LOCOMOTION__HIERARCHICAL_PLANNING__H
+#define DWL__LOCOMOTION__HIERARCHICAL_PLANNING__H
 
 #include <locomotion/PlanningOfMotionSequence.h>
 

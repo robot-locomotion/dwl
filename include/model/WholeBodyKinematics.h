@@ -1,10 +1,7 @@
-#ifndef DWL_WholeBodyKinematics_H
-#define DWL_WholeBodyKinematics_H
+#ifndef DWL__MODEL__WHOLE_BODY_KINEMATICS__H
+#define DWL__MODEL__WHOLE_BODY_KINEMATICS__H
 
-#include <rbdl/rbdl.h>
 #include <rbdl/addons/urdfreader/urdfreader.h>
-#include <utils/RigidBodyDynamics.h>
-#include <utils/Math.h>
 #include <utils/utils.h>
 
 
@@ -33,22 +30,35 @@ class WholeBodyKinematics
 		 * base with physical constraints
 		 * @param Print model information
 		 */
-		void modelFromURDF(std::string file, struct rbd::ReducedFloatingBase* reduce_base = NULL, bool info = false);
+		void modelFromURDFFile(std::string urdf_model,
+							   struct rbd::ReducedFloatingBase* reduced_base = NULL,
+							   bool info = false);
+
+		/**
+		 * @brief Build the model rigid-body system from an URDF model (xml)
+		 * @param std::string URDF model
+		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
+		 * base with physical constraints
+		 * @param Print model information
+		 */
+		void modelFromURDFModel(std::string urdf_model,
+								struct rbd::ReducedFloatingBase* reduced_base = NULL,
+								bool info = false);
 
 		/**
 		 * @brief Computes the forward kinematics for a predefined set of bodies
-		 * @param Eigen::VectorXd& Operational position of bodies
+		 * @param rbd::BodyVector& Operational position of bodies
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
-		 * @param rbd::BodySelector A predefined set of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 * @param enum TypeOfOrientation Desired type of orientation
 		 */
-		void computeForwardKinematics(Eigen::VectorXd& op_pos,
+		void computeForwardKinematics(rbd::BodyVector& op_pos,
 									  const rbd::Vector6d& base_pos,
 									  const Eigen::VectorXd& joint_pos,
-									  rbd::BodySelector body_set,
+									  const rbd::BodySelector& body_set,
 									  enum rbd::Component component = rbd::Full,
 									  enum TypeOfOrientation type = RollPitchYaw);
 
@@ -60,7 +70,7 @@ class WholeBodyKinematics
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Initial base position for the iteration
 		 * @param const Eigen::VectorXd& Initial joint position for the iteration
-		 * @param rbd::BodyPosition Operational position of bodies
+		 * @param const rbd::BodyPosition& Operational position of bodies
 		 * @param double Step tolerance
 		 * @param double Lambda value for singularities
 		 * @param unsigned int Maximum number of iterations
@@ -69,7 +79,7 @@ class WholeBodyKinematics
 									  Eigen::VectorXd& joint_pos,
 									  const rbd::Vector6d& base_pos_init,
 									  const Eigen::VectorXd& joint_pos_init,
-									  rbd::BodyPosition op_pos,
+									  const rbd::BodyPosition& op_pos,
 									  double step_tol = 1.0e-12,
 									  double lambda = 0.01,
 									  unsigned int max_iter = 50);
@@ -82,14 +92,14 @@ class WholeBodyKinematics
 		 * @param Eigen::MatrixXd& Whole-body jacobian
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
-		 * @param rbd::BodySelector A predefined set of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
 		void computeJacobian(Eigen::MatrixXd& jacobian,
 							 const rbd::Vector6d& base_pos,
 							 const Eigen::VectorXd& joint_pos,
-							 rbd::BodySelector body_set,
+							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
 
 		/**
@@ -115,72 +125,72 @@ class WholeBodyKinematics
 		/**
 		 * @brief Computes the operational velocity from the joint space for a predefined set of
 		 * bodies of the robot
-		 * @param Eigen::VectorXd& Operational velocity
+		 * @param rbd::BodyVector& Operational velocity
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param rbd::BodySelector A predefined set of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeVelocity(Eigen::VectorXd& op_vel,
+		void computeVelocity(rbd::BodyVector& op_vel,
 							 const rbd::Vector6d& base_pos,
 							 const Eigen::VectorXd& joint_pos,
 							 const rbd::Vector6d& base_vel,
 							 const Eigen::VectorXd& joint_vel,
-							 rbd::BodySelector body_set,
+							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the operational acceleration from the joint space for a predefined set of
 		 * bodies of the robot
-		 * @param Eigen::VectorXd& Operational acceleration
+		 * @param rbd::BodyVector& Operational acceleration
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
 		 * @param const rbd::Vector6d& Base acceleration
 		 * @param const Eigen::VectorXd& Joint acceleration
-		 * @param rbd::BodySelector A predefined set of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeAcceleration(Eigen::VectorXd& op_acc,
+		void computeAcceleration(rbd::BodyVector& op_acc,
 								 const rbd::Vector6d& base_pos,
 								 const Eigen::VectorXd& joint_pos,
 								 const rbd::Vector6d& base_vel,
 								 const Eigen::VectorXd& joint_vel,
 								 const rbd::Vector6d& base_acc,
 								 const Eigen::VectorXd& joint_acc,
-								 rbd::BodySelector body_set,
+								 const rbd::BodySelector& body_set,
 								 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the operational acceleration contribution from the joint velocity for a
 		 * predefined set of bodies of the robot, i.e. Jac_d * q_d
-		 * @param Eigen::VectorXd& Operational acceleration contribution from joint velocity
+		 * @param rbd::BodyVector& Operational acceleration contribution from joint velocity
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param rbd::BodySelector A predefined set of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind of jacobian such as: linear,
 		 * angular and full
 		 */
-		void computeJdotQdot(Eigen::VectorXd& jacd_qd,
+		void computeJdotQdot(rbd::BodyVector& jacd_qd,
 							 const rbd::Vector6d& base_pos,
 							 const Eigen::VectorXd& joint_pos,
 							 const rbd::Vector6d& base_vel,
 							 const Eigen::VectorXd& joint_vel,
-							 rbd::BodySelector body_set,
+							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Gets the number of active end-effectors
-		 * @param EndEffectorSelector End-effector set
+		 * @param cons rbd::EndEffectorSelector& End-effector set
 		 */
-		int getNumberOfActiveEndEffectors(rbd::BodySelector effector_set);
+		int getNumberOfActiveEndEffectors(const rbd::BodySelector& effector_set);
 
 
 	private:

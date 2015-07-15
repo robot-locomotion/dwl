@@ -1,5 +1,5 @@
-#ifndef DWL_CurvatureFeature_H
-#define DWL_CurvatureFeature_H
+#ifndef DWL__ENVIRONMENT__CURVATURE_FEATURE__H
+#define DWL__ENVIRONMENT__CURVATURE_FEATURE__H
 
 #include <environment/Feature.h>
 

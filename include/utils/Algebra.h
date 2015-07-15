@@ -1,5 +1,5 @@
-#ifndef DWL_Algebra_H
-#define DWL_Algebra_H
+#ifndef DWL__MATH__ALGEBRA__H
+#define DWL__MATH__ALGEBRA__H
 
 #include <utils/macros.h>
 #include <Eigen/Dense>

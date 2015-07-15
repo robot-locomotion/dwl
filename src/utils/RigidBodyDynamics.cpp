@@ -18,15 +18,16 @@ Part3d linearPart(Vector6d& vector)
 	return vector.bottomRows<3>();
 }
 
-Part3d linearFloatingBaseState(Vector6d& vector)
+
+TranslationPart translationVector(Eigen::Matrix4d& hom_transform)
 {
-	return vector.topRows<3>();
+    return hom_transform.block<3,1>(0,3);
 }
 
 
-Part3d angularFloatingBaseState(Vector6d& vector)
+RotationPart rotationMatrix(Eigen::MatrixBase<Eigen::Matrix4d>& hom_transform)
 {
-	return vector.bottomRows<3>();
+    return hom_transform.block<3,3>(0,0);
 }
 
 
@@ -44,7 +45,7 @@ bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model)
 }
 
 
-bool isConstrainedFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base)
+bool isConstrainedFloatingBaseRobot(struct ReducedFloatingBase* reduced_base)
 {
 	if (reduced_base != NULL && !reduced_base->isFullyFree())
 		return true;
@@ -53,7 +54,7 @@ bool isConstrainedFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_bas
 }
 
 
-bool isVirtualFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base)
+bool isVirtualFloatingBaseRobot(struct ReducedFloatingBase* reduced_base)
 {
 	if ((reduced_base != NULL) && (reduced_base->getFloatingBaseDOF() != 0))
 		return true;
@@ -63,7 +64,7 @@ bool isVirtualFloatingBaseRobot(struct rbd::ReducedFloatingBase* reduced_base)
 
 
 unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
-								struct rbd::ReducedFloatingBase* reduced_base)
+								struct ReducedFloatingBase* reduced_base)
 {
 	unsigned int floating_base_dof = 0;
 	if (isFloatingBaseRobot(model))
@@ -75,32 +76,84 @@ unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
 }
 
 
+void getTypeOfDynamicSystem(TypeOfSystem& type_of_system,
+							const RigidBodyDynamics::Model& model,
+							struct ReducedFloatingBase* reduced_base)
+{
+	if (isFloatingBaseRobot(model)) {
+		if (isConstrainedFloatingBaseRobot(reduced_base))
+			type_of_system = ConstrainedFloatingBase;
+		else
+			type_of_system = FloatingBase;
+	} else if (isVirtualFloatingBaseRobot(reduced_base))
+		type_of_system = VirtualFloatingBase;
+}
+
+
+void getListOfBodies(BodyID& list_body_id,
+					 const RigidBodyDynamics::Model& model)
+{
+	for (unsigned int it = 0; it < model.mBodies.size(); it++) {
+		unsigned int body_id = it;
+		std::string body_name = model.GetBodyName(body_id);
+
+		list_body_id[body_name] = body_id;
+	}
+
+	// Adding the fixed body in the end-effector list
+	for (unsigned int it = 0; it < model.mFixedBodies.size(); it++) {
+		unsigned int body_id = it + model.fixed_body_discriminator;
+		std::string body_name = model.GetBodyName(body_id);
+
+		list_body_id[body_name] = body_id;
+	}
+}
+
+
+void printModelInfo(const RigidBodyDynamics::Model& model)
+{
+	std::cout << "Degree of freedom overview:" << std::endl;
+	std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(model);
+
+	std::cout << "Body origins overview:" << std::endl;
+	RigidBodyDynamics::Model copy_model = model;
+	std::cout << RigidBodyDynamics::Utils::GetNamedBodyOriginsOverview(copy_model);
+
+	std::cout << "Model Hierarchy:" << std::endl;
+	std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(model);
+}
+
+
 Eigen::VectorXd toGeneralizedJointState(const Vector6d& base_state,
 										const Eigen::VectorXd& joint_state,
 										enum TypeOfSystem type_of_system,
-										struct rbd::ReducedFloatingBase* reduced_base)
+										struct ReducedFloatingBase* reduced_base)
 {
 	// Note that RBDL defines the floating base state as [linear states, angular states]
 	Eigen::VectorXd q;
 	if (type_of_system == FloatingBase || type_of_system == ConstrainedFloatingBase) {
-		q.resize(base_state.size() + joint_state.size());
-		q << base_state, joint_state;
-	} else if (type_of_system == VirtualFloatingBase) {
-		Eigen::VectorXd virtual_base(reduced_base->getFloatingBaseDOF());
-		if (reduced_base->TX.active)
-			virtual_base(reduced_base->TX.id) = base_state(TX);
-		if (reduced_base->TY.active)
-			virtual_base(reduced_base->TY.id) = base_state(TY);
-		if (reduced_base->TZ.active)
-			virtual_base(reduced_base->TZ.id) = base_state(TZ);
-		if (reduced_base->RX.active)
-			virtual_base(reduced_base->RX.id) = base_state(RX);
-		if (reduced_base->RY.active)
-			virtual_base(reduced_base->RY.id) = base_state(RY);
-		if (reduced_base->RZ.active)
-			virtual_base(reduced_base->RZ.id) = base_state(RZ);
+		q.resize(6 + joint_state.size());
 
-		q.resize(virtual_base.size() + joint_state.size());
+		Vector6d _base_state = base_state;
+		q << linearPart(_base_state), angularPart(_base_state), joint_state;
+	} else if (type_of_system == VirtualFloatingBase) {
+		unsigned int base_dof = reduced_base->getFloatingBaseDOF();
+		q.resize(base_dof + joint_state.size());
+
+		Eigen::VectorXd virtual_base(base_dof);
+		if (reduced_base->AX.active)
+			virtual_base(reduced_base->AX.id) = base_state(AX);
+		if (reduced_base->AY.active)
+			virtual_base(reduced_base->AY.id) = base_state(AY);
+		if (reduced_base->AZ.active)
+			virtual_base(reduced_base->AZ.id) = base_state(AZ);
+		if (reduced_base->LX.active)
+			virtual_base(reduced_base->LX.id) = base_state(LX);
+		if (reduced_base->LY.active)
+			virtual_base(reduced_base->LY.id) = base_state(LY);
+		if (reduced_base->LZ.active)
+			virtual_base(reduced_base->LZ.id) = base_state(LZ);
+
 		q << virtual_base, joint_state;
 	} else
 		q = joint_state;
@@ -113,25 +166,25 @@ void fromGeneralizedJointState(Vector6d& base_state,
 							   Eigen::VectorXd& joint_state,
 							   const Eigen::VectorXd& generalized_state,
 							   enum TypeOfSystem type_of_system,
-							   struct rbd::ReducedFloatingBase* reduced_base)
+							   struct ReducedFloatingBase* reduced_base)
 {
 	// Note that RBDL defines the floating base state as [linear states, angular states]
 	if (type_of_system == FloatingBase || type_of_system == ConstrainedFloatingBase) {
-		base_state = generalized_state.head<6>();
+		base_state << generalized_state.segment<3>(3), generalized_state.segment<3>(0);
 		joint_state = generalized_state.tail(generalized_state.size() - 6);
 	} else if (type_of_system == VirtualFloatingBase) {
-		if (reduced_base->TX.active)
-			base_state(TX) = generalized_state(reduced_base->TX.id);
-		if (reduced_base->TY.active)
-			base_state(TY) = generalized_state(reduced_base->TY.id);
-		if (reduced_base->TZ.active)
-			base_state(TZ) = generalized_state(reduced_base->TZ.id);
-		if (reduced_base->RX.active)
-			base_state(RX) = generalized_state(reduced_base->RX.id);
-		if (reduced_base->RY.active)
-			base_state(RY) = generalized_state(reduced_base->RY.id);
-		if (reduced_base->RZ.active)
-			base_state(RZ) = generalized_state(reduced_base->RZ.id);
+		if (reduced_base->AX.active)
+			base_state(AX) = generalized_state(reduced_base->AX.id);
+		if (reduced_base->AY.active)
+			base_state(AY) = generalized_state(reduced_base->AY.id);
+		if (reduced_base->AZ.active)
+			base_state(AZ) = generalized_state(reduced_base->AZ.id);
+		if (reduced_base->LX.active)
+			base_state(LX) = generalized_state(reduced_base->LX.id);
+		if (reduced_base->LY.active)
+			base_state(LY) = generalized_state(reduced_base->LY.id);
+		if (reduced_base->LZ.active)
+			base_state(LZ) = generalized_state(reduced_base->LZ.id);
 
 		unsigned int num_virtual_jnts = reduced_base->getFloatingBaseDOF();
 		joint_state = generalized_state.tail(generalized_state.size() - num_virtual_jnts);
@@ -146,7 +199,7 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 					const Eigen::VectorXd& branch_state,
 					unsigned int body_id,
 					RigidBodyDynamics::Model& model,
-					struct rbd::ReducedFloatingBase* reduced_base)
+					struct ReducedFloatingBase* reduced_base)
 {
 	// Getting the base id
 	unsigned int base_id = 0;
@@ -155,9 +208,8 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 
 	// Setting the state values of a specific branch to the joint state
 	unsigned int parent_id = body_id;
-	if (model.IsFixedBodyId(body_id)) {
+	if (model.IsFixedBodyId(body_id))
 		parent_id = model.mFixedBodies[body_id - model.fixed_body_discriminator].mMovableParent;
-	}
 
 	// Adding the branch state to the joint state. Two safety checking are done; checking that this branch has at least
 	// one joint, and checking the size of the new branch state
@@ -172,6 +224,41 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 		assert(branch_state.size() == num_dof);
 		new_joint_state.segment(q_index, num_dof) = branch_state;
 	}
+}
+
+
+Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
+							   unsigned int body_id,
+							   RigidBodyDynamics::Model& model,
+							   struct ReducedFloatingBase* reduced_base)
+{
+	unsigned int q_index, num_dof = 0;
+
+	// Getting the base id
+	unsigned int base_id = 0;
+	if (rbd::isFloatingBaseRobot(model) || rbd::isVirtualFloatingBaseRobot(reduced_base))
+		base_id = getFloatingBaseDOF(model, reduced_base);;
+
+	// Setting the state values of a specific branch to the joint state
+	unsigned int parent_id = body_id;
+	if (model.IsFixedBodyId(body_id)) {
+		parent_id = model.mFixedBodies[body_id - model.fixed_body_discriminator].mMovableParent;
+	}
+
+	// Adding the branch state to the joint state. Two safety checking are done; checking that this branch has at least
+	// one joint, and checking the size of the new branch state
+	if (parent_id != base_id) {
+		do {
+			q_index = model.mJoints[parent_id].q_index - 1;
+			parent_id = model.lambda[parent_id];
+			++num_dof;
+		} while (parent_id != base_id);
+	}
+
+	Eigen::VectorXd branch_state(num_dof);
+	branch_state = joint_state.segment(q_index, num_dof);
+
+	return branch_state;
 }
 
 

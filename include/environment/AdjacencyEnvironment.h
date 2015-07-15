@@ -1,12 +1,11 @@
-#ifndef DWL_AdjacencyEnvironment_H
-#define DWL_AdjacencyEnvironment_H
+#ifndef DWL__ENVIRONMENT__ADJACENCY_ENVIRONMENT__H
+#define DWL__ENVIRONMENT__ADJACENCY_ENVIRONMENT__H
 
 #include <environment/EnvironmentInformation.h>
 #include <environment/Feature.h>
 #include <robot/Robot.h>
-#include <utils/Math.h>
 #include <utils/utils.h>
-#include <utils/Orientation.h>
+
 
 namespace dwl
 {

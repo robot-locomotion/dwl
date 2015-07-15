@@ -1,5 +1,5 @@
-#ifndef DWL_IpoptNLP_H
-#define DWL_IpoptNLP_H
+#ifndef DWL__SOLVER__IPOPT_NLP__H
+#define DWL__SOLVER__IPOPT_NLP__H
 
 #include <solver/Solver.h>
 #include <solver/IpoptWrapper.h>

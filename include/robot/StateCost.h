@@ -1,5 +1,5 @@
-#ifndef DWL_StateCost_H
-#define DWL_StateCost_H
+#ifndef DWL__ROBOT__STATE_COST__H
+#define DWL__ROBOT__STATE_COST__H
 
 #include <model/Cost.h>
 

@@ -1,5 +1,5 @@
-#ifndef DWL_GreedyFootstepPlanning_H
-#define DWL_GreedyFootstepPlanning_H
+#ifndef DWL__LOCOMOTION__GREEDY_FOOTSTEP_PLANNING__H
+#define DWL__LOCOMOTION__GREEDY_FOOTSTEP_PLANNING__H
 
 #include <locomotion/ContactPlanning.h>
 

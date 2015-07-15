@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(dwl)
 
-set(DWL_VERSION 0.2.0 CACHE STRING "DWL version")
-message("Compiling the version ${DWL_VERSION} of Dynamic Whole-Body Locomotion (DWL) library")
+set(DWL_VERSION 0.2.9 CACHE STRING "DWL version")
+message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
+message("Copyright (C) 2014-2016 Carlos Mastalli - Istituto Italiano di Tecnologia.")
+message("Released under the XXX License.")
+
 
 # Appending the project module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -25,7 +28,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-# Setting lags for optimization
+# Setting flags for optimization
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
 
 # Seting the output directories for libraries and executables
@@ -58,10 +61,11 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/solver/Dijkstrap.cpp
 							 src/solver/AStar.cpp
 							 src/solver/AnytimeRepairingAStar.cpp
-							 src/model/Model.cpp
+							 src/model/OptimizationModel.cpp
 							 src/model/Constraint.cpp
-							 src/model/KinematicConstraints.cpp
-							 src/model/StabilityConstraints.cpp
+							 src/model/DynamicalSystem.cpp
+							 src/model/KinematicConstraint.cpp
+							 src/model/StabilityConstraint.cpp
 							 src/model/Cost.cpp
 							 src/model/RobCoGenWholeBodyKinematics.cpp
 							 src/model/RobCoGenWholeBodyDynamics.cpp
@@ -73,7 +77,6 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/environment/AdjacencyEnvironment.cpp
 							 src/environment/GridBasedBodyAdjacency.cpp
 							 src/environment/LatticeBasedBodyAdjacency.cpp
-							 src/environment/RewardMap.cpp
 							 src/environment/SpaceDiscretization.cpp
 							 src/environment/Feature.cpp
 							 src/environment/SlopeFeature.cpp
@@ -92,7 +95,8 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/utils/Algebra.cpp
 							 src/utils/Orientation.cpp
 							 src/utils/RigidBodyDynamics.cpp
-							 src/utils/YamlBridge.cpp)
+							 src/utils/SplineInterpolation.cpp
+							 src/utils/YamlWrapper.cpp)
 
 # Adding robot components of the project
 if(hyl_FOUND)
@@ -115,7 +119,7 @@ endif()
 
 
 # Adding Ipopt components of the project
-if(IPOPT_FOUND)
+if(ipopt_FOUND)
     list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${IPOPT_INCLUDE_DIRS})
     list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${IPOPT_LIBRARY_DIR})
     list(APPEND DEPENDENCIES_LIBRARIES  ${IPOPT_LIBRARIES})
@@ -129,7 +133,7 @@ endif()
 # Adding Octomap components of the project
 if(octomap_FOUND)
     include_directories(${OCTOMAP_INCLUDE_DIRS}) 
-    list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/RewardOctoMap.cpp
+    list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/RewardMap.cpp
                                          src/environment/ObstacleMap.cpp)
 endif()
 
@@ -144,11 +148,11 @@ target_link_libraries(my_planner ${PROJECT_NAME})
 
 include_directories(tests)
 add_executable(ipopt_test  tests/IpoptDWLTest.cpp
-                           tests/model/HS071Constraint.cpp
+                           tests/model/HS071DynamicalSystem.cpp
                            tests/model/HS071Cost.cpp)
 target_link_libraries(ipopt_test ${PROJECT_NAME})
 
-add_executable(yaml_bridge  tests/YamlBridgeTest.cpp)
+add_executable(yaml_bridge  tests/YamlWrapperTest.cpp)
 target_link_libraries(yaml_bridge ${PROJECT_NAME})
 
 add_executable(dikstrap_algorithm  tests/DijkstraExample.cpp)

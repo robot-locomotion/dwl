@@ -1,8 +1,8 @@
-#ifndef DWL_SupportTriangleFeature_H
-#define DWL_SupportTriangleFeature_H
+#ifndef DWL__ENVIRONMENT__SUPPORT_TRIANGLE_FEATURE__H
+#define DWL__ENVIRONMENT__SUPPORT_TRIANGLE_FEATURE__H
 
 #include <environment/Feature.h>
-#include <utils/Math.h>
+#include <utils/utils.h>
 
 
 namespace dwl

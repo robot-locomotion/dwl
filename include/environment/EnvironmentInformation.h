@@ -1,8 +1,9 @@
-#ifndef DWL_EnvironmentInformation_H
-#define DWL_EnvironmentInformation_H
+#ifndef DWL__ENVIRONMENT__ENVIRONMENT_INFORMATION__H
+#define DWL__ENVIRONMENT__ENVIRONMENT_INFORMATION__H
 
 #include <environment/SpaceDiscretization.h>
 #include <utils/utils.h>
+
 
 namespace dwl
 {

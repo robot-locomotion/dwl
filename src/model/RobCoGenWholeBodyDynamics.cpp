@@ -82,8 +82,8 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 	updateState(base_pos, joint_pos);
 
 	// Computing the acceleration contribution from joint velocity, i.e. J_d*q_d
-	iit::rbd::VelocityVector body_vel;
-	iit::rbd::VelocityVector body_acc;
+	rbd::Vector6d body_vel;
+	rbd::Vector6d body_acc;
 	for (rbd::BodySelector::iterator body_iter = body_set.begin();
 			body_iter != body_set.end();
 			body_iter++)
@@ -96,12 +96,12 @@ void RobCoGenWholeBodyDynamics::opAccelerationContributionFromJointVelocity(Eige
 			body_acc = closest_link_motion_tf_.find(body_name)->second *
 								closest_link_acceleration_.find(body_name)->second;
 
-			body_acc.segment(iit::rbd::LX, 3) = iit::rbd::linearPart(body_acc) +
-					iit::rbd::angularPart(body_vel).cross(iit::rbd::linearPart(body_vel)); //TODO
+			body_acc.segment(rbd::LX, 3) = rbd::linearPart(body_acc) +
+					rbd::angularPart(body_vel).cross(rbd::linearPart(body_vel)); //TODO
 
 			Eigen::Matrix4d homogeneous_tf = kin_model_->getHomogeneousTransform(body_name);
 			jacd_qd.segment(effector_counter * 3, 3) = kin_model_->getBaseRotationMatrix().transpose()
-					* iit::rbd::Utils::rotationMx(homogeneous_tf) * iit::rbd::linearPart(body_acc);
+					* rbd::rotationMatrix(homogeneous_tf) * rbd::linearPart(body_acc);
 
 			++effector_counter;
 		}

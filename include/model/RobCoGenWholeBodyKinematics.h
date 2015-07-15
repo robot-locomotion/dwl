@@ -1,13 +1,11 @@
-#ifndef DWL_RobCoGenWholeBodyKinematics_H
-#define DWL_RobCoGenWholeBodyKinematics_H
+#ifndef DWL__MODEL__ROBCOGEN_WHOLE_BODY_KINEMATICS__H
+#define DWL__MODEL__ROBCOGEN_WHOLE_BODY_KINEMATICS__H
 
 #include <utils/utils.h>
 #include <utils/RigidBodyDynamics.h>
-#include <utils/Math.h>
 
 #include <Eigen/Dense>
 #include <map>
-#include <iit/rbd/utils.h>
 
 
 namespace dwl
@@ -15,8 +13,6 @@ namespace dwl
 
 namespace model
 {
-
-using namespace iit;
 
 /**
  * @brief RobCoGenWholeBodyKinematics class implements the kinematics methods for a floating-base robot using

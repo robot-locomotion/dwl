@@ -1,10 +1,9 @@
-#ifndef DWL_MotionPlanning_H
-#define DWL_MotionPlanning_H
+#ifndef DWL__LOCOMOTION__MOTION_PLANNING__H
+#define DWL__LOCOMOTION__MOTION_PLANNING__H
 
 #include <solver/Solver.h>
 #include <environment/EnvironmentInformation.h>
 #include <utils/utils.h>
-#include <utils/Orientation.h>
 
 
 namespace dwl

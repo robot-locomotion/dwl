@@ -1,5 +1,5 @@
-#ifndef DWL_SlopeFeature_H
-#define DWL_SlopeFeature_H
+#ifndef DWL__ENVIRONMENT__SLOPE_FEATURE__H
+#define DWL__ENVIRONMENT__SLOPE_FEATURE__H
 
 #include <environment/Feature.h>
 

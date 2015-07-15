@@ -1,10 +1,8 @@
-#ifndef DWL_PotentialBodyOrientationFeature_H
-#define DWL_PotentialBodyOrientationFeature_H
+#ifndef DWL__ENVIRONMENT__POTENCIAL_BODY_ORIENTATION_FEATURE__H
+#define DWL__ENVIRONMENT__POTENCIAL_BODY_ORIENTATION_FEATURE__H
 
 #include <environment/Feature.h>
 #include <utils/utils.h>
-#include <utils/Math.h>
-#include <utils/Orientation.h>
 
 
 namespace dwl

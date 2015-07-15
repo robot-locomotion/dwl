@@ -1,5 +1,5 @@
-#ifndef DWL_ObstacleMap_H
-#define DWL_ObstacleMap_H
+#ifndef DWL__ENVIRONMENT__OBSTACLE_MAP__H
+#define DWL__ENVIRONMENT__OBSTACLE_MAP__H
 
 #include <environment/SpaceDiscretization.h>
 #include <utils/utils.h>
