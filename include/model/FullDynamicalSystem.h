@@ -21,11 +21,12 @@ class FullDynamicalSystem : public DynamicalSystem
 		~FullDynamicalSystem();
 
 		/**
-		 * @brief Computes the full dynamic constraint vector given a certain state
+		 * @brief Computes the dynamic constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
 		 * @param const LocomotionState& State vector
 		 */
-		void compute(Eigen::VectorXd& constraint, const LocomotionState& state);
+		void compute(Eigen::VectorXd& constraint,
+					 const LocomotionState& state);
 
 		/**
 		 * @brief Computes the Jacobian of the full dynamic constraint given a certain state
@@ -34,6 +35,18 @@ class FullDynamicalSystem : public DynamicalSystem
 		 */
 		void computeJacobian(Eigen::MatrixXd& jacobian,
 							 const LocomotionState& state);
+
+		/**
+		 * @brief Gets the bounds of the dynamical system constraint
+		 * @param Eigen::VectorXd& Lower bounds
+		 * @param Eigen::VectorXd& Upper bounds
+		 */
+		void getBounds(Eigen::VectorXd& lower_bound,
+					   Eigen::VectorXd& upper_bound);
+
+
+	private:
+		WholeBodyDynamics dynamics_;
 };
 
 } //@namespace model
