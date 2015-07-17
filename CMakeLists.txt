@@ -64,6 +64,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/model/OptimizationModel.cpp
 							 src/model/Constraint.cpp
 							 src/model/DynamicalSystem.cpp
+							 src/model/FullDynamicalSystem.cpp
 							 src/model/KinematicConstraint.cpp
 							 src/model/StabilityConstraint.cpp
 							 src/model/Cost.cpp
@@ -159,6 +160,10 @@ target_link_libraries(yaml_bridge ${PROJECT_NAME})
 
 add_executable(dikstrap_algorithm  tests/DijkstraExample.cpp)
 add_executable(boost_dikstrap_algorithm  tests/DijkstraExampleBoost.cpp)
+
+
+add_executable(numdiff  tests/NumDiffEigenTest.cpp)
+target_link_libraries(numdiff ${PROJECT_NAME})
 
 
 

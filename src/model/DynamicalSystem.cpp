@@ -10,7 +10,7 @@ namespace model
 DynamicalSystem::DynamicalSystem() : state_dimension_(0), num_joints_(4), num_endeffectors_(1),
 		locomotion_variables_(false) //TODO clean it
 {
-	locomotion_variables_.joint_pos = true; //TODO remove it
+	locomotion_variables_.position = true; //TODO remove it
 	state_dimension_ = 4;
 }
 
@@ -68,7 +68,7 @@ unsigned int DynamicalSystem::getNumberOfEndEffectors()
 
 
 void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
-										const Eigen::VectorXd& generalized_state)
+										const Eigen::VectorXd& generalized_state) //TODO modify it
 {
 	unsigned int idx = 0;
 	if (locomotion_variables_.time) {
@@ -102,7 +102,7 @@ void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
 
 
 void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
-										  const LocomotionState& locomotion_state)
+										  const LocomotionState& locomotion_state) //TODO modify it
 {
 	// Resizing the generalized state vector
 	generalized_state.resize(state_dimension_);

@@ -44,6 +44,8 @@ class FullDynamicalSystem : public DynamicalSystem
 		void getBounds(Eigen::VectorXd& lower_bound,
 					   Eigen::VectorXd& upper_bound);
 
+		WholeBodyDynamics& getDynamics() {return dynamics_;}
+
 
 	private:
 		WholeBodyDynamics dynamics_;

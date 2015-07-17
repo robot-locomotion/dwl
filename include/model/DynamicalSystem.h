@@ -12,16 +12,13 @@ namespace model
 
 struct LocomotionVariables
 {
-	LocomotionVariables(bool full_opt = false) : time(full_opt), base_pos(full_opt), base_vel(full_opt),
-			base_acc(full_opt), joint_pos(full_opt), joint_vel(full_opt), joint_acc(full_opt), joint_for(full_opt),
+	LocomotionVariables(bool full_opt = false) : time(full_opt), position(full_opt),
+			velocity(full_opt),	acceleration(full_opt), joint_for(full_opt),
 			contact_pos(full_opt), contact_for(full_opt) {}
 	bool time;
-	bool base_pos;
-	bool base_vel;
-	bool base_acc;
-	bool joint_pos;
-	bool joint_vel;
-	bool joint_acc;
+	bool position;
+	bool velocity;
+	bool acceleration;
 	bool joint_for;
 	bool contact_pos;
 	bool contact_for;
