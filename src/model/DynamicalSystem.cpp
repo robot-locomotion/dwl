@@ -7,11 +7,10 @@ namespace dwl
 namespace model
 {
 
-DynamicalSystem::DynamicalSystem() : state_dimension_(0), num_joints_(4), num_endeffectors_(1),
-		locomotion_variables_(false) //TODO clean it
+DynamicalSystem::DynamicalSystem() : system_(NULL), state_dimension_(0), num_joints_(0),
+		num_endeffectors_(1), locomotion_variables_(false) //TODO clean it
 {
-	locomotion_variables_.position = true; //TODO remove it
-	state_dimension_ = 4;
+
 }
 
 
@@ -20,6 +19,11 @@ DynamicalSystem::~DynamicalSystem()
 
 }
 
+
+void DynamicalSystem::setFloatingBaseSystem(rbd::FloatingBaseSystem* system)
+{
+	system_ = system;
+}
 
 void DynamicalSystem::setStartingState(const LocomotionState& starting_state)
 {
@@ -68,68 +72,75 @@ unsigned int DynamicalSystem::getNumberOfEndEffectors()
 
 
 void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
-										const Eigen::VectorXd& generalized_state) //TODO modify it
+										const Eigen::VectorXd& generalized_state)
+//TODO add other locomotion variables
 {
+	// Getting the number of degree of freedom
+	unsigned int num_dof = system_->getFloatingBaseDOF() + system_->getJointDOF();
+
+	// Converting the generalized state vector to locomotion state
 	unsigned int idx = 0;
 	if (locomotion_variables_.time) {
 		locomotion_state.time = generalized_state(idx);
 		++idx;
-	} else if (locomotion_variables_.base_pos) {
-		locomotion_state.base_pos = generalized_state.segment<6>(idx);
-		idx += 6;
-	} else if (locomotion_variables_.base_vel) {
-		locomotion_state.base_vel = generalized_state.segment<6>(idx);
-		idx += 6;
-	} else if (locomotion_variables_.base_acc) {
-		locomotion_state.base_acc = generalized_state.segment<6>(idx);
-		idx += 6;
-	} else if (locomotion_variables_.joint_pos) {
-		locomotion_state.joint_pos.resize(num_joints_);
-		locomotion_state.joint_pos = generalized_state.segment(idx, num_joints_);
-		idx += num_joints_;
-	} else if (locomotion_variables_.joint_vel) {
-		locomotion_state.joint_vel = generalized_state.segment(idx, num_joints_);
-		idx += num_joints_;
-	} else if (locomotion_variables_.joint_acc) {
-		locomotion_state.joint_acc = generalized_state.segment(idx, num_joints_);
-		idx += num_joints_;
-	}// else if (locomotion_variables_.contact_pos) { //TODO implement for contact events
-//		unsigned int num_endeffectors = dynamic_system_->getNumberOfEndEffectors();
-//
-//
-//	}
+	}
+	if (locomotion_variables_.position) {
+		rbd::fromGeneralizedJointState(locomotion_state.base_pos,
+									   locomotion_state.joint_pos,
+									   (Eigen::VectorXd) generalized_state.segment(idx, num_dof),
+									   system_);
+		idx += num_dof;
+	}
+	if (locomotion_variables_.velocity) {
+		rbd::fromGeneralizedJointState(locomotion_state.base_vel,
+									   locomotion_state.joint_vel,
+									   (Eigen::VectorXd) generalized_state.segment(idx, num_dof),
+									   system_);
+		idx += num_dof;
+	}
+	if (locomotion_variables_.acceleration) {
+		rbd::fromGeneralizedJointState(locomotion_state.base_acc,
+									   locomotion_state.joint_acc,
+									   (Eigen::VectorXd) generalized_state.segment(idx, num_dof),
+									   system_);
+		idx += num_dof;
+	}
 }
 
 
 void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
-										  const LocomotionState& locomotion_state) //TODO modify it
+										  const LocomotionState& locomotion_state)
+//TODO add other locomotion variables
 {
-	// Resizing the generalized state vector
-	generalized_state.resize(state_dimension_);
+	// Getting the number of degree of freedom
+	unsigned int num_dof = system_->getFloatingBaseDOF() + system_->getJointDOF();
 
+	// Converting the generalized state vector to locomotion state
 	unsigned int idx = 0;
 	if (locomotion_variables_.time) {
 		generalized_state(idx) = locomotion_state.time;
-		++idx;
-	} else if (locomotion_variables_.base_pos) {
-		generalized_state.segment<6>(idx) = locomotion_state.base_pos;
-		idx += 6;
-	} else if (locomotion_variables_.base_vel) {
-		generalized_state.segment<6>(idx) = locomotion_state.base_vel;
-		idx += 6;
-	} else if (locomotion_variables_.base_acc) {
-		generalized_state.segment<6>(idx) = locomotion_state.base_acc;
-		idx += 6;
-	} else if (locomotion_variables_.joint_pos) {
-		generalized_state.segment(idx, num_joints_) = locomotion_state.joint_pos;
-		idx += num_joints_;
-	} else if (locomotion_variables_.joint_vel) {
-		generalized_state.segment(idx, num_joints_) = locomotion_state.joint_vel;
-		idx += num_joints_;
-	} else if (locomotion_variables_.joint_acc) {
-		generalized_state.segment(idx, num_joints_) = locomotion_state.joint_acc;
-		idx += num_joints_;
-	}//TODO implement for contact events
+	}
+	if (locomotion_variables_.position) {
+		generalized_state.segment(idx, num_dof) =
+				rbd::toGeneralizedJointState(locomotion_state.base_pos,
+											 locomotion_state.joint_pos,
+											 system_);
+		idx += num_dof;
+	}
+	if (locomotion_variables_.velocity) {
+		generalized_state.segment(idx, num_dof) =
+				rbd::toGeneralizedJointState(locomotion_state.base_vel,
+											 locomotion_state.joint_vel,
+											 system_);
+		idx += num_dof;
+	}
+	if (locomotion_variables_.acceleration) {
+		generalized_state.segment(idx, num_dof) =
+				rbd::toGeneralizedJointState(locomotion_state.base_acc,
+											 locomotion_state.joint_acc,
+											 system_);
+		idx += num_dof;
+	}
 }
 
 } //@namespace model
