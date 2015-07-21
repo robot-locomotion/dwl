@@ -105,6 +105,11 @@ struct ContactSearchRegion
 
 struct LocomotionState
 {
+	LocomotionState() : time(0.) {
+		base_pos.setZero();
+		base_vel.setZero();
+		base_acc.setZero();
+	}
 	double time;
 	rbd::Vector6d base_pos;
 	rbd::Vector6d base_vel;
