@@ -57,20 +57,31 @@ struct FloatingBaseJoint {
 	unsigned id;
 };
 
-/** @brief Defines a reduced floating-base system */
-struct ReducedFloatingBase {
-	ReducedFloatingBase(bool full_floating_base = false) : AX(full_floating_base), AY(full_floating_base),
-			AZ(full_floating_base), LX(full_floating_base), LY(full_floating_base), LZ(full_floating_base) {}
+/** @brief Defines a floating-base system */
+struct FloatingBaseSystem {
+	FloatingBaseSystem(bool full_floating_base = false,
+					   unsigned int _num_joints = 0) : AX(full_floating_base), AY(full_floating_base),
+			AZ(full_floating_base), LX(full_floating_base), LY(full_floating_base), LZ(full_floating_base),
+			num_joints(_num_joints), type_of_system(rbd::FixedBase) {}
 	bool isFullyFree() {
 		if (!AX.active && !AY.active && !AZ.active && !LX.active && !LY.active && !LZ.active)
 			return true;
 		else
 			return false;
 	}
+	void setJointDOF(unsigned int _num_joints) {
+		num_joints = _num_joints;
+	}
+	void setTypeOfDynamicSystem(enum TypeOfSystem _type_of_system) {
+		type_of_system = _type_of_system;
+	}
 	unsigned int getFloatingBaseDOF() {
 		return AX.active + AY.active + AZ.active + LX.active + LY.active + LZ.active;
 	}
-	unsigned int getJoint(unsigned int id) {
+	unsigned int getJointDOF() {
+		return num_joints;
+	}
+	unsigned int getFloatingBaseJoint(unsigned int id) {
 		if (AX.active && AX.id == id)
 			return rbd::AX;
 		else if (AY.active && AY.id == id)
@@ -88,38 +99,43 @@ struct ReducedFloatingBase {
 			return 0;
 		}
 	}
+	enum TypeOfSystem getTypeOfDynamicSystem() {
+		return type_of_system;
+	}
 	FloatingBaseJoint AX;
 	FloatingBaseJoint AY;
 	FloatingBaseJoint AZ;
 	FloatingBaseJoint LX;
 	FloatingBaseJoint LY;
 	FloatingBaseJoint LZ;
+	unsigned int num_joints;
+	enum TypeOfSystem type_of_system;
 };
 
 /** @brief Returns true if it's a floating-base robot */
 bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model);
 
 /** @brief Returns true if it's a constrained floating-base robot */
-bool isConstrainedFloatingBaseRobot(struct ReducedFloatingBase* reduced_base);
+bool isConstrainedFloatingBaseRobot(struct FloatingBaseSystem* system);
 
 /** @brief Returns true if it's a virtual floating-base robot */
-bool isVirtualFloatingBaseRobot(struct ReducedFloatingBase* reduced_base);
+bool isVirtualFloatingBaseRobot(struct FloatingBaseSystem* system);
 
 /** @brief Returns the number of dof of the floating base */
 unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
-								struct ReducedFloatingBase* reduced_base = NULL);
+								struct FloatingBaseSystem* system = NULL);
 
 /**
  * @brief Gets the type of rigid body dynamic system, i.e fixed-base, floating-base, constrained floating-base or
  * virtual floating-base
  * @param TypeOfSystem Type of rigid body dynamic system
  * @param const RigidBodyDynamics::Model& Model of the rigid-body system
- * @param struct ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
- * base with physical constraints
+ * @param struct FloatingBaseSystem* Defines the general properties of a floating-base
+ * system
  */
 void getTypeOfDynamicSystem(TypeOfSystem& type_of_system,
 							const RigidBodyDynamics::Model& model,
-							struct ReducedFloatingBase* reduced_base = NULL);
+							struct FloatingBaseSystem* system = NULL);
 
 /**
  * @brief Gets list of bodies (movable and fixed) of the rigid-body system
@@ -136,30 +152,26 @@ void printModelInfo(const RigidBodyDynamics::Model& model);
  * @brief Converts the base and joint states to a generalized joint state
  * @param const Vector6d& Base state
  * @param const Eigen::VectorXd& Joint state
- * @param enum TypeOfSystem Defines the type of system, e.g. fixed or floating- base system
- * @param struct ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
- * base with physical constraints
+ * @param struct FloatingBaseSystem* Defines the general properties of a floating-base
+ * system
  * @return Eigen::VectorXd Generalized joint state
  */
 Eigen::VectorXd toGeneralizedJointState(const Vector6d& base_state,
 										const Eigen::VectorXd& joint_state,
-										enum TypeOfSystem type_of_system,
-										struct ReducedFloatingBase* reduced_base = NULL);
+										struct FloatingBaseSystem* system = NULL);
 
 /**
  * @brief Converts the generalized joint state to base and joint states
  * @param Vector6d& Base state
  * @param Eigen::VectorXd& Joint state
  * @param const Eigen::VectorXd Generalized joint state
- * @param enum TypeOfSystem Defines the type of system, e.g. fixed or floating- base system
- * @param struct ReducedFloatingBase* Defined only when it's not fully floating-base, i.e. a floating-
- * base with physical constraints
+ * @param struct FloatingBaseSystem* Defines the general properties of a floating-base
+ * system
  */
 void fromGeneralizedJointState(Vector6d& base_state,
 							   Eigen::VectorXd& joint_state,
 							   const Eigen::VectorXd& generalized_state,
-							   enum TypeOfSystem type_of_system,
-							   struct ReducedFloatingBase* reduced_base = NULL);
+							   struct FloatingBaseSystem* system = NULL);
 
 /**
  * @brief Sets the joint state given a branch values
@@ -167,18 +179,28 @@ void fromGeneralizedJointState(Vector6d& base_state,
  * @param cons Eigen::VectorXd& Branch state
  * @param unsigned int Body id
  * @param RigidBodyDynamics::Model& Rigid-body dynamic model
- * @param ReducedFloatingBase* Reduced floating-base model
+ * @param FloatingBaseSystem* Defines the general properties of a floating-base
+ * system
  */
 void setBranchState(Eigen::VectorXd& new_joint_state,
 					const Eigen::VectorXd& branch_state,
 					unsigned int body_id,
 					RigidBodyDynamics::Model& model,
-					struct ReducedFloatingBase* reduced_base = NULL);
+					struct FloatingBaseSystem* system = NULL);
 
+/**
+ * @brief Gets the branch values given a joint state
+ * @param Eigen::VectorXd& Joint state vector
+ * @param cons Eigen::VectorXd& Branch state
+ * @param unsigned int Body id
+ * @param RigidBodyDynamics::Model& Rigid-body dynamic model
+ * @param FloatingBaseSystem* Defines the general properties of a floating-base
+ * system
+ */
 Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
 							   unsigned int body_id,
 							   RigidBodyDynamics::Model& model,
-							   struct ReducedFloatingBase* reduced_base = NULL);
+							   struct FloatingBaseSystem* system = NULL);
 
 /**
  * @brief Converts an applied velocity acting at a certain point to spatial velocity

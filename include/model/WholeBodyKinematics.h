@@ -26,23 +26,23 @@ class WholeBodyKinematics
 		/**
 		 * @brief Build the model rigid-body system from an URDF file
 		 * @param std::string URDF file
-		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base,
-		 * i.e. a floating-base with physical constraints
+		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
+		 * system
 		 * @param Print model information
 		 */
 		void modelFromURDFFile(std::string urdf_model,
-							   struct rbd::ReducedFloatingBase* reduced_base = NULL,
+							   struct rbd::FloatingBaseSystem* system = NULL,
 							   bool info = false);
 
 		/**
 		 * @brief Build the model rigid-body system from an URDF model (xml)
 		 * @param std::string URDF model
-		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not fully floating-base,
-		 * i.e. a floating-base with physical constraints
+		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
+		 * system
 		 * @param Print model information
 		 */
 		void modelFromURDFModel(std::string urdf_model,
-								struct rbd::ReducedFloatingBase* reduced_base = NULL,
+								struct rbd::FloatingBaseSystem* system = NULL,
 								bool info = false);
 
 		/**
@@ -200,12 +200,8 @@ class WholeBodyKinematics
 		/** @brief Fixed body ids */
 		rbd::BodyID body_id_;
 
-		/** @brief Defines the type of dynamic system, e.g. fixed or floating-base system */
-		enum rbd::TypeOfSystem type_of_system_;
-
-		/** @brief A floating-base definition only used for reduced floating-base systems */
-		rbd::ReducedFloatingBase* reduced_base_;
-
+		/** @brief A floating-base system definition */
+		rbd::FloatingBaseSystem* system_;
 };
 
 } //@namespace model

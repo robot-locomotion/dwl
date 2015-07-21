@@ -30,14 +30,14 @@ inline double timer_stop (TimerInfo *timer) {
 int main(int argc, char **argv)
 {
 	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
-	dwl::rbd::ReducedFloatingBase reduced_base;
-	reduced_base.LZ.active = true;
-	reduced_base.LZ.id = 0;
+	dwl::rbd::FloatingBaseSystem system;
+	system.LZ.active = true;
+	system.LZ.id = 0;
 
 	dwl::model::WholeBodyKinematics kin;
-	kin.modelFromURDFFile(model_file, &reduced_base, true);
+	kin.modelFromURDFFile(model_file, &system, true);
 	dwl::model::WholeBodyDynamics dyn;
-	dyn.modelFromURDFFile(model_file, &reduced_base);
+	dyn.modelFromURDFFile(model_file, &system);
 
 
 

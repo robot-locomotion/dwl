@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-WholeBodyKinematics::WholeBodyKinematics() : type_of_system_(rbd::FixedBase), reduced_base_(NULL)
+WholeBodyKinematics::WholeBodyKinematics() : system_(NULL)
 {
 
 }
@@ -20,18 +20,24 @@ WholeBodyKinematics::~WholeBodyKinematics()
 
 
 void WholeBodyKinematics::modelFromURDFFile(std::string model_file,
-											struct rbd::ReducedFloatingBase* reduced_base,
+											struct rbd::FloatingBaseSystem* system,
 											bool info)
 {
 	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
 
-	reduced_base_ = reduced_base;
+	system_ = system;
+
+	// Setting the number of joints
+	unsigned int num_joints = robot_model_.dof_count - system_->getFloatingBaseDOF();
+	system_->setJointDOF(num_joints);
+
+	// Getting and setting the type of dynamic system
+	enum rbd::TypeOfSystem type_of_system;
+	rbd::getTypeOfDynamicSystem(type_of_system, robot_model_, system_);
+	system_->setTypeOfDynamicSystem(type_of_system);
 
 	// Getting the list of movable and fixed bodies
 	rbd::getListOfBodies(body_id_, robot_model_);
-
-	// Getting the type of dynamic system
-	rbd::getTypeOfDynamicSystem(type_of_system_, robot_model_, reduced_base);
 
 	// Printing the information of the rigid-body system
 	if (info)
@@ -40,18 +46,24 @@ void WholeBodyKinematics::modelFromURDFFile(std::string model_file,
 
 
 void WholeBodyKinematics::modelFromURDFModel(std::string urdf_model,
-											 struct rbd::ReducedFloatingBase* reduced_base,
+											 struct rbd::FloatingBaseSystem* system,
 											 bool info)
 {
 	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &robot_model_, false);
 
-	reduced_base_ = reduced_base;
+	system_ = system;
+
+	// Setting the number of joints
+	unsigned int num_joints = robot_model_.dof_count - system_->getFloatingBaseDOF();
+	system_->setJointDOF(num_joints);
+
+	// Getting and setting the type of dynamic system
+	enum rbd::TypeOfSystem type_of_system;
+	rbd::getTypeOfDynamicSystem(type_of_system, robot_model_, system_);
+	system_->setTypeOfDynamicSystem(type_of_system);
 
 	// Getting the list of movable and fixed bodies
 	rbd::getListOfBodies(body_id_, robot_model_);
-
-	// Getting the type of dynamic system
-	rbd::getTypeOfDynamicSystem(type_of_system_, robot_model_, reduced_base);
 
 	// Printing the information of the rigid-body system
 	if (info)
@@ -114,7 +126,7 @@ void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVector& op_pos,
 		if (body_id_.count(body_name) > 0) {
 			unsigned int body_id = body_id_.find(body_name)->second;
 
-			Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, type_of_system_, reduced_base_);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, system_);
 
 			Eigen::Matrix3d rotation_mtx;
 			switch (component) {
@@ -186,7 +198,7 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 	}
 
 	// Converting the initial base position and joint position
-	Eigen::VectorXd q_init = rbd::toGeneralizedJointState(base_pos_init, joint_pos_init, type_of_system_, reduced_base_);
+	Eigen::VectorXd q_init = rbd::toGeneralizedJointState(base_pos_init, joint_pos_init, system_);
 
 	// Computing the inverse kinematics
 	Eigen::VectorXd q_res;
@@ -194,7 +206,7 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 										 q_res, step_tol, lambda, max_iter);
 
 	// Converting the base and joint positions
-	rbd::fromGeneralizedJointState(base_pos, joint_pos, q_res, type_of_system_, reduced_base_);
+	rbd::fromGeneralizedJointState(base_pos, joint_pos, q_res, system_);
 }
 
 
@@ -236,17 +248,19 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 		if (body_id_.count(body_name) > 0) {
 			int body_id = body_id_.find(body_name)->second;
 
-			Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, type_of_system_, reduced_base_);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, system_);
 
 			Eigen::MatrixXd jac(Eigen::MatrixXd::Zero(6, robot_model_.dof_count));
 			rbd::computePointJacobian(robot_model_, q, body_id, Eigen::VectorXd::Zero(robot_model_.dof_count), jac, true);
 
 			switch(component) {
 			case rbd::Linear:
-				jacobian.block(init_row, 0, num_vars, robot_model_.dof_count) = jac.block(3, 0, 6, robot_model_.dof_count);
+				jacobian.block(init_row, 0, num_vars, robot_model_.dof_count) =
+						jac.block(3, 0, 6, robot_model_.dof_count);
 				break;
 			case rbd::Angular:
-				jacobian.block(init_row, 0, num_vars, robot_model_.dof_count) = jac.block(0, 0, 3, robot_model_.dof_count);
+				jacobian.block(init_row, 0, num_vars, robot_model_.dof_count) =
+						jac.block(0, 0, 3, robot_model_.dof_count);
 				break;
 			case rbd::Full:
 				jacobian.block(init_row, 0, num_vars, robot_model_.dof_count) = jac;
@@ -261,24 +275,25 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 												  const Eigen::MatrixXd& full_jacobian)
 {
-	if (type_of_system_ == rbd::FloatingBase || type_of_system_ == rbd::ConstrainedFloatingBase)
+	enum rbd::TypeOfSystem type_of_system = system_->getTypeOfDynamicSystem();
+	if (type_of_system == rbd::FloatingBase || type_of_system == rbd::ConstrainedFloatingBase)
 		jacobian = full_jacobian.leftCols<6>();
-	else if (type_of_system_ == rbd::VirtualFloatingBase) {
-		unsigned int num_virtual_jnts = reduced_base_->getFloatingBaseDOF();
+	else if (type_of_system == rbd::VirtualFloatingBase) {
+		unsigned int num_virtual_jnts = system_->getFloatingBaseDOF();
 		jacobian = Eigen::MatrixXd::Zero(full_jacobian.rows(), num_virtual_jnts);
 
-		if (reduced_base_->AX.active)
-			jacobian.col(reduced_base_->AX.id) = full_jacobian.col(reduced_base_->AX.id);
-		if (reduced_base_->AY.active)
-			jacobian.col(reduced_base_->AY.id) = full_jacobian.col(reduced_base_->AY.id);
-		if (reduced_base_->AZ.active)
-			jacobian.col(reduced_base_->AZ.id) = full_jacobian.col(reduced_base_->AZ.id);
-		if (reduced_base_->LX.active)
-			jacobian.col(reduced_base_->LX.id) = full_jacobian.col(reduced_base_->LX.id);
-		if (reduced_base_->LY.active)
-			jacobian.col(reduced_base_->LY.id) = full_jacobian.col(reduced_base_->LY.id);
-		if (reduced_base_->LZ.active)
-			jacobian.col(reduced_base_->LZ.id) = full_jacobian.col(reduced_base_->LZ.id);
+		if (system_->AX.active)
+			jacobian.col(system_->AX.id) = full_jacobian.col(system_->AX.id);
+		if (system_->AY.active)
+			jacobian.col(system_->AY.id) = full_jacobian.col(system_->AY.id);
+		if (system_->AZ.active)
+			jacobian.col(system_->AZ.id) = full_jacobian.col(system_->AZ.id);
+		if (system_->LX.active)
+			jacobian.col(system_->LX.id) = full_jacobian.col(system_->LX.id);
+		if (system_->LY.active)
+			jacobian.col(system_->LY.id) = full_jacobian.col(system_->LY.id);
+		if (system_->LZ.active)
+			jacobian.col(system_->LZ.id) = full_jacobian.col(system_->LZ.id);
 	} else {
 		printf(YELLOW "Warning: this is a fixed-base robot\n" COLOR_RESET);
 		jacobian = Eigen::MatrixXd::Zero(0,0);
@@ -289,12 +304,12 @@ void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 void WholeBodyKinematics::getFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 											   const Eigen::MatrixXd& full_jacobian)
 {
-	if (type_of_system_ == rbd::FloatingBase || type_of_system_ == rbd::ConstrainedFloatingBase)
-		jacobian = full_jacobian.rightCols(robot_model_.dof_count - 6);
-	else if (type_of_system_ == rbd::VirtualFloatingBase) {
-		unsigned int num_virtual_jnts = reduced_base_->getFloatingBaseDOF();
-		jacobian = full_jacobian.rightCols(robot_model_.dof_count - num_virtual_jnts);
-	} else
+	enum rbd::TypeOfSystem type_of_system = system_->getTypeOfDynamicSystem();
+	if (type_of_system == rbd::FloatingBase || type_of_system == rbd::ConstrainedFloatingBase)
+		jacobian = full_jacobian.rightCols(system_->getJointDOF());
+	else if (type_of_system == rbd::VirtualFloatingBase)
+		jacobian = full_jacobian.rightCols(system_->getJointDOF());
+	else
 		jacobian = full_jacobian;
 }
 
@@ -332,11 +347,12 @@ void WholeBodyKinematics::computeVelocity(rbd::BodyVector& op_vel,
 		if (body_id_.count(body_name) > 0) {
 			int body_id = body_id_.find(body_name)->second;
 
-			Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, type_of_system_, reduced_base_);
-			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, type_of_system_, reduced_base_);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, system_);
+			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, system_);
 
 			// Computing the point velocity
-			rbd::Vector6d point_vel = rbd::computePointVelocity(robot_model_, q, q_dot, body_id, Eigen::Vector3d::Zero(), true);
+			rbd::Vector6d point_vel = rbd::computePointVelocity(robot_model_, q, q_dot, body_id,
+					Eigen::Vector3d::Zero(), true);
 			switch (component) {
 			case rbd::Linear:
 				body_vel.segment<3>(0) = rbd::linearPart(point_vel);
@@ -390,12 +406,13 @@ void WholeBodyKinematics::computeAcceleration(rbd::BodyVector& op_acc,
 		if (body_id_.count(body_name) > 0) {
 			unsigned int body_id = body_id_.find(body_name)->second;
 
-			Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, type_of_system_, reduced_base_);
-			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, type_of_system_, reduced_base_);
-			Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(base_acc, joint_acc, type_of_system_, reduced_base_);
+			Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, system_);
+			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, system_);
+			Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(base_acc, joint_acc, system_);
 
 			// Computing the point acceleration
-			rbd::Vector6d point_acc = rbd::computePointAcceleration(robot_model_, q, q_dot, q_ddot, body_id, Eigen::Vector3d::Zero(), true);
+			rbd::Vector6d point_acc = rbd::computePointAcceleration(robot_model_, q, q_dot, q_ddot,
+					body_id, Eigen::Vector3d::Zero(), true);
 			switch (component) {
 			case rbd::Linear:
 				body_acc.segment<3>(0) = rbd::linearPart(point_acc);
@@ -423,12 +440,12 @@ void WholeBodyKinematics::computeJdotQdot(rbd::BodyVector& jacd_qd,
 										  enum rbd::Component component)
 {
 	// Getting the floating-base dof
-	unsigned int floating_base_dof = rbd::getFloatingBaseDOF(robot_model_, reduced_base_);
+	unsigned int num_joints = system_->getJointDOF();
 
 	rbd::BodyVector op_vel, op_acc;
 	computeAcceleration(op_acc, base_pos, joint_pos,
 						base_vel, joint_vel,
-						rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(robot_model_.dof_count - floating_base_dof),
+						rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(num_joints),
 						body_set, component);
 
 	// Resizing the acceleration contribution vector
