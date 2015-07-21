@@ -181,7 +181,7 @@ void fromGeneralizedJointState(Vector6d& base_state,
 	enum TypeOfSystem type_of_system = system->getTypeOfDynamicSystem();
 	if (type_of_system == FloatingBase || type_of_system == ConstrainedFloatingBase) {
 		base_state << generalized_state.segment<3>(rbd::LX), generalized_state.segment<3>(rbd::AX);
-		joint_state = generalized_state.tail(num_joints);
+		joint_state = generalized_state.segment(6, num_joints);
 	} else if (type_of_system == VirtualFloatingBase) {
 		if (system->AX.active)
 			base_state(AX) = generalized_state(system->AX.id);
@@ -196,7 +196,7 @@ void fromGeneralizedJointState(Vector6d& base_state,
 		if (system->LZ.active)
 			base_state(LZ) = generalized_state(system->LZ.id);
 
-		joint_state = generalized_state.tail(num_joints);
+		joint_state = generalized_state.segment(system->getFloatingBaseDOF(), num_joints);
 	} else {
 		base_state = Vector6d::Zero();
 		joint_state = generalized_state;

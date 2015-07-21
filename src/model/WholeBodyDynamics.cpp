@@ -83,6 +83,9 @@ void WholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 											   const Eigen::VectorXd& joint_acc,
 											   const rbd::BodyWrench& ext_force)
 {
+	// Setting the size of the joint forces vector
+	joint_forces.resize(system_->getJointDOF());
+
 	// Converting base and joint states to generalized joint states
 	Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, system_);
 	Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, system_);
@@ -110,6 +113,9 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 														   const Eigen::VectorXd& joint_acc,
 														   const rbd::BodyWrench& ext_force)
 {
+	// Setting the size of the joint forces vector
+	joint_forces.resize(system_->getJointDOF());
+
 	// Converting base and joint states to generalized joint states
 	Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, system_);
 	Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, system_);
@@ -148,17 +154,22 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 																	  const Eigen::VectorXd& joint_acc,
 																	  const rbd::BodySelector& contacts)
 {
-	// Computing the contact forces that generates the desired base wrench. A floating-base system can be described as
-	// floating-base with or without physical constraints or virtual floating-base. Note that with a virtual floating-base
-	// we can describe a n-dimensional floating-base, witch n less than 6
+	// Setting the size of the joint forces vector
+	joint_forces.resize(system_->getJointDOF());
+
+	// Computing the contact forces that generates the desired base wrench. A floating-base system
+	// can be described as floating-base with or without physical constraints or virtual
+	// floating-base. Note that with a virtual floating-base we can describe a n-dimensional
+	// floating-base, witch n less than 6
 	rbd::BodyWrench contact_forces;
 	rbd::Vector6d base_feas_acc = base_acc;
 	Eigen::VectorXd joint_feas_acc = joint_acc;
 	computeContactForces(contact_forces, joint_forces, base_pos, joint_pos,
 						 base_vel, joint_vel, base_feas_acc, joint_feas_acc, contacts);
 
-	// Computing the inverse dynamic algorithm with the desired contact forces, and the base constraint forces for
-	// floating-base with physical constraints. This should generate the joint forces with a null base wrench
+	// Computing the inverse dynamic algorithm with the desired contact forces, and the base
+	// constraint forces for floating-base with physical constraints. This should generate the joint
+	// forces with a null base wrench
 	rbd::Vector6d base_wrench;
 	computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos,
 						   base_vel, joint_vel, base_feas_acc, joint_feas_acc, contact_forces);
@@ -175,18 +186,21 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 											 Eigen::VectorXd& joint_acc,
 											 const rbd::BodySelector& contacts)
 {
-	// Computing the fixed-base jacobian and base contact jacobian. These jacobians are used for computing a consistent
-	// joint acceleration, and for mapping desired base wrench to joint forces
+	// Setting the size of the joint forces vector
+	joint_forces.resize(system_->getJointDOF());
+
+	// Computing the fixed-base jacobian and base contact jacobian. These jacobians are used for
+	// computing a consistent joint acceleration, and for mapping desired base wrench to joint forces
 	Eigen::MatrixXd full_jac;
 	kinematics_.computeJacobian(full_jac, base_pos, joint_pos, contacts, rbd::Linear);
 
-	// Computing the consistent joint accelerations given a desired base acceleration and contact definition. We assume
-	// that contacts are static, which it allows us to computed a consistent joint accelerations.
-	rbd::Vector6d base_feas_acc;
-	Eigen::VectorXd joint_feas_acc;
+	// Computing the consistent joint accelerations given a desired base acceleration and contact
+	// definition. We assume that contacts are static, which it allows us to computed a consistent
+	// joint accelerations.
+	rbd::Vector6d base_feas_acc = rbd::Vector6d::Zero();
+	Eigen::VectorXd joint_feas_acc(system_->getJointDOF());
 	computeConstrainedConsistentAcceleration(base_feas_acc, joint_feas_acc, base_pos, joint_pos,
 											 base_vel, joint_vel, base_acc, joint_acc, contacts);
-
 
 	// Computing the desired base wrench assuming a fully actuation on the floating-base
 	rbd::Vector6d base_wrench;
@@ -201,9 +215,10 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 	Eigen::MatrixXd base_contact_jac;
 	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jac);
 
-	// Computing the contact forces that generates the desired base wrench. A floating-base system can be described as
-	// floating-base with or without physical constraints or virtual floating-base. Note that with a virtual floating-base
-	// we can describe a n-dimensional floating-base, witch n less than 6
+	// Computing the contact forces that generates the desired base wrench. A floating-base system
+	// can be described as floating-base with or without physical constraints or virtual
+	// floating-base. Note that with a virtual floating-base we can describe a n-dimensional
+	// floating-base, witch n less than 6
 	if (rbd::isFloatingBaseRobot(robot_model_)) {
 		// This approach builds an augmented jacobian matrix as [base contact jacobian; base constraint jacobian].
 		// Therefore, we computed constrained reaction forces in the base.
@@ -260,8 +275,9 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 		if (system_->LZ.active)
 			virtual_base_wrench(system_->LZ.id) = base_wrench(rbd::LZ);
 
-		// Computing the contact forces that generates the desired base wrench in the case of n dof floating-base, where
-		// n is less than 6. Note that we describe this floating-base as an under-actuated virtual floating-base joints
+		// Computing the contact forces that generates the desired base wrench in the case of n dof
+		// floating-base, where n is less than 6. Note that we describe this floating-base as an
+		// under-actuated virtual floating-base joints
 		Eigen::VectorXd endeffector_forces =
 				math::pseudoInverse((Eigen::MatrixXd) base_contact_jac.transpose()) * virtual_base_wrench;
 
