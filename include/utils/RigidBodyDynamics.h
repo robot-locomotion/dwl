@@ -25,8 +25,8 @@ typedef std::map<std::string,Eigen::VectorXd> BodyVector;
 typedef std::map<std::string,Vector6d> BodyWrench;
 
 /**
- * @brief The 3-coordinate vector with the angular components (angular velocity or torque) of the given
- * spatial vector
+ * @brief The 3-coordinate vector with the angular components (angular velocity or torque) of the
+ * given spatial vector
  */
 Part3d angularPart(Vector6d& vector);
 
@@ -102,6 +102,7 @@ struct FloatingBaseSystem {
 	enum TypeOfSystem getTypeOfDynamicSystem() {
 		return type_of_system;
 	}
+
 	FloatingBaseJoint AX;
 	FloatingBaseJoint AY;
 	FloatingBaseJoint AZ;
@@ -126,8 +127,8 @@ unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
 								struct FloatingBaseSystem* system = NULL);
 
 /**
- * @brief Gets the type of rigid body dynamic system, i.e fixed-base, floating-base, constrained floating-base or
- * virtual floating-base
+ * @brief Gets the type of rigid body dynamic system, i.e fixed-base, floating-base, constrained
+ * floating-base or virtual floating-base
  * @param TypeOfSystem Type of rigid body dynamic system
  * @param const RigidBodyDynamics::Model& Model of the rigid-body system
  * @param struct FloatingBaseSystem* Defines the general properties of a floating-base
