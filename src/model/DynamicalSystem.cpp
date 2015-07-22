@@ -112,6 +112,9 @@ void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
 										  const LocomotionState& locomotion_state)
 //TODO add other locomotion variables
 {
+	// Resizing the generalized state vector
+	generalized_state.resize(state_dimension_);
+
 	// Getting the number of degree of freedom
 	unsigned int num_dof = system_->getFloatingBaseDOF() + system_->getJointDOF();
 
