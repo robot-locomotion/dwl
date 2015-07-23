@@ -65,6 +65,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/model/Constraint.cpp
 							 src/model/DynamicalSystem.cpp
 							 src/model/FullDynamicalSystem.cpp
+							 src/model/ConstrainedDynamicalSystem.cpp
 							 src/model/KinematicConstraint.cpp
 							 src/model/StabilityConstraint.cpp
 							 src/model/Cost.cpp
