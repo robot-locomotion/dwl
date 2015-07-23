@@ -28,30 +28,6 @@ class WholeBodyLocomotion
 		void reset(locomotion::PlanningOfMotionSequence* planner);
 
 		/**
-		 * @brief Adds a constraint to the locomotion approach
-		 * @param Constraint* Pointer to the constraint class
-		 */
-		void addConstraint(model::Constraint* constraint);
-
-		/**
-		 * @brief Removes a constraint to the locomotion approach
-		 * @param std::string Name of the constraint
-		 */
-		void removeConstraint(std::string constraint_name);
-
-		/**
-		 * @brief Adds a cost to the locomotion approach
-		 * @param Cost* Pointer to the cost class
-		 */
-		void addCost(model::Cost* cost);
-
-		/**
-		 * @brief Removes a cost to the locomotion approach
-		 * @param std::string Name of the cost
-		 */
-		void removeCost(std::string cost_name);
-
-		/**
 		 * @brief Initializes a locomotion algorithm
 		 */
 		bool init();

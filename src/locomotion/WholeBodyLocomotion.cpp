@@ -26,50 +26,6 @@ void WholeBodyLocomotion::reset(locomotion::PlanningOfMotionSequence* planner)
 }
 
 
-void WholeBodyLocomotion::addConstraint(model::Constraint* constraint)
-{
-//	if (is_set_planner_)
-//		planner_->addConstraint(constraint);
-//	else {
-//		printf(YELLOW "Could not add the %s constraint because has not been set the planner\n" COLOR_RESET,
-//				constraint->getName().c_str());
-//	}
-}
-
-
-void WholeBodyLocomotion::removeConstraint(std::string constraint_name)
-{
-//	if (is_set_planner_)
-//		planner_->removeConstraint(constraint_name);
-//	else {
-//		printf(YELLOW "Could not removed the %s constraint because has not been set the planner\n" COLOR_RESET,
-//				constraint_name.c_str());
-//	}
-}
-
-
-void WholeBodyLocomotion::addCost(model::Cost* cost)
-{
-//	if (is_set_planner_)
-//		planner_->addCost(cost);
-//	else {
-//		printf(YELLOW "Could not added the %s cost because has not been set the planner\n" COLOR_RESET,
-//				cost->getName().c_str());
-//	}
-}
-
-
-void WholeBodyLocomotion::removeCost(std::string cost_name)
-{
-//	if (is_set_planner_)
-//		planner_->removeCost(cost_name);
-//	else {
-//		printf(YELLOW "Could not removed the %s cost because has not been set the planner\n" COLOR_RESET,
-//				cost_name.c_str());
-//	}
-}
-
-
 bool WholeBodyLocomotion::init()
 {
 	if (!is_set_planner_) {

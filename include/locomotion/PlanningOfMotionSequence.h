@@ -20,12 +20,12 @@ namespace locomotion
 
 /**
  * @class PlanningOfMotionSequence
- * @brief Abstract class for solving the planning of motion sequence problem. This abstract class allow us to
- * implement different approaches such as: decoupled and coupled approaches. For instance, coupled approaches
- * required one Solver, in contrast of decoupled approaches that require the MotionPlanning and
- * ContactPlanning classes.
+ * @brief Abstract class for solving the planning of motion sequence problem. This abstract class
+ * allow us to implement different approaches such as: decoupled and coupled approaches. For
+ * instance, coupled approaches required one Solver, in contrast of decoupled approaches that
+ * require the MotionPlanning and ContactPlanning classes.
  */
-class PlanningOfMotionSequence
+class PlanningOfMotionSequence //TODO clean and define the final class
 {
 	public:
 		/** @brief Constructor function */
@@ -40,7 +40,9 @@ class PlanningOfMotionSequence
 		 * @param Solver* The solver that computes a motion plan, e.g. graph-searcher or optimizer
 		 * @param EnvironmentInformation* Encapsulates all the information of the environment
 		 */
-		void reset(robot::Robot* robot, solver::Solver* solver, environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot,
+				   solver::Solver* solver,
+				   environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Defines the settings required for a decoupled approach
@@ -49,32 +51,10 @@ class PlanningOfMotionSequence
 		 * @param ContactPlanning* A contact planner computes the contact sequence
 		 * @param EnvironmentInformation* Encapsulates all the information of the environment
 		 */
-		void reset(robot::Robot* robot, MotionPlanning* motion_planner, ContactPlanning* contact_planner,
-					environment::EnvironmentInformation* environment);
-
-//		/**
-//		 * @brief Adds an active or inactive constraints to the planning algorithm
-//		 * @param Constraint* Constraint to add it
-//		 */
-//		void addConstraint(model::Constraint* constraint);
-//
-//		/**
-//		 * @brief Removes an active or inactive constraints to the planning algorithm
-//		 * @param Constraint* Constraint to remove it
-//		 */
-//		void removeConstraint(std::string constraint_name);
-//
-//		/**
-//		 * @brief Adds a cost function for the planning algorithm
-//		 * @param Cost* Cost to add it
-//		 */
-//		void addCost(model::Cost* cost);
-//
-//		/**
-//		 * @brief Removes a cost function for the planning algorithm
-//		 * @param Cost* Cost to remove it
-//		 */
-//		void removeCost(std::string cost_name);
+		void reset(robot::Robot* robot,
+				   MotionPlanning* motion_planner,
+				   ContactPlanning* contact_planner,
+				   environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Initializes the planner
