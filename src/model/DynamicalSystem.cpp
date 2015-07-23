@@ -45,6 +45,12 @@ void DynamicalSystem::getStartingState(LocomotionState& starting_state)
 }
 
 
+WholeBodyDynamics& DynamicalSystem::getDynamics()
+{
+	return dynamics_;
+}
+
+
 void DynamicalSystem::getStateBounds(LocomotionState& lower_bound,
 									 LocomotionState& upper_bound)
 {

@@ -84,6 +84,9 @@ class DynamicalSystem : public Constraint
 		 */
 		void getStartingState(LocomotionState& starting_state);
 
+		/** @brief Gets the dynamical model */
+		WholeBodyDynamics& getDynamics();
+
 		/** @brief Gets the dimension of the dynamical state */
 		unsigned int getDimensionOfState();
 
@@ -109,10 +112,9 @@ class DynamicalSystem : public Constraint
 		void fromLocomotionState(Eigen::VectorXd& generalized_state,
 								 const LocomotionState& state_model);
 
-		WholeBodyDynamics& getDynamics() {return dynamics_;}
-
 
 	protected:
+		/** @brief Whole-body dynamical model */
 		WholeBodyDynamics dynamics_;
 
 		/** @brief A floating-base system definition */
