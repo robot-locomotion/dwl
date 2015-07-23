@@ -2,7 +2,6 @@
 #define DWL__MODEL__FULL_DYNAMICAL_SYSTEM__H
 
 #include <model/DynamicalSystem.h>
-#include <model/WholeBodyDynamics.h>
 
 
 namespace dwl
@@ -29,26 +28,12 @@ class FullDynamicalSystem : public DynamicalSystem
 					 const LocomotionState& state);
 
 		/**
-		 * @brief Computes the Jacobian of the full dynamic constraint given a certain state
-		 * @param Eigen::MatrixXd& Jacobian of the constraint function
-		 * @param const LocomotionState& State vector
-		 */
-		void computeJacobian(Eigen::MatrixXd& jacobian,
-							 const LocomotionState& state);
-
-		/**
 		 * @brief Gets the bounds of the dynamical system constraint
 		 * @param Eigen::VectorXd& Lower bounds
 		 * @param Eigen::VectorXd& Upper bounds
 		 */
 		void getBounds(Eigen::VectorXd& lower_bound,
 					   Eigen::VectorXd& upper_bound);
-
-		WholeBodyDynamics& getDynamics() {return dynamics_;}
-
-
-	private:
-		WholeBodyDynamics dynamics_;
 };
 
 } //@namespace model

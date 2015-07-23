@@ -25,18 +25,6 @@ class HS071Cost : public Cost
 			cost = state.joint_pos(0) * state.joint_pos(3) * (state.joint_pos(0) +
 					state.joint_pos(1) + state.joint_pos(2)) + state.joint_pos(2);
 		}
-
-		void computeGradient(Eigen::VectorXd& gradient,
-						 	 const LocomotionState& state)
-		{
-//			assert(n == 4);
-
-			gradient(0) = state.joint_pos(0) * state.joint_pos(3) +
-					state.joint_pos(3) * (state.joint_pos(0) + state.joint_pos(1) + state.joint_pos(2));
-			gradient(1) = state.joint_pos(0) * state.joint_pos(3);
-			gradient(2) = state.joint_pos(0) * state.joint_pos(3) + 1;
-			gradient(3) = state.joint_pos(0) * (state.joint_pos(0) + state.joint_pos(1) + state.joint_pos(2));
-		}
 };
 
 } //@namespace model

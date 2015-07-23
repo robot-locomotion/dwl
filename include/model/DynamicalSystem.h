@@ -2,6 +2,7 @@
 #define DWL__MODEL__DYNAMICAL_SYSTEM__H
 
 #include <model/Constraint.h>
+#include <model/WholeBodyDynamics.h>
 
 
 namespace dwl
@@ -40,14 +41,6 @@ class DynamicalSystem : public Constraint
 		 */
 		virtual void compute(Eigen::VectorXd& constraint,
 							 const LocomotionState& state) = 0;
-
-		/**
-		 * @brief Computes the Jacobian of the full dynamic constraint given a certain state
-		 * @param Eigen::MatrixXd& Jacobian of the constraint function
-		 * @param const LocomotionState& State vector
-		 */
-		virtual void computeJacobian(Eigen::MatrixXd& jacobian,
-									 const LocomotionState& state) = 0;
 
 		/**
 		 * @brief Gets the bounds of the dynamical system constraint
@@ -116,8 +109,12 @@ class DynamicalSystem : public Constraint
 		void fromLocomotionState(Eigen::VectorXd& generalized_state,
 								 const LocomotionState& state_model);
 
+		WholeBodyDynamics& getDynamics() {return dynamics_;}
+
 
 	protected:
+		WholeBodyDynamics dynamics_;
+
 		/** @brief A floating-base system definition */
 		rbd::FloatingBaseSystem* system_;
 

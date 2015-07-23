@@ -33,14 +33,6 @@ class Constraint
 							 const LocomotionState& state) = 0;
 
 		/**
-		 * @brief Computes the Jacobian of the constraint given a certain state
-		 * @param Eigen::MatrixXd& Jacobian of the constraint function
-		 * @param const LocomotionState& State vector
-		 */
-		virtual void computeJacobian(Eigen::MatrixXd& jacobian,
-									 const LocomotionState& state) = 0;
-
-		/**
 		 * @brief Gets the lower and upper bounds of the constraint
 		 * @param Eigen::VectorXd& Lower constraint bound
 		 * @param Eigen::VectorXd& Upper constraint bound

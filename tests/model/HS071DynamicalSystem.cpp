@@ -16,8 +16,10 @@ class HS071DynamicalSystem : public DynamicalSystem
 		HS071DynamicalSystem()
 		{
 			name_ = "HS071";
+			state_dimension_ = 4;
 			constraint_dimension_ = 2;
 			num_joints_ = 4;
+			locomotion_variables_.position = true; //TODO remove it
 
 			LocomotionState starting_state;
 			starting_state.joint_pos.resize(4);
@@ -53,21 +55,6 @@ class HS071DynamicalSystem : public DynamicalSystem
 			constraint(1) = state.joint_pos(0) * state.joint_pos(0) +
 					state.joint_pos(1) * state.joint_pos(1) + state.joint_pos(2) * state.joint_pos(2) +
 					state.joint_pos(3) * state.joint_pos(3);
-		}
-
-		void computeJacobian(Eigen::MatrixXd& jacobian,
-							 const LocomotionState& state)
-		{
-			jacobian = Eigen::MatrixXd::Zero(constraint_dimension_,4);
-		    jacobian(0,0) = state.joint_pos(1) * state.joint_pos(2) * state.joint_pos(3);
-		    jacobian(0,1) = state.joint_pos(0) * state.joint_pos(2) * state.joint_pos(3);
-		    jacobian(0,2) = state.joint_pos(0) * state.joint_pos(1) * state.joint_pos(3);
-		    jacobian(0,3) = state.joint_pos(0) * state.joint_pos(1) * state.joint_pos(2);
-
-		    jacobian(1,0) = 2 * state.joint_pos(0);
-		    jacobian(1,1) = 2 * state.joint_pos(1);
-		    jacobian(1,2) = 2 * state.joint_pos(2);
-		    jacobian(1,3) = 2 * state.joint_pos(3);
 		}
 
 		void getBounds(Eigen::VectorXd& lower_bound,

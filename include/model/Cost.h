@@ -39,14 +39,6 @@ class Cost
 		virtual void compute(double& cost, const LocomotionState& state) = 0;
 
 		/**
-		 * @brief Computes the gradient of the cost given a certain state
-		 * @param Eigen::VectorXd& Gradient of the cost
-		 * @param const LocomotionState& State value
-		 */
-		virtual void computeGradient(Eigen::VectorXd& gradient,
-									 const LocomotionState& state) = 0;
-
-		/**
 		 * @brief Abstract method for getting the cost value given a certain node
 		 * @param AdjacencyMap& adjacency_map Adjacency map required for graph-searching algorithms
 		 * @param Eigen::Vector3d robot_state 2D position and yaw orientation of the robot
