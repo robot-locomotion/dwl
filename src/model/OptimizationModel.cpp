@@ -18,6 +18,8 @@ OptimizationModel::OptimizationModel() : dynamical_system_(NULL),
 
 OptimizationModel::~OptimizationModel()
 {
+	delete dynamical_system_;
+
 	typedef std::vector<Constraint*>::iterator ConstraintItr;
 	typedef std::vector<Cost*>::iterator CostItr;
 	if (is_added_constraint_) {
@@ -32,14 +34,84 @@ OptimizationModel::~OptimizationModel()
 }
 
 
-void OptimizationModel::addDynamicSystem(DynamicalSystem* dynamical_system)
+void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constraint,
+											const Eigen::Ref<const Eigen::VectorXd>& decision_var)
+{
+	// Computing state dimension
+	unsigned int state_dim = decision_var.size() / horizon_;
+
+	// Setting the initial state
+	LocomotionState locomotion_state;
+	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
+	dynamical_system_->toLocomotionState(locomotion_state, decision_state);
+	unsigned int num_constraints = constraints_.size();
+	for (unsigned int j = 0; j < num_constraints + 1; j++) {
+		if (j == 0) // dynamic system constraint
+			dynamical_system_->setLastState(locomotion_state);
+		else
+			constraints_[j-1]->setLastState(locomotion_state);
+	}
+
+	// Computing the active and inactive constraints for a predefined horizon
+	unsigned int index = 0;
+	for (unsigned int i = 0; i < horizon_; i++) {
+		// Converting the decision variable for a certain time to a robot state
+		decision_state = decision_var.segment(i * state_dim, state_dim);
+		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
+
+		// Computing the constraints for a certain time
+		Eigen::VectorXd constraint;
+		for (unsigned int j = 0; j < num_constraints + 1; j++) {
+			if (j == 0) {// dynamic system constraint
+				dynamical_system_->compute(constraint, locomotion_state);
+				dynamical_system_->setLastState(locomotion_state);
+			} else {
+				constraints_[j-1]->compute(constraint, locomotion_state);
+				constraints_[j-1]->setLastState(locomotion_state);
+			}
+
+			unsigned int constraint_size = constraint.size();
+			full_constraint.segment(index, constraint_size) = constraint;
+
+			index += constraint_size;
+		}
+	}
+}
+
+
+void OptimizationModel::evaluateCosts(double& cost,
+									  const Eigen::Ref<const Eigen::VectorXd>& decision_var)
+{
+	// Initializing the cost value
+	cost = 0;
+
+	// Computing the cost for predefined horizon
+	LocomotionState locomotion_state;
+	unsigned int state_dim = decision_var.size() / horizon_;
+	for (unsigned int i = 0; i < horizon_; i++) {
+		// Converting the decision variable for a certain time to a robot state
+		Eigen::VectorXd decision_state = decision_var.segment(i * state_dim, state_dim);
+		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
+
+		// Computing the function cost for a certain time
+		double simple_cost;
+		unsigned int num_cost_functions = costs_.size();
+		for (unsigned int j = 0; j < num_cost_functions; j++) {
+			costs_[j]->compute(simple_cost, locomotion_state);
+			cost += simple_cost;
+		}
+	}
+}
+
+
+void OptimizationModel::addDynamicalSystem(DynamicalSystem* dynamical_system)
 {
 	if (is_added_dynamic_system_) {
-		printf(YELLOW "Could not added two dynamic systems\n" COLOR_RESET);
+		printf(YELLOW "Could not added two dynamical systems\n" COLOR_RESET);
 		return;
 	}
 
-	printf(GREEN "Adding the %s dynamic system\n" COLOR_RESET, dynamical_system->getName().c_str());
+	printf(GREEN "Adding the %s dynamical system\n" COLOR_RESET, dynamical_system->getName().c_str());
 	dynamical_system_ = dynamical_system;
 
 	// Reading the state dimension
@@ -50,7 +122,7 @@ void OptimizationModel::addDynamicSystem(DynamicalSystem* dynamical_system)
 }
 
 
-void OptimizationModel::removeDynamicSystem()
+void OptimizationModel::removeDynamicalSystem()
 {
 	if (is_added_dynamic_system_) {
 		dynamical_system_ = NULL;
@@ -58,13 +130,13 @@ void OptimizationModel::removeDynamicSystem()
 		// Updating the constraint dimension
 		constraint_dimension_ -= dynamical_system_->getConstraintDimension();
 	} else
-		printf(YELLOW "There was not added a dynamic systems\n" COLOR_RESET);
+		printf(YELLOW "There was not added a dynamical system\n" COLOR_RESET);
 }
 
 
 void OptimizationModel::addConstraint(Constraint* constraint)
 {
-	printf(GREEN "Adding the %s dynamic system constraint\n" COLOR_RESET, constraint->getName().c_str());
+	printf(GREEN "Adding the %s dynamical system constraint\n" COLOR_RESET, constraint->getName().c_str());
 	constraints_.push_back(constraint);
 
 	if (!is_added_constraint_)

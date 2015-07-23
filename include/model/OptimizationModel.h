@@ -20,7 +20,6 @@ namespace model
  * (control and planning) models. For instance, we can defined different decision
  * variables (time; base and joint position, velocity and acceleration; contact forces), i.e.
  * the description of the state vector by implementing convertDecisionVariablesToStateModel method.
- *
  */
 class OptimizationModel
 {
@@ -32,13 +31,29 @@ class OptimizationModel
 		~OptimizationModel();
 
 		/**
+		 * @brief Evaluates the constraint function given a current decision state
+		 * @param Eigen::Ref<Eigen::VectorXd> Constraint vector
+		 * @param const Eigen::Ref<const Eigen:VectorXd>& Decision vector
+		 */
+		void evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constraint,
+								 const Eigen::Ref<const Eigen::VectorXd>& decision_var);
+
+		/**
+		 * @brief Evaluates the cost function given a current decision state
+		 * @param double& Cost value
+		 * @param const Eigen::Ref<const Eigen:VectorXd>& Decision vector
+		 */
+		void evaluateCosts(double& cost,
+						   const Eigen::Ref<const Eigen::VectorXd>& decision_var);
+
+		/**
 		 * @brief Adds the dynamical system (active constraints) to the optimization problem
 		 * @param DynamicalSystem* Dynamical system constraint to add it
 		 */
-		void addDynamicSystem(DynamicalSystem* dynamical_system);
+		void addDynamicalSystem(DynamicalSystem* dynamical_system);
 
 		/** @brief Removes the current dynamical system constraint */
-		void removeDynamicSystem();
+		void removeDynamicalSystem();
 
 		/**
 		 * @brief Adds an active or inactive constraints to the optimization problem
