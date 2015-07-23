@@ -3,6 +3,7 @@
 
 #include <IpTNLP.hpp>
 #include <model/OptimizationModel.h>
+#include <unsupported/Eigen/NumericalDiff>
 
 
 namespace dwl
@@ -24,6 +25,58 @@ class IpoptWrapper : public Ipopt::TNLP
 	typedef Ipopt::Number Number;
 	typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixRXd;
 
+	template<typename _Scalar, int NX=Eigen::Dynamic, int NY=Eigen::Dynamic>
+	struct Functor
+	{
+		typedef _Scalar Scalar;
+		enum {
+			InputsAtCompileTime = NX,
+			ValuesAtCompileTime = NY
+		};
+		typedef Eigen::Matrix<Scalar,InputsAtCompileTime,1> InputType;
+		typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,1> ValueType;
+		typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,InputsAtCompileTime> JacobianType;
+
+		int m_inputs, m_values;
+
+		Functor() : m_inputs(InputsAtCompileTime), m_values(ValuesAtCompileTime) {}
+		Functor(int inputs, int values) : m_inputs(inputs), m_values(values) {}
+
+		int inputs() const { return m_inputs; }
+		int values() const { return m_values; }
+	};
+
+	struct ConstraintFunction : Functor<double>
+	{
+		ConstraintFunction(model::OptimizationModel& model) : Functor<double>(0,0), model_(&model) {}
+	    int operator() (const Eigen::VectorXd& x, Eigen::VectorXd& g) const
+	    {
+	    	g.resize(model_->getDimensionOfConstraints());
+	    	model_->evaluateConstraints(g, x);
+
+	    	return 0;
+	    }
+
+	    model::OptimizationModel* const model_;
+	};
+
+	struct CostFunction : Functor<double>
+	{
+		CostFunction(model::OptimizationModel& model) : Functor<double>(0,0), model_(&model) {}
+		int operator() (const Eigen::VectorXd& x, Eigen::VectorXd& f) const
+		{
+			f.resize(1);
+			double cost;
+			model_->evaluateCosts(cost, x);
+			f(0) = cost;
+
+			return 0;
+		}
+
+		model::OptimizationModel* const model_;
+	};
+
+
 	public:
 		/** @brief Constructor function */
 		IpoptWrapper();
@@ -32,10 +85,10 @@ class IpoptWrapper : public Ipopt::TNLP
 		~IpoptWrapper();
 
 		/**
-		 * @brief Defines the model for the optimization
-		 * @param model::OptimizationModel* A model consists of cost functions and constraints
+		 * Gets the optimization model
+		 * @return the reference object of the optimization model
 		 */
-		void reset(model::OptimizationModel* model);
+		model::OptimizationModel& getOptimizationModel();
 
 		/**@name Overloaded from TNLP */
 		/**
@@ -94,7 +147,8 @@ class IpoptWrapper : public Ipopt::TNLP
 		/**
 		 * @brief Gets the gradient of the objective
 		 * @param Index Number of decision variables (dimension of $x$)
-		 * @param Number* Values for the primal variables, $x$, at which $\nabla f(x)$ is to be evaluated
+		 * @param Number* Values for the primal variables, $x$, at which $\nabla f(x)$ is to be
+		 * evaluated
 		 * @param bool False if any evaluation method was previously called with the same values
 		 * in $x$, true otherwise
 		 * @param Number* Array of values for the gradient of the objective function ($\nabla f(x)$)
@@ -104,8 +158,8 @@ class IpoptWrapper : public Ipopt::TNLP
 		/**
 		 * @brief Gets the constraint residuals
 		 * @param Index Number of decision variables (dimension of $x$)
-		 * @param Number* Values for the primal variables, $x$, at which the constraint functions, $g(x)$,
-		 * are to be evaluated
+		 * @param Number* Values for the primal variables, $x$, at which the constraint functions,
+		 * $g(x)$, are to be evaluated
 		 * @param bool False if any evaluation method was previously called with the same values
 		 * in $x$, true otherwise
 		 * @param Index Number of constraint variables (dimension of $g(x)$)
@@ -133,20 +187,21 @@ class IpoptWrapper : public Ipopt::TNLP
 					    Number* values);
 
 		/**
-		 * @brief This method returns the structure of the Hessian of the lagrangian (if "values" is NULL)
-		 * and the values of the hessian of the lagrangian (if "values" is not NULL)
+		 * @brief This method returns the structure of the Hessian of the lagrangian (if "values" is
+		 *  NULL) and the values of the hessian of the lagrangian (if "values" is not NULL)
 		 * @param Index Number of decision variables (dimension of $x$)
-		 * @param const Number* Values for the primal variables, $x$, at which the Hessian is to be evaluated
+		 * @param const Number* Values for the primal variables, $x$, at which the Hessian is to be
+		 * evaluated
 		 * @param bool False if any evaluation method was previously called with the same values
 		 * in $x$, true otherwise
 		 * @param Number Factor in front of the objective term in the Hessian, $\sigma_f$
 		 * @param Index Number of constraint variables (dimension of $g(x)$)
-		 * @param const Number* Values for the constraint multipliers, $\lambda$ , at which the Hessian
-		 * is to be evaluated
-		 * @param bool False if any evaluation method was previously called with the same values in lambda,
-		 * true otherwise
-		 * @param Index Number of nonzero elements in the Hessian (dimension of row_entries, col_entries
-		 * and values)
+		 * @param const Number* Values for the constraint multipliers, $\lambda$ , at which the
+		 * Hessian is to be evaluated
+		 * @param bool False if any evaluation method was previously called with the same values in
+		 * lambda, true otherwise
+		 * @param Index Number of nonzero elements in the Hessian (dimension of row_entries,
+		 * col_entries and values)
 		 * @param Index* Row indices of entries in the Hessian
 		 * @param Index* Column indices of entries in the Hessian
 		 * @param Number* Values of the entries in the Hessian
@@ -156,8 +211,8 @@ class IpoptWrapper : public Ipopt::TNLP
 					Index nele_hess, Index* row_entries, Index* col_entries, Number* values);
 
 		/**
-		 * @brief This method is called by IPOPT after the algorithm has finished (successfully or even
-		 * with most errors), so the TNLP can store/write the solution
+		 * @brief This method is called by IPOPT after the algorithm has finished (successfully or
+		 * even with most errors), so the TNLP can store/write the solution
 		 * @param Ipopt::SolverReturn Gives the status of the algorithm as specified in IpAlgTypes.hpp
 		 * @param Index Number of decision variables (dimension of $x$)
 		 * @param const Number* Values for the primal variables, $x$
@@ -181,16 +236,16 @@ class IpoptWrapper : public Ipopt::TNLP
 		/**
 		 * @name Methods to block default compiler methods.
 		 * @brief The compiler automatically generates the following three methods. Since the default
-		 * compiler implementation is generally not what you want (for all but the most simple classes),
-		 * we usually put the declarations of these methods in the private section and never implement them.
-		 * This prevents the compiler from implementing an incorrect "default" behavior without us knowing
-		 * (See Scott Meyers book, "Effective C++")
+		 * compiler implementation is generally not what you want (for all but the most simple
+		 * classes), we usually put the declarations of these methods in the private section and
+		 * never implement them. This prevents the compiler from implementing an incorrect "default"
+		 * behavior without us knowing (See Scott Meyers book, "Effective C++")
 		 */
 		IpoptWrapper(const IpoptWrapper&);
 		IpoptWrapper& operator=(const IpoptWrapper&);
 
-		/** @brief Pointer to the defined model of the NLP problem */
-		model::OptimizationModel* opt_model_;
+		/** @brief Optimizer's model which defines cost functions and constraints */
+		model::OptimizationModel opt_model_;
 };
 
 } //@namespace solver

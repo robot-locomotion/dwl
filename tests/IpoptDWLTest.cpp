@@ -7,19 +7,27 @@
 
 int main(int argc, char **argv)
 {
-	dwl::solver::Solver* solver = new dwl::solver::IpoptNLP();
+//	dwl::solver::Solver* solver = new dwl::solver::IpoptNLP();
+	dwl::solver::IpoptNLP* ipopt_solver = new dwl::solver::IpoptNLP();
+	dwl::solver::Solver* solver = ipopt_solver;
 
-	dwl::model::OptimizationModel model;
-	dwl::model::DynamicalSystem* dynamic_system = new dwl::model::HS071DynamicalSystem();
+	dwl::model::DynamicalSystem* dynamical_system = new dwl::model::HS071DynamicalSystem();
 	dwl::model::Cost* cost = new dwl::model::HS071Cost();
 
-	model.addDynamicSystem(dynamic_system);
-	model.addCost(cost);
 
-	solver->setModel(&model);
+	dwl::rbd::FloatingBaseSystem system;
+	system.setJointDOF(4);
+	system.setTypeOfDynamicSystem(dwl::rbd::FixedBase);
+	dynamical_system->setFloatingBaseSystem(&system);
 
-//	solver->addCost(&cost);
-//	solver->addConstraint(&constraint);
+	ipopt_solver->getIpopt().getOptimizationModel().addDynamicalSystem(dynamical_system);
+	ipopt_solver->getIpopt().getOptimizationModel().addCost(cost);
+
+//	dwl::model::OptimizationModel model;
+//	model.addDynamicalSystem(dynamical_system);
+//	model.addCost(cost);
+//	solver->setModel(&model);
+
 
 //	planning_ptr_->reset(&robot_, solver_, environment_);
 

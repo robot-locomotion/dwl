@@ -83,8 +83,6 @@ bool IpoptNLP::init()
 
 bool IpoptNLP::compute(double computation_time)
 {
-	ipopt_.reset(model_);
-
 	// Ask Ipopt to solve the problem
 	Ipopt::ApplicationReturnStatus status;
 
@@ -97,6 +95,12 @@ bool IpoptNLP::compute(double computation_time)
 	}
 
 	return true;
+}
+
+
+solver::IpoptWrapper& IpoptNLP::getIpopt()
+{
+	return ipopt_;
 }
 
 } //@namespace solver

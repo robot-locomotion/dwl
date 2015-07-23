@@ -7,7 +7,7 @@ namespace dwl
 namespace solver
 {
 
-Solver::Solver() : robot_(NULL), environment_(NULL), model_(NULL), adjacency_(NULL),
+Solver::Solver() : robot_(NULL), environment_(NULL), adjacency_(NULL),
 		is_graph_searching_algorithm_(false), is_optimization_algorithm_(false),
 		total_cost_(std::numeric_limits<double>::max()), time_started_(clock()),
 		is_set_model_(false), is_set_adjacency_model_(false)
@@ -18,12 +18,12 @@ Solver::Solver() : robot_(NULL), environment_(NULL), model_(NULL), adjacency_(NU
 
 Solver::~Solver()
 {
-	delete model_;
 	delete adjacency_;
 }
 
 
-void Solver::reset(robot::Robot* robot, environment::EnvironmentInformation* environment)
+void Solver::reset(robot::Robot* robot,
+				   environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the robot and environment information in the %s solver\n" COLOR_RESET,
 			getName().c_str());
@@ -40,15 +40,6 @@ void Solver::reset(robot::Robot* robot, environment::EnvironmentInformation* env
 }
 
 
-void Solver::setModel(model::OptimizationModel* model)
-{
-	printf(BLUE "Setting the optimization model in the %s solver\n" COLOR_RESET,
-		   getName().c_str());
-	model_ = model;
-	is_set_model_ = true;
-}
-
-
 void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_model)
 {
 	printf(BLUE "Setting the %s adjacency model in the %s solver\n" COLOR_RESET,
@@ -58,7 +49,8 @@ void Solver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_mode
 }
 
 
-bool Solver::compute(Vertex source, Vertex target, double computation_time)
+bool Solver::compute(Vertex source, Vertex target,
+					 double computation_time)
 {
 	if (is_graph_searching_algorithm_)
 		printf(YELLOW "Could not compute the shortest-path because the %s was not defined an algorithm\n"

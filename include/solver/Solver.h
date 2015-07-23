@@ -2,7 +2,6 @@
 #define DWL__SOLVER__SOLVER__H
 
 #include <robot/Robot.h>
-#include <model/OptimizationModel.h>
 #include <environment/AdjacencyEnvironment.h>
 #include <utils/utils.h>
 
@@ -15,8 +14,8 @@ namespace solver
 
 /**
  * @class Solver
- * @brief Abstract class for implementing different solver such as graph searcher or optimizer. For graph
- * searcher requires to define an adjacency model.
+ * @brief Abstract class for implementing different solver such as graph searcher or optimizer.
+ * For graph-searcher requires to define an adjacency model.
  */
 class Solver
 {
@@ -38,14 +37,8 @@ class Solver
 		 * @param Robot* Encapsulated all the robot information
 		 * @param EnvironmentInformation* Encapsulates all the information of the environment
 		 */
-		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment);
-
-		/**
-		 * @brief Sets the model that is used for optimization solvers
-		 * @param model::OptimizationModel* Encapsulate the constraints and cost functions (model) of
-		 * the optimization problem
-		 */
-		void setModel(model::OptimizationModel* model);
+		void reset(robot::Robot* robot,
+				   environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Sets the adjacency model that is used for graph searching solvers
@@ -54,7 +47,8 @@ class Solver
 		void setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_model);
 
 		/**
-		 * @brief Abstract method for computing a shortest-path using graph search algorithms such as A*
+		 * @brief Abstract method for computing a shortest-path using graph search algorithms
+		 * such as A*
 		 * @param Vertex Source vertex
 		 * @param Vertex Target vertex
 		 * @param double Allowed time for computing a solution (in seconds)
@@ -98,9 +92,6 @@ class Solver
 
 		/** @brief Environment information */
 		environment::EnvironmentInformation* environment_;
-
-		/** @brief Optimizer' model which defines cost functions and constraints */
-		model::OptimizationModel* model_;
 
 		/** @brief Adjacency model of the environment */
 		environment::AdjacencyEnvironment* adjacency_;
