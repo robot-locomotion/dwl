@@ -75,6 +75,9 @@ struct FloatingBaseSystem {
 	void setTypeOfDynamicSystem(enum TypeOfSystem _type_of_system) {
 		type_of_system = _type_of_system;
 	}
+	unsigned int getSystemDOF() {
+		return getFloatingBaseDOF() + getJointDOF();
+	}
 	unsigned int getFloatingBaseDOF() {
 		return AX.active + AY.active + AZ.active + LX.active + LY.active + LZ.active;
 	}
