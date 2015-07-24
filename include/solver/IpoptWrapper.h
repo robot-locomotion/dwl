@@ -72,7 +72,7 @@ class IpoptWrapper : public Ipopt::TNLP
 		 * @param bool If true, this method must provide an initial value for the bound multipliers
 		 * $z^L$ and $z^U$
 		 * @param Number* Initial values for the bound multipliers, $z^L$
-		 * @param Number* Iitial values for the bound multipliers, $z^U$
+		 * @param Number* Initial values for the bound multipliers, $z^U$
 		 * @param Index Number of constraint variables (dimension of $g(x)$)
 		 * @param bool If true, this method must provide an initial value for the constraint
 		 * multipliers, $\lambda$ .
@@ -135,8 +135,8 @@ class IpoptWrapper : public Ipopt::TNLP
 					    Number* values);
 
 		/**
-		 * @brief This method returns the structure of the Hessian of the lagrangian (if "values" is
-		 *  NULL) and the values of the hessian of the lagrangian (if "values" is not NULL)
+		 * @brief This method returns the structure of the Hessian of the Lagrangian (if "values" is
+		 *  NULL) and the values of the hessian of the Lagrangian (if "values" is not NULL)
 		 * @param Index Number of decision variables (dimension of $x$)
 		 * @param const Number* Values for the primal variables, $x$, at which the Hessian is to be
 		 * evaluated
