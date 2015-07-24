@@ -1,4 +1,5 @@
 #include <model/FullDynamicalSystem.h>
+#include <model/ConstrainedDynamicalSystem.h>
 #include <model/HS071DynamicalSystem.cpp>
 #include <model/OptimizationModel.h>
 #include <unsupported/Eigen/NumericalDiff>
@@ -6,11 +7,6 @@
 
 
 dwl::model::OptimizationModel opt_model;
-
-
-
-unsigned int n;// = 2;
-unsigned int m;// = 9;
 
 template<typename _Scalar, int NX=Eigen::Dynamic, int NY=Eigen::Dynamic>
 struct Functor
@@ -33,41 +29,11 @@ struct Functor
 	int values() const { return m_values; }
 };
 
-struct my_functor : Functor<double>
-{
-	my_functor(void): Functor<double>(n,m) {}
-	int operator()(const Eigen::VectorXd& x, Eigen::VectorXd& fvec) const
-	{
-		dwl::LocomotionState state;
-		opt_model.getDynamicalSystem()->toLocomotionState(state, x);
 
-		std::cout << "State = " << x.transpose() << std::endl;
-		std::cout << "Base pos = " << state.base_pos.transpose() << std::endl;
-		std::cout << "Joint pos = " << state.joint_pos.transpose() << std::endl;
-		std::cout << "Base vel = " << state.base_vel.transpose() << std::endl;
-		std::cout << "Joint vel = " << state.joint_vel.transpose() << std::endl;
-		std::cout << "Base acc = " << state.base_acc.transpose() << std::endl;
-		std::cout << "Joint acc = " << state.joint_acc.transpose() << std::endl;
-
-
-//    	dynamical_system.compute(fvec, state);
-
-		fvec.resize(2);
-		opt_model.evaluateConstraints(fvec, x);
-
-
-//    	std::cout << x.transpose() << " = state" << std::endl;
-//    	std::cout << fvec.transpose() << " = constraint" << std::endl;
-		std::cout << "----------------------------------------------------" << std::endl;
-
-		return 0;
-	}
-};
-
-
+//template<int NX, int NY>
 struct ConstraintFunction : Functor<double>
 {
-	ConstraintFunction(void) : Functor<double>(0,0) {}
+	ConstraintFunction(void) : Functor<double>(0,0) {}//(NX,NY) {}
     int operator() (const Eigen::VectorXd& x, Eigen::VectorXd& fvec) const
     {
     	fvec.resize(2);
@@ -75,6 +41,7 @@ struct ConstraintFunction : Functor<double>
     	return 0;
     }
 };
+
 
 
 int main(int argc, char **argv)
@@ -91,61 +58,37 @@ int main(int argc, char **argv)
 	joint_pos(1) = -1.5;
 
 
-	// Initializating the robot model
+	// Initialization the robot model
 	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
 	dwl::rbd::FloatingBaseSystem system;
 	system.LZ.active = true;
 	system.LZ.id = 0;
-	system.setTypeOfDynamicSystem(dwl::rbd::VirtualFloatingBase);
 
-	dwl::model::DynamicalSystem* dynamical_system = new dwl::model::FullDynamicalSystem();
-	dynamical_system->setFloatingBaseSystem(&system);
-	dynamical_system->getDynamics().modelFromURDFFile(model_file, &system, true);
+	dwl::model::DynamicalSystem* dynamical_system = new dwl::model::ConstrainedDynamicalSystem();
+//		new dwl::model::FullDynamicalSystem();
+//		new dwl::model::HS071DynamicalSystem();
+	dynamical_system->modelFromURDFFile(model_file, &system, true);
 
 	opt_model.addDynamicalSystem(dynamical_system);
 
 	// Converting locomotion state to generalized coordinates
-	Eigen::VectorXd q(3), qd(3), qdd(3);
+	Eigen::VectorXd q(3), qd(3), qdd(3), tau(2);
 	q = dwl::rbd::toGeneralizedJointState(base_pos, joint_pos, &system);
 	qd = dwl::rbd::toGeneralizedJointState(base_vel, joint_vel, &system);
 	qdd = dwl::rbd::toGeneralizedJointState(base_acc, joint_acc, &system);
+	tau = Eigen::VectorXd::Zero(2);
 
 
 	// Setting the state
-	Eigen::VectorXd x(9);
-	x << q, qd, qdd;
-	Eigen::MatrixXd jac(2,9);
-
-
-	n = 0;
-	m = 0;
-
-//	my_functor functor;
-//	Eigen::NumericalDiff<my_functor,Eigen::Central> numDiff(functor, 1E-06);//2.2E-16
-//	numDiff.df(x, jac);
-//
-//	std::cout << jac << std::endl;
-
-
-
-
-
-
-//	struct ConstraintFunction : Functor<double>
-//	{
-//		ConstraintFunction(void) : Functor<double>(0,0) {}
-//	    int operator() (const Eigen::VectorXd& x, Eigen::VectorXd& fvec) const
-//	    {
-//	    	fvec.resize(2);
-//	    	opt_model.evaluateConstraints(fvec, x);
-//	    	return 0;
-//	    }
-//	};
-
+	Eigen::VectorXd x(11);
+	x << q, qd, qdd, tau;
+	Eigen::MatrixXd jac(2,11);
 
 
 	ConstraintFunction functor;
 	Eigen::NumericalDiff<ConstraintFunction,Eigen::Central> numDiff(functor, 1E-06);//2.2E-16
+//	ConstraintFunction<2,9> functor;
+//	Eigen::NumericalDiff<ConstraintFunction<2,9> ,Eigen::Central> numDiff(functor, 1E-05);//2.2E-16
 	numDiff.df(x, jac);
 	std::cout << jac << std::endl;
 }
