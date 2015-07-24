@@ -109,15 +109,17 @@ struct LocomotionState
 		base_pos.setZero();
 		base_vel.setZero();
 		base_acc.setZero();
+		base_eff.setZero();
 	}
 	double time;
 	rbd::Vector6d base_pos;
 	rbd::Vector6d base_vel;
 	rbd::Vector6d base_acc;
+	rbd::Vector6d base_eff;
 	Eigen::VectorXd joint_pos;
 	Eigen::VectorXd joint_vel;
 	Eigen::VectorXd joint_acc;
-	Eigen::VectorXd joint_for;
+	Eigen::VectorXd joint_eff;
 	Contact contact_pos;
 	Contact contact_for;
 	Contact contact_tor;
