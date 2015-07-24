@@ -18,7 +18,6 @@ class HS071DynamicalSystem : public DynamicalSystem
 			name_ = "HS071";
 			state_dimension_ = 4;
 			constraint_dimension_ = 2;
-			num_joints_ = 4;
 			locomotion_variables_.position = true; //TODO remove it
 
 			LocomotionState starting_state;

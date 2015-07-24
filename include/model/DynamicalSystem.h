@@ -14,13 +14,13 @@ namespace model
 struct LocomotionVariables
 {
 	LocomotionVariables(bool full_opt = false) : time(full_opt), position(full_opt),
-			velocity(full_opt),	acceleration(full_opt), joint_for(full_opt),
+			velocity(full_opt),	acceleration(full_opt), effort(full_opt),
 			contact_pos(full_opt), contact_for(full_opt) {}
 	bool time;
 	bool position;
 	bool velocity;
 	bool acceleration;
-	bool joint_for;
+	bool effort;
 	bool contact_pos;
 	bool contact_for;
 };
@@ -33,6 +33,28 @@ class DynamicalSystem : public Constraint
 
 		/** @brief Destructor function */
 		virtual ~DynamicalSystem();
+
+		/**
+		 * @brief Build the model rigid-body system from an URDF file
+		 * @param std::string URDF file
+		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
+		 * system
+		 * @param Print model information
+		 */
+		void modelFromURDFFile(std::string urdf_model,
+							   struct rbd::FloatingBaseSystem* system = NULL,
+							   bool info = false);
+
+		/**
+		 * @brief Build the model rigid-body system from an URDF model (xml)
+		 * @param std::string URDF model
+		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
+		 * system
+		 * @param Print model information
+		 */
+		void modelFromURDFModel(std::string urdf_model,
+								struct rbd::FloatingBaseSystem* system = NULL,
+								bool info = false);
 
 		/**
 		 * @brief Computes the dynamic constraint vector given a certain state
@@ -84,14 +106,8 @@ class DynamicalSystem : public Constraint
 		 */
 		void getStartingState(LocomotionState& starting_state);
 
-		/** @brief Gets the dynamical model */
-		WholeBodyDynamics& getDynamics();
-
 		/** @brief Gets the dimension of the dynamical state */
 		unsigned int getDimensionOfState();
-
-		/** @brief Gets the number of joints */
-		unsigned int getNumberOfJoints();
 
 		/** @brief Gets the number of end-effectors */
 		unsigned int getNumberOfEndEffectors();
@@ -123,11 +139,14 @@ class DynamicalSystem : public Constraint
 		/** @brief Dimension of the dynamical state */
 		unsigned int state_dimension_;
 
-		/** @brief Number of joints */
-		unsigned int num_joints_;
-
 		/** @brief Number of end-effectors */
 		unsigned int num_endeffectors_;
+
+		/** @brief Degree of freedom of the floating-base system */
+		unsigned int system_dof_;
+
+		/** @brief Degree of freedom of the joint */
+		unsigned int joint_dof_;
 
 		/** @brief Starting state uses from optimizers */
 		LocomotionState starting_state_;

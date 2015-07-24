@@ -12,8 +12,6 @@ FullDynamicalSystem::FullDynamicalSystem()
 	locomotion_variables_.position = true; //TODO remove it
 	locomotion_variables_.velocity = true; //TODO remove it
 	locomotion_variables_.acceleration = true; //TODO remove it
-	state_dimension_ = 9;
-	num_joints_ = 2;
 }
 
 
