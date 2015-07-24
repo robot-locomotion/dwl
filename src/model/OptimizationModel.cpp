@@ -8,9 +8,9 @@ namespace model
 {
 
 OptimizationModel::OptimizationModel() : dynamical_system_(NULL),
-		state_dimension_(0), constraint_dimension_(0), horizon_(1),
-		is_added_dynamic_system_(false), is_added_constraint_(false),
-		is_added_cost_(false)
+		constraint_function_(this), cost_function_(this), num_diff_mode_(Eigen::Central),
+		state_dimension_(0), constraint_dimension_(0), horizon_(1), epsilon_(1E-06),
+		is_added_dynamic_system_(false), is_added_constraint_(false), is_added_cost_(false)
 {
 
 }
@@ -105,6 +105,48 @@ void OptimizationModel::evaluateCosts(double& cost,
 		for (unsigned int j = 0; j < num_cost_functions; j++) {
 			costs_[j]->compute(simple_cost, locomotion_state);
 			cost += simple_cost;
+		}
+	}
+}
+
+
+void OptimizationModel::evaluateConstraintJacobian(Eigen::MatrixXd& jacobian,
+												   const Eigen::VectorXd& decision_var)
+{
+	switch (num_diff_mode_) {
+		case Eigen::Forward: {
+			Eigen::NumericalDiff<ConstraintFunction,Eigen::Forward> num_diff(constraint_function_, epsilon_);
+			num_diff.df(decision_var, jacobian);
+			break;
+		} case Eigen::Central: {
+			Eigen::NumericalDiff<ConstraintFunction,Eigen::Central> num_diff(constraint_function_, epsilon_);
+			num_diff.df(decision_var, jacobian);
+			break;
+		} default: {
+			Eigen::NumericalDiff<ConstraintFunction,Eigen::Central> num_diff(constraint_function_, epsilon_);
+			num_diff.df(decision_var, jacobian);
+			break;
+		}
+	}
+}
+
+
+void OptimizationModel::evaluateCostGradient(Eigen::MatrixXd& gradient,
+											 const Eigen::VectorXd& decision_var)
+{
+	switch (num_diff_mode_) {
+		case Eigen::Forward: {
+			Eigen::NumericalDiff<CostFunction,Eigen::Forward> num_diff(cost_function_, epsilon_);
+			num_diff.df(decision_var, gradient);
+			break;
+		} case Eigen::Central: {
+			Eigen::NumericalDiff<CostFunction,Eigen::Central> num_diff(cost_function_, epsilon_);
+			num_diff.df(decision_var, gradient);
+			break;
+		} default: {
+			Eigen::NumericalDiff<CostFunction,Eigen::Central> num_diff(cost_function_, epsilon_);
+			num_diff.df(decision_var, gradient);
+			break;
 		}
 	}
 }
@@ -224,6 +266,14 @@ void OptimizationModel::setHorizon(unsigned int horizon)
 		horizon_ = 1;
 	else
 		horizon_ = horizon;
+}
+
+
+void OptimizationModel::configureNumericalDifferentiation(enum Eigen::NumericalDiffMode mode,
+														  double epsilon)
+{
+	num_diff_mode_ = mode;
+	epsilon_ = epsilon;
 }
 
 

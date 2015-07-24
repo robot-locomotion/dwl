@@ -127,6 +127,7 @@ bool IpoptWrapper::eval_f(Index n, const Number* x, bool new_x, Number& obj_valu
 	// Eigen interfacing to raw buffers
 	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
 
+	// Numerical evaluation of the cost function
 	opt_model_.evaluateCosts(obj_value, decision_var);
 
 	return true;
@@ -141,9 +142,7 @@ bool IpoptWrapper::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 
 	// Computing the gradient of the cost function for a predefined horizon
 	Eigen::MatrixXd grad(1,n);
-	CostFunction cost_function(opt_model_);
-	Eigen::NumericalDiff<CostFunction,Eigen::Central> numDiff(cost_function, 1E-06);//2.2E-16
-	numDiff.df(decision_var, grad);
+	opt_model_.evaluateCostGradient(grad, decision_var);
 
 	full_gradient = grad;
 
@@ -158,6 +157,7 @@ bool IpoptWrapper::eval_g(Index n, const Number* x, bool new_x, Index m, Number*
 	Eigen::Map<Eigen::VectorXd> full_constraint(g, m);
 	full_constraint.setZero();
 
+	// Numerical evaluation of the constraint function
 	opt_model_.evaluateConstraints(full_constraint, decision_var);
 
 	return true;
@@ -187,9 +187,7 @@ bool IpoptWrapper::eval_jac_g(Index n, const Number* x, bool new_x,
 
 		// Computing the Jacobian for a predefined horizon
 		Eigen::MatrixXd jac(m,n);
-		ConstraintFunction constraint_function(opt_model_);
-		Eigen::NumericalDiff<ConstraintFunction,Eigen::Central> numDiff(constraint_function, 1E-06);//2.2E-16
-		numDiff.df(decision_var, jac);
+		opt_model_.evaluateConstraintJacobian(jac, decision_var);
 
 		full_jacobian = jac;
 	}

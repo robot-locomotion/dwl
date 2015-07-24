@@ -3,7 +3,6 @@
 
 #include <IpTNLP.hpp>
 #include <model/OptimizationModel.h>
-#include <unsupported/Eigen/NumericalDiff>
 
 
 namespace dwl
@@ -24,57 +23,6 @@ class IpoptWrapper : public Ipopt::TNLP
 	typedef Ipopt::Index Index;
 	typedef Ipopt::Number Number;
 	typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixRXd;
-
-	template<typename _Scalar, int NX=Eigen::Dynamic, int NY=Eigen::Dynamic>
-	struct Functor
-	{
-		typedef _Scalar Scalar;
-		enum {
-			InputsAtCompileTime = NX,
-			ValuesAtCompileTime = NY
-		};
-		typedef Eigen::Matrix<Scalar,InputsAtCompileTime,1> InputType;
-		typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,1> ValueType;
-		typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,InputsAtCompileTime> JacobianType;
-
-		int m_inputs, m_values;
-
-		Functor() : m_inputs(InputsAtCompileTime), m_values(ValuesAtCompileTime) {}
-		Functor(int inputs, int values) : m_inputs(inputs), m_values(values) {}
-
-		int inputs() const { return m_inputs; }
-		int values() const { return m_values; }
-	};
-
-	struct ConstraintFunction : Functor<double>
-	{
-		ConstraintFunction(model::OptimizationModel& model) : Functor<double>(0,0), model_(&model) {}
-	    int operator() (const Eigen::VectorXd& x, Eigen::VectorXd& g) const
-	    {
-	    	g.resize(model_->getDimensionOfConstraints());
-	    	model_->evaluateConstraints(g, x);
-
-	    	return 0;
-	    }
-
-	    model::OptimizationModel* const model_;
-	};
-
-	struct CostFunction : Functor<double>
-	{
-		CostFunction(model::OptimizationModel& model) : Functor<double>(0,0), model_(&model) {}
-		int operator() (const Eigen::VectorXd& x, Eigen::VectorXd& f) const
-		{
-			f.resize(1);
-			double cost;
-			model_->evaluateCosts(cost, x);
-			f(0) = cost;
-
-			return 0;
-		}
-
-		model::OptimizationModel* const model_;
-	};
 
 
 	public:
