@@ -37,12 +37,14 @@ OptimizationModel::~OptimizationModel()
 void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constraint,
 											const Eigen::Ref<const Eigen::VectorXd>& decision_var)
 {
-	// Computing state dimension
-	unsigned int state_dim = decision_var.size() / horizon_;
+	if (state_dimension_ != (decision_var.size() / horizon_)) {
+		printf(RED "FATAL: the state and decision dimensions are not consistent\n" COLOR_RESET);
+		exit(EXIT_FAILURE);
+	}
 
 	// Setting the initial state
 	LocomotionState locomotion_state;
-	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
+	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dimension_);
 	dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 	unsigned int num_constraints = constraints_.size();
 	for (unsigned int j = 0; j < num_constraints + 1; j++) {
@@ -56,7 +58,7 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 	unsigned int index = 0;
 	for (unsigned int i = 0; i < horizon_; i++) {
 		// Converting the decision variable for a certain time to a robot state
-		decision_state = decision_var.segment(i * state_dim, state_dim);
+		decision_state = decision_var.segment(i * state_dimension_, state_dimension_);
 		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 
 		// Computing the constraints for a certain time
@@ -82,15 +84,19 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 void OptimizationModel::evaluateCosts(double& cost,
 									  const Eigen::Ref<const Eigen::VectorXd>& decision_var)
 {
+	if (state_dimension_ != (decision_var.size() / horizon_)) {
+		printf(RED "FATAL: the state and decision dimensions are not consistent\n" COLOR_RESET);
+		exit(EXIT_FAILURE);
+	}
+
 	// Initializing the cost value
 	cost = 0;
 
 	// Computing the cost for predefined horizon
 	LocomotionState locomotion_state;
-	unsigned int state_dim = decision_var.size() / horizon_;
 	for (unsigned int i = 0; i < horizon_; i++) {
 		// Converting the decision variable for a certain time to a robot state
-		Eigen::VectorXd decision_state = decision_var.segment(i * state_dim, state_dim);
+		Eigen::VectorXd decision_state = decision_var.segment(i * state_dimension_, state_dimension_);
 		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 
 		// Computing the function cost for a certain time
