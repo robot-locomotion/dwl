@@ -30,10 +30,9 @@ struct Functor
 };
 
 
-//template<int NX, int NY>
 struct ConstraintFunction : Functor<double>
 {
-	ConstraintFunction(void) : Functor<double>(0,0) {}//(NX,NY) {}
+	ConstraintFunction(void) : Functor<double>(0,0) {}
     int operator() (const Eigen::VectorXd& x, Eigen::VectorXd& fvec) const
     {
     	fvec.resize(2);
@@ -64,7 +63,11 @@ int main(int argc, char **argv)
 	system.LZ.active = true;
 	system.LZ.id = 0;
 
-	dwl::model::DynamicalSystem* dynamical_system = new dwl::model::ConstrainedDynamicalSystem();
+	dwl::model::ConstrainedDynamicalSystem* constrained_system = new dwl::model::ConstrainedDynamicalSystem();
+	dwl::rbd::BodySelector active_contact;
+	active_contact.push_back("foot");
+	constrained_system->setActiveEndEffectors(active_contact);
+	dwl::model::DynamicalSystem* dynamical_system = constrained_system;
 //		new dwl::model::FullDynamicalSystem();
 //		new dwl::model::HS071DynamicalSystem();
 	dynamical_system->modelFromURDFFile(model_file, &system, true);

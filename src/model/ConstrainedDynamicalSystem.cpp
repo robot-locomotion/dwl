@@ -9,12 +9,16 @@ namespace model
 
 ConstrainedDynamicalSystem::ConstrainedDynamicalSystem()
 {
-	locomotion_variables_.position = true; //TODO remove it
-	locomotion_variables_.velocity = true; //TODO remove it
-	locomotion_variables_.acceleration = true; //TODO remove it
-	state_dimension_ = 9;
-	num_joints_ = 2;
+	// Setting the name of the constraint
+	name_ = "constrained";
+
+	// Setting the locomotion variables for this dynamical constraint
+	locomotion_variables_.position = true;
+	locomotion_variables_.velocity = true;
+	locomotion_variables_.acceleration = true;
+	locomotion_variables_.effort = true;
 }
+
 
 ConstrainedDynamicalSystem::~ConstrainedDynamicalSystem()
 {
@@ -22,32 +26,36 @@ ConstrainedDynamicalSystem::~ConstrainedDynamicalSystem()
 }
 
 
-void ConstrainedDynamicalSystem::compute(Eigen::VectorXd& constraint,
-								  const LocomotionState& state)
+void ConstrainedDynamicalSystem::setActiveEndEffectors(const rbd::BodySelector& active_set)
 {
-	constraint.resize(2);
+	active_endeffectors_ = active_set;
+}
 
-	dwl::rbd::BodySelector foot;
-	foot.push_back("foot");
 
+void ConstrainedDynamicalSystem::compute(Eigen::VectorXd& constraint,
+										 const LocomotionState& state)
+{
+	constraint.resize(joint_dof_);
+
+	// Transcription of the constrained inverse dynamic equation using Euler-backward integration.
+	// This integration method adds numerical stability
 	Eigen::VectorXd estimated_joint_forces;
 	dynamics_.computeConstrainedFloatingBaseInverseDynamics(estimated_joint_forces,
 															state.base_pos, state.joint_pos,
 															state.base_vel, state.joint_vel,
-															state.base_acc, state.joint_acc,
-															foot);
+															state.base_acc - last_state_.base_acc,
+															state.joint_acc - last_state_.joint_acc,
+															active_endeffectors_);
 
-
-	std::cout << estimated_joint_forces.transpose() << " = estimated jnt for" << std::endl;
-	constraint = estimated_joint_forces;// - state.joint_for;
+	constraint = estimated_joint_forces - state.joint_eff;
 }
 
 
 void ConstrainedDynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
-									Eigen::VectorXd& upper_bound)
+										   Eigen::VectorXd& upper_bound)
 {
-	lower_bound = Eigen::VectorXd::Zero(2);
-	upper_bound = Eigen::VectorXd::Zero(2);
+	lower_bound = Eigen::VectorXd::Zero(joint_dof_);
+	upper_bound = Eigen::VectorXd::Zero(joint_dof_);
 }
 
 } //@namespace model
