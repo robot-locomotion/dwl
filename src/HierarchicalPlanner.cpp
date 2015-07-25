@@ -4,8 +4,10 @@
 namespace dwl_planners
 {
 
-HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : node_(node), planning_ptr_(NULL), body_planner_ptr_(NULL),
-		footstep_planner_ptr_(NULL), adjacency_ptr_(NULL), body_path_solver_ptr_(NULL), base_frame_("base_link"), world_frame_("odom")
+HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : private_node_(node),
+		planning_ptr_(NULL), body_planner_ptr_(NULL), footstep_planner_ptr_(NULL),
+		body_path_solver_ptr_(NULL), adjacency_ptr_(NULL), base_frame_("base_link"),
+		world_frame_("odom")
 {
 
 }
@@ -22,12 +24,15 @@ HierarchicalPlanners::~HierarchicalPlanners()
 void HierarchicalPlanners::init()
 {
 	// Setting the subscribers and publishers
-	reward_sub_ = node_.subscribe<terrain_server::RewardMap>("/reward_map", 1, &HierarchicalPlanners::rewardMapCallback, this);
-	obstacle_sub_ = node_.subscribe<terrain_server::ObstacleMap>("/obstacle_map", 1, &HierarchicalPlanners::obstacleMapCallback, this);
-	body_goal_sub_ = node_.subscribe<geometry_msgs::PoseStamped>("/body_goal", 1, &HierarchicalPlanners::resetGoalCallback, this);
+	reward_sub_ = node_.subscribe<terrain_server::RewardMap>("/reward_map", 1,
+			&HierarchicalPlanners::rewardMapCallback, this);
+	obstacle_sub_ = node_.subscribe<terrain_server::ObstacleMap>("/obstacle_map", 1,
+			&HierarchicalPlanners::obstacleMapCallback, this);
+	body_goal_sub_ = node_.subscribe<geometry_msgs::PoseStamped>("/body_goal", 1,
+			&HierarchicalPlanners::resetGoalCallback, this);
 
 	// Declaring the publisher of approximated body path
-	body_path_pub_ = node_.advertise<nav_msgs::Path>("approximated_body_path", 1);
+	body_path_pub_ = node_.advertise<nav_msgs::Path>("body_path", 1);
 	contact_sequence_pub_ = node_.advertise<dwl_planners::ContactSequence>("contact_sequence", 1);
 	contact_sequence_rviz_pub_ = node_.advertise<visualization_msgs::Marker>("contact_sequence_markers", 1);
 	contact_regions_pub_ = node_.advertise<dwl_planners::ContactRegion>("contact_regions", 1);
@@ -56,8 +61,8 @@ void HierarchicalPlanners::init()
 
 
 	// Getting the base and world frame
-	node_.param("base_frame", base_frame_, base_frame_);
-	node_.param("world_frame", world_frame_, world_frame_);
+	private_node_.param("base_frame", base_frame_, base_frame_);
+	private_node_.param("world_frame", world_frame_, world_frame_);
 	body_path_msg_.header.frame_id = world_frame_;
 	contact_sequence_msg_.header.frame_id = world_frame_;
 	contact_sequence_rviz_msg_.header.frame_id = world_frame_;
@@ -65,7 +70,7 @@ void HierarchicalPlanners::init()
 
 
 	//  Setting the locomotion approach
-	planning_ptr_ = new dwl::planning::HierarchicalPlanning();
+	planning_ptr_ = new dwl::locomotion::HierarchicalPlanning();
 
 	// Init the robot properties
 	initRobot();
@@ -89,20 +94,19 @@ void HierarchicalPlanners::init()
 	// Getting the goal pose
 	double x, y, yaw;
 	dwl::Pose goal_pose;
-	node_.getParam("hierarchical_planner/goal/x", x);
-	node_.getParam("hierarchical_planner/goal/y", y);
-	node_.getParam("hierarchical_planner/goal/yaw", yaw);
+	private_node_.getParam("goal/x", x);
+	private_node_.getParam("goal/y", y);
+	private_node_.getParam("goal/yaw", yaw);
 	goal_pose.position[0] = x;
 	goal_pose.position[1] = y;
-	dwl::Orientation orientation(0, 0, yaw);
-	Eigen::Quaterniond q;
-	orientation.getQuaternion(q);
+	
+	Eigen::Quaterniond q = dwl::math::getQuaternion(Eigen::Vector3d(0.0, 0.0, yaw));
 	goal_pose.orientation = q;
 	locomotor_.resetGoal(goal_pose);
 
 	// Setting the allowed computation time of the locomotor
 	double path_computation_time;
-	if (node_.getParam("hierarchical_planner/body_planner/path_computation_time", path_computation_time))
+	if (private_node_.getParam("body_planner/path_computation_time", path_computation_time))
 		locomotor_.setComputationTime(path_computation_time, dwl::BodyPathSolver);
 }
 
@@ -111,17 +115,17 @@ void HierarchicalPlanners::initRobot()
 {
 	// Initializes the robot properties
 	std::string properties_path;
-	if (node_.getParam("hierarchical_planner/robot/properties", properties_path))
+	if (private_node_.getParam("robot/properties", properties_path))
 		robot_.read(properties_path);
 	else
-		ROS_WARN("The properties was not defined, this could be neccesary.");
+		ROS_WARN("The properties was not defined, this could be necessary.");
 
 	// Initializes robot body primitives
 	std::string body_primitive_path;
-	if (node_.getParam("hierarchical_planner/robot/body_movement_primitives", body_primitive_path))
+	if (private_node_.getParam("robot/body_movement_primitives", body_primitive_path))
 		robot_.getBodyMotorPrimitive().read(body_primitive_path);
 	else
-		ROS_WARN("The body movement primitives was not defined, this could be neccesary.");
+		ROS_WARN("The body movement primitives was not defined, this could be necessary.");
 }
 
 
@@ -129,30 +133,32 @@ void HierarchicalPlanners::initBodyPlanner()
 {
 	// Setting the contact planner
 	std::string planner_name;
-	node_.param("hierarchical_planner/body_planner/type", planner_name, (std::string) "SearchBasedBody");
+	private_node_.param("body_planner/type", planner_name, (std::string) "SearchBasedBody");
 	if (planner_name == "SearchBasedBody")
-		body_planner_ptr_ = new dwl::planning::SearchBasedBodyMotionPlanning();
+		body_planner_ptr_ = new dwl::locomotion::SearchBasedBodyMotionPlanning();
 	else
-		body_planner_ptr_ = new dwl::planning::SearchBasedBodyMotionPlanning();
+		body_planner_ptr_ = new dwl::locomotion::SearchBasedBodyMotionPlanning();
 
 	// Getting the body path solver
 	std::string path_solver_name;
-	node_.param("hierarchical_planner/body_planner/path_solver", path_solver_name, (std::string) "AnytimeRepairingAStar");
-	if (path_solver_name == "AnytimeRepairingAStar")
-		body_path_solver_ptr_ = new dwl::planning::AnytimeRepairingAStar();
-	else if (path_solver_name == "AStar")
-		body_path_solver_ptr_ = new dwl::planning::AStar();
+	private_node_.param("body_planner/path_solver", path_solver_name, (std::string) "AnytimeRepairingAStar");
+	if (path_solver_name == "AnytimeRepairingAStar") {
+		// Reads the initial inflation value
+		double inflation = 3;
+		private_node_.param("body_planner/initial_inflation", inflation, inflation);
+		body_path_solver_ptr_ = new dwl::solver::AnytimeRepairingAStar(inflation);
+	} else if (path_solver_name == "AStar")
+		body_path_solver_ptr_ = new dwl::solver::AStar();
 	else if (path_solver_name == "Dijkstrap")
-		body_path_solver_ptr_ = new dwl::planning::Dijkstrap();
+		body_path_solver_ptr_ = new dwl::solver::Dijkstrap();
 	else
-		body_path_solver_ptr_ = new dwl::planning::AnytimeRepairingAStar();
+		body_path_solver_ptr_ = new dwl::solver::AnytimeRepairingAStar();
 
 
 	// Getting the adjacency model
 	std::string adjacency_model_name;
-	std::string path = "hierarchical_planner/body_planner/adjacency/";
-	node_.param(path + "name", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
-	std::cout << adjacency_model_name << std::endl;
+	std::string path = "body_planner/adjacency/";
+	private_node_.param(path + "name", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
 	if (adjacency_model_name == "LatticeBasedBodyAdjacency")
 		adjacency_ptr_ = new dwl::environment::LatticeBasedBodyAdjacency();
 	else
@@ -163,25 +169,33 @@ void HierarchicalPlanners::initBodyPlanner()
 
 	// Setting the features for the body planner
 	bool potential_collision_enable, potential_orientation_enable;
-	node_.param(path + "features/potential_leg_collision/enable", potential_collision_enable, false);
-	node_.param(path + "features/potential_body_orientation/enable", potential_orientation_enable, false);
+	private_node_.param(path + "features/potential_leg_collision/enable", potential_collision_enable, false);
+	private_node_.param(path + "features/potential_body_orientation/enable", potential_orientation_enable, false);
 
 	if (potential_collision_enable) {
-		dwl::environment::Feature* potential_collision_ptr = new dwl::environment::PotentialLegCollisionFeature();
+		double clearance, collision;
+		private_node_.param(path + "features/potential_leg_collision/clearance", clearance, 0.0);
+		private_node_.param(path + "features/potential_leg_collision/collision", collision, 0.3);
+		dwl::environment::Feature* potential_collision_ptr =
+				new dwl::environment::PotentialLegCollisionFeature(clearance, collision);
 
 		// Setting the weight
 		double weight, default_weight = 1;
-		node_.param(path + "features/potential_leg_collision/weight", weight, default_weight);
+		private_node_.param(path + "features/potential_leg_collision/weight", weight, default_weight);
 		potential_collision_ptr->setWeight(weight);
 		adjacency_ptr_->addFeature(potential_collision_ptr);
 	}
 
 	if (potential_orientation_enable) {
-		dwl::environment::Feature* potential_orientation_ptr = new dwl::environment::PotentialBodyOrientationFeature();
+		double max_roll, max_pitch;
+		private_node_.param(path + "features/potential_body_orientation/max_roll", max_roll, 30.0);
+		private_node_.param(path + "features/potential_body_orientation/max_pitch", max_pitch, 30.0);
+		dwl::environment::Feature* potential_orientation_ptr =
+				new dwl::environment::PotentialBodyOrientationFeature(max_roll, max_pitch);
 
 		// Setting the weight
 		double weight, default_weight = 1;
-		node_.param(path + "features/potential_body_orientation/weight", weight, default_weight);
+		private_node_.param(path + "features/potential_body_orientation/weight", weight, default_weight);
 		potential_orientation_ptr->setWeight(weight);
 		adjacency_ptr_->addFeature(potential_orientation_ptr);
 	}
@@ -196,51 +210,101 @@ void HierarchicalPlanners::initContactPlanner()
 {
 	// Setting the contact planner
 	std::string planner_name;
-	std::string path = "hierarchical_planner/contact_planner/";
-	node_.param(path + "type", planner_name, (std::string) "GreedyFootstep");
+	std::string path = "contact_planner/";
+	bool remove_enable;
+	double distance_threshold;
+	private_node_.param(path + "remove_footholds/enable", remove_enable, false);
+	if (remove_enable)
+		private_node_.param(path + "remove_footholds/distance_threshold", distance_threshold,
+				std::numeric_limits<double>::max());
+
+	private_node_.param(path + "type", planner_name, (std::string) "GreedyFootstep");
 	if (planner_name == "GreedyFootstep")
-		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning();
+		footstep_planner_ptr_ = new dwl::locomotion::GreedyFootstepPlanning(remove_enable, distance_threshold);
 	else
-		footstep_planner_ptr_ = new dwl::planning::GreedyFootstepPlanning();
+		footstep_planner_ptr_ = new dwl::locomotion::GreedyFootstepPlanning(remove_enable, distance_threshold);
 
 	// Setting the features for the footstep planner
-	bool support_enable, collision_enable, orientation_enable;
-	node_.param(path + "features/support_triangle/enable", support_enable, false);
-	node_.param(path + "features/leg_collision/enable", collision_enable, false);
-	node_.param(path + "features/body_orientation/enable", orientation_enable, false);
+	bool support_enable, collision_enable, orientation_enable, kinematic_enable, stance_enable;
+	private_node_.param(path + "features/support_triangle/enable", support_enable, false);
+	private_node_.param(path + "features/leg_collision/enable", collision_enable, false);
+	private_node_.param(path + "features/body_orientation/enable", orientation_enable, false);
+	private_node_.param(path + "features/kinematic_feasibility/enable", kinematic_enable, false);
+	private_node_.param(path + "features/stance_posture/enable", stance_enable, false);
 	if (support_enable) {
-		dwl::environment::Feature* support_ptr = new dwl::environment::SupportTriangleFeature();
+		double stable_inradii, unstable_inradii;
+		private_node_.param(path + "features/support_triangle/stable_inraddi", stable_inradii, 0.13);
+		private_node_.param(path + "features/support_triangle/unstable_inraddi", unstable_inradii, 0.08);
+		dwl::environment::Feature* support_ptr =
+				new dwl::environment::SupportTriangleFeature(stable_inradii, unstable_inradii);
 
 		// Setting the weight
 		double weight, default_weight = 1;
-		node_.param(path + "features/support_triangle/weight", weight, default_weight);
+		private_node_.param(path + "features/support_triangle/weight", weight, default_weight);
 		support_ptr->setWeight(weight);
 		footstep_planner_ptr_->addFeature(support_ptr);
 	}
 
 	if (collision_enable) {
-		dwl::environment::Feature* collision_ptr = new dwl::environment::LegCollisionFeature();
+		double clearance, collision;
+		private_node_.param(path + "features/leg_collision/clearance", clearance, 0.0);
+		private_node_.param(path + "features/leg_collision/collision", collision, 0.3);
+		dwl::environment::Feature* collision_ptr =
+				new dwl::environment::LegCollisionFeature(clearance, collision);
 
 		// Setting the weight
 		double weight, default_weight = 1;
-		node_.param(path + "features/leg_collision/weight", weight, default_weight);
+		private_node_.param(path + "features/leg_collision/weight", weight, default_weight);
 		collision_ptr->setWeight(weight);
 		footstep_planner_ptr_->addFeature(collision_ptr);
 	}
 
 	if (orientation_enable) {
-		dwl::environment::Feature* orientation_ptr = new dwl::environment::BodyOrientationFeature();
+		double max_roll, max_pitch;
+		private_node_.param(path + "features/body_orientation/max_roll", max_roll, 30.0);
+		private_node_.param(path + "features/body_orientation/max_pitch", max_pitch, 30.0);
+		dwl::environment::Feature* orientation_ptr =
+				new dwl::environment::BodyOrientationFeature(max_roll, max_pitch);
 
 		// Setting the weight
 		double weight, default_weight = 1;
-		node_.param(path + "features/body_orientation/weight", weight, default_weight);
+		private_node_.param(path + "features/body_orientation/weight", weight, default_weight);
 		orientation_ptr->setWeight(weight);
 		footstep_planner_ptr_->addFeature(orientation_ptr);
 	}
 
+	if (kinematic_enable) {
+		double kin_lim_x, kin_lim_y, stable_displacement;
+		private_node_.param(path + "features/kinematic_feasibility/kin_lim_x", kin_lim_x, 0.16);
+		private_node_.param(path + "features/kinematic_feasibility/kin_lim_x", kin_lim_y, 0.08);
+		private_node_.param(path + "features/kinematic_feasibility/stable_displacement", stable_displacement, 0.15);
+		dwl::environment::Feature* kinematic_ptr =
+				new dwl::environment::KinematicFeasibilityFeature(kin_lim_x, kin_lim_y, stable_displacement);
+
+		// Setting the weight
+		double weight, default_weight = 1;
+		private_node_.param(path + "features/kinematic_feasibility/weight", weight, default_weight);
+		kinematic_ptr->setWeight(weight);
+		footstep_planner_ptr_->addFeature(kinematic_ptr);
+	}
+
+	if (stance_enable) {
+		double kin_lim_x, kin_lim_y, stable_displacement;
+		private_node_.param(path + "features/kinematic_feasibility/kin_lim_x", kin_lim_x, 0.16);
+		private_node_.param(path + "features/kinematic_feasibility/kin_lim_x", kin_lim_y, 0.08);
+		private_node_.param(path + "features/kinematic_feasibility/stable_displacement", stable_displacement, 0.15);
+		dwl::environment::Feature* stance_ptr = new dwl::environment::StancePostureFeature();
+
+		// Setting the weight
+		double weight, default_weight = 1;
+		private_node_.param(path + "features/stance_posture/weight", weight, default_weight);
+		stance_ptr->setWeight(weight);
+		footstep_planner_ptr_->addFeature(stance_ptr);
+	}
+
 	// Setting the contact horizon
 	double contact_horizon;
-	node_.param(path + "horizon", contact_horizon, 0.0);
+	private_node_.param(path + "horizon", contact_horizon, 0.0);
 	footstep_planner_ptr_->setContactHorizon(contact_horizon);
 }
 
@@ -318,7 +382,6 @@ bool HierarchicalPlanners::compute()
 			pthread_mutex_unlock(&planner_lock_);
 
 		body_path_ = locomotor_.getBodyPath();
-//		nominal_contacts_ = footstep_planner_ptr_->getNominalContacts();
 		contact_search_region_ = footstep_planner_ptr_->getContactSearchRegions();
 		contact_sequence_ = locomotor_.getContactSequence();
 	} catch (tf::TransformException& ex) {
@@ -405,12 +468,11 @@ void HierarchicalPlanners::resetGoalCallback(const geometry_msgs::PoseStampedCon
 	goal_pose.position[0] = msg->pose.position.x;
 	goal_pose.position[1] = msg->pose.position.y;
 
-	Eigen::Quaterniond q(msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);//wxyz
+	Eigen::Quaterniond q(msg->pose.orientation.w, msg->pose.orientation.x,
+						 msg->pose.orientation.y, msg->pose.orientation.z);
 	goal_pose.orientation = q;
 
-	dwl::Orientation orientation(q);
-	double roll, pitch, yaw;
-	orientation.getRPY(roll, pitch, yaw);
+	double yaw = dwl::math::getYaw(dwl::math::getRPY(q));
 
 	// Setting the new goal pose
 	locomotor_.resetGoal(goal_pose);
@@ -464,9 +526,9 @@ void HierarchicalPlanners::publishContactSequence()
 		contact_sequence_rviz_msg_.type = visualization_msgs::Marker::SPHERE_LIST;
 		contact_sequence_rviz_msg_.ns = "contact_points";
 		contact_sequence_rviz_msg_.id = 0;
-		contact_sequence_rviz_msg_.scale.x = 0.04;
-		contact_sequence_rviz_msg_.scale.y = 0.04;
-		contact_sequence_rviz_msg_.scale.z = 0.04;
+		contact_sequence_rviz_msg_.scale.x = 0.03;
+		contact_sequence_rviz_msg_.scale.y = 0.03;
+		contact_sequence_rviz_msg_.scale.z = 0.03;
 		contact_sequence_rviz_msg_.action = visualization_msgs::Marker::ADD;
 
 		contact_sequence_rviz_msg_.points.resize(contact_sequence_.size());
@@ -474,34 +536,34 @@ void HierarchicalPlanners::publishContactSequence()
 		for (int i = 0; i < contact_sequence_.size(); i++) {
 			contact_sequence_rviz_msg_.points[i].x = contact_sequence_[i].position(0);
 			contact_sequence_rviz_msg_.points[i].y = contact_sequence_[i].position(1);
-			contact_sequence_rviz_msg_.points[i].z = contact_sequence_[i].position(2);// + 0.03;
+			contact_sequence_rviz_msg_.points[i].z = contact_sequence_[i].position(2) + 0.015;
 
 			int end_effector = contact_sequence_[i].end_effector;
 			if (end_effector == 0) {
 				contact_sequence_rviz_msg_.colors[i].r = 0.45;
 				contact_sequence_rviz_msg_.colors[i].g = 0.29;
 				contact_sequence_rviz_msg_.colors[i].b = 0.09;
-				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 0.5;
 			} else if (end_effector == 1) {
 				contact_sequence_rviz_msg_.colors[i].r = 1.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 0.0;
-				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 0.5;
 			} else if (end_effector == 2) {
 				contact_sequence_rviz_msg_.colors[i].r = 0.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 0.0;
-				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 0.5;
 			} else if (end_effector == 3) {
 				contact_sequence_rviz_msg_.colors[i].r = 0.09;
 				contact_sequence_rviz_msg_.colors[i].g = 0.11;
 				contact_sequence_rviz_msg_.colors[i].b = 0.7;
-				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 0.5;
 			} else {
 				contact_sequence_rviz_msg_.colors[i].r = 0.0;
 				contact_sequence_rviz_msg_.colors[i].g = 1.0;
 				contact_sequence_rviz_msg_.colors[i].b = 1.0;
-				contact_sequence_rviz_msg_.colors[i].a = 1.0;
+				contact_sequence_rviz_msg_.colors[i].a = 0.5;
 			}
 			//contact_sequence_msg_.lifetime = 0;//ros::Duration();
 		}
@@ -648,8 +710,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "hierarchical_planner");
 
-	ros::NodeHandle node;
-	dwl_planners::HierarchicalPlanners planner(node);
+	dwl_planners::HierarchicalPlanners planner;
 
 	planner.init();
 	ros::spinOnce();

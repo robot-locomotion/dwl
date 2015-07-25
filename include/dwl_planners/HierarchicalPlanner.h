@@ -3,16 +3,16 @@
 
 #include <ros/ros.h>
 
-// Planning headers
-#include <planning/WholeBodyLocomotion.h>
-#include <planning/HierarchicalPlanning.h>
-#include <planning/MotionPlanning.h>
-#include <planning/SearchBasedBodyMotionPlanning.h>
-#include <planning/ContactPlanning.h>
-#include <planning/GreedyFootstepPlanning.h>
-#include <planning/Dijkstrap.h>
-#include <planning/AStar.h>
-#include <planning/AnytimeRepairingAStar.h>
+// Locomotion headers
+#include <locomotion/WholeBodyLocomotion.h>
+#include <locomotion/HierarchicalPlanning.h>
+#include <locomotion/MotionPlanning.h>
+#include <locomotion/SearchBasedBodyMotionPlanning.h>
+#include <locomotion/ContactPlanning.h>
+#include <locomotion/GreedyFootstepPlanning.h>
+#include <solver/Dijkstrap.h>
+#include <solver/AStar.h>
+#include <solver/AnytimeRepairingAStar.h>
 
 // Robot and Environment headers
 #include <robot/Robot.h>
@@ -25,6 +25,8 @@
 #include <environment/SupportTriangleFeature.h>
 #include <environment/LegCollisionFeature.h>
 #include <environment/BodyOrientationFeature.h>
+#include <environment/KinematicFeasibilityFeature.h>
+#include <environment/StancePostureFeature.h>
 
 // Messages headers
 #include <dwl_planners/ContactSequence.h>
@@ -56,7 +58,7 @@ class HierarchicalPlanners
 		 * @brief Constructor function
 		 * @param ros::NodeHandle node ROS node handle
 		 */
-		HierarchicalPlanners(ros::NodeHandle node);
+		HierarchicalPlanners(ros::NodeHandle node = ros::NodeHandle("~"));
 
 		/** @brief Destructor function */
 		~HierarchicalPlanners();
@@ -108,6 +110,9 @@ class HierarchicalPlanners
 		/** @brief ROS node handle */
 		ros::NodeHandle node_;
 
+		/** @brief Private ROS node handle */
+		ros::NodeHandle private_node_;
+
 		/** @brief TF listener */
 		tf::TransformListener tf_listener_;
 
@@ -144,14 +149,18 @@ class HierarchicalPlanners
 		dwl::WholeBodyLocomotion locomotor_;
 
 		/** @brief Planning of motion sequences pointer */
-		dwl::planning::PlanningOfMotionSequences* planning_ptr_;
+		dwl::locomotion::PlanningOfMotionSequence* planning_ptr_;
 
 		/** @brief Body planner */
-		dwl::planning::MotionPlanning* body_planner_ptr_;
+		dwl::locomotion::MotionPlanning* body_planner_ptr_;
 
 		/** @brief Contact planner */
-		dwl::planning::ContactPlanning* footstep_planner_ptr_;
+		dwl::locomotion::ContactPlanning* footstep_planner_ptr_;
 
+		/** @brief Solver pointer */
+		dwl::solver::Solver* body_path_solver_ptr_;
+
+		/** @brief Adjacency environment pointer */
 		dwl::environment::AdjacencyEnvironment* adjacency_ptr_;
 
 		/** @brief Environment information */
@@ -159,9 +168,6 @@ class HierarchicalPlanners
 
 		/** @brief Robot properties */
 		dwl::robot::Robot robot_;
-
-		/** @brief Solver pointer */
-		dwl::planning::Solver* body_path_solver_ptr_;
 
 		/** @brief Current robot pose */
 		dwl::Pose current_pose_;
