@@ -1,5 +1,5 @@
-#ifndef ObstacleMapServer_H
-#define ObstacleMapServer_H
+#ifndef TERRAIN_SERVER__OBSTACLE_MAP_SERVER___H
+#define TERRAIN_SERVER__OBSTACLE_MAP_SERVER___H
 
 #include <ros/ros.h>
 #include <octomap_msgs/Octomap.h>

@@ -1,5 +1,5 @@
-#ifndef Terrain_Server_RewardMapServer_H
-#define Terrain_Server_RewardMapServer_H
+#ifndef TERRAIN_SERVER__REWARD_MAP_SERVER___H
+#define TERRAIN_SERVER__REWARD_MAP_SERVER___H
 
 #include <ros/ros.h>
 #include <octomap_msgs/Octomap.h>
