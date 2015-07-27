@@ -73,7 +73,7 @@ class DynamicalSystem : public Constraint
 							   Eigen::VectorXd& upper_bound) = 0;
 
 		/** @brief Virtual method for getting the constraint dimension */
-		virtual unsigned int getConstraintDimension() = 0;
+		virtual unsigned int defineConstraintDimension() = 0;
 
 		/**
 		 * @brief Sets floating-base system properties

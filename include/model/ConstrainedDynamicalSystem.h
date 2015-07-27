@@ -34,7 +34,7 @@ class ConstrainedDynamicalSystem : public DynamicalSystem
 					 const LocomotionState& state);
 
 		/** @brief Gets the constraint dimension of the constrained dynamical system */
-		unsigned int getConstraintDimension();
+		unsigned int defineConstraintDimension();
 
 		/**
 		 * @brief Gets the bounds of the dynamical system constraint

@@ -51,7 +51,7 @@ void ConstrainedDynamicalSystem::compute(Eigen::VectorXd& constraint,
 }
 
 
-unsigned int ConstrainedDynamicalSystem::getConstraintDimension()
+unsigned int ConstrainedDynamicalSystem::defineConstraintDimension()
 {
 	return joint_dof_;
 }

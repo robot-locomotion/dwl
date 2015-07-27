@@ -27,6 +27,7 @@ void Constraint::setLastState(LocomotionState& last_state)
 
 unsigned int Constraint::getConstraintDimension()
 {
+	constraint_dimension_ = defineConstraintDimension();
 	return constraint_dimension_;
 }
 

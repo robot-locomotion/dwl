@@ -67,7 +67,7 @@ class HS071DynamicalSystem : public DynamicalSystem
 			upper_bound(1) = 40.0;
 		}
 
-		unsigned int getConstraintDimension()
+		unsigned int defineConstraintDimension()
 		{
 			return 2;
 		}

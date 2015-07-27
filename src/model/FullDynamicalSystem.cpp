@@ -49,5 +49,11 @@ void FullDynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
 	upper_bound = Eigen::VectorXd::Zero(2);
 }
 
+
+unsigned int FullDynamicalSystem::defineConstraintDimension()
+{
+	return joint_dof_;
+}
+
 } //@namespace model
 } //@namespace dwl
