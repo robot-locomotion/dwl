@@ -51,6 +51,12 @@ void ConstrainedDynamicalSystem::compute(Eigen::VectorXd& constraint,
 }
 
 
+unsigned int ConstrainedDynamicalSystem::getConstraintDimension()
+{
+	return joint_dof_;
+}
+
+
 void ConstrainedDynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
 										   Eigen::VectorXd& upper_bound)
 {

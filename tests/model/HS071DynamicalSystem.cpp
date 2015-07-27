@@ -17,7 +17,6 @@ class HS071DynamicalSystem : public DynamicalSystem
 		{
 			name_ = "HS071";
 			state_dimension_ = 4;
-			constraint_dimension_ = 2;
 			locomotion_variables_.position = true; //TODO remove it
 
 			LocomotionState starting_state;
@@ -66,6 +65,11 @@ class HS071DynamicalSystem : public DynamicalSystem
 			upper_bound = Eigen::VectorXd::Zero(constraint_dimension_);
 			upper_bound(0) = NO_BOUND;
 			upper_bound(1) = 40.0;
+		}
+
+		unsigned int getConstraintDimension()
+		{
+			return 2;
 		}
 };
 
