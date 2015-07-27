@@ -36,7 +36,8 @@ class Cost
 		 * @param double& Cost value
 		 * @param const LocomotionState& State value
 		 */
-		virtual void compute(double& cost, const LocomotionState& state) = 0;
+		virtual void compute(double& cost,
+							 const LocomotionState& state) = 0;
 
 		/**
 		 * @brief Abstract method for getting the cost value given a certain node
@@ -44,7 +45,9 @@ class Cost
 		 * @param Eigen::Vector3d robot_state 2D position and yaw orientation of the robot
 		 * @param bool terrain_cost Defines if we want to get the terrain cost or body cost
 		 */
-		virtual void get(AdjacencyMap& adjacency_map, Eigen::Vector3d robot_state, bool terrain_cost);
+		virtual void get(AdjacencyMap& adjacency_map,
+						 Eigen::Vector3d robot_state,
+						 bool terrain_cost);
 
 		/**
 		 * @brief Indicates if it was defined a cost map in this class
