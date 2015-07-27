@@ -31,6 +31,15 @@ void DynamicalSystem::modelFromURDFFile(std::string model_file,
 	// Setting initial conditions
 	initialConditions();
 
+	// Reading and setting the position joint limits
+	urdf::Model model;
+	Eigen::VectorXd joint_lower_limit(system_->getJointDOF()), joint_upper_limit(system_->getJointDOF());
+	if (!model.initFile(model_file)) {//String(robot_model)) {
+		printf(RED "FATAL: Failed to parse urdf file\n" COLOR_RESET);
+		return;
+	} else
+		jointLimitsFromURDF(model);
+
 	if (info) {
 		printf("The state dimension is %i\n", state_dimension_);
 		printf("The full DOF of floating-base system is %i\n", system_dof_);
@@ -50,11 +59,51 @@ void DynamicalSystem::modelFromURDFModel(std::string urdf_model,
 	// Setting initial conditions
 	initialConditions();
 
+	// Reading and setting the position joint limits
+	urdf::Model model;
+	Eigen::VectorXd joint_lower_limit(system_->getJointDOF()), joint_upper_limit(system_->getJointDOF());
+	if (!model.initString(urdf_model)) {
+		printf(RED "FATAL: Failed to parse urdf file\n" COLOR_RESET);
+		return;
+	} else
+		jointLimitsFromURDF(model);
+
 	if (info) {
 		printf("The state dimension is %i\n", state_dimension_);
 		printf("The full DOF of floating-base system is %i\n", system_dof_);
 		printf("The joint DOF of floating-base system is %i\n", joint_dof_);
 	}
+}
+
+
+void DynamicalSystem::jointLimitsFromURDF(urdf::Model& model)
+{
+	unsigned num_joints = system_->getJointDOF();
+	Eigen::VectorXd joint_lower_limit(num_joints), joint_upper_limit(num_joints);
+
+	// Reading and setting the position joint limits
+	boost::shared_ptr<urdf::Link>& root = model.links_[model.getRoot()->name];
+	boost::shared_ptr<urdf::Link> current_link = root;
+	unsigned virtual_joints_idx = 0, joint_idx = 0;
+	while (current_link->child_joints.size() > 0) {
+		boost::shared_ptr<urdf::Joint> current_joint = current_link->child_joints[0];
+		current_link = model.links_[current_joint->child_link_name];
+		if (current_joint->type == urdf::Joint::PRISMATIC ||
+				current_joint->type == urdf::Joint::REVOLUTE) {
+			if (system_->getTypeOfDynamicSystem() == rbd::VirtualFloatingBase) {
+				if (system_->getFloatingBaseDOF() != virtual_joints_idx) {
+						virtual_joints_idx++;
+				} else {
+					joint_lower_limit(joint_idx) = current_joint->limits->lower;
+					joint_upper_limit(joint_idx) = current_joint->limits->upper;
+					joint_idx++;
+				}
+			}
+		}
+	}
+
+	lower_state_bound_.joint_pos = joint_lower_limit;
+	upper_state_bound_.joint_pos = joint_upper_limit;
 }
 
 

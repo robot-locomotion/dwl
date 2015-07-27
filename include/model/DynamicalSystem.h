@@ -3,6 +3,7 @@
 
 #include <model/Constraint.h>
 #include <model/WholeBodyDynamics.h>
+#include <urdf/model.h>
 
 
 namespace dwl
@@ -55,6 +56,12 @@ class DynamicalSystem : public Constraint
 		void modelFromURDFModel(std::string urdf_model,
 								struct rbd::FloatingBaseSystem* system = NULL,
 								bool info = false);
+
+		/**
+		 * @brief Reads and sets the joint limit from an URDF model
+		 * @param urdf::Model& URDF model
+		 */
+		void jointLimitsFromURDF(urdf::Model& model);
 
 		/**
 		 * @brief Computes the dynamic constraint vector given a certain state
