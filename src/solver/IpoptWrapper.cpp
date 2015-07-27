@@ -72,7 +72,7 @@ bool IpoptWrapper::get_bounds_info(Index n, Number* x_l, Number* x_u,
 		if (i == 0)
 			opt_model_.getDynamicalSystem()->getBounds(lower_bound, upper_bound);
 		else
-			opt_model_.getConstraints()[i]->getBounds(lower_bound, upper_bound);
+			opt_model_.getConstraints()[i-1]->getBounds(lower_bound, upper_bound);
 
 		unsigned int bound_size = lower_bound.size();
 		constraint_lower_bound.segment(index, bound_size) = lower_bound;
