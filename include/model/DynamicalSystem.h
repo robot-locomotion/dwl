@@ -72,6 +72,9 @@ class DynamicalSystem : public Constraint
 		virtual void getBounds(Eigen::VectorXd& lower_bound,
 							   Eigen::VectorXd& upper_bound) = 0;
 
+		/** @brief Virtual method for getting the constraint dimension */
+		virtual unsigned int getConstraintDimension() = 0;
+
 		/**
 		 * @brief Sets floating-base system properties
 		 * @param rbd::FloatingBaseSystem* system
@@ -158,6 +161,10 @@ class DynamicalSystem : public Constraint
 		LocomotionState upper_state_bound_;
 
 		LocomotionVariables locomotion_variables_;
+
+
+	private:
+		void initialConditions();
 };
 
 } //@namespace model
