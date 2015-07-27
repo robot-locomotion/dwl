@@ -22,14 +22,14 @@ class IpoptNLP : public Solver
 		~IpoptNLP();
 
 		/**
-		 * @brief Iinitialization of the NLP solver using Ipopt
+		 * @brief Initialization of the NLP solver using Ipopt
 		 * @return True if was initialized
 		 */
 		bool init();
 
 		/**
 		 * @brief Computes a solution of an NLP given a defined computation time
-		 * @oaram double Computation time
+		 * @param double Computation time
 		 * @return True if it was computed a solution
 		 */
 		bool compute(double computation_time = std::numeric_limits<double>::max());
