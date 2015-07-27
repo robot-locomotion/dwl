@@ -4,7 +4,7 @@
 namespace dwl_planners
 {
 
-HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : private_node_(node),
+FootstepHierarchicalPlanners::FootstepHierarchicalPlanners(ros::NodeHandle node) : private_node_(node),
 		planning_ptr_(NULL), body_planner_ptr_(NULL), footstep_planner_ptr_(NULL),
 		body_path_solver_ptr_(NULL), adjacency_ptr_(NULL), base_frame_("base_link"),
 		world_frame_("odom")
@@ -13,7 +13,7 @@ HierarchicalPlanners::HierarchicalPlanners(ros::NodeHandle node) : private_node_
 }
 
 
-HierarchicalPlanners::~HierarchicalPlanners()
+FootstepHierarchicalPlanners::~FootstepHierarchicalPlanners()
 {
 	delete planning_ptr_;
 	delete footstep_planner_ptr_;
@@ -21,15 +21,15 @@ HierarchicalPlanners::~HierarchicalPlanners()
 }
 
 
-void HierarchicalPlanners::init()
+void FootstepHierarchicalPlanners::init()
 {
 	// Setting the subscribers and publishers
 	reward_sub_ = node_.subscribe<terrain_server::RewardMap>("/reward_map", 1,
-			&HierarchicalPlanners::rewardMapCallback, this);
+			&FootstepHierarchicalPlanners::rewardMapCallback, this);
 	obstacle_sub_ = node_.subscribe<terrain_server::ObstacleMap>("/obstacle_map", 1,
-			&HierarchicalPlanners::obstacleMapCallback, this);
+			&FootstepHierarchicalPlanners::obstacleMapCallback, this);
 	body_goal_sub_ = node_.subscribe<geometry_msgs::PoseStamped>("/body_goal", 1,
-			&HierarchicalPlanners::resetGoalCallback, this);
+			&FootstepHierarchicalPlanners::resetGoalCallback, this);
 
 	// Declaring the publisher of approximated body path
 	body_path_pub_ = node_.advertise<nav_msgs::Path>("body_path", 1);
@@ -111,7 +111,7 @@ void HierarchicalPlanners::init()
 }
 
 
-void HierarchicalPlanners::initRobot()
+void FootstepHierarchicalPlanners::initRobot()
 {
 	// Initializes the robot properties
 	std::string properties_path;
@@ -129,7 +129,7 @@ void HierarchicalPlanners::initRobot()
 }
 
 
-void HierarchicalPlanners::initBodyPlanner()
+void FootstepHierarchicalPlanners::initBodyPlanner()
 {
 	// Setting the contact planner
 	std::string planner_name;
@@ -206,7 +206,7 @@ void HierarchicalPlanners::initBodyPlanner()
 }
 
 
-void HierarchicalPlanners::initContactPlanner()
+void FootstepHierarchicalPlanners::initContactPlanner()
 {
 	// Setting the contact planner
 	std::string planner_name;
@@ -309,7 +309,7 @@ void HierarchicalPlanners::initContactPlanner()
 }
 
 
-bool HierarchicalPlanners::compute()
+bool FootstepHierarchicalPlanners::compute()
 {
 	bool solution = false;
 
@@ -394,7 +394,7 @@ bool HierarchicalPlanners::compute()
 }
 
 
-void HierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapConstPtr& msg)
+void FootstepHierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapConstPtr& msg)
 {
 	std::vector<dwl::RewardCell> reward_map;
 
@@ -429,7 +429,7 @@ void HierarchicalPlanners::rewardMapCallback(const terrain_server::RewardMapCons
 }
 
 
-void HierarchicalPlanners::obstacleMapCallback(const terrain_server::ObstacleMapConstPtr& msg)
+void FootstepHierarchicalPlanners::obstacleMapCallback(const terrain_server::ObstacleMapConstPtr& msg)
 {
 	std::vector<dwl::Cell> obstacle_map;
 
@@ -462,7 +462,7 @@ void HierarchicalPlanners::obstacleMapCallback(const terrain_server::ObstacleMap
 }
 
 
-void HierarchicalPlanners::resetGoalCallback(const geometry_msgs::PoseStampedConstPtr& msg)
+void FootstepHierarchicalPlanners::resetGoalCallback(const geometry_msgs::PoseStampedConstPtr& msg)
 {
 	dwl::Pose goal_pose;
 	goal_pose.position[0] = msg->pose.position.x;
@@ -480,7 +480,7 @@ void HierarchicalPlanners::resetGoalCallback(const geometry_msgs::PoseStampedCon
 }
 
 
-void HierarchicalPlanners::publishBodyPath()
+void FootstepHierarchicalPlanners::publishBodyPath()
 {
 	// Publishing the body path if there is at least one subscriber
 	if (body_path_pub_.getNumSubscribers() > 0) {
@@ -504,7 +504,7 @@ void HierarchicalPlanners::publishBodyPath()
 }
 
 
-void HierarchicalPlanners::publishContactSequence()
+void FootstepHierarchicalPlanners::publishContactSequence()
 {
 	// Publishing the contact sequence if there is at least one subscriber
 	if (contact_sequence_pub_.getNumSubscribers() > 0) {
@@ -576,7 +576,7 @@ void HierarchicalPlanners::publishContactSequence()
 }
 
 
-void HierarchicalPlanners::publishContactRegions()
+void FootstepHierarchicalPlanners::publishContactRegions()
 {
 	// Publishing the contacts regions
 		if (contact_regions_pub_.getNumSubscribers() > 0) {
@@ -710,7 +710,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "hierarchical_planner");
 
-	dwl_planners::HierarchicalPlanners planner;
+	dwl_planners::FootstepHierarchicalPlanners planner;
 
 	planner.init();
 	ros::spinOnce();

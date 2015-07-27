@@ -1,5 +1,5 @@
-#ifndef DWL_PLANNERS__HIERARCHICAL_PLANNER__H
-#define DWL_PLANNERS__HIERARCHICAL_PLANNER__H
+#ifndef DWL_PLANNERS__FOOTSTEP_HIERARCHICAL_PLANNER__H
+#define DWL_PLANNERS__FOOTSTEP_HIERARCHICAL_PLANNER__H
 
 #include <ros/ros.h>
 
@@ -48,20 +48,20 @@ namespace dwl_planners
 {
 
 /**
- * @class HierarchicalPlanners
- * @brief Class for solving legged motion planning by approaching as a hierarchical planner
+ * @class FootstepHierarchicalPlanners
+ * @brief This class implement a hierarchical approach for footstep planning over rough terrain
  */
-class HierarchicalPlanners
+class FootstepHierarchicalPlanners
 {
 	public:
 		/**
 		 * @brief Constructor function
 		 * @param ros::NodeHandle node ROS node handle
 		 */
-		HierarchicalPlanners(ros::NodeHandle node = ros::NodeHandle("~"));
+		FootstepHierarchicalPlanners(ros::NodeHandle node = ros::NodeHandle("~"));
 
 		/** @brief Destructor function */
-		~HierarchicalPlanners();
+		~FootstepHierarchicalPlanners();
 
 		/** @brief Initializes the hierarchical planner */
 		void init();
