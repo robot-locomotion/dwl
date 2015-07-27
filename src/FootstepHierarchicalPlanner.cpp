@@ -1,4 +1,4 @@
-#include <dwl_planners/HierarchicalPlanner.h>
+#include <dwl_planners/FootstepHierarchicalPlanner.h>
 
 
 namespace dwl_planners
