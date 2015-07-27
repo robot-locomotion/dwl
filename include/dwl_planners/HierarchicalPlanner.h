@@ -1,5 +1,5 @@
-#ifndef DWL_Planners_HierarchicalPlanner_H
-#define DWL_Planners_HierarchicalPlanner_H
+#ifndef DWL_PLANNERS__HIERARCHICAL_PLANNER__H
+#define DWL_PLANNERS__HIERARCHICAL_PLANNER__H
 
 #include <ros/ros.h>
 

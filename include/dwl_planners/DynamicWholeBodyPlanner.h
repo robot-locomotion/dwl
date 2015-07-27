@@ -1,5 +1,5 @@
-#ifndef DWL_Planners_WholeBodyPlanner_H
-#define DWL_Planners_WholeBodyPlanner_H
+#ifndef DWL_PLANNERS__DYNAMIC_WHOLE_BODY_PLANNER__H
+#define DWL_PLANNERS__DYNAMIC_WHOLE_BODY_PLANNER__H
 
 #include <ros/ros.h>
 #include <locomotion/PlanningOfMotionSequence.h>
@@ -10,11 +10,11 @@
 namespace dwl_planners
 {
 
-class WholeBodyPlanner
+class DynamicWholeBodyPlanner
 {
 	public:
-		WholeBodyPlanner();
-		~WholeBodyPlanner();
+		DynamicWholeBodyPlanner();
+		~DynamicWholeBodyPlanner();
 
 		void init();
 		bool compute();

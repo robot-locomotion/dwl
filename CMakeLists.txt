@@ -62,7 +62,7 @@ add_dependencies(hierarchical_planner_node  ${catkin_EXPORTED_TARGETS})
 target_link_libraries(hierarchical_planner_node  ${catkin_LIBRARIES}
                                                  ${dwl_LIBRARIES})
 
-add_executable(dynamic_whole_body_planner_node  src/WholeBodyPlanner.cpp)
+add_executable(dynamic_whole_body_planner_node  src/DynamicWholeBodyPlanner.cpp)
 add_dependencies(dynamic_whole_body_planner_node  ${catkin_EXPORTED_TARGETS})
 target_link_libraries(dynamic_whole_body_planner_node  ${catkin_LIBRARIES}
                                                        ${dwl_LIBRARIES})
