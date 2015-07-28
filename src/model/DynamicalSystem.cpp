@@ -8,7 +8,7 @@ namespace model
 {
 
 DynamicalSystem::DynamicalSystem() : system_(NULL), state_dimension_(0), num_endeffectors_(1),
-		system_dof_(0), joint_dof_(0), locomotion_variables_(false) //TODO clean it
+		system_dof_(0), joint_dof_(0), locomotion_variables_(false)
 {
 
 }
@@ -20,25 +20,38 @@ DynamicalSystem::~DynamicalSystem()
 }
 
 
-void DynamicalSystem::modelFromURDFFile(std::string model_file,
+void DynamicalSystem::modelFromURDFFile(std::string filename,
 										struct rbd::FloatingBaseSystem* system,
 										bool info)
 {
-	dynamics_.modelFromURDFFile(model_file, system, info);
-
+	// Initializing the dynamic model from the filename
+	dynamics_.modelFromURDFFile(filename, system, info);
 	system_ = system;
 
 	// Setting initial conditions
 	initialConditions();
 
-	// Reading and setting the position joint limits
-	urdf::Model model;
-	Eigen::VectorXd joint_lower_limit(system_->getJointDOF()), joint_upper_limit(system_->getJointDOF());
-	if (!model.initFile(model_file)) {//String(robot_model)) {
-		printf(RED "FATAL: Failed to parse urdf file\n" COLOR_RESET);
-		return;
-	} else
-		jointLimitsFromURDF(model);
+	// Reading the file
+	std::ifstream model_file(filename.c_str());
+	if (!model_file) {
+		std::cerr << "Error opening file '" << filename << "'." << std::endl;
+		abort();
+	}
+
+	// Reserving memory for the contents of the file
+	std::string model_xml_string;
+	model_file.seekg(0, std::ios::end);
+	model_xml_string.reserve(model_file.tellg());
+	model_file.seekg(0, std::ios::beg);
+	model_xml_string.assign((std::istreambuf_iterator<char>(model_file)),
+			std::istreambuf_iterator<char>());
+	model_file.close();
+
+	// Parsing the URDF-XML
+	boost::shared_ptr<urdf::ModelInterface> urdf_model = urdf::parseURDF(model_xml_string);
+
+	// Reading the joint limits
+	jointLimitsFromURDF(urdf_model);
 
 	if (info) {
 		printf("The state dimension is %i\n", state_dimension_);
@@ -48,25 +61,22 @@ void DynamicalSystem::modelFromURDFFile(std::string model_file,
 }
 
 
-void DynamicalSystem::modelFromURDFModel(std::string urdf_model,
+void DynamicalSystem::modelFromURDFModel(std::string _urdf_model,
 										 struct rbd::FloatingBaseSystem* system,
 										 bool info)
 {
-	dynamics_.modelFromURDFModel(urdf_model, system, info);
-
+	// Initializing the dynamic model from the URDF model
+	dynamics_.modelFromURDFModel(_urdf_model, system, info);
 	system_ = system;
 
 	// Setting initial conditions
 	initialConditions();
 
-	// Reading and setting the position joint limits
-	urdf::Model model;
-	Eigen::VectorXd joint_lower_limit(system_->getJointDOF()), joint_upper_limit(system_->getJointDOF());
-	if (!model.initString(urdf_model)) {
-		printf(RED "FATAL: Failed to parse urdf file\n" COLOR_RESET);
-		return;
-	} else
-		jointLimitsFromURDF(model);
+	// Parsing the URDF-XML
+	boost::shared_ptr<urdf::ModelInterface> urdf_model = urdf::parseURDF(_urdf_model);
+
+	// Reading and setting the joint limits
+	jointLimitsFromURDF(urdf_model);
 
 	if (info) {
 		printf("The state dimension is %i\n", state_dimension_);
@@ -76,15 +86,15 @@ void DynamicalSystem::modelFromURDFModel(std::string urdf_model,
 }
 
 
-void DynamicalSystem::jointLimitsFromURDF(urdf::Model& model)
+void DynamicalSystem::jointLimitsFromURDF(boost::shared_ptr<urdf::ModelInterface> model)
 {
-	// Reading and setting the position joint limits
-	boost::shared_ptr<urdf::Link>& root = model.links_[model.getRoot()->name];
+	// Reading and setting the joint limits
+	boost::shared_ptr<urdf::Link>& root = model->links_[model->getRoot()->name];
 	boost::shared_ptr<urdf::Link> current_link = root;
 	unsigned virtual_joints_idx = 0, joint_idx = 0;
 	while (current_link->child_joints.size() > 0) {
 		boost::shared_ptr<urdf::Joint> current_joint = current_link->child_joints[0];
-		current_link = model.links_[current_joint->child_link_name];
+		current_link = model->links_[current_joint->child_link_name];
 		if (current_joint->type == urdf::Joint::PRISMATIC ||
 				current_joint->type == urdf::Joint::REVOLUTE) {
 			if (system_->getTypeOfDynamicSystem() == rbd::VirtualFloatingBase) {

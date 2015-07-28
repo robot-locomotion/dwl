@@ -3,7 +3,8 @@
 
 #include <model/Constraint.h>
 #include <model/WholeBodyDynamics.h>
-#include <urdf/model.h>
+#include <urdf_model/model.h>
+#include <urdf_parser/urdf_parser.h>
 
 
 namespace dwl
@@ -59,9 +60,9 @@ class DynamicalSystem : public Constraint
 
 		/**
 		 * @brief Reads and sets the joint limit from an URDF model
-		 * @param urdf::Model& URDF model
+		 * @param boost::shared_ptr<urdf::ModelInterface> URDF model
 		 */
-		void jointLimitsFromURDF(urdf::Model& model);
+		void jointLimitsFromURDF(boost::shared_ptr<urdf::ModelInterface> model);
 
 		/**
 		 * @brief Computes the dynamic constraint vector given a certain state
