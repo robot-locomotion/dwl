@@ -1,18 +1,16 @@
-# - Try to find yaml/cpp lib
+# - Try to find yaml-cpp dependencies
 #
 # This module find yaml-cpp, e.g. you can do
 #   find_package(YAMLCPP)
 #
-# This module defines
-# YAMLCPP_FOUND, if false, do not try to link to yaml-cpp
-# YAMLCPP_LIBRARIES, where to find yaml-cpp
-# YAMLCPP_INCLUDE_DIRS, where to find yaml.h
+# Once done this will define
+#  YAMLCPP_FOUND - system has found yaml-cpp library
+#  YAMLCPP_INCLUDE_DIRS - the yaml-cpp include directory
+#  YAMLCPP_LIBRARIES - the yaml-cpp libraries
 #
-# By default, the dynamic libraries of yaml-cpp will be found. To find the static ones instead,
-# you must set the YAMLCPP_STATIC_LIBRARY variable to TRUE before calling find_package(YamlCpp ...).
-#
-# If yaml-cpp is not installed in a standard path, you can use the YAMLCPP_DIR CMake variable
-# to tell CMake where yaml-cpp is.
+# Copyright (c) 2015 Carlos Mastalli, <carlos.mastalli@iit.it>
+# Redistribution and use is allowed according to the terms of the XXX license.
+
 
 # attempt to find static library first if this is set
 if(YAMLCPP_STATIC_LIBRARY)

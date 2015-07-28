@@ -1,17 +1,19 @@
-# - Try to find all the  robot generated code by RobCoGen tool
+# - Try to find all the robot generated code by RobCoGen tool
 #
-# This module assume that you install the robot code in /usr/local
+# This module assume that you install the robot code in /usr/local/include/iit/robots
 #   find_package(ROBOTS)
 #
 # Once done this will define
 #
-#  robotname_FOUND - system has eigen lib with correct version
-#  robotname_INCLUDE_DIR - the eigen include directory
+#  robotname_FOUND - system has robotname lib
+#  robotname_INCLUDE_DIR - the robotname include directory
+#  robotname_LIBRARIES - the robotname libraries
 #
 # Copyright (c) 2015 Carlos Mastalli, <carlos.mastalli@iit.it>
-# Redistribution and use is allowed according to the terms of the 2-clause BSD license.
+# Redistribution and use is allowed according to the terms of the XXX license.
 
-set(ROBOTS_DIR /usr/local/include/iit/robots) #${PROJECT_SOURCE_DIR}/thirdparty/Ipopt-3.9.3)
+
+set(ROBOTS_DIR /usr/local/include/iit/robots)
 
 macro(SUBDIRLIST result curdir)
   file(GLOB children RELATIVE ${curdir} ${curdir}/*)

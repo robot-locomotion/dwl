@@ -1,3 +1,18 @@
+# - Try to find the ipopt dependencies
+#
+# This module assume that you install the ipopt code in thirdparty/ipopt
+#   find_package(IPOPT)
+#
+# Once done this will define
+#
+#  IPOPT_FOUND - system has found ipopt library
+#  IPOPT_INCLUDE_DIR - the ipopt include directory
+#  IPOPT_LIBRARIES - the ipopt libraries
+#
+# Copyright (c) 2015 Carlos Mastalli, <carlos.mastalli@iit.it>
+# Redistribution and use is allowed according to the terms of the XXX license.
+
+
 set(IPOPT_DIR ${PROJECT_SOURCE_DIR}/thirdparty/ipopt)
 
 if(APPLE)
