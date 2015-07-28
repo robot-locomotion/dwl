@@ -12,7 +12,7 @@ COLOR_UNDE="\033[4m"
 
 function install_eigen
 {
-	# get Eigen 3.2.4
+	# Getting Eigen 3.2.4
 	wget http://www.bitbucket.org/eigen/eigen/get/3.2.4.tar.bz2
 	mkdir eigen && tar jxf 3.2.4.tar.bz2 -C eigen --strip-components 1
 	cd eigen
@@ -27,7 +27,7 @@ function install_eigen
 
 function install_rbdl
 {
-	# get RBDL 2.4.0
+	# Getting RBDL 2.4.0
 	wget https://bitbucket.org/rbdl/rbdl/get/default.zip
 	unzip default.zip
 	mv rbdl-rbdl-cfd302b3b418 rbdl
@@ -39,6 +39,50 @@ function install_rbdl
 	sudo make install
 	cd ../../
 	rm default.zip
+}
+
+
+function install_urdfdom_headers
+{
+	# Getting urdfdom_headers 0.3.0
+	wget https://github.com/ros/urdfdom_headers/archive/0.3.0.tar.gz
+	mkdir urdfdom_headers && tar zxf 0.3.0.tar.gz -C urdfdom_headers --strip-components 1
+	rm -rf 0.3.0.tar.gz
+	cd urdfdom_headers
+	mkdir -p build
+	cd build
+	cmake ../
+	sudo make install
+	cd ../../
+}
+
+
+function install_console_bridge
+{
+	# Getting console_bridge 0.2.7
+	wget https://github.com/ros/console_bridge/archive/0.2.7.tar.gz
+	mkdir console_bridge && tar zxf 0.2.7.tar.gz -C console_bridge --strip-components 1
+	rm -rf 0.2.7.tar.gz
+	cd console_bridge
+	mkdir -p build
+	cd build
+	cmake ../
+	sudo make install
+	cd ../../
+}
+
+
+function install_urdfdom
+{
+	# Getting console_bridge 0.2.10
+	wget https://github.com/ros/urdfdom/archive/0.2.10.tar.gz
+	mkdir urdfdom && tar zxf 0.2.10.tar.gz -C urdfdom --strip-components 1
+	rm -rf 0.2.10.tar.gz
+	cd urdfdom
+	mkdir -p build
+	cd build
+	cmake ../
+	sudo make install
 }
 
 
@@ -215,6 +259,45 @@ if [ -d "/usr/local/include/rbdl" ]; then
 else
 	install_rbdl
 fi
+
+
+##---------------------------------------------------------------##
+##----------------------- Installing URDF -----------------------##
+##---------------------------------------------------------------##
+echo ""
+echo -e "${COLOR_BOLD}Installing URDF facilities ...${COLOR_RESET}"
+echo ""
+# Installing urdfdom_headers
+if [ -d "/usr/include/urdf_model" ] || [ -d "/usr/local/include/urdf_model" ]; then
+	echo -e "${COLOR_QUES}Do you want to re-install URDFDOM Headers? (Y/N)${COLOR_RESET}"
+	read ANSWER_URDF
+	if [ "${ANSWER_URDF}" == "Y" ] || [ "${ANSWER_URDF}" == "y" ]; then
+		install_urdfdom_headers
+	fi
+else
+	install_urdfdom_headers
+fi
+# Installing console_bridge
+if [ -d "/usr/include/console_bridge" ] || [ -d "/usr/local/include/console_bridge" ]; then
+	echo -e "${COLOR_QUES}Do you want to re-install console bridge? (Y/N)${COLOR_RESET}"
+	read ANSWER_CONSOLE
+	if [ "${ANSWER_CONSOLE}" == "Y" ] || [ "${ANSWER_CONSOLE}" == "y" ]; then
+		install_console_bridge
+	fi
+else
+	install_console_bridge
+fi
+# Installing urdfdom
+if [ -d "/usr/include/urdf_parser" ] || [ -d "/usr/local/include/urdf_parser" ]; then
+	echo -e "${COLOR_QUES}Do you want to re-install urdf parser? (Y/N)${COLOR_RESET}"
+	read ANSWER_URDFPARSER
+	if [ "${ANSWER_URDFPARSER}" == "Y" ] || [ "${ANSWER_URDFPARSER}" == "y" ]; then
+		install_urdfdom
+	fi
+else
+	install_urdfdom
+fi
+
 
 ##---------------------------------------------------------------##
 ##--------------------- Installing Odeint -----------------------##
