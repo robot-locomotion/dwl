@@ -35,7 +35,7 @@ struct ConstraintFunction : Functor<double>
 	ConstraintFunction(void) : Functor<double>(0,0) {}
     int operator() (const Eigen::VectorXd& x, Eigen::VectorXd& fvec) const
     {
-    	fvec.resize(2);
+    	fvec.resize(5);
     	opt_model.evaluateConstraints(fvec, x);
     	return 0;
     }
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 	// Setting the state
 	Eigen::VectorXd x(11);
 	x << q, qd, qdd, tau;
-	Eigen::MatrixXd jac(2,11);
+	Eigen::MatrixXd jac(5,11);
 
 
 	ConstraintFunction functor;
