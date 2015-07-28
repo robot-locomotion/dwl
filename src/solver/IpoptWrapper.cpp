@@ -198,7 +198,7 @@ bool IpoptWrapper::eval_jac_g(Index n, const Number* x, bool new_x,
 
 bool IpoptWrapper::eval_h(Index n, const Number* x, bool new_x, Number obj_factor,
 						  Index m, const Number* lambda, bool new_lambda,
-						  Index nele_hess, Index* row_entries, Index* col_entries, Number* values) //TODO clean it!
+						  Index nele_hess, Index* row_entries, Index* col_entries, Number* values)
 {
 	if (values == NULL) {
 		// Returns the structure. This is a symmetric matrix, fill the lower left
@@ -214,39 +214,11 @@ bool IpoptWrapper::eval_h(Index n, const Number* x, bool new_x, Number obj_facto
 
 		assert(idx == nele_hess);
 	} else {
-//		Eigen::MatrixXd full_hessian(m, n);
-//		full_hessian.setZero();
-//		values = full_hessian.data();
+		Eigen::MatrixXd full_hessian(m, n);
+		full_hessian.setZero();
+		values = full_hessian.data();
 
-		// return the values. This is a symmetric matrix, fill the lower left
-		// triangle only
-
-		// fill the objective portion
-		values[0] = obj_factor * (2*x[3]); // 0,0
-		values[1] = obj_factor * (x[3]);   // 1,0
-		values[2] = 0.;                    // 1,1
-		values[3] = obj_factor * (x[3]);   // 2,0
-		values[4] = 0.;                    // 2,1
-		values[5] = 0.;                    // 2,2
-		values[6] = obj_factor * (2*x[0] + x[1] + x[2]); // 3,0
-		values[7] = obj_factor * (x[0]);                 // 3,1
-		values[8] = obj_factor * (x[0]);                 // 3,2
-		values[9] = 0.;                                  // 3,3
-
-		// add the portion for the first constraint
-		values[1] += lambda[0] * (x[2] * x[3]); // 1,0
-		values[3] += lambda[0] * (x[1] * x[3]); // 2,0
-		values[4] += lambda[0] * (x[0] * x[3]); // 2,1
-		values[6] += lambda[0] * (x[1] * x[2]); // 3,0
-		values[7] += lambda[0] * (x[0] * x[2]); // 3,1
-		values[8] += lambda[0] * (x[0] * x[1]); // 3,2
-
-		// add the portion for the second constraint
-		values[0] += lambda[1] * 2; // 0,0
-		values[2] += lambda[1] * 2; // 1,1
-		values[5] += lambda[1] * 2; // 2,2
-		values[9] += lambda[1] * 2; // 3,3
-//		return false;// use limited memory approx http://www.coin-or.org/Ipopt/documentation/node31.html
+		return false;// use limited memory approx http://www.coin-or.org/Ipopt/documentation/node31.html
 	}
 
 	return true;
@@ -257,7 +229,7 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 									 Index n, const Number* x, const Number* z_L, const Number* z_U,
 									 Index m, const Number* g, const Number* lambda,
 									 Number obj_value, const Ipopt::IpoptData* ip_data,
-									 Ipopt::IpoptCalculatedQuantities* ip_cq)
+									 Ipopt::IpoptCalculatedQuantities* ip_cq) //TODO clean it
 {
 	// here is where we would store the solution to variables, or write to a file, etc
 	// so we could use the solution.
@@ -280,6 +252,31 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 	printf("\nFinal value of the constraints:\n");
 	for (Index i=0; i<m ;i++)
 		printf("g(%d) = %e\n", i, g[i]);
+
+
+	// Eigen interfacing to raw buffers
+	const Eigen::Map<const Eigen::VectorXd> solution(x, n);
+	unsigned horizon = opt_model_.getHorizon();
+	unsigned state_dim = solution.size() / horizon;
+
+	// Setting the initial state
+	LocomotionState locomotion_state;
+	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
+	for (unsigned int i = 0; i < horizon; i++) {
+		// Converting the decision variable for a certain time to a robot state
+		decision_state = solution.segment(i * state_dim, state_dim);
+		opt_model_.getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
+
+		std::cout << "\n\nPoint = " << i << std::endl;
+		std::cout << "base_pos = " << locomotion_state.base_pos.transpose() << std::endl;
+		std::cout << "joint_pos = " << locomotion_state.joint_pos.transpose() << std::endl;
+		std::cout << "base_vel = " << locomotion_state.base_vel.transpose() << std::endl;
+		std::cout << "joint_vel = " << locomotion_state.joint_vel.transpose() << std::endl;
+		std::cout << "base_acc = " << locomotion_state.base_acc.transpose() << std::endl;
+		std::cout << "joint_acc = " << locomotion_state.joint_acc.transpose() << std::endl;
+		std::cout << "base_eff = " << locomotion_state.base_eff.transpose() << std::endl;
+		std::cout << "joint_eff = " << locomotion_state.joint_eff.transpose() << std::endl;
+	}
 }
 
 } //@namespace solver
