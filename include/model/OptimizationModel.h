@@ -96,6 +96,17 @@ class OptimizationModel
 		~OptimizationModel();
 
 		/**
+		 * @brief Evaluates the bounds of the problem
+		 * @param Eigen::Ref<Eigen::VectorXd> Full state lower bound
+		 * @param Eigen::Ref<Eigen::VectorXd> Full state upper bound
+		 * @param Eigen::Ref<Eigen::VectorXd> Full constraint lower bound
+		 * @param Eigen::Ref<Eigen::VectorXd> Full constraint upper bound
+		 */
+		void evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lower_bound,
+							Eigen::Ref<Eigen::VectorXd> full_state_upper_bound,
+							Eigen::Ref<Eigen::VectorXd> full_constraint_lower_bound,
+							Eigen::Ref<Eigen::VectorXd> full_constraint_upper_bound);
+		/**
 		 * @brief Evaluates the constraint function given a current decision state
 		 * @param Eigen::Ref<Eigen::VectorXd> Constraint vector
 		 * @param const Eigen::Ref<const Eigen:VectorXd>& Decision vector

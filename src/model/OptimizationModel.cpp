@@ -34,6 +34,63 @@ OptimizationModel::~OptimizationModel()
 }
 
 
+void OptimizationModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lower_bound,
+									   Eigen::Ref<Eigen::VectorXd> full_state_upper_bound,
+									   Eigen::Ref<Eigen::VectorXd> full_constraint_lower_bound,
+									   Eigen::Ref<Eigen::VectorXd> full_constraint_upper_bound)
+{
+	// Getting the initial conditions of the locomotion state
+	LocomotionState locomotion_initial_cond;
+	dynamical_system_->getInitialState(locomotion_initial_cond);
+
+	// Getting the lower and upper bound of the locomotion state
+	LocomotionState locomotion_lower_bound, locomotion_upper_bound;
+	dynamical_system_->getStateBounds(locomotion_lower_bound, locomotion_upper_bound);
+
+	// Converting locomotion state bounds to state bounds
+	Eigen::VectorXd state_initial_cond, state_lower_bound, state_upper_bound;
+	dynamical_system_->fromLocomotionState(state_initial_cond, locomotion_initial_cond);
+	dynamical_system_->fromLocomotionState(state_lower_bound, locomotion_lower_bound);
+	dynamical_system_->fromLocomotionState(state_upper_bound, locomotion_upper_bound);
+
+	// Getting the lower and upper constraint bounds for a certain time
+	unsigned int index = 0;
+	unsigned int num_constraints = constraints_.size();
+	unsigned constraint_dim = getDimensionOfConstraints();
+	Eigen::VectorXd constraint_lower_bound(constraint_dim),
+			constraint_upper_bound(constraint_dim);
+	for (unsigned int i = 0; i < num_constraints + 1; i++) {
+		Eigen::VectorXd lower_bound, upper_bound;
+		if (i == 0)
+			dynamical_system_->getBounds(lower_bound, upper_bound);
+		else
+			constraints_[i-1]->getBounds(lower_bound, upper_bound);
+
+		unsigned int bound_size = lower_bound.size();
+		constraint_lower_bound.segment(index, bound_size) = lower_bound;
+		constraint_upper_bound.segment(index, bound_size) = upper_bound;
+
+		index += bound_size;
+	}
+
+	// Setting the full (state and constraint) lower and upper bounds for the predefined horizon
+	for (unsigned int i = 0; i < horizon_; i++) {
+		// Setting state bounds
+		if (i == 0) {
+			full_state_lower_bound.segment(0, state_dimension_) = state_initial_cond;
+			full_state_upper_bound.segment(0, state_dimension_) = state_initial_cond;
+		} else {
+			full_state_lower_bound.segment(i * state_dimension_, state_dimension_) = state_lower_bound;
+			full_state_upper_bound.segment(i * state_dimension_, state_dimension_) = state_upper_bound;
+		}
+
+		// Setting dynamic system bounds
+		full_constraint_lower_bound.segment(i * constraint_dimension_, constraint_dimension_) = constraint_lower_bound;
+		full_constraint_upper_bound.segment(i * constraint_dimension_, constraint_dimension_) = constraint_upper_bound;
+	}
+}
+
+
 void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constraint,
 											const Eigen::Ref<const Eigen::VectorXd>& decision_var)
 {

@@ -54,55 +54,9 @@ bool IpoptWrapper::get_bounds_info(Index n, Number* x_l, Number* x_u,
 	Eigen::Map<Eigen::VectorXd> full_constraint_lower_bound(g_l, m);
 	Eigen::Map<Eigen::VectorXd> full_constraint_upper_bound(g_u, m);
 
-	// Getting the initial conditions of the locomotion state
-	LocomotionState locomotion_initial_cond;
-	opt_model_.getDynamicalSystem()->getInitialState(locomotion_initial_cond);
-
-	// Getting the lower and upper bound of the locomotion state
-	LocomotionState locomotion_lower_bound, locomotion_upper_bound;
-	opt_model_.getDynamicalSystem()->getStateBounds(locomotion_lower_bound, locomotion_upper_bound);
-
-	// Converting locomotion state bounds to state bounds
-	Eigen::VectorXd state_initial_cond, state_lower_bound, state_upper_bound;
-	opt_model_.getDynamicalSystem()->fromLocomotionState(state_initial_cond, locomotion_initial_cond);
-	opt_model_.getDynamicalSystem()->fromLocomotionState(state_lower_bound, locomotion_lower_bound);
-	opt_model_.getDynamicalSystem()->fromLocomotionState(state_upper_bound, locomotion_upper_bound);
-
-	// Getting the lower and upper constraint bounds for a certain time
-	unsigned int index = 0;
-	unsigned int num_constraints = opt_model_.getConstraints().size();
-	Eigen::VectorXd constraint_lower_bound(m), constraint_upper_bound(m);
-	for (unsigned int i = 0; i < num_constraints + 1; i++) {
-		Eigen::VectorXd lower_bound, upper_bound;
-		if (i == 0)
-			opt_model_.getDynamicalSystem()->getBounds(lower_bound, upper_bound);
-		else
-			opt_model_.getConstraints()[i-1]->getBounds(lower_bound, upper_bound);
-
-		unsigned int bound_size = lower_bound.size();
-		constraint_lower_bound.segment(index, bound_size) = lower_bound;
-		constraint_upper_bound.segment(index, bound_size) = upper_bound;
-
-		index += bound_size;
-	}
-
-	// Setting the full (state and constraint) lower and upper bounds for the predefined horizon
-	unsigned int state_dim = n / opt_model_.getHorizon();
-	unsigned int constraint_dim = m / opt_model_.getHorizon();
-	for (unsigned int i = 0; i < opt_model_.getHorizon(); i++) {
-		// Setting state bounds
-		if (i == 0) {
-			full_state_lower_bound.segment(0, state_dim) = state_initial_cond;
-			full_state_upper_bound.segment(0, state_dim) = state_initial_cond;
-		} else {
-			full_state_lower_bound.segment(i * state_dim, state_dim) = state_lower_bound;
-			full_state_upper_bound.segment(i * state_dim, state_dim) = state_upper_bound;
-		}
-
-		// Setting dynamic system bounds
-		full_constraint_lower_bound.segment(i * constraint_dim, constraint_dim) = constraint_lower_bound;
-		full_constraint_upper_bound.segment(i * constraint_dim, constraint_dim) = constraint_upper_bound;
-	}
+	// Evaluating the bounds
+	opt_model_.evaluateBounds(full_state_lower_bound, full_state_upper_bound,
+							  full_constraint_lower_bound, full_constraint_upper_bound);
 
 	return true;
 }
