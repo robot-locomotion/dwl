@@ -47,11 +47,8 @@ void DynamicalSystem::modelFromURDFFile(std::string filename,
 			std::istreambuf_iterator<char>());
 	model_file.close();
 
-	// Parsing the URDF-XML
-	boost::shared_ptr<urdf::ModelInterface> urdf_model = urdf::parseURDF(model_xml_string);
-
 	// Reading the joint limits
-	jointLimitsFromURDF(urdf_model);
+	jointLimitsFromURDF(model_xml_string);
 
 	if (info) {
 		printf("The state dimension is %i\n", state_dimension_);
@@ -61,19 +58,16 @@ void DynamicalSystem::modelFromURDFFile(std::string filename,
 }
 
 
-void DynamicalSystem::modelFromURDFModel(std::string _urdf_model,
+void DynamicalSystem::modelFromURDFModel(std::string urdf_model,
 										 struct rbd::FloatingBaseSystem* system,
 										 bool info)
 {
 	// Initializing the dynamic model from the URDF model
-	dynamics_.modelFromURDFModel(_urdf_model, system, info);
+	dynamics_.modelFromURDFModel(urdf_model, system, info);
 	system_ = system;
 
 	// Setting initial conditions
 	initialConditions();
-
-	// Parsing the URDF-XML
-	boost::shared_ptr<urdf::ModelInterface> urdf_model = urdf::parseURDF(_urdf_model);
 
 	// Reading and setting the joint limits
 	jointLimitsFromURDF(urdf_model);
@@ -86,8 +80,11 @@ void DynamicalSystem::modelFromURDFModel(std::string _urdf_model,
 }
 
 
-void DynamicalSystem::jointLimitsFromURDF(boost::shared_ptr<urdf::ModelInterface> model)
+void DynamicalSystem::jointLimitsFromURDF(std::string urdf_model)
 {
+	// Parsing the URDF-XML
+	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
+
 	// Reading and setting the joint limits
 	boost::shared_ptr<urdf::Link>& root = model->links_[model->getRoot()->name];
 	boost::shared_ptr<urdf::Link> current_link = root;

@@ -60,9 +60,9 @@ class DynamicalSystem : public Constraint
 
 		/**
 		 * @brief Reads and sets the joint limit from an URDF model
-		 * @param boost::shared_ptr<urdf::ModelInterface> URDF model
+		 * @param std::string URDF model
 		 */
-		void jointLimitsFromURDF(boost::shared_ptr<urdf::ModelInterface> model);
+		void jointLimitsFromURDF(std::string urdf_model);
 
 		/**
 		 * @brief Computes the dynamic constraint vector given a certain state
