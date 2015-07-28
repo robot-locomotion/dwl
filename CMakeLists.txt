@@ -14,6 +14,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(Eigen3 REQUIRED)
 find_package(PkgConfig)
 pkg_check_modules(RBDL rbdl REQUIRED)
+find_package(URDF REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(ROBOTS)
 find_package(IPOPT)
@@ -37,8 +38,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
 
 # Setting the thirdparties directories and libraries
-set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS})
-set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} rbdl_urdfreader ${YAMLCPP_LIBRARIES})
+set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS} ${URDF_INCLUDE_DIRS})
+set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} rbdl_urdfreader ${URDF_LIBRARIES} ${YAMLCPP_LIBRARIES})
 set(DEPENDENCIES_LIBRARY_DIRS  ${RBDL_LIBRARY_DIRS})
 
 # Including directories
@@ -69,6 +70,8 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/model/KinematicConstraint.cpp
 							 src/model/StabilityConstraint.cpp
 							 src/model/Cost.cpp
+							 src/model/StateTrackingEnergyCost.cpp
+							 src/model/ControlEnergyCost.cpp
 							 src/model/RobCoGenWholeBodyKinematics.cpp
 							 src/model/RobCoGenWholeBodyDynamics.cpp
 							 src/model/WholeBodyKinematics.cpp
