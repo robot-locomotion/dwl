@@ -98,6 +98,12 @@ class DynamicalSystem : public Constraint
 							const LocomotionState& upper_bound);
 
 		/**
+		 * @brief Sets the initial state of the dynamical constraint
+		 * @param const LocomotionState& Initial state
+		 */
+		void setInitialState(const LocomotionState& initial_state);
+
+		/**
 		 * @brief Sets the starting state
 		 * @param const LocomotionState& Starting state
 		 */
@@ -110,6 +116,12 @@ class DynamicalSystem : public Constraint
 		 */
 		void getStateBounds(LocomotionState& lower_bound,
 							LocomotionState& upper_bound);
+
+		/**
+		 * @brief Gets the initial state of the dynamical constraint
+		 * @param LocomotionState& Initial state
+		 */
+		void getInitialState(LocomotionState& initial_state);
 
 		/**
 		 * @brief Gets the starting state
@@ -158,6 +170,9 @@ class DynamicalSystem : public Constraint
 
 		/** @brief Degree of freedom of the joint */
 		unsigned int joint_dof_;
+
+		/** @brief Initial state */
+		LocomotionState initial_state_;
 
 		/** @brief Starting state uses from optimizers */
 		LocomotionState starting_state_;
