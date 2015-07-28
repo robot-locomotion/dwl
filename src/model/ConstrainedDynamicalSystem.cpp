@@ -35,10 +35,18 @@ void ConstrainedDynamicalSystem::setActiveEndEffectors(const rbd::BodySelector& 
 void ConstrainedDynamicalSystem::compute(Eigen::VectorXd& constraint,
 										 const LocomotionState& state)
 {
-	constraint.resize(joint_dof_);
+	constraint.resize(system_dof_ + joint_dof_);
+
 
 	// Transcription of the constrained inverse dynamic equation using Euler-backward integration.
 	// This integration method adds numerical stability
+	double step_time = 0.1;
+	unsigned int base_dof = system_dof_ - joint_dof_;
+	constraint.segment(0, base_dof) = last_state_.base_pos - state.base_pos +
+			step_time * state.base_vel;
+	constraint.segment(base_dof, joint_dof_) = last_state_.joint_pos - state.joint_pos +
+			step_time * state.joint_vel;
+
 	Eigen::VectorXd estimated_joint_forces;
 	dynamics_.computeConstrainedFloatingBaseInverseDynamics(estimated_joint_forces,
 															state.base_pos, state.joint_pos,
@@ -47,21 +55,21 @@ void ConstrainedDynamicalSystem::compute(Eigen::VectorXd& constraint,
 															state.joint_acc - last_state_.joint_acc,
 															active_endeffectors_);
 
-	constraint = estimated_joint_forces - state.joint_eff;
+	constraint.segment(system_dof_, joint_dof_) = step_time * estimated_joint_forces - state.joint_eff;
 }
 
 
 unsigned int ConstrainedDynamicalSystem::defineConstraintDimension()
 {
-	return joint_dof_;
+	return system_dof_ + joint_dof_;
 }
 
 
 void ConstrainedDynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
 										   Eigen::VectorXd& upper_bound)
 {
-	lower_bound = Eigen::VectorXd::Zero(joint_dof_);
-	upper_bound = Eigen::VectorXd::Zero(joint_dof_);
+	lower_bound = Eigen::VectorXd::Zero(system_dof_ + joint_dof_);
+	upper_bound = Eigen::VectorXd::Zero(system_dof_ + joint_dof_);
 }
 
 } //@namespace model
