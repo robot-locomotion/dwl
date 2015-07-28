@@ -78,9 +78,6 @@ void DynamicalSystem::modelFromURDFModel(std::string urdf_model,
 
 void DynamicalSystem::jointLimitsFromURDF(urdf::Model& model)
 {
-	unsigned num_joints = system_->getJointDOF();
-	Eigen::VectorXd joint_lower_limit(num_joints), joint_upper_limit(num_joints);
-
 	// Reading and setting the position joint limits
 	boost::shared_ptr<urdf::Link>& root = model.links_[model.getRoot()->name];
 	boost::shared_ptr<urdf::Link> current_link = root;
@@ -94,16 +91,17 @@ void DynamicalSystem::jointLimitsFromURDF(urdf::Model& model)
 				if (system_->getFloatingBaseDOF() != virtual_joints_idx) {
 						virtual_joints_idx++;
 				} else {
-					joint_lower_limit(joint_idx) = current_joint->limits->lower;
-					joint_upper_limit(joint_idx) = current_joint->limits->upper;
+					lower_state_bound_.joint_pos(joint_idx) = current_joint->limits->lower;
+					upper_state_bound_.joint_pos(joint_idx) = current_joint->limits->upper;
+					lower_state_bound_.joint_vel(joint_idx) = -current_joint->limits->velocity;
+					upper_state_bound_.joint_vel(joint_idx) = current_joint->limits->velocity;
+					lower_state_bound_.joint_eff(joint_idx) = -current_joint->limits->effort;
+					upper_state_bound_.joint_eff(joint_idx) = current_joint->limits->effort;
 					joint_idx++;
 				}
 			}
 		}
 	}
-
-	lower_state_bound_.joint_pos = joint_lower_limit;
-	upper_state_bound_.joint_pos = joint_upper_limit;
 }
 
 
