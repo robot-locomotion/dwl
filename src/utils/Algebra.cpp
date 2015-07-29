@@ -27,15 +27,21 @@ namespace math
 
 Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& A, double tolerance)
 {
-	typedef Eigen::JacobiSVD<Eigen::MatrixXd> SVD;
-	SVD svd_decomposition(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
+	Eigen::JacobiSVD<Eigen::MatrixXd> svd;
+	Eigen::MatrixXd pinvA(A.cols(), A.rows());
 
+	svd.compute(A, Eigen::ComputeThinU | Eigen::ComputeThinV);
 
-	SVD::SingularValuesType singular_values = svd_decomposition.singularValues();
-	for (int idx = 0; idx < singular_values.size(); idx++) {
-		singular_values(idx) = tolerance > 0 && singular_values(idx) > tolerance ? 1.0 / singular_values(idx) : 0.0;
-	}
-	return svd_decomposition.matrixV() * singular_values.asDiagonal() * svd_decomposition.matrixU().adjoint();
+	// Build a diagonal matrix with the Inverted Singular values
+	// The pseudo inverted singular matrix is easy to compute: is formed by replacing every nonzero
+	// entry by its reciprocal (inverting).
+	Eigen::Matrix<double, Eigen::Dynamic, 1> singular_values(svd.matrixV().cols(),1);
+
+	singular_values = (svd.singularValues().array()>tolerance).select(svd.singularValues().array().inverse(), 0);
+
+	// Pseudo-Inversion : V * S * U'
+	pinvA = (svd.matrixV() * singular_values.asDiagonal() * svd.matrixU().transpose());
+	return pinvA;
 }
 
 
