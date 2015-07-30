@@ -66,6 +66,9 @@ bool IpoptWrapper::get_starting_point(Index n, bool init_x, Number* x,
 									  bool init_z, Number* z_L, Number* z_U,
 									  Index m, bool init_lambda, Number* lambda)
 {
+	// Here, we assume we only have starting values for x, if you code your own NLP, you can
+	// provide starting values for the dual variables if you wish to use a warmstart option
+
 	// Eigen interfacing to raw buffers
 	Eigen::Map<Eigen::VectorXd> full_initial_state(x, n);
 
@@ -222,14 +225,17 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 	const Eigen::Map<const Eigen::VectorXd> solution(x, n);
 	unsigned horizon = opt_model_.getHorizon();
 	unsigned state_dim = solution.size() / horizon;
+	locomotion_solution_.resize(horizon);
 
-	// Setting the initial state
+	// Recording the solution
 	LocomotionState locomotion_state;
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
 	for (unsigned int i = 0; i < horizon; i++) {
 		// Converting the decision variable for a certain time to a robot state
 		decision_state = solution.segment(i * state_dim, state_dim);
 		opt_model_.getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
+
+		locomotion_solution_.push_back(locomotion_state);
 
 		std::cout << "\n\nPoint = " << i << std::endl;
 		std::cout << "base_pos = " << locomotion_state.base_pos.transpose() << std::endl;
