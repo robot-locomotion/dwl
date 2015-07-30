@@ -83,9 +83,9 @@ int main(int argc, char **argv)
 
 
 	// Setting the state
-	Eigen::VectorXd x(11);
-	x << q, qd, qdd, tau;
-	Eigen::MatrixXd jac(5,11);
+	Eigen::VectorXd x(8);
+	x << q, qd, tau;
+	Eigen::MatrixXd jac(5,8);
 
 
 	ConstraintFunction functor;
