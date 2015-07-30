@@ -90,6 +90,9 @@ struct Contact
 {
 	int end_effector;
 	Eigen::Vector3d position;
+	Eigen::Vector3d velocity;
+	Eigen::Vector3d acceleration;
+	Eigen::Vector3d force;
 };
 
 /**
@@ -124,10 +127,7 @@ struct LocomotionState
 	Eigen::VectorXd joint_vel;
 	Eigen::VectorXd joint_acc;
 	Eigen::VectorXd joint_eff;
-	std::vector<Contact> contact_pos;
-	std::vector<Contact> contact_vel;
-	std::vector<Contact> contact_acc;
-	std::vector<Contact> contact_eff;
+	std::vector<Contact> contacts;
 };
 
 /**

@@ -180,7 +180,6 @@ unsigned int DynamicalSystem::getNumberOfEndEffectors()
 
 void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
 										const Eigen::VectorXd& generalized_state)
-//TODO add other locomotion variables
 {
 	// Converting the generalized state vector to locomotion state
 	unsigned int idx = 0;
@@ -218,12 +217,34 @@ void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
 									   &fake_system);
 		idx += joint_dof_;
 	}
+	if (locomotion_variables_.contact_pos || locomotion_variables_.contact_vel ||
+			locomotion_variables_.contact_acc || locomotion_variables_.contact_for) {
+		locomotion_state.contacts.resize(num_endeffectors_);
+		for (unsigned int i = 0; i < num_endeffectors_; i++) {
+			locomotion_state.contacts[i].end_effector = i;
+			if (locomotion_variables_.contact_pos) {
+				locomotion_state.contacts[i].position = generalized_state.segment<3>(idx);
+				idx += 3;
+			}
+			if (locomotion_variables_.contact_vel) {
+				locomotion_state.contacts[i].velocity = generalized_state.segment<3>(idx);
+				idx += 3;
+			}
+			if (locomotion_variables_.contact_acc) {
+				locomotion_state.contacts[i].acceleration = generalized_state.segment<3>(idx);
+				idx += 3;
+			}
+			if (locomotion_variables_.contact_for) {
+				locomotion_state.contacts[i].force = generalized_state.segment<3>(idx);
+				idx += 3;
+			}
+		}
+	}
 }
 
 
 void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
 										  const LocomotionState& locomotion_state)
-//TODO add other locomotion variables
 {
 	// Resizing the generalized state vector
 	generalized_state.resize(state_dimension_);
@@ -262,6 +283,32 @@ void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
 											 locomotion_state.joint_eff,
 											 &fake_system);
 		idx += joint_dof_;
+	}
+	if (locomotion_variables_.contact_pos || locomotion_variables_.contact_vel ||
+			locomotion_variables_.contact_acc || locomotion_variables_.contact_for) {
+		if (locomotion_state.contacts.size() != num_endeffectors_) {
+			printf(RED "FATAL: the number of contact and end-effectors are not consistent\n" COLOR_RESET);
+			exit(EXIT_FAILURE);
+		}
+
+		for (unsigned int i = 0; i < num_endeffectors_; i++) {
+			if (locomotion_variables_.contact_pos) {
+				generalized_state.segment<3>(idx) = locomotion_state.contacts[i].position;
+				idx += 3;
+			}
+			if (locomotion_variables_.contact_vel) {
+				generalized_state.segment<3>(idx) = locomotion_state.contacts[i].velocity;
+				idx += 3;
+			}
+			if (locomotion_variables_.contact_acc) {
+				generalized_state.segment<3>(idx) = locomotion_state.contacts[i].acceleration;
+				idx += 3;
+			}
+			if (locomotion_variables_.contact_for) {
+				generalized_state.segment<3>(idx) = locomotion_state.contacts[i].force;
+				idx += 3;
+			}
+		}
 	}
 }
 
