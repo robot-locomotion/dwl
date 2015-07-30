@@ -103,6 +103,10 @@ struct ContactSearchRegion
 	SearchArea region;
 };
 
+/**
+ * @struct LocomotionState
+ * @brief Defines a locomotion state
+ */
 struct LocomotionState
 {
 	LocomotionState() : time(0.) {
@@ -120,9 +124,10 @@ struct LocomotionState
 	Eigen::VectorXd joint_vel;
 	Eigen::VectorXd joint_acc;
 	Eigen::VectorXd joint_eff;
-	Contact contact_pos;
-	Contact contact_for;
-	Contact contact_tor;
+	std::vector<Contact> contact_pos;
+	std::vector<Contact> contact_vel;
+	std::vector<Contact> contact_acc;
+	std::vector<Contact> contact_eff;
 };
 
 /**
