@@ -66,11 +66,6 @@ class HS071DynamicalSystem : public DynamicalSystem
 			upper_bound(0) = NO_BOUND;
 			upper_bound(1) = 40.0;
 		}
-
-		unsigned int defineConstraintDimension()
-		{
-			return 2;
-		}
 };
 
 } //@namespace model

@@ -40,9 +40,6 @@ class Constraint
 		virtual void getBounds(Eigen::VectorXd& lower_bound,
 							   Eigen::VectorXd& upper_bound) = 0;
 
-		/** @brief Defines the constraint dimension */
-		virtual unsigned int defineConstraintDimension() = 0;
-
 		/**
 		 * @brief Sets the last state that could be used for the constraint
 		 * @param LocomotionState& Last state
@@ -65,12 +62,6 @@ class Constraint
 
 		/** @brief Dimension of the constraint */
 		unsigned int constraint_dimension_;
-
-		/** @brief Vector of the state */
-		Eigen::VectorXd state_value_;
-
-		/** @brief Vector of the values of the constraint */
-		Eigen::VectorXd constraint_value_;
 
 		/** @brief Sets the last state */
 		LocomotionState last_state_;

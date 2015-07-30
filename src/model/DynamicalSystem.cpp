@@ -320,8 +320,6 @@ void DynamicalSystem::initialConditions()
 			+ locomotion_variables_.acceleration) * system_->getSystemDOF()
 			+ locomotion_variables_.effort * system_->getJointDOF();
 
-	constraint_dimension_ = getConstraintDimension();
-
 	// Getting the dof of the system
 	system_dof_ = system_->getSystemDOF();
 	joint_dof_ = system_->getJointDOF();

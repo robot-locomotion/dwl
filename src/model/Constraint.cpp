@@ -27,7 +27,14 @@ void Constraint::setLastState(LocomotionState& last_state)
 
 unsigned int Constraint::getConstraintDimension()
 {
-	constraint_dimension_ = defineConstraintDimension();
+	// Getting the constraint dimension given a defined constraint function. The constraint
+	// dimension will be different to zero once the constraint dimension is defined
+	if (constraint_dimension_ == 0) {
+		Eigen::VectorXd bound;
+		getBounds(bound, bound);
+		constraint_dimension_ = bound.size();
+	}
+
 	return constraint_dimension_;
 }
 
