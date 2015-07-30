@@ -96,6 +96,12 @@ class OptimizationModel
 		~OptimizationModel();
 
 		/**
+		 * @brief Ges the starting point of the problem
+		 * @param Eigen::Ref<Eigen::VectorXd> Full initial point
+		 */
+		void getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point);
+
+		/**
 		 * @brief Evaluates the bounds of the problem
 		 * @param Eigen::Ref<Eigen::VectorXd> Full state lower bound
 		 * @param Eigen::Ref<Eigen::VectorXd> Full state upper bound
@@ -226,10 +232,10 @@ class OptimizationModel
 		/** @brief Numerical differentiation mode */
 		Eigen::NumericalDiffMode num_diff_mode_;
 
-		/** @brief Dimension of the state vector */
+		/** @brief Dimension of the state vector at instantaneous point */
 		unsigned int state_dimension_;
 
-		/** @brief Dimension of the constraint vector */
+		/** @brief Dimension of the constraint vector at instantaneous point */
 		unsigned int constraint_dimension_;
 
 		/** @brief Horizon of the optimal control problem */

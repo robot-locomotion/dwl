@@ -34,55 +34,80 @@ OptimizationModel::~OptimizationModel()
 }
 
 
+void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
+{
+	// Getting the initial locomotion state
+	LocomotionState starting_locomotion_state;
+	dynamical_system_->getStartingState(starting_locomotion_state);
+
+	// Getting the initial state vector
+	Eigen::VectorXd starting_state;
+	dynamical_system_->fromLocomotionState(starting_state, starting_locomotion_state);
+
+	// Setting the full starting state for the predefined horizon
+	for (unsigned int i = 0; i < horizon_; i++)
+		full_initial_point.segment(i * state_dimension_, state_dimension_) = starting_state;
+}
+
+
 void OptimizationModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lower_bound,
 									   Eigen::Ref<Eigen::VectorXd> full_state_upper_bound,
 									   Eigen::Ref<Eigen::VectorXd> full_constraint_lower_bound,
 									   Eigen::Ref<Eigen::VectorXd> full_constraint_upper_bound)
 {
-	// Getting the initial conditions of the locomotion state
-	LocomotionState locomotion_initial_cond;
-	dynamical_system_->getInitialState(locomotion_initial_cond);
-
 	// Getting the lower and upper bound of the locomotion state
 	LocomotionState locomotion_lower_bound, locomotion_upper_bound;
 	dynamical_system_->getStateBounds(locomotion_lower_bound, locomotion_upper_bound);
 
 	// Converting locomotion state bounds to state bounds
-	Eigen::VectorXd state_initial_cond, state_lower_bound, state_upper_bound;
-	dynamical_system_->fromLocomotionState(state_initial_cond, locomotion_initial_cond);
+	Eigen::VectorXd state_lower_bound, state_upper_bound;
 	dynamical_system_->fromLocomotionState(state_lower_bound, locomotion_lower_bound);
 	dynamical_system_->fromLocomotionState(state_upper_bound, locomotion_upper_bound);
 
 	// Getting the lower and upper constraint bounds for a certain time
 	unsigned int index = 0;
 	unsigned int num_constraints = constraints_.size();
-	unsigned constraint_dim = getDimensionOfConstraints();
-	Eigen::VectorXd constraint_lower_bound(constraint_dim),
-			constraint_upper_bound(constraint_dim);
+	Eigen::VectorXd constraint_lower_bound(constraint_dimension_),
+			constraint_upper_bound(constraint_dimension_);
 	for (unsigned int i = 0; i < num_constraints + 1; i++) {
 		Eigen::VectorXd lower_bound, upper_bound;
-		if (i == 0)
+		unsigned int current_bound_dim;
+		if (i == 0) {
+			// Getting the dynamical constraint bounds
 			dynamical_system_->getBounds(lower_bound, upper_bound);
-		else
+
+			// Checking the bound dimension
+			current_bound_dim = dynamical_system_->getConstraintDimension();
+			if (current_bound_dim != lower_bound.size()) {
+				printf(RED "FATAL: the bound dimension at %s constraint is not consistent\n"
+						COLOR_RESET, dynamical_system_->getName().c_str());
+				exit(EXIT_FAILURE);
+			}
+		} else {
+			// Getting the set of constraint bounds
 			constraints_[i-1]->getBounds(lower_bound, upper_bound);
 
-		unsigned int bound_size = lower_bound.size();
-		constraint_lower_bound.segment(index, bound_size) = lower_bound;
-		constraint_upper_bound.segment(index, bound_size) = upper_bound;
+			// Checking the bound dimension
+			current_bound_dim = constraints_[i-1]->getConstraintDimension();
+			if (current_bound_dim != lower_bound.size()) {
+				printf(RED "FATAL: the bound dimension at %s constraint is not consistent\n"
+						COLOR_RESET, constraints_[i-1]->getName().c_str());
+				exit(EXIT_FAILURE);
+			}
+		}
 
-		index += bound_size;
+		// Setting the full constraint vector
+		constraint_lower_bound.segment(index, current_bound_dim) = lower_bound;
+		constraint_upper_bound.segment(index, current_bound_dim) = upper_bound;
+
+		index += current_bound_dim;
 	}
 
 	// Setting the full (state and constraint) lower and upper bounds for the predefined horizon
 	for (unsigned int i = 0; i < horizon_; i++) {
 		// Setting state bounds
-		if (i == 0) {
-			full_state_lower_bound.segment(0, state_dimension_) = state_initial_cond;
-			full_state_upper_bound.segment(0, state_dimension_) = state_initial_cond;
-		} else {
-			full_state_lower_bound.segment(i * state_dimension_, state_dimension_) = state_lower_bound;
-			full_state_upper_bound.segment(i * state_dimension_, state_dimension_) = state_upper_bound;
-		}
+		full_state_lower_bound.segment(i * state_dimension_, state_dimension_) = state_lower_bound;
+		full_state_upper_bound.segment(i * state_dimension_, state_dimension_) = state_upper_bound;
 
 		// Setting dynamic system bounds
 		full_constraint_lower_bound.segment(i * constraint_dimension_, constraint_dimension_) = constraint_lower_bound;
@@ -99,19 +124,22 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 		exit(EXIT_FAILURE);
 	}
 
+	// Getting the initial conditions of the locomotion state
+	LocomotionState locomotion_initial_cond;
+	dynamical_system_->getInitialState(locomotion_initial_cond);
+
 	// Setting the initial state
-	LocomotionState locomotion_state;
-	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dimension_);
-	dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 	unsigned int num_constraints = constraints_.size();
 	for (unsigned int j = 0; j < num_constraints + 1; j++) {
 		if (j == 0) // dynamic system constraint
-			dynamical_system_->setLastState(locomotion_state);
+			dynamical_system_->setLastState(locomotion_initial_cond);
 		else
-			constraints_[j-1]->setLastState(locomotion_state);
+			constraints_[j-1]->setLastState(locomotion_initial_cond);
 	}
 
 	// Computing the active and inactive constraints for a predefined horizon
+	LocomotionState locomotion_state;
+	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dimension_);
 	unsigned int index = 0;
 	for (unsigned int i = 0; i < horizon_; i++) {
 		// Converting the decision variable for a certain time to a robot state
@@ -119,20 +147,38 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 
 		// Computing the constraints for a certain time
-		Eigen::VectorXd constraint;
 		for (unsigned int j = 0; j < num_constraints + 1; j++) {
+			Eigen::VectorXd constraint;
+			unsigned int current_constraint_dim;
 			if (j == 0) {// dynamic system constraint
+				// Evaluating the dynamical constraint
 				dynamical_system_->compute(constraint, locomotion_state);
 				dynamical_system_->setLastState(locomotion_state);
+
+				// Checking the constraint dimension
+				current_constraint_dim = dynamical_system_->getConstraintDimension();
+				if (current_constraint_dim != constraint.size()) {
+					printf(RED "FATAL: the constraint dimension at %s constraint is not consistent\n"
+							COLOR_RESET, dynamical_system_->getName().c_str());
+					exit(EXIT_FAILURE);
+				}
 			} else {
 				constraints_[j-1]->compute(constraint, locomotion_state);
 				constraints_[j-1]->setLastState(locomotion_state);
+
+				// Checking the constraint dimension
+				current_constraint_dim = constraints_[j-1]->getConstraintDimension();
+				if (current_constraint_dim != constraint.size()) {
+					printf(RED "FATAL: the constraint dimension at %s constraint is not consistent\n"
+							COLOR_RESET, constraints_[j-1]->getName().c_str());
+					exit(EXIT_FAILURE);
+				}
 			}
 
-			unsigned int constraint_size = constraint.size();
-			full_constraint.segment(index, constraint_size) = constraint;
+			// Setting in the full constraint vector
+			full_constraint.segment(index, current_constraint_dim) = constraint;
 
-			index += constraint_size;
+			index += current_constraint_dim;
 		}
 	}
 }

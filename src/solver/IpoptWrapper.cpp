@@ -72,18 +72,8 @@ bool IpoptWrapper::get_starting_point(Index n, bool init_x, Number* x,
 	// Eigen interfacing to raw buffers
 	Eigen::Map<Eigen::VectorXd> full_initial_state(x, n);
 
-	// Getting the initial locomotion state
-	LocomotionState starting_locomotion_state;
-	opt_model_.getDynamicalSystem()->getStartingState(starting_locomotion_state);
-
-	// Getting the initial state vector
-	Eigen::VectorXd starting_state;
-	opt_model_.getDynamicalSystem()->fromLocomotionState(starting_state, starting_locomotion_state);
-
 	// Setting the full starting state for the predefined horizon
-	unsigned int state_dim = n / opt_model_.getHorizon();
-	for (unsigned int i = 0; i < opt_model_.getHorizon(); i++)
-		full_initial_state.segment(i * state_dim, state_dim) = starting_state;
+	opt_model_.getStartingPoint(full_initial_state);
 
 	return true;
 }
