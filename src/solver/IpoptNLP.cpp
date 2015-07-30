@@ -36,9 +36,10 @@ bool IpoptNLP::init()
 	app_->Options()->SetNumericValue("tol", 1e-7);
 	app_->Options()->SetStringValue("mu_strategy", "adaptive");
 	app_->Options()->SetStringValue("output_file", "ipopt.out");
+	app_->Options()->SetIntegerValue("max_iter", std::numeric_limits<int>::max());
+
 	//app->Options()->SetStringValue("print_user_options","yes");
-	//app->Options()->SetStringValue("check_derivatives_for_naninf","yes");
-//	app->Options()->SetIntegerValue("max_iter", (int)config_.get<int>("Optim.num_iter")); //set to 1 for debug/comment otherwise
+//	app_->Options()->SetStringValue("check_derivatives_for_naninf","yes");
 	//print level
 //	if  (posOpt->log_->isDebugEnabled())
 //		app->Options()->SetIntegerValue("print_level", (int)5);//verbosity The larger this value the more detailed is the output.The valid range for this integer option is 0<print level<12
@@ -49,7 +50,9 @@ bool IpoptNLP::init()
 	// Compute Jacobian numerically put return true in eval_grad and eval_jac_g
 //	app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
 	// compute Hessian numerically (do not need to implement)
-//	app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
+	app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
+
+//	app_->Options()->SetStringValue("warm_start_init_point", "yes");
 
 	//test the derivatives
 	//app->Options()->SetStringValue("derivative_test","first-order");//first-order = check jacobians, second-order = check hessian
@@ -83,6 +86,8 @@ bool IpoptNLP::init()
 
 bool IpoptNLP::compute(double computation_time)
 {
+	app_->Options()->SetNumericValue("max_cpu_time", computation_time);
+
 	// Ask Ipopt to solve the problem
 	Ipopt::ApplicationReturnStatus status;
 
