@@ -24,8 +24,9 @@ void DynamicalSystem::modelFromURDFFile(std::string filename,
 										struct rbd::FloatingBaseSystem* system,
 										bool info)
 {
-	// Initializing the dynamic model from the filename
-	dynamics_.modelFromURDFFile(filename, system, info);
+	// Initializing the kinematical and dynamical model from the filename
+	kinematics_.modelFromURDFFile(filename, system, info);
+	dynamics_.modelFromURDFFile(filename, system, false);
 	system_ = system;
 
 	// Setting initial conditions
@@ -62,8 +63,9 @@ void DynamicalSystem::modelFromURDFModel(std::string urdf_model,
 										 struct rbd::FloatingBaseSystem* system,
 										 bool info)
 {
-	// Initializing the dynamic model from the URDF model
-	dynamics_.modelFromURDFModel(urdf_model, system, info);
+	// Initializing the kinematical and dynamical model from the URDF model
+	kinematics_.modelFromURDFModel(urdf_model, system, info);
+	dynamics_.modelFromURDFModel(urdf_model, system, false);
 	system_ = system;
 
 	// Setting initial conditions
@@ -96,7 +98,9 @@ void DynamicalSystem::jointLimitsFromURDF(std::string urdf_model)
 				current_joint->type == urdf::Joint::REVOLUTE) {
 			if (system_->getTypeOfDynamicSystem() == rbd::VirtualFloatingBase) {
 				if (system_->getFloatingBaseDOF() != virtual_joints_idx) {
-						virtual_joints_idx++;
+					//TODO: should I defined angular joint position limits according to
+					// orientation singularity?
+					virtual_joints_idx++;
 				} else {
 					lower_state_bound_.joint_pos(joint_idx) = current_joint->limits->lower;
 					upper_state_bound_.joint_pos(joint_idx) = current_joint->limits->upper;

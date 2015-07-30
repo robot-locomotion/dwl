@@ -2,6 +2,7 @@
 #define DWL__MODEL__DYNAMICAL_SYSTEM__H
 
 #include <model/Constraint.h>
+#include <model/WholeBodyKinematics.h>
 #include <model/WholeBodyDynamics.h>
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
@@ -153,6 +154,9 @@ class DynamicalSystem : public Constraint
 
 
 	protected:
+		/** @brief Whole-body kinematical model */
+		WholeBodyKinematics kinematics_;
+
 		/** @brief Whole-body dynamical model */
 		WholeBodyDynamics dynamics_;
 
