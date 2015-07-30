@@ -18,13 +18,16 @@ struct LocomotionVariables
 {
 	LocomotionVariables(bool full_opt = false) : time(full_opt), position(full_opt),
 			velocity(full_opt),	acceleration(full_opt), effort(full_opt),
-			contact_pos(full_opt), contact_for(full_opt) {}
+			contact_pos(full_opt), contact_vel(full_opt), contact_acc(full_opt),
+			contact_for(full_opt) {}
 	bool time;
 	bool position;
 	bool velocity;
 	bool acceleration;
 	bool effort;
 	bool contact_pos;
+	bool contact_vel;
+	bool contact_acc;
 	bool contact_for;
 };
 
