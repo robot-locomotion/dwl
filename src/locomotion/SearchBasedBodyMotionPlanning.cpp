@@ -19,8 +19,9 @@ SearchBasedBodyMotionPlanning::~SearchBasedBodyMotionPlanning()
 }
 
 
-bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path, Pose start_pose,
-		Pose goal_pose)
+bool SearchBasedBodyMotionPlanning::computePath(std::vector<Pose>& body_path,
+												Pose start_pose,
+												Pose goal_pose)
 {
 	// Computing the yaw angle of the start and goal pose
 	double start_yaw = math::getYaw(math::getRPY(start_pose.orientation));

@@ -5,8 +5,6 @@
 #include <locomotion/MotionPlanning.h>
 #include <locomotion/ContactPlanning.h>
 #include <solver/Solver.h>
-//#include <model/Constraint.h>
-//#include <model/Cost.h>
 #include <environment/EnvironmentInformation.h>
 
 #include <utils/utils.h>
