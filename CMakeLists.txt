@@ -62,6 +62,11 @@ add_dependencies(footstep_hierarchical_planner_node  ${catkin_EXPORTED_TARGETS})
 target_link_libraries(footstep_hierarchical_planner_node  ${catkin_LIBRARIES}
                                                           ${dwl_LIBRARIES})
 
+add_executable(constrained_whole_body_planner_node  src/ConstrainedWholeBodyPlanner.cpp)
+add_dependencies(constrained_whole_body_planner_node  ${catkin_EXPORTED_TARGETS})
+target_link_libraries(constrained_whole_body_planner_node  ${catkin_LIBRARIES}
+                                                           ${dwl_LIBRARIES})
+
 add_executable(dynamic_whole_body_planner_node  src/DynamicWholeBodyPlanner.cpp)
 add_dependencies(dynamic_whole_body_planner_node  ${catkin_EXPORTED_TARGETS})
 target_link_libraries(dynamic_whole_body_planner_node  ${catkin_LIBRARIES}
