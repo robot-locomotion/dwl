@@ -79,7 +79,7 @@ void FootstepHierarchicalPlanners::init()
 	// Setting the body and footstep planner, and the robot and environment information to the planner
 	planning_.reset(&robot_, body_planner_ptr_, footstep_planner_ptr_, &environment_);
 
-	// Initialization of the locomotion algorithm
+	// Initialization of the footstep hierarchical planner algorithm
 	planning_.initPlan();
 
 	// Initialization of the hierarchical planner

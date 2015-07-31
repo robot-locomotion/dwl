@@ -18,7 +18,10 @@ add_message_files(
     Region.msg
     Contact.msg
     ContactSequence.msg
-    ContactRegion.msg)
+    ContactRegion.msg
+    JointState.msg
+    WholeBodyState.msg
+    WholeBodyTrajectory.msg)
 
 
 ## Generate services in the 'srv' folder
@@ -61,16 +64,19 @@ add_executable(footstep_hierarchical_planner_node  src/FootstepHierarchicalPlann
 add_dependencies(footstep_hierarchical_planner_node  ${catkin_EXPORTED_TARGETS})
 target_link_libraries(footstep_hierarchical_planner_node  ${catkin_LIBRARIES}
                                                           ${dwl_LIBRARIES})
+add_dependencies(footstep_hierarchical_planner_node ${PROJECT_NAME}_gencpp)
 
 add_executable(constrained_whole_body_planner_node  src/ConstrainedWholeBodyPlanner.cpp)
 add_dependencies(constrained_whole_body_planner_node  ${catkin_EXPORTED_TARGETS})
 target_link_libraries(constrained_whole_body_planner_node  ${catkin_LIBRARIES}
                                                            ${dwl_LIBRARIES})
+add_dependencies(constrained_whole_body_planner_node ${PROJECT_NAME}_gencpp)
 
 add_executable(dynamic_whole_body_planner_node  src/DynamicWholeBodyPlanner.cpp)
 add_dependencies(dynamic_whole_body_planner_node  ${catkin_EXPORTED_TARGETS})
 target_link_libraries(dynamic_whole_body_planner_node  ${catkin_LIBRARIES}
                                                        ${dwl_LIBRARIES})
+add_dependencies(dynamic_whole_body_planner_node ${PROJECT_NAME}_gencpp)
 
 #############
 ## Install ##

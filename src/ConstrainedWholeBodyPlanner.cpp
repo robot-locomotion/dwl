@@ -89,10 +89,10 @@ bool ConstrainedWholeBodyPlanner::compute()
 void ConstrainedWholeBodyPlanner::publishWholeBodyTrajectory()
 {
 	// Publishing the motion plan if there is at least one subscriber
-//	if (motion_plan_pub_.getNumSubscribers() > 0) {
-//		body_path_msg_.header.stamp = ros::Time::now();
-//		body_path_msg_.poses.resize(body_path_.size());
-//	}
+	if (motion_plan_pub_.getNumSubscribers() > 0) {
+		robot_trajectory_msg_.header.stamp = ros::Time::now();
+		robot_trajectory_msg_.trajectory.resize(1);
+	}
 }
 
 } //@namespace dwl_planners
