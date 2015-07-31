@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-Cost::Cost() : is_cost_map_(false)
+Cost::Cost()
 {
 
 }
@@ -19,23 +19,9 @@ Cost::~Cost()
 }
 
 
-void Cost::setCostMap(std::vector<RewardCell> reward_map)
+void Cost::setLocomotionStateWeights(LocomotionState& weights)
 {
-	printf(YELLOW "Could not set the cost map because this is not cost map class\n" COLOR_RESET);
-}
-
-
-void Cost::get(AdjacencyMap& adjacency_map,
-			   Eigen::Vector3d robot_state,
-			   bool terrain_cost)
-{
-	printf(YELLOW "Could not get the cost because this was not defined\n" COLOR_RESET);
-}
-
-
-bool Cost::isCostMap()
-{
-	return is_cost_map_;
+	locomotion_weights_ = weights;
 }
 
 

@@ -187,10 +187,12 @@ class DynamicalSystem : public Constraint
 		/** @brief Upper state bounds */
 		LocomotionState upper_state_bound_;
 
+		/** @brief Locomotion variables defined given a dynamical system constraint */
 		LocomotionVariables locomotion_variables_;
 
 
 	private:
+		/** @brief Initializes conditions of the dynamical constraint */
 		void initialConditions();
 };
 
