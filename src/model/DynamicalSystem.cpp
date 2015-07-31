@@ -181,6 +181,12 @@ unsigned int DynamicalSystem::getNumberOfEndEffectors()
 void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
 										const Eigen::VectorXd& generalized_state)
 {
+	// Resizing the joint dimensions
+	locomotion_state.joint_pos = Eigen::VectorXd::Zero(joint_dof_);
+	locomotion_state.joint_vel = Eigen::VectorXd::Zero(joint_dof_);
+	locomotion_state.joint_acc = Eigen::VectorXd::Zero(joint_dof_);
+	locomotion_state.joint_eff = Eigen::VectorXd::Zero(joint_dof_);
+
 	// Converting the generalized state vector to locomotion state
 	unsigned int idx = 0;
 	if (locomotion_variables_.time) {
