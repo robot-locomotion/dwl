@@ -37,7 +37,7 @@ class Cost
 		 * @brief Sets the locomotion state weights which are used by specific cost function
 		 * @param LocomotionState& weights
 		 */
-		void setLocomotionStateWeights(LocomotionState& weights);
+		void setWeights(LocomotionState& weights);
 
 		/**
 		 * @brief Gets the name of the cost

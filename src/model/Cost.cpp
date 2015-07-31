@@ -19,7 +19,7 @@ Cost::~Cost()
 }
 
 
-void Cost::setLocomotionStateWeights(LocomotionState& weights)
+void Cost::setWeights(LocomotionState& weights)
 {
 	locomotion_weights_ = weights;
 }
