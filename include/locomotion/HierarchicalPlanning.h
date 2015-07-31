@@ -32,12 +32,6 @@ class HierarchicalPlanning : public PlanningOfMotionSequence
 		virtual bool init();
 
 		/**
-		 * @brief Updates the goal body pose for hierarchical planning
-		 * @param Pose Goal pose
-		 */
-		virtual void resetGoal(Pose goal);
-
-		/**
 		 * @brief Computes a whole-body motion provided for the hierarchical planning
 		 * @param Pose current_pose Current pose
 		 * @return True if it was computed the plan

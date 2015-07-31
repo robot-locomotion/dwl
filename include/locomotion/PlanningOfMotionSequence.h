@@ -70,7 +70,7 @@ class PlanningOfMotionSequence //TODO clean and define the final class
 		 * @brief Updates the start and goal pose of the robot
 		 * @param Pose Goal pose
 		 */
-		virtual void resetGoal(Pose goal) = 0;
+		void resetGoal(Pose goal);
 
 		/**
 		 * @brief Computes the motion plan
@@ -80,8 +80,8 @@ class PlanningOfMotionSequence //TODO clean and define the final class
 		bool computePlan(Pose robot_state);
 
 		/**
-		 * @brief Abstract method for the computation a motion plan according to added constraints and costs
-		 * in the optimization problem
+		 * @brief Abstract method for the computation a motion plan according to added constraints
+		 * and costs in the optimization problem
 		 * @param Pose Robot pose
 		 * @return True if it was found a plan
 		 */

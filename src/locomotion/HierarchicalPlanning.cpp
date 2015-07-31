@@ -30,13 +30,6 @@ bool HierarchicalPlanning::init()
 }
 
 
-void HierarchicalPlanning::resetGoal(Pose goal)
-{
-	// Resetting the goal pose
-	goal_pose_ =  goal;
-}
-
-
 bool HierarchicalPlanning::compute(Pose current_pose)
 {
 	// Setting the pose in the robot properties

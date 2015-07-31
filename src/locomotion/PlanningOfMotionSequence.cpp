@@ -80,6 +80,12 @@ bool PlanningOfMotionSequence::initPlan()
 }
 
 
+void PlanningOfMotionSequence::resetGoal(Pose goal)
+{
+	goal_pose_ =  goal;
+}
+
+
 bool PlanningOfMotionSequence::computePlan(Pose robot_state)
 {
 	if (!is_initialized_planning_) {
