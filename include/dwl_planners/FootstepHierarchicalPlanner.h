@@ -4,7 +4,6 @@
 #include <ros/ros.h>
 
 // Locomotion headers
-#include <locomotion/WholeBodyLocomotion.h>
 #include <locomotion/HierarchicalPlanning.h>
 #include <locomotion/MotionPlanning.h>
 #include <locomotion/SearchBasedBodyMotionPlanning.h>
@@ -145,11 +144,8 @@ class FootstepHierarchicalPlanners
 		/** @brief Thread mutex of the planner */
 		pthread_mutex_t planner_lock_;
 
-		/** @brief Locomotion algorithm */
-		dwl::WholeBodyLocomotion locomotor_;
-
 		/** @brief Planning of motion sequences pointer */
-		dwl::locomotion::PlanningOfMotionSequence* planning_ptr_;
+		dwl::locomotion::HierarchicalPlanning planning_;
 
 		/** @brief Body planner */
 		dwl::locomotion::MotionPlanning* body_planner_ptr_;

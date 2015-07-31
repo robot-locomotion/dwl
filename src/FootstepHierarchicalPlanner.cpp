@@ -5,7 +5,7 @@ namespace dwl_planners
 {
 
 FootstepHierarchicalPlanners::FootstepHierarchicalPlanners(ros::NodeHandle node) : private_node_(node),
-		planning_ptr_(NULL), body_planner_ptr_(NULL), footstep_planner_ptr_(NULL),
+		body_planner_ptr_(NULL), footstep_planner_ptr_(NULL),
 		body_path_solver_ptr_(NULL), adjacency_ptr_(NULL), base_frame_("base_link"),
 		world_frame_("odom")
 {
@@ -15,7 +15,6 @@ FootstepHierarchicalPlanners::FootstepHierarchicalPlanners(ros::NodeHandle node)
 
 FootstepHierarchicalPlanners::~FootstepHierarchicalPlanners()
 {
-	delete planning_ptr_;
 	delete footstep_planner_ptr_;
 	delete body_path_solver_ptr_;
 }
@@ -68,27 +67,20 @@ void FootstepHierarchicalPlanners::init()
 	contact_sequence_rviz_msg_.header.frame_id = world_frame_;
 	contact_regions_msg_.header.frame_id = world_frame_;
 
-
-	//  Setting the locomotion approach
-	planning_ptr_ = new dwl::locomotion::HierarchicalPlanning();
-
-	// Init the robot properties
+	// Initializes the robot properties
 	initRobot();
 
-	// Init the body planner
+	// Initializes the body planner
 	initBodyPlanner();
 
-	// Init the contact planner
+	// Initializes the contact planner
 	initContactPlanner();
 
 	// Setting the body and footstep planner, and the robot and environment information to the planner
-	planning_ptr_->reset(&robot_, body_planner_ptr_, footstep_planner_ptr_, &environment_);
-
-	// Setting up the planner algorithm in the locomotion approach
-	locomotor_.reset(planning_ptr_);
+	planning_.reset(&robot_, body_planner_ptr_, footstep_planner_ptr_, &environment_);
 
 	// Initialization of the locomotion algorithm
-	locomotor_.init();
+	planning_.initPlan();
 
 	// Initialization of the hierarchical planner
 	// Getting the goal pose
@@ -102,12 +94,12 @@ void FootstepHierarchicalPlanners::init()
 	
 	Eigen::Quaterniond q = dwl::math::getQuaternion(Eigen::Vector3d(0.0, 0.0, yaw));
 	goal_pose.orientation = q;
-	locomotor_.resetGoal(goal_pose);
+	planning_.resetGoal(goal_pose);
 
-	// Setting the allowed computation time of the locomotor
+	// Setting the allowed computation time of the footstep hierarchical planner
 	double path_computation_time;
 	if (private_node_.getParam("body_planner/path_computation_time", path_computation_time))
-		locomotor_.setComputationTime(path_computation_time, dwl::BodyPathSolver);
+		planning_.setComputationTime(path_computation_time, dwl::BodyPathSolver);
 }
 
 
@@ -370,7 +362,7 @@ bool FootstepHierarchicalPlanners::compute()
 			timespec start_rt, end_rt;
 			clock_gettime(CLOCK_REALTIME, &start_rt);
 
-			solution = locomotor_.compute(current_pose_);
+			solution = planning_.computePlan(current_pose_);
 
 			if (solution) {
 				clock_gettime(CLOCK_REALTIME, &end_rt);
@@ -381,9 +373,9 @@ bool FootstepHierarchicalPlanners::compute()
 		else
 			pthread_mutex_unlock(&planner_lock_);
 
-		body_path_ = locomotor_.getBodyPath();
+		body_path_ = planning_.getBodyPath();
 		contact_search_region_ = footstep_planner_ptr_->getContactSearchRegions();
-		contact_sequence_ = locomotor_.getContactSequence();
+		contact_sequence_ = planning_.getContactSequence();
 	} catch (tf::TransformException& ex) {
 		ROS_ERROR_STREAM("Transform error of sensor data: " << ex.what() << ", quitting callback");
 
@@ -418,7 +410,7 @@ void FootstepHierarchicalPlanners::rewardMapCallback(const terrain_server::Rewar
 		timespec start_rt, end_rt;
 		clock_gettime(CLOCK_REALTIME, &start_rt);
 
-		locomotor_.setTerrainInformation(reward_map);
+		planning_.setEnvironmentInformation(reward_map);
 
 		clock_gettime(CLOCK_REALTIME, &end_rt);
 		double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
@@ -452,7 +444,7 @@ void FootstepHierarchicalPlanners::obstacleMapCallback(const terrain_server::Obs
 		timespec start_rt, end_rt;
 		clock_gettime(CLOCK_REALTIME, &start_rt);
 
-		locomotor_.setTerrainInformation(obstacle_map);
+		planning_.setEnvironmentInformation(obstacle_map);
 
 		clock_gettime(CLOCK_REALTIME, &end_rt);
 		double duration = (end_rt.tv_sec - start_rt.tv_sec) + 1e-9 * (end_rt.tv_nsec - start_rt.tv_nsec);
@@ -475,7 +467,7 @@ void FootstepHierarchicalPlanners::resetGoalCallback(const geometry_msgs::PoseSt
 	double yaw = dwl::math::getYaw(dwl::math::getRPY(q));
 
 	// Setting the new goal pose
-	locomotor_.resetGoal(goal_pose);
+	planning_.resetGoal(goal_pose);
 	ROS_INFO("Setting the new goal pose (%f,%f,%f)", goal_pose.position[0], goal_pose.position[1], yaw);
 }
 
