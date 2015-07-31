@@ -22,7 +22,8 @@ ControlEnergyCost::~ControlEnergyCost()
 void ControlEnergyCost::compute(double& cost,
 								const LocomotionState& state)
 {
-	cost = 0.001 * state.joint_eff.transpose() * state.joint_eff;
+	cost = state.joint_eff.transpose() * locomotion_weights_.joint_eff.asDiagonal() *
+			state.joint_eff;
 }
 
 } //@namespace model
