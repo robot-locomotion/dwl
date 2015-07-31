@@ -95,7 +95,6 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/WholeBodyLocomotion.cpp
 							 src/environment/KinematicFeasibilityFeature.cpp
 							 src/environment/StancePostureFeature.cpp
 							 src/robot/Robot.cpp
-							 src/robot/StateCost.cpp
 							 src/utils/Geometry.cpp
 							 src/utils/Algebra.cpp
 							 src/utils/Orientation.cpp
