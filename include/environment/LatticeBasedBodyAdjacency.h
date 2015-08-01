@@ -12,10 +12,10 @@ namespace environment
 
 /**
  * @class LatticeBasedBodyAdjacency
- * @brief Class for building a lattice-based adjacency map of the environment. This class derives from
- * AdjacencyEnvironment class
+ * @brief Class for building a lattice-based adjacency map of the environment. This class derives
+ * from AdjacencyModel class
  */
-class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
+class LatticeBasedBodyAdjacency : public AdjacencyModel
 {
 	public:
 		/** @brief Constructor function */
@@ -29,7 +29,8 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		 * @param std::list<Edge>& List of successors
 		 * @param Vertex Current state vertex
 		 */
-		void getSuccessors(std::list<Edge>& successors, Vertex state_vertex);
+		void getSuccessors(std::list<Edge>& successors,
+						   Vertex state_vertex);
 
 
 	private:
@@ -38,13 +39,15 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		 * @param std::vector<Vertex>& The set of neighbors
 		 * @param Vertex Current vertex
 		 */
-		void searchNeighbors(std::vector<Vertex>& neighbors, Vertex vertex_id);
+		void searchNeighbors(std::vector<Vertex>& neighbors,
+							 Vertex vertex_id);
 
 		/**
 		 * @brief Computes the body cost of a current vertex
 		 * @param Eigen::Vector3d Current robot state (x,y,yaw)
 		 */
-		void computeBodyCost(double& cost, Eigen::Vector3d state);
+		void computeBodyCost(double& cost,
+							 Eigen::Vector3d state);
 
 		/**
 		 * @brief Indicates if the free of obstacle
@@ -53,7 +56,9 @@ class LatticeBasedBodyAdjacency : public AdjacencyEnvironment
 		 * @param bool Indicates it is desired to use the body space definition
 		 * @return True if it is free of obstacle, and false otherwise
 		 */
-		bool isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body=false);
+		bool isFreeOfObstacle(Vertex state_vertex,
+							  TypeOfState state_representation,
+							  bool body=false);
 
 		/**
 		 * @brief Indicates if it is requested a stance adjacency

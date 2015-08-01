@@ -15,7 +15,7 @@ namespace environment
  * @brief Class for building a grid-based body adjacency map of the environment. This class derives from
  * AdjacencyEnvironment class
  */
-class GridBasedBodyAdjacency : public AdjacencyEnvironment
+class GridBasedBodyAdjacency : public AdjacencyModel
 {
 	public:
 		/** @brief Constructor function */

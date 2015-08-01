@@ -7,25 +7,28 @@ namespace dwl
 namespace environment
 {
 
-AdjacencyEnvironment::AdjacencyEnvironment() :	robot_(NULL), environment_(NULL), is_lattice_(false),
+AdjacencyModel::AdjacencyModel() :	robot_(NULL), environment_(NULL), is_lattice_(false),
 		is_added_feature_(false), uncertainty_factor_(1.15)
 {
 
 }
 
 
-AdjacencyEnvironment::~AdjacencyEnvironment()
+AdjacencyModel::~AdjacencyModel()
 {
 
 }
 
 
-void AdjacencyEnvironment::reset(robot::Robot* robot, EnvironmentInformation* environment)
+void AdjacencyModel::reset(robot::Robot* robot,
+						   environment::EnvironmentInformation* environment)
 {
-	printf(	BLUE "Setting the robot information in the %s adjacency model \n" COLOR_RESET, name_.c_str());
+	printf(BLUE "Setting the robot information in the %s adjacency model \n" COLOR_RESET,
+			name_.c_str());
 	robot_ = robot;
 
-	printf(	BLUE "Setting the environment information in the %s adjacency model \n" COLOR_RESET, name_.c_str());
+	printf(BLUE "Setting the environment information in the %s adjacency model \n" COLOR_RESET,
+			name_.c_str());
 	environment_ = environment;
 
 	for (int i = 0; i < (int) features_.size(); i++)
@@ -33,21 +36,19 @@ void AdjacencyEnvironment::reset(robot::Robot* robot, EnvironmentInformation* en
 }
 
 
-void AdjacencyEnvironment::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target)
+void AdjacencyModel::computeAdjacencyMap(AdjacencyMap& adjacency_map,
+										 Vertex source,
+										 Vertex target)
 {
-	printf(	YELLOW "Could compute the whole adjacency map because it was not defined an adjacency model\n"
-			COLOR_RESET);
+	printf(YELLOW "Could compute the whole adjacency map because it was not defined an adjacency "
+			"model\n" COLOR_RESET);
 }
 
 
-void AdjacencyEnvironment::getSuccessors(std::list<Edge>& successors, Vertex state_vertex)
-{
-	printf(	YELLOW "Could get the successors because it was not defined an adjacency model\n" COLOR_RESET);
-}
-
-
-void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_source, Vertex& closest_target,
-		Vertex source, Vertex target)
+void AdjacencyModel::getTheClosestStartAndGoalVertex(Vertex& closest_source,
+													 Vertex& closest_target,
+													 Vertex source,
+													 Vertex target)
 {
 	// Checking if the start and goal vertex are part of the terrain information
 	bool is_there_start_vertex, is_there_goal_vertex = false;
@@ -73,9 +74,8 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 			vertex_map.push_back(vertex_iter->first);
 		}
 	} else {
-		printf(
-				RED "Could not get the closest start and goal vertex because there is not terrain information \n"
-				COLOR_RESET);
+		printf(RED "Could not get the closest start and goal vertex because there is not terrain "
+				"information \n" COLOR_RESET);
 		return;
 	}
 
@@ -153,20 +153,18 @@ void AdjacencyEnvironment::getTheClosestStartAndGoalVertex(Vertex& closest_sourc
 }
 
 
-void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex vertex)
+void AdjacencyModel::getTheClosestVertex(Vertex& closest_vertex,
+										 Vertex vertex)
 {
 	// Checking if the  vertex is part of the terrain information
 	std::vector<Vertex> vertex_map;
-	if (environment_->isTerrainInformation())
-	{
+	if (environment_->isTerrainInformation()) {
 		CostMap terrain_costmap;
 		environment_->getTerrainCostMap(terrain_costmap);
 		for (CostMap::iterator vertex_iter = terrain_costmap.begin();
-				vertex_iter != terrain_costmap.end(); vertex_iter++)
-		{
+				vertex_iter != terrain_costmap.end(); vertex_iter++) {
 			Vertex current_vertex = vertex_iter->first;
-			if (vertex == current_vertex)
-			{
+			if (vertex == current_vertex) {
 				closest_vertex = current_vertex;
 
 				return;
@@ -174,10 +172,9 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 
 			vertex_map.push_back(vertex_iter->first);
 		}
-	} else
-	{
-		printf(	RED "Could not get the closest start and goal vertex because there is not terrain information \n"
-				COLOR_RESET);
+	} else {
+		printf(RED "Could not get the closest start and goal vertex because there is not terrain "
+				"information \n" COLOR_RESET);
 		return;
 	}
 
@@ -187,8 +184,7 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 
 	double closest_distant = std::numeric_limits<double>::max();
 	Eigen::Vector3d current_state_vertex;
-	for (unsigned int i = 0; i < vertex_map.size(); i++)
-	{
+	for (unsigned int i = 0; i < vertex_map.size(); i++) {
 		// Calculating the vertex position
 		environment_->getTerrainSpaceModel().vertexToState(current_state_vertex,
 				vertex_map[i]);
@@ -198,8 +194,7 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 				- current_state_vertex.head(2)).norm();
 
 		// Recording the closest vertex from the start position
-		if (start_distant < closest_distant)
-		{
+		if (start_distant < closest_distant) {
 			closest_vertex = vertex_map[i];
 			closest_distant = start_distant;
 		}
@@ -207,7 +202,8 @@ void AdjacencyEnvironment::getTheClosestVertex(Vertex& closest_vertex, Vertex ve
 }
 
 
-double AdjacencyEnvironment::heuristicCost(Vertex source, Vertex target)
+double AdjacencyModel::heuristicCost(Vertex source,
+									 Vertex target)
 {
 	Eigen::Vector3d source_state, target_state;
 	environment_->getTerrainSpaceModel().vertexToState(source_state, source);
@@ -232,7 +228,8 @@ double AdjacencyEnvironment::heuristicCost(Vertex source, Vertex target)
 }
 
 
-bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
+bool AdjacencyModel::isReachedGoal(Vertex target,
+								   Vertex current)
 {
 	if (isLatticeRepresentation()) {
 		double min_error = 0.1;
@@ -248,13 +245,12 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 		current_state(2) = current_angle;
 		target_state(2) = target_angle;
 
-		double distant = ((Eigen::Vector2d) target_state.head(2) - (Eigen::Vector2d) current_state.head(2)).norm();
+		double distant = ((Eigen::Vector2d) (target_state.head(2) - current_state.head(2))).norm();
 		if (distant < min_error) {
 			double angular_error = (double) target_state(2) - (double) current_state(2);
 
 			if (std::abs(angular_error) < min_error) {
 				// Reconstructing path
-
 				return true;
 			}
 		}
@@ -269,29 +265,32 @@ bool AdjacencyEnvironment::isReachedGoal(Vertex target, Vertex current)
 }
 
 
-bool AdjacencyEnvironment::isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body)
+bool AdjacencyModel::isFreeOfObstacle(Vertex state_vertex,
+									  TypeOfState state_representation,
+									  bool body)
 {
 	return true;
 }
 
 
-void AdjacencyEnvironment::addFeature(Feature* feature)
+void AdjacencyModel::addFeature(Feature* feature)
 {
 	double weight;
 	feature->getWeight(weight);
-	printf(GREEN "Adding the %s feature with a weight of %f\n" COLOR_RESET, feature->getName().c_str(), weight);
+	printf(GREEN "Adding the %s feature with a weight of %f\n" COLOR_RESET,
+			feature->getName().c_str(), weight);
 	features_.push_back(feature);
 	is_added_feature_ = true;
 }
 
 
-bool AdjacencyEnvironment::isLatticeRepresentation()
+bool AdjacencyModel::isLatticeRepresentation()
 {
 	return is_lattice_;
 }
 
 
-std::string AdjacencyEnvironment::getName()
+std::string AdjacencyModel::getName()
 {
 	return name_;
 }

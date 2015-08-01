@@ -21,7 +21,8 @@ GridBasedBodyAdjacency::~GridBasedBodyAdjacency()
 }
 
 
-void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target)
+void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map,
+												 Vertex source, Vertex target)
 {
 	// Computing a default stance areas
 	Eigen::Vector3d full_action = Eigen::Vector3d::Zero();
@@ -88,7 +89,8 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map, Ve
 }
 
 
-void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex state_vertex)
+void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors,
+										   Vertex state_vertex)
 {
 	Eigen::Vector3d state;
 	environment_->getTerrainSpaceModel().vertexToState(state, state_vertex);
@@ -123,7 +125,8 @@ void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex s
 }
 
 
-void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_states, Vertex state_vertex)
+void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_states,
+											 Vertex state_vertex)
 {
 	// Getting the key of yaw
 	unsigned short int key_yaw;
@@ -283,11 +286,13 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 			}
 		}
 	} else
-		printf(RED "Could not searched the neighbors because there is not terrain information \n" COLOR_RESET);
+		printf(RED "Could not searched the neighbors because there is not terrain information \n"
+				COLOR_RESET);
 }
 
 
-void GridBasedBodyAdjacency::computeBodyCost(double& cost, Vertex state_vertex)
+void GridBasedBodyAdjacency::computeBodyCost(double& cost,
+											 Vertex state_vertex)
 {
 	// Converting the vertex to state (x,y,yaw)
 	Eigen::Vector3d state;

@@ -7,7 +7,8 @@ namespace dwl
 namespace environment
 {
 
-LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : is_stance_adjacency_(true), number_top_reward_(10)
+LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : is_stance_adjacency_(true),
+		number_top_reward_(10)
 {
 	name_ = "Lattice-based Body";
 	is_lattice_ = true;
@@ -20,7 +21,8 @@ LatticeBasedBodyAdjacency::~LatticeBasedBodyAdjacency()
 }
 
 
-void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Vertex state_vertex)
+void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors,
+											  Vertex state_vertex)
 {
 	// Getting the 3d pose for generating the actions
 	std::vector<Action3d> actions;
@@ -74,11 +76,13 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors, Verte
 			}
 		}
 	} else
-		printf(RED "Could not computed the successors because there is not terrain information \n" COLOR_RESET);
+		printf(RED "Could not computed the successors because there is not terrain information \n"
+				COLOR_RESET);
 }
 
 
-void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d state)
+void LatticeBasedBodyAdjacency::computeBodyCost(double& cost,
+												Eigen::Vector3d state)
 {
 	// Getting the terrain cost map
 	CostMap terrain_costmap;
@@ -173,8 +177,9 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost, Eigen::Vector3d st
 }
 
 
-bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation,
-		bool body)
+bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex,
+												 TypeOfState state_representation,
+												 bool body)
 {
 	// Getting the terrain obstacle map
 	ObstacleMap obstacle_map;
@@ -230,7 +235,6 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex, TypeOfStat
 					if (obstacle_map.count(current_2d_vertex) > 0) {
 						if (obstacle_map.find(current_2d_vertex)->second) {
 							is_free = false;
-							std::cout << "is_free = " << is_free << " | = " <<  current_x << " " << current_y << " " << current_yaw << std::endl; //TODO Delete this message
 							goto found_obstacle;
 						}
 					}

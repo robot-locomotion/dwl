@@ -42,9 +42,9 @@ class SearchTreeSolver
 
 		/**
 		 * @brief Sets the adjacency model that is used for graph searching solvers
-		 * @param AdjacencyEnvironment* Adjacency model
+		 * @param AdjacencyModel* Adjacency model
 		 */
-		void setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_model);
+		void setAdjacencyModel(environment::AdjacencyModel* adjacency_model);
 
 		/**
 		 * @brief Abstract method for computing a shortest-path using graph search algorithms
@@ -82,7 +82,7 @@ class SearchTreeSolver
 		std::string name_;
 
 		/** @brief Adjacency model of the environment */
-		environment::AdjacencyEnvironment* adjacency_;
+		environment::AdjacencyModel* adjacency_;
 
 		/** @brief Shortest previous vertex */
 		PreviousVertex policy_;

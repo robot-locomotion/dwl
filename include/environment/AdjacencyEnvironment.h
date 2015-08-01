@@ -1,5 +1,5 @@
-#ifndef DWL__ENVIRONMENT__ADJACENCY_ENVIRONMENT__H
-#define DWL__ENVIRONMENT__ADJACENCY_ENVIRONMENT__H
+#ifndef DWL__ENVIRONMENT__ADJACENCY_MODEL__H
+#define DWL__ENVIRONMENT__ADJACENCY_MODEL__H
 
 #include <environment/EnvironmentInformation.h>
 #include <environment/Feature.h>
@@ -14,40 +14,45 @@ namespace environment
 {
 
 /**
- * @class AdjacencyEnvironment
- * @brief Abstract class for building an adjacency map of the environment
+ * @class AdjacencyModel
+ * @brief Abstract class for building an adjacency map which necessary for making the tree
+ * exploration with search-tree solver
  */
-class AdjacencyEnvironment
+class AdjacencyModel
 {
 	public:
 		/** @brief Constructor function */
-		AdjacencyEnvironment();
+		AdjacencyModel();
 
 		/** @brief Destructor function */
-		virtual ~AdjacencyEnvironment();
+		virtual ~AdjacencyModel();
 
 		/**
-		 * @brief Defines the settings of all components within AdjacencyEnvironment class
-		 * @param Robot* The robot defines all the properties of the robot
-		 * @param EnvironmentInformation* Pointer to object that defines the environment
+		 * @brief Defines the settings of all components within AdjacencyModel class
+		 * @param robot::Robot* The robot defines all the properties of the robot
+		 * @param environment::EnvironmentInformation* Pointer to object that defines the environment
 		 */
-		void reset(robot::Robot* robot, EnvironmentInformation* environment);
+		void reset(robot::Robot* robot,
+				   environment::EnvironmentInformation* environment);
 
 		/**
-		 * @brief Abstract method that computes the whole adjacency map, which is required by some algorithms
-		 * such as Dijkstrap
+		 * @brief Abstract method that computes the whole adjacency map, which is required by some
+		 * algorithms such as Dijkstrap
 		 * @param AdjacencyMap& Adjacency map
 		 * @param Vertex Source vertex
 		 * @param Vertex Target vertex
 		 */
-		virtual void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target);
+		virtual void computeAdjacencyMap(AdjacencyMap& adjacency_map,
+										 Vertex source,
+										 Vertex target);
 
 		/**
 		 * @brief Abstract method that gets the successors of a certain vertex
 		 * @param std::list<Edge>& The successors of a certain vertex
 		 * @param Vertex Current state vertex
 		 */
-		virtual void getSuccessors(std::list<Edge>& successors, Vertex state_vertex);
+		virtual void getSuccessors(std::list<Edge>& successors,
+								   Vertex state_vertex) = 0;
 
 		/**
 		 * @brief Gets the closest start and goal vertex if it is not belong to the terrain information
@@ -56,22 +61,26 @@ class AdjacencyEnvironment
 		 * @param Vertex Start vertex
 		 * @param Vertex Goal vertex
 		 */
-		void getTheClosestStartAndGoalVertex(Vertex& closest_source, Vertex& closest_target,
-				Vertex source, Vertex target);
+		void getTheClosestStartAndGoalVertex(Vertex& closest_source,
+											 Vertex& closest_target,
+											 Vertex source,
+											 Vertex target);
 
 		/**
 		 * @brief Gets the closest vertex to a certain vertex
 		 * @param Vertex& The closest vertex
 		 * @param Vertex Current vertex
 		 */
-		void getTheClosestVertex(Vertex& closest_vertex, Vertex vertex);
+		void getTheClosestVertex(Vertex& closest_vertex,
+								 Vertex vertex);
 
 		/**
 		 * @brief Estimates the heuristic cost from a source to a target vertex
 		 * @param Vertex Source vertex
 		 * @param Vertex Target vertex
 		 */
-		virtual double heuristicCost(Vertex source, Vertex target);
+		virtual double heuristicCost(Vertex source,
+									 Vertex target);
 
 		/**
 		 * @brief Indicates if it is reached the goal
@@ -79,7 +88,8 @@ class AdjacencyEnvironment
 		 * @param Vertex Current vertex
 		 * @return True if it is reached the goal and false otherwise
 		 */
-		bool isReachedGoal(Vertex target, Vertex current);
+		bool isReachedGoal(Vertex target,
+						   Vertex current);
 
 		/**
 		 * @brief Indicates if the free of obstacle
@@ -88,7 +98,9 @@ class AdjacencyEnvironment
 		 * @param bool Indicates it is desired to use the body space definition
 		 * @return True if it is free of obstacle, and false otherwise
 		 */
-		virtual bool isFreeOfObstacle(Vertex state_vertex, TypeOfState state_representation, bool body = false);
+		virtual bool isFreeOfObstacle(Vertex state_vertex,
+									  TypeOfState state_representation,
+									  bool body = false);
 
 		/**
 		 * @brief Adds a feature for computing the associated body cost
@@ -117,7 +129,7 @@ class AdjacencyEnvironment
 		robot::Robot* robot_;
 
 		/** @brief Pointer of the EnvironmentInformation object which describes the environment */
-		EnvironmentInformation* environment_;
+		environment::EnvironmentInformation* environment_;
 
 		/** @brief Vector of pointers to the Feature class */
 		std::vector<Feature*> features_;
@@ -128,7 +140,7 @@ class AdjacencyEnvironment
 		/** @brief Indicates if it was added a feature */
 		bool is_added_feature_;
 
-		/** @brief Uncertainty factor which is applied in un-perceived environment */
+		/** @brief Uncertainty factor which is applied in unperceived environment */
 		double uncertainty_factor_; // For unknown (non-perceive) areas
 };
 

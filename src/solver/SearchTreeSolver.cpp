@@ -37,7 +37,7 @@ void SearchTreeSolver::reset(robot::Robot* robot,
 }
 
 
-void SearchTreeSolver::setAdjacencyModel(environment::AdjacencyEnvironment* adjacency_model)
+void SearchTreeSolver::setAdjacencyModel(environment::AdjacencyModel* adjacency_model)
 {
 	printf(BLUE "Setting the %s adjacency model in the %s solver\n" COLOR_RESET,
 			adjacency_model->getName().c_str(), getName().c_str());
