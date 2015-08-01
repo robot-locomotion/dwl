@@ -1,4 +1,4 @@
-#include <solver/Solver.h>
+#include <solver/OptimizationSolver.h>
 #include <solver/IpoptNLP.h>
 #include <model/HS071DynamicalSystem.cpp>
 #include <model/HS071Cost.cpp>
@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 {
 //	dwl::solver::Solver* solver = new dwl::solver::IpoptNLP();
 	dwl::solver::IpoptNLP* ipopt_solver = new dwl::solver::IpoptNLP();
-	dwl::solver::Solver* solver = ipopt_solver;
+	dwl::solver::OptimizationSolver* solver = ipopt_solver;
 
 	dwl::model::DynamicalSystem* dynamical_system = new dwl::model::HS071DynamicalSystem();
 	dwl::model::Cost* cost = new dwl::model::HS071Cost();
@@ -20,8 +20,10 @@ int main(int argc, char **argv)
 	system.setTypeOfDynamicSystem(dwl::rbd::FixedBase);
 	dynamical_system->setFloatingBaseSystem(&system);
 
-	ipopt_solver->getIpopt().getOptimizationModel().addDynamicalSystem(dynamical_system);
-	ipopt_solver->getIpopt().getOptimizationModel().addCost(cost);
+//	ipopt_solver->getIpopt().getOptimizationModel().addDynamicalSystem(dynamical_system);
+//	ipopt_solver->getIpopt().getOptimizationModel().addCost(cost);
+	solver->getOptimizationModel().addDynamicalSystem(dynamical_system);
+	solver->getOptimizationModel().addCost(cost);
 
 //	dwl::model::OptimizationModel model;
 //	model.addDynamicalSystem(dynamical_system);

@@ -7,7 +7,7 @@ namespace dwl
 namespace solver
 {
 
-IpoptWrapper::IpoptWrapper()
+IpoptWrapper::IpoptWrapper() : opt_model_(NULL)
 {
 
 }
@@ -19,9 +19,9 @@ IpoptWrapper::~IpoptWrapper()
 }
 
 
-model::OptimizationModel& IpoptWrapper::getOptimizationModel()
+void IpoptWrapper::setOptimizationModel(model::OptimizationModel* model)
 {
-	return opt_model_;
+	opt_model_ = model;
 }
 
 
@@ -29,10 +29,10 @@ bool IpoptWrapper::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 								Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
 	// Getting the dimension of decision variables for every knots
-	n = opt_model_.getDimensionOfState();
+	n = opt_model_->getDimensionOfState();
 
 	// Getting the dimension of constraints for every knots
-	m = opt_model_.getDimensionOfConstraints();
+	m = opt_model_->getDimensionOfConstraints();
 
     // Assuming that Jacobian and Hessian are dense
     nnz_jac_g = n * m;
@@ -55,8 +55,8 @@ bool IpoptWrapper::get_bounds_info(Index n, Number* x_l, Number* x_u,
 	Eigen::Map<Eigen::VectorXd> full_constraint_upper_bound(g_u, m);
 
 	// Evaluating the bounds
-	opt_model_.evaluateBounds(full_state_lower_bound, full_state_upper_bound,
-							  full_constraint_lower_bound, full_constraint_upper_bound);
+	opt_model_->evaluateBounds(full_state_lower_bound, full_state_upper_bound,
+							   full_constraint_lower_bound, full_constraint_upper_bound);
 
 	return true;
 }
@@ -73,7 +73,7 @@ bool IpoptWrapper::get_starting_point(Index n, bool init_x, Number* x,
 	Eigen::Map<Eigen::VectorXd> full_initial_state(x, n);
 
 	// Setting the full starting state for the predefined horizon
-	opt_model_.getStartingPoint(full_initial_state);
+	opt_model_->getStartingPoint(full_initial_state);
 
 	return true;
 }
@@ -85,7 +85,7 @@ bool IpoptWrapper::eval_f(Index n, const Number* x, bool new_x, Number& obj_valu
 	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
 
 	// Numerical evaluation of the cost function
-	opt_model_.evaluateCosts(obj_value, decision_var);
+	opt_model_->evaluateCosts(obj_value, decision_var);
 
 	return true;
 }
@@ -99,7 +99,7 @@ bool IpoptWrapper::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 
 	// Computing the gradient of the cost function for a predefined horizon
 	Eigen::MatrixXd grad(1,n);
-	opt_model_.evaluateCostGradient(grad, decision_var);
+	opt_model_->evaluateCostGradient(grad, decision_var);
 
 	full_gradient = grad;
 
@@ -115,7 +115,7 @@ bool IpoptWrapper::eval_g(Index n, const Number* x, bool new_x, Index m, Number*
 	full_constraint.setZero();
 
 	// Numerical evaluation of the constraint function
-	opt_model_.evaluateConstraints(full_constraint, decision_var);
+	opt_model_->evaluateConstraints(full_constraint, decision_var);
 
 	return true;
 }
@@ -144,7 +144,7 @@ bool IpoptWrapper::eval_jac_g(Index n, const Number* x, bool new_x,
 
 		// Computing the Jacobian for a predefined horizon
 		Eigen::MatrixXd jac(m,n);
-		opt_model_.evaluateConstraintJacobian(jac, decision_var);
+		opt_model_->evaluateConstraintJacobian(jac, decision_var);
 
 		full_jacobian = jac;
 	}
@@ -213,7 +213,7 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 
 	// Eigen interfacing to raw buffers
 	const Eigen::Map<const Eigen::VectorXd> solution(x, n);
-	unsigned horizon = opt_model_.getHorizon();
+	unsigned horizon = opt_model_->getHorizon();
 	unsigned state_dim = solution.size() / horizon;
 	locomotion_solution_.resize(horizon);
 
@@ -223,7 +223,7 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 	for (unsigned int i = 0; i < horizon; i++) {
 		// Converting the decision variable for a certain time to a robot state
 		decision_state = solution.segment(i * state_dim, state_dim);
-		opt_model_.getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
+		opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
 
 		locomotion_solution_.push_back(locomotion_state);
 

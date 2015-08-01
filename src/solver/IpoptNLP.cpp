@@ -10,7 +10,9 @@ namespace solver
 IpoptNLP::IpoptNLP()
 {
 	name_ = "IpoptNLP";
-	is_optimization_algorithm_ = true;
+
+	// Setting the optimization model to Ipopt wrapper
+	ipopt_.setOptimizationModel(&model_);
 }
 
 
@@ -23,7 +25,7 @@ IpoptNLP::~IpoptNLP()
 bool IpoptNLP::init()
 {
 	// Create a new instance of your NLP
-	nlp_ptr_ = &ipopt_;//new IpoptWrapper();
+	nlp_ptr_ = &ipopt_;
 
 	// Creating a new instance of IpoptApplication (use a SmartPtr, not raw). We are using the
 	// factory, since this allows us to compile this example with an Ipopt Windows DLL
@@ -68,12 +70,6 @@ bool IpoptNLP::compute(double computation_time)
 	}
 
 	return true;
-}
-
-
-solver::IpoptWrapper& IpoptNLP::getIpopt()
-{
-	return ipopt_;
 }
 
 } //@namespace solver

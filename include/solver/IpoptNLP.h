@@ -1,7 +1,7 @@
 #ifndef DWL__SOLVER__IPOPT_NLP__H
 #define DWL__SOLVER__IPOPT_NLP__H
 
-#include <solver/Solver.h>
+#include <solver/OptimizationSolver.h>
 #include <solver/IpoptWrapper.h>
 #include <IpIpoptApplication.hpp>
 
@@ -12,7 +12,7 @@ namespace dwl
 namespace solver
 {
 
-class IpoptNLP : public Solver
+class IpoptNLP : public OptimizationSolver
 {
 	public:
 		/** @brief Constructor function */
@@ -33,12 +33,6 @@ class IpoptNLP : public Solver
 		 * @return True if it was computed a solution
 		 */
 		bool compute(double computation_time = std::numeric_limits<double>::max());
-
-		/**
-		 * @brief Gets the Ipopt wrapper
-		 * @return The Ipopt wrapper
-		 */
-		solver::IpoptWrapper& getIpopt();
 
 
 	private:

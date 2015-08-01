@@ -33,10 +33,10 @@ class IpoptWrapper : public Ipopt::TNLP
 		~IpoptWrapper();
 
 		/**
-		 * Gets the optimization model
-		 * @return the reference object of the optimization model
+		 * @brief Sets the optimization model
+		 * @param model::OptimizationModel* Pointer to the optimization model
 		 */
-		model::OptimizationModel& getOptimizationModel();
+		void setOptimizationModel(model::OptimizationModel* model);
 
 		/**@name Overloaded from TNLP */
 		/**
@@ -193,7 +193,7 @@ class IpoptWrapper : public Ipopt::TNLP
 		IpoptWrapper& operator=(const IpoptWrapper&);
 
 		/** @brief Optimizer's model which defines cost functions and constraints */
-		model::OptimizationModel opt_model_;
+		model::OptimizationModel* opt_model_;
 
 		/** @brief Locomotion solution */
 		std::vector<LocomotionState> locomotion_solution_;
