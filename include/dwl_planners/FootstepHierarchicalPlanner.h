@@ -16,9 +16,9 @@
 // Robot and Environment headers
 #include <robot/Robot.h>
 #include <environment/EnvironmentInformation.h>
-#include <environment/AdjacencyEnvironment.h>
-#include <environment/GridBasedBodyAdjacency.h>
-#include <environment/LatticeBasedBodyAdjacency.h>
+#include <model/AdjacencyModel.h>
+#include <model/GridBasedBodyAdjacency.h>
+#include <model/LatticeBasedBodyAdjacency.h>
 #include <environment/PotentialLegCollisionFeature.h>
 #include <environment/PotentialBodyOrientationFeature.h>
 #include <environment/SupportTriangleFeature.h>
@@ -157,7 +157,7 @@ class FootstepHierarchicalPlanners
 		dwl::solver::SearchTreeSolver* body_path_solver_ptr_;
 
 		/** @brief Adjacency environment pointer */
-		dwl::environment::AdjacencyEnvironment* adjacency_ptr_;
+		dwl::model::AdjacencyModel* adjacency_ptr_;
 
 		/** @brief Environment information */
 		dwl::environment::EnvironmentInformation environment_;

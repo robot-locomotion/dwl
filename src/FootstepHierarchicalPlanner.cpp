@@ -152,10 +152,10 @@ void FootstepHierarchicalPlanners::initBodyPlanner()
 	std::string path = "body_planner/adjacency/";
 	private_node_.param(path + "name", adjacency_model_name, (std::string) "LatticeBasedBodyAdjacency");
 	if (adjacency_model_name == "LatticeBasedBodyAdjacency")
-		adjacency_ptr_ = new dwl::environment::LatticeBasedBodyAdjacency();
+		adjacency_ptr_ = new dwl::model::LatticeBasedBodyAdjacency();
 	else
 		if (adjacency_model_name == "GridBasedBodyAdjacency")
-		adjacency_ptr_ = new dwl::environment::GridBasedBodyAdjacency();
+		adjacency_ptr_ = new dwl::model::GridBasedBodyAdjacency();
 	else
 		ROS_ERROR("Wrong adjacency model");
 
