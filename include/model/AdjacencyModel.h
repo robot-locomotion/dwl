@@ -1,5 +1,5 @@
-#ifndef DWL__ENVIRONMENT__ADJACENCY_MODEL__H
-#define DWL__ENVIRONMENT__ADJACENCY_MODEL__H
+#ifndef DWL__MODEL__ADJACENCY_MODEL__H
+#define DWL__MODEL__ADJACENCY_MODEL__H
 
 #include <environment/EnvironmentInformation.h>
 #include <environment/Feature.h>
