@@ -22,7 +22,7 @@ SearchTreeSolver::~SearchTreeSolver()
 
 
 void SearchTreeSolver::reset(robot::Robot* robot,
-				   environment::EnvironmentInformation* environment)
+							 environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the robot and environment information in the %s solver\n" COLOR_RESET,
 			getName().c_str());
@@ -46,7 +46,8 @@ void SearchTreeSolver::setAdjacencyModel(environment::AdjacencyEnvironment* adja
 }
 
 
-std::list<Vertex> SearchTreeSolver::getShortestPath(Vertex source, Vertex target)
+std::list<Vertex> SearchTreeSolver::getShortestPath(Vertex source,
+													Vertex target)
 {
 	std::list<Vertex> path;
 	PreviousVertex::iterator prev;
