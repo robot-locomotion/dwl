@@ -10,7 +10,12 @@ namespace dwl
 namespace solver
 {
 
-class AnytimeRepairingAStar : public Solver
+/**
+ * @class AnytimeRepairingAStar
+ * @brief Class for solving a shortest-search problem using the ARA* algorithm. This class derives
+ * from the SearchTreeSolver class
+ */
+class AnytimeRepairingAStar : public SearchTreeSolver
 {
 	public:
 		/** @brief Constructor function */
@@ -32,7 +37,9 @@ class AnytimeRepairingAStar : public Solver
 		 * @param double Allowed time for computing a solution (in seconds)
 		 * @return True if it was computed a solution
 		 */
-		bool compute(Vertex source, Vertex target, double computation_time = std::numeric_limits<double>::max());
+		bool compute(Vertex source,
+					 Vertex target,
+					 double computation_time);
 
 		/** @brief Defines a ordered queue according to the less weight */
 		typedef std::set< std::pair<Weight, Vertex>, pair_first_less<Weight, Vertex> > SetQueue;
@@ -49,7 +56,10 @@ class AnytimeRepairingAStar : public Solver
 		 * @param Vertex target Target vertex
 		 * @return True if the path was improved
 		 */
-		bool improvePath(SetQueue& openset_queue, Set& visitedset, Vertex target,	double computation_time);
+		bool improvePath(SetQueue& openset_queue,
+						 Set& visitedset,
+						 Vertex target,
+						 double computation_time);
 
 		/** @brief Initial inflation */
 		double initial_inflation_;

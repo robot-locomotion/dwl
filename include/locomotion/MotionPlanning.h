@@ -14,8 +14,9 @@ namespace locomotion
 
 /**
  * @class MotionPlanning
- * @brief Abstract class for implementing a motion planning. This abstract class has two methods reset() that
- * allow us to define Robot properties, EnvironmentInformation, and the Solver of the planning
+ * @brief Abstract class for implementing a motion planning. This abstract class has two methods
+ * reset() that allow us to define Robot properties, EnvironmentInformation, and the Solver of the
+ * planning
  */
 class MotionPlanning
 {
@@ -28,16 +29,18 @@ class MotionPlanning
 
 		/**
 		 * @brief Defines the robot and environment information
-		 * @param Robot* Encapsulates all the properties of the robot
-		 * @param EnvironmentInformation* Encapsulates all the information of the environment
+		 * @param robot::Robot* Encapsulates all the properties of the robot
+		 * @param environment::EnvironmentInformation* Encapsulates all the information of the
+		 * environment
 		 */
-		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot,
+				   environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Defines the motion planning solver
-		 * @param Solver* Motion planning solver
+		 * @param solver::SearchTreeSolver* Motion planning solver
 		 */
-		void reset(solver::Solver* solver);
+		void reset(solver::SearchTreeSolver* solver);
 
 		/**
 		 * @brief Computes a path from start pose to goal pose
@@ -45,14 +48,17 @@ class MotionPlanning
 		 * @param Pose Start pose
 		 * @param Pose Goal pose
 		 */
-		virtual bool computePath(std::vector<Pose>& path, Pose start_pose, Pose goal_pose) = 0;
+		virtual bool computePath(std::vector<Pose>& path,
+								 Pose start_pose,
+								 Pose goal_pose) = 0;
 
 		/**
 		 * @brief Sets the computation time
 		 * @param double Computation time
 		 * @param bool True indicates that is a path solver, false that is a pose solver
 		 */
-		void setComputationTime(double computation_time, bool path_solver);
+		void setComputationTime(double computation_time,
+								bool path_solver);
 
 
 	protected:
@@ -66,10 +72,10 @@ class MotionPlanning
 		robot::Robot* robot_;
 
 		/** @brief Pointer to the path solver */
-		solver::Solver* path_solver_;
+		solver::SearchTreeSolver* path_solver_;
 
 		/** @brief Pointer to the pose solver */
-		solver::Solver* pose_solver_;
+		solver::SearchTreeSolver* pose_solver_;
 
 		/** @brief Computation time for the path solver */
 		double path_computation_time_;

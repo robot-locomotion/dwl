@@ -7,8 +7,8 @@ namespace dwl
 namespace locomotion
 {
 
-MotionPlanning::MotionPlanning() : environment_(NULL), robot_(NULL), path_solver_(NULL), pose_solver_(NULL),
-		path_computation_time_(std::numeric_limits<double>::max()),
+MotionPlanning::MotionPlanning() : environment_(NULL), robot_(NULL), path_solver_(NULL),
+		pose_solver_(NULL), path_computation_time_(std::numeric_limits<double>::max()),
 		pose_computation_time_(std::numeric_limits<double>::max())
 {
 
@@ -22,7 +22,8 @@ MotionPlanning::~MotionPlanning()
 }
 
 
-void MotionPlanning::reset(robot::Robot* robot, environment::EnvironmentInformation* environment)
+void MotionPlanning::reset(robot::Robot* robot,
+						   environment::EnvironmentInformation* environment)
 {
 	printf(BLUE "Setting the robot properties in the contact planner \n" COLOR_RESET);
 	robot_ = robot;
@@ -35,7 +36,7 @@ void MotionPlanning::reset(robot::Robot* robot, environment::EnvironmentInformat
 }
 
 
-void MotionPlanning::reset(solver::Solver* solver)
+void MotionPlanning::reset(solver::SearchTreeSolver* solver)
 {
 	printf(BLUE "Setting the %s path solver in the %s planner\n" COLOR_RESET, solver->getName().c_str(),
 			name_.c_str());
@@ -44,7 +45,8 @@ void MotionPlanning::reset(solver::Solver* solver)
 }
 
 
-void MotionPlanning::setComputationTime(double computation_time, bool path_solver)
+void MotionPlanning::setComputationTime(double computation_time,
+										bool path_solver)
 {
 	if (path_solver) {
 		printf("Setting the allowed computation time of the body path solver to %f \n",

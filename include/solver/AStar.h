@@ -12,10 +12,10 @@ namespace solver
 
 /**
  * @class AStar
- * @brief Class for solving a shortest-search problem using the A* algorithm. This class derives from the Solver
- * class
+ * @brief Class for solving a shortest-search problem using the A* algorithm. This class derives
+ * from the SearchTreeSolver class
  */
-class AStar : public Solver
+class AStar : public SearchTreeSolver
 {
 	public:
 		/** @brief Constructor function */
@@ -37,7 +37,9 @@ class AStar : public Solver
 		 * @param double Allowed time for computing a solution (in seconds)
 		 * @return True if it was computed a solution
 		 */
-		bool compute(Vertex source, Vertex target,	double computation_time = std::numeric_limits<double>::max());
+		bool compute(Vertex source,
+					 Vertex target,
+					 double computation_time);
 
 
 	private:
@@ -46,7 +48,8 @@ class AStar : public Solver
 		 * @param Vertex Source vertex
 		 * @param Vertex Target vertex
 		 */
-		void findShortestPath(Vertex source, Vertex target);
+		void findShortestPath(Vertex source,
+							  Vertex target);
 
 		/** @brief number of expansions */
 		int expansions_;

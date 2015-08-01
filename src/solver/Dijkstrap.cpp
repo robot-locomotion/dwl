@@ -10,7 +10,6 @@ namespace solver
 Dijkstrap::Dijkstrap() : expansions_(0)
 {
 	name_ = "Dijkstrap";
-	is_graph_searching_algorithm_ = true;
 }
 
 
@@ -27,7 +26,9 @@ bool Dijkstrap::init()
 }
 
 
-bool Dijkstrap::compute(Vertex source, Vertex target, double computation_time)
+bool Dijkstrap::compute(Vertex source,
+						Vertex target,
+						double computation_time)
 {
 	if (!is_set_adjacency_model_) {
 		printf(RED "Could not computed the shortest path because it is required to defined an adjacency model\n"
@@ -49,7 +50,9 @@ bool Dijkstrap::compute(Vertex source, Vertex target, double computation_time)
 }
 
 
-void Dijkstrap::findShortestPath(Vertex source, Vertex target, AdjacencyMap adjacency_map)
+void Dijkstrap::findShortestPath(Vertex source,
+								 Vertex target,
+								 AdjacencyMap adjacency_map)
 {
 	// Defining the minimum cost
 	CostMap min_cost;

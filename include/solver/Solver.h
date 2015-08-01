@@ -1,5 +1,5 @@
-#ifndef DWL__SOLVER__SOLVER__H
-#define DWL__SOLVER__SOLVER__H
+#ifndef DWL__SOLVER__SEARCH_TREE_SOLVER__H
+#define DWL__SOLVER__SEARCH_TREE_SOLVER__H
 
 #include <robot/Robot.h>
 #include <environment/AdjacencyEnvironment.h>
@@ -13,18 +13,18 @@ namespace solver
 {
 
 /**
- * @class Solver
- * @brief Abstract class for implementing different solver such as graph searcher or optimizer.
- * For graph-searcher requires to define an adjacency model.
+ * @class SearchTreeSolver
+ * @brief Abstract class for implementing different search tree solver such as Dijkstrap, A*,
+ * Anytime Repairing A*, etc.
  */
-class Solver
+class SearchTreeSolver
 {
 	public:
 		/** @brief Constructor function */
-		Solver();
+		SearchTreeSolver();
 
 		/** @brief Destructor function */
-		virtual ~Solver();
+		virtual ~SearchTreeSolver();
 
 		/**
 		 * @brief Abstract method for initialization of the solver
@@ -55,13 +55,7 @@ class Solver
 		 * @return True if it was computed a solution
 		 */
 		virtual bool compute(Vertex source, Vertex target,
-							 double computation_time = std::numeric_limits<double>::max());
-
-		/**
-		 * @brief Abstract method for computing a solution of an optimization problem
-		 * @return True if it was computed a solution
-		 */
-		virtual bool compute(double computation_time = std::numeric_limits<double>::max());
+							 double computation_time = std::numeric_limits<double>::max()) = 0;
 
 		/**
 		 * @brief Gets the shortest-path only for graph searching algorithms
@@ -87,20 +81,8 @@ class Solver
 		/** @brief Name of the solver */
 		std::string name_;
 
-		/** @brief Robot properties */
-		robot::Robot* robot_;
-
-		/** @brief Environment information */
-		environment::EnvironmentInformation* environment_;
-
 		/** @brief Adjacency model of the environment */
 		environment::AdjacencyEnvironment* adjacency_;
-
-		/** @brief Indicates if it is a graph-searching algorithm */
-		bool is_graph_searching_algorithm_;
-
-		/** @brief Indicates if it is an optimization problem */
-		bool is_optimization_algorithm_;
 
 		/** @brief Shortest previous vertex */
 		PreviousVertex policy_;

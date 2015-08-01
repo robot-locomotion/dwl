@@ -13,7 +13,6 @@ AnytimeRepairingAStar::AnytimeRepairingAStar(double initial_inflation) :
 		min_f_cost_(std::numeric_limits<double>::max()), expansions_(0)
 {
 	name_ = "Anytime Repairing A*";
-	is_graph_searching_algorithm_ = true;
 }
 
 
@@ -30,7 +29,9 @@ bool AnytimeRepairingAStar::init()
 }
 
 
-bool AnytimeRepairingAStar::compute(Vertex source, Vertex target, double computation_time)
+bool AnytimeRepairingAStar::compute(Vertex source,
+									Vertex target,
+									double computation_time)
 {
 	if (!is_set_adjacency_model_) {
 		printf(RED "Could not computed the shortest path because "
@@ -93,8 +94,10 @@ bool AnytimeRepairingAStar::compute(Vertex source, Vertex target, double computa
 }
 
 
-bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue, Set& visitedset,
-		Vertex target, double computation_time)
+bool AnytimeRepairingAStar::improvePath(SetQueue& openset_queue,
+										Set& visitedset,
+										Vertex target,
+										double computation_time)
 {
 	// Setting an empty closed set and inconsistent set
 	Set closedset;

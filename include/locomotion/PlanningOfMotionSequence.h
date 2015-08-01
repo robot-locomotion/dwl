@@ -35,11 +35,11 @@ class PlanningOfMotionSequence //TODO clean and define the final class
 		/**
 		 * @brief Defines the settings required for a decoupled approach
 		 * @param Robot* The robot defines all the properties of the robot
-		 * @param Solver* The solver that computes a motion plan, e.g. graph-searcher or optimizer
+		 * @param SearchTreeSolver* The search tree solver that computes a motion plan
 		 * @param EnvironmentInformation* Encapsulates all the information of the environment
 		 */
 		void reset(robot::Robot* robot,
-				   solver::Solver* solver,
+				   solver::SearchTreeSolver* solver,
 				   environment::EnvironmentInformation* environment);
 
 		/**
@@ -147,7 +147,7 @@ class PlanningOfMotionSequence //TODO clean and define the final class
 		robot::Robot* robot_;
 
 		/** @brief Pointer to the solver algorithm */
-		solver::Solver* solver_;
+		solver::SearchTreeSolver* solver_;
 
 		/** @brief Pointer to the environment information */
 		environment::EnvironmentInformation* environment_;

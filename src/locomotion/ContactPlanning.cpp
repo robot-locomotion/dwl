@@ -7,7 +7,8 @@ namespace dwl
 namespace locomotion
 {
 
-ContactPlanning::ContactPlanning() : environment_(NULL), robot_(NULL), computation_time_(std::numeric_limits<double>::max()), contact_horizon_(0)
+ContactPlanning::ContactPlanning() : environment_(NULL), robot_(NULL),
+		computation_time_(std::numeric_limits<double>::max()), contact_horizon_(0)
 {
 
 }
@@ -19,12 +20,15 @@ ContactPlanning::~ContactPlanning()
 }
 
 
-void ContactPlanning::reset(robot::Robot* robot, environment::EnvironmentInformation* environment)
+void ContactPlanning::reset(robot::Robot* robot,
+							environment::EnvironmentInformation* environment)
 {
-	printf(BLUE "Setting the robot properties in the %s contact planner \n" COLOR_RESET, name_.c_str());
+	printf(BLUE "Setting the robot properties in the %s contact planner \n" COLOR_RESET,
+			name_.c_str());
 	robot_ = robot;
 
-	printf(BLUE "Setting the environment information in the %s contact planner \n" COLOR_RESET, name_.c_str());
+	printf(BLUE "Setting the environment information in the %s contact planner \n" COLOR_RESET,
+			name_.c_str());
 	environment_ = environment;
 
 	for (int i = 0; i < (int) features_.size(); i++)
@@ -36,7 +40,8 @@ void ContactPlanning::addFeature(environment::Feature* feature)
 {
 	double weight;
 	feature->getWeight(weight);
-	printf(GREEN "Adding the %s feature with a weight of %f to the %s contact planner\n" COLOR_RESET, feature->getName().c_str(), weight, name_.c_str());
+	printf(GREEN "Adding the %s feature with a weight of %f to the %s contact planner\n" COLOR_RESET,
+			feature->getName().c_str(), weight, name_.c_str());
 	features_.push_back(feature);
 }
 

@@ -28,14 +28,15 @@ class ContactPlanning
 
 		/**
 		 * @brief Defines the environment information for computing a contact plan
-		 * @param Robot* The robot defines all the properties of the robot
-		 * @param EnvironmentInformation* Encapsulates all the information of the environment
+		 * @param robot::Robot* The robot defines all the properties of the robot
+		 * @param environment::EnvironmentInformation* Encapsulates all the information of the environment
 		 */
-		void reset(robot::Robot* robot, environment::EnvironmentInformation* environment);
+		void reset(robot::Robot* robot,
+				   environment::EnvironmentInformation* environment);
 
 		/**
 		 * @brief Adds a feature for the contact planner
-		 * @param Feature* Feature
+		 * @param environment::Feature* Feature
 		 */
 		void addFeature(environment::Feature* feature);
 

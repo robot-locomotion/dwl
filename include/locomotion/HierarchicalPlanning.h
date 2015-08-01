@@ -12,9 +12,9 @@ namespace locomotion
 
 /**
  * @class HierarchicalPlanning
- * @brief HierarchicalPlanning is an abstract class that solves the problem of planning of motion sequences
- * using a hierarchical approach. This class derived from PlanningOfMotionSequence that has the required
- * information for a decoupled planning.
+ * @brief HierarchicalPlanning is an abstract class that solves the problem of planning of motion
+ * sequences using a hierarchical approach. This class derived from PlanningOfMotionSequence that
+ * has the required information for a decoupled planning.
  */
 class HierarchicalPlanning : public PlanningOfMotionSequence
 {
@@ -37,7 +37,6 @@ class HierarchicalPlanning : public PlanningOfMotionSequence
 		 * @return True if it was computed the plan
 		 */
 		bool compute(Pose current_pose);
-
 };
 
 } //@namespace locomotion

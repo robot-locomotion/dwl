@@ -12,8 +12,8 @@ namespace locomotion
 
 /**
  * @class SearchBasedBodyMotionPlanning
- * @brief SearchBasedBodyMotionPlanning is derived from MotionPlanning and computes the body path based on
- * search algorithm such as A*, ARA*, etc.
+ * @brief SearchBasedBodyMotionPlanning is derived from MotionPlanning and computes the body path
+ * based on search algorithm such as A*, ARA*, etc.
  */
 class SearchBasedBodyMotionPlanning : public MotionPlanning
 {

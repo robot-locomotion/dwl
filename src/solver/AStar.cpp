@@ -10,7 +10,6 @@ namespace solver
 AStar::AStar() : expansions_(0)
 {
 	name_ = "A-star";
-	is_graph_searching_algorithm_ = true;
 }
 
 
@@ -26,7 +25,9 @@ bool AStar::init()
 }
 
 
-bool AStar::compute(Vertex source, Vertex target, double computation_time)
+bool AStar::compute(Vertex source,
+					Vertex target,
+					double computation_time)
 {
 	if (!is_set_adjacency_model_) {
 		printf(RED "Could not computed the shortest path because "
@@ -41,7 +42,8 @@ bool AStar::compute(Vertex source, Vertex target, double computation_time)
 }
 
 
-void AStar::findShortestPath(Vertex source, Vertex target)
+void AStar::findShortestPath(Vertex source,
+							 Vertex target)
 {
 	// Defining the f_cost and g_cost
 	CostMap f_cost;

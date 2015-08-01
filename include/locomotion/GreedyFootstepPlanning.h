@@ -12,14 +12,15 @@ namespace locomotion
 
 /**
  * @class GreedyFootstepPlanning
- * @brief GreedyFootstepPlanning computes a footstep plan using a greedy approach. This class derive from
- * ContactPlanning
+ * @brief GreedyFootstepPlanning computes a footstep plan using a greedy approach. This class derive
+ * from ContactPlanning
  */
 class GreedyFootstepPlanning : public ContactPlanning
 {
 	public:
 		/** @brief Constructor function */
-		GreedyFootstepPlanning(bool remove_footholds, double threshold_distance);
+		GreedyFootstepPlanning(bool remove_footholds,
+							   double threshold_distance);
 
 		/** @brief Destructor function */
 		~GreedyFootstepPlanning();
@@ -29,7 +30,8 @@ class GreedyFootstepPlanning : public ContactPlanning
 		 * @param std::vector<Contact>& Set of contacts
 		 * @param std::vector<Pose> Goal pose
 		 */
-		bool computeContactSequence(std::vector<Contact>& contact_sequence, std::vector<Pose> pose_trajectory);
+		bool computeContactSequence(std::vector<Contact>& contact_sequence,
+									std::vector<Pose> pose_trajectory);
 
 		/**
 		 * @brief Computes the contacts given a current pose of the robot
@@ -37,7 +39,9 @@ class GreedyFootstepPlanning : public ContactPlanning
 		 * @param std::vector<Contact> Current contacts
 		 * @param Pose Goal pose
 		 */
-		bool computeContacts(std::vector<Contact>& contacts, std::vector<Contact> current_contacts, Pose goal_pose);
+		bool computeContacts(std::vector<Contact>& contacts,
+							 std::vector<Contact> current_contacts,
+							 Pose goal_pose);
 
 
 	private:
