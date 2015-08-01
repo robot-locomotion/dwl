@@ -21,7 +21,7 @@ GreedyFootstepPlanning::~GreedyFootstepPlanning()
 
 
 bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contact_sequence,
-		std::vector<Pose> pose_trajectory)
+													std::vector<Pose> pose_trajectory)
 {
 	// Setting the current discretized body state
 	Pose current_body_pose = robot_->getCurrentPose();
@@ -74,7 +74,8 @@ bool GreedyFootstepPlanning::computeContactSequence(std::vector<Contact>& contac
 
 
 bool GreedyFootstepPlanning::computeContacts(std::vector<Contact>& footholds,
-		std::vector<Contact> initial_contacts, Pose goal_pose)
+											 std::vector<Contact> initial_contacts,
+											 Pose goal_pose)
 {
 	// Initialization of footholds
 	footholds.clear();
