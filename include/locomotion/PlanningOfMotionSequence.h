@@ -4,7 +4,7 @@
 #include <robot/Robot.h>
 #include <locomotion/MotionPlanning.h>
 #include <locomotion/ContactPlanning.h>
-#include <solver/Solver.h>
+#include <solver/SearchTreeSolver.h>
 #include <environment/EnvironmentInformation.h>
 
 #include <utils/utils.h>

@@ -56,9 +56,9 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/locomotion/MotionPlanning.cpp
 							 src/locomotion/SearchBasedBodyMotionPlanning.cpp
 							 src/locomotion/ContactPlanning.cpp
-							 src/locomotion/GreedyFootstepPlanning.cpp	
+							 src/locomotion/GreedyFootstepPlanning.cpp
+							 src/solver/SearchTreeSolver.cpp	
 							 src/solver/OptimizationSolver.cpp
-							 src/solver/Solver.cpp
 							 src/solver/Dijkstrap.cpp
 							 src/solver/AStar.cpp
 							 src/solver/AnytimeRepairingAStar.cpp

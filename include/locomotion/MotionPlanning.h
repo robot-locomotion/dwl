@@ -1,7 +1,7 @@
 #ifndef DWL__LOCOMOTION__MOTION_PLANNING__H
 #define DWL__LOCOMOTION__MOTION_PLANNING__H
 
-#include <solver/Solver.h>
+#include <solver/SearchTreeSolver.h>
 #include <environment/EnvironmentInformation.h>
 #include <utils/utils.h>
 

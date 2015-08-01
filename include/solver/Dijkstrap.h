@@ -1,7 +1,7 @@
 #ifndef DWL__SOLVER__DIJKSTRAP__H
 #define DWL__SOLVER__DIJKSTRAP__H
 
-#include <solver/Solver.h>
+#include <solver/SearchTreeSolver.h>
 
 
 namespace dwl

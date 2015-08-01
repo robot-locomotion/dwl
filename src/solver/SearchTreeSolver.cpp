@@ -1,4 +1,4 @@
-#include <solver/Solver.h>
+#include <solver/SearchTreeSolver.h>
 
 
 namespace dwl

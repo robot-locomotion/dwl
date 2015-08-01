@@ -1,7 +1,7 @@
 #ifndef DWL__SOLVER__ASTAR__H
 #define DWL__SOLVER__ASTAR__H
 
-#include <solver/Solver.h>
+#include <solver/SearchTreeSolver.h>
 
 
 namespace dwl
