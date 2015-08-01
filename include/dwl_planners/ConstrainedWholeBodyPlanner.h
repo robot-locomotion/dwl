@@ -32,7 +32,7 @@ class ConstrainedWholeBodyPlanner
 		ros::NodeHandle node_;
 		ros::Publisher motion_plan_pub_;
 
-		dwl::solver::Solver* solver_;
+		dwl::solver::OptimizationSolver* solver_;
 		dwl::solver::IpoptNLP* ipopt_solver_;
 		dwl::model::ConstrainedDynamicalSystem* constrained_system_;
 		dwl::rbd::FloatingBaseSystem floating_base_system_;

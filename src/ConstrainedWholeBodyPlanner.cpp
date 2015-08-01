@@ -64,14 +64,18 @@ void ConstrainedWholeBodyPlanner::init()
 	constrained_system_->setStartingState(current_state_);
 
 
-	ipopt_solver_->getIpopt().getOptimizationModel().addDynamicalSystem(dynamical_system);
-	ipopt_solver_->getIpopt().getOptimizationModel().addCost(state_tracking_cost);
-	ipopt_solver_->getIpopt().getOptimizationModel().addCost(control_cost);
+//	ipopt_solver_->getIpopt().getOptimizationModel().addDynamicalSystem(dynamical_system);
+//	ipopt_solver_->getIpopt().getOptimizationModel().addCost(state_tracking_cost);
+//	ipopt_solver_->getIpopt().getOptimizationModel().addCost(control_cost);
+	solver_->getOptimizationModel().addDynamicalSystem(dynamical_system);
+	solver_->getOptimizationModel().addCost(state_tracking_cost);
+	solver_->getOptimizationModel().addCost(control_cost);
 
 
-	ipopt_solver_->getIpopt().getOptimizationModel().getDynamicalSystem()->setInitialState(current_state_);
-	ipopt_solver_->getIpopt().getOptimizationModel().setHorizon(3);
-
+//	ipopt_solver_->getIpopt().getOptimizationModel().getDynamicalSystem()->setInitialState(current_state_);
+//	ipopt_solver_->getIpopt().getOptimizationModel().setHorizon(3);
+	solver_->getOptimizationModel().getDynamicalSystem()->setInitialState(current_state_);
+	solver_->getOptimizationModel().setHorizon(3);
 
 //	planning_ptr_->reset(&robot_, solver_, environment_);
 

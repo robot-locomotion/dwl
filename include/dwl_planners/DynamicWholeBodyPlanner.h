@@ -25,7 +25,7 @@ class DynamicWholeBodyPlanner
 		/** @brief Planning of motion sequences pointer */
 		dwl::locomotion::PlanningOfMotionSequence* planning_ptr_;
 		dwl::robot::Robot robot_;
-		dwl::solver::Solver* solver_;
+		dwl::solver::OptimizationSolver* solver_;
 		dwl::environment::EnvironmentInformation* environment_;
 };
 

@@ -154,7 +154,7 @@ class FootstepHierarchicalPlanners
 		dwl::locomotion::ContactPlanning* footstep_planner_ptr_;
 
 		/** @brief Solver pointer */
-		dwl::solver::Solver* body_path_solver_ptr_;
+		dwl::solver::SearchTreeSolver* body_path_solver_ptr_;
 
 		/** @brief Adjacency environment pointer */
 		dwl::environment::AdjacencyEnvironment* adjacency_ptr_;
