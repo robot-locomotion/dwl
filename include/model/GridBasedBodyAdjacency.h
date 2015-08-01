@@ -1,13 +1,13 @@
 #ifndef DWL__ENVIRONMENT__GRID_BASED_BODY_ADJACENCY__H
 #define DWL__ENVIRONMENT__GRID_BASED_BODY_ADJACENCY__H
 
-#include <environment/AdjacencyEnvironment.h>
+#include <model/AdjacencyModel.h>
 
 
 namespace dwl
 {
 
-namespace environment
+namespace model
 {
 
 /**
@@ -30,14 +30,17 @@ class GridBasedBodyAdjacency : public AdjacencyModel
 		 * @param Vertex Source vertex
 		 * @param Vertex Target vertex
 		 */
-		void computeAdjacencyMap(AdjacencyMap& adjacency_map, Vertex source, Vertex target);
+		void computeAdjacencyMap(AdjacencyMap& adjacency_map,
+								 Vertex source,
+								 Vertex target);
 
 		/**
 		 * @brief Gets the successors of the current vertex
 		 * @param std::list<Edge>& List of successors
 		 * @param Vertex Current state vertex
 		 */
-		void getSuccessors(std::list<Edge>& successors, Vertex state_vertex);
+		void getSuccessors(std::list<Edge>& successors,
+						   Vertex state_vertex);
 
 
 	private:
@@ -46,13 +49,15 @@ class GridBasedBodyAdjacency : public AdjacencyModel
 		 * @param std::vector<Vertex>& The set of states neighbors
 		 * @param Vertex Current state vertex
 		 */
-		void searchNeighbors(std::vector<Vertex>& neighbor_states, Vertex state_vertex);
+		void searchNeighbors(std::vector<Vertex>& neighbor_states,
+							 Vertex state_vertex);
 
 		/**
 		 * @brief Computes the body cost of a current vertex
 		 * @param Vertex Current state vertex
 		 */
-		void computeBodyCost(double& cost, Vertex state_vertex);
+		void computeBodyCost(double& cost,
+							 Vertex state_vertex);
 
 		/** @brief Asks if it is requested a stance adjacency */
 		bool isStanceAdjacency();
@@ -73,7 +78,7 @@ class GridBasedBodyAdjacency : public AdjacencyModel
 		double uncertainty_factor_; // For unknown (non-perceive) areas
 };
 
-} //@namespace environment
+} //@namespace model
 } //@namespace dwl
 
 #endif

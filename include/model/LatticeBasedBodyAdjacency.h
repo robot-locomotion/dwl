@@ -1,13 +1,13 @@
 #ifndef DWL__ENVIRONMENT__LATTICE_BASED_BODY_ADJACENCY__H
 #define DWL__ENVIRONMENT__LATTICE_BASED_BODY_ADJACENCY__H
 
-#include <environment/AdjacencyEnvironment.h>
+#include <model/AdjacencyModel.h>
 
 
 namespace dwl
 {
 
-namespace environment
+namespace model
 {
 
 /**
@@ -79,7 +79,7 @@ class LatticeBasedBodyAdjacency : public AdjacencyModel
 		int number_top_reward_;
 };
 
-} //@namespace environment
+} //@namespace model
 } //@namespace dwl
 
 #endif

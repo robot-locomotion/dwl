@@ -1,10 +1,10 @@
-#include <environment/LatticeBasedBodyAdjacency.h>
+#include <model/LatticeBasedBodyAdjacency.h>
 
 
 namespace dwl
 {
 
-namespace environment
+namespace model
 {
 
 LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : is_stance_adjacency_(true),
@@ -263,5 +263,5 @@ bool LatticeBasedBodyAdjacency::isStanceAdjacency()
 	return is_stance_adjacency_;
 }
 
-} //@namespace environment
+} //@namespace model
 } //@namespace dwl

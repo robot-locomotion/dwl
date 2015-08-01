@@ -1,10 +1,10 @@
-#include <environment/AdjacencyEnvironment.h>
+#include <model/AdjacencyModel.h>
 
 
 namespace dwl
 {
 
-namespace environment
+namespace model
 {
 
 AdjacencyModel::AdjacencyModel() :	robot_(NULL), environment_(NULL), is_lattice_(false),
@@ -273,7 +273,7 @@ bool AdjacencyModel::isFreeOfObstacle(Vertex state_vertex,
 }
 
 
-void AdjacencyModel::addFeature(Feature* feature)
+void AdjacencyModel::addFeature(environment::Feature* feature)
 {
 	double weight;
 	feature->getWeight(weight);
@@ -295,5 +295,5 @@ std::string AdjacencyModel::getName()
 	return name_;
 }
 
-} //@namespace environment
+} //@namespace model
 } //@namespace dwl

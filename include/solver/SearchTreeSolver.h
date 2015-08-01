@@ -2,7 +2,7 @@
 #define DWL__SOLVER__SEARCH_TREE_SOLVER__H
 
 #include <robot/Robot.h>
-#include <environment/AdjacencyEnvironment.h>
+#include <model/AdjacencyModel.h>
 #include <utils/utils.h>
 
 
@@ -44,7 +44,7 @@ class SearchTreeSolver
 		 * @brief Sets the adjacency model that is used for graph searching solvers
 		 * @param AdjacencyModel* Adjacency model
 		 */
-		void setAdjacencyModel(environment::AdjacencyModel* adjacency_model);
+		void setAdjacencyModel(model::AdjacencyModel* adjacency_model);
 
 		/**
 		 * @brief Abstract method for computing a shortest-path using graph search algorithms
@@ -81,8 +81,8 @@ class SearchTreeSolver
 		/** @brief Name of the solver */
 		std::string name_;
 
-		/** @brief Adjacency model of the environment */
-		environment::AdjacencyModel* adjacency_;
+		/** @brief Adjacency model of the tree */
+		model::AdjacencyModel* adjacency_;
 
 		/** @brief Shortest previous vertex */
 		PreviousVertex policy_;

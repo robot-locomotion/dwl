@@ -62,6 +62,9 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/solver/Dijkstrap.cpp
 							 src/solver/AStar.cpp
 							 src/solver/AnytimeRepairingAStar.cpp
+							 src/model/AdjacencyModel.cpp
+							 src/model/GridBasedBodyAdjacency.cpp
+							 src/model/LatticeBasedBodyAdjacency.cpp
 							 src/model/OptimizationModel.cpp
 							 src/model/Constraint.cpp
 							 src/model/DynamicalSystem.cpp
@@ -79,9 +82,6 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/behavior/MotorPrimitives.cpp
 							 src/behavior/BodyMotorPrimitives.cpp
 							 src/environment/EnvironmentInformation.cpp
-							 src/environment/AdjacencyEnvironment.cpp
-							 src/environment/GridBasedBodyAdjacency.cpp
-							 src/environment/LatticeBasedBodyAdjacency.cpp
 							 src/environment/SpaceDiscretization.cpp
 							 src/environment/Feature.cpp
 							 src/environment/SlopeFeature.cpp

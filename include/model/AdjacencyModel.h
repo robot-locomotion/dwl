@@ -10,7 +10,7 @@
 namespace dwl
 {
 
-namespace environment
+namespace model
 {
 
 /**
@@ -104,9 +104,9 @@ class AdjacencyModel
 
 		/**
 		 * @brief Adds a feature for computing the associated body cost
-		 * @param Feature* The pointer of the feature to add it
+		 * @param environment::Feature* The pointer of the feature to add it
 		 */
-		void addFeature(Feature* feature);
+		void addFeature(environment::Feature* feature);
 
 		/**
 		 * @brief Indicates if it is a lattice representation of the environment
@@ -132,7 +132,7 @@ class AdjacencyModel
 		environment::EnvironmentInformation* environment_;
 
 		/** @brief Vector of pointers to the Feature class */
-		std::vector<Feature*> features_;
+		std::vector<environment::Feature*> features_;
 
 		/** @brief Indicates if it is a lattice-based graph */
 		bool is_lattice_;
@@ -144,7 +144,7 @@ class AdjacencyModel
 		double uncertainty_factor_; // For unknown (non-perceive) areas
 };
 
-} //@namespace environment
+} //@namespace model
 } //@namespace dwl
 
 #endif

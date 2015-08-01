@@ -1,10 +1,10 @@
-#include <environment/GridBasedBodyAdjacency.h>
+#include <model/GridBasedBodyAdjacency.h>
 
 
 namespace dwl
 {
 
-namespace environment
+namespace model
 {
 
 GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true),
@@ -22,7 +22,8 @@ GridBasedBodyAdjacency::~GridBasedBodyAdjacency()
 
 
 void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map,
-												 Vertex source, Vertex target)
+												 Vertex source,
+												 Vertex target)
 {
 	// Computing a default stance areas
 	Eigen::Vector3d full_action = Eigen::Vector3d::Zero();
@@ -391,5 +392,5 @@ bool GridBasedBodyAdjacency::isStanceAdjacency()
 	return is_stance_adjacency_;
 }
 
-} //@namespace environment
+} //@namespace model
 } //@namespace dwl
