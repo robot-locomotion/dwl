@@ -8,10 +8,11 @@ namespace environment
 {
 
 
-RewardMap::RewardMap() : space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
-		is_added_feature_(false), is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()),
-		interest_radius_y_(std::numeric_limits<double>::max()), min_height_(std::numeric_limits<double>::max()),
-		is_first_computation_(true), using_cloud_mean_(false), depth_(16)
+RewardMap::RewardMap() : space_discretization_(0,0), is_added_feature_(false),
+		is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()),
+		interest_radius_y_(std::numeric_limits<double>::max()),
+		min_height_(std::numeric_limits<double>::max()), is_first_computation_(true),
+		using_cloud_mean_(false), depth_(16)
 {
 	// Default neighboring area
 	setNeighboringArea(-1, 1, -1, 1, -1, 1);
@@ -38,7 +39,8 @@ void RewardMap::addFeature(Feature* feature)
 {
 	double weight;
 	feature->getWeight(weight);
-	printf(GREEN "Adding the %s feature with a weight of %f\n" COLOR_RESET, feature->getName().c_str(), weight);
+	printf(GREEN "Adding the %s feature with a weight of %f\n" COLOR_RESET,
+			feature->getName().c_str(), weight);
 	features_.push_back(feature);
 	is_added_feature_ = true;
 }
@@ -61,7 +63,8 @@ void RewardMap::removeFeature(std::string feature_name)
 }
 
 
-void RewardMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
+void RewardMap::compute(octomap::OcTree* octomap,
+						const Eigen::Vector4d& robot_state)
 {
 	if (!is_added_search_area_) {
 		printf(YELLOW "Warning: adding a default search area \n" COLOR_RESET);
@@ -199,7 +202,8 @@ void RewardMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 }
 
 
-void RewardMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey heightmap_key)
+void RewardMap::computeRewards(octomap::OcTree* octomap,
+							   const octomap::OcTreeKey& heightmap_key)
 {
 	Terrain terrain_info;
 
@@ -247,7 +251,9 @@ void RewardMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey heig
 		// Computing terrain info
 		EIGEN_ALIGN16 Eigen::Matrix3d covariance_matrix;
 		if (neighbors_position.size() < 3 ||
-				math::computeMeanAndCovarianceMatrix(neighbors_position, covariance_matrix, terrain_info.position) == 0)
+				math::computeMeanAndCovarianceMatrix(neighbors_position,
+													 covariance_matrix,
+													 terrain_info.position) == 0)
 			return;
 
 		if (!using_cloud_mean_) {
@@ -256,7 +262,9 @@ void RewardMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey heig
 			terrain_info.position(2) = neighbors_position[0](2);
 		}
 
-		math::solvePlaneParameters(terrain_info.surface_normal, terrain_info.curvature, covariance_matrix);
+		math::solvePlaneParameters(terrain_info.surface_normal,
+								   terrain_info.curvature,
+								   covariance_matrix);
 	}
 
 	terrain_info.height_map = terrain_heightmap_;
@@ -278,13 +286,13 @@ void RewardMap::computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey heig
 		addCellToRewardMap(cell);
 	}
 	else {
-		printf(YELLOW "Could not computed the reward of the features because it is necessary to add at least one\n"
-				COLOR_RESET);
+		printf(YELLOW "Could not computed the reward of the features because it is necessary to "
+				"add at least one\n" COLOR_RESET);
 	}
 }
 
 
-void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
+void RewardMap::removeRewardOutsideInterestRegion(const Eigen::Vector3d& robot_state)
 {
 	// Getting the orientation of the body
 	double yaw = robot_state(2);
@@ -315,14 +323,17 @@ void RewardMap::removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state)
 }
 
 
-void RewardMap::setInterestRegion(double radius_x, double radius_y)
+void RewardMap::setInterestRegion(double radius_x,
+								  double radius_y)
 {
 	interest_radius_x_ = radius_x;
 	interest_radius_y_ = radius_y;
 }
 
 
-void RewardMap::getCell(RewardCell& cell, double reward, Terrain terrain_info)
+void RewardMap::getCell(RewardCell& cell,
+						double reward,
+						const Terrain& terrain_info)
 {
 	space_discretization_.coordToKeyChecked(cell.key, terrain_info.position);
 	cell.reward = reward;
@@ -331,13 +342,14 @@ void RewardMap::getCell(RewardCell& cell, double reward, Terrain terrain_info)
 }
 
 
-void RewardMap::getCell(Key& key, Eigen::Vector3d position)
+void RewardMap::getCell(Key& key,
+						const Eigen::Vector3d& position)
 {
 	space_discretization_.coordToKeyChecked(key, position);
 }
 
 
-void RewardMap::addCellToRewardMap(RewardCell cell)
+void RewardMap::addCellToRewardMap(const RewardCell& cell)
 {
 	Vertex vertex_id;
 	space_discretization_.keyToVertex(vertex_id, cell.key, true);
@@ -345,13 +357,14 @@ void RewardMap::addCellToRewardMap(RewardCell cell)
 }
 
 
-void RewardMap::removeCellToRewardMap(Vertex cell_vertex)
+void RewardMap::removeCellToRewardMap(const Vertex& cell_vertex)
 {
 	terrain_rewardmap_.erase(cell_vertex);
 }
 
 
-void RewardMap::addCellToTerrainHeightMap(Vertex cell_vertex, double height)
+void RewardMap::addCellToTerrainHeightMap(const Vertex& cell_vertex,
+										  double height)
 {
 	terrain_heightmap_[cell_vertex] = height;
 
@@ -360,14 +373,16 @@ void RewardMap::addCellToTerrainHeightMap(Vertex cell_vertex, double height)
 }
 
 
-void RewardMap::removeCellToTerrainHeightMap(Vertex cell_vertex)
+void RewardMap::removeCellToTerrainHeightMap(const Vertex& cell_vertex)
 {
 	terrain_heightmap_.erase(cell_vertex);
 }
 
 
-void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double max_y,
-		double min_z, double max_z, double grid_resolution)
+void RewardMap::addSearchArea(double min_x, double max_x,
+							  double min_y, double max_y,
+							  double min_z, double max_z,
+							  double grid_resolution)
 {
 	SearchArea search_area;
 	search_area.min_x = min_x;
@@ -389,8 +404,9 @@ void RewardMap::addSearchArea(double min_x, double max_x, double min_y, double m
 }
 
 
-void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors,
-		int right_neighbors, int bottom_neighbors, int top_neighbors)
+void RewardMap::setNeighboringArea(int back_neighbors, int front_neighbors,
+								   int left_neighbors, int right_neighbors,
+								   int bottom_neighbors, int top_neighbors)
 {
 	neighboring_area_.min_x = back_neighbors;
 	neighboring_area_.max_x = front_neighbors;
@@ -407,7 +423,8 @@ double RewardMap::getResolution(bool plane)
 }
 
 
-void RewardMap::setResolution(double resolution, bool plane)
+void RewardMap::setResolution(double resolution,
+							  bool plane)
 {
 	space_discretization_.setEnvironmentResolution(resolution, plane);
 }

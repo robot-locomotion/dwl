@@ -32,9 +32,10 @@ class ObstacleMap
 		/**
 		 * @brief Computes the obstacle map according the robot position and model of the terrain
 		 * @param octomap::OcTree* Octomap model of the environment
-		 * @param Eigen::Vector4d robot_state The position of the robot and the yaw angle
+		 * @param const Eigen::Vector4d& robot_state The position of the robot and the yaw angle
 		 */
-		void compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state);
+		void compute(octomap::OcTree* octomap,
+					 const Eigen::Vector4d& robot_state);
 
 		/**
 		 * @brief Adds a new search area around the current position of the robot
@@ -46,27 +47,30 @@ class ObstacleMap
 		 * @param double Maximum Cartesian position along the z-axis
 		 * @param double Resolution of the grid
 		 */
-		void addSearchArea(double min_x, double max_x, double min_y, double max_y,
-				double min_z, double max_z, double grid_resolution);
+		void addSearchArea(double min_x, double max_x,
+						   double min_y, double max_y,
+						   double min_z, double max_z,
+						   double grid_resolution);
 
 		/**
 		 * @brief Removes obstacles outside the interest region
-		 * @param Eigen::Vector3d State of the robot, i.e. 3D position and yaw orientation
+		 * @param const Eigen::Vector3d& State of the robot, i.e. 3D position and yaw orientation
 		 */
-		void removeObstacleOutsideInterestRegion(Eigen::Vector3d robot_state);
+		void removeObstacleOutsideInterestRegion(const Eigen::Vector3d& robot_state);
 
 		/**
 		 * @brief Adds a cell to the obstacle map
-		 * @param Cell Cell values for adding to the reward map
+		 * @param Cell& Cell values for adding to the reward map
 		 */
-		void addCellToObstacleMap(Cell cell);
+		void addCellToObstacleMap(Cell& cell);
 
 		/**
 		 * @brief Sets a interest region
 		 * @param double Radius along the x-axis
 		 * @param double Radius along the x-axis
 		 */
-		void setInterestRegion(double radius_x, double radius_y);
+		void setInterestRegion(double radius_x,
+							   double radius_y);
 
 		/**
 		 * @brief Gets the environment resolution of the obstacle map
@@ -80,7 +84,8 @@ class ObstacleMap
 		 * @param double Resolution of the environment
 		 * @param bool Indicates if the key represents a plane or a height
 		 */
-		void setResolution(double resolution, bool plane);
+		void setResolution(double resolution,
+						   bool plane);
 
 		/**
 		 * @brief Gets the obstacle map

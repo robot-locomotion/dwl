@@ -44,70 +44,78 @@ class RewardMap
 		 * @brief Abstract method for computing the reward map according the robot position and
 		 * model of the terrain
 		 * @param octomap::OcTree* The model of the environment
-		 * @param Eigen::Vector4d The position of the robot and the yaw angle
+		 * @param const Eigen::Vector4d& The position of the robot and the yaw angle
 		 */
-		void compute(octomap::OcTree* model, Eigen::Vector4d robot_state);
+		void compute(octomap::OcTree* model,
+					 const Eigen::Vector4d& robot_state);
 
 		/**
 		 * @brief Computes the features and reward of the terrain given the octomap model and the key
 		 * of the topmost cell of a certain position of the grid
 		 * @param octomap::OcTree* Pointer to the octomap model of the environment
-		 * @param octomap::OcTreeKey The key of the topmost cell of a certain position of the grid
+		 * @param const octomap::OcTreeKey& The key of the topmost cell of a certain position of
+		 * the grid
 		 */
-		void computeRewards(octomap::OcTree* octomap, octomap::OcTreeKey heightmap_key);
+		void computeRewards(octomap::OcTree* octomap,
+							const octomap::OcTreeKey& heightmap_key);
 
 		/**
 		 * @brief Removes reward values outside the interest region
-		 * @param Eigen::Vector3d State of the robot, i.e. 3D position and yaw orientation
+		 * @param const Eigen::Vector3d& State of the robot, i.e. 3D position and yaw orientation
 		 */
-		void removeRewardOutsideInterestRegion(Eigen::Vector3d robot_state);
+		void removeRewardOutsideInterestRegion(const Eigen::Vector3d& robot_state);
 
 		/**
 		 * @brief Sets a interest region
 		 * @param double Radius along the x-axis
 		 * @param double Radius along the x-axis
 		 */
-		void setInterestRegion(double radius_x, double radius_y);
+		void setInterestRegion(double radius_x,
+							   double radius_y);
 
 		/**
 		 * @brief Gets the properties of the cell
 		 * @param RewardCell& Values of the cell
 		 * @param double Reward value of the cell
-		 * @param Terrain Information of the terrain in the specific cell
+		 * @param const Terrain& Information of the terrain in the specific cell
 		 */
-		void getCell(RewardCell& cell, double reward, Terrain terrain_info);
+		void getCell(RewardCell& cell,
+					 double reward,
+					 const Terrain& terrain_info);
 
 		/**
 		 * @brief Gets the properties of the cell
 		 * @param Key& Key of the cell
-		 * @param Eigen::Vector3d Cartesian position of the cell
+		 * @param const Eigen::Vector3d& Cartesian position of the cell
 		 */
-		void getCell(Key& key, Eigen::Vector3d position);
+		void getCell(Key& key,
+					 const Eigen::Vector3d& position);
 
 		/**
 		 * @brief Adds a cell to the reward map
-		 * @param RewardCell Cell values for adding to the reward map
+		 * @param const RewardCell& Cell values for adding to the reward map
 		 */
-		void addCellToRewardMap(RewardCell cell);
+		void addCellToRewardMap(const RewardCell& cell);
 
 		/**
 		 * @brief Removes the cell to the reward map
-		 * @param Vertex Cell vertex for removing to the reward map
+		 * @param const Vertex& Cell vertex for removing to the reward map
 		 */
-		void removeCellToRewardMap(Vertex cell_vertex);
+		void removeCellToRewardMap(const Vertex& cell_vertex);
 
 		/**
 		 * @brief Adds a cell to the height map
-		 * @param Vertex Cell vertex for adding to the height map
+		 * @param const Vertex& Cell vertex for adding to the height map
 		 * @param double Height value
 		 */
-		void addCellToTerrainHeightMap(Vertex cell_vertex, double height);
+		void addCellToTerrainHeightMap(const Vertex& cell_vertex,
+									   double height);
 
 		/**
 		 * @brief Removes a cell to the height map
 		 * @param Vertex Cell vertex for removing to the height map
 		 */
-		void removeCellToTerrainHeightMap(Vertex cell_vertex);
+		void removeCellToTerrainHeightMap(const Vertex& cell_vertex);
 
 		/**
 		 * @brief Adds a new search area around the current position of the robot
@@ -119,8 +127,10 @@ class RewardMap
 		 * @param double Maximum Cartesian position along the z-axis
 		 * @param double Resolution of the grid
 		 */
-		void addSearchArea(double min_x, double max_x, double min_y, double max_y,
-				double min_z, double max_z, double grid_size);
+		void addSearchArea(double min_x, double max_x,
+						   double min_y, double max_y,
+						   double min_z, double max_z,
+						   double grid_size);
 
 		/**
 		 * @brief Sets the neighboring area for computing physical properties of the terrain
@@ -131,8 +141,9 @@ class RewardMap
 		 * @param int Number of bottom neighbors
 		 * @param int Number of top neighbors
 		 */
-		void setNeighboringArea(int back_neighbors, int front_neighbors, int left_neighbors,
-				int right_neighbors, int bottom_neighbors, int top_neighbors);
+		void setNeighboringArea(int back_neighbors, int front_neighbors,
+								int left_neighbors, int right_neighbors,
+								int bottom_neighbors, int top_neighbors);
 
 		/**
 		 * @brief Gets the environment resolution of the reward map
@@ -146,7 +157,8 @@ class RewardMap
 		 * @param double Resolution of the environment
 		 * @param bool Indicates if the key represents a plane or a height
 		 */
-		void setResolution(double resolution, bool plane);
+		void setResolution(double resolution,
+						   bool plane);
 
 		/**
 		 * @brief Gets the reward map

@@ -7,10 +7,10 @@ namespace dwl
 namespace environment
 {
 
-ObstacleMap::ObstacleMap() :
-		space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
-		depth_(16), is_added_search_area_(false), interest_radius_x_(std::numeric_limits<double>::max()),
-		interest_radius_y_(std::numeric_limits<double>::max()), resolution_(std::numeric_limits<double>::max())
+ObstacleMap::ObstacleMap() : space_discretization_(0,0), depth_(16), is_added_search_area_(false),
+		interest_radius_x_(std::numeric_limits<double>::max()),
+		interest_radius_y_(std::numeric_limits<double>::max()),
+		resolution_(std::numeric_limits<double>::max())
 {
 
 }
@@ -28,7 +28,8 @@ void ObstacleMap::reset()
 }
 
 
-void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
+void ObstacleMap::compute(octomap::OcTree* octomap,
+						  const Eigen::Vector4d& robot_state)
 {
 	if (!is_added_search_area_) {
 		printf(YELLOW "Warning: adding a default search area \n" COLOR_RESET);
@@ -59,10 +60,13 @@ void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 		for (double y = boundary_min(1); y < boundary_max(1); y += resolution) {
 			for (double x = boundary_min(0); x < boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate of the point inside the search area
-				double xr = (x - robot_state(0)) * cos(yaw) - (y - robot_state(1)) * sin(yaw) + robot_state(0);
-				double yr = (x - robot_state(0)) * sin(yaw) + (y - robot_state(1)) * cos(yaw) + robot_state(1);
+				double xr = (x - robot_state(0)) * cos(yaw) - (y - robot_state(1)) * sin(yaw) +
+						robot_state(0);
+				double yr = (x - robot_state(0)) * sin(yaw) + (y - robot_state(1)) * cos(yaw) +
+						robot_state(1);
 
-				// Checking if the cell belongs to dimensions of the map, and also getting the key of this cell
+				// Checking if the cell belongs to dimensions of the map, and also getting the key
+				// of this cell
 				double z = search_areas_[n].max_z + robot_state(2);
 				octomap::OcTreeKey init_key;
 				if (!octomap->coordToKeyChecked(xr, yr, z, depth_, init_key)) {
@@ -120,8 +124,10 @@ void ObstacleMap::compute(octomap::OcTree* octomap, Eigen::Vector4d robot_state)
 }
 
 
-void ObstacleMap::addSearchArea(double min_x, double max_x, double min_y, double max_y,
-		double min_z, double max_z, double grid_resolution)
+void ObstacleMap::addSearchArea(double min_x, double max_x,
+								double min_y, double max_y,
+								double min_z, double max_z,
+								double grid_resolution)
 {
 	SearchArea search_area;
 	search_area.min_x = min_x;
@@ -144,7 +150,7 @@ void ObstacleMap::addSearchArea(double min_x, double max_x, double min_y, double
 }
 
 
-void ObstacleMap::removeObstacleOutsideInterestRegion(Eigen::Vector3d robot_state)
+void ObstacleMap::removeObstacleOutsideInterestRegion(const Eigen::Vector3d& robot_state)
 {
 	// Getting the orientation of the body
 	double yaw = robot_state(2);
@@ -171,7 +177,7 @@ void ObstacleMap::removeObstacleOutsideInterestRegion(Eigen::Vector3d robot_stat
 }
 
 
-void ObstacleMap::addCellToObstacleMap(Cell cell)
+void ObstacleMap::addCellToObstacleMap(Cell& cell)
 {
 	Vertex vertex_id;
 	space_discretization_.keyToVertex(vertex_id, cell.key, true);
@@ -179,7 +185,8 @@ void ObstacleMap::addCellToObstacleMap(Cell cell)
 }
 
 
-void ObstacleMap::setInterestRegion(double radius_x, double radius_y)
+void ObstacleMap::setInterestRegion(double radius_x,
+									double radius_y)
 {
 	interest_radius_x_ = radius_x;
 	interest_radius_y_ = radius_y;
@@ -192,7 +199,8 @@ double ObstacleMap::getResolution(bool plane)
 }
 
 
-void ObstacleMap::setResolution(double resolution, bool plane)
+void ObstacleMap::setResolution(double resolution,
+								bool plane)
 {
 	space_discretization_.setEnvironmentResolution(resolution, plane);
 }
