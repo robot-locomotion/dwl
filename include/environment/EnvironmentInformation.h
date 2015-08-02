@@ -111,6 +111,7 @@ class EnvironmentInformation
 		 */
 		bool isObstacleInformation();
 
+
 	private:
 		/**
 		 *  @brief Object of the SpaceDiscretization class for defining the conversion routines for
