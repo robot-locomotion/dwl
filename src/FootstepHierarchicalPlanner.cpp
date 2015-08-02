@@ -700,7 +700,7 @@ void FootstepHierarchicalPlanners::publishContactRegions()
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "hierarchical_planner");
+	ros::init(argc, argv, "footstep_hierarchical_planner");
 
 	dwl_planners::FootstepHierarchicalPlanners planner;
 
@@ -720,7 +720,7 @@ int main(int argc, char **argv)
 			loop_rate.sleep();
 		}
 	} catch (std::runtime_error& e) {
-		ROS_ERROR("hierarchical_planner exception: %s", e.what());
+		ROS_ERROR("footstep_hierarchical_planner exception: %s", e.what());
 		return -1;
 	}
 
