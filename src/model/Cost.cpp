@@ -19,7 +19,7 @@ Cost::~Cost()
 }
 
 
-void Cost::setWeights(LocomotionState& weights)
+void Cost::setWeights(const LocomotionState& weights)
 {
 	// Checking the cost variables
 	cost_variables_.base_pos = !weights.base_pos.isZero();
@@ -42,7 +42,7 @@ void Cost::setWeights(LocomotionState& weights)
 }
 
 
-void Cost::setDesiredState(LocomotionState& desired_state)
+void Cost::setDesiredState(const LocomotionState& desired_state)
 {
 	desired_state_ = desired_state;
 }

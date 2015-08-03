@@ -57,13 +57,13 @@ class Cost
 		 * @brief Sets the locomotion state weights which are used by specific cost function
 		 * @param LocomotionState& weights
 		 */
-		void setWeights(LocomotionState& weights);
+		void setWeights(const LocomotionState& weights);
 
 		/**
 		 * @brief Sets the desired state
-		 * @param LocomotionState& Desired state
+		 * @param const LocomotionState& Desired state
 		 */
-		void setDesiredState(LocomotionState& desired_state);
+		void setDesiredState(const LocomotionState& desired_state);
 
 		/**
 		 * @brief Gets the name of the cost
