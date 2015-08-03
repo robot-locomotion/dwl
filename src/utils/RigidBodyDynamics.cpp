@@ -100,7 +100,7 @@ void getListOfBodies(BodyID& list_body_id,
 		list_body_id[body_name] = body_id;
 	}
 
-	// Adding the fixed body in the end-effector list
+	// Adding the fixed body in the body list
 	for (unsigned int it = 0; it < model.mFixedBodies.size(); it++) {
 		unsigned int body_id = it + model.fixed_body_discriminator;
 		std::string body_name = model.GetBodyName(body_id);
