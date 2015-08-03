@@ -179,6 +179,12 @@ class IpoptWrapper : public Ipopt::TNLP
 							   Number obj_value, const Ipopt::IpoptData* ip_data,
 							   Ipopt::IpoptCalculatedQuantities* ip_cq);
 
+		/**
+		 * @brief Gets the solution of the optimizer
+		 * @return std::vector<LocomotionState> Reference of the solution
+		 */
+		std::vector<LocomotionState>& getSolution();
+
 
 	private:
 		/**

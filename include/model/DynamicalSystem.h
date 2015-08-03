@@ -30,6 +30,13 @@ struct LocomotionVariables
 	bool contact_for;
 };
 
+/**
+ * @class DynamicalSystem
+ * @brief This abstract class defines common methods for implementing dynamical system constraint.
+ * Additionally, this class has different facilities for defining the state bounds (joint limits),
+ * initial state, starting state, state dimension, etc. Some of these information are extracted
+ * from an URDF model
+ */
 class DynamicalSystem : public Constraint
 {
 	public:

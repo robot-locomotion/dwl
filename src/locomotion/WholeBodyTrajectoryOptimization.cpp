@@ -86,10 +86,10 @@ bool WholeBodyTrajectoryOptimization::compute(const LocomotionState& current_sta
 }
 
 
-//std::vector<LocomotionState>& WholeBodyTrajectoryOptimization::getWholeBodyTrajectory()
-//{
-//
-//}
+std::vector<LocomotionState>& WholeBodyTrajectoryOptimization::getWholeBodyTrajectory()
+{
+	return solver_->getWholeBodyTrajectory();
+}
 
 
 } //@namespace locomotion

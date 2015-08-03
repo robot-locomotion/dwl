@@ -65,6 +65,7 @@ bool IpoptNLP::compute(double computation_time)
 
 	if (status == Ipopt::Solve_Succeeded) {
 		printf("\n\n*** The problem solved!\n");
+		locomotion_trajectory_ = ipopt_.getSolution();
 	} else {
 		printf("\n\n*** The problem FAILED!\n");
 	}

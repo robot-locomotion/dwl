@@ -186,12 +186,13 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 									 Index n, const Number* x, const Number* z_L, const Number* z_U,
 									 Index m, const Number* g, const Number* lambda,
 									 Number obj_value, const Ipopt::IpoptData* ip_data,
-									 Ipopt::IpoptCalculatedQuantities* ip_cq) //TODO clean it
+									 Ipopt::IpoptCalculatedQuantities* ip_cq)
 {
 	// here is where we would store the solution to variables, or write to a file, etc
 	// so we could use the solution.
 
 	// For this example, we write the solution to the console
+#ifdef DEBUG
 	printf("\n\nSolution of the primal variables, x\n");
 	for (Index i=0; i<n; i++)
 		printf("x[%d] = %e\n", i, x[i]);
@@ -209,15 +210,15 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 	printf("\nFinal value of the constraints:\n");
 	for (Index i=0; i<m ;i++)
 		printf("g(%d) = %e\n", i, g[i]);
-
+#endif
 
 	// Eigen interfacing to raw buffers
 	const Eigen::Map<const Eigen::VectorXd> solution(x, n);
 	unsigned horizon = opt_model_->getHorizon();
 	unsigned state_dim = solution.size() / horizon;
-	locomotion_solution_.resize(horizon);
 
 	// Recording the solution
+	locomotion_solution_.clear();
 	LocomotionState locomotion_state;
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
 	for (unsigned int i = 0; i < horizon; i++) {
@@ -225,18 +226,15 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 		decision_state = solution.segment(i * state_dim, state_dim);
 		opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
 
+		// Pushing the current state
 		locomotion_solution_.push_back(locomotion_state);
-
-		std::cout << "\n\nPoint = " << i << std::endl;
-		std::cout << "base_pos = " << locomotion_state.base_pos.transpose() << std::endl;
-		std::cout << "joint_pos = " << locomotion_state.joint_pos.transpose() << std::endl;
-		std::cout << "base_vel = " << locomotion_state.base_vel.transpose() << std::endl;
-		std::cout << "joint_vel = " << locomotion_state.joint_vel.transpose() << std::endl;
-		std::cout << "base_acc = " << locomotion_state.base_acc.transpose() << std::endl;
-		std::cout << "joint_acc = " << locomotion_state.joint_acc.transpose() << std::endl;
-		std::cout << "base_eff = " << locomotion_state.base_eff.transpose() << std::endl;
-		std::cout << "joint_eff = " << locomotion_state.joint_eff.transpose() << std::endl;
 	}
+}
+
+
+std::vector<LocomotionState>& IpoptWrapper::getSolution()
+{
+	return locomotion_solution_;
 }
 
 } //@namespace solver
