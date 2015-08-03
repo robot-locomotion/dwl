@@ -3,6 +3,7 @@
 
 #include <model/WholeBodyKinematics.h>
 #include <rbdl/addons/urdfreader/urdfreader.h>
+#include <utils/URDF.h>
 #include <utils/utils.h>
 
 
@@ -13,6 +14,7 @@ namespace model
 {
 
 /**
+ * @class WholeBodyDynamics
  * @brief WholeBodyDynamics class implements the dynamics methods for a floating-base robot
  */
 class WholeBodyDynamics
@@ -25,18 +27,18 @@ class WholeBodyDynamics
 		~WholeBodyDynamics();
 
 		/**
-		 * @brief Build the model rigid-body system from an URDF file
-		 * @param std::string URDF file
+		 * @brief Builds the model rigid-body system from an URDF file
+		 * @param std::string URDF filename
 		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
 		 * system
 		 * @param Print model information
 		 */
-		void modelFromURDFFile(std::string urdf_model,
+		void modelFromURDFFile(std::string filename,
 							   struct rbd::FloatingBaseSystem* system = NULL,
 							   bool info = false);
 
 		/**
-		 * @brief Build the model rigid-body system from an URDF model (xml)
+		 * @brief Builds the model rigid-body system from an URDF model (xml)
 		 * @param std::string URDF model
 		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
 		 * system
@@ -73,6 +75,7 @@ class WholeBodyDynamics
 									const rbd::Vector6d& base_acc,
 									const Eigen::VectorXd& joint_acc,
 									const rbd::BodyWrench& ext_force = rbd::BodyWrench());
+
 		/**
 		 * @brief Computes the whole-body inverse dynamics using the Recursive Newton-Euler
 		 * Algorithm (RNEA) for a floating-base robot (RX,RY,RZ,TX,TY,TZ). An applied external
@@ -127,7 +130,7 @@ class WholeBodyDynamics
 														   const rbd::BodySelector& contacts);
 
 		/**
-		 * @brief Computing the contact forces that generates the desired base wrench. This desired
+		 * @brief Computes the contact forces that generates the desired base wrench. This desired
 		 * base wrench is computed by using robot state, i.e. position, velocity, acceleration and
 		 * contacts. This function overwrite the base and joint acceleration in case that it isn't
 		 * consistent with the constrained contacts
@@ -152,8 +155,8 @@ class WholeBodyDynamics
 								  const rbd::BodySelector& contacts);
 
 		/**
-		 * @brief Computing the contact forces from measurement of the joint forces for a selected
-		 * set of end-effectors
+		 * @brief Computes the contact forces by comparing the estimated joint forces with the
+		 * measured of the joint forces in a selected set of end-effectors
 		 * @param rbd::BodyWrench& Contact forces applied to the defined set of contacts
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
@@ -162,7 +165,7 @@ class WholeBodyDynamics
 		 * @param const rbd::Vector6d& Base acceleration with respect to a gravity field
 		 * @param const Eigen::VectorXd& Joint acceleration
 		 * @param const Eigen::VectorXd& Joint forces
-		 * @param const rbd::BodySelector& Bodies that are constrained to be in contact
+		 * @param const rbd::BodySelector& Selected set of end-effectors (bodies)
 		 */
 		void computeContactForces(rbd::BodyWrench& contact_forces,
 								  const rbd::Vector6d& base_pos,
@@ -173,6 +176,31 @@ class WholeBodyDynamics
 								  const Eigen::VectorXd& joint_acc,
 								  const Eigen::VectorXd& joint_forces,
 								  const rbd::BodySelector& contacts);
+
+		/**
+		 * @brief Estimates active contacts by comparing the estimated joint forces with the
+		 * measured joint forces in a selected set of end-effectors
+		 * @param rbd::BodySelector& Estimated active contacts
+		 * @param const rbd::Vector6d& Base position
+		 * @param const Eigen::VectorXd& Joint position
+		 * @param const rbd::Vector6d& Base velocity
+		 * @param const Eigen::VectorXd& Joint velocity
+		 * @param const rbd::Vector6d& Base acceleration with respect to a gravity field
+		 * @param const Eigen::VectorXd& Joint acceleration
+		 * @param const Eigen::VectorXd& Joint forces
+		 * @param const rbd::BodySelector& Selected set of end-effectors (bodies)
+		 * @param double Force threshold
+		 */
+		void estimateActiveContacts(rbd::BodySelector& active_contacts,
+									const rbd::Vector6d& base_pos,
+									const Eigen::VectorXd& joint_pos,
+									const rbd::Vector6d& base_vel,
+									const Eigen::VectorXd& joint_vel,
+									const rbd::Vector6d& base_acc,
+									const Eigen::VectorXd& joint_acc,
+									const Eigen::VectorXd& joint_forces,
+									const rbd::BodySelector& contacts,
+									double force_threshold);
 
 
 	private:

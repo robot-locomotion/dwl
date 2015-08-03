@@ -12,6 +12,7 @@ namespace model
 {
 
 /**
+ * @class WholeBodyKinematics
  * @brief WholeBodyKinematics class implements the kinematics methods for a floating-base robot
  */
 class WholeBodyKinematics
@@ -25,12 +26,12 @@ class WholeBodyKinematics
 
 		/**
 		 * @brief Build the model rigid-body system from an URDF file
-		 * @param std::string URDF file
+		 * @param std::string URDF filename
 		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
 		 * system
 		 * @param Print model information
 		 */
-		void modelFromURDFFile(std::string urdf_model,
+		void modelFromURDFFile(std::string filename,
 							   struct rbd::FloatingBaseSystem* system = NULL,
 							   bool info = false);
 

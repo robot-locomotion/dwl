@@ -57,6 +57,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/locomotion/SearchBasedBodyMotionPlanning.cpp
 							 src/locomotion/ContactPlanning.cpp
 							 src/locomotion/GreedyFootstepPlanning.cpp
+							 src/locomotion/WholeBodyTrajectoryOptimization.cpp
 							 src/solver/SearchTreeSolver.cpp	
 							 src/solver/OptimizationSolver.cpp
 							 src/solver/Dijkstrap.cpp
@@ -99,6 +100,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/utils/Algebra.cpp
 							 src/utils/Orientation.cpp
 							 src/utils/RigidBodyDynamics.cpp
+							 src/utils/URDF.cpp
 							 src/utils/SplineInterpolation.cpp
 							 src/utils/YamlWrapper.cpp)
 

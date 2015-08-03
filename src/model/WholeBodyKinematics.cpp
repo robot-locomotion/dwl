@@ -19,29 +19,27 @@ WholeBodyKinematics::~WholeBodyKinematics()
 }
 
 
-void WholeBodyKinematics::modelFromURDFFile(std::string model_file,
+void WholeBodyKinematics::modelFromURDFFile(std::string filename,
 											struct rbd::FloatingBaseSystem* system,
 											bool info)
 {
-	RigidBodyDynamics::Addons::URDFReadFromFile(model_file.c_str(), &robot_model_, false);
+	// Reading the file
+	std::ifstream model_file(filename.c_str());
+	if (!model_file) {
+		std::cerr << "Error opening file '" << filename << "'." << std::endl;
+		abort();
+	}
 
-	system_ = system;
+	// Reserving memory for the contents of the file
+	std::string model_xml_string;
+	model_file.seekg(0, std::ios::end);
+	model_xml_string.reserve(model_file.tellg());
+	model_file.seekg(0, std::ios::beg);
+	model_xml_string.assign((std::istreambuf_iterator<char>(model_file)),
+			std::istreambuf_iterator<char>());
+	model_file.close();
 
-	// Setting the number of joints
-	unsigned int num_joints = robot_model_.dof_count - system_->getFloatingBaseDOF();
-	system_->setJointDOF(num_joints);
-
-	// Getting and setting the type of dynamic system
-	enum rbd::TypeOfSystem type_of_system;
-	rbd::getTypeOfDynamicSystem(type_of_system, robot_model_, system_);
-	system_->setTypeOfDynamicSystem(type_of_system);
-
-	// Getting the list of movable and fixed bodies
-	rbd::getListOfBodies(body_id_, robot_model_);
-
-	// Printing the information of the rigid-body system
-	if (info)
-		rbd::printModelInfo(robot_model_);
+	modelFromURDFModel(model_xml_string, system, info);
 }
 
 

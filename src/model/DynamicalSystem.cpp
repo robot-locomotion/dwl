@@ -84,35 +84,18 @@ void DynamicalSystem::modelFromURDFModel(std::string urdf_model,
 
 void DynamicalSystem::jointLimitsFromURDF(std::string urdf_model)
 {
-	// Parsing the URDF-XML
-	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
+	// Reading the joint limits
+	Eigen::VectorXd lower_joint_pos, upper_joint_pos, joint_vel, joint_eff;
+	urdf_model::getJointLimits(lower_joint_pos, upper_joint_pos,
+							   joint_vel, joint_eff, urdf_model, system_);
 
-	// Reading and setting the joint limits
-	boost::shared_ptr<urdf::Link>& root = model->links_[model->getRoot()->name];
-	boost::shared_ptr<urdf::Link> current_link = root;
-	unsigned virtual_joints_idx = 0, joint_idx = 0;
-	while (current_link->child_joints.size() > 0) {
-		boost::shared_ptr<urdf::Joint> current_joint = current_link->child_joints[0];
-		current_link = model->links_[current_joint->child_link_name];
-		if (current_joint->type == urdf::Joint::PRISMATIC ||
-				current_joint->type == urdf::Joint::REVOLUTE) {
-			if (system_->getTypeOfDynamicSystem() == rbd::VirtualFloatingBase) {
-				if (system_->getFloatingBaseDOF() != virtual_joints_idx) {
-					//TODO: should I defined angular joint position limits according to
-					// orientation singularity?
-					virtual_joints_idx++;
-				} else {
-					lower_state_bound_.joint_pos(joint_idx) = current_joint->limits->lower;
-					upper_state_bound_.joint_pos(joint_idx) = current_joint->limits->upper;
-					lower_state_bound_.joint_vel(joint_idx) = -current_joint->limits->velocity;
-					upper_state_bound_.joint_vel(joint_idx) = current_joint->limits->velocity;
-					lower_state_bound_.joint_eff(joint_idx) = -current_joint->limits->effort;
-					upper_state_bound_.joint_eff(joint_idx) = current_joint->limits->effort;
-					joint_idx++;
-				}
-			}
-		}
-	}
+	// Setting the joint limits
+	lower_state_bound_.joint_pos = lower_joint_pos;
+	lower_state_bound_.joint_vel = -joint_vel;
+	lower_state_bound_.joint_eff = -joint_eff;
+	upper_state_bound_.joint_pos = upper_joint_pos;
+	upper_state_bound_.joint_vel = joint_vel;
+	upper_state_bound_.joint_eff = joint_eff;
 }
 
 

@@ -4,8 +4,7 @@
 #include <model/Constraint.h>
 #include <model/WholeBodyKinematics.h>
 #include <model/WholeBodyDynamics.h>
-#include <urdf_model/model.h>
-#include <urdf_parser/urdf_parser.h>
+#include <utils/URDF.h>
 
 
 namespace dwl
