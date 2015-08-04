@@ -37,6 +37,14 @@ class ConstrainedWholeBodyPlanner
 
 
 	private:
+		/**
+		 * @brief Writes the whole-body state message from a locomotion state
+		 * @param dwl_planners::WholeBodyState& Whole-body state message
+		 * @param const dwl::LocomotionState& Locomotion state
+		 */
+		void writeWholeBodyStateMessage(dwl_planners::WholeBodyState& msg,
+										const dwl::LocomotionState& state);
+
 		/** @brief Ros node handle */
 		ros::NodeHandle node_;
 
