@@ -25,7 +25,7 @@ typedef rbd::BodyID JointID;
  */
 void getJointNames(JointID& joints,
 				   std::string urdf_model,
-				   rbd::FloatingBaseSystem* system);
+				   rbd::FloatingBaseSystem* system = NULL);
 
 /**
  * @brief Get the end-effector names from URDF model

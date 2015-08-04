@@ -43,16 +43,16 @@ void getJointNames(JointID& joints,
 			if (current_joint->type == urdf::Joint::PRISMATIC ||
 					current_joint->type == urdf::Joint::REVOLUTE ||
 					current_joint->type == urdf::Joint::CONTINUOUS) {
-				if (system->getTypeOfDynamicSystem() == rbd::VirtualFloatingBase) {
-					if (system->getFloatingBaseDOF() != virtual_joints_idx)
-						virtual_joints_idx++;
-					else {
-						joints[current_joint->name] = joint_idx;
-						joint_idx++;
-					}
+				if (system != NULL &&
+						system->getTypeOfDynamicSystem() == rbd::VirtualFloatingBase &&
+						system->getFloatingBaseDOF() != virtual_joints_idx) {
+					virtual_joints_idx++;
+				} else {
+					joints[current_joint->name] = joint_idx;
+					joint_idx++;
 				}
 			} else if (current_joint->type == urdf::Joint::FIXED)
-				joints[current_joint->name] = 0;
+				joints[current_joint->name] = std::numeric_limits<unsigned int>::max();
 		} else {
 			link_stack.pop();
 			branch_index_stack.pop();
