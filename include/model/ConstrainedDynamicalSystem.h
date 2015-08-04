@@ -53,6 +53,9 @@ class ConstrainedDynamicalSystem : public DynamicalSystem
 	private:
 		/** @brief Set of active end-effectors */
 		rbd::BodySelector active_endeffectors_;
+
+		/** @brief Number of actived end-effectors */
+		unsigned int num_actived_endeffectors_;
 };
 
 } //@namespace model

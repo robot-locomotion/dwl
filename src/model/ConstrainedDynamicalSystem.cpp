@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-ConstrainedDynamicalSystem::ConstrainedDynamicalSystem()
+ConstrainedDynamicalSystem::ConstrainedDynamicalSystem() : num_actived_endeffectors_(0)
 {
 	// Setting the name of the constraint
 	name_ = "constrained";
@@ -28,6 +28,7 @@ ConstrainedDynamicalSystem::~ConstrainedDynamicalSystem()
 void ConstrainedDynamicalSystem::setActiveEndEffectors(const rbd::BodySelector& active_set)
 {
 	active_endeffectors_ = active_set;
+	num_actived_endeffectors_ = active_endeffectors_.size();
 }
 
 
@@ -35,7 +36,7 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 															const LocomotionState& state)
 {
 	// Resizing the constraint vector
-	constraint.resize(joint_dof_ + 3); //TODO make for n end-effectors
+	constraint.resize(joint_dof_ + 3 * num_actived_endeffectors_);
 
 	// Computing the step time
 	double step_time = state.time - last_state_.time;
@@ -59,9 +60,11 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 								state.base_pos, state.joint_pos,
 								state.base_vel, state.joint_vel,
 								active_endeffectors_, rbd::Linear);
+	unsigned endeffector_counter = 0;
 	for (rbd::BodyVector::iterator endeffector_it = endeffectors_vel.begin();
-			endeffector_it != endeffectors_vel.end(); endeffector_it++) { //TODO make for n end-effectors
-		constraint.segment<3>(joint_dof_) = endeffector_it->second;
+			endeffector_it != endeffectors_vel.end(); endeffector_it++) {
+		constraint.segment<3>(joint_dof_ + endeffector_counter) = endeffector_it->second;
+		endeffector_counter++;
 	}
 }
 
@@ -69,8 +72,8 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 void ConstrainedDynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
 													Eigen::VectorXd& upper_bound)
 {
-	lower_bound = Eigen::VectorXd::Zero(joint_dof_ + 3);
-	upper_bound = Eigen::VectorXd::Zero(joint_dof_ + 3);
+	lower_bound = Eigen::VectorXd::Zero(joint_dof_ + 3 * num_actived_endeffectors_);
+	upper_bound = Eigen::VectorXd::Zero(joint_dof_ + 3 * num_actived_endeffectors_);
 }
 
 } //@namespace model
