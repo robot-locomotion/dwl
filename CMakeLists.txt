@@ -5,6 +5,7 @@ project(dwl_planners)
 find_package(catkin REQUIRED COMPONENTS
   dwl
   roscpp
+  rospy
   std_msgs
   message_generation
   tf
