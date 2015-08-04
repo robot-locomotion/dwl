@@ -11,6 +11,7 @@ uint8 LZ=5
 
 # This represents the base state (position, velocity, acceleration and effort)
 uint8[] base_ids
+string[] base_names
 dwl_planners/JointState[] base
 
 # This represents the joint state (position, velocity, acceleration and effort)
