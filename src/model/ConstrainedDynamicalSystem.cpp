@@ -69,8 +69,6 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 void ConstrainedDynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
 													Eigen::VectorXd& upper_bound)
 {
-//	lower_bound = Eigen::VectorXd::Zero(system_dof_ + joint_dof_ + 3);
-//	upper_bound = Eigen::VectorXd::Zero(system_dof_ + joint_dof_ + 3);
 	lower_bound = Eigen::VectorXd::Zero(joint_dof_ + 3);
 	upper_bound = Eigen::VectorXd::Zero(joint_dof_ + 3);
 }
