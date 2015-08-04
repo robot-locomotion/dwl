@@ -1,3 +1,6 @@
+#ifndef DWL__URDF_MODEL__H
+#define DWL__URDF_MODEL__H
+
 #include <utils/RigidBodyDynamics.h>
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
@@ -53,3 +56,5 @@ void getJointLimits(Eigen::VectorXd& lower_joint_pos,
 
 } //@namespace urdf_model
 } //@namespace dwl
+
+#endif
