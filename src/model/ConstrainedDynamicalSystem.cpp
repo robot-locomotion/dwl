@@ -51,7 +51,7 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 	constraint.segment(0, joint_dof_) = estimated_joint_forces - state.joint_eff;
 
 
-	// This constrained inverse dynamic algorithm could generated joint forces in cases where the
+	// This constrained inverse dynamic algorithm could generate joint forces in cases where the
 	// ground (or environment) is pulling or pushing the end-effector, which an unreal situation.
 	// So, it's required to impose a velocity kinematic constraint in the active end-effectors
 	rbd::BodyVector endeffectors_vel;
