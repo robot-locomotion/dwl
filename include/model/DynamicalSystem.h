@@ -75,20 +75,41 @@ class DynamicalSystem : public Constraint
 		void jointLimitsFromURDF(std::string urdf_model);
 
 		/**
-		 * @brief Computes the dynamic constraint vector given a certain state
+		 * @brief Computes the dynamical and time integration constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
 		 * @param const LocomotionState& State vector
 		 */
 		virtual void compute(Eigen::VectorXd& constraint,
-							 const LocomotionState& state) = 0;
+							 const LocomotionState& state);
 
 		/**
-		 * @brief Gets the bounds of the dynamical system constraint
+		 * @brief Computes the dynamical constraint vector given a certain state. Note that the
+		 * time integration of the dynamical system is computed in the available numerical
+		 * integration methods implemented in compute() function.
+		 * @param Eigen::VectorXd& Evaluated the dynamical constraint function
+		 * @param const LocomotionState& State vector
+		 */
+		virtual void computeDynamicalConstraint(Eigen::VectorXd& constraint,
+				 	 	 	 	 	 	 	 	const LocomotionState& state);
+
+		/**
+		 * @brief Gets the bounds of the dynamical system constraint which included the time
+		 * integration bounds
 		 * @param Eigen::VectorXd& Lower bounds
 		 * @param Eigen::VectorXd& Upper bounds
 		 */
 		virtual void getBounds(Eigen::VectorXd& lower_bound,
-							   Eigen::VectorXd& upper_bound) = 0;
+							   Eigen::VectorXd& upper_bound);
+
+		/**
+		 * @brief Gets the dynamical system bounds vector given a certain state. Note that the
+		 * time integration bounds of the dynamical system are get according the available
+		 * numerical integration methods implemented in compute() function.
+		 * @param Eigen::VectorXd& Lower bounds of the dynamical system
+		 * @param Eigen::VectorXd& Upper bounds of the dynamical system
+		 */
+		virtual void getDynamicalBounds(Eigen::VectorXd& lower_bound,
+										Eigen::VectorXd& upper_bound);
 
 		/**
 		 * @brief Sets floating-base system properties

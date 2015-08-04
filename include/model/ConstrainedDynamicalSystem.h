@@ -10,6 +10,14 @@ namespace dwl
 namespace model
 {
 
+/**
+ * @class ConstrainedDynamicalSystem
+ * @brief ConstrainedDynamicalSystem class defines an constrained inverse dynamic constraint. This
+ * inverses dynamic algorithm assumes a constrained set of contacts (active contacts), and maps
+ * the desired floating-base motion to required contact forces. Additionally, active contact
+ * velocities are constrained to be zero, which corresponds to predefined assumptions. The
+ * constraint dimension is: [number of joints + 3 * (number of active contacts)]
+ */
 class ConstrainedDynamicalSystem : public DynamicalSystem
 {
 	public:
@@ -30,16 +38,16 @@ class ConstrainedDynamicalSystem : public DynamicalSystem
 		 * @param Eigen::VectorXd& Evaluated constraint function
 		 * @param const LocomotionState& State vector
 		 */
-		void compute(Eigen::VectorXd& constraint,
-					 const LocomotionState& state);
+		void computeDynamicalConstraint(Eigen::VectorXd& constraint,
+										const LocomotionState& state);
 
 		/**
 		 * @brief Gets the bounds of the dynamical system constraint
 		 * @param Eigen::VectorXd& Lower bounds
 		 * @param Eigen::VectorXd& Upper bounds
 		 */
-		void getBounds(Eigen::VectorXd& lower_bound,
-					   Eigen::VectorXd& upper_bound);
+		void getDynamicalBounds(Eigen::VectorXd& lower_bound,
+								Eigen::VectorXd& upper_bound);
 
 
 	private:

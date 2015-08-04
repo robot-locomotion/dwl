@@ -21,8 +21,8 @@ FullDynamicalSystem::~FullDynamicalSystem()
 }
 
 
-void FullDynamicalSystem::compute(Eigen::VectorXd& constraint,
-								  const LocomotionState& state)
+void FullDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint,
+													 const LocomotionState& state)
 {
 	constraint.resize(2);
 
@@ -42,8 +42,8 @@ void FullDynamicalSystem::compute(Eigen::VectorXd& constraint,
 }
 
 
-void FullDynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
-									Eigen::VectorXd& upper_bound)
+void FullDynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
+											 Eigen::VectorXd& upper_bound)
 {
 	lower_bound = Eigen::VectorXd::Zero(2);
 	upper_bound = Eigen::VectorXd::Zero(2);

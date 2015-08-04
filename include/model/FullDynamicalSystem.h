@@ -24,16 +24,16 @@ class FullDynamicalSystem : public DynamicalSystem
 		 * @param Eigen::VectorXd& Evaluated constraint function
 		 * @param const LocomotionState& State vector
 		 */
-		void compute(Eigen::VectorXd& constraint,
-					 const LocomotionState& state);
+		void computeDynamicalConstraint(Eigen::VectorXd& constraint,
+										const LocomotionState& state);
 
 		/**
 		 * @brief Gets the bounds of the dynamical system constraint
 		 * @param Eigen::VectorXd& Lower bounds
 		 * @param Eigen::VectorXd& Upper bounds
 		 */
-		void getBounds(Eigen::VectorXd& lower_bound,
-					   Eigen::VectorXd& upper_bound);
+		void getDynamicalBounds(Eigen::VectorXd& lower_bound,
+								Eigen::VectorXd& upper_bound);
 
 		/** @brief Virtual method for getting the constraint dimension */
 		unsigned int defineConstraintDimension();

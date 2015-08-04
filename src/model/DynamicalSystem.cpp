@@ -99,6 +99,71 @@ void DynamicalSystem::jointLimitsFromURDF(std::string urdf_model)
 }
 
 
+void DynamicalSystem::compute(Eigen::VectorXd& constraint,
+							  const LocomotionState& state)
+{
+	// Resizing the constraint vector
+	Eigen::VectorXd time_constraint(system_dof_);
+
+	// Transcription of the constrained inverse dynamic equation using Euler-backward integration.
+	// This integration method adds numerical stability
+	double step_time = 0.1;
+	Eigen::VectorXd base_int = last_state_.base_pos - state.base_pos + step_time * state.base_vel;
+	Eigen::VectorXd joint_int = last_state_.joint_pos - state.joint_pos +	step_time * state.joint_vel;
+	time_constraint = rbd::toGeneralizedJointState(base_int, joint_int, system_);
+
+	// Updating the time state
+	LocomotionState updated_state = state;
+	updated_state.time += step_time;
+
+	// Computing the dynamical constraint
+	Eigen::VectorXd dynamical_constraint;
+	computeDynamicalConstraint(dynamical_constraint, updated_state);
+
+	// Adding both constraints
+	unsigned int dynamical_dim = dynamical_constraint.size();
+	constraint.resize(system_dof_ + dynamical_dim);
+	constraint.segment(0, system_dof_) = time_constraint;
+	constraint.segment(system_dof_, dynamical_dim) = dynamical_constraint;
+}
+
+
+void DynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint,
+												 const LocomotionState& state)
+{
+	printf(RED "FATAL: the dynamical constraint was not implemented\n" COLOR_RESET);
+	exit(EXIT_FAILURE);
+}
+
+
+void DynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
+								Eigen::VectorXd& upper_bound)
+{
+	Eigen::VectorXd time_bound = Eigen::VectorXd::Zero(system_dof_);
+
+	// Getting the dynamical bounds
+	Eigen::VectorXd dynamical_lower_bound, dynamical_upper_bound;
+	getDynamicalBounds(dynamical_lower_bound, dynamical_upper_bound);
+
+	// Adding both bounds
+	unsigned int dynamical_dim = dynamical_lower_bound.size();
+	lower_bound.resize(system_dof_ + dynamical_dim);
+	upper_bound.resize(system_dof_ + dynamical_dim);
+	lower_bound.segment(0, system_dof_) = time_bound;
+	lower_bound.segment(system_dof_, dynamical_dim) = dynamical_lower_bound;
+	upper_bound.segment(0, system_dof_) = time_bound;
+	upper_bound.segment(system_dof_, dynamical_dim) = dynamical_upper_bound;
+}
+
+
+void DynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
+										 Eigen::VectorXd& upper_bound)
+{
+	printf(RED "FATAL: the dynamical bounds was not implemented\n" COLOR_RESET);
+	exit(EXIT_FAILURE);
+}
+
+
 void DynamicalSystem::setFloatingBaseSystem(rbd::FloatingBaseSystem* system)
 {
 	system_ = system;
