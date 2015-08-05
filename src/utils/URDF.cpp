@@ -187,7 +187,9 @@ void getJointAxis(JointAxis& joints,
 		std::string joint_name = jnt_it->first;
 		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
 
-		joints[joint_name] << current_joint->axis.x, current_joint->axis.y, current_joint->axis.z;
+		if (current_joint->type != urdf::Joint::FLOATING ||
+				current_joint->type != urdf::Joint::FIXED)
+			joints[joint_name] << current_joint->axis.x, current_joint->axis.y, current_joint->axis.z;
 	}
 }
 
