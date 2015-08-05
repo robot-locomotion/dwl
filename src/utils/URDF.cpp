@@ -54,7 +54,17 @@ void getJointNames(JointID& joints,
 					joints[current_joint->name] = joint_idx;
 					joint_idx++;
 				}
-			} else { // both joints
+			} else if (type == floating) {
+				if (current_joint->type == urdf::Joint::FLOATING ||
+						current_joint->type == urdf::Joint::PRISMATIC ||
+						current_joint->type == urdf::Joint::REVOLUTE ||
+						current_joint->type == urdf::Joint::CONTINUOUS) {
+					if (current_joint->limits->effort == 0) {
+						joints[current_joint->name] = joint_idx;
+						joint_idx++;
+					}
+				}
+			} else { // all joints
 				if (current_joint->type == urdf::Joint::FIXED)
 					joints[current_joint->name] = std::numeric_limits<unsigned int>::max();
 				else {
@@ -76,7 +86,7 @@ void getEndEffectors(LinkSelector& end_effectors,
 	// Parsing the URDF-XML
 	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
 
-	// Getting the joint names
+	// Getting the fixed joint names
 	JointID fixed_joints;
 	getJointNames(fixed_joints, urdf_model, fixed);
 
@@ -119,14 +129,14 @@ void getJointLimits(Eigen::VectorXd& lower_joint_pos,
 	// Parsing the URDF-XML
 	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
 
-	// Getting the joint names
-	JointID joints;
-	getJointNames(joints, urdf_model, free);
+	// Getting the free joint names
+	JointID free_joints;
+	getJointNames(free_joints, urdf_model, free);
 
 	// Computing the number of actuated joints
 	unsigned num_joints = 0;
-	for (urdf_model::JointID::iterator jnt_it = joints.begin();
-			jnt_it != joints.end(); jnt_it++) {
+	for (urdf_model::JointID::iterator jnt_it = free_joints.begin();
+			jnt_it != free_joints.end(); jnt_it++) {
 		std::string joint_name = jnt_it->first;
 		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
 
@@ -143,8 +153,8 @@ void getJointLimits(Eigen::VectorXd& lower_joint_pos,
 
 	// Searching the joint limits
 	unsigned int joint_idx = 0;
-	for (urdf_model::JointID::iterator jnt_it = joints.begin();
-			jnt_it != joints.end(); jnt_it++) {
+	for (urdf_model::JointID::iterator jnt_it = free_joints.begin();
+			jnt_it != free_joints.end(); jnt_it++) {
 		std::string joint_name = jnt_it->first;
 		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
 
@@ -157,6 +167,27 @@ void getJointLimits(Eigen::VectorXd& lower_joint_pos,
 				joint_idx++;
 			}
 		}
+	}
+}
+
+
+void getJointAxis(JointAxis& joints,
+				  std::string urdf_model,
+				  enum JointType type)
+{
+	// Parsing the URDF-XML
+	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
+
+	// Getting the free joint names
+	JointID joint_ids;
+	getJointNames(joint_ids, urdf_model, type);
+
+	for (urdf_model::JointID::iterator jnt_it = joint_ids.begin();
+			jnt_it != joint_ids.end(); jnt_it++) {
+		std::string joint_name = jnt_it->first;
+		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
+
+		joints[joint_name] << current_joint->axis.x, current_joint->axis.y, current_joint->axis.z;
 	}
 }
 
