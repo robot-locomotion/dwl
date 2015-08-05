@@ -18,11 +18,11 @@ typedef std::map<std::string,unsigned int> JointID;
 typedef std::map<std::string,Eigen::Vector3d> JointAxis;
 typedef std::vector<std::string> LinkSelector;
 enum JointType {free=0, fixed, floating, all};
-enum JointMotion {AX = 0, AY, AZ, LX, LY, LZ };
+enum JointMotion {AX = 0, AY, AZ, LX, LY, LZ, FULL};
 
 /**
  * @brief Gets the joint names from URDF model. By default free joints are get but it's possible
- * to get free or both joints
+ * to get free, fixed, floating or all joints
  * @param JointID& Joint ids and names
  * @param std::string URDF model
  */
@@ -51,13 +51,24 @@ void getJointLimits(Eigen::VectorXd& lower_joint_pos,
 					Eigen::VectorXd& joint_eff,
 					std::string urdf_model);
 
+/**
+ * @brief Gets the joint axis from URDF model. By default free joints are get but it's possible
+ * to get free, fixed, floating or all joints
+ * @param JointAxis& Joint axis and names
+ * @param std::string URDF model
+ */
 void getJointAxis(JointAxis& joints,
 				  std::string urdf_model,
 				  enum JointType type = free);
 
-void getJointMotion(JointID& joints,
-					std::string urdf_model,
-					enum JointType type = free);
+/**
+ * @brief Gets the joint type of motion from URDF model. By default free joints are get but it's
+ * possible to get free, fixed, floating or all joints
+ * @param JointID& Joint type of motion
+ * @param std::string URDF model
+ */
+void getFloatingBaseJointMotion(JointID& joints,
+								std::string urdf_model);
 
 } //@namespace urdf_model
 } //@namespace dwl

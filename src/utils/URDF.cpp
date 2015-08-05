@@ -190,20 +190,21 @@ void getJointAxis(JointAxis& joints,
 		if (current_joint->type != urdf::Joint::FLOATING ||
 				current_joint->type != urdf::Joint::FIXED)
 			joints[joint_name] << current_joint->axis.x, current_joint->axis.y, current_joint->axis.z;
+		else
+			joints[joint_name] = Eigen::Vector3d::Zero();
 	}
 }
 
 
-void getJointMotion(JointID& joints,
-					std::string urdf_model,
-					enum JointType type = free)
+void getFloatingBaseJointMotion(JointID& joints,
+								std::string urdf_model)
 {
 	// Parsing the URDF-XML
 	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
 
 	// Getting the free joint names
 	JointAxis joint_axis;
-	getJointAxis(joint_axis, urdf_model, type);
+	getJointAxis(joint_axis, urdf_model, floating);
 
 	for (urdf_model::JointID::iterator jnt_it = joint_axis.begin();
 			jnt_it != joint_axis.end(); jnt_it++) {
@@ -211,11 +212,10 @@ void getJointMotion(JointID& joints,
 		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
 
 		// Getting the kind of motion (prismatic or rotation)
-		bool revolution = false, prismatic = false;
-		if (current_joint->type == urdf::Joint::REVOLUTE ||
+		if (current_joint->type == urdf::Joint::FLOATING)
+			joints[joint_name] = FULL;
+		else if (current_joint->type == urdf::Joint::REVOLUTE ||
 				current_joint->type == urdf::Joint::CONTINUOUS) {
-			revolution = true;
-
 			// Getting the axis of movements
 			if (current_joint->axis.x != 0) {
 				joints[joint_name] = AX;
@@ -230,8 +230,6 @@ void getJointMotion(JointID& joints,
 				break;
 			}
 		} else if (current_joint->type == urdf::Joint::PRISMATIC) {
-			prismatic = true;
-
 			// Getting the axis of movements
 			if (current_joint->axis.x != 0) {
 				joints[joint_name] = LX;
