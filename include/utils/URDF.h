@@ -18,6 +18,7 @@ typedef std::map<std::string,unsigned int> JointID;
 typedef std::map<std::string,Eigen::Vector3d> JointAxis;
 typedef std::vector<std::string> LinkSelector;
 enum JointType {free=0, fixed, floating, all};
+enum JointMotion {AX = 0, AY, AZ, LX, LY, LZ };
 
 /**
  * @brief Gets the joint names from URDF model. By default free joints are get but it's possible
@@ -53,6 +54,10 @@ void getJointLimits(Eigen::VectorXd& lower_joint_pos,
 void getJointAxis(JointAxis& joints,
 				  std::string urdf_model,
 				  enum JointType type = free);
+
+void getJointMotion(JointID& joints,
+					std::string urdf_model,
+					enum JointType type = free);
 
 } //@namespace urdf_model
 } //@namespace dwl

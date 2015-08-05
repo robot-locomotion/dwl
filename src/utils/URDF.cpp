@@ -178,7 +178,7 @@ void getJointAxis(JointAxis& joints,
 	// Parsing the URDF-XML
 	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
 
-	// Getting the free joint names
+	// Getting the joint names
 	JointID joint_ids;
 	getJointNames(joint_ids, urdf_model, type);
 
@@ -190,6 +190,61 @@ void getJointAxis(JointAxis& joints,
 		if (current_joint->type != urdf::Joint::FLOATING ||
 				current_joint->type != urdf::Joint::FIXED)
 			joints[joint_name] << current_joint->axis.x, current_joint->axis.y, current_joint->axis.z;
+	}
+}
+
+
+void getJointMotion(JointID& joints,
+					std::string urdf_model,
+					enum JointType type = free)
+{
+	// Parsing the URDF-XML
+	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
+
+	// Getting the free joint names
+	JointAxis joint_axis;
+	getJointAxis(joint_axis, urdf_model, type);
+
+	for (urdf_model::JointID::iterator jnt_it = joint_axis.begin();
+			jnt_it != joint_axis.end(); jnt_it++) {
+		std::string joint_name = jnt_it->first;
+		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
+
+		// Getting the kind of motion (prismatic or rotation)
+		bool revolution = false, prismatic = false;
+		if (current_joint->type == urdf::Joint::REVOLUTE ||
+				current_joint->type == urdf::Joint::CONTINUOUS) {
+			revolution = true;
+
+			// Getting the axis of movements
+			if (current_joint->axis.x != 0) {
+				joints[joint_name] = AX;
+				break;
+			}
+			if (current_joint->axis.y != 0) {
+				joints[joint_name] = AY;
+				break;
+			}
+			if (current_joint->axis.z != 0) {
+				joints[joint_name] = AZ;
+				break;
+			}
+		} else if (current_joint->type == urdf::Joint::PRISMATIC) {
+			prismatic = true;
+
+			// Getting the axis of movements
+			if (current_joint->axis.x != 0) {
+				joints[joint_name] = LX;
+				break;
+			}
+			if (current_joint->axis.y != 0) {
+				joints[joint_name] = LY;
+				break;
+			}
+			if (current_joint->axis.z != 0) {
+				joints[joint_name] = LZ;
+				break;
+		}
 	}
 }
 
