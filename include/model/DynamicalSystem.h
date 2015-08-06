@@ -87,6 +87,16 @@ class DynamicalSystem : public Constraint
 				 	 	 	 	 	 	 	 	const LocomotionState& state);
 
 		/**
+		 * @brief Computes the constraint from the time integration. Additionally, it's updated
+		 * the time value in case of fixed-step integration, i.e. optimization without time as a
+		 * decision variable. Note that there are different numerical integration methods
+		 * @param Eigen::VectorXd& Evaluated the dynamical constraint function
+		 * @param LocomotionState& State vector
+		 */
+		void numericalIntegration(Eigen::VectorXd& constraint,
+								  LocomotionState& state);
+
+		/**
 		 * @brief Gets the bounds of the dynamical system constraint which included the time
 		 * integration bounds
 		 * @param Eigen::VectorXd& Lower bounds

@@ -86,19 +86,10 @@ void DynamicalSystem::jointLimitsFromURDF(std::string urdf_model)
 void DynamicalSystem::compute(Eigen::VectorXd& constraint,
 							  const LocomotionState& state)
 {
-	// Resizing the constraint vector
-	Eigen::VectorXd time_constraint(system_.getSystemDoF());
-
-	// Transcription of the constrained inverse dynamic equation using Euler-backward integration.
-	// This integration method adds numerical stability
-	double step_time = 0.1;
-	Eigen::VectorXd base_int = last_state_.base_pos - state.base_pos + step_time * state.base_vel;
-	Eigen::VectorXd joint_int = last_state_.joint_pos - state.joint_pos +	step_time * state.joint_vel;
-	time_constraint = rbd::toGeneralizedJointState(base_int, joint_int, system_);
-
-	// Updating the time state
+	// Evaluating the numerical integration
+	Eigen::VectorXd time_constraint;
 	LocomotionState updated_state = state;
-	updated_state.time += step_time;
+	numericalIntegration(time_constraint, updated_state);
 
 	// Computing the dynamical constraint
 	Eigen::VectorXd dynamical_constraint;
@@ -119,6 +110,23 @@ void DynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint,
 	exit(EXIT_FAILURE);
 }
 
+
+void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
+										   LocomotionState& state)
+{
+	// Resizing the constraint vector
+	constraint.resize(system_.getSystemDoF());
+
+	// Transcription of the constrained inverse dynamic equation using Euler-backward integration.
+	// This integration method adds numerical stability
+	double step_time = 0.1;
+	Eigen::VectorXd base_int = last_state_.base_pos - state.base_pos + step_time * state.base_vel;
+	Eigen::VectorXd joint_int = last_state_.joint_pos - state.joint_pos +	step_time * state.joint_vel;
+	constraint = rbd::toGeneralizedJointState(base_int, joint_int, system_);
+
+	// Updating the time state
+	state.time += step_time;
+}
 
 void DynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
 								Eigen::VectorXd& upper_bound)
