@@ -206,7 +206,7 @@ void getFloatingBaseJointMotion(JointID& joints,
 	JointAxis joint_axis;
 	getJointAxis(joint_axis, urdf_model, floating);
 
-	for (urdf_model::JointID::iterator jnt_it = joint_axis.begin();
+	for (urdf_model::JointAxis::iterator jnt_it = joint_axis.begin();
 			jnt_it != joint_axis.end(); jnt_it++) {
 		std::string joint_name = jnt_it->first;
 		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
@@ -242,6 +242,7 @@ void getFloatingBaseJointMotion(JointID& joints,
 			if (current_joint->axis.z != 0) {
 				joints[joint_name] = LZ;
 				break;
+			}
 		}
 	}
 }
