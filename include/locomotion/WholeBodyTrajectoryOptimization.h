@@ -67,6 +67,9 @@ class WholeBodyTrajectoryOptimization
 					 const LocomotionState& desired_state,
 					 double computation_time);
 
+		/** @brief Gets the dynamical system constraint */
+		model::DynamicalSystem* getDynamicalSystem();
+
 		/**
 		 * @brief Gets the whole-body trajectory
 		 * @return std::vector<LocomotionState>& Whole-body trajectory

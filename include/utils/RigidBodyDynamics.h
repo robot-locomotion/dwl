@@ -229,21 +229,21 @@ struct FloatingBaseSystem {
 		return num_joints;
 	}
 
-	/** @brief Gets the floating-base joint id */
-	const unsigned int& getFloatingBaseJointID(Coords6d joint)
+	/** @brief Gets the floating-base joint */
+	const FloatingBaseJoint& getFloatingBaseJoint(Coords6d joint)
 	{
 		if (joint == rbd::AX)
-			return AX.id;
+			return AX;
 		else if (joint == rbd::AY)
-			return AY.id;
+			return AY;
 		else if (joint == rbd::AZ)
-			return AZ.id;
+			return AZ;
 		else if (joint == rbd::LX)
-			return LX.id;
+			return LX;
 		else if (joint == rbd::LY)
-			return LY.id;
+			return LY;
 		else
-			return LZ.id;
+			return LZ;
 	}
 
 	/** @brief Gets the floating-base joint given an Id */
@@ -265,6 +265,12 @@ struct FloatingBaseSystem {
 			printf(RED "ERROR: the %i id doesn't bellow to floating-base joint\n" COLOR_RESET, id);
 			return 0;
 		}
+	}
+
+	/** @brief Gets actuated joint information */
+	const std::vector<Joint>& getJoints()
+	{
+		return joints;
 	}
 
 	/** @brief Gets the type of floating-base system */

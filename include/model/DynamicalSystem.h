@@ -149,7 +149,7 @@ class DynamicalSystem : public Constraint
 		unsigned int getDimensionOfState();
 
 		/** @brief Gets the floating-base system information */
-		const rbd::FloatingBaseSystem& getFloatingBaseSystem();
+		rbd::FloatingBaseSystem& getFloatingBaseSystem();
 
 		/**
 		 * @brief Converts the generalized state vector to locomotion state

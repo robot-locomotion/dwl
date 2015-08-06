@@ -194,7 +194,7 @@ unsigned int DynamicalSystem::getDimensionOfState()
 }
 
 
-const rbd::FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
+rbd::FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
 {
 	return system_;
 }

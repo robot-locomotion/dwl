@@ -86,6 +86,12 @@ bool WholeBodyTrajectoryOptimization::compute(const LocomotionState& current_sta
 }
 
 
+model::DynamicalSystem* WholeBodyTrajectoryOptimization::getDynamicalSystem()
+{
+	return solver_->getOptimizationModel().getDynamicalSystem();
+}
+
+
 std::vector<LocomotionState>& WholeBodyTrajectoryOptimization::getWholeBodyTrajectory()
 {
 	return solver_->getWholeBodyTrajectory();
