@@ -7,7 +7,8 @@ namespace dwl
 namespace model
 {
 
-DynamicalSystem::DynamicalSystem() : state_dimension_(0), locomotion_variables_(false)
+DynamicalSystem::DynamicalSystem() : state_dimension_(0), locomotion_variables_(false),
+		step_time_(0.1)
 {
 
 }
@@ -119,13 +120,12 @@ void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
 
 	// Transcription of the constrained inverse dynamic equation using Euler-backward integration.
 	// This integration method adds numerical stability
-	double step_time = 0.1;
-	Eigen::VectorXd base_int = last_state_.base_pos - state.base_pos + step_time * state.base_vel;
-	Eigen::VectorXd joint_int = last_state_.joint_pos - state.joint_pos +	step_time * state.joint_vel;
+	Eigen::VectorXd base_int = last_state_.base_pos - state.base_pos + step_time_ * state.base_vel;
+	Eigen::VectorXd joint_int = last_state_.joint_pos - state.joint_pos +	step_time_ * state.joint_vel;
 	constraint = rbd::toGeneralizedJointState(base_int, joint_int, system_);
 
 	// Updating the time state
-	state.time += step_time;
+	state.time += step_time_;
 }
 
 void DynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
@@ -207,6 +207,11 @@ rbd::FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
 	return system_;
 }
 
+
+const double& DynamicalSystem::getFixedStepTime()
+{
+	return step_time_;
+}
 
 void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
 										const Eigen::VectorXd& generalized_state)
@@ -346,6 +351,12 @@ void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
 			}
 		}
 	}
+}
+
+
+bool DynamicalSystem::isFixedStepIntegration()
+{
+	return !locomotion_variables_.time;
 }
 
 

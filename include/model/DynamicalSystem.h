@@ -161,6 +161,9 @@ class DynamicalSystem : public Constraint
 		/** @brief Gets the floating-base system information */
 		rbd::FloatingBaseSystem& getFloatingBaseSystem();
 
+		/** @brief Gets the fixed-step time of integration */
+		const double& getFixedStepTime();
+
 		/**
 		 * @brief Converts the generalized state vector to locomotion state
 		 * @param LocomotionState& Locomotion state
@@ -176,6 +179,9 @@ class DynamicalSystem : public Constraint
 		 */
 		void fromLocomotionState(Eigen::VectorXd& generalized_state,
 								 const LocomotionState& state_model);
+
+		/** @brief Returns true if it's a fixed-step integration */
+		bool isFixedStepIntegration();
 
 
 	protected:
@@ -205,6 +211,9 @@ class DynamicalSystem : public Constraint
 
 		/** @brief Locomotion variables defined given a dynamical system constraint */
 		LocomotionVariables locomotion_variables_;
+
+		/** Fixed-step time value [in seconds] */
+		double step_time_;
 
 
 	private:

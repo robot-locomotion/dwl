@@ -226,6 +226,10 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 		decision_state = solution.segment(i * state_dim, state_dim);
 		opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
 
+		// Setting the time information in cases where time is not a decision variable
+		if (opt_model_->getDynamicalSystem()->isFixedStepIntegration())
+			locomotion_state.time = opt_model_->getDynamicalSystem()->getFixedStepTime() * horizon;
+
 		// Pushing the current state
 		locomotion_solution_.push_back(locomotion_state);
 	}
