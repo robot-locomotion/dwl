@@ -148,8 +148,8 @@ class DynamicalSystem : public Constraint
 		/** @brief Gets the dimension of the dynamical state */
 		unsigned int getDimensionOfState();
 
-		/** @brief Gets the number of end-effectors */
-		unsigned int getNumberOfEndEffectors();
+		/** @brief Gets the floating-base system information */
+		const rbd::FloatingBaseSystem& getFloatingBaseSystem();
 
 		/**
 		 * @brief Converts the generalized state vector to locomotion state

@@ -194,9 +194,9 @@ unsigned int DynamicalSystem::getDimensionOfState()
 }
 
 
-unsigned int DynamicalSystem::getNumberOfEndEffectors() // TODO kill it?
+const rbd::FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
 {
-	return system_.getNumberOfEndEffectors();
+	return system_;
 }
 
 
