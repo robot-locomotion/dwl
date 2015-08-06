@@ -54,9 +54,6 @@ class ConstrainedWholeBodyPlanner
 		/** @brief Whole-body trajectory optimization */
 		dwl::locomotion::WholeBodyTrajectoryOptimization planning_;
 
-		/** @brief Floating-base system information */
-		dwl::rbd::FloatingBaseSystem floating_base_system_;
-
 		/** @brief Current whole-body state */
 		dwl::LocomotionState current_state_;
 
