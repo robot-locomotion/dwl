@@ -14,12 +14,6 @@ int main(int argc, char **argv)
 	dwl::model::DynamicalSystem* dynamical_system = new dwl::model::HS071DynamicalSystem();
 	dwl::model::Cost* cost = new dwl::model::HS071Cost();
 
-
-	dwl::rbd::FloatingBaseSystem system;
-	system.setJointDoF(4);
-	system.setTypeOfDynamicSystem(dwl::rbd::FixedBase);
-	dynamical_system->setFloatingBaseSystem(&system);
-
 //	ipopt_solver->getIpopt().getOptimizationModel().addDynamicalSystem(dynamical_system);
 //	ipopt_solver->getIpopt().getOptimizationModel().addCost(cost);
 	solver->getOptimizationModel().addDynamicalSystem(dynamical_system);

@@ -106,12 +106,6 @@ class DynamicalSystem : public Constraint
 										Eigen::VectorXd& upper_bound);
 
 		/**
-		 * @brief Sets floating-base system properties
-		 * @param rbd::FloatingBaseSystem* system
-		 */
-		void setFloatingBaseSystem(rbd::FloatingBaseSystem* system);
-
-		/**
 		 * @brief Sets the lower and upper state bounds
 		 * @param const LocomotionState& Lower state bounds
 		 * @param const LocomotionState& Upper state bounds
@@ -186,9 +180,6 @@ class DynamicalSystem : public Constraint
 
 		/** @brief Dimension of the dynamical state */
 		unsigned int state_dimension_;
-
-		/** @brief Number of end-effectors */
-		unsigned int num_endeffectors_;
 
 		/** @brief Initial state */
 		LocomotionState initial_state_;

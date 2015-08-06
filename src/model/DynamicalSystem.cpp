@@ -7,8 +7,7 @@ namespace dwl
 namespace model
 {
 
-DynamicalSystem::DynamicalSystem() : state_dimension_(0), num_endeffectors_(1),
-		locomotion_variables_(false)
+DynamicalSystem::DynamicalSystem() : state_dimension_(0), locomotion_variables_(false)
 {
 
 }
@@ -195,9 +194,9 @@ unsigned int DynamicalSystem::getDimensionOfState()
 }
 
 
-unsigned int DynamicalSystem::getNumberOfEndEffectors()
+unsigned int DynamicalSystem::getNumberOfEndEffectors() // TODO kill it?
 {
-	return num_endeffectors_;
+	return system_.getNumberOfEndEffectors();
 }
 
 
@@ -248,8 +247,8 @@ void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
 	}
 	if (locomotion_variables_.contact_pos || locomotion_variables_.contact_vel ||
 			locomotion_variables_.contact_acc || locomotion_variables_.contact_for) {
-		locomotion_state.contacts.resize(num_endeffectors_);
-		for (unsigned int i = 0; i < num_endeffectors_; i++) {
+		locomotion_state.contacts.resize(system_.getNumberOfEndEffectors());
+		for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(); i++) {
 			locomotion_state.contacts[i].end_effector = i;
 			if (locomotion_variables_.contact_pos) {
 				locomotion_state.contacts[i].position = generalized_state.segment<3>(idx);
@@ -315,12 +314,12 @@ void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
 	}
 	if (locomotion_variables_.contact_pos || locomotion_variables_.contact_vel ||
 			locomotion_variables_.contact_acc || locomotion_variables_.contact_for) {
-		if (locomotion_state.contacts.size() != num_endeffectors_) {
+		if (locomotion_state.contacts.size() != system_.getNumberOfEndEffectors()) {
 			printf(RED "FATAL: the number of contact and end-effectors are not consistent\n" COLOR_RESET);
 			exit(EXIT_FAILURE);
 		}
 
-		for (unsigned int i = 0; i < num_endeffectors_; i++) {
+		for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(); i++) {
 			if (locomotion_variables_.contact_pos) {
 				generalized_state.segment<3>(idx) = locomotion_state.contacts[i].position;
 				idx += 3;

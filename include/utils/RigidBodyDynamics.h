@@ -77,7 +77,7 @@ struct FloatingBaseSystem {
 			AX(full), AY(full), AZ(full), LX(full), LY(full), LZ(full),
 			AX_constraint(false), AY_constraint(false), AZ_constraint(false),
 			LX_constraint(false), LY_constraint(false), LZ_constraint(false),
-			type_of_system(rbd::FixedBase) {}
+			type_of_system(rbd::FixedBase), num_end_effectors(0) {}
 
 	/** @brief Resets the system information from URDF description */
 	void reset(std::string urdf_model)
@@ -128,6 +128,10 @@ struct FloatingBaseSystem {
 			type_of_system = VirtualFloatingBase;
 		else
 			type_of_system = FixedBase;
+
+		// Getting the end-effectors information
+		urdf_model::getEndEffectors(end_effectors, urdf_model);
+		num_end_effectors = end_effectors.size();
 	}
 
 	/** @brief Sets the floating-base joint information */
@@ -269,6 +273,18 @@ struct FloatingBaseSystem {
 		return type_of_system;
 	}
 
+	/** @brief Gets the number of end-effectors */
+	const unsigned int& getNumberOfEndEffectors()
+	{
+		return num_end_effectors;
+	}
+
+	/** @brief Gets the end-effectors names */
+	void getEndEffectors(urdf_model::LinkSelector& _end_effectors)
+	{
+		_end_effectors = end_effectors;
+	}
+
 	bool isFullyFloatingBase()
 	{
 		if (AX.active && AY.active && AZ.active && LX.active && LY.active && LZ.active)
@@ -327,6 +343,10 @@ struct FloatingBaseSystem {
 
 	/** @brief Type of system */
 	enum TypeOfSystem type_of_system;
+
+	/** @brief End-effector information */
+	urdf_model::LinkSelector end_effectors;
+	unsigned int num_end_effectors;
 };
 
 /**
