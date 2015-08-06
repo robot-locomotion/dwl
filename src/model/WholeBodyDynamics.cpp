@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-WholeBodyDynamics::WholeBodyDynamics() : system_(NULL)
+WholeBodyDynamics::WholeBodyDynamics()
 {
 
 }
@@ -20,7 +20,6 @@ WholeBodyDynamics::~WholeBodyDynamics()
 
 
 void WholeBodyDynamics::modelFromURDFFile(std::string filename,
-										  struct rbd::FloatingBaseSystem* system,
 										  bool info)
 {
 	// Reading the file
@@ -39,27 +38,19 @@ void WholeBodyDynamics::modelFromURDFFile(std::string filename,
 			std::istreambuf_iterator<char>());
 	model_file.close();
 
-	modelFromURDFModel(model_xml_string, system, info);
+	modelFromURDFModel(model_xml_string, info);
 }
 
 
 void WholeBodyDynamics::modelFromURDFModel(std::string urdf_model,
-										   struct rbd::FloatingBaseSystem* system,
 										   bool info)
 {
+	// Reseting the floating-base system information given an URDF model
+	system_.reset(urdf_model);
+
+	// Getting the RBDL model from URDF model
 	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &robot_model_, false);
-	kinematics_.modelFromURDFModel(urdf_model.c_str(), system, false);
-
-	system_ = system;
-
-	// Setting the number of joints
-	unsigned int num_joints = robot_model_.dof_count - system_->getFloatingBaseDOF();
-	system_->setJointDOF(num_joints);
-
-	// Getting and setting the type of dynamic system
-	enum rbd::TypeOfSystem type_of_system;
-	rbd::getTypeOfDynamicSystem(type_of_system, robot_model_, system_);
-	system_->setTypeOfDynamicSystem(type_of_system);
+	kinematics_.modelFromURDFModel(urdf_model.c_str(), false);
 
 	// Getting the list of movable and fixed bodies
 	rbd::getListOfBodies(body_id_, robot_model_);
@@ -81,13 +72,13 @@ void WholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 											   const rbd::BodyWrench& ext_force)
 {
 	// Setting the size of the joint forces vector
-	joint_forces.resize(system_->getJointDOF());
+	joint_forces.resize(system_.getJointDoF());
 
 	// Converting base and joint states to generalized joint states
 	Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, system_);
 	Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, system_);
 	Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(base_acc, joint_acc, system_);
-	Eigen::VectorXd tau = Eigen::VectorXd::Zero(robot_model_.dof_count);
+	Eigen::VectorXd tau = Eigen::VectorXd::Zero(system_.getSystemDoF());
 
 	// Computing the applied external spatial forces for every body
 	std::vector<SpatialVector_t> fext;
@@ -111,20 +102,20 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 														   const rbd::BodyWrench& ext_force)
 {
 	// Setting the size of the joint forces vector
-	joint_forces.resize(system_->getJointDOF());
+	joint_forces.resize(system_.getJointDoF());
 
 	// Converting base and joint states to generalized joint states
 	Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, system_);
 	Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, system_);
 	Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(base_acc, joint_acc, system_);
-	Eigen::VectorXd tau = Eigen::VectorXd::Zero(robot_model_.dof_count);
+	Eigen::VectorXd tau = Eigen::VectorXd::Zero(system_.getSystemDoF());
 
 	// Computing the applied external spatial forces for every body
 	std::vector<SpatialVector_t> fext;
 	convertAppliedExternalForces(fext, ext_force, q);
 
 	// Computing the inverse dynamics with Recursive Newton-Euler Algorithm (RNEA)
-	if (rbd::isFloatingBaseRobot(robot_model_)) {
+	if (system_.isFullyFloatingBase()) {
 		RigidBodyDynamics::Math::SpatialVector base_ddot = RigidBodyDynamics::Math::SpatialVector(base_acc);
 		rbd::FloatingBaseInverseDynamics(robot_model_, q, q_dot, q_ddot, base_ddot, tau, &fext);
 
@@ -132,8 +123,8 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 		base_acc = base_ddot;
 	} else {
 		RigidBodyDynamics::InverseDynamics(robot_model_, q, q_dot, q_ddot, tau, &fext);
-		if (!rbd::isVirtualFloatingBaseRobot(system_))
-			printf(YELLOW "Warning: this is not a floating-base system\n" COLOR_RESET);
+		if (system_.isVirtualFloatingBaseRobot())
+			printf(YELLOW "WARNING: this is not a floating-base system\n" COLOR_RESET);
 	}
 
 	// Converting the generalized joint forces to base wrench and joint forces
@@ -152,7 +143,7 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 																	  const rbd::BodySelector& contacts)
 {
 	// Setting the size of the joint forces vector
-	joint_forces.resize(system_->getJointDOF());
+	joint_forces.resize(system_.getJointDoF());
 
 	// Computing the contact forces that generates the desired base wrench. A floating-base system
 	// can be described as floating-base with or without physical constraints or virtual
@@ -184,7 +175,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 											 const rbd::BodySelector& contacts)
 {
 	// Setting the size of the joint forces vector
-	joint_forces.resize(system_->getJointDOF());
+	joint_forces.resize(system_.getJointDoF());
 
 	// Computing the fixed-base jacobian and base contact jacobian. These jacobians are used for
 	// computing a consistent joint acceleration, and for mapping desired base wrench to joint forces
@@ -195,7 +186,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 	// definition. We assume that contacts are static, which it allows us to computed a consistent
 	// joint accelerations.
 	rbd::Vector6d base_feas_acc = rbd::Vector6d::Zero();
-	Eigen::VectorXd joint_feas_acc(system_->getJointDOF());
+	Eigen::VectorXd joint_feas_acc(system_.getJointDoF());
 	computeConstrainedConsistentAcceleration(base_feas_acc, joint_feas_acc, base_pos, joint_pos,
 											 base_vel, joint_vel, base_acc, joint_acc, contacts);
 
@@ -216,18 +207,18 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 	// can be described as floating-base with or without physical constraints or virtual
 	// floating-base. Note that with a virtual floating-base we can describe a n-dimensional
 	// floating-base, witch n less than 6
-	if (rbd::isFloatingBaseRobot(robot_model_)) {
+	if (system_.isFullyFloatingBase()) {
 		// This approach builds an augmented jacobian matrix as [base contact jacobian; base constraint jacobian].
 		// Therefore, we computed constrained reaction forces in the base.
-		if (rbd::isConstrainedFloatingBaseRobot(system_)) {
+		if (system_.isConstrainedFloatingBaseRobot()) {
 			// Computing the base constraint contribution to the jacobian
 			Eigen::MatrixXd base_constraint_jac = Eigen::MatrixXd::Zero(6,6);
-			base_constraint_jac(rbd::AX, rbd::AX) = !system_->AX.active;
-			base_constraint_jac(rbd::AY, rbd::AY) = !system_->AY.active;
-			base_constraint_jac(rbd::AZ, rbd::AZ) = !system_->AZ.active;
-			base_constraint_jac(rbd::LX, rbd::LX) = !system_->LX.active;
-			base_constraint_jac(rbd::LY, rbd::LY) = !system_->LY.active;
-			base_constraint_jac(rbd::LZ, rbd::LZ) = !system_->LZ.active;
+			base_constraint_jac(rbd::AX, rbd::AX) = !system_.AX_constraint;
+			base_constraint_jac(rbd::AY, rbd::AY) = !system_.AY_constraint;
+			base_constraint_jac(rbd::AZ, rbd::AZ) = !system_.AZ_constraint;
+			base_constraint_jac(rbd::LX, rbd::LX) = !system_.LX_constraint;
+			base_constraint_jac(rbd::LY, rbd::LY) = !system_.LY_constraint;
+			base_constraint_jac(rbd::LZ, rbd::LZ) = !system_.LZ_constraint;
 
 			// Computing the augmented jacobian [base contact jacobian; base constraint jacobian]
 			Eigen::MatrixXd augmented_jac = Eigen::MatrixXd::Zero(base_contact_jac.rows() + 6, base_contact_jac.cols());
@@ -256,21 +247,21 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 			for (unsigned int i = 0; i < num_active_contacts; i++)
 				contact_forces[contacts[i]] << 0., 0., 0., endeffector_forces.segment<3>(3 * i);
 		}
-	} else if (rbd::isVirtualFloatingBaseRobot(system_)) {
+	} else if (system_.isVirtualFloatingBaseRobot()) {
 		// This is n-dimensional floating-base system. So, we need to compute a virtual base wrench
-		Eigen::VectorXd virtual_base_wrench = Eigen::VectorXd::Zero(system_->getFloatingBaseDOF());
-		if (system_->AX.active)
-			virtual_base_wrench(system_->AX.id) = base_wrench(rbd::AX);
-		if (system_->AY.active)
-			virtual_base_wrench(system_->AY.id) = base_wrench(rbd::AY);
-		if (system_->AZ.active)
-			virtual_base_wrench(system_->AZ.id) = base_wrench(rbd::AZ);
-		if (system_->LX.active)
-			virtual_base_wrench(system_->LX.id) = base_wrench(rbd::LX);
-		if (system_->LY.active)
-			virtual_base_wrench(system_->LY.id) = base_wrench(rbd::LY);
-		if (system_->LZ.active)
-			virtual_base_wrench(system_->LZ.id) = base_wrench(rbd::LZ);
+		Eigen::VectorXd virtual_base_wrench = Eigen::VectorXd::Zero(system_.getFloatingBaseDoF());
+		if (system_.AX.active)
+			virtual_base_wrench(system_.AX.id) = base_wrench(rbd::AX);
+		if (system_.AY.active)
+			virtual_base_wrench(system_.AY.id) = base_wrench(rbd::AY);
+		if (system_.AZ.active)
+			virtual_base_wrench(system_.AZ.id) = base_wrench(rbd::AZ);
+		if (system_.LX.active)
+			virtual_base_wrench(system_.LX.id) = base_wrench(rbd::LX);
+		if (system_.LY.active)
+			virtual_base_wrench(system_.LY.id) = base_wrench(rbd::LY);
+		if (system_.LZ.active)
+			virtual_base_wrench(system_.LZ.id) = base_wrench(rbd::LZ);
 
 		// Computing the contact forces that generates the desired base wrench in the case of n dof
 		// floating-base, where n is less than 6. Note that we describe this floating-base as an

@@ -36,7 +36,7 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 															const LocomotionState& state)
 {
 	// Resizing the constraint vector
-	constraint.resize(joint_dof_ + 3 * num_actived_endeffectors_);
+	constraint.resize(system_.getJointDoF() + 3 * num_actived_endeffectors_);
 
 	// Computing the step time
 	double step_time = state.time - last_state_.time;
@@ -49,7 +49,7 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 															state.base_vel, state.joint_vel,
 															base_acc, joint_acc,
 															active_endeffectors_);
-	constraint.segment(0, joint_dof_) = estimated_joint_forces - state.joint_eff;
+	constraint.segment(0, system_.getJointDoF()) = estimated_joint_forces - state.joint_eff;
 
 
 	// This constrained inverse dynamic algorithm could generate joint forces in cases where the
@@ -63,7 +63,7 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 	unsigned endeffector_counter = 0;
 	for (rbd::BodyVector::iterator endeffector_it = endeffectors_vel.begin();
 			endeffector_it != endeffectors_vel.end(); endeffector_it++) {
-		constraint.segment<3>(joint_dof_ + endeffector_counter) = endeffector_it->second;
+		constraint.segment<3>(system_.getJointDoF() + endeffector_counter) = endeffector_it->second;
 		endeffector_counter++;
 	}
 }
@@ -72,8 +72,8 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 void ConstrainedDynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
 													Eigen::VectorXd& upper_bound)
 {
-	lower_bound = Eigen::VectorXd::Zero(joint_dof_ + 3 * num_actived_endeffectors_);
-	upper_bound = Eigen::VectorXd::Zero(joint_dof_ + 3 * num_actived_endeffectors_);
+	lower_bound = Eigen::VectorXd::Zero(system_.getJointDoF() + 3 * num_actived_endeffectors_);
+	upper_bound = Eigen::VectorXd::Zero(system_.getJointDoF() + 3 * num_actived_endeffectors_);
 }
 
 } //@namespace model

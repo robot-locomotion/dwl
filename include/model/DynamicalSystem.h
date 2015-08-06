@@ -49,23 +49,17 @@ class DynamicalSystem : public Constraint
 		/**
 		 * @brief Build the model rigid-body system from an URDF file
 		 * @param std::string URDF file
-		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
-		 * system
 		 * @param Print model information
 		 */
 		void modelFromURDFFile(std::string urdf_model,
-							   struct rbd::FloatingBaseSystem* system = NULL,
 							   bool info = false);
 
 		/**
 		 * @brief Build the model rigid-body system from an URDF model (xml)
 		 * @param std::string URDF model
-		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
-		 * system
 		 * @param Print model information
 		 */
 		void modelFromURDFModel(std::string urdf_model,
-								struct rbd::FloatingBaseSystem* system = NULL,
 								bool info = false);
 
 		/**
@@ -188,19 +182,13 @@ class DynamicalSystem : public Constraint
 		WholeBodyDynamics dynamics_;
 
 		/** @brief A floating-base system definition */
-		rbd::FloatingBaseSystem* system_;
+		rbd::FloatingBaseSystem system_;
 
 		/** @brief Dimension of the dynamical state */
 		unsigned int state_dimension_;
 
 		/** @brief Number of end-effectors */
 		unsigned int num_endeffectors_;
-
-		/** @brief Degree of freedom of the floating-base system */
-		unsigned int system_dof_;
-
-		/** @brief Degree of freedom of the joint */
-		unsigned int joint_dof_;
 
 		/** @brief Initial state */
 		LocomotionState initial_state_;

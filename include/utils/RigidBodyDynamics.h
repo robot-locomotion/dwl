@@ -2,6 +2,7 @@
 #define DWL__RBD__RIGID_BODY_DYNAMICS__H
 
 #include <rbdl/rbdl.h>
+#include <utils/URDF.h>
 #include <utils/Math.h>
 
 
@@ -50,41 +51,200 @@ enum Coords3d {X = 0, Y, Z};
 enum Coords6d {AX = 0, AY, AZ, LX, LY, LZ };
 enum TypeOfSystem {FixedBase, FloatingBase, ConstrainedFloatingBase, VirtualFloatingBase};
 
-/** @brief Defines a floating base joint status */
+/** @brief Defines a floating-base joint information */
 struct FloatingBaseJoint {
 	FloatingBaseJoint(bool status) : active(status), id(0) {}
+	FloatingBaseJoint(bool status,
+					  unsigned int _id,
+					  std::string _name) : active(status), id(_id), name(_name) {}
 	bool active;
-	unsigned id;
+	unsigned int id;
+	std::string name;
+};
+
+/** @brief Defines an actuated joint information */
+struct Joint {
+	Joint(unsigned int _id,
+		  std::string _name) : id(_id), name(_name) {}
+	unsigned int id;
+	std::string name;
 };
 
 /** @brief Defines a floating-base system */
 struct FloatingBaseSystem {
-	FloatingBaseSystem(bool full_floating_base = false,
-					   unsigned int _num_joints = 0) : AX(full_floating_base), AY(full_floating_base),
-			AZ(full_floating_base), LX(full_floating_base), LY(full_floating_base), LZ(full_floating_base),
-			num_joints(_num_joints), type_of_system(rbd::FixedBase) {}
-	bool isFullyFree() {
-		if (!AX.active && !AY.active && !AZ.active && !LX.active && !LY.active && !LZ.active)
-			return true;
+	FloatingBaseSystem(bool full = false, unsigned int _num_joints = 0) : num_system_joints(0),
+			num_floating_joints(6 * full), num_joints(_num_joints),
+			AX(full), AY(full), AZ(full), LX(full), LY(full), LZ(full),
+			AX_constraint(false), AY_constraint(false), AZ_constraint(false),
+			LX_constraint(false), LY_constraint(false), LZ_constraint(false),
+			type_of_system(rbd::FixedBase) {}
+
+	/** @brief Resets the system information from URDF description */
+	void reset(std::string urdf_model)
+	{
+		// Getting information about the floating-base joints
+		urdf_model::JointID floating_joint_names;
+		urdf_model::getJointNames(floating_joint_names, urdf_model, urdf_model::floating);
+		num_floating_joints = floating_joint_names.size();
+
+		if (num_floating_joints > 0) {
+			urdf_model::JointID floating_joint_motions;
+			urdf_model::getFloatingBaseJointMotion(floating_joint_motions, urdf_model);
+			for (urdf_model::JointID::iterator jnt_it = floating_joint_motions.begin();
+					jnt_it != floating_joint_motions.end(); jnt_it++) {
+				std::string joint_name = jnt_it->first;
+				unsigned int joint_motion = jnt_it->second;
+				unsigned int joint_id = floating_joint_names.find(joint_name)->second;
+
+				// Setting the floating joint information
+				rbd::FloatingBaseJoint joint(true, joint_id, joint_name);
+				setFloatingBaseJoint(joint, joint_motion);
+			}
+		}
+
+		// Getting the information about the actuated joints
+		urdf_model::JointID free_joint_names;
+		urdf_model::getJointNames(free_joint_names, urdf_model, urdf_model::free);
+		unsigned int num_free_joints = free_joint_names.size();
+		num_joints = num_free_joints - num_floating_joints;
+		for (urdf_model::JointID::iterator jnt_it = free_joint_names.begin();
+				jnt_it != free_joint_names.end(); jnt_it++) {
+			std::string joint_name = jnt_it->first;
+			unsigned int joint_id = jnt_it->second;
+
+			// Setting the actuated joint information
+			Joint joint(joint_id, joint_name);
+			setJoint(joint);
+		}
+
+		// Getting the floating-base system information
+		num_system_joints = num_floating_joints + num_joints;
+		if (isFullyFloatingBase()) {
+			if (hasFloatingBaseConstraints())
+				type_of_system = ConstrainedFloatingBase;
+			else
+				type_of_system = FloatingBase;
+		} else if (num_floating_joints > 0)
+			type_of_system = VirtualFloatingBase;
 		else
-			return false;
+			type_of_system = FixedBase;
 	}
-	void setJointDOF(unsigned int _num_joints) {
-		num_joints = _num_joints;
+
+	/** @brief Sets the floating-base joint information */
+	void setFloatingBaseJoint(const FloatingBaseJoint& joint, unsigned int joint_id)
+	{
+		if (joint_id == urdf_model::AX)
+			AX = joint;
+		else if (joint_id == urdf_model::AY)
+			AY = joint;
+		else if (joint_id == urdf_model::AZ)
+			AZ = joint;
+		else if (joint_id == urdf_model::LX)
+			LX = joint;
+		else if (joint_id == urdf_model::LY)
+			LY = joint;
+		else if (joint_id == urdf_model::LZ)
+			LZ = joint;
+		else if (joint_id == urdf_model::FULL) {
+			AX = joint;
+			AY = joint;
+			AZ = joint;
+			LX = joint;
+			LY = joint;
+			LZ = joint;
+		} else {
+			printf(RED "FATAL: the floating-joint id (%i) is not consistent with the standard\n"
+					COLOR_RESET, joint_id);
+			exit(EXIT_FAILURE);
+		}
 	}
-	void setTypeOfDynamicSystem(enum TypeOfSystem _type_of_system) {
+
+	/** @brief Sets the actuated joint information */
+	void setJoint(const Joint& joint)
+	{
+		joints.push_back(joint);
+	}
+
+	/** @brief Sets the floating-base constraint information */
+	void setFloatingBaseConstraint(unsigned int joint_id)
+	{
+		if (joint_id == urdf_model::AX)
+			AX_constraint = true;
+		else if (joint_id == urdf_model::AY)
+			AY_constraint = true;
+		else if (joint_id == urdf_model::AZ)
+			AZ_constraint = true;
+		else if (joint_id == urdf_model::LX)
+			LX_constraint = true;
+		else if (joint_id == urdf_model::LY)
+			LY_constraint = true;
+		else if (joint_id == urdf_model::LZ)
+			LZ_constraint = true;
+		else if (joint_id == urdf_model::FULL) {
+			AX_constraint = true;
+			AY_constraint = true;
+			AZ_constraint = true;
+			LX_constraint = true;
+			LY_constraint = true;
+			LZ_constraint = true;
+			printf(YELLOW "WARNING: it is fully constrained floating-base system\n" COLOR_RESET);
+		} else {
+			printf(RED "FATAL: the floating-joint id (%i) is not consistent with the standard\n"
+					COLOR_RESET, joint_id);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	/** @brief Sets the type of floating-base system */
+	void setTypeOfDynamicSystem(enum TypeOfSystem _type_of_system)
+	{
 		type_of_system = _type_of_system;
 	}
-	unsigned int getSystemDOF() {
-		return getFloatingBaseDOF() + getJointDOF();
+
+	/** @brief Sets the actuated joint DoF */
+	void setJointDoF(unsigned int _num_joints)
+	{
+		num_joints = _num_joints;
 	}
-	unsigned int getFloatingBaseDOF() {
-		return AX.active + AY.active + AZ.active + LX.active + LY.active + LZ.active;
+
+	/** @brief Gets the floating-base system DoF */
+	const unsigned int& getSystemDoF()
+	{
+		return num_system_joints;
 	}
-	unsigned int getJointDOF() {
+
+	/** @brief Gets the floating-base DoF */
+	const unsigned int& getFloatingBaseDoF()
+	{
+		return num_floating_joints;
+	}
+
+	/** @brief Gets the actuated joint DoF */
+	const unsigned int& getJointDoF()
+	{
 		return num_joints;
 	}
-	unsigned int getFloatingBaseJoint(unsigned int id) {
+
+	/** @brief Gets the floating-base joint id */
+	const unsigned int& getFloatingBaseJointID(Coords6d joint)
+	{
+		if (joint == rbd::AX)
+			return AX.id;
+		else if (joint == rbd::AY)
+			return AY.id;
+		else if (joint == rbd::AZ)
+			return AZ.id;
+		else if (joint == rbd::LX)
+			return LX.id;
+		else if (joint == rbd::LY)
+			return LY.id;
+		else
+			return LZ.id;
+	}
+
+	/** @brief Gets the floating-base joint given an Id */
+	unsigned int getFloatingBaseJoint(unsigned int id)
+	{
 		if (AX.active && AX.id == id)
 			return rbd::AX;
 		else if (AY.active && AY.id == id)
@@ -102,44 +262,72 @@ struct FloatingBaseSystem {
 			return 0;
 		}
 	}
-	enum TypeOfSystem getTypeOfDynamicSystem() {
+
+	/** @brief Gets the type of floating-base system */
+	enum TypeOfSystem getTypeOfDynamicSystem()
+	{
 		return type_of_system;
 	}
 
+	bool isFullyFloatingBase()
+	{
+		if (AX.active && AY.active && AZ.active && LX.active && LY.active && LZ.active)
+			return true;
+		else
+			return false;
+	}
+
+
+	bool isVirtualFloatingBaseRobot()
+	{
+		if (type_of_system == VirtualFloatingBase)
+			return true;
+		else
+			return false;
+	}
+
+	bool isConstrainedFloatingBaseRobot()
+	{
+		if (type_of_system == ConstrainedFloatingBase)
+			return true;
+		else
+			return false;
+	}
+
+	bool hasFloatingBaseConstraints()
+	{
+		if (AX_constraint || AY_constraint || AZ_constraint ||
+				LX_constraint || LY_constraint || LZ_constraint)
+			return true;
+		else
+			return false;
+	}
+
+	/** @brief Number of DoFs */
+	unsigned int num_system_joints;
+	unsigned int num_floating_joints;
+	unsigned int num_joints;
+
+	/** @brief System joints */
 	FloatingBaseJoint AX;
 	FloatingBaseJoint AY;
 	FloatingBaseJoint AZ;
 	FloatingBaseJoint LX;
 	FloatingBaseJoint LY;
 	FloatingBaseJoint LZ;
-	unsigned int num_joints;
+	std::vector<Joint> joints;
+
+	/** @brief Floating-base constraints */
+	bool AX_constraint;
+	bool AY_constraint;
+	bool AZ_constraint;
+	bool LX_constraint;
+	bool LY_constraint;
+	bool LZ_constraint;
+
+	/** @brief Type of system */
 	enum TypeOfSystem type_of_system;
 };
-
-/** @brief Returns true if it's a floating-base robot */
-bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model);
-
-/** @brief Returns true if it's a constrained floating-base robot */
-bool isConstrainedFloatingBaseRobot(struct FloatingBaseSystem* system);
-
-/** @brief Returns true if it's a virtual floating-base robot */
-bool isVirtualFloatingBaseRobot(struct FloatingBaseSystem* system);
-
-/** @brief Returns the number of dof of the floating base */
-unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
-								struct FloatingBaseSystem* system = NULL);
-
-/**
- * @brief Gets the type of rigid body dynamic system, i.e fixed-base, floating-base, constrained
- * floating-base or virtual floating-base
- * @param TypeOfSystem Type of rigid body dynamic system
- * @param const RigidBodyDynamics::Model& Model of the rigid-body system
- * @param struct FloatingBaseSystem* Defines the general properties of a floating-base
- * system
- */
-void getTypeOfDynamicSystem(TypeOfSystem& type_of_system,
-							const RigidBodyDynamics::Model& model,
-							struct FloatingBaseSystem* system = NULL);
 
 /**
  * @brief Gets list of bodies (movable and fixed) of the rigid-body system
@@ -156,26 +344,26 @@ void printModelInfo(const RigidBodyDynamics::Model& model);
  * @brief Converts the base and joint states to a generalized joint state
  * @param const Vector6d& Base state
  * @param const Eigen::VectorXd& Joint state
- * @param struct FloatingBaseSystem* Defines the general properties of a floating-base
+ * @param struct FloatingBaseSystem& Defines the general properties of a floating-base
  * system
  * @return Eigen::VectorXd Generalized joint state
  */
 Eigen::VectorXd toGeneralizedJointState(const Vector6d& base_state,
 										const Eigen::VectorXd& joint_state,
-										struct FloatingBaseSystem* system = NULL);
+										struct FloatingBaseSystem& system);
 
 /**
  * @brief Converts the generalized joint state to base and joint states
  * @param Vector6d& Base state
  * @param Eigen::VectorXd& Joint state
  * @param const Eigen::VectorXd Generalized joint state
- * @param struct FloatingBaseSystem* Defines the general properties of a floating-base
+ * @param struct FloatingBaseSystem& Defines the general properties of a floating-base
  * system
  */
 void fromGeneralizedJointState(Vector6d& base_state,
 							   Eigen::VectorXd& joint_state,
 							   const Eigen::VectorXd& generalized_state,
-							   struct FloatingBaseSystem* system = NULL);
+							   struct FloatingBaseSystem& system);
 
 /**
  * @brief Sets the joint state given a branch values
@@ -183,14 +371,14 @@ void fromGeneralizedJointState(Vector6d& base_state,
  * @param cons Eigen::VectorXd& Branch state
  * @param unsigned int Body id
  * @param RigidBodyDynamics::Model& Rigid-body dynamic model
- * @param FloatingBaseSystem* Defines the general properties of a floating-base
+ * @param struct FloatingBaseSystem& Defines the general properties of a floating-base
  * system
  */
 void setBranchState(Eigen::VectorXd& new_joint_state,
 					const Eigen::VectorXd& branch_state,
 					unsigned int body_id,
 					RigidBodyDynamics::Model& model,
-					struct FloatingBaseSystem* system = NULL);
+					struct FloatingBaseSystem& system);
 
 /**
  * @brief Gets the branch values given a joint state
@@ -198,13 +386,13 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
  * @param cons Eigen::VectorXd& Branch state
  * @param unsigned int Body id
  * @param RigidBodyDynamics::Model& Rigid-body dynamic model
- * @param FloatingBaseSystem* Defines the general properties of a floating-base
+ * @param struct FloatingBaseSystem& Defines the general properties of a floating-base
  * system
  */
 Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
 							   unsigned int body_id,
 							   RigidBodyDynamics::Model& model,
-							   struct FloatingBaseSystem* system = NULL);
+							   struct FloatingBaseSystem& system);
 
 /**
  * @brief Converts an applied velocity acting at a certain point to spatial velocity

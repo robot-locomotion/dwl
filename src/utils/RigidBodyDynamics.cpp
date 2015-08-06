@@ -31,65 +31,6 @@ RotationPart rotationMatrix(Eigen::MatrixBase<Eigen::Matrix4d>& hom_transform)
 }
 
 
-bool isFloatingBaseRobot(const RigidBodyDynamics::Model& model)
-{
-	bool is_floating_base = false;
-	int i = 1;
-	while (model.mBodies[i].mIsVirtual) {
-		i = model.mu[i][0];
-		if (i == 6)
-			is_floating_base = true;
-	}
-
-	return is_floating_base;
-}
-
-
-bool isConstrainedFloatingBaseRobot(struct FloatingBaseSystem* system)
-{
-	if (system != NULL && !system->isFullyFree())
-		return true;
-	else
-		return false;
-}
-
-
-bool isVirtualFloatingBaseRobot(struct FloatingBaseSystem* system)
-{
-	if ((system != NULL) && (system->getFloatingBaseDOF() != 0))
-		return true;
-	else
-		return false;
-}
-
-
-unsigned int getFloatingBaseDOF(const RigidBodyDynamics::Model& model,
-								struct FloatingBaseSystem* system)
-{
-	unsigned int floating_base_dof = 0;
-	if (isFloatingBaseRobot(model))
-		floating_base_dof = 6;
-	else if (isVirtualFloatingBaseRobot(system))
-		floating_base_dof = system->getFloatingBaseDOF();
-
-	return floating_base_dof;
-}
-
-
-void getTypeOfDynamicSystem(TypeOfSystem& type_of_system,
-							const RigidBodyDynamics::Model& model,
-							struct FloatingBaseSystem* system)
-{
-	if (isFloatingBaseRobot(model)) {
-		if (isConstrainedFloatingBaseRobot(system))
-			type_of_system = ConstrainedFloatingBase;
-		else
-			type_of_system = FloatingBase;
-	} else if (isVirtualFloatingBaseRobot(system))
-		type_of_system = VirtualFloatingBase;
-}
-
-
 void getListOfBodies(BodyID& list_body_id,
 					 const RigidBodyDynamics::Model& model)
 {
@@ -126,41 +67,40 @@ void printModelInfo(const RigidBodyDynamics::Model& model)
 
 Eigen::VectorXd toGeneralizedJointState(const Vector6d& base_state,
 										const Eigen::VectorXd& joint_state,
-										struct FloatingBaseSystem* system)
+										struct FloatingBaseSystem& system)
 {
 	// Getting the number of joints
-	unsigned int num_joints = system->getJointDOF();
-	assert(joint_state.size() == num_joints);
+	assert(joint_state.size() == system.getJointDoF());
 
 	// Note that RBDL defines the floating base state as [linear states, angular states]
 	Eigen::VectorXd q;
-	enum TypeOfSystem type_of_system = system->getTypeOfDynamicSystem();
-	if (type_of_system == FloatingBase || type_of_system == ConstrainedFloatingBase) {
-		q.resize(6 + num_joints);
+	if (system.getTypeOfDynamicSystem() == FloatingBase ||
+			system.getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
+		q.resize(6 + system.getJointDoF());
 
 		Vector6d _base_state = base_state;
 		q << linearPart(_base_state), angularPart(_base_state), joint_state;
-	} else if (type_of_system == VirtualFloatingBase) {
-		unsigned int base_dof = system->getFloatingBaseDOF();
-		q.resize(base_dof + num_joints);
+	} else if (system.getTypeOfDynamicSystem() == VirtualFloatingBase) {
+		unsigned int base_dof = system.getFloatingBaseDoF();
+		q.resize(base_dof + system.getJointDoF());
 
 		Eigen::VectorXd virtual_base(base_dof);
-		if (system->AX.active)
-			virtual_base(system->AX.id) = base_state(AX);
-		if (system->AY.active)
-			virtual_base(system->AY.id) = base_state(AY);
-		if (system->AZ.active)
-			virtual_base(system->AZ.id) = base_state(AZ);
-		if (system->LX.active)
-			virtual_base(system->LX.id) = base_state(LX);
-		if (system->LY.active)
-			virtual_base(system->LY.id) = base_state(LY);
-		if (system->LZ.active)
-			virtual_base(system->LZ.id) = base_state(LZ);
+		if (system.AX.active)
+			virtual_base(system.AX.id) = base_state(AX);
+		if (system.AY.active)
+			virtual_base(system.AY.id) = base_state(AY);
+		if (system.AZ.active)
+			virtual_base(system.AZ.id) = base_state(AZ);
+		if (system.LX.active)
+			virtual_base(system.LX.id) = base_state(LX);
+		if (system.LY.active)
+			virtual_base(system.LY.id) = base_state(LY);
+		if (system.LZ.active)
+			virtual_base(system.LZ.id) = base_state(LZ);
 
 		q << virtual_base, joint_state;
 	} else {
-		q.resize(num_joints);
+		q.resize(system.getJointDoF());
 		q = joint_state;
 	}
 
@@ -171,32 +111,31 @@ Eigen::VectorXd toGeneralizedJointState(const Vector6d& base_state,
 void fromGeneralizedJointState(Vector6d& base_state,
 							   Eigen::VectorXd& joint_state,
 							   const Eigen::VectorXd& generalized_state,
-							   struct FloatingBaseSystem* system)
+							   struct FloatingBaseSystem& system)
 {
-	// Getting the number of joints
-	unsigned int num_joints = system->getJointDOF();
-	joint_state.resize(num_joints);
+	// Resizing the joint state
+	joint_state.resize(system.getJointDoF());
 
 	// Note that RBDL defines the floating base state as [linear states, angular states]
-	enum TypeOfSystem type_of_system = system->getTypeOfDynamicSystem();
-	if (type_of_system == FloatingBase || type_of_system == ConstrainedFloatingBase) {
+	if (system.getTypeOfDynamicSystem() == FloatingBase ||
+			system.getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
 		base_state << generalized_state.segment<3>(rbd::LX), generalized_state.segment<3>(rbd::AX);
-		joint_state = generalized_state.segment(6, num_joints);
-	} else if (type_of_system == VirtualFloatingBase) {
-		if (system->AX.active)
-			base_state(AX) = generalized_state(system->AX.id);
-		if (system->AY.active)
-			base_state(AY) = generalized_state(system->AY.id);
-		if (system->AZ.active)
-			base_state(AZ) = generalized_state(system->AZ.id);
-		if (system->LX.active)
-			base_state(LX) = generalized_state(system->LX.id);
-		if (system->LY.active)
-			base_state(LY) = generalized_state(system->LY.id);
-		if (system->LZ.active)
-			base_state(LZ) = generalized_state(system->LZ.id);
+		joint_state = generalized_state.segment(6, system.getJointDoF());
+	} else if (system.getTypeOfDynamicSystem() == VirtualFloatingBase) {
+		if (system.AX.active)
+			base_state(AX) = generalized_state(system.AX.id);
+		if (system.AY.active)
+			base_state(AY) = generalized_state(system.AY.id);
+		if (system.AZ.active)
+			base_state(AZ) = generalized_state(system.AZ.id);
+		if (system.LX.active)
+			base_state(LX) = generalized_state(system.LX.id);
+		if (system.LY.active)
+			base_state(LY) = generalized_state(system.LY.id);
+		if (system.LZ.active)
+			base_state(LZ) = generalized_state(system.LZ.id);
 
-		joint_state = generalized_state.segment(system->getFloatingBaseDOF(), num_joints);
+		joint_state = generalized_state.segment(system.getFloatingBaseDoF(), system.getJointDoF());
 	} else {
 		base_state = Vector6d::Zero();
 		joint_state = generalized_state;
@@ -208,20 +147,20 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 					const Eigen::VectorXd& branch_state,
 					unsigned int body_id,
 					RigidBodyDynamics::Model& model,
-					struct FloatingBaseSystem* system)
+					struct FloatingBaseSystem& system)
 {
 	// Getting the base id
 	unsigned int base_id = 0;
-	if (rbd::isFloatingBaseRobot(model) || rbd::isVirtualFloatingBaseRobot(system))
-		base_id = getFloatingBaseDOF(model, system);;
+	if (system.isFullyFloatingBase() || system.isVirtualFloatingBaseRobot())
+		base_id = system.getFloatingBaseDoF();
 
 	// Setting the state values of a specific branch to the joint state
 	unsigned int parent_id = body_id;
 	if (model.IsFixedBodyId(body_id))
 		parent_id = model.mFixedBodies[body_id - model.fixed_body_discriminator].mMovableParent;
 
-	// Adding the branch state to the joint state. Two safety checking are done; checking that this branch has at least
-	// one joint, and checking the size of the new branch state
+	// Adding the branch state to the joint state. Two safety checking are done; checking that this
+	// branch has at least one joint, and checking the size of the new branch state
 	if (parent_id != base_id) {
 		unsigned int q_index, num_dof = 0;
 		do {
@@ -239,14 +178,14 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
 							   unsigned int body_id,
 							   RigidBodyDynamics::Model& model,
-							   struct FloatingBaseSystem* system)
+							   struct FloatingBaseSystem& system)
 {
 	unsigned int q_index, num_dof = 0;
 
 	// Getting the base id
 	unsigned int base_id = 0;
-	if (rbd::isFloatingBaseRobot(model) || rbd::isVirtualFloatingBaseRobot(system))
-		base_id = getFloatingBaseDOF(model, system);
+	if (system.isFullyFloatingBase() || system.isVirtualFloatingBaseRobot())
+		base_id = system.getFloatingBaseDoF();
 
 	// Setting the state values of a specific branch to the joint state
 	unsigned int parent_id = body_id;
@@ -254,8 +193,8 @@ Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
 		parent_id = model.mFixedBodies[body_id - model.fixed_body_discriminator].mMovableParent;
 	}
 
-	// Adding the branch state to the joint state. Two safety checking are done; checking that this branch has at least
-	// one joint, and checking the size of the new branch state
+	// Adding the branch state to the joint state. Two safety checking are done; checking that this
+	// branch has at least one joint, and checking the size of the new branch state
 	if (parent_id != base_id) {
 		do {
 			q_index = model.mJoints[parent_id].q_index - 1;
@@ -331,9 +270,9 @@ void computePointJacobian(RigidBodyDynamics::Model& model,
 		unsigned int q_index = model.mJoints[j].q_index;
 
 		if (model.mJoints[j].mDoFCount == 3) {
-			G.block(0, q_index, 6, 3) = ((point_trans * model.X_base[j].inverse()).toMatrix() * model.multdof3_S[j]);
+			G.block(0,q_index,6,3) = ((point_trans * model.X_base[j].inverse()).toMatrix() * model.multdof3_S[j]);
 		} else {
-			G.block(0,q_index, 6, 1) = point_trans.apply(model.X_base[j].inverse().apply(model.S[j]));
+			G.block(0,q_index,6,1) = point_trans.apply(model.X_base[j].inverse().apply(model.S[j]));
 		}
 
 		j = model.lambda[j];
@@ -439,7 +378,16 @@ void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
 	using namespace RigidBodyDynamics;
 	using namespace RigidBodyDynamics::Math;
 
-	if (isFloatingBaseRobot(model)) {
+	// Checking if it's a floating-base robot
+	bool is_floating_base = false;
+	int i = 1;
+	while (model.mBodies[i].mIsVirtual) {
+		i = model.mu[i][0];
+		if (i == 6)
+			is_floating_base = true;
+	}
+
+	if (is_floating_base) {
 		LOG << "-------- " << __func__ << " --------" << std::endl;
 
 		// First pass

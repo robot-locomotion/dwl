@@ -70,15 +70,15 @@ int main(int argc, char **argv)
 	dwl::model::DynamicalSystem* dynamical_system = constrained_system;
 //		new dwl::model::FullDynamicalSystem();
 //		new dwl::model::HS071DynamicalSystem();
-	dynamical_system->modelFromURDFFile(model_file, &system, true);
+	dynamical_system->modelFromURDFFile(model_file, true);
 
 	opt_model.addDynamicalSystem(dynamical_system);
 
 	// Converting locomotion state to generalized coordinates
 	Eigen::VectorXd q(3), qd(3), qdd(3), tau(2);
-	q = dwl::rbd::toGeneralizedJointState(base_pos, joint_pos, &system);
-	qd = dwl::rbd::toGeneralizedJointState(base_vel, joint_vel, &system);
-	qdd = dwl::rbd::toGeneralizedJointState(base_acc, joint_acc, &system);
+	q = dwl::rbd::toGeneralizedJointState(base_pos, joint_pos, system);
+	qd = dwl::rbd::toGeneralizedJointState(base_vel, joint_vel, system);
+	qdd = dwl::rbd::toGeneralizedJointState(base_acc, joint_acc, system);
 	tau = Eigen::VectorXd::Zero(2);
 
 

@@ -35,9 +35,9 @@ int main(int argc, char **argv)
 	system.LZ.id = 0;
 
 	dwl::model::WholeBodyKinematics kin;
-	kin.modelFromURDFFile(model_file, &system, true);
+	kin.modelFromURDFFile(model_file, true);
 	dwl::model::WholeBodyDynamics dyn;
-	dyn.modelFromURDFFile(model_file, &system);
+	dyn.modelFromURDFFile(model_file);
 
 
 

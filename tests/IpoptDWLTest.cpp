@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 
 
 	dwl::rbd::FloatingBaseSystem system;
-	system.setJointDOF(4);
+	system.setJointDoF(4);
 	system.setTypeOfDynamicSystem(dwl::rbd::FixedBase);
 	dynamical_system->setFloatingBaseSystem(&system);
 

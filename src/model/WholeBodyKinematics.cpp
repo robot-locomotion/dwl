@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-WholeBodyKinematics::WholeBodyKinematics() : system_(NULL)
+WholeBodyKinematics::WholeBodyKinematics()
 {
 
 }
@@ -20,7 +20,6 @@ WholeBodyKinematics::~WholeBodyKinematics()
 
 
 void WholeBodyKinematics::modelFromURDFFile(std::string filename,
-											struct rbd::FloatingBaseSystem* system,
 											bool info)
 {
 	// Reading the file
@@ -39,26 +38,18 @@ void WholeBodyKinematics::modelFromURDFFile(std::string filename,
 			std::istreambuf_iterator<char>());
 	model_file.close();
 
-	modelFromURDFModel(model_xml_string, system, info);
+	modelFromURDFModel(model_xml_string, info);
 }
 
 
 void WholeBodyKinematics::modelFromURDFModel(std::string urdf_model,
-											 struct rbd::FloatingBaseSystem* system,
 											 bool info)
 {
+	// Reseting the floating-base system information given an URDF model
+	system_.reset(urdf_model);
+
+	// Getting the RBDL model from URDF model
 	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &robot_model_, false);
-
-	system_ = system;
-
-	// Setting the number of joints
-	unsigned int num_joints = robot_model_.dof_count - system_->getFloatingBaseDOF();
-	system_->setJointDOF(num_joints);
-
-	// Getting and setting the type of dynamic system
-	enum rbd::TypeOfSystem type_of_system;
-	rbd::getTypeOfDynamicSystem(type_of_system, robot_model_, system_);
-	system_->setTypeOfDynamicSystem(type_of_system);
 
 	// Getting the list of movable and fixed bodies
 	rbd::getListOfBodies(body_id_, robot_model_);
@@ -231,7 +222,7 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 	// Computing the number of active end-effectors
 	int num_body_set = getNumberOfActiveEndEffectors(body_set);
 
-	jacobian.resize(num_vars * num_body_set, robot_model_.dof_count);
+	jacobian.resize(num_vars * num_body_set, system_.getSystemDoF());
 	jacobian.setZero();
 
 	// Adding the jacobian only for the active end-effectors
@@ -248,20 +239,20 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 
 			Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, system_);
 
-			Eigen::MatrixXd jac(Eigen::MatrixXd::Zero(6, robot_model_.dof_count));
-			rbd::computePointJacobian(robot_model_, q, body_id, Eigen::VectorXd::Zero(robot_model_.dof_count), jac, true);
+			Eigen::MatrixXd jac(Eigen::MatrixXd::Zero(6, system_.getSystemDoF()));
+			rbd::computePointJacobian(robot_model_, q, body_id, Eigen::VectorXd::Zero(system_.getSystemDoF()), jac, true);
 
 			switch(component) {
 			case rbd::Linear:
-				jacobian.block(init_row, 0, num_vars, robot_model_.dof_count) =
-						jac.block(3, 0, 6, robot_model_.dof_count);
+				jacobian.block(init_row, 0, num_vars, system_.getSystemDoF()) =
+						jac.block(3, 0, 6, system_.getSystemDoF());
 				break;
 			case rbd::Angular:
-				jacobian.block(init_row, 0, num_vars, robot_model_.dof_count) =
-						jac.block(0, 0, 3, robot_model_.dof_count);
+				jacobian.block(init_row, 0, num_vars, system_.getSystemDoF()) =
+						jac.block(0, 0, 3, system_.getSystemDoF());
 				break;
 			case rbd::Full:
-				jacobian.block(init_row, 0, num_vars, robot_model_.dof_count) = jac;
+				jacobian.block(init_row, 0, num_vars, system_.getSystemDoF()) = jac;
 				break;
 			}
 			++body_counter;
@@ -273,25 +264,24 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 												  const Eigen::MatrixXd& full_jacobian)
 {
-	enum rbd::TypeOfSystem type_of_system = system_->getTypeOfDynamicSystem();
-	if (type_of_system == rbd::FloatingBase || type_of_system == rbd::ConstrainedFloatingBase)
+	if (system_.getTypeOfDynamicSystem() == rbd::FloatingBase ||
+			system_.getTypeOfDynamicSystem() == rbd::ConstrainedFloatingBase)
 		jacobian = full_jacobian.leftCols<6>();
-	else if (type_of_system == rbd::VirtualFloatingBase) {
-		unsigned int num_virtual_jnts = system_->getFloatingBaseDOF();
-		jacobian = Eigen::MatrixXd::Zero(full_jacobian.rows(), num_virtual_jnts);
+	else if (system_.getTypeOfDynamicSystem() == rbd::VirtualFloatingBase) {
+		jacobian = Eigen::MatrixXd::Zero(full_jacobian.rows(), system_.getFloatingBaseDoF());
 
-		if (system_->AX.active)
-			jacobian.col(system_->AX.id) = full_jacobian.col(system_->AX.id);
-		if (system_->AY.active)
-			jacobian.col(system_->AY.id) = full_jacobian.col(system_->AY.id);
-		if (system_->AZ.active)
-			jacobian.col(system_->AZ.id) = full_jacobian.col(system_->AZ.id);
-		if (system_->LX.active)
-			jacobian.col(system_->LX.id) = full_jacobian.col(system_->LX.id);
-		if (system_->LY.active)
-			jacobian.col(system_->LY.id) = full_jacobian.col(system_->LY.id);
-		if (system_->LZ.active)
-			jacobian.col(system_->LZ.id) = full_jacobian.col(system_->LZ.id);
+		if (system_.AX.active)
+			jacobian.col(system_.AX.id) = full_jacobian.col(system_.AX.id);
+		if (system_.AY.active)
+			jacobian.col(system_.AY.id) = full_jacobian.col(system_.AY.id);
+		if (system_.AZ.active)
+			jacobian.col(system_.AZ.id) = full_jacobian.col(system_.AZ.id);
+		if (system_.LX.active)
+			jacobian.col(system_.LX.id) = full_jacobian.col(system_.LX.id);
+		if (system_.LY.active)
+			jacobian.col(system_.LY.id) = full_jacobian.col(system_.LY.id);
+		if (system_.LZ.active)
+			jacobian.col(system_.LZ.id) = full_jacobian.col(system_.LZ.id);
 	} else {
 		printf(YELLOW "Warning: this is a fixed-base robot\n" COLOR_RESET);
 		jacobian = Eigen::MatrixXd::Zero(0,0);
@@ -302,11 +292,11 @@ void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 void WholeBodyKinematics::getFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 											   const Eigen::MatrixXd& full_jacobian)
 {
-	enum rbd::TypeOfSystem type_of_system = system_->getTypeOfDynamicSystem();
-	if (type_of_system == rbd::FloatingBase || type_of_system == rbd::ConstrainedFloatingBase)
-		jacobian = full_jacobian.rightCols(system_->getJointDOF());
-	else if (type_of_system == rbd::VirtualFloatingBase)
-		jacobian = full_jacobian.rightCols(system_->getJointDOF());
+	if (system_.getTypeOfDynamicSystem() == rbd::FloatingBase ||
+			system_.getTypeOfDynamicSystem() == rbd::ConstrainedFloatingBase)
+		jacobian = full_jacobian.rightCols(system_.getJointDoF());
+	else if (system_.getTypeOfDynamicSystem() == rbd::VirtualFloatingBase)
+		jacobian = full_jacobian.rightCols(system_.getJointDoF());
 	else
 		jacobian = full_jacobian;
 }
@@ -437,13 +427,10 @@ void WholeBodyKinematics::computeJdotQdot(rbd::BodyVector& jacd_qd,
 										  const rbd::BodySelector& body_set,
 										  enum rbd::Component component)
 {
-	// Getting the floating-base dof
-	unsigned int num_joints = system_->getJointDOF();
-
 	rbd::BodyVector op_vel, op_acc;
 	computeAcceleration(op_acc, base_pos, joint_pos,
 						base_vel, joint_vel,
-						rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(num_joints),
+						rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(system_.getJointDoF()),
 						body_set, component);
 
 	// Resizing the acceleration contribution vector

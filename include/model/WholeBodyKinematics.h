@@ -27,23 +27,17 @@ class WholeBodyKinematics
 		/**
 		 * @brief Build the model rigid-body system from an URDF file
 		 * @param std::string URDF filename
-		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
-		 * system
 		 * @param Print model information
 		 */
 		void modelFromURDFFile(std::string filename,
-							   struct rbd::FloatingBaseSystem* system = NULL,
 							   bool info = false);
 
 		/**
 		 * @brief Build the model rigid-body system from an URDF model (xml)
 		 * @param std::string URDF model
-		 * @param struct rbd::FloatingBaseSystem* Defines the general properties of a floating-base
-		 * system
 		 * @param Print model information
 		 */
 		void modelFromURDFModel(std::string urdf_model,
-								struct rbd::FloatingBaseSystem* system = NULL,
 								bool info = false);
 
 		/**
@@ -202,7 +196,7 @@ class WholeBodyKinematics
 		rbd::BodyID body_id_;
 
 		/** @brief A floating-base system definition */
-		rbd::FloatingBaseSystem* system_;
+		rbd::FloatingBaseSystem system_;
 };
 
 } //@namespace model
