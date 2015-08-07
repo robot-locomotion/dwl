@@ -37,8 +37,7 @@ OptimizationModel::~OptimizationModel()
 void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
 {
 	// Getting the initial locomotion state
-	LocomotionState starting_locomotion_state;
-	dynamical_system_->getStartingState(starting_locomotion_state);
+	LocomotionState starting_locomotion_state =	dynamical_system_->getStartingState();
 
 	// Getting the initial state vector
 	Eigen::VectorXd starting_state;
@@ -125,8 +124,7 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 	}
 
 	// Getting the initial conditions of the locomotion state
-	LocomotionState locomotion_initial_cond;
-	dynamical_system_->getInitialState(locomotion_initial_cond);
+	LocomotionState locomotion_initial_cond = dynamical_system_->getInitialState();
 
 	// Setting the initial state
 	unsigned int num_constraints = constraints_.size();
@@ -317,8 +315,8 @@ void OptimizationModel::removeConstraint(std::string constraint_name)
 			}
 		}
 	} else {
-		printf(YELLOW "Could not removed the %s constraint because has not been added an constraint\n" COLOR_RESET,
-				constraint_name.c_str());
+		printf(YELLOW "Could not removed the %s constraint because has not been added an "
+				"constraint\n" COLOR_RESET,	constraint_name.c_str());
 		return;
 	}
 }
@@ -358,8 +356,8 @@ void OptimizationModel::removeCost(std::string cost_name)
 		}
 	}
 	else
-		printf(YELLOW "Could not removed the %s cost because has not been added an cost\n" COLOR_RESET,
-				cost_name.c_str());
+		printf(YELLOW "Could not removed the %s cost because has not been added an cost\n"
+				COLOR_RESET, cost_name.c_str());
 }
 
 

@@ -182,9 +182,9 @@ void DynamicalSystem::setInitialState(const LocomotionState& initial_state)
 }
 
 
-void DynamicalSystem::getStartingState(LocomotionState& starting_state)
+const LocomotionState& DynamicalSystem::getStartingState()
 {
-	starting_state = starting_state_;
+	return starting_state_;
 }
 
 
@@ -196,9 +196,9 @@ void DynamicalSystem::getStateBounds(LocomotionState& lower_bound,
 }
 
 
-void DynamicalSystem::getInitialState(LocomotionState& initial_state)
+const LocomotionState& DynamicalSystem::getInitialState()
 {
-	initial_state = initial_state_;
+	return initial_state_;
 }
 
 

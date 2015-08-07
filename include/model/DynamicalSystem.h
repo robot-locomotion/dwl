@@ -149,17 +149,11 @@ class DynamicalSystem : public Constraint
 		void getStateBounds(LocomotionState& lower_bound,
 							LocomotionState& upper_bound);
 
-		/**
-		 * @brief Gets the initial state of the dynamical constraint
-		 * @param LocomotionState& Initial state
-		 */
-		void getInitialState(LocomotionState& initial_state);
+		/** @brief Gets the initial state of the dynamical constraint */
+		const LocomotionState& getInitialState();
 
-		/**
-		 * @brief Gets the starting state
-		 * @param LocomotionState& Starting state
-		 */
-		void getStartingState(LocomotionState& starting_state);
+		/** @brief Gets the starting state */
+		const LocomotionState& getStartingState();
 
 		/** @brief Gets the dimension of the dynamical state */
 		unsigned int getDimensionOfState();
