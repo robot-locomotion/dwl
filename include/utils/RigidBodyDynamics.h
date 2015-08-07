@@ -87,8 +87,8 @@ struct FloatingBaseSystem {
 		urdf_model::getJointNames(floating_joint_names, urdf_model, urdf_model::floating);
 		num_floating_joints = floating_joint_names.size();
 
+		urdf_model::JointID floating_joint_motions;
 		if (num_floating_joints > 0) {
-			urdf_model::JointID floating_joint_motions;
 			urdf_model::getFloatingBaseJointMotion(floating_joint_motions, urdf_model);
 			for (urdf_model::JointID::iterator jnt_it = floating_joint_motions.begin();
 					jnt_it != floating_joint_motions.end(); jnt_it++) {
@@ -112,9 +112,14 @@ struct FloatingBaseSystem {
 			std::string joint_name = jnt_it->first;
 			unsigned int joint_id = jnt_it->second;
 
-			// Setting the actuated joint information
-			Joint joint(joint_id, joint_name);
-			setJoint(joint);
+			// Checking if it's a virtual floating-base joint
+			if (num_floating_joints > 0) {
+				if (floating_joint_names.find(joint_name) == floating_joint_names.end()) {
+					// Setting the actuated joint information
+					Joint joint(joint_id, joint_name);
+					setJoint(joint);
+				}
+			}
 		}
 
 		// Getting the floating-base system information
@@ -166,7 +171,7 @@ struct FloatingBaseSystem {
 	/** @brief Sets the actuated joint information */
 	void setJoint(const Joint& joint)
 	{
-		joints.push_back(joint);
+		joints[joint.name] = joint.id;
 	}
 
 	/** @brief Sets the floating-base constraint information */
@@ -268,7 +273,7 @@ struct FloatingBaseSystem {
 	}
 
 	/** @brief Gets actuated joint information */
-	const std::vector<Joint>& getJoints()
+	const urdf_model::JointID& getJoints()
 	{
 		return joints;
 	}
@@ -337,7 +342,7 @@ struct FloatingBaseSystem {
 	FloatingBaseJoint LX;
 	FloatingBaseJoint LY;
 	FloatingBaseJoint LZ;
-	std::vector<Joint> joints;
+	urdf_model::JointID joints;
 
 	/** @brief Floating-base constraints */
 	bool AX_constraint;
