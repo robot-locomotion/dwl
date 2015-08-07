@@ -117,10 +117,10 @@ void ConstrainedWholeBodyPlanner::writeWholeBodyStateMessage(dwl_planners::Whole
 	msg.base_names.resize(system.getFloatingBaseDoF());
 	msg.base.resize(6);
 	unsigned int counter = 0;
-	for (unsigned int i = 0; i < 6; i++) {
-		if (system.getFloatingBaseJoint((dwl::rbd::Coords6d) i).active) {
-			msg.base_ids[counter] = system.getFloatingBaseJoint((dwl::rbd::Coords6d) i).id;
-			msg.base_names[counter] = system.getFloatingBaseJoint((dwl::rbd::Coords6d) i).name;
+	for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
+		if (system.getFloatingBaseJoint((dwl::rbd::Coords6d) base_idx).active) {
+			msg.base_ids[counter] = base_idx;
+			msg.base_names[counter] = system.getFloatingBaseJoint((dwl::rbd::Coords6d) base_idx).name;
 			counter++;
 		}
 	}
