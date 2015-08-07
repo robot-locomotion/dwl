@@ -129,6 +129,14 @@ struct LocomotionState
 		if (num_end_effectors != 0)
 			contacts.resize(num_end_effectors);
 	}
+
+	void setJointDoF(unsigned int num_joints) {
+		joint_pos.setZero(num_joints);
+		joint_vel.setZero(num_joints);
+		joint_acc.setZero(num_joints);
+		joint_eff.setZero(num_joints);
+	}
+
 	double time;
 	rbd::Vector6d base_pos;
 	rbd::Vector6d base_vel;

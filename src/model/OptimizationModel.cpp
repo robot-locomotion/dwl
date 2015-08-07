@@ -37,7 +37,7 @@ OptimizationModel::~OptimizationModel()
 void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
 {
 	// Getting the initial locomotion state
-	LocomotionState starting_locomotion_state =	dynamical_system_->getStartingState();
+	LocomotionState starting_locomotion_state = dynamical_system_->getStartingState();
 
 	// Getting the initial state vector
 	Eigen::VectorXd starting_state;
@@ -136,7 +136,7 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 	}
 
 	// Computing the active and inactive constraints for a predefined horizon
-	LocomotionState locomotion_state;
+	LocomotionState locomotion_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dimension_);
 	unsigned int index = 0;
 	for (unsigned int i = 0; i < horizon_; i++) {
@@ -194,7 +194,7 @@ void OptimizationModel::evaluateCosts(double& cost,
 	cost = 0;
 
 	// Computing the cost for predefined horizon
-	LocomotionState locomotion_state;
+	LocomotionState locomotion_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
 	for (unsigned int i = 0; i < horizon_; i++) {
 		// Converting the decision variable for a certain time to a robot state
 		Eigen::VectorXd decision_state = decision_var.segment(i * state_dimension_, state_dimension_);
@@ -264,10 +264,10 @@ void OptimizationModel::addDynamicalSystem(DynamicalSystem* dynamical_system)
 	dynamical_system_ = dynamical_system;
 
 	// Reading the state dimension
-	state_dimension_ = getDynamicalSystem()->getDimensionOfState();
+	state_dimension_ = dynamical_system_->getDimensionOfState();
 
 	// Updating the constraint dimension
-	constraint_dimension_ += dynamical_system->getConstraintDimension();
+	constraint_dimension_ += dynamical_system_->getConstraintDimension();
 }
 
 
