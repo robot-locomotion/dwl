@@ -227,7 +227,8 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 
 		// Setting the time information in cases where time is not a decision variable
 		if (opt_model_->getDynamicalSystem()->isFixedStepIntegration())
-			locomotion_state.time = opt_model_->getDynamicalSystem()->getFixedStepTime() * k;
+			locomotion_state.time = opt_model_->getDynamicalSystem()->getStartingState().time +
+				opt_model_->getDynamicalSystem()->getFixedStepTime() * (k + 1);
 
 		// Pushing the current state
 		locomotion_solution_.push_back(locomotion_state);
