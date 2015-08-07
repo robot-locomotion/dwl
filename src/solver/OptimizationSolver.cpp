@@ -25,7 +25,7 @@ model::OptimizationModel& OptimizationSolver::getOptimizationModel()
 }
 
 
-std::vector<LocomotionState>& OptimizationSolver::getWholeBodyTrajectory()
+const std::vector<LocomotionState>& OptimizationSolver::getWholeBodyTrajectory()
 {
 	return locomotion_trajectory_;
 }
