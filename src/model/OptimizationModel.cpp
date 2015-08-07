@@ -410,7 +410,7 @@ unsigned int OptimizationModel::getDimensionOfConstraints()
 }
 
 
-unsigned int OptimizationModel::getHorizon()
+const unsigned int& OptimizationModel::getHorizon()
 {
 	return horizon_;
 }

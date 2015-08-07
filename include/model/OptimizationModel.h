@@ -210,7 +210,7 @@ class OptimizationModel
 		unsigned int getDimensionOfConstraints();
 
 		/** @brief Gets the horizon value of the optimization problem */
-		unsigned int getHorizon();
+		const unsigned int& getHorizon();
 
 
 	protected:
