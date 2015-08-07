@@ -214,21 +214,20 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 
 	// Eigen interfacing to raw buffers
 	const Eigen::Map<const Eigen::VectorXd> solution(x, n);
-	unsigned horizon = opt_model_->getHorizon();
-	unsigned state_dim = solution.size() / horizon;
+	unsigned int state_dim = solution.size() / opt_model_->getHorizon();
 
 	// Recording the solution
 	locomotion_solution_.clear();
 	LocomotionState locomotion_state;
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
-	for (unsigned int i = 0; i < horizon; i++) {
+	for (unsigned int k = 0; k < opt_model_->getHorizon(); k++) {
 		// Converting the decision variable for a certain time to a robot state
-		decision_state = solution.segment(i * state_dim, state_dim);
+		decision_state = solution.segment(k * state_dim, state_dim);
 		opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
 
 		// Setting the time information in cases where time is not a decision variable
 		if (opt_model_->getDynamicalSystem()->isFixedStepIntegration())
-			locomotion_state.time = opt_model_->getDynamicalSystem()->getFixedStepTime() * horizon;
+			locomotion_state.time = opt_model_->getDynamicalSystem()->getFixedStepTime() * k;
 
 		// Pushing the current state
 		locomotion_solution_.push_back(locomotion_state);
