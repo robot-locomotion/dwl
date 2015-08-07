@@ -21,7 +21,7 @@ class ConstrainedWholeBodyPlanner
 {
 	public:
 		/** @brief Constructor function */
-		ConstrainedWholeBodyPlanner();
+		ConstrainedWholeBodyPlanner(ros::NodeHandle node = ros::NodeHandle("~"));
 
 		/** @brief Destructor function */
 		~ConstrainedWholeBodyPlanner();
@@ -48,6 +48,9 @@ class ConstrainedWholeBodyPlanner
 		/** @brief Ros node handle */
 		ros::NodeHandle node_;
 
+		/** @brief Privated Ros node handle */
+		ros::NodeHandle privated_node_;
+
 		/** Motion plan publisher */
 		ros::Publisher motion_plan_pub_;
 
@@ -59,8 +62,12 @@ class ConstrainedWholeBodyPlanner
 
 		/** @brief Desired whole-body state */
 		dwl::LocomotionState desired_state_;
-		dwl::LocomotionState lower_bound_;
-		dwl::LocomotionState upper_bound_;
+
+		/** @brief Interpolation time */
+		double interpolation_time_;
+
+		/** @brief Allowed computation time */
+		double computation_time_;
 
 		/** @brief Whole-body trajectory message */
 		dwl_planners::WholeBodyTrajectory robot_trajectory_msg_;
