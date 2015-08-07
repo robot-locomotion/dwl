@@ -37,6 +37,7 @@ bool IpoptNLP::init()
 	app_->Options()->SetStringValue("mu_strategy", "adaptive");
 //	app_->Options()->SetStringValue("output_file", "ipopt.out");
 	app_->Options()->SetIntegerValue("max_iter", std::numeric_limits<int>::max());
+	app_->Options()->SetIntegerValue("print_level", 5);
 
 	// Computing Hessian numerically (do not need to implement)
 	app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
