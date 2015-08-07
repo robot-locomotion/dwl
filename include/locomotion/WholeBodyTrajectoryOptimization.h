@@ -58,6 +58,12 @@ class WholeBodyTrajectoryOptimization
 		void setHorizon(unsigned int horizon);
 
 		/**
+		 * @brief Sets the initial state of the dynamical constraint
+		 * @param const LocomotionState& Initial state
+		 */
+		void setStepIntegrationTime(const double& step_time);
+
+		/**
 		 * @brief Computes a whole-body trajectory
 		 * @param const LocomotionState& Current whole-body state
 		 * @param const LocomotionState& Desired whole-body state

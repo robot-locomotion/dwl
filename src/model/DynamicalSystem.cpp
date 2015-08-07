@@ -162,6 +162,12 @@ void DynamicalSystem::setStartingState(const LocomotionState& starting_state)
 }
 
 
+void DynamicalSystem::setStepIntegrationTime(const double& step_time)
+{
+	step_time_ = step_time;
+}
+
+
 void DynamicalSystem::setStateBounds(const LocomotionState& lower_bound,
 									 const LocomotionState& upper_bound)
 {

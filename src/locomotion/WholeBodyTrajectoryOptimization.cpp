@@ -64,6 +64,12 @@ void WholeBodyTrajectoryOptimization::setHorizon(unsigned int horizon)
 }
 
 
+void WholeBodyTrajectoryOptimization::setStepIntegrationTime(const double& step_time)
+{
+	solver_->getOptimizationModel().getDynamicalSystem()->setStepIntegrationTime(step_time);
+}
+
+
 bool WholeBodyTrajectoryOptimization::compute(const LocomotionState& current_state,
 											  const LocomotionState& desired_state,
 											  double computation_time)

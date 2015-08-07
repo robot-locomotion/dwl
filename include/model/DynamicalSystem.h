@@ -136,6 +136,12 @@ class DynamicalSystem : public Constraint
 		void setStartingState(const LocomotionState& starting_state);
 
 		/**
+		 * @brief Sets the fixed-step integration time
+		 * @param const double& Fixed-step integration time
+		 */
+		void setStepIntegrationTime(const double& step_time);
+
+		/**
 		 * @brief Gets the lower and upper state bounds
 		 * @param LocomotionState& Lower state bounds
 		 * @param LocomotionState& Upper state bounds
