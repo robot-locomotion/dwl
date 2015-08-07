@@ -45,6 +45,13 @@ class ConstrainedWholeBodyPlanner
 		void writeWholeBodyStateMessage(dwl_planners::WholeBodyState& msg,
 										const dwl::LocomotionState& state);
 
+		/**
+		 * @brief Callback method when the robot state message arrives
+		 * @param const dwl_planners::WholeBodyStateConstPtr& Robot state message
+		 */
+		void robotStateCallback(const dwl_planners::WholeBodyStateConstPtr& msg);
+
+
 		/** @brief Ros node handle */
 		ros::NodeHandle node_;
 
@@ -53,6 +60,9 @@ class ConstrainedWholeBodyPlanner
 
 		/** Motion plan publisher */
 		ros::Publisher motion_plan_pub_;
+
+		/** @brief TF listener */
+		ros::Subscriber robot_state_sub_;
 
 		/** @brief Whole-body trajectory optimization */
 		dwl::locomotion::WholeBodyTrajectoryOptimization planning_;

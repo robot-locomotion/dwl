@@ -24,9 +24,10 @@ ConstrainedWholeBodyPlanner::~ConstrainedWholeBodyPlanner()
 
 void ConstrainedWholeBodyPlanner::init()
 {
-	// Declaring the whole-body trajectory publisher
+	// Setting publishers and subscribers
 	motion_plan_pub_ = node_.advertise<dwl_planners::WholeBodyTrajectory>("whole_body_trajectory", 1);
-
+	robot_state_sub_ = node_.subscribe<dwl_planners::WholeBodyState>("/robot_state", 1,
+			&ConstrainedWholeBodyPlanner::robotStateCallback, this);
 
 	// Initializing the planning optimizer
 	dwl::solver::IpoptNLP* ipopt_solver = new dwl::solver::IpoptNLP();
@@ -141,9 +142,10 @@ void ConstrainedWholeBodyPlanner::init()
 
 
 	// Joint weights
-	for (unsigned int i = 0; i < system.getJointDoF(); i++) {
-		unsigned int joint_id =  system.getJoints()[i].id - system.getFloatingBaseDoF();
-		std::string joint_name = system.getJoints()[i].name;
+	for (dwl::urdf_model::JointID::const_iterator jnt_it = system.getJoints().begin();
+			jnt_it != system.getJoints().end(); jnt_it++) {
+		unsigned int joint_idx =  jnt_it->second - system.getFloatingBaseDoF();
+		std::string joint_name = jnt_it->first;
 		double weight_value;
 
 		// Position weights
@@ -151,27 +153,27 @@ void ConstrainedWholeBodyPlanner::init()
 				weight_value))
 			ROS_WARN("The position weight of the %s joint is not defined", joint_name.c_str());
 		else
-			weights.joint_pos(joint_id) = weight_value;
+			weights.joint_pos(joint_idx) = weight_value;
 
 		// Velocity weights
 		if (!privated_node_.getParam("cost/state_tracking_energy/velocity/joints/" + joint_name,
 				weight_value))
 			ROS_WARN("The velocity weight of the %s joint is not defined", joint_name.c_str());
 		else
-			weights.joint_vel(joint_id) = weight_value;
+			weights.joint_vel(joint_idx) = weight_value;
 
 		// Acceleration weights
 		if (!privated_node_.getParam("cost/state_tracking_energy/acceleration/joints/" + joint_name,
 				weight_value))
 			ROS_WARN("The acceleration weight of the %s joint is not defined", joint_name.c_str());
 		else
-			weights.joint_acc(joint_id) = weight_value;
+			weights.joint_acc(joint_idx) = weight_value;
 
 		// Control weights
 		if (!privated_node_.getParam("cost/control_energy/" + joint_name, weight_value))
 			ROS_WARN("The control weight of the %s joint is not defined", joint_name.c_str());
 		else
-			weights.joint_eff(joint_id) = weight_value;
+			weights.joint_eff(joint_idx) = weight_value;
 	}
 
 	// Setting the cost functions
@@ -263,13 +265,42 @@ void ConstrainedWholeBodyPlanner::writeWholeBodyStateMessage(dwl_planners::Whole
 	// Filling the joint state
 	msg.joints.resize(system.getJointDoF());
 	msg.joint_names.resize(system.getJointDoF());
+	for (dwl::urdf_model::JointID::const_iterator jnt_it = system.getJoints().begin();
+			jnt_it != system.getJoints().end(); jnt_it++) {
+		unsigned int joint_idx =  jnt_it->second - system.getFloatingBaseDoF();
+		std::string joint_name = jnt_it->first;
+
+		msg.joint_names[joint_idx] = joint_name;
+		msg.joints[joint_idx].position = state.joint_pos(joint_idx);
+		msg.joints[joint_idx].velocity = state.joint_vel(joint_idx);
+		msg.joints[joint_idx].acceleration = state.joint_acc(joint_idx);
+		msg.joints[joint_idx].effort = state.joint_eff(joint_idx);
+	}
+}
+
+
+void ConstrainedWholeBodyPlanner::robotStateCallback(const dwl_planners::WholeBodyStateConstPtr& msg)
+{
+	// Getting the floating system information
+	dwl::rbd::FloatingBaseSystem system = planning_.getDynamicalSystem()->getFloatingBaseSystem();
+
+	// Setting the base information
+	for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
+		current_state_.base_pos(base_idx) = msg->base[base_idx].position;
+		current_state_.base_vel(base_idx) = msg->base[base_idx].velocity;
+		current_state_.base_acc(base_idx) = msg->base[base_idx].acceleration;
+	}
+
+	// Setting the joint information
 	for (unsigned int jnt_idx = 0; jnt_idx < system.getJointDoF(); jnt_idx++) {
-		unsigned int jnt_id = system.getJoints()[jnt_idx].id;
-		msg.joint_names[jnt_idx] = system.getJoints()[jnt_idx].name;
-		msg.joints[jnt_idx].position = state.joint_pos(jnt_id - system.getFloatingBaseDoF());
-		msg.joints[jnt_idx].velocity = state.joint_vel(jnt_id - system.getFloatingBaseDoF());
-		msg.joints[jnt_idx].acceleration = state.joint_acc(jnt_id - system.getFloatingBaseDoF());
-		msg.joints[jnt_idx].effort = state.joint_eff(jnt_id - system.getFloatingBaseDoF());
+		std::string joint_name = msg->joint_names[jnt_idx];
+		unsigned int joint_id = system.getJoints().find(joint_name)->second -
+				system.getFloatingBaseDoF();
+
+		current_state_.joint_pos(joint_id) = msg->joints[jnt_idx].position;
+		current_state_.joint_vel(joint_id) = msg->joints[jnt_idx].velocity;
+		current_state_.joint_acc(joint_id) = msg->joints[jnt_idx].acceleration;
+		current_state_.joint_eff(joint_id) = msg->joints[jnt_idx].effort;
 	}
 }
 
