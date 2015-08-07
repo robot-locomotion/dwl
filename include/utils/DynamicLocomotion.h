@@ -112,11 +112,22 @@ struct ContactSearchRegion
  */
 struct LocomotionState
 {
-	LocomotionState() : time(0.) {
+	LocomotionState(unsigned int num_joints = 0,
+					unsigned int num_end_effectors = 0) : time(0.) {
 		base_pos.setZero();
 		base_vel.setZero();
 		base_acc.setZero();
 		base_eff.setZero();
+
+		if (num_joints != 0) {
+			joint_pos.setZero(num_joints);
+			joint_vel.setZero(num_joints);
+			joint_acc.setZero(num_joints);
+			joint_eff.setZero(num_joints);
+		}
+
+		if (num_end_effectors != 0)
+			contacts.resize(num_end_effectors);
 	}
 	double time;
 	rbd::Vector6d base_pos;
