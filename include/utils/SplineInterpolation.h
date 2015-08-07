@@ -46,7 +46,10 @@ class Spline
 		 * @param const Point& Start point
 		 * @param const Point& End point
 		 */
-		Spline(double initial_time, double duration, const Point& start, const Point& end);
+		Spline(double initial_time,
+			   double duration,
+			   const Point& start,
+			   const Point& end);
 
 		/** @ Destructor function */
 		virtual ~Spline() = 0;
@@ -58,7 +61,10 @@ class Spline
 		 * @param const Point& Start point
 		 * @param const Point& End point
 		 */
-		void setBoundary(double initial_time, double duration, const Point& start_p, const Point& end_p);
+		void setBoundary(double initial_time,
+						 double duration,
+						 const Point& start_p,
+						 const Point& end_p);
 
 		/**
 		 * @brief Sets the boundary of the spline
@@ -67,21 +73,26 @@ class Spline
 		 * @param const double& Start point
 		 * @param const double& End point
 		 */
-		void setBoundary(double initial_time, double duration, const double& start_p, const double& end_p);
+		void setBoundary(double initial_time,
+						 double duration,
+						 const double& start_p,
+						 const double& end_p);
 
 		/**
 		 * @brief Gets the value of the point according to the spline interpolation
 		 * @param const double& Current time
 		 * @param Point& Point value
 		 */
-		virtual bool getPoint(const double& current_time, Point& p) = 0;
+		virtual bool getPoint(const double& current_time,
+							  Point& p) = 0;
 
 		/**
 		 * @brief Gets the value of the point according to the spline interpolation
 		 * @param const double& Current time
 		 * @param double& Point value
 		 */
-		virtual bool getPoint(const double& current_time, double& p) = 0;
+		virtual bool getPoint(const double& current_time,
+							  double& p) = 0;
 
 
 	protected:
@@ -115,7 +126,10 @@ class CubicSpline : public Spline
 		 * @param const Point& Start point
 		 * @param const Point& End point
 		 */
-		CubicSpline(double initial_time, double duration, const Point& start, const Point& end);
+		CubicSpline(double initial_time,
+					double duration,
+					const Point& start,
+					const Point& end);
 
 		/** @ Destructor function */
 		~CubicSpline();
@@ -125,14 +139,16 @@ class CubicSpline : public Spline
 		 * @param const double& Current time
 		 * @param Point& Point value
 		 */
-		bool getPoint(const double& current_time, Point& p);
+		bool getPoint(const double& current_time,
+					  Point& p);
 
 		/**
 		 * @brief Gets the value of the point according to the spline interpolation
 		 * @param const double& Current time
 		 * @param double& Point value
 		 */
-		bool getPoint(const double& current_time, double& p);
+		bool getPoint(const double& current_time,
+					  double& p);
 };
 
 
@@ -152,7 +168,10 @@ class FifthOrderPolySpline : public Spline
 		 * @param const Point& Start point
 		 * @param const Point& End point
 		 */
-		FifthOrderPolySpline(double initial_time, double duration, const Point& start, const Point& end);
+		FifthOrderPolySpline(double initial_time,
+							 double duration,
+							 const Point& start,
+							 const Point& end);
 
 		/** @ Destructor function */
 		~FifthOrderPolySpline();
@@ -162,14 +181,16 @@ class FifthOrderPolySpline : public Spline
 		 * @param const double& Current time
 		 * @param Point& Point value
 		 */
-		bool getPoint(const double& current_time, Point& p);
+		bool getPoint(const double& current_time,
+					  Point& p);
 
 		/**
 		 * @brief Gets the value of the point according to the spline interpolation
 		 * @param const double& Current time
 		 * @param double& Point value
 		 */
-		bool getPoint(const double& current_time, double& p);
+		bool getPoint(const double& current_time,
+					  double& p);
 };
 
 
@@ -189,7 +210,10 @@ class LinearSpline : public Spline
 		 * @param const Point& Start point
 		 * @param const Point& End point
 		 */
-		LinearSpline(double initial_time, double duration, const Point& start, const Point& end);
+		LinearSpline(double initial_time,
+					 double duration,
+					 const Point& start,
+					 const Point& end);
 
 		/** @ Destructor function */
 		~LinearSpline();
@@ -199,14 +223,16 @@ class LinearSpline : public Spline
 		 * @param const double& Current time
 		 * @param Point& Point value
 		 */
-		bool getPoint(const double& current_time, Point& p);
+		bool getPoint(const double& current_time,
+					  Point& p);
 
 		/**
 		 * @brief Gets the value of the point according to the spline interpolation
 		 * @param const double& Current time
 		 * @param double& Point value
 		 */
-		bool getPoint(const double& current_time, double& p);
+		bool getPoint(const double& current_time,
+					  double& p);
 };
 
 } //@namespace utils
