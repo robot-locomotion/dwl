@@ -98,9 +98,116 @@ model::DynamicalSystem* WholeBodyTrajectoryOptimization::getDynamicalSystem()
 }
 
 
-std::vector<LocomotionState>& WholeBodyTrajectoryOptimization::getWholeBodyTrajectory()
+const LocomotionTrajectory& WholeBodyTrajectoryOptimization::getWholeBodyTrajectory()
 {
 	return solver_->getWholeBodyTrajectory();
+}
+
+
+const LocomotionTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWholeBodyTrajectory(const double& interpolation_time)
+{
+	// Deleting old information
+	interpolated_trajectory_.clear();
+
+	// Getting the whole-body trajectory
+	LocomotionTrajectory trajectory = solver_->getWholeBodyTrajectory();
+
+	// Getting the number of joints
+	unsigned int num_joints = getDynamicalSystem()->getFloatingBaseSystem().getJointDoF();
+
+	// Defining splines //TODO for the time being only cubic interpolation is OK
+	std::vector<math::CubicSpline> base_spline, joint_spline, control_spline;
+	base_spline.resize(6);
+	joint_spline.resize(num_joints);
+	control_spline.resize(num_joints);
+
+	// Computing the interpolation of the whole-body trajectory
+	double duration;
+	unsigned int horizon = solver_->getOptimizationModel().getHorizon();
+	for (unsigned int k = 0; k < horizon - 1; k++) {
+		// Adding the starting state
+		interpolated_trajectory_.push_back(trajectory[k]);
+
+		// Getting the current starting times
+		double starting_time = trajectory[k].time;
+
+		if (getDynamicalSystem()->isFixedStepIntegration())
+			duration = getDynamicalSystem()->getFixedStepTime();
+		else
+			duration = trajectory[k+1].time - trajectory[k].time;
+
+		// Interpolating the current state
+		LocomotionState current_state(num_joints);
+		math::Spline::Point current_point;
+		unsigned int index = floor(duration / interpolation_time);
+		for (unsigned int t = 0; t < index; t++) {
+			double time = starting_time + t * interpolation_time;
+
+			// Base interpolation
+			for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
+				if (t == 0) {
+					// Initialization of the base motion splines
+					math::Spline::Point starting(trajectory[k].base_pos(base_idx),
+											 	 trajectory[k].base_vel(base_idx),
+												 trajectory[k].base_acc(base_idx));
+					math::Spline::Point ending(trajectory[k+1].base_pos(base_idx),
+											   trajectory[k+1].base_vel(base_idx),
+											   trajectory[k+1].base_acc(base_idx));
+					base_spline[base_idx].setBoundary(starting_time, duration, starting, ending);
+				} else {
+					// Getting and setting the interpolated point
+					base_spline[base_idx].getPoint(time, current_point);
+					current_state.base_pos(base_idx) = current_point.x;
+					current_state.base_vel(base_idx) = current_point.xd;
+					current_state.base_acc(base_idx) = current_point.xdd;
+				}
+			}
+
+			// Joint interpolations
+			for (unsigned int joint_idx = 0; joint_idx < num_joints; joint_idx++) {
+				if (t == 0) {
+					// Initialization of the joint motion splines
+					math::Spline::Point motion_starting(trajectory[k].joint_pos(joint_idx),
+														trajectory[k].joint_vel(joint_idx),
+														trajectory[k].joint_acc(joint_idx));
+					math::Spline::Point motion_ending(trajectory[k+1].joint_pos(joint_idx),
+													  trajectory[k+1].joint_vel(joint_idx),
+													  trajectory[k+1].joint_acc(joint_idx));
+					joint_spline[joint_idx].setBoundary(starting_time, duration,
+														motion_starting, motion_ending);
+
+					// Initialization of the joint control splines
+					math::Spline::Point control_starting(trajectory[k].joint_eff(joint_idx));
+					math::Spline::Point control_ending(trajectory[k+1].joint_eff(joint_idx));
+					control_spline[joint_idx].setBoundary(starting_time, duration,
+														  control_starting, control_ending);
+				} else {
+					// Getting and setting the joint motion interpolated point
+					joint_spline[joint_idx].getPoint(time, current_point);
+					current_state.joint_pos(joint_idx) = current_point.x;
+					current_state.joint_vel(joint_idx) = current_point.xd;
+					current_state.joint_acc(joint_idx) = current_point.xdd;
+
+					// Getting and setting the joint motion interpolated point
+					control_spline[joint_idx].getPoint(time, current_point);
+					current_state.joint_eff(joint_idx) = current_point.x;
+				}
+			}
+
+			// Adding the current state
+			if (t != 0) {
+				// Setting the current time
+				current_state.time = time;
+
+				interpolated_trajectory_.push_back(current_state);
+			}
+		}
+	}
+
+	// Adding the ending state
+	interpolated_trajectory_.push_back(trajectory[horizon-1]);
+
+	return interpolated_trajectory_;
 }
 
 

@@ -5,6 +5,7 @@
 #include <model/DynamicalSystem.h>
 #include <model/Constraint.h>
 #include <model/Cost.h>
+#include <utils/SplineInterpolation.h>
 
 
 namespace dwl
@@ -12,6 +13,8 @@ namespace dwl
 
 namespace locomotion
 {
+
+typedef std::vector<LocomotionState> LocomotionTrajectory;
 
 /**
  * @class WholeBodyTrajectoryOptimization
@@ -78,14 +81,24 @@ class WholeBodyTrajectoryOptimization
 
 		/**
 		 * @brief Gets the whole-body trajectory
-		 * @return std::vector<LocomotionState>& Whole-body trajectory
+		 * @return LocomotionTrajectory& Whole-body trajectory
 		 */
-		std::vector<LocomotionState>& getWholeBodyTrajectory();
+		const LocomotionTrajectory& getWholeBodyTrajectory();
+
+		/**
+		 * @brief Gets the interpolated whole-body trajectory
+		 * @param const double Time of interpolation
+		 * @return LocomotionTrajectory& Whole-body trajectory
+		 */
+		const LocomotionTrajectory& getInterpolatedWholeBodyTrajectory(const double& interpolation_time);
 
 
 	private:
 		/** @brief Optimization solver */
 		solver::OptimizationSolver* solver_;
+
+		/** @brief Interpolated locomotion trajectory */
+		LocomotionTrajectory interpolated_trajectory_;
 };
 
 } //@namespace locomotion
