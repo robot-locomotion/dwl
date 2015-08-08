@@ -11,7 +11,7 @@
 #include <terrain_server/RewardMap.h>
 
 #include <rviz/display.h>
-#include "rviz/ogre_helpers/point_cloud.h"
+#include <rviz/ogre_helpers/point_cloud.h>
 
 
 namespace rviz

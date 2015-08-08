@@ -4,7 +4,7 @@
 #include "rviz/display.h"
 
 #include <utils/Orientation.h>
-#include <dwl_planners/ContactRegion.h>
+#include <dwl_msgs/ContactRegion.h>
 #include <nav_msgs/MapMetaData.h>
 
 #ifndef Q_MOC_RUN
@@ -82,16 +82,16 @@ class FootstepRegionDisplay : public rviz::Display
 		void clear();
 
 		/** @brief Proccesing of the incoming message */
-		void incomingMessage(const dwl_planners::ContactRegion::ConstPtr& msg);
+		void incomingMessage(const dwl_msgs::ContactRegion::ConstPtr& msg);
 
 		/** @brief Point cloud pointer */
 		rviz::PointCloud* cloud_;
 
 		/** @brief Subscriber to the ObstacleMap messages */
-		message_filters::Subscriber<dwl_planners::ContactRegion> sub_;
+		message_filters::Subscriber<dwl_msgs::ContactRegion> sub_;
 
 		/** @brief Tf filter that synchronizes the messages */
-		tf::MessageFilter<dwl_planners::ContactRegion>* tf_filter_;
+		tf::MessageFilter<dwl_msgs::ContactRegion>* tf_filter_;
 
 		/** @brief Topic properties */
 		rviz::RosTopicProperty* topic_property_;

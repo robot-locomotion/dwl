@@ -4,7 +4,8 @@ project(dwl_rviz_plugin)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rviz)
+  rviz
+  dwl_msgs)
 
 find_package(dwl REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
@@ -18,7 +19,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS roscpp rviz
+  CATKIN_DEPENDS roscpp rviz dwl_msgs
   DEPENDS system_lib)
 
 
