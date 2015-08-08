@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 import rospy
 from ctypes import c_ushort
-from dwl_planners.msg import WholeBodyTrajectory
-from dwl_planners.msg import WholeBodyState
+from dwl_msgs.msg import WholeBodyTrajectory
+from dwl_msgs.msg import WholeBodyState
 from sensor_msgs.msg import JointState
 
 
-class JointStatePublisher():
+class WholeBodyTrajectoryPublisher():
     def __init__(self):
         # Defining the subscriber
         rospy.Subscriber("whole_body_trajectory", WholeBodyTrajectory, self.callback)
@@ -69,9 +69,9 @@ class JointStatePublisher():
 
 
 if __name__ == '__main__':
-    rospy.init_node('joint_state_publisher')
+    rospy.init_node('whole_body_trajectory_publisher')
         
-    jsp = JointStatePublisher()
+    jsp = WholeBodyTrajectoryPublisher()
     
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
