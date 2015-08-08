@@ -4,8 +4,7 @@ project(dwl_rviz_plugin)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rviz
-  dwl_msgs)
+  rviz)
 
 find_package(dwl REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
@@ -19,7 +18,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS roscpp rviz dwl_msgs
+  CATKIN_DEPENDS roscpp rviz
   DEPENDS system_lib)
 
 
@@ -46,7 +45,3 @@ set(SOURCE_FILES
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${Boost_LIBRARIES} ${dwl_LIBRARIES} ${catkin_LIBRARIES} -ldefault_plugin)
-
-
-
-

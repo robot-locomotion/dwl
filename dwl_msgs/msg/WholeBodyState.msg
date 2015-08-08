@@ -12,10 +12,10 @@ uint8 LZ=5
 # This represents the base state (position, velocity, acceleration and effort)
 uint8[] base_ids
 string[] base_names
-dwl_planners/JointState[] base
+dwl_msgs/JointState[] base
 
 # This represents the joint state (position, velocity, acceleration and effort)
 string[] joint_names
-dwl_planners/JointState[] joints
+dwl_msgs/JointState[] joints
 
 # TODO adds contacts forces

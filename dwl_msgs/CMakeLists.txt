@@ -6,7 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   dwl
   roscpp
   rospy
-  std_msgs
+  geometry_msgs
   message_generation)
 
 find_package(dwl REQUIRED)
@@ -45,13 +45,12 @@ generate_messages(
    
 
 catkin_package(
-  INCLUDE_DIRS include
+  INCLUDE_DIRS
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS roscpp message_runtime
   DEPENDS system_lib)
 
 
-include_directories(include)
 include_directories(${catkin_INCLUDE_DIRS})
 include_directories(${dwl_INCLUDE_DIRS})
 
