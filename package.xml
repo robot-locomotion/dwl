@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<package>
+  <name>dwl_rviz_plugin</name>
+  <version>0.0.0</version>
+  <description>
+    A plugin for displaying reward map information from reward map messages.
+  </description>
+
+
+  <maintainer email="carlos.mastalli@iit.it">Carlos Mastalli</maintainer>
+
+  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+  <license>TODO</license>
+
+
+  <!-- Url tags are optional, but mutiple are allowed, one per tag -->
+  <!-- Optional attribute type can be: website, bugtracker, or repository -->
+  <!-- Example: -->
+  <!-- <url type="website">http://wiki.ros.org/reward_map_plugin</url> -->
+
+
+  <author email="carlos.mastalli@iit.it">Carlos Mastalli</author>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>roscpp</build_depend>
+  <build_depend>rviz</build_depend>
+  <build_depend>dwl</build_depend>
+  <build_depend>terrain_server</build_depend>
+  <build_depend>dwl_planners</build_depend>
+  
+  <run_depend>roscpp</run_depend>
+  <run_depend>dwl</run_depend>
+  <run_depend>rviz</run_depend>
+  <run_depend>terrain_server</run_depend>
+  <run_depend>dwl_planners</run_depend>
+
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <rviz plugin="${prefix}/plugin_description.xml"/>
+  </export>
+</package>
