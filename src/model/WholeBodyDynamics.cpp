@@ -348,6 +348,12 @@ void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contact
 }
 
 
+rbd::FloatingBaseSystem& WholeBodyDynamics::getFloatingBaseSystem()
+{
+	return system_;
+}
+
+
 void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynamics::Math::SpatialVector>& fext,
 													 const rbd::BodyWrench& ext_force,
 													 const Eigen::VectorXd& q)

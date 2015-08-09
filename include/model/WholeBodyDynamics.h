@@ -196,6 +196,9 @@ class WholeBodyDynamics
 									const rbd::BodySelector& contacts,
 									double force_threshold);
 
+		/** @brief Gets the floating-base system information */
+		rbd::FloatingBaseSystem& getFloatingBaseSystem();
+
 
 	private:
 		/**

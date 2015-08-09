@@ -492,6 +492,12 @@ void WholeBodyKinematics::computeJdotQdot(rbd::BodyVector& jacd_qd,
 }
 
 
+rbd::FloatingBaseSystem& WholeBodyKinematics::getFloatingBaseSystem()
+{
+	return system_;
+}
+
+
 int WholeBodyKinematics::getNumberOfActiveEndEffectors(const rbd::BodySelector& body_set)
 {
 	int num_body_set = 0;

@@ -181,6 +181,9 @@ class WholeBodyKinematics
 							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
 
+		/** @brief Gets the floating-base system information */
+		rbd::FloatingBaseSystem& getFloatingBaseSystem();
+
 		/**
 		 * @brief Gets the number of active end-effectors
 		 * @param cons rbd::EndEffectorSelector& End-effector set
