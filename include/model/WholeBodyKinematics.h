@@ -192,9 +192,6 @@ class WholeBodyKinematics
 
 
 	private:
-		/** @brief Model of the rigid-body system */
-		RigidBodyDynamics::Model robot_model_;
-
 		/** @brief Fixed body ids */
 		rbd::BodyID body_id_;
 

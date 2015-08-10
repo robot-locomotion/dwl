@@ -146,26 +146,33 @@ void fromGeneralizedJointState(Vector6d& base_state,
 void setBranchState(Eigen::VectorXd& new_joint_state,
 					const Eigen::VectorXd& branch_state,
 					unsigned int body_id,
-					RigidBodyDynamics::Model& model,
 					struct FloatingBaseSystem& system)
 {
-	// Getting the base id
+	// Getting the base joint id. Note that the floating-base starts the kinematic-tree
 	unsigned int base_id = 0;
-	if (system.isFullyFloatingBase() || system.isVirtualFloatingBaseRobot())
-		base_id = system.getFloatingBaseDoF();
+	for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
+		dwl::rbd::Coords6d base_coord = dwl::rbd::Coords6d(base_idx);
+		dwl::rbd::FloatingBaseJoint base_joint = system.getFloatingBaseJoint(base_coord);
+		if (base_joint.active) {
+			if (base_joint.id > base_id)
+				base_id = base_joint.id;
+		}
+	}
 
 	// Setting the state values of a specific branch to the joint state
 	unsigned int parent_id = body_id;
-	if (model.IsFixedBodyId(body_id))
-		parent_id = model.mFixedBodies[body_id - model.fixed_body_discriminator].mMovableParent;
+	if (system.rbd_model.IsFixedBodyId(body_id)) {
+		unsigned int fixed_idx = system.rbd_model.fixed_body_discriminator;
+		parent_id = system.rbd_model.mFixedBodies[body_id - fixed_idx].mMovableParent;
+	}
 
 	// Adding the branch state to the joint state. Two safety checking are done; checking that this
 	// branch has at least one joint, and checking the size of the new branch state
 	if (parent_id != base_id) {
 		unsigned int q_index, num_dof = 0;
 		do {
-			q_index = model.mJoints[parent_id].q_index - 1;
-			parent_id = model.lambda[parent_id];
+			q_index = system.rbd_model.mJoints[parent_id].q_index - 1;
+			parent_id = system.rbd_model.lambda[parent_id];
 			++num_dof;
 		} while (parent_id != base_id);
 
@@ -177,28 +184,34 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 
 Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
 							   unsigned int body_id,
-							   RigidBodyDynamics::Model& model,
 							   struct FloatingBaseSystem& system)
 {
 	unsigned int q_index, num_dof = 0;
 
-	// Getting the base id
+	// Getting the base joint id. Note that the floating-base starts the kinematic-tree
 	unsigned int base_id = 0;
-	if (system.isFullyFloatingBase() || system.isVirtualFloatingBaseRobot())
-		base_id = system.getFloatingBaseDoF();
+	for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
+		dwl::rbd::Coords6d base_coord = dwl::rbd::Coords6d(base_idx);
+		dwl::rbd::FloatingBaseJoint base_joint = system.getFloatingBaseJoint(base_coord);
+		if (base_joint.active) {
+			if (base_joint.id > base_id)
+				base_id = base_joint.id;
+		}
+	}
 
 	// Setting the state values of a specific branch to the joint state
 	unsigned int parent_id = body_id;
-	if (model.IsFixedBodyId(body_id)) {
-		parent_id = model.mFixedBodies[body_id - model.fixed_body_discriminator].mMovableParent;
+	if (system.rbd_model.IsFixedBodyId(body_id)) {
+		unsigned int fixed_idx = system.rbd_model.fixed_body_discriminator;
+		parent_id = system.rbd_model.mFixedBodies[body_id - fixed_idx].mMovableParent;
 	}
 
 	// Adding the branch state to the joint state. Two safety checking are done; checking that this
 	// branch has at least one joint, and checking the size of the new branch state
 	if (parent_id != base_id) {
 		do {
-			q_index = model.mJoints[parent_id].q_index - 1;
-			parent_id = model.lambda[parent_id];
+			q_index = system.rbd_model.mJoints[parent_id].q_index - 1;
+			parent_id = system.rbd_model.lambda[parent_id];
 			++num_dof;
 		} while (parent_id != base_id);
 	}

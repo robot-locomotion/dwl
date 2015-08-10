@@ -233,9 +233,6 @@ class WholeBodyDynamics
 													  const Eigen::VectorXd& joint_acc,
 													  const rbd::BodySelector& contacts);
 
-		/** @brief Model of the rigid-body system */
-		RigidBodyDynamics::Model robot_model_;
-
 		/* @brief Body ids */
 		rbd::BodyID body_id_;
 

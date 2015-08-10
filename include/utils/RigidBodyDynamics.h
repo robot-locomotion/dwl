@@ -2,6 +2,7 @@
 #define DWL__RBD__RIGID_BODY_DYNAMICS__H
 
 #include <rbdl/rbdl.h>
+#include <rbdl/addons/urdfreader/urdfreader.h>
 #include <utils/URDF.h>
 #include <utils/Math.h>
 
@@ -82,6 +83,9 @@ struct FloatingBaseSystem {
 	/** @brief Resets the system information from URDF description */
 	void reset(std::string urdf_model)
 	{
+		// Getting the RBDL model from URDF model
+		RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &rbd_model, false);
+
 		// Getting information about the floating-base joints
 		urdf_model::JointID floating_joint_names;
 		urdf_model::getJointNames(floating_joint_names, urdf_model, urdf_model::floating);
@@ -330,6 +334,9 @@ struct FloatingBaseSystem {
 			return false;
 	}
 
+	/** @brief Rigid-body dynamic model */
+	RigidBodyDynamics::Model rbd_model;
+
 	/** @brief Number of DoFs */
 	unsigned int num_system_joints;
 	unsigned int num_floating_joints;
@@ -401,14 +408,12 @@ void fromGeneralizedJointState(Vector6d& base_state,
  * @param Eigen::VectorXd& Joint state vector
  * @param cons Eigen::VectorXd& Branch state
  * @param unsigned int Body id
- * @param RigidBodyDynamics::Model& Rigid-body dynamic model
  * @param struct FloatingBaseSystem& Defines the general properties of a floating-base
  * system
  */
 void setBranchState(Eigen::VectorXd& new_joint_state,
 					const Eigen::VectorXd& branch_state,
 					unsigned int body_id,
-					RigidBodyDynamics::Model& model,
 					struct FloatingBaseSystem& system);
 
 /**
@@ -416,13 +421,11 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
  * @param Eigen::VectorXd& Joint state vector
  * @param cons Eigen::VectorXd& Branch state
  * @param unsigned int Body id
- * @param RigidBodyDynamics::Model& Rigid-body dynamic model
  * @param struct FloatingBaseSystem& Defines the general properties of a floating-base
  * system
  */
 Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
 							   unsigned int body_id,
-							   RigidBodyDynamics::Model& model,
 							   struct FloatingBaseSystem& system);
 
 /**
