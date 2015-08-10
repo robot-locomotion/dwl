@@ -207,8 +207,8 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 	// floating-base. Note that with a virtual floating-base we can describe a n-dimensional
 	// floating-base, witch n less than 6
 	if (system_.isFullyFloatingBase()) {
-		// This approach builds an augmented jacobian matrix as [base contact jacobian; base constraint jacobian].
-		// Therefore, we computed constrained reaction forces in the base.
+		// This approach builds an augmented jacobian matrix as [base contact jacobian;
+		// base constraint jacobian]. Therefore, we computed constrained reaction forces in the base.
 		if (system_.isConstrainedFloatingBaseRobot()) {
 			// Computing the base constraint contribution to the jacobian
 			Eigen::MatrixXd base_constraint_jac = Eigen::MatrixXd::Zero(6,6);
@@ -220,11 +220,13 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 			base_constraint_jac(rbd::LZ, rbd::LZ) = !system_.LZ_constraint;
 
 			// Computing the augmented jacobian [base contact jacobian; base constraint jacobian]
-			Eigen::MatrixXd augmented_jac = Eigen::MatrixXd::Zero(base_contact_jac.rows() + 6, base_contact_jac.cols());
+			Eigen::MatrixXd augmented_jac = Eigen::MatrixXd::Zero(base_contact_jac.rows() + 6,
+																  base_contact_jac.cols());
 			augmented_jac.block(0,0,base_contact_jac.rows(), base_contact_jac.cols()) = base_contact_jac;
 			augmented_jac.block<6,6>(base_contact_jac.rows(), 0) = base_constraint_jac;
 
-			// Computing the external forces from the augmented forces [contact forces; base constraint forces]
+			// Computing the external forces from the augmented forces [contact forces;
+			// base constraint forces]
 			Eigen::VectorXd augmented_forces =
 					math::pseudoInverse((Eigen::MatrixXd) augmented_jac.transpose()) * base_wrench;
 

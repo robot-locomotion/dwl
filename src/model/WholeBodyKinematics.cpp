@@ -118,10 +118,12 @@ void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVector& op_pos,
 			switch (component) {
 			case rbd::Linear:
 				body_pos.segment<3>(0) =
-						CalcBodyToBaseCoordinates(system_.rbd_model, q, body_id, Eigen::Vector3d::Zero(), true);
+						CalcBodyToBaseCoordinates(system_.rbd_model, q, body_id,
+												  Eigen::Vector3d::Zero(), true);
 				break;
 			case rbd::Angular:
-				rotation_mtx = RigidBodyDynamics::CalcBodyWorldOrientation(system_.rbd_model, q, body_id, false);
+				rotation_mtx = RigidBodyDynamics::CalcBodyWorldOrientation(system_.rbd_model,
+																		   q, body_id, false);
 				switch (type) {
 					case RollPitchYaw:
 						body_pos.segment<3>(0) = math::getRPY(rotation_mtx);
@@ -134,7 +136,8 @@ void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVector& op_pos,
 				}
 				break;
 			case rbd::Full:
-				rotation_mtx = RigidBodyDynamics::CalcBodyWorldOrientation(system_.rbd_model, q, body_id, false);
+				rotation_mtx = RigidBodyDynamics::CalcBodyWorldOrientation(system_.rbd_model,
+																		   q, body_id, false);
 				switch (type) {
 					case RollPitchYaw:
 						body_pos.segment<3>(0) = math::getRPY(rotation_mtx);
@@ -148,7 +151,8 @@ void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVector& op_pos,
 
 				// Computing the linear component
 				body_pos.segment<3>(ang_vars) =
-						CalcBodyToBaseCoordinates(system_.rbd_model, q, body_id, Eigen::Vector3d::Zero(), true);
+						CalcBodyToBaseCoordinates(system_.rbd_model, q, body_id,
+												  Eigen::Vector3d::Zero(), true);
 				break;
 			}
 
@@ -237,7 +241,9 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 			Eigen::VectorXd q = rbd::toGeneralizedJointState(base_pos, joint_pos, system_);
 
 			Eigen::MatrixXd jac(Eigen::MatrixXd::Zero(6, system_.getSystemDoF()));
-			rbd::computePointJacobian(system_.rbd_model, q, body_id, Eigen::VectorXd::Zero(system_.getSystemDoF()), jac, true);
+			rbd::computePointJacobian(system_.rbd_model, q, body_id,
+									  Eigen::VectorXd::Zero(system_.getSystemDoF()),
+									  jac, true);
 
 			switch(component) {
 			case rbd::Linear:
@@ -336,8 +342,9 @@ void WholeBodyKinematics::computeVelocity(rbd::BodyVector& op_vel,
 			Eigen::VectorXd q_dot = rbd::toGeneralizedJointState(base_vel, joint_vel, system_);
 
 			// Computing the point velocity
-			rbd::Vector6d point_vel = rbd::computePointVelocity(system_.rbd_model, q, q_dot, body_id,
-					Eigen::Vector3d::Zero(), true);
+			rbd::Vector6d point_vel = rbd::computePointVelocity(system_.rbd_model,
+																q, q_dot, body_id,
+																Eigen::Vector3d::Zero(), true);
 			switch (component) {
 			case rbd::Linear:
 				body_vel.segment<3>(0) = rbd::linearPart(point_vel);
@@ -396,8 +403,10 @@ void WholeBodyKinematics::computeAcceleration(rbd::BodyVector& op_acc,
 			Eigen::VectorXd q_ddot = rbd::toGeneralizedJointState(base_acc, joint_acc, system_);
 
 			// Computing the point acceleration
-			rbd::Vector6d point_acc = rbd::computePointAcceleration(system_.rbd_model, q, q_dot, q_ddot,
-					body_id, Eigen::Vector3d::Zero(), true);
+			rbd::Vector6d point_acc = rbd::computePointAcceleration(system_.rbd_model,
+																	q, q_dot, q_ddot,
+																	body_id,
+																	Eigen::Vector3d::Zero(), true);
 			switch (component) {
 			case rbd::Linear:
 				body_acc.segment<3>(0) = rbd::linearPart(point_acc);
