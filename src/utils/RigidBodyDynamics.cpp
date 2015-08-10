@@ -150,14 +150,8 @@ void setBranchState(Eigen::VectorXd& new_joint_state,
 {
 	// Getting the base joint id. Note that the floating-base starts the kinematic-tree
 	unsigned int base_id = 0;
-	for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
-		dwl::rbd::Coords6d base_coord = dwl::rbd::Coords6d(base_idx);
-		dwl::rbd::FloatingBaseJoint base_joint = system.getFloatingBaseJoint(base_coord);
-		if (base_joint.active) {
-			if (base_joint.id > base_id)
-				base_id = base_joint.id;
-		}
-	}
+	if (system.isFullyFloatingBase() || system.isVirtualFloatingBaseRobot())
+		base_id = system.getFloatingBaseDoF();
 
 	// Setting the state values of a specific branch to the joint state
 	unsigned int parent_id = body_id;
@@ -190,14 +184,8 @@ Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
 
 	// Getting the base joint id. Note that the floating-base starts the kinematic-tree
 	unsigned int base_id = 0;
-	for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
-		dwl::rbd::Coords6d base_coord = dwl::rbd::Coords6d(base_idx);
-		dwl::rbd::FloatingBaseJoint base_joint = system.getFloatingBaseJoint(base_coord);
-		if (base_joint.active) {
-			if (base_joint.id > base_id)
-				base_id = base_joint.id;
-		}
-	}
+	if (system.isFullyFloatingBase() || system.isVirtualFloatingBaseRobot())
+		base_id = system.getFloatingBaseDoF();
 
 	// Setting the state values of a specific branch to the joint state
 	unsigned int parent_id = body_id;
