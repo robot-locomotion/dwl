@@ -306,7 +306,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 		kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
 
 		Eigen::Vector3d force = dwl::math::pseudoInverse((Eigen::MatrixXd) fixed_jac.transpose()) *
-				system_.getBranchState(joint_force_error, body_id);
+				system_.getBranchState(joint_force_error, body_name);
 
 		contact_forces[body_name] << 0, 0, 0, force;
 	}
@@ -446,8 +446,7 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 			// computation in the base frame
 			Eigen::VectorXd q_dd = math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd[contact_name]);
 
-			unsigned int body_contact_id = system_.getRBDModel().GetBodyId(contact_name.c_str());
-			system_.setBranchState(joint_feas_acc, q_dd, body_contact_id);
+			system_.setBranchState(joint_feas_acc, q_dd, contact_name);
 		}
 	}
 }

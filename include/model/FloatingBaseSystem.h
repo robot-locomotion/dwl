@@ -174,8 +174,6 @@ class FloatingBaseSystem
 		 * @brief Converts the base and joint states to a generalized joint state
 		 * @param const Vector6d& Base state
 		 * @param const Eigen::VectorXd& Joint state
-		 * @param struct FloatingBaseSystem& Defines the general properties of a floating-base
-		 * system
 		 * @return Eigen::VectorXd Generalized joint state
 		 */
 		Eigen::VectorXd toGeneralizedJointState(const rbd::Vector6d& base_state,
@@ -186,8 +184,6 @@ class FloatingBaseSystem
 		 * @param Vector6d& Base state
 		 * @param Eigen::VectorXd& Joint state
 		 * @param const Eigen::VectorXd Generalized joint state
-		 * @param struct FloatingBaseSystem& Defines the general properties of a floating-base
-		 * system
 		 */
 		void fromGeneralizedJointState(rbd::Vector6d& base_state,
 									   Eigen::VectorXd& joint_state,
@@ -197,24 +193,20 @@ class FloatingBaseSystem
 		 * @brief Sets the joint state given a branch values
 		 * @param Eigen::VectorXd& Joint state vector
 		 * @param cons Eigen::VectorXd& Branch state
-		 * @param unsigned int Body id
-		 * @param struct FloatingBaseSystem& Defines the general properties of a floating-base
-		 * system
+		 * @param std::string Body name
 		 */
 		void setBranchState(Eigen::VectorXd& new_joint_state,
 							const Eigen::VectorXd& branch_state,
-							unsigned int body_id);
+							std::string body_name);
 
 		/**
 		 * @brief Gets the branch values given a joint state
 		 * @param Eigen::VectorXd& Joint state vector
 		 * @param cons Eigen::VectorXd& Branch state
-		 * @param unsigned int Body id
-		 * @param struct FloatingBaseSystem& Defines the general properties of a floating-base
-		 * system
+		 * @param std::string Body name
 		 */
 		Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
-									   unsigned int body_id);
+									   std::string body_name);
 
 
 	private:

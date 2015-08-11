@@ -362,8 +362,11 @@ void FloatingBaseSystem::fromGeneralizedJointState(rbd::Vector6d& base_state,
 
 void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 										const Eigen::VectorXd& branch_state,
-										unsigned int body_id)
+										std::string body_name)
 {
+	// Getting the body id
+	unsigned int body_id = rbd_model.GetBodyId(body_name.c_str());
+
 	// Getting the base joint id. Note that the floating-base starts the kinematic-tree
 	unsigned int base_id = 0;
 	if (isFullyFloatingBase() || isVirtualFloatingBaseRobot())
@@ -393,8 +396,11 @@ void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 
 
 Eigen::VectorXd FloatingBaseSystem::getBranchState(Eigen::VectorXd& joint_state,
-												   unsigned int body_id)
+												   std::string body_name)
 {
+	// Getting the body id
+	unsigned int body_id = rbd_model.GetBodyId(body_name.c_str());
+
 	unsigned int q_index, num_dof = 0;
 
 	// Getting the base joint id. Note that the floating-base starts the kinematic-tree
