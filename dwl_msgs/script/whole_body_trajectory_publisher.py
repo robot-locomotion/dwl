@@ -19,7 +19,7 @@ class WholeBodyTrajectoryPublisher():
         state = WholeBodyState()
         
         # Setting the current state
-        state = msg.current_state
+        state = msg.actual
         
         # Publishing the current joint state
         self.publishJointState(state);
@@ -39,9 +39,9 @@ class WholeBodyTrajectoryPublisher():
         # Setting the time
         msg.header.stamp = rospy.Time.now()
         
-        # Setting the virtual joint states
-        num_virtual_joints = len(state.base_ids)
-        num_joints = (num_virtual_joints + len(state.joints))
+        # Setting the floating-base system DoF
+        num_base_joints = len(state.base_ids)
+        num_joints = (num_base_joints + len(state.joints))
         
         # Initializing the joint state sizes
         msg.name = num_joints * [""]
@@ -51,17 +51,18 @@ class WholeBodyTrajectoryPublisher():
         
         # Setting the whole-body state message
         for i in range(num_joints):
-            if i < num_virtual_joints:
+            if i < num_base_joints:
                 base_id = ord(state.base_ids[i])
                 msg.name[i] = state.base_names[i]
                 msg.position[i] = state.base[base_id].position
                 msg.velocity[i] = state.base[base_id].velocity
                 msg.effort[i] = state.base[base_id].effort
             else:
-                msg.name[i] = state.joint_names[i-num_virtual_joints]
-                msg.position[i] = state.joints[i-num_virtual_joints].position;
-                msg.velocity[i] = state.joints[i-num_virtual_joints].velocity;
-                msg.effort[i] = state.joints[i-num_virtual_joints].effort;
+                joint_idx = i - num_base_joints
+                msg.name[i] = state.joint_names[joint_idx]
+                msg.position[i] = state.joints[joint_idx].position;
+                msg.velocity[i] = state.joints[joint_idx].velocity;
+                msg.effort[i] = state.joints[joint_idx].effort;
                 
         # Publishing the current joint state       
         self.pub.publish(msg)
