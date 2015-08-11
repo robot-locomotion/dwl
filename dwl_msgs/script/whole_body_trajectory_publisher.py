@@ -40,7 +40,7 @@ class WholeBodyTrajectoryPublisher():
         msg.header.stamp = rospy.Time.now()
         
         # Setting the floating-base system DoF
-        num_base_joints = len(state.base_ids)
+        num_base_joints = len(state.base)
         num_joints = (num_base_joints + len(state.joints))
         
         # Initializing the joint state sizes
@@ -52,14 +52,14 @@ class WholeBodyTrajectoryPublisher():
         # Setting the whole-body state message
         for i in range(num_joints):
             if i < num_base_joints:
-                base_id = ord(state.base_ids[i])
-                msg.name[i] = state.base_names[i]
-                msg.position[i] = state.base[base_id].position
-                msg.velocity[i] = state.base[base_id].velocity
-                msg.effort[i] = state.base[base_id].effort
+                base_id = state.base[i].id
+                msg.name[i] = state.base[i].name
+                msg.position[i] = state.base[i].position
+                msg.velocity[i] = state.base[i].velocity
+                msg.effort[i] = 0.0
             else:
                 joint_idx = i - num_base_joints
-                msg.name[i] = state.joint_names[joint_idx]
+                msg.name[i] = state.joints[joint_idx].name
                 msg.position[i] = state.joints[joint_idx].position;
                 msg.velocity[i] = state.joints[joint_idx].velocity;
                 msg.effort[i] = state.joints[joint_idx].effort;

@@ -18,9 +18,13 @@ add_message_files(
     Contact.msg
     ContactSequence.msg
     ContactRegion.msg
+    BaseState.msg
     JointState.msg
+    JointCommand.msg
+    ContactState.msg
     WholeBodyState.msg
-    WholeBodyTrajectory.msg)
+    WholeBodyTrajectory.msg
+    WholeBodyController.msg)
 
 
 ## Generate services in the 'srv' folder
