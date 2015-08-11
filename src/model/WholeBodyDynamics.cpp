@@ -313,6 +313,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 
 
 void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contacts,
+											   rbd::BodyWrench& contact_forces,
 											   const rbd::Vector6d& base_pos,
 											   const Eigen::VectorXd& joint_pos,
 											   const rbd::Vector6d& base_vel,
@@ -324,7 +325,6 @@ void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contact
 											   double force_threshold)
 {
 	// Computing the contact forces in predefined set of end-effector
-	rbd::BodyWrench contact_forces;
 	computeContactForces(contact_forces,
 						 base_pos, joint_pos,
 						 base_vel, joint_vel,
@@ -340,6 +340,29 @@ void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contact
 		if (contact_wrench.norm() > force_threshold)
 			active_contacts.push_back(endeffector_name);
 	}
+}
+
+
+void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contacts,
+											   const rbd::Vector6d& base_pos,
+											   const Eigen::VectorXd& joint_pos,
+											   const rbd::Vector6d& base_vel,
+											   const Eigen::VectorXd& joint_vel,
+											   const rbd::Vector6d& base_acc,
+											   const Eigen::VectorXd& joint_acc,
+											   const Eigen::VectorXd& joint_forces,
+											   const rbd::BodySelector& contacts,
+											   double force_threshold)
+{
+	// Computing the contact forces in predefined set of end-effector
+	rbd::BodyWrench contact_forces;
+	estimateActiveContacts(active_contacts,
+						   contact_forces,
+						   base_pos, joint_pos,
+						   base_vel, joint_vel,
+						   base_acc, joint_acc,
+						   joint_forces, contacts,
+						   force_threshold);
 }
 
 

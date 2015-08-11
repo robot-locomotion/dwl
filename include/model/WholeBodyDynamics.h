@@ -174,6 +174,33 @@ class WholeBodyDynamics
 		 * @brief Estimates active contacts by comparing the estimated joint forces with the
 		 * measured joint forces in a selected set of end-effectors
 		 * @param rbd::BodySelector& Estimated active contacts
+		 * @param rbd::BodyWrench& Contact forces
+		 * @param const rbd::Vector6d& Base position
+		 * @param const Eigen::VectorXd& Joint position
+		 * @param const rbd::Vector6d& Base velocity
+		 * @param const Eigen::VectorXd& Joint velocity
+		 * @param const rbd::Vector6d& Base acceleration with respect to a gravity field
+		 * @param const Eigen::VectorXd& Joint acceleration
+		 * @param const Eigen::VectorXd& Joint forces
+		 * @param const rbd::BodySelector& Selected set of end-effectors (bodies)
+		 * @param double Force threshold
+		 */
+		void estimateActiveContacts(rbd::BodySelector& active_contacts,
+									rbd::BodyWrench& contact_forces,
+									const rbd::Vector6d& base_pos,
+									const Eigen::VectorXd& joint_pos,
+									const rbd::Vector6d& base_vel,
+									const Eigen::VectorXd& joint_vel,
+									const rbd::Vector6d& base_acc,
+									const Eigen::VectorXd& joint_acc,
+									const Eigen::VectorXd& joint_forces,
+									const rbd::BodySelector& contacts,
+									double force_threshold);
+
+		/**
+		 * @brief Estimates active contacts by comparing the estimated joint forces with the
+		 * measured joint forces in a selected set of end-effectors
+		 * @param rbd::BodySelector& Estimated active contacts
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Base velocity
