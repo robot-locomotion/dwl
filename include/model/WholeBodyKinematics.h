@@ -1,7 +1,7 @@
 #ifndef DWL__MODEL__WHOLE_BODY_KINEMATICS__H
 #define DWL__MODEL__WHOLE_BODY_KINEMATICS__H
 
-#include <rbdl/addons/urdfreader/urdfreader.h>
+#include <model/FloatingBaseSystem.h>
 #include <utils/utils.h>
 
 
@@ -182,7 +182,7 @@ class WholeBodyKinematics
 							 enum rbd::Component component = rbd::Full);
 
 		/** @brief Gets the floating-base system information */
-		rbd::FloatingBaseSystem& getFloatingBaseSystem();
+		FloatingBaseSystem& getFloatingBaseSystem();
 
 		/**
 		 * @brief Gets the number of active end-effectors
@@ -196,7 +196,7 @@ class WholeBodyKinematics
 		rbd::BodyID body_id_;
 
 		/** @brief A floating-base system definition */
-		rbd::FloatingBaseSystem system_;
+		FloatingBaseSystem system_;
 };
 
 } //@namespace model

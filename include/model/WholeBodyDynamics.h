@@ -2,8 +2,7 @@
 #define DWL__MODEL__WHOLE_BODY_DYNAMICS__H
 
 #include <model/WholeBodyKinematics.h>
-#include <rbdl/addons/urdfreader/urdfreader.h>
-#include <utils/URDF.h>
+#include <model/FloatingBaseSystem.h>
 #include <utils/utils.h>
 
 
@@ -197,7 +196,7 @@ class WholeBodyDynamics
 									double force_threshold);
 
 		/** @brief Gets the floating-base system information */
-		rbd::FloatingBaseSystem& getFloatingBaseSystem();
+		FloatingBaseSystem& getFloatingBaseSystem();
 
 
 	private:
@@ -240,7 +239,7 @@ class WholeBodyDynamics
 		WholeBodyKinematics kinematics_;
 
 		/** @brief A floating-base system information */
-		rbd::FloatingBaseSystem system_;
+		FloatingBaseSystem system_;
 };
 
 } //@namespace model

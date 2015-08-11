@@ -47,7 +47,7 @@ void DynamicalSystem::modelFromURDFModel(std::string urdf_model,
 										 bool info)
 {
 	// Reseting the floating-base system information given an URDF model
-	system_.reset(urdf_model);
+	system_.resetFromURDFModel(urdf_model);
 
 	// Initializing the kinematical and dynamical model from the URDF model
 	kinematics_.modelFromURDFModel(urdf_model, info);
@@ -122,7 +122,7 @@ void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
 	// This integration method adds numerical stability
 	Eigen::VectorXd base_int = last_state_.base_pos - state.base_pos + step_time_ * state.base_vel;
 	Eigen::VectorXd joint_int = last_state_.joint_pos - state.joint_pos +	step_time_ * state.joint_vel;
-	constraint = rbd::toGeneralizedJointState(base_int, joint_int, system_);
+	constraint = system_.toGeneralizedJointState(base_int, joint_int);
 
 	// Updating the time state
 	state.time += step_time_;
@@ -208,7 +208,7 @@ unsigned int DynamicalSystem::getDimensionOfState()
 }
 
 
-rbd::FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
+FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
 {
 	return system_;
 }
@@ -235,33 +235,29 @@ void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
 		++idx;
 	}
 	if (locomotion_variables_.position) {
-		rbd::fromGeneralizedJointState(locomotion_state.base_pos,
-									   locomotion_state.joint_pos,
-									   (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()),
-									   system_);
+		system_.fromGeneralizedJointState(locomotion_state.base_pos,
+										  locomotion_state.joint_pos,
+										  (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()));
 		idx += system_.getSystemDoF();
 	}
 	if (locomotion_variables_.velocity) {
-		rbd::fromGeneralizedJointState(locomotion_state.base_vel,
-									   locomotion_state.joint_vel,
-									   (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()),
-									   system_);
+		system_.fromGeneralizedJointState(locomotion_state.base_vel,
+										  locomotion_state.joint_vel,
+										  (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()));
 		idx += system_.getSystemDoF();
 	}
 	if (locomotion_variables_.acceleration) {
-		rbd::fromGeneralizedJointState(locomotion_state.base_acc,
-									   locomotion_state.joint_acc,
-									   (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()),
-									   system_);
+		system_.fromGeneralizedJointState(locomotion_state.base_acc,
+										  locomotion_state.joint_acc,
+										  (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()));
 		idx += system_.getSystemDoF();
 	}
 	if (locomotion_variables_.effort) {
 		// Defining a fake floating-base system (fixed-base) for converting only joint effort
-		rbd::FloatingBaseSystem fake_system(false, system_.getJointDoF());
-		rbd::fromGeneralizedJointState(locomotion_state.base_eff,
-									   locomotion_state.joint_eff,
-									   (Eigen::VectorXd) generalized_state.segment(idx, system_.getJointDoF()),
-									   fake_system);
+		FloatingBaseSystem fake_system(false, system_.getJointDoF());
+		fake_system.fromGeneralizedJointState(locomotion_state.base_eff,
+											  locomotion_state.joint_eff,
+											  (Eigen::VectorXd) generalized_state.segment(idx, system_.getJointDoF()));
 		idx += system_.getJointDoF();
 	}
 	if (locomotion_variables_.contact_pos || locomotion_variables_.contact_vel ||
@@ -303,32 +299,28 @@ void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
 	}
 	if (locomotion_variables_.position) {
 		generalized_state.segment(idx, system_.getSystemDoF()) =
-				rbd::toGeneralizedJointState(locomotion_state.base_pos,
-											 locomotion_state.joint_pos,
-											 system_);
+				system_.toGeneralizedJointState(locomotion_state.base_pos,
+												locomotion_state.joint_pos);
 		idx += system_.getSystemDoF();
 	}
 	if (locomotion_variables_.velocity) {
 		generalized_state.segment(idx, system_.getSystemDoF()) =
-				rbd::toGeneralizedJointState(locomotion_state.base_vel,
-											 locomotion_state.joint_vel,
-											 system_);
+				system_.toGeneralizedJointState(locomotion_state.base_vel,
+												locomotion_state.joint_vel);
 		idx += system_.getSystemDoF();
 	}
 	if (locomotion_variables_.acceleration) {
 		generalized_state.segment(idx, system_.getSystemDoF()) =
-				rbd::toGeneralizedJointState(locomotion_state.base_acc,
-											 locomotion_state.joint_acc,
-											 system_);
+				system_.toGeneralizedJointState(locomotion_state.base_acc,
+												locomotion_state.joint_acc);
 		idx += system_.getSystemDoF();
 	}
 	if (locomotion_variables_.effort) {
 		// Defining a fake floating-base system (fixed-base) for converting only joint effort
-		rbd::FloatingBaseSystem fake_system(false, system_.getJointDoF());
+		FloatingBaseSystem fake_system(false, system_.getJointDoF());
 		generalized_state.segment(idx, system_.getJointDoF()) =
-				rbd::toGeneralizedJointState(locomotion_state.base_eff,
-											 locomotion_state.joint_eff,
-											 fake_system);
+				fake_system.toGeneralizedJointState(locomotion_state.base_eff,
+											 	 	locomotion_state.joint_eff);
 		idx += system_.getJointDoF();
 	}
 	if (locomotion_variables_.contact_pos || locomotion_variables_.contact_vel ||

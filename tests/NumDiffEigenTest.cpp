@@ -59,9 +59,9 @@ int main(int argc, char **argv)
 
 	// Initialization the robot model
 	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
-	dwl::rbd::FloatingBaseSystem system;
-	system.LZ.active = true;
-	system.LZ.id = 0;
+	dwl::model::FloatingBaseJoint joint(true, 0, "test_joint");
+	dwl::model::FloatingBaseSystem system;
+	system.setFloatingBaseJoint(joint, dwl::rbd::LZ);
 
 	dwl::model::ConstrainedDynamicalSystem* constrained_system = new dwl::model::ConstrainedDynamicalSystem();
 	dwl::rbd::BodySelector active_contact;
@@ -76,9 +76,9 @@ int main(int argc, char **argv)
 
 	// Converting locomotion state to generalized coordinates
 	Eigen::VectorXd q(3), qd(3), qdd(3), tau(2);
-	q = dwl::rbd::toGeneralizedJointState(base_pos, joint_pos, system);
-	qd = dwl::rbd::toGeneralizedJointState(base_vel, joint_vel, system);
-	qdd = dwl::rbd::toGeneralizedJointState(base_acc, joint_acc, system);
+	q = system.toGeneralizedJointState(base_pos, joint_pos);
+	qd = system.toGeneralizedJointState(base_vel, joint_vel);
+	qdd = system.toGeneralizedJointState(base_acc, joint_acc);
 	tau = Eigen::VectorXd::Zero(2);
 
 

@@ -19,7 +19,7 @@ class HS071DynamicalSystem : public DynamicalSystem
 			state_dimension_ = 4;
 			locomotion_variables_.position = true; //TODO remove it
 			system_.setJointDoF(4);
-			system_.setTypeOfDynamicSystem(dwl::rbd::FixedBase);
+			system_.setTypeOfDynamicSystem(FixedBase);
 
 			LocomotionState starting_state;
 			starting_state.joint_pos.resize(4);

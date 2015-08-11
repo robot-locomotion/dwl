@@ -159,7 +159,7 @@ class DynamicalSystem : public Constraint
 		unsigned int getDimensionOfState();
 
 		/** @brief Gets the floating-base system information */
-		rbd::FloatingBaseSystem& getFloatingBaseSystem();
+		FloatingBaseSystem& getFloatingBaseSystem();
 
 		/** @brief Gets the fixed-step time of integration */
 		const double& getFixedStepTime();
@@ -192,7 +192,7 @@ class DynamicalSystem : public Constraint
 		WholeBodyDynamics dynamics_;
 
 		/** @brief A floating-base system definition */
-		rbd::FloatingBaseSystem system_;
+		FloatingBaseSystem system_;
 
 		/** @brief Dimension of the dynamical state */
 		unsigned int state_dimension_;

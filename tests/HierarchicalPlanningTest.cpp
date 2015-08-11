@@ -30,9 +30,10 @@ inline double timer_stop (TimerInfo *timer) {
 int main(int argc, char **argv)
 {
 	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
-	dwl::rbd::FloatingBaseSystem system;
-	system.LZ.active = true;
-	system.LZ.id = 0;
+	dwl::model::FloatingBaseJoint joint(true, 0, "test_joint");
+	dwl::model::FloatingBaseSystem system;
+	system.setFloatingBaseJoint(joint, dwl::rbd::LZ);
+
 
 	dwl::model::WholeBodyKinematics kin;
 	kin.modelFromURDFFile(model_file, true);

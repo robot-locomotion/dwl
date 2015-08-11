@@ -78,6 +78,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/model/ControlEnergyCost.cpp
 							 src/model/RobCoGenWholeBodyKinematics.cpp
 							 src/model/RobCoGenWholeBodyDynamics.cpp
+							 src/model/FloatingBaseSystem.cpp
 							 src/model/WholeBodyKinematics.cpp
 							 src/model/WholeBodyDynamics.cpp
 							 src/behavior/MotorPrimitives.cpp
