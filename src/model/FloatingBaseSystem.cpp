@@ -339,18 +339,13 @@ void FloatingBaseSystem::fromGeneralizedJointState(rbd::Vector6d& base_state,
 		base_state << generalized_state.segment<3>(rbd::LX), generalized_state.segment<3>(rbd::AX);
 		joint_state = generalized_state.segment(6, getJointDoF());
 	} else if (getTypeOfDynamicSystem() == VirtualFloatingBase) {
-		if (AX.active)
-			base_state(rbd::AX) = generalized_state(AX.id);
-		if (AY.active)
-			base_state(rbd::AY) = generalized_state(AY.id);
-		if (AZ.active)
-			base_state(rbd::AZ) = generalized_state(AZ.id);
-		if (LX.active)
-			base_state(rbd::LX) = generalized_state(LX.id);
-		if (LY.active)
-			base_state(rbd::LY) = generalized_state(LY.id);
-		if (LZ.active)
-			base_state(rbd::LZ) = generalized_state(LZ.id);
+		for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
+			rbd::Coords6d base_coord = rbd::Coords6d(base_idx);
+			FloatingBaseJoint joint = getFloatingBaseJoint(base_coord);
+
+			if (joint.active)
+				base_state(base_coord) = generalized_state(joint.id);
+		}
 
 		joint_state = generalized_state.segment(getFloatingBaseDoF(), getJointDoF());
 	} else {
