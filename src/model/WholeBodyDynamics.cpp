@@ -298,7 +298,6 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 			contact_iter++)
 	{
 		std::string body_name = *contact_iter;
-		unsigned int body_id = system_.getRBDModel().GetBodyId(body_name.c_str());
 		rbd::BodySelector body(contact_iter, contact_iter + 1);
 
 		Eigen::MatrixXd full_jac, fixed_jac;
