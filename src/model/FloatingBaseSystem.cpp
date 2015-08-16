@@ -241,9 +241,9 @@ const unsigned int& FloatingBaseSystem::getNumberOfEndEffectors()
 }
 
 
-void FloatingBaseSystem::getEndEffectors(urdf_model::LinkSelector& _end_effectors)
+rbd::BodySelector& FloatingBaseSystem::getEndEffectors()
 {
-	_end_effectors = end_effectors;
+	return end_effectors;
 }
 
 

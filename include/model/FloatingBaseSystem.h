@@ -154,9 +154,9 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the end-effectors names
-		 * @param urdf_model::LinkSelector& Names of the end-effectors
+		 * @return rbd::BodySelector& Names of the end-effectors
 		 */
-		void getEndEffectors(urdf_model::LinkSelector& _end_effectors);
+		rbd::BodySelector& getEndEffectors();
 
 		/** @brief Returns true if the system has fully floating-base */
 		bool isFullyFloatingBase();
