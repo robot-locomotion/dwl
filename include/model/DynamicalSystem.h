@@ -2,9 +2,6 @@
 #define DWL__MODEL__DYNAMICAL_SYSTEM__H
 
 #include <model/Constraint.h>
-#include <model/WholeBodyKinematics.h>
-#include <model/WholeBodyDynamics.h>
-#include <utils/URDF.h>
 
 
 namespace dwl
@@ -46,21 +43,8 @@ class DynamicalSystem : public Constraint
 		/** @brief Destructor function */
 		virtual ~DynamicalSystem();
 
-		/**
-		 * @brief Build the model rigid-body system from an URDF file
-		 * @param std::string URDF file
-		 * @param Print model information
-		 */
-		void modelFromURDFFile(std::string urdf_model,
-							   bool info = false);
-
-		/**
-		 * @brief Build the model rigid-body system from an URDF model (xml)
-		 * @param std::string URDF model
-		 * @param Print model information
-		 */
-		void modelFromURDFModel(std::string urdf_model,
-								bool info = false);
+		void init(std::string urdf_model,
+				  bool info);
 
 		/**
 		 * @brief Reads and sets the joint limit from an URDF model
@@ -185,15 +169,6 @@ class DynamicalSystem : public Constraint
 
 
 	protected:
-		/** @brief Whole-body kinematical model */
-		WholeBodyKinematics kinematics_;
-
-		/** @brief Whole-body dynamical model */
-		WholeBodyDynamics dynamics_;
-
-		/** @brief A floating-base system definition */
-		FloatingBaseSystem system_;
-
 		/** @brief Dimension of the dynamical state */
 		unsigned int state_dimension_;
 

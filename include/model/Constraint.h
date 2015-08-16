@@ -1,6 +1,9 @@
 #ifndef DWL__MODEL__CONSTRAINT__H
 #define DWL__MODEL__CONSTRAINT__H
 
+#include <model/WholeBodyKinematics.h>
+#include <model/WholeBodyDynamics.h>
+#include <utils/URDF.h>
 #include <utils/utils.h>
 #define NO_BOUND 2e19
 
@@ -23,6 +26,30 @@ class Constraint
 
 		/** @brief Destructor function */
 		virtual ~Constraint();
+
+		/**
+		 * @brief Build the model rigid-body system from an URDF file
+		 * @param std::string URDF file
+		 * @param Print model information
+		 */
+		void modelFromURDFFile(std::string urdf_model,
+							   bool info = false);
+
+		/**
+		 * @brief Build the model rigid-body system from an URDF model (xml)
+		 * @param std::string URDF model
+		 * @param Print model information
+		 */
+		void modelFromURDFModel(std::string urdf_model,
+								bool info = false);
+
+		/**
+		 * @brief Initializes the constraint properties given an URDF model (xml)
+		 * @param std::string URDF model
+		 * @param Print model information
+		 */
+		virtual void init(std::string urdf_model,
+						  bool info = false);
 
 		/**
 		 * @brief Computes the constraint vector given a certain state
@@ -65,6 +92,15 @@ class Constraint
 
 		/** @brief Sets the last state */
 		LocomotionState last_state_;
+
+		/** @brief A floating-base system definition */
+		FloatingBaseSystem system_;
+
+		/** @brief Whole-body kinematical model */
+		WholeBodyKinematics kinematics_;
+
+		/** @brief Whole-body dynamical model */
+		WholeBodyDynamics dynamics_;
 };
 
 } //@namespace model

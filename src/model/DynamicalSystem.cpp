@@ -20,39 +20,9 @@ DynamicalSystem::~DynamicalSystem()
 }
 
 
-void DynamicalSystem::modelFromURDFFile(std::string filename,
-										bool info)
+void DynamicalSystem::init(std::string urdf_model,
+						   bool info)
 {
-	// Reading the file
-	std::ifstream model_file(filename.c_str());
-	if (!model_file) {
-		std::cerr << "Error opening file '" << filename << "'." << std::endl;
-		abort();
-	}
-
-	// Reserving memory for the contents of the file
-	std::string model_xml_string;
-	model_file.seekg(0, std::ios::end);
-	model_xml_string.reserve(model_file.tellg());
-	model_file.seekg(0, std::ios::beg);
-	model_xml_string.assign((std::istreambuf_iterator<char>(model_file)),
-			std::istreambuf_iterator<char>());
-	model_file.close();
-
-	modelFromURDFModel(model_xml_string, info);
-}
-
-
-void DynamicalSystem::modelFromURDFModel(std::string urdf_model,
-										 bool info)
-{
-	// Reseting the floating-base system information given an URDF model
-	system_.resetFromURDFModel(urdf_model);
-
-	// Initializing the kinematical and dynamical model from the URDF model
-	kinematics_.modelFromURDFModel(urdf_model, info);
-	dynamics_.modelFromURDFModel(urdf_model, false);
-
 	// Setting initial conditions
 	initialConditions();
 
