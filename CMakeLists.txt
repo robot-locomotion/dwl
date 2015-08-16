@@ -74,6 +74,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/model/KinematicConstraint.cpp
 							 src/model/StabilityConstraint.cpp
 							 src/model/ComplementaryConstraint.cpp
+							 src/model/InelasticContactModelConstraint.cpp
 							 src/model/Cost.cpp
 							 src/model/StateTrackingEnergyCost.cpp
 							 src/model/ControlEnergyCost.cpp
