@@ -52,7 +52,8 @@ class ComplementaryConstraint : public Constraint
 											 const LocomotionState& state) = 0;
 
 
-	private:
+	protected:
+		/** @brief Dimension of the complementary constraints */
 		unsigned int complementary_dimension_;
 };
 

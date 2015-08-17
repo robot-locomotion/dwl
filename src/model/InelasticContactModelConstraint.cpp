@@ -19,6 +19,23 @@ InelasticContactModelConstraint::~InelasticContactModelConstraint()
 }
 
 
+void InelasticContactModelConstraint::init(std::string urdf_model)
+{
+	// Getting the end-effector names
+	end_effector_names_.clear();
+	urdf_model::LinkID end_effector = system_.getEndEffectors();
+	for (urdf_model::LinkID::iterator endeffector_it = end_effector.begin();
+			endeffector_it != end_effector.end(); endeffector_it++) {
+		// Getting and setting the end-effector names
+		std::string name = endeffector_it->first;
+		end_effector_names_.push_back(name);
+	}
+
+	// Setting the complementary dimension
+	complementary_dimension_ = system_.getNumberOfEndEffectors();
+}
+
+
 void InelasticContactModelConstraint::computeFirstComplement(Eigen::VectorXd& constraint,
 															 const LocomotionState& state)
 {
@@ -37,20 +54,17 @@ void InelasticContactModelConstraint::computeSecondComplement(Eigen::VectorXd& c
 	// Resizing the complementary constraint dimension
 	constraint.resize(system_.getNumberOfEndEffectors());
 
-	// Getting the end-effector names
-	urdf_model::LinkSelector end_effector_names = system_.getEndEffectors();
-
 	// Computing the contact position
 	rbd::BodyVector contact_pos;
 	kinematics_.computeForwardKinematics(contact_pos,
 										 state.base_pos, state.joint_pos,
-										 end_effector_names, rbd::Linear);
+										 end_effector_names_, rbd::Linear);
 
 	// Adding the contact distance per every end-effector as a the second complementary
 	// TODO there is missing the concept of surface
 	double surface_height = -0.27;
 	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
-		constraint(k) = contact_pos.find(end_effector_names[k])->second(rbd::LZ) - surface_height;
+		constraint(k) = contact_pos.find(end_effector_names_[k])->second(rbd::LZ) - surface_height;
 }
 
 } //@namespace model

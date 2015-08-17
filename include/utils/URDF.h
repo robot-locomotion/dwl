@@ -16,7 +16,7 @@ namespace urdf_model
 
 typedef std::map<std::string,unsigned int> JointID;
 typedef std::map<std::string,Eigen::Vector3d> JointAxis;
-typedef std::vector<std::string> LinkSelector;
+typedef std::map<std::string,unsigned int> LinkID;
 enum JointType {free=0, fixed, floating, all};
 enum JointMotion {AX = 0, AY, AZ, LX, LY, LZ, FULL};
 
@@ -32,10 +32,10 @@ void getJointNames(JointID& joints,
 
 /**
  * @brief Get the end-effector names from URDF model
- * @param LinkSelector& End-effector link names
+ * @param LinkID& End-effector link ids and names
  * @param std::string URDF model
  */
-void getEndEffectors(LinkSelector& end_effectors,
+void getEndEffectors(LinkID& end_effectors,
 					 std::string urdf_model);
 
 /**

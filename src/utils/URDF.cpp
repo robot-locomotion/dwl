@@ -25,7 +25,7 @@ void getJointNames(JointID& joints,
 		branch_index_stack.push(0);
 	}
 
-	unsigned joint_idx = 0;
+	unsigned int joint_idx = 0;
 	while (link_stack.size() > 0) {
 		boost::shared_ptr<urdf::Link> current_link = link_stack.top();
 		unsigned int branch_idx = branch_index_stack.top();
@@ -80,7 +80,7 @@ void getJointNames(JointID& joints,
 }
 
 
-void getEndEffectors(LinkSelector& end_effectors,
+void getEndEffectors(LinkID& end_effectors,
 					 std::string urdf_model)
 {
 	// Parsing the URDF-XML
@@ -95,6 +95,7 @@ void getEndEffectors(LinkSelector& end_effectors,
 	boost::shared_ptr<urdf::Link> root_link = world_link->child_links[0];
 
 	// Searching the end-effector joints
+	unsigned int end_effector_idx = 0;
 	for (urdf_model::JointID::iterator jnt_it = fixed_joints.begin();
 			jnt_it != fixed_joints.end(); jnt_it++) {
 		std::string joint_name = jnt_it->first;
@@ -110,7 +111,8 @@ void getEndEffectors(LinkSelector& end_effectors,
 			boost::shared_ptr<urdf::Joint> parent_joint = model->joints_[parent_link->parent_joint->name];
 			if (parent_joint->type == urdf::Joint::PRISMATIC ||
 					parent_joint->type == urdf::Joint::REVOLUTE) {
-				end_effectors.push_back(current_joint->child_link_name);
+				end_effectors[current_joint->child_link_name] = end_effector_idx;
+				end_effector_idx++;
 				break;
 			}
 

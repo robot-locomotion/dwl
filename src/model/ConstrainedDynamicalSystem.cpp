@@ -41,6 +41,7 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 	// Computing the step time
 	double step_time = state.time - last_state_.time;
 
+	// Computing the constrained inverse dynamics to the defined active contacts
 	Eigen::VectorXd estimated_joint_forces;
 	Eigen::VectorXd base_acc = (state.base_vel - last_state_.base_vel) / step_time;
 	Eigen::VectorXd joint_acc = (state.joint_vel - last_state_.joint_vel) / step_time;
@@ -60,11 +61,14 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 								state.base_pos, state.joint_pos,
 								state.base_vel, state.joint_vel,
 								active_endeffectors_, rbd::Linear);
-	unsigned endeffector_counter = 0;
+
 	for (rbd::BodyVector::iterator endeffector_it = endeffectors_vel.begin();
 			endeffector_it != endeffectors_vel.end(); endeffector_it++) {
-		constraint.segment<3>(system_.getJointDoF() + endeffector_counter) = endeffector_it->second;
-		endeffector_counter++;
+		// Getting the end-effector index
+		std::string name = endeffector_it->first;
+		unsigned int end_effector_idx = system_.getEndEffectors().find(name)->second;
+
+		constraint.segment<3>(system_.getJointDoF() + 3 * end_effector_idx) = endeffector_it->second;
 	}
 }
 
