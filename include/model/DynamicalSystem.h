@@ -43,8 +43,16 @@ class DynamicalSystem : public Constraint
 		/** @brief Destructor function */
 		virtual ~DynamicalSystem();
 
+		/**
+		 * @brief Initializes the dynamical system constraint given an URDF model (xml)
+		 * @param std::string URDF model
+		 * @param Print model information
+		 */
 		void init(std::string urdf_model,
 				  bool info);
+
+		/** @brief Initializes the dynamical system properties */
+		virtual void initDynamicalSystem();
 
 		/**
 		 * @brief Reads and sets the joint limit from an URDF model

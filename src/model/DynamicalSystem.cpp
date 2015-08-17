@@ -29,11 +29,20 @@ void DynamicalSystem::init(std::string urdf_model,
 	// Reading and setting the joint limits
 	jointLimitsFromURDF(urdf_model);
 
+	// Initializing the dynamical system
+	initDynamicalSystem();
+
 	if (info) {
 		printf("The state dimension is %i\n", state_dimension_);
 		printf("The full DOF of floating-base system is %i\n", system_.getSystemDoF());
 		printf("The joint DOF of floating-base system is %i\n", system_.getJointDoF());
 	}
+}
+
+
+void DynamicalSystem::initDynamicalSystem()
+{
+
 }
 
 
@@ -97,6 +106,7 @@ void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
 	// Updating the time state
 	state.time += step_time_;
 }
+
 
 void DynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
 								Eigen::VectorXd& upper_bound)
@@ -333,7 +343,10 @@ void DynamicalSystem::initialConditions()
 	// Computing the state dimension give the locomotion variables
 	state_dimension_ = (locomotion_variables_.position + locomotion_variables_.velocity
 			+ locomotion_variables_.acceleration) * system_.getSystemDoF()
-			+ locomotion_variables_.effort * system_.getJointDoF();
+			+ locomotion_variables_.effort * system_.getJointDoF() + 3 *
+			(locomotion_variables_.contact_pos + locomotion_variables_.contact_vel +
+					locomotion_variables_.contact_acc + locomotion_variables_.contact_for) *
+					system_.getNumberOfEndEffectors();
 
 
 	// No-bound limit by default
@@ -353,12 +366,33 @@ void DynamicalSystem::initialConditions()
 	upper_state_bound_.joint_acc = NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
 	upper_state_bound_.base_eff = NO_BOUND * rbd::Vector6d::Ones();
 	upper_state_bound_.joint_eff = NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
+	lower_state_bound_.contacts.resize(system_.getNumberOfEndEffectors());
+	upper_state_bound_.contacts.resize(system_.getNumberOfEndEffectors());
+	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++) {
+		lower_state_bound_.contacts[k].position = -NO_BOUND * Eigen::Vector3d::Ones();
+		lower_state_bound_.contacts[k].velocity = -NO_BOUND * Eigen::Vector3d::Ones();
+		lower_state_bound_.contacts[k].acceleration = -NO_BOUND * Eigen::Vector3d::Ones();
+		lower_state_bound_.contacts[k].force = -NO_BOUND * Eigen::Vector3d::Ones();
+		upper_state_bound_.contacts[k].position = NO_BOUND * Eigen::Vector3d::Ones();
+		upper_state_bound_.contacts[k].velocity = NO_BOUND * Eigen::Vector3d::Ones();
+		upper_state_bound_.contacts[k].acceleration = NO_BOUND * Eigen::Vector3d::Ones();
+		upper_state_bound_.contacts[k].force = NO_BOUND * Eigen::Vector3d::Ones();
+	}
+
 
 	// Starting state
 	starting_state_.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
 	starting_state_.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
 	starting_state_.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
 	starting_state_.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
+	starting_state_.contacts.resize(system_.getNumberOfEndEffectors());
+	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++) {
+		starting_state_.contacts[k].end_effector = 0;
+		starting_state_.contacts[k].position = Eigen::Vector3d::Zero();
+		starting_state_.contacts[k].velocity = Eigen::Vector3d::Zero();
+		starting_state_.contacts[k].acceleration = Eigen::Vector3d::Zero();
+		starting_state_.contacts[k].force = Eigen::Vector3d::Zero();
+	}
 }
 
 } //@namespace model
