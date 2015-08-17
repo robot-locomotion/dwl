@@ -20,6 +20,14 @@ class ComplementaryConstraint : public Constraint
 		virtual ~ComplementaryConstraint();
 
 		/**
+		 * @brief Initializes the complementary constraint properties given an URDF model (xml)
+		 * @param std::string URDF model
+		 * @param Print model information
+		 */
+		virtual void init(std::string urdf_model,
+						  bool info);
+
+		/**
 		 * @brief Computes the complementary constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
 		 * @param const LocomotionState& State vector

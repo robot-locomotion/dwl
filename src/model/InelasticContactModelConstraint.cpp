@@ -20,7 +20,8 @@ InelasticContactModelConstraint::~InelasticContactModelConstraint()
 }
 
 
-void InelasticContactModelConstraint::init(std::string urdf_model)
+void InelasticContactModelConstraint::init(std::string urdf_model,
+										   bool info)
 {
 	// Getting the end-effector names
 	end_effector_names_.clear();

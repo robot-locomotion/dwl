@@ -19,6 +19,13 @@ ComplementaryConstraint::~ComplementaryConstraint()
 }
 
 
+void ComplementaryConstraint::init(std::string urdf_model,
+								   bool info)
+{
+
+}
+
+
 void ComplementaryConstraint::compute(Eigen::VectorXd& constraint,
 									  const LocomotionState& state)
 {
@@ -43,6 +50,10 @@ void ComplementaryConstraint::compute(Eigen::VectorXd& constraint,
 void ComplementaryConstraint::getBounds(Eigen::VectorXd& lower_bound,
 										Eigen::VectorXd& upper_bound)
 {
+	// Resizing the bounds
+	lower_bound.resize(2 * complementary_dimension_ + 1);
+	upper_bound.resize(2 * complementary_dimension_ + 1);
+
 	// Computing the lower and upper bound of the first and second constraints
 	lower_bound.segment(0, 2 * complementary_dimension_) =
 			Eigen::VectorXd::Zero(2 * complementary_dimension_);
