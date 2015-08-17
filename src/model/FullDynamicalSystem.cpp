@@ -9,6 +9,10 @@ namespace model
 
 FullDynamicalSystem::FullDynamicalSystem()
 {
+	// Setting the name of the constraint
+	name_ = "full";
+
+	// Setting the locomotion variables for this dynamical constraint
 	locomotion_variables_.position = true;
 	locomotion_variables_.velocity = true;
 //	locomotion_variables_.acceleration = true;

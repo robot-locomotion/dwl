@@ -44,7 +44,7 @@ class WholeBodyTrajectoryOptimization
 
 		/**
 		 * @brief Adds the constraint
-		 * @param modelk::Constraint* Pointer to the constraint
+		 * @param model::Constraint* Pointer to the constraint
 		 */
 		void addConstraint(model::Constraint* constraint);
 

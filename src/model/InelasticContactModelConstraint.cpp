@@ -9,7 +9,8 @@ namespace model
 
 InelasticContactModelConstraint::InelasticContactModelConstraint()
 {
-
+	// Setting the name of the constraint
+	name_ = "inelastic contact model";
 }
 
 

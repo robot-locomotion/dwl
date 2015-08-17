@@ -285,7 +285,7 @@ void OptimizationModel::removeDynamicalSystem()
 
 void OptimizationModel::addConstraint(Constraint* constraint)
 {
-	printf(GREEN "Adding the %s dynamical system constraint\n" COLOR_RESET, constraint->getName().c_str());
+	printf(GREEN "Adding the %s constraint\n" COLOR_RESET, constraint->getName().c_str());
 	constraints_.push_back(constraint);
 
 	if (!is_added_constraint_)
