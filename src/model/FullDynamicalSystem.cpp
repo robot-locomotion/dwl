@@ -27,12 +27,12 @@ FullDynamicalSystem::~FullDynamicalSystem()
 }
 
 
-void FullDynamicalSystem::init(std::string urdf_model)
+void FullDynamicalSystem::initDynamicalSystem()
 {
 	// Getting the end-effector names
 	end_effector_names_.clear();
 	urdf_model::LinkID end_effector = system_.getEndEffectors();
-	for (urdf_model::LinkID::iterator endeffector_it = end_effector.begin();
+	for (urdf_model::LinkID::const_iterator endeffector_it = end_effector.begin();
 			endeffector_it != end_effector.end(); endeffector_it++) {
 		// Getting and setting the end-effector names
 		std::string name = endeffector_it->first;
@@ -40,7 +40,7 @@ void FullDynamicalSystem::init(std::string urdf_model)
 	}
 
 	// Setting the constraint dimension
-	constraint_dimension_ = system_.getJointDoF();
+//	constraint_dimension_ = system_.getJointDoF();
 }
 
 
@@ -58,7 +58,7 @@ void FullDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint
 
 	// Setting the contact forces
 	rbd::BodyWrench contact_forces;
-	for (unsigned int k = 0; k < system_.getFloatingBaseDoF(); k++)
+	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
 		contact_forces[end_effector_names_[k]] << 0, 0, 0, state.contacts[k].force;
 
 	// Computing the floating-base inverse dynamics

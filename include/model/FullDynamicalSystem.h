@@ -19,12 +19,8 @@ class FullDynamicalSystem : public DynamicalSystem
 		/** @brief Destructor function */
 		~FullDynamicalSystem();
 
-		/**
-		 * @brief Initializes the full dynamical system constraint given an URDF model (xml)
-		 * @param std::string URDF model
-		 * @param Print model information
-		 */
-		void init(std::string urdf_model);
+		/** @brief Initializes the full dynamical system constraint */
+		void initDynamicalSystem();
 
 		/**
 		 * @brief Computes the dynamic constraint vector given a certain state
