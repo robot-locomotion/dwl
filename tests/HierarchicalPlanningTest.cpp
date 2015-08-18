@@ -29,15 +29,11 @@ inline double timer_stop (TimerInfo *timer) {
 
 int main(int argc, char **argv)
 {
-	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
-	dwl::model::FloatingBaseJoint joint(true, 0, "test_joint");
-	dwl::model::FloatingBaseSystem system;
-	system.setFloatingBaseJoint(joint, dwl::rbd::LZ);
-
-
 	dwl::model::WholeBodyKinematics kin;
-	kin.modelFromURDFFile(model_file, true);
 	dwl::model::WholeBodyDynamics dyn;
+
+	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyl.urdf";
+	kin.modelFromURDFFile(model_file, true);
 	dyn.modelFromURDFFile(model_file);
 
 
@@ -80,7 +76,9 @@ int main(int argc, char **argv)
 
 	// Computing forward kinematics
 	dwl::rbd::BodyVector fk_pos;
-	kin.computeForwardKinematics(fk_pos, base_pos, joint_pos, contacts, dwl::rbd::Linear, dwl::RollPitchYaw);
+	kin.computeForwardKinematics(fk_pos,
+								 base_pos, joint_pos,
+								 contacts, dwl::rbd::Linear, dwl::RollPitchYaw);
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << fk_pos["foot"].transpose() << " = Body tf" << std::endl;
 
@@ -93,37 +91,54 @@ int main(int argc, char **argv)
 	base_pos_init(dwl::rbd::LZ) = 0.1;
 	Eigen::VectorXd joint_pos_init(2);// = Eigen::VectorXd::Zero(2);
 	joint_pos_init << 0.2, -1;
-	kin.computeInverseKinematics(base_pos, joint_pos, base_pos_init, joint_pos_init, ik_pos);
+	kin.computeInverseKinematics(base_pos, joint_pos,
+								 base_pos_init, joint_pos_init,
+								 ik_pos);
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << base_pos.transpose() << " | " << joint_pos.transpose() << " = Body ik" << std::endl;
 
 
 	// Computing body velocity
 	dwl::rbd::BodyVector velocity;
-	kin.computeVelocity(velocity, base_pos, joint_pos, base_vel, joint_vel, contacts, dwl::rbd::Full);
+	kin.computeVelocity(velocity,
+						base_pos, joint_pos,
+						base_vel, joint_vel,
+						contacts, dwl::rbd::Full);
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << velocity["foot"].transpose() << " = Body vel" << std::endl;
 
 
 	// Computing body acceleration
 	dwl::rbd::BodyVector acceleration;
-	kin.computeAcceleration(acceleration, base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc, contacts, dwl::rbd::Full);
+	kin.computeAcceleration(acceleration,
+							base_pos, joint_pos,
+							base_vel, joint_vel,
+							base_acc, joint_acc,
+							contacts, dwl::rbd::Full);
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << acceleration["foot"].transpose() << " = Body acc" << std::endl;
 
 
 	// Computing body Jacd*Qd
 	dwl::rbd::BodyVector jacd_qd;
-	kin.computeJdotQdot(jacd_qd, base_pos, joint_pos, base_vel, joint_vel, contacts, dwl::rbd::Full);
+	kin.computeJdotQdot(jacd_qd,
+						base_pos, joint_pos,
+						base_vel, joint_vel,
+						contacts, dwl::rbd::Full);
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << jacd_qd["foot"].transpose() << " = jacd_qd" << std::endl;
 
 
 	// Computing the ID
 	dwl::rbd::BodyWrench grf;
-	grf["foot"] << 0, 0, 0, 0, 0, 67.3149;
-	dyn.computeInverseDynamics(base_wrench, joint_forces, base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc, grf);
-	std::cout << "---------------------------------------" << std::endl;
+//	grf["foot"] << 0, 0, 0, 0, 0, 67.3149;
+//	grf["foot"] << 0, 0, 0, -15.2036, 0, 74.0133;
+	grf["foot"] << 0, 0, 0, 0, 0, 106.555;
+	dyn.computeInverseDynamics(base_wrench, joint_forces,
+							   base_pos, joint_pos,
+							   base_vel, joint_vel,
+							   base_acc, joint_acc, grf);
+	std::cout << "ID ---------------------------------------" << std::endl;
 	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = tau" << std::endl;
 
 
@@ -131,10 +146,31 @@ int main(int argc, char **argv)
 	dyn.computeConstrainedFloatingBaseInverseDynamics(joint_forces, base_pos, joint_pos,
 													  base_vel, joint_vel, base_acc, joint_acc,
 													  contacts);
-	std::cout << "---------------------------------------" << std::endl;
+	std::cout << "constrained ID ---------------------------------------" << std::endl;
 	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
 	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
 
+	// Computing the floating-base ID
+	dyn.computeFloatingBaseInverseDynamics(base_acc, joint_forces,
+										   base_pos, joint_pos,
+										   base_vel, joint_vel,
+										   joint_acc, grf);
+	std::cout << "floating-base ID ---------------------------------------" << std::endl;
+	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
+	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
+
+
+	// Estimating contact forces
+	double force_threshold = 0;
+	dwl::rbd::BodySelector active_contacts;
+	dwl::rbd::BodyWrench contact_forces;
+	dyn.estimateActiveContacts(active_contacts, contact_forces,
+							   base_pos, joint_pos,
+							   base_vel, joint_vel,
+							   base_acc, joint_acc,
+							   joint_forces, contacts, force_threshold);
+	std::cout << "contact force ---------------------------------------" << std::endl;
+	std::cout << "Contact for = " << contact_forces.find("foot")->second.transpose() << std::endl;
 
     return 0;
 }

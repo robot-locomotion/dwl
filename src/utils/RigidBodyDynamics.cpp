@@ -313,6 +313,5 @@ void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
 	}
 }
 
-
 } //@namespace rbd
 } //@namespace dwl

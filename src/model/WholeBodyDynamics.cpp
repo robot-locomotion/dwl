@@ -87,6 +87,7 @@ void WholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 	RigidBodyDynamics::InverseDynamics(system_.getRBDModel(), q, q_dot, q_ddot, tau, &fext);
 
 	// Converting the generalized joint forces to base wrench and joint forces
+	base_wrench.setZero();
 	system_.fromGeneralizedJointState(base_wrench, joint_forces, tau);
 }
 
@@ -121,8 +122,9 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 		// Converting the base acceleration
 		base_acc = base_ddot;
 	} else {
-		RigidBodyDynamics::InverseDynamics(system_.getRBDModel(), q, q_dot, q_ddot, tau, &fext);
 		if (system_.isVirtualFloatingBaseRobot())
+			RigidBodyDynamics::InverseDynamics(system_.getRBDModel(), q, q_dot, q_ddot, tau, &fext);
+		else
 			printf(YELLOW "WARNING: this is not a floating-base system\n" COLOR_RESET);
 	}
 
