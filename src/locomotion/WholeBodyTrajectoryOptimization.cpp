@@ -112,14 +112,17 @@ const LocomotionTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhol
 	// Getting the whole-body trajectory
 	LocomotionTrajectory trajectory = solver_->getWholeBodyTrajectory();
 
-	// Getting the number of joints
+	// Getting the number of joints and end-effectors
 	unsigned int num_joints = getDynamicalSystem()->getFloatingBaseSystem().getJointDoF();
+	unsigned int num_contacts = getDynamicalSystem()->getFloatingBaseSystem().getNumberOfEndEffectors();
 
 	// Defining splines //TODO for the time being only cubic interpolation is OK
 	std::vector<math::CubicSpline> base_spline, joint_spline, control_spline;
+	std::vector<std::vector<math::CubicSpline> > contact_force_spline;
 	base_spline.resize(6);
 	joint_spline.resize(num_joints);
 	control_spline.resize(num_joints);
+	contact_force_spline.resize(num_contacts);
 
 	// Computing the interpolation of the whole-body trajectory
 	double duration;
@@ -191,6 +194,34 @@ const LocomotionTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhol
 					// Getting and setting the joint motion interpolated point
 					control_spline[joint_idx].getPoint(time, current_point);
 					current_state.joint_eff(joint_idx) = current_point.x;
+				}
+			}
+
+			// Contact interpolation if there are part of the optimization variables
+			if (trajectory[k].contacts.size() != 0) {
+				for (unsigned int contact_idx = 0; contact_idx < num_contacts; contact_idx++) {
+					// Resizing the number of contacts
+					current_state.contacts.resize(num_contacts);
+
+					// Resizing the number of coordinate of the spline
+					contact_force_spline[contact_idx].resize(3);
+
+					// Computing the contact interpolation per each coordinate (x,y,z)
+					for (unsigned int coord_idx = 0; coord_idx < 3; coord_idx++) {
+						// Getting the 3d coordinate
+						rbd::Coords3d coord = rbd::Coords3d(coord_idx);
+						if (t == 0) {
+							// Initialization of the contact force splines
+							math::Spline::Point force_starting(trajectory[k].contacts[contact_idx].force(coord));
+							math::Spline::Point force_ending(trajectory[k+1].contacts[contact_idx].force(coord));
+							contact_force_spline[contact_idx][coord_idx].setBoundary(starting_time, duration,
+																		  force_starting, force_ending);
+						} else {
+							// Getting and setting the force interpolated point
+							contact_force_spline[contact_idx][coord_idx].getPoint(time, current_point);
+							current_state.contacts[contact_idx].force(coord_idx) = current_point.x;
+						}
+					}
 				}
 			}
 
