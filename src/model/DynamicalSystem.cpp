@@ -148,6 +148,18 @@ void DynamicalSystem::setStepIntegrationTime(const double& step_time)
 }
 
 
+WholeBodyKinematics& DynamicalSystem::getKinematics()
+{
+	return kinematics_;
+}
+
+
+WholeBodyDynamics& DynamicalSystem::getDynamics()
+{
+	return dynamics_;
+}
+
+
 void DynamicalSystem::setStateBounds(const LocomotionState& lower_bound,
 									 const LocomotionState& upper_bound)
 {

@@ -133,6 +133,12 @@ class DynamicalSystem : public Constraint
 		 */
 		void setStepIntegrationTime(const double& step_time);
 
+		/** @brief Gets the kinematics of the system */
+		WholeBodyKinematics& getKinematics();
+
+		/** @brief Gets the dynamics of the system */
+		WholeBodyDynamics& getDynamics();
+
 		/**
 		 * @brief Gets the lower and upper state bounds
 		 * @param LocomotionState& Lower state bounds
