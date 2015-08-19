@@ -42,8 +42,7 @@ void ComplementaryConstraint::compute(Eigen::VectorXd& constraint,
 	constraint.segment(complementary_dimension_, complementary_dimension_) = second_constraint;
 
 	// Computing the inner product of the complementary constraints
-	constraint.segment<1>(2 * complementary_dimension_) =
-			first_constraint.transpose() * second_constraint;
+	constraint(2 * complementary_dimension_) = first_constraint.transpose() * second_constraint;
 }
 
 
@@ -61,10 +60,11 @@ void ComplementaryConstraint::getBounds(Eigen::VectorXd& lower_bound,
 			NO_BOUND * Eigen::VectorXd::Ones(2 * complementary_dimension_);
 
 	// Computing the inner product bounds
-	double relaxation_parameter = 0.5;
-	lower_bound.segment<1>(2 * complementary_dimension_) = Eigen::VectorXd::Zero(1);
-	upper_bound.segment<1>(2 * complementary_dimension_) =
-			relaxation_parameter * Eigen::VectorXd::Ones(1);
+	double relaxation_parameter = 0.0;//15;// * NO_BOUND;
+	lower_bound(2 * complementary_dimension_) = 0.;
+//			relaxation_parameter;
+//			-NO_BOUND;
+	upper_bound(2 * complementary_dimension_) = relaxation_parameter;
 }
 
 } //@namespace model
