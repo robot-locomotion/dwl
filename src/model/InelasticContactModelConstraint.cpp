@@ -46,7 +46,7 @@ void InelasticContactModelConstraint::computeFirstComplement(Eigen::VectorXd& co
 
 	// Adding the normal contact forces per every end-effector as a the first complementary
 	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
-		constraint(k) = state.contacts[k].force(rbd::LZ);
+		constraint(k) = state.contacts[k].force(rbd::Z);
 }
 
 
@@ -64,9 +64,9 @@ void InelasticContactModelConstraint::computeSecondComplement(Eigen::VectorXd& c
 
 	// Adding the contact distance per every end-effector as a the second complementary
 	// TODO there is missing the concept of surface
-	double surface_height = -0.27;
+	double surface_height = -0.582715;
 	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
-		constraint(k) = contact_pos.find(end_effector_names_[k])->second(rbd::LZ) - surface_height;
+		constraint(k) = contact_pos.find(end_effector_names_[k])->second(rbd::Z) - surface_height;
 }
 
 } //@namespace model
