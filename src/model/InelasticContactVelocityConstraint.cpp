@@ -56,17 +56,21 @@ void InelasticContactVelocityConstraint::computeSecondComplement(Eigen::VectorXd
 	// Resizing the complementary constraint dimension
 	constraint.resize(system_.getNumberOfEndEffectors());
 
-	// Computing the contact velocity
-	rbd::BodyVector contact_vel;
-	kinematics_.computeVelocity(contact_vel,
-								state.base_pos, state.joint_pos,
-								state.base_vel, state.joint_vel,
-								end_effector_names_, rbd::Linear);
+	// Computing the changes of the contact position
+	rbd::BodyVector current_contact_pos;
+	kinematics_.computeForwardKinematics(current_contact_pos,
+										 state.base_pos, state.joint_pos,
+										 end_effector_names_, rbd::Linear);
+	rbd::BodyVector last_contact_pos;
+	kinematics_.computeForwardKinematics(last_contact_pos,
+										 last_state_.base_pos, last_state_.joint_pos,
+										 end_effector_names_, rbd::Linear);
 
 	// Adding the contact distance per every end-effector as a the second complementary
 	// TODO there is missing the concept of surface
 	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
-		constraint(k) = contact_vel.find(end_effector_names_[k])->second(rbd::X);
+		constraint(k) = current_contact_pos.find(end_effector_names_[k])->second(rbd::X) -
+			last_contact_pos.find(end_effector_names_[k])->second(rbd::X);
 }
 
 } //@namespace model
