@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 	base_acc = dwl::rbd::Vector6d::Zero();
 	base_pos << 0., 0., 0., 0., 0., 0.;
 	base_vel << 0., 0., 0., 0., 0., 0.;
-	base_acc << 0., 0., 0., 0., 0., 0.;
+	base_acc << 0., 0., 0., 0., 0., 3.81;
 	joint_pos << 0.6, -1.5;//, 0., -0.75, 1.5, 0., 0.75, -1.5, 0., -0.75, 1.5;
 	joint_vel << 0., 0.;//, 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
 	joint_acc << 0., 0.;//, 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
@@ -137,8 +137,8 @@ int main(int argc, char **argv)
 	dyn.computeInverseDynamics(base_wrench, joint_forces,
 							   base_pos, joint_pos,
 							   base_vel, joint_vel,
-							   base_acc, joint_acc, grf);
-	std::cout << "ID ---------------------------------------" << std::endl;
+							   base_acc, joint_acc);//, grf);
+	std::cout << "------------------ ID ---------------------" << std::endl;
 	std::cout << base_wrench.transpose() << " | " << joint_forces.transpose() << " = tau" << std::endl;
 
 
@@ -146,18 +146,18 @@ int main(int argc, char **argv)
 	dyn.computeConstrainedFloatingBaseInverseDynamics(joint_forces, base_pos, joint_pos,
 													  base_vel, joint_vel, base_acc, joint_acc,
 													  contacts);
-	std::cout << "constrained ID ---------------------------------------" << std::endl;
+	std::cout << "------------------- constrained ID --------------------" << std::endl;
 	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
 	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
 
 	// Computing the floating-base ID
-	dyn.computeFloatingBaseInverseDynamics(base_acc, joint_forces,
-										   base_pos, joint_pos,
-										   base_vel, joint_vel,
-										   joint_acc, grf);
-	std::cout << "floating-base ID ---------------------------------------" << std::endl;
-	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
-	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
+//	dyn.computeFloatingBaseInverseDynamics(base_acc, joint_forces,
+//										   base_pos, joint_pos,
+//										   base_vel, joint_vel,
+//										   joint_acc, grf);
+//	std::cout << "------------------- floating-base ID --------------------" << std::endl;
+//	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
+//	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
 
 
 	// Estimating contact forces
@@ -171,6 +171,16 @@ int main(int argc, char **argv)
 							   joint_forces, contacts, force_threshold);
 	std::cout << "contact force ---------------------------------------" << std::endl;
 	std::cout << "Contact for = " << contact_forces.find("foot")->second.transpose() << std::endl;
+
+	// Computing the floating-base ID
+	base_acc.setZero();
+	dyn.computeFloatingBaseInverseDynamics(base_acc, joint_forces,
+										   base_pos, joint_pos,
+										   base_vel, joint_vel,
+										   joint_acc, contact_forces);
+	std::cout << "------------------- floating-base ID --------------------" << std::endl;
+	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
+	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
 
     return 0;
 }
