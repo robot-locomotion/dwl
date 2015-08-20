@@ -229,7 +229,7 @@ void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
 								 RigidBodyDynamics::Math::SpatialVector &base_acc,
 								 RigidBodyDynamics::Math::VectorNd &Tau,
 								 std::vector<RigidBodyDynamics::Math::SpatialVector> *f_ext)
-{
+{//TODO test this algorithm. I'm not sure if it works
 	using namespace RigidBodyDynamics;
 	using namespace RigidBodyDynamics::Math;
 
@@ -309,6 +309,101 @@ void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
 			} else {
 				Tau[model.mJoints[i].q_index] = model.S[i].dot(model.Ic[i] * model.a[i] + model.f[i]);
 			}
+		}
+	}
+}
+
+void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
+								 unsigned int base_dof,
+								 const RigidBodyDynamics::Math::VectorNd &Q,
+								 const RigidBodyDynamics::Math::VectorNd &QDot,
+								 const RigidBodyDynamics::Math::VectorNd &QDDot,
+								 RigidBodyDynamics::Math::SpatialVector &base_acc,
+								 RigidBodyDynamics::Math::VectorNd &Tau,
+								 std::vector<RigidBodyDynamics::Math::SpatialVector> *f_ext)
+{//TODO develop this algorithm (probably a general hybrid dynamics?)
+	using namespace RigidBodyDynamics;
+	using namespace RigidBodyDynamics::Math;
+
+	LOG << "-------- " << __func__ << " --------" << std::endl;
+
+	// First pass
+	for (unsigned int i = 1; i < base_dof + 1; i++) {
+		unsigned int lambda = model.lambda[i];
+
+		jcalc (model, i, Q, QDot);
+		model.X_base[i] = model.X_lambda[i] * model.X_base[lambda];
+	}
+
+	model.a[base_dof].set (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
+
+	for (unsigned int i = base_dof + 1; i < model.mBodies.size(); i++) {
+		unsigned int q_index = model.mJoints[i].q_index;
+		unsigned int lambda = model.lambda[i];
+		jcalc (model, i, Q, QDot);
+
+		if (lambda != base_dof)
+			model.X_base[i] = model.X_lambda[i] * model.X_base[lambda];
+		else
+			model.X_base[i] = model.X_lambda[i];
+
+		model.v[i] = model.X_lambda[i].apply(model.v[lambda]) + model.v_J[i];
+		model.c[i] = model.c_J[i] + crossm(model.v[i],model.v_J[i]);
+
+		if (model.mJoints[i].mDoFCount == 3) {
+			model.a[i] = model.X_lambda[i].apply(model.a[lambda]) + model.c[i] +
+					model.multdof3_S[i] * Vector3d (QDDot[q_index], QDDot[q_index + 1], QDDot[q_index + 2]);
+		} else {
+			model.a[i] = model.X_lambda[i].apply(model.a[lambda]) + model.c[i] + model.S[i] * QDDot[q_index];
+		}
+
+		model.Ic[i] = model.I[i];
+
+		if (!model.mBodies[i].mIsVirtual) {
+			model.f[i] = model.I[i] * model.a[i] + crossf(model.v[i],model.I[i] * model.v[i]);
+		} else {
+			model.f[i].setZero();
+		}
+
+		if (f_ext != NULL && (*f_ext)[i] != SpatialVectorZero)
+			model.f[i] -= model.X_base[i].toMatrixAdjoint() * (*f_ext)[i];
+	}
+
+	// Second pass
+	model.Ic[base_dof] = model.I[base_dof];
+	model.f[base_dof] = model.I[base_dof] * model.a[base_dof] +
+			crossf(model.v[base_dof],model.I[base_dof] * model.v[base_dof]);
+	if (f_ext != NULL && (*f_ext)[base_dof] != SpatialVectorZero)
+		model.f[base_dof] -= (*f_ext)[base_dof];
+
+	for (unsigned int i = model.mBodies.size() - 1; i > base_dof; i--) {
+		unsigned int lambda = model.lambda[i];
+
+		model.Ic[lambda] = model.Ic[lambda] + model.X_lambda[i].apply(model.Ic[i]);
+		model.f[lambda] = model.f[lambda] + model.X_lambda[i].applyTranspose(model.f[i]);
+	}
+
+	std::cout << 0 << model.I[0] << std::endl;
+	std::cout << 1 << model.I[1] << std::endl;
+	std::cout << 2 << model.I[2] << std::endl;
+	std::cout << 3 << model.I[3] << std::endl;
+	std::cout << 4 << model.I[4] << std::endl;
+	// Third pass
+	model.a[base_dof] = - model.Ic[base_dof].toMatrix().inverse() * model.f[base_dof];
+//	model.a[base_dof] << 0,0,0,0,0, 3.81;//model.a[base_dof](5);
+	std::cout << "a0 = " << model.a[base_dof].transpose() << std::endl;
+	std::cout << "f0 = " << model.f[base_dof].transpose() << std::endl;
+	base_acc << model.a[base_dof].segment<3>(0), model.a[base_dof].segment<3>(3);
+
+	for (unsigned int i = base_dof + 1; i < model.mBodies.size(); i++) {
+		unsigned int lambda = model.lambda[i];
+		model.a[i] = model.X_lambda[i].apply(model.a[lambda]);
+
+		if (model.mJoints[i].mDoFCount == 3) {
+			Tau.block<3,1>(model.mJoints[i].q_index, 0) = model.multdof3_S[i].transpose() *
+					(model.Ic[i] * model.a[i] + model.f[i]);
+		} else {
+			Tau[model.mJoints[i].q_index] = model.S[i].dot(model.Ic[i] * model.a[i] + model.f[i]);
 		}
 	}
 }

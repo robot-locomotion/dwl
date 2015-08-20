@@ -146,6 +146,24 @@ void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
 								 RigidBodyDynamics::Math::VectorNd &Tau,
 								 std::vector<RigidBodyDynamics::Math::SpatialVector> *f_ext = NULL);
 
+/**
+ * @brief Computes the floating-base inverse dynamics
+ * @param RigidBodyDynamcis::Model& Model of the rigid-body system
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint position
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint velocity
+ * @param const RigidBodyDynamics::Math::VectorNd& Generalized joint acceleration
+ * @param RigidBodyDynamics::Math::VectorNd& Joint forces
+ * @param std::vector<RigidBodyDynamcis::Math::SpatialVector>* Applied external forces
+ */
+void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
+								 unsigned int base_dof,
+								 const RigidBodyDynamics::Math::VectorNd &Q,
+								 const RigidBodyDynamics::Math::VectorNd &QDot,
+								 const RigidBodyDynamics::Math::VectorNd &QDDot,
+								 RigidBodyDynamics::Math::SpatialVector& base_acc,
+								 RigidBodyDynamics::Math::VectorNd &Tau,
+								 std::vector<RigidBodyDynamics::Math::SpatialVector> *f_ext = NULL);// TODO experimental
+
 } //@namespace rbd
 } //@namespace dwl
 

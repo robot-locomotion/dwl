@@ -100,7 +100,7 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 														   const Eigen::VectorXd& joint_vel,
 														   const Eigen::VectorXd& joint_acc,
 														   const rbd::BodyWrench& ext_force)
-{
+{//TODO test floating-base ID, and develops the virtual floating-base ID (general hybrid dynamics?)
 	// Setting the size of the joint forces vector
 	joint_forces.resize(system_.getJointDoF());
 
@@ -122,9 +122,15 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 		// Converting the base acceleration
 		base_acc = base_ddot;
 	} else {
-		if (system_.isVirtualFloatingBaseRobot())
-			RigidBodyDynamics::InverseDynamics(system_.getRBDModel(), q, q_dot, q_ddot, tau, &fext);
-		else
+		if (system_.isVirtualFloatingBaseRobot()) {
+			RigidBodyDynamics::Math::SpatialVector base_ddot = RigidBodyDynamics::Math::SpatialVector(base_acc);
+			rbd::FloatingBaseInverseDynamics(system_.getRBDModel(), 1, q, q_dot, q_ddot, base_ddot, tau, &fext);
+			base_acc = base_ddot;
+//			RigidBodyDynamics::InverseDynamics(system_.getRBDModel(), q, q_dot, q_ddot, tau, &fext);
+//			tau(0) = 0;
+//			RigidBodyDynamics::ForwardDynamics(system_.getRBDModel(), q, q_dot, tau, q_ddot, &fext);
+//			base_acc(rbd::LZ) = q_ddot(0);
+		} else
 			printf(YELLOW "WARNING: this is not a floating-base system\n" COLOR_RESET);
 	}
 
