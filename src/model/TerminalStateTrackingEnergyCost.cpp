@@ -1,4 +1,4 @@
-#include <model/StateTrackingEnergyCost.h>
+#include <model/TerminalStateTrackingEnergyCost.h>
 
 
 namespace dwl
@@ -7,20 +7,20 @@ namespace dwl
 namespace model
 {
 
-StateTrackingEnergyCost::StateTrackingEnergyCost()
+TerminalStateTrackingEnergyCost::TerminalStateTrackingEnergyCost()
 {
-	name_ = "state-tracking energy";
+	name_ = "terminal state-tracking energy";
 }
 
 
-StateTrackingEnergyCost::~StateTrackingEnergyCost()
+TerminalStateTrackingEnergyCost::~TerminalStateTrackingEnergyCost()
 {
 
 }
 
 
-void StateTrackingEnergyCost::compute(double& cost,
-									  const LocomotionState& state)
+void TerminalStateTrackingEnergyCost::compute(double& cost,
+											  const LocomotionState& state)
 {
 	// Setting the initial value of the cost
 	cost = 0;
@@ -72,6 +72,8 @@ void StateTrackingEnergyCost::compute(double& cost,
 		Eigen::VectorXd joint_acc_error = desired_state_.joint_acc - state.joint_acc;
 		cost += joint_acc_error.transpose() * locomotion_weights_.joint_acc.asDiagonal() * joint_acc_error;
 	}
+
+	cost *= state.duration;
 }
 
 } //@namespace model
