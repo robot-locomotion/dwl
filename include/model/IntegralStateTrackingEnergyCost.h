@@ -11,8 +11,8 @@ namespace model
 {
 
 /**
- * @class Implements a quadratic cost function for computing a state (position, velocity and
- * acceleration) integral tracking energy cost given a locomotion state
+ * @class Implements a quadratic cost function for computing a integral state (position, velocity
+ * and acceleration) tracking energy cost given a locomotion state
  */
 class IntegralStateTrackingEnergyCost : public Cost
 {
