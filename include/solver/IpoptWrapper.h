@@ -32,9 +32,6 @@ class IpoptWrapper : public Ipopt::TNLP
 		/** @brief Destructor function */
 		~IpoptWrapper();
 
-		/** @brief Resets the starting point by using the current solution */
-//		void resetStartingPoint();
-
 		/**
 		 * @brief Sets the optimization model
 		 * @param model::OptimizationModel* Pointer to the optimization model
