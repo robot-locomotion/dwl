@@ -34,26 +34,29 @@ OptimizationModel::~OptimizationModel()
 }
 
 
-//void OptimizationModel::setStartingPoint(const Eigen::Ref<const Eigen::VectorXd>& full_initial_point)
-//{
-//	for (unsigned int i = 0; i < horizon_; i++)
-//		starting_point_.segment(i * state_dimension_, state_dimension_) =
-//				full_initial_point.segment(i * state_dimension_, state_dimension_);
-//}
-
-
 void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
 {
-	// Getting the initial locomotion state
-	LocomotionState starting_locomotion_state = dynamical_system_->getStartingState();
+	if (locomotion_solution_.size() == 0) {
+		// Getting the initial locomotion state
+		LocomotionState starting_locomotion_state = dynamical_system_->getStartingState();
 
-	// Getting the initial state vector
-	Eigen::VectorXd starting_state;
-	dynamical_system_->fromLocomotionState(starting_state, starting_locomotion_state);
+		// Getting the initial state vector
+		Eigen::VectorXd starting_state;
+		dynamical_system_->fromLocomotionState(starting_state, starting_locomotion_state);
 
-	// Setting the full starting state for the predefined horizon
-	for (unsigned int i = 0; i < horizon_; i++)
-		full_initial_point.segment(i * state_dimension_, state_dimension_) = starting_state;
+		// Setting the full starting state for the predefined horizon
+		for (unsigned int i = 0; i < horizon_; i++)
+			full_initial_point.segment(i * state_dimension_, state_dimension_) = starting_state;
+	} else {
+		// Defining the current locomotion solution as starting point
+		unsigned int state_dimension = dynamical_system_->getDimensionOfState();
+		for (unsigned int k = 0; k < horizon_; k++) {
+			Eigen::VectorXd current_state;
+			dynamical_system_->fromLocomotionState(current_state, locomotion_solution_[k]);
+
+			full_initial_point.segment(k * state_dimension, state_dimension) = current_state;
+		}
+	}
 }
 
 

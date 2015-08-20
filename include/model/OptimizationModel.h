@@ -95,8 +95,6 @@ class OptimizationModel
 		/** @brief Destructor function */
 		~OptimizationModel();
 
-//		void setStartingPoint(const Eigen::Ref<const Eigen::VectorXd>& full_initial_point);
-
 		/**
 		 * @brief Ges the starting point of the problem
 		 * @param Eigen::Ref<Eigen::VectorXd> Full initial point
@@ -243,8 +241,6 @@ class OptimizationModel
 
 		/** @brief Locomotion solution */
 		std::vector<LocomotionState> locomotion_solution_;
-
-//		Eigen::VectorXd starting_point_;
 
 		/** @brief Dimension of the state vector at instantaneous point */
 		unsigned int state_dimension_;

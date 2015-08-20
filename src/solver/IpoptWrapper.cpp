@@ -19,29 +19,6 @@ IpoptWrapper::~IpoptWrapper()
 }
 
 
-//void IpoptWrapper::resetStartingPoint()
-//{
-//	// Checking if there is a previous solution
-//	if (locomotion_solution_.size() != 0) {
-//		printf(RED "WARN: it could not reset the starting point because there is not a previous solution\n");
-//		return;
-//	}
-//
-//	// Defining the current locomotion solution as starting point
-//	Eigen::VectorXd full_starting_point = Eigen::VectorXd::Zero(opt_model_->getDimensionOfState());
-//	unsigned int state_dimension = opt_model_->getDynamicalSystem()->getDimensionOfState();
-//	for (unsigned int k = 0; k < opt_model_->getHorizon(); k++) {
-//		Eigen::VectorXd current_state;
-//		opt_model_->getDynamicalSystem()->fromLocomotionState(current_state, locomotion_solution_[k]);
-//
-//		full_starting_point.segment(k * state_dimension, state_dimension) = current_state;
-//	}
-//
-//	// Setting the starting point of the optimization
-//	opt_model_->setStartingPoint(full_starting_point);
-//}
-
-
 void IpoptWrapper::setOptimizationModel(model::OptimizationModel* model)
 {
 	opt_model_ = model;
