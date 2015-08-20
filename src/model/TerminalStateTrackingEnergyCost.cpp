@@ -72,8 +72,6 @@ void TerminalStateTrackingEnergyCost::compute(double& cost,
 		Eigen::VectorXd joint_acc_error = desired_state_.joint_acc - state.joint_acc;
 		cost += joint_acc_error.transpose() * locomotion_weights_.joint_acc.asDiagonal() * joint_acc_error;
 	}
-
-	cost *= state.duration;
 }
 
 } //@namespace model
