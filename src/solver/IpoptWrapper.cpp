@@ -19,6 +19,29 @@ IpoptWrapper::~IpoptWrapper()
 }
 
 
+//void IpoptWrapper::resetStartingPoint()
+//{
+//	// Checking if there is a previous solution
+//	if (locomotion_solution_.size() != 0) {
+//		printf(RED "WARN: it could not reset the starting point because there is not a previous solution\n");
+//		return;
+//	}
+//
+//	// Defining the current locomotion solution as starting point
+//	Eigen::VectorXd full_starting_point = Eigen::VectorXd::Zero(opt_model_->getDimensionOfState());
+//	unsigned int state_dimension = opt_model_->getDynamicalSystem()->getDimensionOfState();
+//	for (unsigned int k = 0; k < opt_model_->getHorizon(); k++) {
+//		Eigen::VectorXd current_state;
+//		opt_model_->getDynamicalSystem()->fromLocomotionState(current_state, locomotion_solution_[k]);
+//
+//		full_starting_point.segment(k * state_dimension, state_dimension) = current_state;
+//	}
+//
+//	// Setting the starting point of the optimization
+//	opt_model_->setStartingPoint(full_starting_point);
+//}
+
+
 void IpoptWrapper::setOptimizationModel(model::OptimizationModel* model)
 {
 	opt_model_ = model;
@@ -214,73 +237,9 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 
 	// Eigen interfacing to raw buffers
 	const Eigen::Map<const Eigen::VectorXd> solution(x, n);
-	unsigned int state_dim = solution.size() / opt_model_->getHorizon();
 
-	// Recording the solution
-	locomotion_solution_.clear();
-	LocomotionState locomotion_state;
-	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
-	for (unsigned int k = 0; k < opt_model_->getHorizon(); k++) {
-		// Converting the decision variable for a certain time to a robot state
-		decision_state = solution.segment(k * state_dim, state_dim);
-		opt_model_->getDynamicalSystem()->toLocomotionState(locomotion_state, decision_state);
-
-		// Setting the time information in cases where time is not a decision variable
-		if (opt_model_->getDynamicalSystem()->isFixedStepIntegration())
-			locomotion_state.time = opt_model_->getDynamicalSystem()->getStartingState().time +
-				opt_model_->getDynamicalSystem()->getFixedStepTime() * (k + 1);
-
-
-
-		// Setting the contact information in cases where time is not a decision variable
-		urdf_model::LinkID contacts = opt_model_->getDynamicalSystem()->getFloatingBaseSystem().getEndEffectors();
-		rbd::BodySelector contact_names;
-		for (urdf_model::LinkID::const_iterator contact_it = contacts.begin();
-				contact_it != contacts.end(); contact_it++) {
-			// Getting and setting the end-effector names
-			std::string name = contact_it->first;
-			contact_names.push_back(name);
-		}
-
-		rbd::BodyVector contact_pos;
-		opt_model_->getDynamicalSystem()->getKinematics().computeForwardKinematics(contact_pos,
-																				   locomotion_state.base_pos,
-																				   locomotion_state.joint_pos,
-																				   contact_names, rbd::Linear);
-		rbd::BodyVector contact_vel;
-		opt_model_->getDynamicalSystem()->getKinematics().computeVelocity(contact_vel,
-																		  locomotion_state.base_pos,
-																		  locomotion_state.joint_pos,
-																		  locomotion_state.base_vel,
-																		  locomotion_state.joint_vel,
-																		  contact_names, rbd::Linear);
-		for (unsigned int k = 0; k < contact_names.size(); k++) {
-			locomotion_state.contacts[k].position = contact_pos.find(contact_names[k])->second;
-			locomotion_state.contacts[k].velocity = contact_vel.find(contact_names[k])->second;
-		}
-
-
-
-		// Pushing the current state
-		locomotion_solution_.push_back(locomotion_state);
-
-
-
-		std::cout << "-------------------------------------" << std::endl;
-		std::cout << "x = " << decision_state.transpose() << std::endl;
-		std::cout << "base_pos = " << locomotion_state.base_pos.transpose() << std::endl;
-		std::cout << "joint_pos = " << locomotion_state.joint_pos.transpose() << std::endl;
-		std::cout << "base_vel = " << locomotion_state.base_vel.transpose() << std::endl;
-		std::cout << "joint_vel = " << locomotion_state.joint_vel.transpose() << std::endl;
-		std::cout << "base_acc = " << locomotion_state.base_acc.transpose() << std::endl;
-		std::cout << "joint_acc = " << locomotion_state.joint_acc.transpose() << std::endl;
-		std::cout << "joint_eff = " << locomotion_state.joint_eff.transpose() << std::endl;
-		std::cout << "contact_pos = " << locomotion_state.contacts[0].position.transpose() << std::endl;
-		std::cout << "contact_vel = " << locomotion_state.contacts[0].velocity.transpose() << std::endl;
-		std::cout << "contact_acc = " << locomotion_state.contacts[0].acceleration.transpose() << std::endl;
-		std::cout << "contact_for = " << locomotion_state.contacts[0].force.transpose() << std::endl;
-		std::cout << "-------------------------------------" << std::endl;
-	}
+	// Evaluating the solution
+	locomotion_solution_ = opt_model_->evaluateSolution(solution);
 }
 
 

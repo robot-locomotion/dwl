@@ -34,6 +34,14 @@ OptimizationModel::~OptimizationModel()
 }
 
 
+//void OptimizationModel::setStartingPoint(const Eigen::Ref<const Eigen::VectorXd>& full_initial_point)
+//{
+//	for (unsigned int i = 0; i < horizon_; i++)
+//		starting_point_.segment(i * state_dimension_, state_dimension_) =
+//				full_initial_point.segment(i * state_dimension_, state_dimension_);
+//}
+
+
 void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
 {
 	// Getting the initial locomotion state
@@ -250,6 +258,81 @@ void OptimizationModel::evaluateCostGradient(Eigen::MatrixXd& gradient,
 			break;
 		}
 	}
+}
+
+
+std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::Ref<const Eigen::VectorXd>& solution)
+{
+	// Getting the state dimension
+	unsigned int state_dim = dynamical_system_->getDimensionOfState();
+
+	// Recording the solution
+	locomotion_solution_.clear();
+	LocomotionState locomotion_state;
+	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
+	for (unsigned int k = 0; k < horizon_; k++) {
+		// Converting the decision variable for a certain time to a robot state
+		decision_state = solution.segment(k * state_dim, state_dim);
+		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
+
+		// Setting the time information in cases where time is not a decision variable
+		if (dynamical_system_->isFixedStepIntegration())
+			locomotion_state.time = dynamical_system_->getStartingState().time +
+				dynamical_system_->getFixedStepTime() * (k + 1);
+
+
+
+		// Setting the contact information in cases where time is not a decision variable
+		urdf_model::LinkID contacts = dynamical_system_->getFloatingBaseSystem().getEndEffectors();
+		rbd::BodySelector contact_names;
+		for (urdf_model::LinkID::const_iterator contact_it = contacts.begin();
+				contact_it != contacts.end(); contact_it++) {
+			// Getting and setting the end-effector names
+			std::string name = contact_it->first;
+			contact_names.push_back(name);
+		}
+
+		rbd::BodyVector contact_pos;
+		dynamical_system_->getKinematics().computeForwardKinematics(contact_pos,
+																	locomotion_state.base_pos,
+																	locomotion_state.joint_pos,
+																	contact_names, rbd::Linear);
+		rbd::BodyVector contact_vel;
+		dynamical_system_->getKinematics().computeVelocity(contact_vel,
+														   locomotion_state.base_pos,
+														   locomotion_state.joint_pos,
+														   locomotion_state.base_vel,
+														   locomotion_state.joint_vel,
+														   contact_names, rbd::Linear);
+		for (unsigned int k = 0; k < contact_names.size(); k++) {
+			locomotion_state.contacts[k].position = contact_pos.find(contact_names[k])->second;
+			locomotion_state.contacts[k].velocity = contact_vel.find(contact_names[k])->second;
+		}
+
+
+
+		// Pushing the current state
+		locomotion_solution_.push_back(locomotion_state);
+
+
+
+		std::cout << "-------------------------------------" << std::endl;
+		std::cout << "x = " << decision_state.transpose() << std::endl;
+		std::cout << "base_pos = " << locomotion_state.base_pos.transpose() << std::endl;
+		std::cout << "joint_pos = " << locomotion_state.joint_pos.transpose() << std::endl;
+		std::cout << "base_vel = " << locomotion_state.base_vel.transpose() << std::endl;
+		std::cout << "joint_vel = " << locomotion_state.joint_vel.transpose() << std::endl;
+		std::cout << "base_acc = " << locomotion_state.base_acc.transpose() << std::endl;
+		std::cout << "joint_acc = " << locomotion_state.joint_acc.transpose() << std::endl;
+		std::cout << "joint_eff = " << locomotion_state.joint_eff.transpose() << std::endl;
+		std::cout << "contact_pos = " << locomotion_state.contacts[0].position.transpose() << std::endl;
+		std::cout << "contact_vel = " << locomotion_state.contacts[0].velocity.transpose() << std::endl;
+		std::cout << "contact_acc = " << locomotion_state.contacts[0].acceleration.transpose() << std::endl;
+		std::cout << "contact_for = " << locomotion_state.contacts[0].force.transpose() << std::endl;
+		std::cout << "-------------------------------------" << std::endl;
+	}
+
+	return locomotion_solution_;
 }
 
 
