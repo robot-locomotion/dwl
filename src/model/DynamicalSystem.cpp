@@ -99,8 +99,13 @@ void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
 
 	// Transcription of the constrained inverse dynamic equation using Euler-backward integration.
 	// This integration method adds numerical stability
+	if (locomotion_variables_.time)
+		step_time_ = state.duration;
+
 	Eigen::VectorXd base_int = last_state_.base_pos - state.base_pos + step_time_ * state.base_vel;
-	Eigen::VectorXd joint_int = last_state_.joint_pos - state.joint_pos +	step_time_ * state.joint_vel;
+	Eigen::VectorXd joint_int = last_state_.joint_pos - state.joint_pos + step_time_ * state.joint_vel;
+
+	// Adding the time integration constraint
 	constraint = system_.toGeneralizedJointState(base_int, joint_int);
 
 	// Updating the time state
@@ -224,7 +229,7 @@ void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
 	// Converting the generalized state vector to locomotion state
 	unsigned int idx = 0;
 	if (locomotion_variables_.time) {
-		locomotion_state.time = generalized_state(idx);
+		locomotion_state.duration = generalized_state(idx);
 		++idx;
 	}
 	if (locomotion_variables_.position) {
@@ -288,7 +293,8 @@ void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
 	// Converting the generalized state vector to locomotion state
 	unsigned int idx = 0;
 	if (locomotion_variables_.time) {
-		generalized_state(idx) = locomotion_state.time;
+		generalized_state(idx) = locomotion_state.duration;
+		++idx;
 	}
 	if (locomotion_variables_.position) {
 		generalized_state.segment(idx, system_.getSystemDoF()) =
@@ -354,8 +360,8 @@ bool DynamicalSystem::isFixedStepIntegration()
 void DynamicalSystem::initialConditions()
 {
 	// Computing the state dimension give the locomotion variables
-	state_dimension_ = (locomotion_variables_.position + locomotion_variables_.velocity
-			+ locomotion_variables_.acceleration) * system_.getSystemDoF()
+	state_dimension_ = locomotion_variables_.time + (locomotion_variables_.position +
+			locomotion_variables_.velocity + locomotion_variables_.acceleration) * system_.getSystemDoF()
 			+ locomotion_variables_.effort * system_.getJointDoF() + 3 *
 			(locomotion_variables_.contact_pos + locomotion_variables_.contact_vel +
 					locomotion_variables_.contact_acc + locomotion_variables_.contact_for) *
@@ -363,6 +369,7 @@ void DynamicalSystem::initialConditions()
 
 
 	// No-bound limit by default
+	lower_state_bound_.duration = 0.005;
 	lower_state_bound_.base_pos = -NO_BOUND * rbd::Vector6d::Ones();
 	lower_state_bound_.joint_pos = -NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
 	lower_state_bound_.base_vel = -NO_BOUND * rbd::Vector6d::Ones();
@@ -371,6 +378,7 @@ void DynamicalSystem::initialConditions()
 	lower_state_bound_.joint_acc = -NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
 	lower_state_bound_.base_eff = -NO_BOUND * rbd::Vector6d::Ones();
 	lower_state_bound_.joint_eff = -NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
+	upper_state_bound_.duration = 0.15;//NO_BOUND;
 	upper_state_bound_.base_pos = NO_BOUND * rbd::Vector6d::Ones();
 	upper_state_bound_.joint_pos = NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
 	upper_state_bound_.base_vel = NO_BOUND * rbd::Vector6d::Ones();

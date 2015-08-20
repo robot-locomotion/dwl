@@ -282,6 +282,8 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 		if (dynamical_system_->isFixedStepIntegration())
 			locomotion_state.time = dynamical_system_->getStartingState().time +
 				dynamical_system_->getFixedStepTime() * (k + 1);
+		else
+			locomotion_state.time += locomotion_state.duration;
 
 
 		// Setting the acceleration information in cases where the accelerations are not decision
@@ -364,6 +366,8 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 
 		std::cout << "-------------------------------------" << std::endl;
 		std::cout << "x = " << decision_state.transpose() << std::endl;
+		std::cout << "time = " << locomotion_state.time << std::endl;
+		std::cout << "duration = " << locomotion_state.duration << std::endl;
 		std::cout << "base_pos = " << locomotion_state.base_pos.transpose() << std::endl;
 		std::cout << "joint_pos = " << locomotion_state.joint_pos.transpose() << std::endl;
 		std::cout << "base_vel = " << locomotion_state.base_vel.transpose() << std::endl;

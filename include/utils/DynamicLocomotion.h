@@ -113,7 +113,7 @@ struct ContactSearchRegion
 struct LocomotionState
 {
 	LocomotionState(unsigned int num_joints = 0,
-					unsigned int num_end_effectors = 0) : time(0.) {
+					unsigned int num_end_effectors = 0) : time(0.), duration(0.) {
 		base_pos.setZero();
 		base_vel.setZero();
 		base_acc.setZero();
@@ -138,6 +138,7 @@ struct LocomotionState
 	}
 
 	double time;
+	double duration;
 	rbd::Vector6d base_pos;
 	rbd::Vector6d base_vel;
 	rbd::Vector6d base_acc;
