@@ -55,23 +55,35 @@ bool IpoptNLP::init()
 }
 
 
-bool IpoptNLP::compute(double computation_time)
+bool IpoptNLP::compute(double allocated_time_secs)
 {
-	app_->Options()->SetNumericValue("max_cpu_time", computation_time);
+	// Setting the initial time
+	clock_t started_time = clock();
 
 	// Ask Ipopt to solve the problem
 	Ipopt::ApplicationReturnStatus status;
 
-	status = app_->OptimizeTNLP(nlp_ptr_);
+	// Computing the optimization problem
+	bool solved = false;
+	while (!solved && ((clock() - started_time) < allocated_time_secs)) {
+		// Computing the current time
+		clock_t current_time = clock() - started_time;
 
-	if (status == Ipopt::Solve_Succeeded) {
-		printf("\n\n*** The problem solved!\n");
-		locomotion_trajectory_ = ipopt_.getSolution();
-	} else {
-		printf("\n\n*** The problem FAILED!\n");
+		// Setting the allowed time for this optimization loop
+		app_->Options()->SetNumericValue("max_cpu_time", allocated_time_secs - current_time);
+		status = app_->OptimizeTNLP(nlp_ptr_);
+
+		if (status == Ipopt::Solve_Succeeded || status == Ipopt::Solved_To_Acceptable_Level)
+			solved = true;
 	}
 
-	return true;
+	if (solved) {
+		printf("\n\n*** The problem solved!\n");
+		locomotion_trajectory_ = ipopt_.getSolution();
+	} else
+		printf("\n\n*** The problem FAILED!\n");
+
+	return solved;
 }
 
 } //@namespace solver

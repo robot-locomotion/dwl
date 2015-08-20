@@ -4,6 +4,7 @@
 #include <solver/OptimizationSolver.h>
 #include <solver/IpoptWrapper.h>
 #include <IpIpoptApplication.hpp>
+#include <time.h>
 
 
 namespace dwl
@@ -29,10 +30,10 @@ class IpoptNLP : public OptimizationSolver
 
 		/**
 		 * @brief Computes a solution of an NLP given a defined computation time
-		 * @param double Computation time
+		 * @param double Allocated computation time in seconds
 		 * @return True if it was computed a solution
 		 */
-		bool compute(double computation_time = std::numeric_limits<double>::max());
+		bool compute(double allocated_time_secs = std::numeric_limits<double>::max());
 
 
 	private:
