@@ -230,8 +230,56 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 			locomotion_state.time = opt_model_->getDynamicalSystem()->getStartingState().time +
 				opt_model_->getDynamicalSystem()->getFixedStepTime() * (k + 1);
 
+
+
+		// Setting the contact information in cases where time is not a decision variable
+		urdf_model::LinkID contacts = opt_model_->getDynamicalSystem()->getFloatingBaseSystem().getEndEffectors();
+		rbd::BodySelector contact_names;
+		for (urdf_model::LinkID::const_iterator contact_it = contacts.begin();
+				contact_it != contacts.end(); contact_it++) {
+			// Getting and setting the end-effector names
+			std::string name = contact_it->first;
+			contact_names.push_back(name);
+		}
+
+		rbd::BodyVector contact_pos;
+		opt_model_->getDynamicalSystem()->getKinematics().computeForwardKinematics(contact_pos,
+																				   locomotion_state.base_pos,
+																				   locomotion_state.joint_pos,
+																				   contact_names, rbd::Linear);
+		rbd::BodyVector contact_vel;
+		opt_model_->getDynamicalSystem()->getKinematics().computeVelocity(contact_vel,
+																		  locomotion_state.base_pos,
+																		  locomotion_state.joint_pos,
+																		  locomotion_state.base_vel,
+																		  locomotion_state.joint_vel,
+																		  contact_names, rbd::Linear);
+		for (unsigned int k = 0; k < contact_names.size(); k++) {
+			locomotion_state.contacts[k].position = contact_pos.find(contact_names[k])->second;
+			locomotion_state.contacts[k].velocity = contact_vel.find(contact_names[k])->second;
+		}
+
+
+
 		// Pushing the current state
 		locomotion_solution_.push_back(locomotion_state);
+
+
+
+		std::cout << "-------------------------------------" << std::endl;
+		std::cout << "x = " << decision_state.transpose() << std::endl;
+		std::cout << "base_pos = " << locomotion_state.base_pos.transpose() << std::endl;
+		std::cout << "joint_pos = " << locomotion_state.joint_pos.transpose() << std::endl;
+		std::cout << "base_vel = " << locomotion_state.base_vel.transpose() << std::endl;
+		std::cout << "joint_vel = " << locomotion_state.joint_vel.transpose() << std::endl;
+		std::cout << "base_acc = " << locomotion_state.base_acc.transpose() << std::endl;
+		std::cout << "joint_acc = " << locomotion_state.joint_acc.transpose() << std::endl;
+		std::cout << "joint_eff = " << locomotion_state.joint_eff.transpose() << std::endl;
+		std::cout << "contact_pos = " << locomotion_state.contacts[0].position.transpose() << std::endl;
+		std::cout << "contact_vel = " << locomotion_state.contacts[0].velocity.transpose() << std::endl;
+		std::cout << "contact_acc = " << locomotion_state.contacts[0].acceleration.transpose() << std::endl;
+		std::cout << "contact_for = " << locomotion_state.contacts[0].force.transpose() << std::endl;
+		std::cout << "-------------------------------------" << std::endl;
 	}
 }
 
