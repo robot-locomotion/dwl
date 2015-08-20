@@ -284,8 +284,34 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 				dynamical_system_->getFixedStepTime() * (k + 1);
 
 
+		// Setting the acceleration information in cases where the accelerations are not decision
+		// variables
+		if (k != 0 && locomotion_state.base_acc.isZero() && locomotion_state.joint_acc.isZero()) {
+			// Getting the last state
+			LocomotionState last_locomotion_state;
+			dynamical_system_->toLocomotionState(last_locomotion_state,
+												 solution.segment((k - 1) * state_dim, state_dim));
+
+			// Computing the duration time
+			double duration;
+			if (dynamical_system_->isFixedStepIntegration())
+				duration = dynamical_system_->getFixedStepTime();
+			else
+				duration = locomotion_state.time - last_locomotion_state.time;
+
+			// Computing (estimating) the accelerations
+			locomotion_state.base_acc = (locomotion_state.base_vel - last_locomotion_state.base_vel) /
+					duration;
+			locomotion_state.joint_acc = (locomotion_state.joint_vel - last_locomotion_state.joint_vel) /
+					duration;
+		}
+
 
 		// Setting the contact information in cases where time is not a decision variable
+		// Checking if there are contact information
+		if (locomotion_state.contacts.size() == 0)
+			locomotion_state.contacts.resize(dynamical_system_->getFloatingBaseSystem().getNumberOfEndEffectors());
+
 		urdf_model::LinkID contacts = dynamical_system_->getFloatingBaseSystem().getEndEffectors();
 		rbd::BodySelector contact_names;
 		for (urdf_model::LinkID::const_iterator contact_it = contacts.begin();
@@ -295,24 +321,41 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 			contact_names.push_back(name);
 		}
 
-		rbd::BodyVector contact_pos;
-		dynamical_system_->getKinematics().computeForwardKinematics(contact_pos,
-																	locomotion_state.base_pos,
-																	locomotion_state.joint_pos,
-																	contact_names, rbd::Linear);
-		rbd::BodyVector contact_vel;
-		dynamical_system_->getKinematics().computeVelocity(contact_vel,
-														   locomotion_state.base_pos,
-														   locomotion_state.joint_pos,
-														   locomotion_state.base_vel,
-														   locomotion_state.joint_vel,
-														   contact_names, rbd::Linear);
-		for (unsigned int k = 0; k < contact_names.size(); k++) {
-			locomotion_state.contacts[k].position = contact_pos.find(contact_names[k])->second;
-			locomotion_state.contacts[k].velocity = contact_vel.find(contact_names[k])->second;
+		if (locomotion_state.contacts[0].position.isZero()) {
+			rbd::BodyVector contact_pos;
+			dynamical_system_->getKinematics().computeForwardKinematics(contact_pos,
+																		locomotion_state.base_pos,
+																		locomotion_state.joint_pos,
+																		contact_names, rbd::Linear);
+			for (unsigned int k = 0; k < contact_names.size(); k++)
+				locomotion_state.contacts[k].position = contact_pos.find(contact_names[k])->second;
 		}
 
+		if (locomotion_state.contacts[0].velocity.isZero()) {
+			rbd::BodyVector contact_vel;
+			dynamical_system_->getKinematics().computeVelocity(contact_vel,
+													   	   	   locomotion_state.base_pos,
+															   locomotion_state.joint_pos,
+															   locomotion_state.base_vel,
+															   locomotion_state.joint_vel,
+															   contact_names, rbd::Linear);
+			for (unsigned int k = 0; k < contact_names.size(); k++)
+				locomotion_state.contacts[k].velocity = contact_vel.find(contact_names[k])->second;
+		}
 
+		if (locomotion_state.contacts[0].acceleration.isZero()) {
+			rbd::BodyVector contact_acc;
+			dynamical_system_->getKinematics().computeAcceleration(contact_acc,
+													   	   	   	   locomotion_state.base_pos,
+																   locomotion_state.joint_pos,
+																   locomotion_state.base_vel,
+																   locomotion_state.joint_vel,
+																   locomotion_state.base_acc,
+																   locomotion_state.joint_acc,
+																   contact_names, rbd::Linear);
+			for (unsigned int k = 0; k < contact_names.size(); k++)
+				locomotion_state.contacts[k].acceleration = contact_acc.find(contact_names[k])->second;
+		}
 
 		// Pushing the current state
 		locomotion_solution_.push_back(locomotion_state);

@@ -211,6 +211,7 @@ const double& DynamicalSystem::getFixedStepTime()
 	return step_time_;
 }
 
+
 void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
 										const Eigen::VectorXd& generalized_state)
 {
