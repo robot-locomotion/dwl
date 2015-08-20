@@ -101,6 +101,8 @@ void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
 	// This integration method adds numerical stability
 	if (locomotion_variables_.time)
 		step_time_ = state.duration;
+	else
+		state.duration = step_time_;
 
 	Eigen::VectorXd base_int = last_state_.base_pos - state.base_pos + step_time_ * state.base_vel;
 	Eigen::VectorXd joint_int = last_state_.joint_pos - state.joint_pos + step_time_ * state.joint_vel;
