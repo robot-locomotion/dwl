@@ -9,8 +9,9 @@ namespace model
 
 OptimizationModel::OptimizationModel() : dynamical_system_(NULL),
 		constraint_function_(this), cost_function_(this), num_diff_mode_(Eigen::Central),
-		state_dimension_(0), constraint_dimension_(0), horizon_(1), epsilon_(1E-06),
-		is_added_dynamic_system_(false), is_added_constraint_(false), is_added_cost_(false)
+		state_dimension_(0), constraint_dimension_(0), terminal_constraint_dimension_(0),
+		horizon_(1), epsilon_(1E-06), is_added_dynamic_system_(false), is_added_constraint_(false),
+		is_added_cost_(false)
 {
 
 }
@@ -120,8 +121,29 @@ void OptimizationModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lo
 		full_state_upper_bound.segment(i * state_dimension_, state_dimension_) = state_upper_bound;
 
 		// Setting dynamic system bounds
-		full_constraint_lower_bound.segment(i * constraint_dimension_, constraint_dimension_) = constraint_lower_bound;
-		full_constraint_upper_bound.segment(i * constraint_dimension_, constraint_dimension_) = constraint_upper_bound;
+		full_constraint_lower_bound.segment(i * constraint_dimension_,
+											constraint_dimension_) = constraint_lower_bound;
+		full_constraint_upper_bound.segment(i * constraint_dimension_,
+											constraint_dimension_) = constraint_upper_bound;
+	}
+
+	// Computing the terminal bounds in case of full trajectory optimization
+	if (dynamical_system_->isFullTrajectoryOptimization()) {
+		// Computing the terminal bounds
+		Eigen::VectorXd terminal_lower_bound, terminal_upper_bound;
+		dynamical_system_->getTerminalBounds(terminal_lower_bound, terminal_upper_bound);
+
+		// Checking the terminal bound dimension
+		if (terminal_constraint_dimension_ != terminal_lower_bound.size()) {
+			printf(RED "FATAL: the terminal bound dimension is not consistent\n");
+			exit(EXIT_FAILURE);
+		}
+
+		// Setting the terminal bounds
+		full_constraint_lower_bound.segment(horizon_ * constraint_dimension_,
+											terminal_constraint_dimension_) = terminal_lower_bound;
+		full_constraint_upper_bound.segment(horizon_ * constraint_dimension_,
+											terminal_constraint_dimension_) = terminal_upper_bound;
 	}
 }
 
@@ -188,6 +210,19 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 			full_constraint.segment(index, current_constraint_dim) = constraint;
 
 			index += current_constraint_dim;
+		}
+
+		// Computing the terminal constraint in case of full trajectory optimization
+		if (dynamical_system_->isFullTrajectoryOptimization()) {
+			if (i == horizon_ - 1) {
+				Eigen::VectorXd constraint;
+				dynamical_system_->computeTerminalConstraint(constraint, locomotion_state);
+
+				// Setting in the full constraint vector
+				full_constraint.segment(index, terminal_constraint_dimension_) = constraint;
+
+				index += terminal_constraint_dimension_;
+			}
 		}
 	}
 }
@@ -401,6 +436,10 @@ void OptimizationModel::addDynamicalSystem(DynamicalSystem* dynamical_system)
 
 	// Updating the constraint dimension
 	constraint_dimension_ += dynamical_system_->getConstraintDimension();
+
+	// Updating the terminal constraint dimension
+	if (dynamical_system_->isFullTrajectoryOptimization())
+		terminal_constraint_dimension_ = dynamical_system_->getTerminalConstraintDimension();
 }
 
 
@@ -537,7 +576,7 @@ unsigned int OptimizationModel::getDimensionOfState()
 
 unsigned int OptimizationModel::getDimensionOfConstraints()
 {
-	return constraint_dimension_ * horizon_;
+	return constraint_dimension_ * horizon_ + terminal_constraint_dimension_;
 }
 
 

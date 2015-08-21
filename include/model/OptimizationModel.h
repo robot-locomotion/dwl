@@ -248,6 +248,9 @@ class OptimizationModel
 		/** @brief Dimension of the constraint vector at instantaneous point */
 		unsigned int constraint_dimension_;
 
+		/** @brief Dimension of the terminal constraint vector */
+		unsigned int terminal_constraint_dimension_;
+
 		/** @brief Horizon of the optimal control problem */
 		unsigned int horizon_;
 

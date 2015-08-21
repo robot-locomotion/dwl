@@ -7,8 +7,9 @@ namespace dwl
 namespace model
 {
 
-DynamicalSystem::DynamicalSystem() : state_dimension_(0), locomotion_variables_(false),
-		integration_method_(Fixed), step_time_(0.1)
+DynamicalSystem::DynamicalSystem() : state_dimension_(0), terminal_constraint_dimension_(0),
+		locomotion_variables_(false), integration_method_(Fixed), step_time_(0.1),
+		is_full_trajectory_optimization_(false)
 {
 
 }
@@ -94,6 +95,21 @@ void DynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint,
 }
 
 
+void DynamicalSystem::computeTerminalConstraint(Eigen::VectorXd& constraint,
+												const LocomotionState& state)
+{
+	constraint.resize(system_.getFloatingBaseDoF());
+
+	// Computing the position error
+	Eigen::VectorXd position_error =
+			system_.toGeneralizedJointState(terminal_state_.base_pos, terminal_state_.joint_pos) -
+			system_.toGeneralizedJointState(state.base_pos, state.joint_pos);
+
+	// Adding the terminal constraint
+	constraint = position_error.head(system_.getFloatingBaseDoF());
+}
+
+
 void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
 										   LocomotionState& state)
 {
@@ -143,6 +159,14 @@ void DynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
 {
 	printf(RED "FATAL: the dynamical bounds was not implemented\n" COLOR_RESET);
 	exit(EXIT_FAILURE);
+}
+
+
+void DynamicalSystem::getTerminalBounds(Eigen::VectorXd& lower_bound,
+										Eigen::VectorXd& upper_bound)
+{
+	lower_bound = Eigen::VectorXd::Zero(system_.getFloatingBaseDoF());
+	upper_bound = Eigen::VectorXd::Zero(system_.getFloatingBaseDoF());
 }
 
 
@@ -197,6 +221,12 @@ void DynamicalSystem::setInitialState(const LocomotionState& initial_state)
 }
 
 
+void DynamicalSystem::setTerminalState(const LocomotionState& terminal_state)
+{
+	terminal_state_ = terminal_state;
+}
+
+
 const LocomotionState& DynamicalSystem::getStartingState()
 {
 	return starting_state_;
@@ -223,6 +253,12 @@ unsigned int DynamicalSystem::getDimensionOfState()
 }
 
 
+unsigned int DynamicalSystem::getTerminalConstraintDimension()
+{
+	return terminal_constraint_dimension_;
+}
+
+
 FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
 {
 	return system_;
@@ -232,6 +268,12 @@ FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
 const double& DynamicalSystem::getFixedStepTime()
 {
 	return step_time_;
+}
+
+
+void DynamicalSystem::setFullTrajectoryOptimization()
+{
+	is_full_trajectory_optimization_ = true;
 }
 
 
@@ -375,6 +417,12 @@ bool DynamicalSystem::isFixedStepIntegration()
 }
 
 
+bool DynamicalSystem::isFullTrajectoryOptimization()
+{
+	return is_full_trajectory_optimization_;
+}
+
+
 void DynamicalSystem::computeStateDimension()
 {
 	// Computing the state dimension give the locomotion variables
@@ -389,6 +437,9 @@ void DynamicalSystem::computeStateDimension()
 
 void DynamicalSystem::initialConditions()
 {
+	// Setting the terminal constraint dimension
+	terminal_constraint_dimension_ = system_.getFloatingBaseDoF();
+
 	// No-bound limit by default
 	lower_state_bound_.duration = 0.005;
 	lower_state_bound_.base_pos = -NO_BOUND * rbd::Vector6d::Ones();

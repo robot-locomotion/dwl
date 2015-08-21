@@ -83,6 +83,14 @@ class DynamicalSystem : public Constraint
 				 	 	 	 	 	 	 	 	const LocomotionState& state);
 
 		/**
+		 * @brief Computes the terminal constraint vector given a certain state
+		 * @param Eigen::VectorXd& Evaluated the terminal constraint function
+		 * @param const LocomotionState& State vector
+		 */
+		void computeTerminalConstraint(Eigen::VectorXd& constraint,
+									   const LocomotionState& state);
+
+		/**
 		 * @brief Computes the constraint from the time integration. Additionally, it's updated
 		 * the time value in case of fixed-step integration, i.e. optimization without time as a
 		 * decision variable. Note that there are different numerical integration methods
@@ -112,6 +120,14 @@ class DynamicalSystem : public Constraint
 										Eigen::VectorXd& upper_bound);
 
 		/**
+		 * @brief Gets the terminal bounds vector given a certain state
+		 * @param Eigen::VectorXd& Lower bounds of the dynamical system
+		 * @param Eigen::VectorXd& Upper bounds of the dynamical system
+		 */
+		void getTerminalBounds(Eigen::VectorXd& lower_bound,
+							   Eigen::VectorXd& upper_bound);
+
+		/**
 		 * @brief Sets the lower and upper state bounds
 		 * @param const LocomotionState& Lower state bounds
 		 * @param const LocomotionState& Upper state bounds
@@ -124,6 +140,12 @@ class DynamicalSystem : public Constraint
 		 * @param const LocomotionState& Initial state
 		 */
 		void setInitialState(const LocomotionState& initial_state);
+
+		/**
+		 * @brief Sets the terminal state
+		 * @param const LocomotionState& Terminal state
+		 */
+		void setTerminalState(const LocomotionState& terminal_state);
 
 		/**
 		 * @brief Sets the starting state
@@ -166,11 +188,18 @@ class DynamicalSystem : public Constraint
 		/** @brief Gets the dimension of the dynamical state */
 		unsigned int getDimensionOfState();
 
+		/** @brief Gets the dimension of the terminal constraint */
+		unsigned int getTerminalConstraintDimension();
+
 		/** @brief Gets the floating-base system information */
 		FloatingBaseSystem& getFloatingBaseSystem();
 
 		/** @brief Gets the fixed-step time of integration */
 		const double& getFixedStepTime();
+
+		/** @brief Sets the problame as full-trajectory optimixation, which means to add
+		 * a the terminal constraint to the optimization problem */
+		void setFullTrajectoryOptimization();
 
 		/**
 		 * @brief Converts the generalized state vector to locomotion state
@@ -191,13 +220,22 @@ class DynamicalSystem : public Constraint
 		/** @brief Returns true if it's a fixed-step integration */
 		bool isFixedStepIntegration();
 
+		/** @brief Returns true if it's a full-trajectory optimization problem */
+		bool isFullTrajectoryOptimization();
+
 
 	protected:
 		/** @brief Dimension of the dynamical state */
 		unsigned int state_dimension_;
 
+		/** @brief Dimension of the terminal constraint */
+		unsigned int terminal_constraint_dimension_;
+
 		/** @brief Initial state */
 		LocomotionState initial_state_;
+
+		/** @brief Terminal state */
+		LocomotionState terminal_state_;
 
 		/** @brief Starting state uses from optimizers */
 		LocomotionState starting_state_;
@@ -224,6 +262,9 @@ class DynamicalSystem : public Constraint
 
 		/** @brief Initializes conditions of the dynamical constraint */
 		void initialConditions();
+
+		/** @brief Indicates if it's a full-trajectory optimization */
+		bool is_full_trajectory_optimization_;
 };
 
 } //@namespace model
