@@ -348,10 +348,10 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 
 	// Recording the solution
 	locomotion_solution_.clear();
-	LocomotionState locomotion_state;
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
 	for (unsigned int k = 0; k < horizon_; k++) {
 		// Converting the decision variable for a certain time to a robot state
+		LocomotionState locomotion_state;
 		decision_state = solution.segment(k * state_dim, state_dim);
 		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 
