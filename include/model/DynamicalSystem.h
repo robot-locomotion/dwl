@@ -197,7 +197,7 @@ class DynamicalSystem : public Constraint
 		/** @brief Gets the fixed-step time of integration */
 		const double& getFixedStepTime();
 
-		/** @brief Sets the problame as full-trajectory optimixation, which means to add
+		/** @brief Sets the problem as full-trajectory optimization, which means to add
 		 * a the terminal constraint to the optimization problem */
 		void setFullTrajectoryOptimization();
 
