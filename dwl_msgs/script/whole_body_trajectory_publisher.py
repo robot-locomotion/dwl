@@ -9,7 +9,7 @@ from sensor_msgs.msg import JointState
 class WholeBodyTrajectoryPublisher():
     def __init__(self):
         # Defining the subscriber
-        rospy.Subscriber("whole_body_trajectory", WholeBodyTrajectory, self.callback)
+        rospy.Subscriber("/hyl/constrained_operational_controller/plan", WholeBodyTrajectory, self.callback)
         
         # Defining the publisher
         self.pub = rospy.Publisher('joint_states', JointState, queue_size=5)
