@@ -247,6 +247,12 @@ const LocomotionState& DynamicalSystem::getInitialState()
 }
 
 
+const LocomotionState& DynamicalSystem::getTerminalState()
+{
+	return terminal_state_;
+}
+
+
 unsigned int DynamicalSystem::getDimensionOfState()
 {
 	return state_dimension_;

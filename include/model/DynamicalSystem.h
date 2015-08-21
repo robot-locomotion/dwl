@@ -182,6 +182,9 @@ class DynamicalSystem : public Constraint
 		/** @brief Gets the initial state of the dynamical constraint */
 		const LocomotionState& getInitialState();
 
+		/** @brief Gets the terminal state of the dynamical constraint */
+		const LocomotionState& getTerminalState();
+
 		/** @brief Gets the starting state */
 		const LocomotionState& getStartingState();
 

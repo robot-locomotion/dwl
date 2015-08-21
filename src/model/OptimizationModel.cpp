@@ -38,16 +38,58 @@ OptimizationModel::~OptimizationModel()
 void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
 {
 	if (locomotion_solution_.size() == 0) {
-		// Getting the initial locomotion state
+		// Getting the initial and ending locomotion state
 		LocomotionState starting_locomotion_state = dynamical_system_->getStartingState();
+		LocomotionState ending_locomotion_state = dynamical_system_->getTerminalState();
 
-		// Getting the initial state vector
-		Eigen::VectorXd starting_state;
-		dynamical_system_->fromLocomotionState(starting_state, starting_locomotion_state);
+		// Defining splines //TODO for the time being only cubic interpolation is OK
+		unsigned int num_joints = dynamical_system_->getFloatingBaseSystem().getJointDoF();
+		std::vector<math::CubicSpline> base_spline, joint_spline;
+		base_spline.resize(6);
+		joint_spline.resize(num_joints);
 
-		// Setting the full starting state for the predefined horizon
-		for (unsigned int i = 0; i < horizon_; i++)
-			full_initial_point.segment(i * state_dimension_, state_dimension_) = starting_state;
+		// Computing a starting point from interpolation of the starting and ending states
+		LocomotionState current_locomotion_state = starting_locomotion_state;
+		math::Spline::Point current_point;
+		current_locomotion_state.duration = 1. / horizon_;
+		for (unsigned int k = 0; k < horizon_; k++) {
+			current_locomotion_state.time = k * current_locomotion_state.duration;
+
+			// Base interpolation
+			for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
+				if (k == 0) {
+					// Initialization of the base spline
+					math::Spline::Point starting_base(starting_locomotion_state.base_pos(base_idx));
+					math::Spline::Point ending_base(ending_locomotion_state.base_pos(base_idx));
+					base_spline[base_idx].setBoundary(0, 1, starting_base, ending_base);
+				} else {
+					// Getting and setting the interpolated point
+					base_spline[base_idx].getPoint(current_locomotion_state.time, current_point);
+					current_locomotion_state.base_pos(base_idx) = current_point.x;
+				}
+			}
+
+			// Joint interpolations
+			for (unsigned int joint_idx = 0; joint_idx < num_joints; joint_idx++) {
+				if (k == 0) {
+					// Initialization of the joint spline
+					math::Spline::Point starting_joint(starting_locomotion_state.joint_pos(joint_idx));
+					math::Spline::Point ending_joint(ending_locomotion_state.joint_pos(joint_idx));
+					joint_spline[joint_idx].setBoundary(0, 1, starting_joint, ending_joint);
+				} else {
+					// Getting and setting the interpolated point
+					joint_spline[joint_idx].getPoint(current_locomotion_state.time, current_point);
+					current_locomotion_state.joint_pos(joint_idx) = current_point.x;
+				}
+			}
+
+			// Getting the current state vector
+			Eigen::VectorXd current_state;
+			dynamical_system_->fromLocomotionState(current_state, current_locomotion_state);
+
+			// Adding the current state vector
+			full_initial_point.segment(k * state_dimension_, state_dimension_) = current_state;
+		}
 	} else {
 		// Defining the current locomotion solution as starting point
 		unsigned int state_dimension = dynamical_system_->getDimensionOfState();
