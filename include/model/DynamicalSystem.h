@@ -10,6 +10,7 @@ namespace dwl
 namespace model
 {
 
+/** @brief Defines the locomotion variables of the optimization problem */
 struct LocomotionVariables
 {
 	LocomotionVariables(bool full_opt = false) : time(full_opt), position(full_opt),
@@ -26,6 +27,9 @@ struct LocomotionVariables
 	bool contact_acc;
 	bool contact_for;
 };
+
+/** @brief Defines the different methods for step-time integration */
+enum StepIntegrationMethod {Fixed, Variable};
 
 /**
  * @class DynamicalSystem
@@ -128,6 +132,12 @@ class DynamicalSystem : public Constraint
 		void setStartingState(const LocomotionState& starting_state);
 
 		/**
+		 * @brief Sets the step integration method (fixed or variable). The default value is fixed
+		 * @param StepIntegrationMethod Step integration method
+		 */
+		void setStepIntegrationMethod(StepIntegrationMethod method);
+
+		/**
 		 * @brief Sets the fixed-step integration time
 		 * @param const double& Fixed-step integration time
 		 */
@@ -201,11 +211,17 @@ class DynamicalSystem : public Constraint
 		/** @brief Locomotion variables defined given a dynamical system constraint */
 		LocomotionVariables locomotion_variables_;
 
-		/** Fixed-step time value [in seconds] */
+		/** @brief Step integration method */
+		StepIntegrationMethod integration_method_;
+
+		/** @brief Fixed-step time value [in seconds] */
 		double step_time_;
 
 
 	private:
+		/** @brief Computes the state dimension of the dynamical constraint */
+		void computeStateDimension();
+
 		/** @brief Initializes conditions of the dynamical constraint */
 		void initialConditions();
 };

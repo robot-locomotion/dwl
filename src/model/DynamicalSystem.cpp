@@ -8,7 +8,7 @@ namespace model
 {
 
 DynamicalSystem::DynamicalSystem() : state_dimension_(0), locomotion_variables_(false),
-		step_time_(0.1)
+		integration_method_(Fixed), step_time_(0.1)
 {
 
 }
@@ -23,6 +23,9 @@ DynamicalSystem::~DynamicalSystem()
 void DynamicalSystem::init(std::string urdf_model,
 						   bool info)
 {
+	// Computing the state dimension of the dynamical system constraint
+	computeStateDimension();
+
 	// Setting initial conditions
 	initialConditions();
 
@@ -146,6 +149,19 @@ void DynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
 void DynamicalSystem::setStartingState(const LocomotionState& starting_state)
 {
 	starting_state_ = starting_state;
+}
+
+
+void DynamicalSystem::setStepIntegrationMethod(StepIntegrationMethod method)
+{
+	integration_method_ = method;
+	if (integration_method_ == Fixed)
+		locomotion_variables_.time = false;
+	else
+		locomotion_variables_.time = true;
+
+	// Setting the state dimension
+	computeStateDimension();
 }
 
 
@@ -359,7 +375,7 @@ bool DynamicalSystem::isFixedStepIntegration()
 }
 
 
-void DynamicalSystem::initialConditions()
+void DynamicalSystem::computeStateDimension()
 {
 	// Computing the state dimension give the locomotion variables
 	state_dimension_ = locomotion_variables_.time + (locomotion_variables_.position +
@@ -368,8 +384,11 @@ void DynamicalSystem::initialConditions()
 			(locomotion_variables_.contact_pos + locomotion_variables_.contact_vel +
 					locomotion_variables_.contact_acc + locomotion_variables_.contact_for) *
 					system_.getNumberOfEndEffectors();
+}
 
 
+void DynamicalSystem::initialConditions()
+{
 	// No-bound limit by default
 	lower_state_bound_.duration = 0.005;
 	lower_state_bound_.base_pos = -NO_BOUND * rbd::Vector6d::Ones();
