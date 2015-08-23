@@ -5,6 +5,9 @@
 #include <model/WholeBodyDynamics.h>
 #include <utils/URDF.h>
 #include <utils/utils.h>
+#include <boost/shared_ptr.hpp>
+#include <boost/circular_buffer.hpp>
+
 #define NO_BOUND 2e19
 
 
@@ -91,7 +94,7 @@ class Constraint
 		unsigned int constraint_dimension_;
 
 		/** @brief Sets the last state */
-		LocomotionState last_state_;
+		boost::circular_buffer<LocomotionState> state_buffer_;
 
 		/** @brief A floating-base system definition */
 		FloatingBaseSystem system_;

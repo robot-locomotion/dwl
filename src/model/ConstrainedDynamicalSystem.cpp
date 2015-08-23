@@ -39,12 +39,12 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 	constraint.resize(system_.getJointDoF() + 3 * num_actived_endeffectors_);
 
 	// Computing the step time
-	double step_time = state.time - last_state_.time;
+	double step_time = state.time - state_buffer_[0].time;
 
 	// Computing the constrained inverse dynamics to the defined active contacts
 	Eigen::VectorXd estimated_joint_forces;
-	Eigen::VectorXd base_acc = (state.base_vel - last_state_.base_vel) / step_time;
-	Eigen::VectorXd joint_acc = (state.joint_vel - last_state_.joint_vel) / step_time;
+	Eigen::VectorXd base_acc = (state.base_vel - state_buffer_[0].base_vel) / step_time;
+	Eigen::VectorXd joint_acc = (state.joint_vel - state_buffer_[0].joint_vel) / step_time;
 	dynamics_.computeConstrainedFloatingBaseInverseDynamics(estimated_joint_forces,
 															state.base_pos, state.joint_pos,
 															state.base_vel, state.joint_vel,

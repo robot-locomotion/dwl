@@ -123,8 +123,8 @@ void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
 	else
 		state.duration = step_time_;
 
-	Eigen::VectorXd base_int = last_state_.base_pos - state.base_pos + step_time_ * state.base_vel;
-	Eigen::VectorXd joint_int = last_state_.joint_pos - state.joint_pos + step_time_ * state.joint_vel;
+	Eigen::VectorXd base_int = state_buffer_[0].base_pos - state.base_pos + step_time_ * state.base_vel;
+	Eigen::VectorXd joint_int = state_buffer_[0].joint_pos - state.joint_pos + step_time_ * state.joint_vel;
 
 	// Adding the time integration constraint
 	constraint = system_.toGeneralizedJointState(base_int, joint_int);

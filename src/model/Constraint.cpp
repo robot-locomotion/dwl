@@ -9,7 +9,7 @@ namespace model
 
 Constraint::Constraint() : constraint_dimension_(0)
 {
-
+	state_buffer_.set_capacity(4);
 }
 
 
@@ -66,7 +66,7 @@ void Constraint::init(std::string urdf_model,
 
 void Constraint::setLastState(LocomotionState& last_state)
 {
-	last_state_ = last_state;
+	state_buffer_.push_front(last_state);
 }
 
 

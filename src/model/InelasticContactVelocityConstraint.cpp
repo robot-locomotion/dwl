@@ -63,7 +63,7 @@ void InelasticContactVelocityConstraint::computeSecondComplement(Eigen::VectorXd
 										 end_effector_names_, rbd::Linear);
 	rbd::BodyVector last_contact_pos;
 	kinematics_.computeForwardKinematics(last_contact_pos,
-										 last_state_.base_pos, last_state_.joint_pos,
+										 state_buffer_[0].base_pos, state_buffer_[0].joint_pos,
 										 end_effector_names_, rbd::Linear);
 
 	// Adding the contact distance per every end-effector as a the second complementary

@@ -47,11 +47,11 @@ void FullDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint
 	constraint.resize(system_.getSystemDoF());
 
 	// Computing the step time
-	double step_time = state.time - last_state_.time;
+	double step_time = state.time - state_buffer_[0].time;
 
 	// Computing the joint acceleration from velocities
-	Eigen::VectorXd base_acc = (state.base_vel - last_state_.base_vel) / step_time;
-	Eigen::VectorXd joint_acc = (state.joint_vel - last_state_.joint_vel) / step_time;
+	Eigen::VectorXd base_acc = (state.base_vel - state_buffer_[0].base_vel) / step_time;
+	Eigen::VectorXd joint_acc = (state.joint_vel - state_buffer_[0].joint_vel) / step_time;
 
 	// Setting the contact forces
 	rbd::BodyWrench contact_forces;
