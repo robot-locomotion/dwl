@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import rospy
-from ctypes import c_ushort
 from dwl_msgs.msg import WholeBodyTrajectory
-from dwl_msgs.msg import WholeBodyState
 from sensor_msgs.msg import JointState
 
 
@@ -16,8 +14,6 @@ class WholeBodyTrajectoryPublisher():
 
 
     def callback(self, msg):
-        state = WholeBodyState()
-        
         # Setting the current state
         state = msg.actual
         
@@ -52,7 +48,6 @@ class WholeBodyTrajectoryPublisher():
         # Setting the whole-body state message
         for i in range(num_joints):
             if i < num_base_joints:
-                base_id = state.base[i].id
                 msg.name[i] = state.base[i].name
                 msg.position[i] = state.base[i].position
                 msg.velocity[i] = state.base[i].velocity
