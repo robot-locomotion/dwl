@@ -350,6 +350,7 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 	locomotion_solution_.clear();
 	locomotion_solution_.push_back(dynamical_system_->getInitialState());
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
+	double current_time = dynamical_system_->getStartingState().time;
 	for (unsigned int k = 0; k < horizon_; k++) {
 		// Converting the decision variable for a certain time to a robot state
 		LocomotionState locomotion_state;
@@ -357,28 +358,26 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 
 		// Setting the time information in cases where time is not a decision variable
+		double duration = 0;
 		if (dynamical_system_->isFixedStepIntegration())
-			locomotion_state.time = dynamical_system_->getStartingState().time +
-				dynamical_system_->getFixedStepTime() * (k + 1);
+			duration = dynamical_system_->getFixedStepTime() * (k + 1);
 		else
-			locomotion_state.time += locomotion_state.duration;
+			duration = locomotion_state.duration;
+		current_time += duration;
+		locomotion_state.time = current_time;
 
 
 		// Setting the acceleration information in cases where the accelerations are not decision
 		// variables
-		if (k != 0 && locomotion_state.base_acc.isZero() && locomotion_state.joint_acc.isZero()) {
-			// Getting the last state
-			LocomotionState last_locomotion_state;
-			dynamical_system_->toLocomotionState(last_locomotion_state,
-												 solution.segment((k - 1) * state_dim, state_dim));
+		LocomotionState last_locomotion_state;
+		if (k == 0)
+			last_locomotion_state = dynamical_system_->getInitialState();
+		else {
+			Eigen::VectorXd last_decision_state = solution.segment((k - 1) * state_dim, state_dim);
+			dynamical_system_->toLocomotionState(last_locomotion_state, last_decision_state);
+		}
 
-			// Computing the duration time
-			double duration;
-			if (dynamical_system_->isFixedStepIntegration())
-				duration = dynamical_system_->getFixedStepTime();
-			else
-				duration = locomotion_state.time - last_locomotion_state.time;
-
+		if (locomotion_state.base_acc.isZero() && locomotion_state.joint_acc.isZero()) {
 			// Computing (estimating) the accelerations
 			locomotion_state.base_acc = (locomotion_state.base_vel - last_locomotion_state.base_vel) /
 					duration;
