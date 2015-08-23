@@ -358,12 +358,9 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 
 		// Setting the time information in cases where time is not a decision variable
-		double duration = 0;
 		if (dynamical_system_->isFixedStepIntegration())
-			duration = dynamical_system_->getFixedStepTime() * (k + 1);
-		else
-			duration = locomotion_state.duration;
-		current_time += duration;
+			locomotion_state.duration = dynamical_system_->getFixedStepTime();
+		current_time += locomotion_state.duration;
 		locomotion_state.time = current_time;
 
 
@@ -380,9 +377,9 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 		if (locomotion_state.base_acc.isZero() && locomotion_state.joint_acc.isZero()) {
 			// Computing (estimating) the accelerations
 			locomotion_state.base_acc = (locomotion_state.base_vel - last_locomotion_state.base_vel) /
-					duration;
+					locomotion_state.duration;
 			locomotion_state.joint_acc = (locomotion_state.joint_vel - last_locomotion_state.joint_vel) /
-					duration;
+					locomotion_state.duration;
 		}
 
 

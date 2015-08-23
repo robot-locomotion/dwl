@@ -126,19 +126,14 @@ const LocomotionTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhol
 	contact_force_spline.resize(num_contacts);
 
 	// Computing the interpolation of the whole-body trajectory
-	double duration;
 	unsigned int horizon = solver_->getOptimizationModel().getHorizon();
-	for (unsigned int k = 0; k < horizon - 1; k++) {
+	for (unsigned int k = 0; k < horizon; k++) {
 		// Adding the starting state
 		interpolated_trajectory_.push_back(trajectory[k]);
 
 		// Getting the current starting times
 		double starting_time = trajectory[k].time;
-
-		if (getDynamicalSystem()->isFixedStepIntegration())
-			duration = getDynamicalSystem()->getFixedStepTime();
-		else
-			duration = trajectory[k+1].time - trajectory[k].time;
+		double duration = trajectory[k+1].duration;
 
 		// Interpolating the current state
 		LocomotionState current_state(num_joints);
@@ -237,7 +232,7 @@ const LocomotionTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhol
 	}
 
 	// Adding the ending state
-	interpolated_trajectory_.push_back(trajectory[horizon-1]);
+	interpolated_trajectory_.push_back(trajectory[horizon]);
 
 	return interpolated_trajectory_;
 }
