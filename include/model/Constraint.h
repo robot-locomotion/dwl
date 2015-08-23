@@ -76,6 +76,9 @@ class Constraint
 		 */
 		void setLastState(LocomotionState& last_state);
 
+		/** @brief Resets the state buffer */
+		void resetStateBuffer();
+
 		/** @brief Gets the dimension of the constraint */
 		unsigned int getConstraintDimension();
 

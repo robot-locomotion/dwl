@@ -70,6 +70,15 @@ void Constraint::setLastState(LocomotionState& last_state)
 }
 
 
+void Constraint::resetStateBuffer()
+{
+	unsigned int buffer_size = state_buffer_.size();
+	LocomotionState empty_state(state_buffer_[0].joint_pos.size(), state_buffer_[0].contacts.size());
+	for (unsigned int i = 0; i < buffer_size; i++)
+		state_buffer_.push_back();
+}
+
+
 unsigned int Constraint::getConstraintDimension()
 {
 	// Getting the constraint dimension given a defined constraint function. The constraint

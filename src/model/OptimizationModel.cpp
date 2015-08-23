@@ -267,6 +267,14 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 			}
 		}
 	}
+
+	// Resetting the state buffer
+	for (unsigned int j = 0; j < num_constraints + 1; j++) {
+		if (j == 0) // dynamic system constraint
+			dynamical_system_->resetStateBuffer();
+		else
+			constraints_[j-1]->resetStateBuffer();
+	}
 }
 
 
