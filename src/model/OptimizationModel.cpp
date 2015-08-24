@@ -477,6 +477,7 @@ void OptimizationModel::addDynamicalSystem(DynamicalSystem* dynamical_system)
 
 	printf(GREEN "Adding the %s dynamical system\n" COLOR_RESET, dynamical_system->getName().c_str());
 	dynamical_system_ = dynamical_system;
+	is_added_dynamic_system_ = true;
 
 	// Reading the state dimension
 	state_dimension_ = dynamical_system_->getDimensionOfState();
@@ -493,7 +494,7 @@ void OptimizationModel::addDynamicalSystem(DynamicalSystem* dynamical_system)
 void OptimizationModel::removeDynamicalSystem()
 {
 	if (is_added_dynamic_system_) {
-		dynamical_system_ = NULL;
+		is_added_dynamic_system_ = false;
 
 		// Updating the constraint dimension
 		constraint_dimension_ -= dynamical_system_->getConstraintDimension();
