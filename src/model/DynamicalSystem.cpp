@@ -447,7 +447,7 @@ void DynamicalSystem::initialConditions()
 	terminal_constraint_dimension_ = system_.getFloatingBaseDoF();
 
 	// No-bound limit by default
-	lower_state_bound_.duration = 0.005;
+	lower_state_bound_.duration = 0.05;
 	lower_state_bound_.base_pos = -NO_BOUND * rbd::Vector6d::Ones();
 	lower_state_bound_.joint_pos = -NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
 	lower_state_bound_.base_vel = -NO_BOUND * rbd::Vector6d::Ones();
@@ -456,7 +456,7 @@ void DynamicalSystem::initialConditions()
 	lower_state_bound_.joint_acc = -NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
 	lower_state_bound_.base_eff = -NO_BOUND * rbd::Vector6d::Ones();
 	lower_state_bound_.joint_eff = -NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
-	upper_state_bound_.duration = 0.15;//NO_BOUND;
+	upper_state_bound_.duration = 0.5;//NO_BOUND;
 	upper_state_bound_.base_pos = NO_BOUND * rbd::Vector6d::Ones();
 	upper_state_bound_.joint_pos = NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
 	upper_state_bound_.base_vel = NO_BOUND * rbd::Vector6d::Ones();
