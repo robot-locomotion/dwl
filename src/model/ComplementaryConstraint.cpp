@@ -60,11 +60,8 @@ void ComplementaryConstraint::getBounds(Eigen::VectorXd& lower_bound,
 			NO_BOUND * Eigen::VectorXd::Ones(2 * complementary_dimension_);
 
 	// Computing the inner product bounds
-	double relaxation_parameter = 0.0;//15;// * NO_BOUND;
-	lower_bound(2 * complementary_dimension_) = 0.;
-//			relaxation_parameter;
-//			-NO_BOUND;
-	upper_bound(2 * complementary_dimension_) = relaxation_parameter;
+	lower_bound(2 * complementary_dimension_) = -NO_BOUND;
+	upper_bound(2 * complementary_dimension_) = 0.0;
 }
 
 } //@namespace model
