@@ -10,6 +10,12 @@ namespace dwl
 namespace model
 {
 
+/**
+ * @class FullDynamicalSystem
+ * @brief FullDynamicalSystem class describes the dynamical system using a full inverse
+ * dynamics algorithm. An additional constraint is imposed it in order to model the nature of
+ * floating-base system. i.e. base wrench equals to zero.
+ */
 class FullDynamicalSystem : public DynamicalSystem
 {
 	public:
