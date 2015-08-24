@@ -42,6 +42,9 @@ class WholeBodyTrajectoryOptimization
 		 */
 		void addDynamicalSystem(model::DynamicalSystem* system);
 
+		/** @brief Removes the current dynamical system */
+		void removeDynamicalSystem();
+
 		/**
 		 * @brief Adds the constraint
 		 * @param model::Constraint* Pointer to the constraint
@@ -49,10 +52,22 @@ class WholeBodyTrajectoryOptimization
 		void addConstraint(model::Constraint* constraint);
 
 		/**
+		 * @brief Removes the current dynamical system
+		 * @param std::string Name constraint
+		 */
+		void removeConstraint(std::string name);
+
+		/**
 		 * @brief Adds the cost function
 		 * @param model::Cost* Pointer to the cost function
 		 */
 		void addCost(model::Cost* cost);
+
+		/**
+		 * @brief Removes the cost function
+		 * @param std::string Name cost
+		 */
+		void removeCost(std::string name);
 
 		/**
 		 * @brief Sets the horizon

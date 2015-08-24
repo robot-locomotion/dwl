@@ -35,6 +35,16 @@ void WholeBodyTrajectoryOptimization::addDynamicalSystem(model::DynamicalSystem*
 }
 
 
+void WholeBodyTrajectoryOptimization::removeDynamicalSystem()
+{
+	if (solver_ != NULL)
+		solver_->getOptimizationModel().removeDynamicalSystem();
+	else
+		printf(YELLOW "WARNING: there was not defined a solver, it could be removed the dynamical"
+				" constraint");
+}
+
+
 void WholeBodyTrajectoryOptimization::addConstraint(model::Constraint* constraint)
 {
 	if (solver_ != NULL)
@@ -45,6 +55,15 @@ void WholeBodyTrajectoryOptimization::addConstraint(model::Constraint* constrain
 }
 
 
+void WholeBodyTrajectoryOptimization::removeConstraint(std::string name)
+{
+	if (solver_ != NULL)
+		solver_->getOptimizationModel().removeConstraint(name);
+	else
+		printf(YELLOW "WARNING: there was not defined a solver, it could be removed the constraint");
+}
+
+
 void WholeBodyTrajectoryOptimization::addCost(model::Cost* cost)
 {
 	if (solver_ != NULL)
@@ -52,6 +71,15 @@ void WholeBodyTrajectoryOptimization::addCost(model::Cost* cost)
 	else
 		printf(RED "FATAL: there is not defined a solver for setting the %s cost"
 				COLOR_RESET, cost->getName().c_str());
+}
+
+
+void WholeBodyTrajectoryOptimization::removeCost(std::string name)
+{
+	if (solver_ != NULL)
+		solver_->getOptimizationModel().removeCost(name);
+	else
+		printf(YELLOW "WARNING: there was not defined a solver, it could be removed the cost");
 }
 
 
