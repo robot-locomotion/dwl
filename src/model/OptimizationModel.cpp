@@ -39,7 +39,7 @@ void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initia
 {
 	if (locomotion_solution_.size() == 0) {
 		// Getting the initial and ending locomotion state
-		LocomotionState starting_locomotion_state = dynamical_system_->getStartingState();
+		LocomotionState starting_locomotion_state = dynamical_system_->getInitialState();
 		LocomotionState ending_locomotion_state = dynamical_system_->getTerminalState();
 
 		// Defining splines //TODO for the time being only cubic interpolation is OK
@@ -157,15 +157,15 @@ void OptimizationModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lo
 	}
 
 	// Setting the full (state and constraint) lower and upper bounds for the predefined horizon
-	for (unsigned int i = 0; i < horizon_; i++) {
+	for (unsigned int k = 0; k < horizon_; k++) {
 		// Setting state bounds
-		full_state_lower_bound.segment(i * state_dimension_, state_dimension_) = state_lower_bound;
-		full_state_upper_bound.segment(i * state_dimension_, state_dimension_) = state_upper_bound;
+		full_state_lower_bound.segment(k * state_dimension_, state_dimension_) = state_lower_bound;
+		full_state_upper_bound.segment(k * state_dimension_, state_dimension_) = state_upper_bound;
 
 		// Setting dynamic system bounds
-		full_constraint_lower_bound.segment(i * constraint_dimension_,
+		full_constraint_lower_bound.segment(k * constraint_dimension_,
 											constraint_dimension_) = constraint_lower_bound;
-		full_constraint_upper_bound.segment(i * constraint_dimension_,
+		full_constraint_upper_bound.segment(k * constraint_dimension_,
 											constraint_dimension_) = constraint_upper_bound;
 	}
 
@@ -214,9 +214,9 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 	LocomotionState locomotion_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dimension_);
 	unsigned int index = 0;
-	for (unsigned int i = 0; i < horizon_; i++) {
+	for (unsigned int k = 0; k < horizon_; k++) {
 		// Converting the decision variable for a certain time to a robot state
-		decision_state = decision_var.segment(i * state_dimension_, state_dimension_);
+		decision_state = decision_var.segment(k * state_dimension_, state_dimension_);
 		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 
 		// Adding the time information in cases that time is not a decision variable
@@ -261,7 +261,7 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 
 		// Computing the terminal constraint in case of full trajectory optimization
 		if (dynamical_system_->isFullTrajectoryOptimization()) {
-			if (i == horizon_ - 1) {
+			if (k == horizon_ - 1) {
 				Eigen::VectorXd constraint;
 				dynamical_system_->computeTerminalConstraint(constraint, locomotion_state);
 
@@ -296,9 +296,9 @@ void OptimizationModel::evaluateCosts(double& cost,
 
 	// Computing the cost for predefined horizon
 	LocomotionState locomotion_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
-	for (unsigned int i = 0; i < horizon_; i++) {
+	for (unsigned int k = 0; k < horizon_; k++) {
 		// Converting the decision variable for a certain time to a robot state
-		Eigen::VectorXd decision_state = decision_var.segment(i * state_dimension_, state_dimension_);
+		Eigen::VectorXd decision_state = decision_var.segment(k * state_dimension_, state_dimension_);
 		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 
 		// Adding the time information in cases that time is not a decision variable
@@ -368,7 +368,7 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 	locomotion_solution_.clear();
 	locomotion_solution_.push_back(dynamical_system_->getInitialState());
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
-	double current_time = dynamical_system_->getStartingState().time;
+	double current_time = dynamical_system_->getInitialState().time;
 	for (unsigned int k = 0; k < horizon_; k++) {
 		// Converting the decision variable for a certain time to a robot state
 		LocomotionState locomotion_state;
@@ -421,8 +421,8 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 																		locomotion_state.base_pos,
 																		locomotion_state.joint_pos,
 																		contact_names, rbd::Linear);
-			for (unsigned int k = 0; k < contact_names.size(); k++)
-				locomotion_state.contacts[k].position = contact_pos.find(contact_names[k])->second;
+			for (unsigned int i = 0; i < contact_names.size(); i++)
+				locomotion_state.contacts[i].position = contact_pos.find(contact_names[i])->second;
 		}
 
 		if (locomotion_state.contacts[0].velocity.isZero()) {
@@ -433,8 +433,8 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 															   locomotion_state.base_vel,
 															   locomotion_state.joint_vel,
 															   contact_names, rbd::Linear);
-			for (unsigned int k = 0; k < contact_names.size(); k++)
-				locomotion_state.contacts[k].velocity = contact_vel.find(contact_names[k])->second;
+			for (unsigned int i = 0; i < contact_names.size(); i++)
+				locomotion_state.contacts[i].velocity = contact_vel.find(contact_names[i])->second;
 		}
 
 		if (locomotion_state.contacts[0].acceleration.isZero()) {
@@ -447,8 +447,8 @@ std::vector<LocomotionState>& OptimizationModel::evaluateSolution(const Eigen::R
 																   locomotion_state.base_acc,
 																   locomotion_state.joint_acc,
 																   contact_names, rbd::Linear);
-			for (unsigned int k = 0; k < contact_names.size(); k++)
-				locomotion_state.contacts[k].acceleration = contact_acc.find(contact_names[k])->second;
+			for (unsigned int i = 0; i < contact_names.size(); i++)
+				locomotion_state.contacts[i].acceleration = contact_acc.find(contact_names[i])->second;
 		}
 
 		// Pushing the current state

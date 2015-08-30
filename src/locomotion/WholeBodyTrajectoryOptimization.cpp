@@ -106,7 +106,6 @@ bool WholeBodyTrajectoryOptimization::compute(const LocomotionState& current_sta
 		// Setting the current state, terminal and the starting state for the optimization
 		solver_->getOptimizationModel().getDynamicalSystem()->setInitialState(current_state);
 		solver_->getOptimizationModel().getDynamicalSystem()->setTerminalState(desired_state);
-		solver_->getOptimizationModel().getDynamicalSystem()->setStartingState(current_state);
 
 		// Setting the desired state to the cost functions
 		unsigned int num_cost = solver_->getOptimizationModel().getCosts().size();

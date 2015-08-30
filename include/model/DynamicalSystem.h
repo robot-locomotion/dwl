@@ -148,12 +148,6 @@ class DynamicalSystem : public Constraint
 		void setTerminalState(const LocomotionState& terminal_state);
 
 		/**
-		 * @brief Sets the starting state
-		 * @param const LocomotionState& Starting state
-		 */
-		void setStartingState(const LocomotionState& starting_state);
-
-		/**
 		 * @brief Sets the step integration method (fixed or variable). The default value is fixed
 		 * @param StepIntegrationMethod Step integration method
 		 */
@@ -184,9 +178,6 @@ class DynamicalSystem : public Constraint
 
 		/** @brief Gets the terminal state of the dynamical constraint */
 		const LocomotionState& getTerminalState();
-
-		/** @brief Gets the starting state */
-		const LocomotionState& getStartingState();
 
 		/** @brief Gets the dimension of the dynamical state */
 		unsigned int getDimensionOfState();
@@ -239,9 +230,6 @@ class DynamicalSystem : public Constraint
 
 		/** @brief Terminal state */
 		LocomotionState terminal_state_;
-
-		/** @brief Starting state uses from optimizers */
-		LocomotionState starting_state_;
 
 		/** @brief Lower state bounds */
 		LocomotionState lower_state_bound_;

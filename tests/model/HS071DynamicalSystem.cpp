@@ -27,7 +27,7 @@ class HS071DynamicalSystem : public DynamicalSystem
 			starting_state.joint_pos(1) = 5.0;
 			starting_state.joint_pos(2) = 5.0;
 			starting_state.joint_pos(3) = 1.0;
-			setStartingState(starting_state);
+			setInitialState(starting_state);
 
 			LocomotionState lower_state_bound, upper_state_bound;
 			lower_state_bound.joint_pos.resize(4);

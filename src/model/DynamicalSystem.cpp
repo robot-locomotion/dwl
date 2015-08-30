@@ -161,12 +161,6 @@ void DynamicalSystem::getTerminalBounds(Eigen::VectorXd& lower_bound,
 }
 
 
-void DynamicalSystem::setStartingState(const LocomotionState& starting_state)
-{
-	starting_state_ = starting_state;
-}
-
-
 void DynamicalSystem::setStepIntegrationMethod(StepIntegrationMethod method)
 {
 	integration_method_ = method;
@@ -215,12 +209,6 @@ void DynamicalSystem::setInitialState(const LocomotionState& initial_state)
 void DynamicalSystem::setTerminalState(const LocomotionState& terminal_state)
 {
 	terminal_state_ = terminal_state;
-}
-
-
-const LocomotionState& DynamicalSystem::getStartingState()
-{
-	return starting_state_;
 }
 
 
@@ -470,18 +458,18 @@ void DynamicalSystem::initialConditions()
 	}
 
 
-	// Starting state
-	starting_state_.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
-	starting_state_.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
-	starting_state_.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
-	starting_state_.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
-	starting_state_.contacts.resize(system_.getNumberOfEndEffectors());
+	// Initial state
+	initial_state_.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
+	initial_state_.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
+	initial_state_.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
+	initial_state_.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
+	initial_state_.contacts.resize(system_.getNumberOfEndEffectors());
 	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++) {
-		starting_state_.contacts[k].end_effector = 0;
-		starting_state_.contacts[k].position = Eigen::Vector3d::Zero();
-		starting_state_.contacts[k].velocity = Eigen::Vector3d::Zero();
-		starting_state_.contacts[k].acceleration = Eigen::Vector3d::Zero();
-		starting_state_.contacts[k].force = Eigen::Vector3d::Zero();
+		initial_state_.contacts[k].end_effector = 0;
+		initial_state_.contacts[k].position = Eigen::Vector3d::Zero();
+		initial_state_.contacts[k].velocity = Eigen::Vector3d::Zero();
+		initial_state_.contacts[k].acceleration = Eigen::Vector3d::Zero();
+		initial_state_.contacts[k].force = Eigen::Vector3d::Zero();
 	}
 }
 
