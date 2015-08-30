@@ -65,12 +65,15 @@ bool IpoptNLP::compute(double allocated_time_secs)
 
 	// Computing the optimization problem
 	bool solved = false;
-	while (!solved && ((clock() - started_time) < allocated_time_secs)) {
+	double current_duration_secs = 0;
+	while (!solved && (current_duration_secs < allocated_time_secs)) {
 		// Computing the current time
 		clock_t current_time = clock() - started_time;
+		current_duration_secs = ((double) current_time) / CLOCKS_PER_SEC;
 
 		// Setting the allowed time for this optimization loop
-		app_->Options()->SetNumericValue("max_cpu_time", allocated_time_secs - current_time);
+		double new_allocated_time_secs = allocated_time_secs - current_duration_secs;
+		app_->Options()->SetNumericValue("max_cpu_time", new_allocated_time_secs);
 		status = app_->OptimizeTNLP(nlp_ptr_);
 
 		if (status == Ipopt::Solve_Succeeded || status == Ipopt::Solved_To_Acceptable_Level)
