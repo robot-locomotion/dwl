@@ -219,6 +219,11 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 		decision_state = decision_var.segment(i * state_dimension_, state_dimension_);
 		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
 
+		// Adding the time information in cases that time is not a decision variable
+		if (dynamical_system_->isFixedStepIntegration())
+			locomotion_state.duration = dynamical_system_->getFixedStepTime();
+		locomotion_state.time += locomotion_state.duration;
+
 		// Computing the constraints for a certain time
 		for (unsigned int j = 0; j < num_constraints + 1; j++) {
 			Eigen::VectorXd constraint;
@@ -295,6 +300,11 @@ void OptimizationModel::evaluateCosts(double& cost,
 		// Converting the decision variable for a certain time to a robot state
 		Eigen::VectorXd decision_state = decision_var.segment(i * state_dimension_, state_dimension_);
 		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
+
+		// Adding the time information in cases that time is not a decision variable
+		if (dynamical_system_->isFixedStepIntegration())
+			locomotion_state.duration = dynamical_system_->getFixedStepTime();
+		locomotion_state.time += locomotion_state.duration;
 
 		// Computing the function cost for a certain time
 		double simple_cost;

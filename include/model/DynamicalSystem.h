@@ -95,10 +95,10 @@ class DynamicalSystem : public Constraint
 		 * the time value in case of fixed-step integration, i.e. optimization without time as a
 		 * decision variable. Note that there are different numerical integration methods
 		 * @param Eigen::VectorXd& Evaluated the dynamical constraint function
-		 * @param LocomotionState& State vector
+		 * @param const LocomotionState& State vector
 		 */
 		void numericalIntegration(Eigen::VectorXd& constraint,
-								  LocomotionState& state);
+								  const LocomotionState& state);
 
 		/**
 		 * @brief Gets the bounds of the dynamical system constraint which included the time
