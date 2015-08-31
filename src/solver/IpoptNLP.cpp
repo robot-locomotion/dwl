@@ -67,10 +67,6 @@ bool IpoptNLP::compute(double allocated_time_secs)
 	bool solved = false;
 	double current_duration_secs = 0;
 	while (!solved && (current_duration_secs < allocated_time_secs)) {
-		// Computing the current time
-		clock_t current_time = clock() - started_time;
-		current_duration_secs = ((double) current_time) / CLOCKS_PER_SEC;
-
 		// Setting the allowed time for this optimization loop
 		double new_allocated_time_secs = allocated_time_secs - current_duration_secs;
 		app_->Options()->SetNumericValue("max_cpu_time", new_allocated_time_secs);
@@ -78,6 +74,12 @@ bool IpoptNLP::compute(double allocated_time_secs)
 
 		if (status == Ipopt::Solve_Succeeded || status == Ipopt::Solved_To_Acceptable_Level)
 			solved = true;
+		else if (status == Ipopt::Infeasible_Problem_Detected)
+			break;
+
+		// Computing the current time
+		clock_t current_time = clock() - started_time;
+		current_duration_secs = ((double) current_time) / CLOCKS_PER_SEC;
 	}
 
 	if (solved) {
