@@ -64,9 +64,16 @@ void InelasticContactModelConstraint::computeSecondComplement(Eigen::VectorXd& c
 
 	// Adding the contact distance per every end-effector as a the second complementary
 	// TODO there is missing the concept of surface
-	double surface_height = -0.582715;
-	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
-		constraint(k) = contact_pos.find(end_effector_names_[k])->second(rbd::Z) - surface_height;
+	double surface1_height = -0.582715;
+	double surface2_height = -0.402715;
+	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++) {
+		Eigen::VectorXd position = contact_pos.find(end_effector_names_[k])->second;
+
+		if (position(rbd::X) < 0.125)
+			constraint(k) = position(rbd::Z) - surface1_height;
+		else
+			constraint(k) = position(rbd::Z) - surface2_height;
+	}
 }
 
 } //@namespace model
