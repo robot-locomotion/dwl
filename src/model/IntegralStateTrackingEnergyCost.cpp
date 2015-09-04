@@ -23,7 +23,7 @@ void IntegralStateTrackingEnergyCost::compute(double& cost,
 											  const LocomotionState& state)
 {
 	desired_state_.duration = 0.1;
-	if (state.time == 0.1) {
+	if (state.time < 0.11 && state.time > 0.09) {
 	// 1
 	desired_state_.time = 0.1;
 	desired_state_.base_pos(dwl::rbd::LZ) = -0.0117982880661;
@@ -34,7 +34,7 @@ void IntegralStateTrackingEnergyCost::compute(double& cost,
 //	desired_state_.contacts[0].force << -33.3327717451, 2.19910468131e-09, 94.6053161311;
 	}
 
-	if (state.time == 0.2) {
+	if (state.time < 0.21 && state.time > 0.19) {
 	// 2
 	desired_state_.time = 0.2;
 	desired_state_.base_pos(dwl::rbd::LZ) = 0.175822198623;
@@ -45,7 +45,7 @@ void IntegralStateTrackingEnergyCost::compute(double& cost,
 //	desired_state_.contacts[0].force << -33.1840702862, 7.27244855798e-09, 344.594877116;
 	}
 
-	if (state.time == 0.3) {
+	if (state.time < 0.31 && state.time > 0.29) {
 	// 3
 	desired_state_.time = 0.3;
 	desired_state_.base_pos(dwl::rbd::LZ) = 0.246745947708;
@@ -56,7 +56,7 @@ void IntegralStateTrackingEnergyCost::compute(double& cost,
 //	desired_state_.contacts[0].force << -16.8628154585, 9.36056317494e-10, 1.01656933023e-07;
 	}
 
-	if (state.time == 0.4) {
+	if (state.time < 0.41 && state.time > 0.39) {
 	// 4
 	desired_state_.time = 0.4;
 	desired_state_.base_pos(dwl::rbd::LZ) = 0.222272224855;
@@ -67,7 +67,7 @@ void IntegralStateTrackingEnergyCost::compute(double& cost,
 //	desired_state_.contacts[0].force << -0.780765656612, 9.36056317494e-10, 1.01656933023e-07;
 	}
 
-	if (state.time == 0.5) {
+	if (state.time < 0.51 && state.time > 0.49) {
 	// 5
 	desired_state_.time = 0.5;
 	desired_state_.base_pos(dwl::rbd::LZ) = 0.283422656988;
