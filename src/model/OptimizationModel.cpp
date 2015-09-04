@@ -35,6 +35,13 @@ OptimizationModel::~OptimizationModel()
 }
 
 
+void OptimizationModel::setStartingTrajectory(std::vector<LocomotionState>& initial_trajectory)
+{
+	//TODO should convert to the defined horizon and time step integration
+	locomotion_solution_ = initial_trajectory;
+}
+
+
 void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
 {
 	if (locomotion_solution_.size() == 0) {

@@ -96,7 +96,13 @@ class OptimizationModel
 		~OptimizationModel();
 
 		/**
-		 * @brief Ges the starting point of the problem
+		 * @brief Sets the initial trajectory
+		 * @param std::vector<LocomotionState>& Initial trajectory
+		 */
+		void setStartingTrajectory(std::vector<LocomotionState>& initial_trajectory);
+
+		/**
+		 * @brief Gets the starting point of the problem
 		 * @param Eigen::Ref<Eigen::VectorXd> Full initial point
 		 */
 		void getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point);

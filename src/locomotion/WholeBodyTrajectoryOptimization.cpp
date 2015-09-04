@@ -98,6 +98,12 @@ void WholeBodyTrajectoryOptimization::setStepIntegrationTime(const double& step_
 }
 
 
+void WholeBodyTrajectoryOptimization::setNominalTrajectory(std::vector<LocomotionState>& nom_trajectory)
+{
+	solver_->getOptimizationModel().setStartingTrajectory(nom_trajectory);
+}
+
+
 bool WholeBodyTrajectoryOptimization::compute(const LocomotionState& current_state,
 											  const LocomotionState& desired_state,
 											  double computation_time)

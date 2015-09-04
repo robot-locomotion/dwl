@@ -82,6 +82,12 @@ class WholeBodyTrajectoryOptimization
 		void setStepIntegrationTime(const double& step_time);
 
 		/**
+		 * @brief Sets the nominal trajectory
+		 * @param std::vector<LocomotionState>& Nominal trajectory
+		 */
+		void setNominalTrajectory(std::vector<LocomotionState>& nom_trajectory);
+
+		/**
 		 * @brief Computes a whole-body trajectory
 		 * @param const LocomotionState& Current whole-body state
 		 * @param const LocomotionState& Desired whole-body state
