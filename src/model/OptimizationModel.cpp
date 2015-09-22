@@ -138,7 +138,7 @@ void OptimizationModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lo
 
 			// Checking the bound dimension
 			current_bound_dim = dynamical_system_->getConstraintDimension();
-			if (current_bound_dim != lower_bound.size()) {
+			if (current_bound_dim != (unsigned) lower_bound.size()) {
 				printf(RED "FATAL: the bound dimension at %s constraint is not consistent\n"
 						COLOR_RESET, dynamical_system_->getName().c_str());
 				exit(EXIT_FAILURE);
@@ -149,7 +149,7 @@ void OptimizationModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lo
 
 			// Checking the bound dimension
 			current_bound_dim = constraints_[i-1]->getConstraintDimension();
-			if (current_bound_dim != lower_bound.size()) {
+			if (current_bound_dim != (unsigned) lower_bound.size()) {
 				printf(RED "FATAL: the bound dimension at %s constraint is not consistent\n"
 						COLOR_RESET, constraints_[i-1]->getName().c_str());
 				exit(EXIT_FAILURE);
@@ -183,7 +183,7 @@ void OptimizationModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lo
 		dynamical_system_->getTerminalBounds(terminal_lower_bound, terminal_upper_bound);
 
 		// Checking the terminal bound dimension
-		if (terminal_constraint_dimension_ != terminal_lower_bound.size()) {
+		if (terminal_constraint_dimension_ != (unsigned) terminal_lower_bound.size()) {
 			printf(RED "FATAL: the terminal bound dimension is not consistent\n");
 			exit(EXIT_FAILURE);
 		}
@@ -242,7 +242,7 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 
 				// Checking the constraint dimension
 				current_constraint_dim = dynamical_system_->getConstraintDimension();
-				if (current_constraint_dim != constraint.size()) {
+				if (current_constraint_dim != (unsigned) constraint.size()) {
 					printf(RED "FATAL: the constraint dimension at %s constraint is not consistent\n"
 							COLOR_RESET, dynamical_system_->getName().c_str());
 					exit(EXIT_FAILURE);
@@ -253,7 +253,7 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 
 				// Checking the constraint dimension
 				current_constraint_dim = constraints_[j-1]->getConstraintDimension();
-				if (current_constraint_dim != constraint.size()) {
+				if (current_constraint_dim != (unsigned) constraint.size()) {
 					printf(RED "FATAL: the constraint dimension at %s constraint is not consistent\n"
 							COLOR_RESET, constraints_[j-1]->getName().c_str());
 					exit(EXIT_FAILURE);
