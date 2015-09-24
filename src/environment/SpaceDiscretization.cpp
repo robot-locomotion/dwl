@@ -188,14 +188,14 @@ void SpaceDiscretization::stateToKey(unsigned short int& key,
 {
 	if (position) {
 		if (position_resolution_ == 0)
-			printf(RED "Could not get the key because it was not defined the position resolution"
+			printf(RED "Could not get the key because it was not defined the position resolution\n"
 					COLOR_RESET);
 		else
 			key = (unsigned short int) (floor(state / position_resolution_) + max_key_val_);
 	}
 	else {
 		if (angular_resolution_ == 0)
-			printf(RED "Could not get the key because it was not defined the angular resolution"
+			printf(RED "Could not get the key because it was not defined the angular resolution\n"
 					COLOR_RESET);
 		else {
 			math::normalizeAngle(state, ZeroTo2Pi);
