@@ -395,7 +395,8 @@ void RewardMap::addSearchArea(double min_x, double max_x,
 
 	search_areas_.push_back(search_area);
 
-	if (grid_resolution < space_discretization_.getEnvironmentResolution(true)) {
+	if (!is_added_search_area_ ||
+			grid_resolution < space_discretization_.getEnvironmentResolution(true)) {
 		space_discretization_.setEnvironmentResolution(grid_resolution, true);
 		space_discretization_.setStateResolution(grid_resolution);
 	}
