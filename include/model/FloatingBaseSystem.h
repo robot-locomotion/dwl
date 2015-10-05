@@ -65,12 +65,18 @@ class FloatingBaseSystem
 		void resetFromURDFModel(std::string urdf_model);
 
 		/**
+		 * @brief Sets the 6d floating-base joint information
+		 * @param const FloatingBaseJoint& Floating-base joint information
+		 **/
+		void setFloatingBaseJoint(const FloatingBaseJoint& joint);
+
+		/**
 		 * @brief Sets the floating-base joint information
 		 * @param const FloatingBaseJoint& Floating-base joint information
 		 * @param rbd::Coords6d Joint coordinate
 		 **/
 		void setFloatingBaseJoint(const FloatingBaseJoint& joint,
-								  rbd::Coords6d joint_id);
+								  rbd::Coords6d joint_coord);
 
 		/**
 		 * @brief Sets the actuated joint information
@@ -207,6 +213,16 @@ class FloatingBaseSystem
 		 */
 		Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
 									   std::string body_name);
+
+		/**
+		 * @brief Gets the position index and number of DOF of certain branch
+		 * @param unsigned int& Position index of the body branch
+		 * @param unsigned int& Degrees of freedom of the body branch
+		 * @param std::string Name of the body branch (end-effector name)
+		 */
+		void getBranch(unsigned int& pos_idx,
+					   unsigned int& num_dof,
+					   std::string body_name);
 
 
 	private:

@@ -61,12 +61,17 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 				jnt_it != floating_joint_motions.end(); jnt_it++) {
 			std::string joint_name = jnt_it->first;
 			unsigned int joint_motion = jnt_it->second;
-			rbd::Coords6d joint_motion_coord = rbd::Coords6d(joint_motion);
 			unsigned int joint_id = floating_joint_names.find(joint_name)->second;
 
 			// Setting the floating joint information
 			FloatingBaseJoint joint(true, joint_id, joint_name);
-			setFloatingBaseJoint(joint, joint_motion_coord);
+			if (joint_motion == 6) {
+				setFloatingBaseJoint(joint);
+			} else {
+				rbd::Coords6d joint_motion_coord = rbd::Coords6d(joint_motion);
+				setFloatingBaseJoint(joint, joint_motion_coord);
+				std::cout << "jnt coord = " << joint_motion_coord << std::endl;
+			}
 		}
 	}
 
@@ -93,6 +98,7 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 	// Getting the floating-base system information
 	num_system_joints = num_floating_joints + num_joints;
 	if (isFullyFloatingBase()) {
+		num_system_joints = 6 + num_joints;
 		if (hasFloatingBaseConstraints())
 			type_of_system = ConstrainedFloatingBase;
 		else
@@ -108,18 +114,29 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 }
 
 
-void FloatingBaseSystem::setFloatingBaseJoint(const FloatingBaseJoint& joint,
-											  rbd::Coords6d joint_id)
+void FloatingBaseSystem::setFloatingBaseJoint(const FloatingBaseJoint& joint)
 {
-	if (joint_id == rbd::AX)
+	AX = joint;
+	AY = joint;
+	AZ = joint;
+	LX = joint;
+	LY = joint;
+	LZ = joint;
+}
+
+
+void FloatingBaseSystem::setFloatingBaseJoint(const FloatingBaseJoint& joint,
+											  rbd::Coords6d joint_coord)
+{
+	if (joint_coord == rbd::AX)
 		AX = joint;
-	else if (joint_id == rbd::AY)
+	else if (joint_coord == rbd::AY)
 		AY = joint;
-	else if (joint_id == rbd::AZ)
+	else if (joint_coord == rbd::AZ)
 		AZ = joint;
-	else if (joint_id == rbd::LX)
+	else if (joint_coord == rbd::LX)
 		LX = joint;
-	else if (joint_id == rbd::LY)
+	else if (joint_coord == rbd::LY)
 		LY = joint;
 	else
 		LZ = joint;
@@ -393,15 +410,31 @@ void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 Eigen::VectorXd FloatingBaseSystem::getBranchState(Eigen::VectorXd& joint_state,
 												   std::string body_name)
 {
+	// Getting the branch properties
+	unsigned int q_index, num_dof = 0;
+	getBranch(q_index, num_dof, body_name);
+
+	Eigen::VectorXd branch_state(num_dof);
+	branch_state = joint_state.segment(q_index, num_dof);
+
+	return branch_state;
+}
+
+
+void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
+		   	   	   	   	   	   	   unsigned int& num_dof,
+		   	   	   	   	   	   	   std::string body_name)
+{
 	// Getting the body id
 	unsigned int body_id = rbd_model.GetBodyId(body_name.c_str());
 
-	unsigned int q_index, num_dof = 0;
-
 	// Getting the base joint id. Note that the floating-base starts the kinematic-tree
 	unsigned int base_id = 0;
-	if (isFullyFloatingBase() || isVirtualFloatingBaseRobot())
+	if (isFullyFloatingBase()) {
+		base_id = 6;
+	} else {
 		base_id = getFloatingBaseDoF();
+	}
 
 	// Setting the state values of a specific branch to the joint state
 	unsigned int parent_id = body_id;
@@ -412,18 +445,14 @@ Eigen::VectorXd FloatingBaseSystem::getBranchState(Eigen::VectorXd& joint_state,
 
 	// Adding the branch state to the joint state. Two safety checking are done; checking that this
 	// branch has at least one joint, and checking the size of the new branch state
+	num_dof = 0;
 	if (parent_id != base_id) {
 		do {
-			q_index = rbd_model.mJoints[parent_id].q_index - 1;
+			pos_idx = rbd_model.mJoints[parent_id].q_index;
 			parent_id = rbd_model.lambda[parent_id];
 			++num_dof;
 		} while (parent_id != base_id);
 	}
-
-	Eigen::VectorXd branch_state(num_dof);
-	branch_state = joint_state.segment(q_index, num_dof);
-
-	return branch_state;
 }
 
 } //@namespace model
