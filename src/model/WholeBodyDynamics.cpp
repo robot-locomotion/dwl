@@ -298,7 +298,8 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 						   base_vel, joint_vel, base_acc, joint_acc);
 
 	// Computing the joint force error
-	Eigen::VectorXd joint_force_error = estimated_joint_forces - joint_forces;
+	Eigen::VectorXd force_error = system_.toGeneralizedJointState(base_wrench,
+																  estimated_joint_forces - joint_forces);
 
 	// Computing the contact forces
 	for (rbd::BodySelector::const_iterator contact_iter = contacts.begin();
@@ -308,12 +309,11 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 		std::string body_name = *contact_iter;
 		rbd::BodySelector body(contact_iter, contact_iter + 1);
 
-		Eigen::MatrixXd full_jac, fixed_jac;
-		kinematics_.computeJacobian(full_jac, base_pos, joint_pos, body, rbd::Linear);
-		kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
+		Eigen::MatrixXd fixed_jac;
+		kinematics_.computeFixedJacobian(fixed_jac, base_pos, joint_pos, body_name, rbd::Linear);
 
 		Eigen::Vector3d force = dwl::math::pseudoInverse((Eigen::MatrixXd) fixed_jac.transpose()) *
-				system_.getBranchState(joint_force_error, body_name);
+				system_.getBranchState(force_error, body_name);
 
 		contact_forces[body_name] << 0, 0, 0, force;
 	}
@@ -332,7 +332,7 @@ void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contact
 											   const rbd::BodySelector& contacts,
 											   double force_threshold)
 {
-	// Computing the contact forces in predefined set of end-effector
+	// Computing the contact forces for a predefined set of end-effector
 	computeContactForces(contact_forces,
 						 base_pos, joint_pos,
 						 base_vel, joint_vel,
