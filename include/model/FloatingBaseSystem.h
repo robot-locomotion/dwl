@@ -207,11 +207,11 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the branch values given a joint state
-		 * @param Eigen::VectorXd& Joint state vector
+		 * @param Eigen::VectorXd& Generalized state vector
 		 * @param cons Eigen::VectorXd& Branch state
 		 * @param std::string Body name
 		 */
-		Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
+		Eigen::VectorXd getBranchState(Eigen::VectorXd& generalized_state,
 									   std::string body_name);
 
 		/**

@@ -376,46 +376,28 @@ void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 										const Eigen::VectorXd& branch_state,
 										std::string body_name)
 {
-	// Getting the body id
-	unsigned int body_id = rbd_model.GetBodyId(body_name.c_str());
+	// Getting the branch properties
+	unsigned int q_index, num_dof;
+	getBranch(q_index, num_dof, body_name);
 
-	// Getting the base joint id. Note that the floating-base starts the kinematic-tree
-	unsigned int base_id = 0;
-	if (isFullyFloatingBase() || isVirtualFloatingBaseRobot())
-		base_id = getFloatingBaseDoF();
-
-	// Setting the state values of a specific branch to the joint state
-	unsigned int parent_id = body_id;
-	if (rbd_model.IsFixedBodyId(body_id)) {
-		unsigned int fixed_idx = rbd_model.fixed_body_discriminator;
-		parent_id = rbd_model.mFixedBodies[body_id - fixed_idx].mMovableParent;
+	if (branch_state.size() != num_dof) {
+		printf(RED "FATAL: the branch state dimension is not consistent\n" COLOR_RESET);
+		exit(EXIT_FAILURE);
 	}
 
-	// Adding the branch state to the joint state. Two safety checking are done; checking that this
-	// branch has at least one joint, and checking the size of the new branch state
-	if (parent_id != base_id) {
-		unsigned int q_index, num_dof = 0;
-		do {
-			q_index = rbd_model.mJoints[parent_id].q_index - 1;
-			parent_id = rbd_model.lambda[parent_id];
-			++num_dof;
-		} while (parent_id != base_id);
-
-		assert(branch_state.size() == num_dof);
-		new_joint_state.segment(q_index, num_dof) = branch_state;
-	}
+	new_joint_state.segment(q_index, num_dof) = branch_state;
 }
 
 
-Eigen::VectorXd FloatingBaseSystem::getBranchState(Eigen::VectorXd& joint_state,
+Eigen::VectorXd FloatingBaseSystem::getBranchState(Eigen::VectorXd& generalized_state,
 												   std::string body_name)
 {
 	// Getting the branch properties
-	unsigned int q_index, num_dof = 0;
+	unsigned int q_index, num_dof;
 	getBranch(q_index, num_dof, body_name);
 
 	Eigen::VectorXd branch_state(num_dof);
-	branch_state = joint_state.segment(q_index, num_dof);
+	branch_state = generalized_state.segment(q_index, num_dof);
 
 	return branch_state;
 }
