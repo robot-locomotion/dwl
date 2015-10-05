@@ -19,7 +19,7 @@ void getJointNames(JointID& joints,
 
 	// Adding the bodies in a depth-first order of the model tree
 	std::map<std::string, boost::shared_ptr<urdf::Link> > link_map = model->links_;
-	link_stack.push(link_map[(model->getRoot()->name)]);
+	link_stack.push(link_map[model->getRoot()->name]);
 
 	if (link_stack.top()->child_joints.size() > 0) {
 		branch_index_stack.push(0);
@@ -55,8 +55,12 @@ void getJointNames(JointID& joints,
 					joint_idx++;
 				}
 			} else if (type == floating) {
-				if (current_joint->type == urdf::Joint::FLOATING ||
-						current_joint->type == urdf::Joint::PRISMATIC ||
+				if (current_joint->type == urdf::Joint::FLOATING) {
+					joints[current_joint->name] = joint_idx;
+					joint_idx++;
+				}
+
+				if (current_joint->type == urdf::Joint::PRISMATIC ||
 						current_joint->type == urdf::Joint::REVOLUTE ||
 						current_joint->type == urdf::Joint::CONTINUOUS) {
 					if (current_joint->limits->effort == 0) {
