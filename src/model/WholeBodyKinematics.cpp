@@ -264,6 +264,39 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 }
 
 
+void WholeBodyKinematics::computeFixedJacobian(Eigen::MatrixXd& jacobian,
+											   const rbd::Vector6d& base_pos,
+											   const Eigen::VectorXd& joint_pos,
+											   const std::string& body_name,
+											   enum rbd::Component component)
+{
+	// Resizing the jacobian matrix
+	int num_vars = 0;
+	switch (component) {
+	case rbd::Linear:
+		num_vars = 3;
+		break;
+	case rbd::Angular:
+		num_vars = 3;
+		break;
+	case rbd::Full:
+		num_vars = 6;
+		break;
+	}
+
+	// Computing the full jacobian
+	Eigen::MatrixXd full_jac;
+	rbd::BodySelector body_set;
+	body_set.push_back(body_name);
+	computeJacobian(full_jac, base_pos, joint_pos, body_set, component);
+
+	// Getting the position index and number of the dof of the branch
+	unsigned int q_index, num_dof;
+	system_.getBranch(q_index, num_dof, body_name);
+	jacobian = full_jac.block(0, q_index, num_vars, num_dof);
+}
+
+
 void WholeBodyKinematics::getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
 												  const Eigen::MatrixXd& full_jacobian)
 {
