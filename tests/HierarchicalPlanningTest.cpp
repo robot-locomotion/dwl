@@ -183,5 +183,18 @@ int main(int argc, char **argv)
 	std::cout << "Base acc = " << base_acc.transpose() << std::endl;
 	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
 
+
+	dyn.computeContactForces(contact_forces, joint_forces,
+							 base_pos, joint_pos,
+							 base_vel, joint_vel,
+							 base_acc, joint_acc,
+							 contacts);
+	std::cout << "-------------------- contact forces -------------------" << std::endl;
+	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
+	std::cout << "lf_foot contact for = " << contact_forces.find("lf_foot")->second.transpose() << std::endl;
+	std::cout << "rf_foot contact for = " << contact_forces.find("rf_foot")->second.transpose() << std::endl;
+	std::cout << "lh_foot contact for = " << contact_forces.find("lh_foot")->second.transpose() << std::endl;
+	std::cout << "rh_foot contact for = " << contact_forces.find("rh_foot")->second.transpose() << std::endl;
+
     return 0;
 }

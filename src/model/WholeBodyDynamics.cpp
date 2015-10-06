@@ -467,16 +467,17 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 					base_ang_vel.cross(contact_pos) - 2 * base_ang_vel.cross(contact_vel);
 
 			// Computing the fixed-base jacobian
-			Eigen::MatrixXd full_jac, fixed_jac;
-			rbd::BodySelector endeffector(contact_iter, contact_iter + 1);
-			kinematics_.computeJacobian(full_jac, base_pos, joint_pos, endeffector, rbd::Linear);
-			kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
+			Eigen::MatrixXd fixed_jac;
+			kinematics_.computeFixedJacobian(fixed_jac, base_pos, joint_pos, contact_name, rbd::Linear);
 
 			// Computing the join acceleration from x_dd = J*q_dd + J_d*q_d since we are doing
 			// computation in the base frame
 			Eigen::VectorXd q_dd = math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd[contact_name]);
 
-			system_.setBranchState(joint_feas_acc, q_dd, contact_name);
+			Eigen::VectorXd state_feas_acc = system_.toGeneralizedJointState(base_feas_acc,
+																			 joint_feas_acc);
+			system_.setBranchState(state_feas_acc, q_dd, contact_name);
+			system_.fromGeneralizedJointState(base_feas_acc, joint_feas_acc, state_feas_acc);
 		}
 	}
 }

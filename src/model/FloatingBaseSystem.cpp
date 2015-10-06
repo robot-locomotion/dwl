@@ -381,6 +381,8 @@ void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 	getBranch(q_index, num_dof, body_name);
 
 	if (branch_state.size() != num_dof) {
+		std::cout << branch_state.transpose() << std::endl;
+		std::cout << num_dof << std::endl;
 		printf(RED "FATAL: the branch state dimension is not consistent\n" COLOR_RESET);
 		exit(EXIT_FAILURE);
 	}
