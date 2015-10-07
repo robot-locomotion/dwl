@@ -70,7 +70,6 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 			} else {
 				rbd::Coords6d joint_motion_coord = rbd::Coords6d(joint_motion);
 				setFloatingBaseJoint(joint, joint_motion_coord);
-				std::cout << "jnt coord = " << joint_motion_coord << std::endl;
 			}
 		}
 	}
@@ -116,12 +115,24 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 
 void FloatingBaseSystem::setFloatingBaseJoint(const FloatingBaseJoint& joint)
 {
-	AX = joint;
-	AY = joint;
-	AZ = joint;
-	LX = joint;
-	LY = joint;
-	LZ = joint;
+	FloatingBaseJoint new_joint = joint;
+	new_joint.id = 0;
+	AX = new_joint;
+
+	new_joint.id = 1;
+	AY = new_joint;
+
+	new_joint.id = 2;
+	AZ = new_joint;
+
+	new_joint.id = 3;
+	LX = new_joint;
+
+	new_joint.id = 4;
+	LY = new_joint;
+
+	new_joint.id = 5;
+	LZ = new_joint;
 }
 
 
