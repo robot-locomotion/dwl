@@ -116,22 +116,22 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 void FloatingBaseSystem::setFloatingBaseJoint(const FloatingBaseJoint& joint)
 {
 	FloatingBaseJoint new_joint = joint;
-	new_joint.id = 0;
+	new_joint.id = rbd::AX;
 	AX = new_joint;
 
-	new_joint.id = 1;
+	new_joint.id = rbd::AY;
 	AY = new_joint;
 
-	new_joint.id = 2;
+	new_joint.id = rbd::AZ;
 	AZ = new_joint;
 
-	new_joint.id = 3;
+	new_joint.id = rbd::LX;
 	LX = new_joint;
 
-	new_joint.id = 4;
+	new_joint.id = rbd::LY;
 	LY = new_joint;
 
-	new_joint.id = 5;
+	new_joint.id = rbd::LZ;
 	LZ = new_joint;
 }
 
