@@ -244,6 +244,13 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 			rbd::computePointJacobian(system_.getRBDModel(), q, body_id,
 									  Eigen::VectorXd::Zero(system_.getSystemDoF()),
 									  jac, true);
+			if (system_.isFullyFloatingBase()) {
+				// RBDL defines floating joints as (linear, angular)^T which is not consistent with
+				// our DWL standard, i.e. (angular, linear)^T
+				Eigen::MatrixXd copy_jac = jac.block<6,6>(0,0);
+				jac.block<6,3>(0,0) = copy_jac.rightCols(3);
+				jac.block<6,3>(0,3) = copy_jac.leftCols(3);
+			}
 
 			switch(component) {
 			case rbd::Linear:
