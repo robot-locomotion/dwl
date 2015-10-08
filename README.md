@@ -1,4 +1,4 @@
-The Dynamic Whole-Body Locomotion library (DWL)
+The Dynamic Whole-body Locomotion library (DWL)
 ===============================================
 
 This is the core of DWL
