@@ -1,7 +1,7 @@
 The Dynamic Whole-Body Locomotion library (DWL)
 ===============================================
 
-This is the core of WDL
+This is the core of DWL
 
 Visit the [DWL installation page](http://.html) for detailed installation instructions, and also the Dynamic Legged Systems Lab of Istituto Italiano di Tecnologia (http://www.iit.it/en/advr-labs/dynamic-legged-systems.html) for more details about the project.
 
@@ -30,4 +30,4 @@ following commands:
 INSTALLATION:
 - go to top folder (the folder this file is located in)
 - execute cmake: "cmake ."
-- either simply compile the library: "make", or call the installation: "sudo make install" (this will copy the library and header to your system folder and create a corresponding FindLSE.cmake file)
+- either simply compile the library: "make", or call the installation: "sudo make install" (this will copy the library and header to your system folder and create a corresponding FindDWL.cmake file)
