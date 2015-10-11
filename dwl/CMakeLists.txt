@@ -64,6 +64,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/solver/AStar.cpp
 							 src/solver/AnytimeRepairingAStar.cpp
 							 src/solver/QuadProg++.cpp
+							 src/solver/QuadProg++QP.cpp
 							 src/model/AdjacencyModel.cpp
 							 src/model/GridBasedBodyAdjacency.cpp
 							 src/model/LatticeBasedBodyAdjacency.cpp

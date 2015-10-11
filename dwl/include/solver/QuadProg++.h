@@ -69,8 +69,8 @@ along with QuadProg++. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef DWL__SOLVER__QUADPROGPP_H
-#define DWL__SOLVER__QUADPROGPP_H
+#ifndef DWL__SOLVER__QUADPROGPP__H
+#define DWL__SOLVER__QUADPROGPP__H
 
 #include <Eigen/Dense>
 #include <stdio.h>
@@ -86,7 +86,6 @@ bool add_constraint(Eigen::MatrixXd& R,
 					Eigen::MatrixXd& J,
 					Eigen::VectorXd& d,
 					int& iq, double& R_norm);
-
 
 void delete_constraint(Eigen::MatrixXd& R, Eigen::MatrixXd& J,
 					   Eigen::VectorXi& A, Eigen::VectorXd& u,
