@@ -1,4 +1,4 @@
-#include <solver/QuadProg++.hpp>
+#include <solver/QuadProg++.h>
 
 
 namespace dwl
