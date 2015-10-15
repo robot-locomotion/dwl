@@ -147,6 +147,12 @@ class FloatingBaseSystem
 		const urdf_model::JointID& getJoints();
 
 		/**
+		 * @brief Gets the joint names list
+		 * @return std::vector<std::string>& Joint names list
+		 */
+		std::vector<std::string>& getJointNames();
+
+		/**
 		 * @brief Gets the type of floating-base system
 		 * @return enum TypeOfSystem Type of floating-base system
 		 */
@@ -163,6 +169,12 @@ class FloatingBaseSystem
 		 * @return const urdf_model::LinkID& Names and ids of the end-effectors
 		 */
 		const urdf_model::LinkID& getEndEffectors();
+
+		/**
+		 * @brief Gets the end-effector names list
+		 * @return std::vector<std::string>& End-effector names list
+		 */
+		std::vector<std::string> getEndEffectorNames();
 
 		/** @brief Returns true if the system has fully floating-base */
 		bool isFullyFloatingBase();
@@ -242,6 +254,7 @@ class FloatingBaseSystem
 		FloatingBaseJoint LY;
 		FloatingBaseJoint LZ;
 		urdf_model::JointID joints;
+		std::vector<std::string> joint_names_;
 
 		/** @brief Type of system */
 		enum TypeOfSystem type_of_system;
@@ -249,6 +262,7 @@ class FloatingBaseSystem
 		/** @brief End-effector information */
 		urdf_model::LinkID end_effectors;
 		unsigned int num_end_effectors;
+		std::vector<std::string> end_effector_names_;
 };
 
 } //@namespace

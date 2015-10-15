@@ -94,6 +94,14 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 		}
 	}
 
+	// Getting the joint name list
+	dwl::urdf_model::JointID joints = getJoints();
+	for (dwl::urdf_model::JointID::const_iterator joint_it = joints.begin();
+			joint_it != joints.end(); joint_it++) {
+		std::string joint_name = joint_it->first;
+		joint_names_.push_back(joint_name);
+	}
+
 	// Getting the floating-base system information
 	num_system_joints = num_floating_joints + num_joints;
 	if (isFullyFloatingBase()) {
@@ -110,6 +118,13 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 	// Getting the end-effectors information
 	urdf_model::getEndEffectors(end_effectors, urdf_model);
 	num_end_effectors = end_effectors.size();
+
+	// Getting the end-effector name list
+	for (dwl::urdf_model::LinkID::const_iterator ee_it = end_effectors.begin();
+			ee_it != end_effectors.end(); ee_it++) {
+		std::string name = ee_it->first;
+		end_effector_names_.push_back(name);
+	}
 }
 
 
@@ -257,6 +272,12 @@ const urdf_model::JointID& FloatingBaseSystem::getJoints()
 }
 
 
+std::vector<std::string>& FloatingBaseSystem::getJointNames()
+{
+	return joint_names_;
+}
+
+
 enum TypeOfSystem FloatingBaseSystem::getTypeOfDynamicSystem()
 {
 	return type_of_system;
@@ -272,6 +293,12 @@ const unsigned int& FloatingBaseSystem::getNumberOfEndEffectors()
 const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors()
 {
 	return end_effectors;
+}
+
+
+std::vector<std::string> FloatingBaseSystem::getEndEffectorNames()
+{
+	return end_effector_names_;
 }
 
 
