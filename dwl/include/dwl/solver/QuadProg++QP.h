@@ -1,8 +1,8 @@
 #ifndef DWL__SOLVER__QUADPROGPP_QP__H
 #define DWL__SOLVER__QUADPROGPP_QP__H
 
-#include <solver/OptimizationSolver.h>
-#include <solver/QuadProg++.h>
+#include <dwl/solver/OptimizationSolver.h>
+#include <dwl/solver/QuadProg++.h>
 #include <time.h>
 
 
