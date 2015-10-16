@@ -1,5 +1,5 @@
-#include <locomotion/HierarchicalPlanning.h>
-#include <utils/Orientation.h>
+#include <dwl/locomotion/HierarchicalPlanning.h>
+#include <dwl/utils/Orientation.h>
 
 
 namespace dwl

@@ -1,4 +1,4 @@
-#include <model/InelasticContactModelConstraint.h>
+#include <dwl/model/InelasticContactModelConstraint.h>
 
 
 namespace dwl

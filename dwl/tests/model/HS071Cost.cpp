@@ -2,7 +2,7 @@
 #define DWL__MODEL__HS071_COST__H
 
 
-#include <model/Cost.h>
+#include <dwl/model/Cost.h>
 
 
 namespace dwl

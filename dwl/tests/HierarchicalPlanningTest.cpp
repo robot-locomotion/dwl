@@ -1,6 +1,6 @@
-#include <model/WholeBodyKinematics.h>
-#include <model/WholeBodyDynamics.h>
-#include "ctime"
+#include <dwl/model/WholeBodyKinematics.h>
+#include <dwl/model/WholeBodyDynamics.h>
+#include <ctime>
 
 
 struct TimerInfo {

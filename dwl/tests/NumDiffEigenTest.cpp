@@ -1,7 +1,7 @@
-#include <model/FullDynamicalSystem.h>
-#include <model/ConstrainedDynamicalSystem.h>
+#include <dwl/model/FullDynamicalSystem.h>
+#include <dwl/model/ConstrainedDynamicalSystem.h>
 #include <model/HS071DynamicalSystem.cpp>
-#include <model/OptimizationModel.h>
+#include <dwl/model/OptimizationModel.h>
 #include <unsupported/Eigen/NumericalDiff>
 #include <iostream>
 

@@ -1,4 +1,4 @@
-#include <locomotion/PlanningOfMotionSequence.h>
+#include <dwl/locomotion/PlanningOfMotionSequence.h>
 
 
 namespace dwl

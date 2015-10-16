@@ -1,2 +1,2 @@
-#include <behavior/MotorPrimitives.h>
-#include <behavior/BodyMotorPrimitives.h>
+#include <dwl/behavior/MotorPrimitives.h>
+#include <dwl/behavior/BodyMotorPrimitives.h>

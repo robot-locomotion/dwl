@@ -1,4 +1,4 @@
-#include <model/KinematicConstraint.h>
+#include <dwl/model/KinematicConstraint.h>
 
 
 namespace dwl
