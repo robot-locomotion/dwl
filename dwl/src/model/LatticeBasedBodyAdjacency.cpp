@@ -1,4 +1,4 @@
-#include <model/LatticeBasedBodyAdjacency.h>
+#include <dwl/model/LatticeBasedBodyAdjacency.h>
 
 
 namespace dwl

@@ -1,4 +1,4 @@
-#include <locomotion/WholeBodyTrajectoryOptimization.h>
+#include <dwl/locomotion/WholeBodyTrajectoryOptimization.h>
 
 
 namespace dwl

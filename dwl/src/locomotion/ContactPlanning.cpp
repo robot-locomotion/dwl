@@ -1,4 +1,4 @@
-#include <locomotion/ContactPlanning.h>
+#include <dwl/locomotion/ContactPlanning.h>
 
 
 namespace dwl

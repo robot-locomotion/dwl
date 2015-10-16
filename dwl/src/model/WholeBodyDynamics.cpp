@@ -1,4 +1,4 @@
-#include <model/WholeBodyDynamics.h>
+#include <dwl/model/WholeBodyDynamics.h>
 
 
 namespace dwl

@@ -1,7 +1,7 @@
 #ifndef DWL__MODEL__HS071_DYNAMICAL_SYSTEM__H
 #define DWL__MODEL__HS071_DYNAMICAL_SYSTEM__H
 
-#include <model/DynamicalSystem.h>
+#include <dwl/model/DynamicalSystem.h>
 
 
 namespace dwl

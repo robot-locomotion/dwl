@@ -1,4 +1,4 @@
-#include <model/TerminalStateTrackingEnergyCost.h>
+#include <dwl/model/TerminalStateTrackingEnergyCost.h>
 
 
 namespace dwl

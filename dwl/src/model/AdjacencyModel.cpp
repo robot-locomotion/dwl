@@ -1,4 +1,4 @@
-#include <model/AdjacencyModel.h>
+#include <dwl/model/AdjacencyModel.h>
 
 
 namespace dwl

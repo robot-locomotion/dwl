@@ -1,4 +1,4 @@
-#include <model/StabilityConstraint.h>
+#include <dwl/model/StabilityConstraint.h>
 
 
 namespace dwl

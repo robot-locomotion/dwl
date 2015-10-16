@@ -1,6 +1,5 @@
-#include <robot/Robot.h>
-#include <robot/StateCost.h>
-#include <robot/HyLWholeBodyDynamics.h>
-#include <robot/HyLWholeBodyKinematics.h>
-#include <robot/HyQWholeBodyDynamics.h>
-#include <robot/HyQWholeBodyKinematics.h>
+#include <dwl/robot/Robot.h>
+#include <dwl/robot/HyLWholeBodyDynamics.h>
+#include <dwl/robot/HyLWholeBodyKinematics.h>
+#include <dwl/robot/HyQWholeBodyDynamics.h>
+#include <dwl/robot/HyQWholeBodyKinematics.h>

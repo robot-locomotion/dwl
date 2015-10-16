@@ -1,4 +1,4 @@
-#include <model/CentroidalDynamicalSystem.h>
+#include <dwl/model/CentroidalDynamicalSystem.h>
 
 
 namespace dwl

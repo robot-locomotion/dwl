@@ -1,4 +1,4 @@
-#include <robot/HyQWholeBodyKinematics.h>
+#include <dwl/robot/HyQWholeBodyKinematics.h>
 
 
 namespace dwl

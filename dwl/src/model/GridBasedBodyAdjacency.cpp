@@ -1,4 +1,4 @@
-#include <model/GridBasedBodyAdjacency.h>
+#include <dwl/model/GridBasedBodyAdjacency.h>
 
 
 namespace dwl

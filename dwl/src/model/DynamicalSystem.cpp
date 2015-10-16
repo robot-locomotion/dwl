@@ -1,4 +1,4 @@
-#include <model/DynamicalSystem.h>
+#include <dwl/model/DynamicalSystem.h>
 
 
 namespace dwl

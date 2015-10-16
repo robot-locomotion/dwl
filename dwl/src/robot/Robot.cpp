@@ -1,6 +1,6 @@
-#include <robot/Robot.h>
-#include <behavior/BodyMotorPrimitives.h>
-#include <utils/Math.h>
+#include <dwl/robot/Robot.h>
+#include <dwl/behavior/BodyMotorPrimitives.h>
+#include <dwl/utils/Math.h>
 
 
 namespace dwl

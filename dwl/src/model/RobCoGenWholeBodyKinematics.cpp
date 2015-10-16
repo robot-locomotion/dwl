@@ -1,4 +1,4 @@
-#include <model/RobCoGenWholeBodyKinematics.h>
+#include <dwl/model/RobCoGenWholeBodyKinematics.h>
 
 
 namespace dwl

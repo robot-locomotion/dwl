@@ -1,4 +1,4 @@
-#include <solver/AStar.h>
+#include <dwl/solver/AStar.h>
 
 
 namespace dwl

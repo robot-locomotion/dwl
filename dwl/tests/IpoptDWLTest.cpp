@@ -1,5 +1,5 @@
-#include <solver/OptimizationSolver.h>
-#include <solver/IpoptNLP.h>
+#include <dwl/solver/OptimizationSolver.h>
+#include <dwl/solver/IpoptNLP.h>
 #include <model/HS071DynamicalSystem.cpp>
 #include <model/HS071Cost.cpp>
 
