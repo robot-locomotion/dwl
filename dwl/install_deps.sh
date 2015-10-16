@@ -44,10 +44,10 @@ function install_rbdl
 
 function install_urdfdom_headers
 {
-	# Getting urdfdom_headers 0.3.0
-	wget https://github.com/ros/urdfdom_headers/archive/0.3.0.tar.gz
-	mkdir urdfdom_headers && tar zxf 0.3.0.tar.gz -C urdfdom_headers --strip-components 1
-	rm -rf 0.3.0.tar.gz
+	# Getting urdfdom_headers 0.2.3
+	wget https://github.com/ros/urdfdom_headers/archive/0.2.3.tar.gz
+	mkdir urdfdom_headers && tar zxf 0.2.3.tar.gz -C urdfdom_headers --strip-components 1
+	rm -rf 0.2.3.tar.gz
 	cd urdfdom_headers
 	mkdir -p build
 	cd build
@@ -245,23 +245,6 @@ fi
 
 
 ##---------------------------------------------------------------##
-##----------------------- Installing RBDL -----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing RBDL ...${COLOR_RESET}"
-echo ""
-if [ -d "/usr/local/include/rbdl" ]; then
-	echo -e "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? (Y/N)${COLOR_RESET}"
-	read ANSWER_RBDL
-	if [ "$ANSWER_RBDL" == "Y" ] || [ "$ANSWER_RBDL" == "y" ]; then
-		install_rbdl
-    fi
-else
-	install_rbdl
-fi
-
-
-##---------------------------------------------------------------##
 ##----------------------- Installing URDF -----------------------##
 ##---------------------------------------------------------------##
 echo ""
@@ -297,6 +280,24 @@ if [ -d "/usr/include/urdf_parser" ] || [ -d "/usr/local/include/urdf_parser" ];
 else
 	install_urdfdom
 fi
+
+
+##---------------------------------------------------------------##
+##----------------------- Installing RBDL -----------------------##
+##---------------------------------------------------------------##
+echo ""
+echo -e "${COLOR_BOLD}Installing RBDL ...${COLOR_RESET}"
+echo ""
+if [ -d "/usr/local/include/rbdl" ]; then
+	echo -e "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? (Y/N)${COLOR_RESET}"
+	read ANSWER_RBDL
+	if [ "$ANSWER_RBDL" == "Y" ] || [ "$ANSWER_RBDL" == "y" ]; then
+		install_rbdl
+    fi
+else
+	install_rbdl
+fi
+
 
 
 ##---------------------------------------------------------------##

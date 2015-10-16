@@ -30,7 +30,10 @@ typedef std::map<std::string,Vector6d> BodyWrench;
  * Constants to index either 6d or 3d coordinate vectors.
  */
 enum Coords3d {X = 0, Y, Z};
+std::string coord3dToName(enum Coords3d coord);
 enum Coords6d {AX = 0, AY, AZ, LX, LY, LZ};
+std::string coord6dToName(enum Coords6d coord);
+
 
 /**
  * @brief The 3-coordinate vector with the angular components (angular velocity or torque) of the

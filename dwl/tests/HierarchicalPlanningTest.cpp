@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 	dwl::model::WholeBodyKinematics kin;
 	dwl::model::WholeBodyDynamics dyn;
 
-	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyq_fb.urdf";
+	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyq.urdf";
 	kin.modelFromURDFFile(model_file, true);
 	dyn.modelFromURDFFile(model_file);
 
