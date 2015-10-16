@@ -7,6 +7,24 @@ namespace dwl
 namespace rbd
 {
 
+std::string coord3dToName(enum Coords3d coord)
+{
+	const char* Coord3dNames[3] = {"X", "Y", "Z"};
+
+	std::string coord_name(Coord3dNames[coord]);
+	return coord_name;
+}
+
+
+std::string coord6dToName(enum Coords6d coord)
+{
+	const char* Coord6dNames[6] = {"AX", "AY", "AZ", "LX", "LY", "LZ"};
+
+	std::string coord_name(Coord6dNames[coord]);
+	return coord_name;
+}
+
+
 Part3d angularPart(Vector6d& vector)
 {
 	return vector.topRows<3>();
