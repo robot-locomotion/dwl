@@ -38,16 +38,16 @@ OptimizationModel::~OptimizationModel()
 void OptimizationModel::setStartingTrajectory(WholeBodyTrajectory& initial_trajectory)
 {
 	//TODO should convert to the defined horizon and time step integration
-	locomotion_solution_ = initial_trajectory;
+	motion_solution_ = initial_trajectory;
 }
 
 
 void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
 {
-	if (locomotion_solution_.size() == 0) {
+	if (motion_solution_.size() == 0) {
 		// Getting the initial and ending locomotion state
-		WholeBodyState starting_locomotion_state = dynamical_system_->getInitialState();
-		WholeBodyState ending_locomotion_state = dynamical_system_->getTerminalState();
+		WholeBodyState starting_system_state = dynamical_system_->getInitialState();
+		WholeBodyState ending_system_state = dynamical_system_->getTerminalState();
 
 		// Defining splines //TODO for the time being only cubic interpolation is OK
 		unsigned int num_joints = dynamical_system_->getFloatingBaseSystem().getJointDoF();
@@ -56,23 +56,23 @@ void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initia
 		joint_spline.resize(num_joints);
 
 		// Computing a starting point from interpolation of the starting and ending states
-		WholeBodyState current_locomotion_state = starting_locomotion_state;
+		WholeBodyState current_system_state = starting_system_state;
 		math::Spline::Point current_point;
-		current_locomotion_state.duration = 1. / horizon_;
+		current_system_state.duration = 1. / horizon_;
 		for (unsigned int k = 0; k < horizon_; k++) {
-			current_locomotion_state.time = k * current_locomotion_state.duration;
+			current_system_state.time = k * current_system_state.duration;
 
 			// Base interpolation
 			for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
 				if (k == 0) {
 					// Initialization of the base spline
-					math::Spline::Point starting_base(starting_locomotion_state.base_pos(base_idx));
-					math::Spline::Point ending_base(ending_locomotion_state.base_pos(base_idx));
+					math::Spline::Point starting_base(starting_system_state.base_pos(base_idx));
+					math::Spline::Point ending_base(ending_system_state.base_pos(base_idx));
 					base_spline[base_idx].setBoundary(0, 1, starting_base, ending_base);
 				} else {
 					// Getting and setting the interpolated point
-					base_spline[base_idx].getPoint(current_locomotion_state.time, current_point);
-					current_locomotion_state.base_pos(base_idx) = current_point.x;
+					base_spline[base_idx].getPoint(current_system_state.time, current_point);
+					current_system_state.base_pos(base_idx) = current_point.x;
 				}
 			}
 
@@ -80,19 +80,19 @@ void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initia
 			for (unsigned int joint_idx = 0; joint_idx < num_joints; joint_idx++) {
 				if (k == 0) {
 					// Initialization of the joint spline
-					math::Spline::Point starting_joint(starting_locomotion_state.joint_pos(joint_idx));
-					math::Spline::Point ending_joint(ending_locomotion_state.joint_pos(joint_idx));
+					math::Spline::Point starting_joint(starting_system_state.joint_pos(joint_idx));
+					math::Spline::Point ending_joint(ending_system_state.joint_pos(joint_idx));
 					joint_spline[joint_idx].setBoundary(0, 1, starting_joint, ending_joint);
 				} else {
 					// Getting and setting the interpolated point
-					joint_spline[joint_idx].getPoint(current_locomotion_state.time, current_point);
-					current_locomotion_state.joint_pos(joint_idx) = current_point.x;
+					joint_spline[joint_idx].getPoint(current_system_state.time, current_point);
+					current_system_state.joint_pos(joint_idx) = current_point.x;
 				}
 			}
 
 			// Getting the current state vector
 			Eigen::VectorXd current_state;
-			dynamical_system_->fromWholeBodyState(current_state, current_locomotion_state);
+			dynamical_system_->fromWholeBodyState(current_state, current_system_state);
 
 			// Adding the current state vector
 			full_initial_point.segment(k * state_dimension_, state_dimension_) = current_state;
@@ -102,7 +102,7 @@ void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initia
 		unsigned int state_dimension = dynamical_system_->getDimensionOfState();
 		for (unsigned int k = 0; k < horizon_; k++) {
 			Eigen::VectorXd current_state;
-			dynamical_system_->fromWholeBodyState(current_state, locomotion_solution_[k]);
+			dynamical_system_->fromWholeBodyState(current_state, motion_solution_[k]);
 
 			full_initial_point.segment(k * state_dimension, state_dimension) = current_state;
 		}
@@ -218,18 +218,18 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 	}
 
 	// Computing the active and inactive constraints for a predefined horizon
-	WholeBodyState locomotion_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
+	WholeBodyState system_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dimension_);
 	unsigned int index = 0;
 	for (unsigned int k = 0; k < horizon_; k++) {
 		// Converting the decision variable for a certain time to a robot state
 		decision_state = decision_var.segment(k * state_dimension_, state_dimension_);
-		dynamical_system_->toWholeBodyState(locomotion_state, decision_state);
+		dynamical_system_->toWholeBodyState(system_state, decision_state);
 
 		// Adding the time information in cases that time is not a decision variable
 		if (dynamical_system_->isFixedStepIntegration())
-			locomotion_state.duration = dynamical_system_->getFixedStepTime();
-		locomotion_state.time += locomotion_state.duration;
+			system_state.duration = dynamical_system_->getFixedStepTime();
+		system_state.time += system_state.duration;
 
 		// Computing the constraints for a certain time
 		for (unsigned int j = 0; j < num_constraints + 1; j++) {
@@ -237,8 +237,8 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 			unsigned int current_constraint_dim;
 			if (j == 0) {// dynamic system constraint
 				// Evaluating the dynamical constraint
-				dynamical_system_->compute(constraint, locomotion_state);
-				dynamical_system_->setLastState(locomotion_state);
+				dynamical_system_->compute(constraint, system_state);
+				dynamical_system_->setLastState(system_state);
 
 				// Checking the constraint dimension
 				current_constraint_dim = dynamical_system_->getConstraintDimension();
@@ -248,8 +248,8 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 					exit(EXIT_FAILURE);
 				}
 			} else {
-				constraints_[j-1]->compute(constraint, locomotion_state);
-				constraints_[j-1]->setLastState(locomotion_state);
+				constraints_[j-1]->compute(constraint, system_state);
+				constraints_[j-1]->setLastState(system_state);
 
 				// Checking the constraint dimension
 				current_constraint_dim = constraints_[j-1]->getConstraintDimension();
@@ -270,7 +270,7 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 		if (dynamical_system_->isFullTrajectoryOptimization()) {
 			if (k == horizon_ - 1) {
 				Eigen::VectorXd constraint;
-				dynamical_system_->computeTerminalConstraint(constraint, locomotion_state);
+				dynamical_system_->computeTerminalConstraint(constraint, system_state);
 
 				// Setting in the full constraint vector
 				full_constraint.segment(index, terminal_constraint_dimension_) = constraint;
@@ -302,22 +302,22 @@ void OptimizationModel::evaluateCosts(double& cost,
 	cost = 0;
 
 	// Computing the cost for predefined horizon
-	WholeBodyState locomotion_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
+	WholeBodyState system_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
 	for (unsigned int k = 0; k < horizon_; k++) {
 		// Converting the decision variable for a certain time to a robot state
 		Eigen::VectorXd decision_state = decision_var.segment(k * state_dimension_, state_dimension_);
-		dynamical_system_->toWholeBodyState(locomotion_state, decision_state);
+		dynamical_system_->toWholeBodyState(system_state, decision_state);
 
 		// Adding the time information in cases that time is not a decision variable
 		if (dynamical_system_->isFixedStepIntegration())
-			locomotion_state.duration = dynamical_system_->getFixedStepTime();
-		locomotion_state.time += locomotion_state.duration;
+			system_state.duration = dynamical_system_->getFixedStepTime();
+		system_state.time += system_state.duration;
 
 		// Computing the function cost for a certain time
 		double simple_cost;
 		unsigned int num_cost_functions = costs_.size();
 		for (unsigned int j = 0; j < num_cost_functions; j++) {
-			costs_[j]->compute(simple_cost, locomotion_state);
+			costs_[j]->compute(simple_cost, system_state);
 			cost += simple_cost;
 		}
 	}
@@ -372,46 +372,46 @@ WholeBodyTrajectory& OptimizationModel::evaluateSolution(const Eigen::Ref<const 
 	unsigned int state_dim = dynamical_system_->getDimensionOfState();
 
 	// Recording the solution
-	locomotion_solution_.clear();
-	locomotion_solution_.push_back(dynamical_system_->getInitialState());
+	motion_solution_.clear();
+	motion_solution_.push_back(dynamical_system_->getInitialState());
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dim);
 	double current_time = dynamical_system_->getInitialState().time;
 	for (unsigned int k = 0; k < horizon_; k++) {
 		// Converting the decision variable for a certain time to a robot state
-		WholeBodyState locomotion_state;
+		WholeBodyState system_state;
 		decision_state = solution.segment(k * state_dim, state_dim);
-		dynamical_system_->toWholeBodyState(locomotion_state, decision_state);
+		dynamical_system_->toWholeBodyState(system_state, decision_state);
 
 		// Setting the time information in cases where time is not a decision variable
 		if (dynamical_system_->isFixedStepIntegration())
-			locomotion_state.duration = dynamical_system_->getFixedStepTime();
-		current_time += locomotion_state.duration;
-		locomotion_state.time = current_time;
+			system_state.duration = dynamical_system_->getFixedStepTime();
+		current_time += system_state.duration;
+		system_state.time = current_time;
 
 
 		// Setting the acceleration information in cases where the accelerations are not decision
 		// variables
-		WholeBodyState last_locomotion_state;
+		WholeBodyState last_system_state;
 		if (k == 0)
-			last_locomotion_state = dynamical_system_->getInitialState();
+			last_system_state = dynamical_system_->getInitialState();
 		else {
 			Eigen::VectorXd last_decision_state = solution.segment((k - 1) * state_dim, state_dim);
-			dynamical_system_->toWholeBodyState(last_locomotion_state, last_decision_state);
+			dynamical_system_->toWholeBodyState(last_system_state, last_decision_state);
 		}
 
-		if (locomotion_state.base_acc.isZero() && locomotion_state.joint_acc.isZero()) {
+		if (system_state.base_acc.isZero() && system_state.joint_acc.isZero()) {
 			// Computing (estimating) the accelerations
-			locomotion_state.base_acc = (locomotion_state.base_vel - last_locomotion_state.base_vel) /
-					locomotion_state.duration;
-			locomotion_state.joint_acc = (locomotion_state.joint_vel - last_locomotion_state.joint_vel) /
-					locomotion_state.duration;
+			system_state.base_acc = (system_state.base_vel - last_system_state.base_vel) /
+					system_state.duration;
+			system_state.joint_acc = (system_state.joint_vel - last_system_state.joint_vel) /
+					system_state.duration;
 		}
 
 
 		// Setting the contact information in cases where time is not a decision variable
 		// Checking if there are contact information
-		if (locomotion_state.contacts.size() == 0)
-			locomotion_state.contacts.resize(dynamical_system_->getFloatingBaseSystem().getNumberOfEndEffectors());
+		if (system_state.contacts.size() == 0)
+			system_state.contacts.resize(dynamical_system_->getFloatingBaseSystem().getNumberOfEndEffectors());
 
 		urdf_model::LinkID contacts = dynamical_system_->getFloatingBaseSystem().getEndEffectors();
 		rbd::BodySelector contact_names;
@@ -422,66 +422,66 @@ WholeBodyTrajectory& OptimizationModel::evaluateSolution(const Eigen::Ref<const 
 			contact_names.push_back(name);
 		}
 
-		if (locomotion_state.contacts[0].position.isZero()) {
+		if (system_state.contacts[0].position.isZero()) {
 			rbd::BodyVector contact_pos;
 			dynamical_system_->getKinematics().computeForwardKinematics(contact_pos,
-																		locomotion_state.base_pos,
-																		locomotion_state.joint_pos,
+																		system_state.base_pos,
+																		system_state.joint_pos,
 																		contact_names, rbd::Linear);
 			for (unsigned int i = 0; i < contact_names.size(); i++)
-				locomotion_state.contacts[i].position = contact_pos.find(contact_names[i])->second;
+				system_state.contacts[i].position = contact_pos.find(contact_names[i])->second;
 		}
 
-		if (locomotion_state.contacts[0].velocity.isZero()) {
+		if (system_state.contacts[0].velocity.isZero()) {
 			rbd::BodyVector contact_vel;
 			dynamical_system_->getKinematics().computeVelocity(contact_vel,
-													   	   	   locomotion_state.base_pos,
-															   locomotion_state.joint_pos,
-															   locomotion_state.base_vel,
-															   locomotion_state.joint_vel,
+													   	   	   system_state.base_pos,
+															   system_state.joint_pos,
+															   system_state.base_vel,
+															   system_state.joint_vel,
 															   contact_names, rbd::Linear);
 			for (unsigned int i = 0; i < contact_names.size(); i++)
-				locomotion_state.contacts[i].velocity = contact_vel.find(contact_names[i])->second;
+				system_state.contacts[i].velocity = contact_vel.find(contact_names[i])->second;
 		}
 
-		if (locomotion_state.contacts[0].acceleration.isZero()) {
+		if (system_state.contacts[0].acceleration.isZero()) {
 			rbd::BodyVector contact_acc;
 			dynamical_system_->getKinematics().computeAcceleration(contact_acc,
-													   	   	   	   locomotion_state.base_pos,
-																   locomotion_state.joint_pos,
-																   locomotion_state.base_vel,
-																   locomotion_state.joint_vel,
-																   locomotion_state.base_acc,
-																   locomotion_state.joint_acc,
+													   	   	   	   system_state.base_pos,
+																   system_state.joint_pos,
+																   system_state.base_vel,
+																   system_state.joint_vel,
+																   system_state.base_acc,
+																   system_state.joint_acc,
 																   contact_names, rbd::Linear);
 			for (unsigned int i = 0; i < contact_names.size(); i++)
-				locomotion_state.contacts[i].acceleration = contact_acc.find(contact_names[i])->second;
+				system_state.contacts[i].acceleration = contact_acc.find(contact_names[i])->second;
 		}
 
 		// Pushing the current state
-		locomotion_solution_.push_back(locomotion_state);
+		motion_solution_.push_back(system_state);
 
 
 
 		std::cout << "-------------------------------------" << std::endl;
 		std::cout << "x = " << decision_state.transpose() << std::endl;
-		std::cout << "time = " << locomotion_state.time << std::endl;
-		std::cout << "duration = " << locomotion_state.duration << std::endl;
-		std::cout << "base_pos = " << locomotion_state.base_pos.transpose() << std::endl;
-		std::cout << "joint_pos = " << locomotion_state.joint_pos.transpose() << std::endl;
-		std::cout << "base_vel = " << locomotion_state.base_vel.transpose() << std::endl;
-		std::cout << "joint_vel = " << locomotion_state.joint_vel.transpose() << std::endl;
-		std::cout << "base_acc = " << locomotion_state.base_acc.transpose() << std::endl;
-		std::cout << "joint_acc = " << locomotion_state.joint_acc.transpose() << std::endl;
-		std::cout << "joint_eff = " << locomotion_state.joint_eff.transpose() << std::endl;
-		std::cout << "contact_pos = " << locomotion_state.contacts[0].position.transpose() << std::endl;
-		std::cout << "contact_vel = " << locomotion_state.contacts[0].velocity.transpose() << std::endl;
-		std::cout << "contact_acc = " << locomotion_state.contacts[0].acceleration.transpose() << std::endl;
-		std::cout << "contact_for = " << locomotion_state.contacts[0].force.transpose() << std::endl;
+		std::cout << "time = " << system_state.time << std::endl;
+		std::cout << "duration = " << system_state.duration << std::endl;
+		std::cout << "base_pos = " << system_state.base_pos.transpose() << std::endl;
+		std::cout << "joint_pos = " << system_state.joint_pos.transpose() << std::endl;
+		std::cout << "base_vel = " << system_state.base_vel.transpose() << std::endl;
+		std::cout << "joint_vel = " << system_state.joint_vel.transpose() << std::endl;
+		std::cout << "base_acc = " << system_state.base_acc.transpose() << std::endl;
+		std::cout << "joint_acc = " << system_state.joint_acc.transpose() << std::endl;
+		std::cout << "joint_eff = " << system_state.joint_eff.transpose() << std::endl;
+		std::cout << "contact_pos = " << system_state.contacts[0].position.transpose() << std::endl;
+		std::cout << "contact_vel = " << system_state.contacts[0].velocity.transpose() << std::endl;
+		std::cout << "contact_acc = " << system_state.contacts[0].acceleration.transpose() << std::endl;
+		std::cout << "contact_for = " << system_state.contacts[0].force.transpose() << std::endl;
 		std::cout << "-------------------------------------" << std::endl;
 	}
 
-	return locomotion_solution_;
+	return motion_solution_;
 }
 
 

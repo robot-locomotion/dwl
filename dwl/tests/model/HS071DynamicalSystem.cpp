@@ -17,7 +17,7 @@ class HS071DynamicalSystem : public DynamicalSystem
 		{
 			name_ = "HS071";
 			state_dimension_ = 4;
-			locomotion_variables_.position = true; //TODO remove it
+			system_variables_.position = true;
 			system_.setJointDoF(4);
 			system_.setTypeOfDynamicSystem(FixedBase);
 

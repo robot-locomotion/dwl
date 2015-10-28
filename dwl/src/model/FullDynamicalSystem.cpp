@@ -12,11 +12,11 @@ FullDynamicalSystem::FullDynamicalSystem()
 	// Setting the name of the constraint
 	name_ = "full";
 
-	// Setting the locomotion variables for this dynamical constraint
-	locomotion_variables_.position = true;
-	locomotion_variables_.velocity = true;
-	locomotion_variables_.effort = true;
-	locomotion_variables_.contact_for = true;
+	// Setting the system variables for this dynamical constraint
+	system_variables_.position = true;
+	system_variables_.velocity = true;
+	system_variables_.effort = true;
+	system_variables_.contact_for = true;
 }
 
 

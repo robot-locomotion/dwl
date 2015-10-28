@@ -13,12 +13,10 @@ CentroidalDynamicalSystem::CentroidalDynamicalSystem() : total_mass_(0.)
 	name_ = "centroidal";
 
 	// Setting the locomotion variables for this dynamical constraint
-	locomotion_variables_.position = true;
-	locomotion_variables_.velocity = true;
-//	locomotion_variables_.effort = true;
-
-	locomotion_variables_.contact_pos = true;
-	locomotion_variables_.contact_for = true;
+	system_variables_.position = true;
+	system_variables_.velocity = true;
+	system_variables_.contact_pos = true;
+	system_variables_.contact_for = true;
 }
 
 

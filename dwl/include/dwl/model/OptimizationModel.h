@@ -246,7 +246,7 @@ class OptimizationModel
 		Eigen::NumericalDiffMode num_diff_mode_;
 
 		/** @brief Whole-body solution */
-		WholeBodyTrajectory locomotion_solution_;
+		WholeBodyTrajectory motion_solution_;
 
 		/** @brief Dimension of the state vector at instantaneous point */
 		unsigned int state_dimension_;

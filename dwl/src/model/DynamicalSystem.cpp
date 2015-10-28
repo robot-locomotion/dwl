@@ -8,7 +8,7 @@ namespace model
 {
 
 DynamicalSystem::DynamicalSystem() : state_dimension_(0), terminal_constraint_dimension_(0),
-		locomotion_variables_(false), integration_method_(Fixed), step_time_(0.1),
+		system_variables_(false), integration_method_(Fixed), step_time_(0.1),
 		is_full_trajectory_optimization_(false)
 {
 
@@ -165,9 +165,9 @@ void DynamicalSystem::setStepIntegrationMethod(StepIntegrationMethod method)
 {
 	integration_method_ = method;
 	if (integration_method_ == Fixed)
-		locomotion_variables_.time = false;
+		system_variables_.time = false;
 	else
-		locomotion_variables_.time = true;
+		system_variables_.time = true;
 
 	// Setting the state dimension
 	computeStateDimension();
@@ -262,66 +262,66 @@ void DynamicalSystem::setFullTrajectoryOptimization()
 }
 
 
-void DynamicalSystem::toWholeBodyState(WholeBodyState& locomotion_state,
+void DynamicalSystem::toWholeBodyState(WholeBodyState& system_state,
 									   const Eigen::VectorXd& generalized_state)
 {
 	// Resizing the joint dimensions
-	locomotion_state.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
-	locomotion_state.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
-	locomotion_state.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
-	locomotion_state.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
+	system_state.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
+	system_state.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
+	system_state.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
+	system_state.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
 
 	// Converting the generalized state vector to locomotion state
 	unsigned int idx = 0;
-	if (locomotion_variables_.time) {
-		locomotion_state.duration = generalized_state(idx);
+	if (system_variables_.time) {
+		system_state.duration = generalized_state(idx);
 		++idx;
 	}
-	if (locomotion_variables_.position) {
-		system_.fromGeneralizedJointState(locomotion_state.base_pos,
-										  locomotion_state.joint_pos,
+	if (system_variables_.position) {
+		system_.fromGeneralizedJointState(system_state.base_pos,
+										  system_state.joint_pos,
 										  (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()));
 		idx += system_.getSystemDoF();
 	}
-	if (locomotion_variables_.velocity) {
-		system_.fromGeneralizedJointState(locomotion_state.base_vel,
-										  locomotion_state.joint_vel,
+	if (system_variables_.velocity) {
+		system_.fromGeneralizedJointState(system_state.base_vel,
+										  system_state.joint_vel,
 										  (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()));
 		idx += system_.getSystemDoF();
 	}
-	if (locomotion_variables_.acceleration) {
-		system_.fromGeneralizedJointState(locomotion_state.base_acc,
-										  locomotion_state.joint_acc,
+	if (system_variables_.acceleration) {
+		system_.fromGeneralizedJointState(system_state.base_acc,
+										  system_state.joint_acc,
 										  (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()));
 		idx += system_.getSystemDoF();
 	}
-	if (locomotion_variables_.effort) {
+	if (system_variables_.effort) {
 		// Defining a fake floating-base system (fixed-base) for converting only joint effort
 		FloatingBaseSystem fake_system(false, system_.getJointDoF());
-		fake_system.fromGeneralizedJointState(locomotion_state.base_eff,
-											  locomotion_state.joint_eff,
+		fake_system.fromGeneralizedJointState(system_state.base_eff,
+											  system_state.joint_eff,
 											  (Eigen::VectorXd) generalized_state.segment(idx, system_.getJointDoF()));
 		idx += system_.getJointDoF();
 	}
-	if (locomotion_variables_.contact_pos || locomotion_variables_.contact_vel ||
-			locomotion_variables_.contact_acc || locomotion_variables_.contact_for) {
-		locomotion_state.contacts.resize(system_.getNumberOfEndEffectors());
+	if (system_variables_.contact_pos || system_variables_.contact_vel ||
+			system_variables_.contact_acc || system_variables_.contact_for) {
+		system_state.contacts.resize(system_.getNumberOfEndEffectors());
 		for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(); i++) {
-			locomotion_state.contacts[i].end_effector = i;
-			if (locomotion_variables_.contact_pos) {
-				locomotion_state.contacts[i].position = generalized_state.segment<3>(idx);
+			system_state.contacts[i].end_effector = i;
+			if (system_variables_.contact_pos) {
+				system_state.contacts[i].position = generalized_state.segment<3>(idx);
 				idx += 3;
 			}
-			if (locomotion_variables_.contact_vel) {
-				locomotion_state.contacts[i].velocity = generalized_state.segment<3>(idx);
+			if (system_variables_.contact_vel) {
+				system_state.contacts[i].velocity = generalized_state.segment<3>(idx);
 				idx += 3;
 			}
-			if (locomotion_variables_.contact_acc) {
-				locomotion_state.contacts[i].acceleration = generalized_state.segment<3>(idx);
+			if (system_variables_.contact_acc) {
+				system_state.contacts[i].acceleration = generalized_state.segment<3>(idx);
 				idx += 3;
 			}
-			if (locomotion_variables_.contact_for) {
-				locomotion_state.contacts[i].force = generalized_state.segment<3>(idx);
+			if (system_variables_.contact_for) {
+				system_state.contacts[i].force = generalized_state.segment<3>(idx);
 				idx += 3;
 			}
 		}
@@ -330,65 +330,65 @@ void DynamicalSystem::toWholeBodyState(WholeBodyState& locomotion_state,
 
 
 void DynamicalSystem::fromWholeBodyState(Eigen::VectorXd& generalized_state,
-										 const WholeBodyState& locomotion_state)
+										 const WholeBodyState& system_state)
 {
 	// Resizing the generalized state vector
 	generalized_state.resize(state_dimension_);
 
 	// Converting the generalized state vector to locomotion state
 	unsigned int idx = 0;
-	if (locomotion_variables_.time) {
-		generalized_state(idx) = locomotion_state.duration;
+	if (system_variables_.time) {
+		generalized_state(idx) = system_state.duration;
 		++idx;
 	}
-	if (locomotion_variables_.position) {
+	if (system_variables_.position) {
 		generalized_state.segment(idx, system_.getSystemDoF()) =
-				system_.toGeneralizedJointState(locomotion_state.base_pos,
-												locomotion_state.joint_pos);
+				system_.toGeneralizedJointState(system_state.base_pos,
+												system_state.joint_pos);
 		idx += system_.getSystemDoF();
 	}
-	if (locomotion_variables_.velocity) {
+	if (system_variables_.velocity) {
 		generalized_state.segment(idx, system_.getSystemDoF()) =
-				system_.toGeneralizedJointState(locomotion_state.base_vel,
-												locomotion_state.joint_vel);
+				system_.toGeneralizedJointState(system_state.base_vel,
+												system_state.joint_vel);
 		idx += system_.getSystemDoF();
 	}
-	if (locomotion_variables_.acceleration) {
+	if (system_variables_.acceleration) {
 		generalized_state.segment(idx, system_.getSystemDoF()) =
-				system_.toGeneralizedJointState(locomotion_state.base_acc,
-												locomotion_state.joint_acc);
+				system_.toGeneralizedJointState(system_state.base_acc,
+												system_state.joint_acc);
 		idx += system_.getSystemDoF();
 	}
-	if (locomotion_variables_.effort) {
+	if (system_variables_.effort) {
 		// Defining a fake floating-base system (fixed-base) for converting only joint effort
 		FloatingBaseSystem fake_system(false, system_.getJointDoF());
 		generalized_state.segment(idx, system_.getJointDoF()) =
-				fake_system.toGeneralizedJointState(locomotion_state.base_eff,
-											 	 	locomotion_state.joint_eff);
+				fake_system.toGeneralizedJointState(system_state.base_eff,
+											 	 	system_state.joint_eff);
 		idx += system_.getJointDoF();
 	}
-	if (locomotion_variables_.contact_pos || locomotion_variables_.contact_vel ||
-			locomotion_variables_.contact_acc || locomotion_variables_.contact_for) {
-		if (locomotion_state.contacts.size() != system_.getNumberOfEndEffectors()) {
+	if (system_variables_.contact_pos || system_variables_.contact_vel ||
+			system_variables_.contact_acc || system_variables_.contact_for) {
+		if (system_state.contacts.size() != system_.getNumberOfEndEffectors()) {
 			printf(RED "FATAL: the number of contact and end-effectors are not consistent\n" COLOR_RESET);
 			exit(EXIT_FAILURE);
 		}
 
 		for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(); i++) {
-			if (locomotion_variables_.contact_pos) {
-				generalized_state.segment<3>(idx) = locomotion_state.contacts[i].position;
+			if (system_variables_.contact_pos) {
+				generalized_state.segment<3>(idx) = system_state.contacts[i].position;
 				idx += 3;
 			}
-			if (locomotion_variables_.contact_vel) {
-				generalized_state.segment<3>(idx) = locomotion_state.contacts[i].velocity;
+			if (system_variables_.contact_vel) {
+				generalized_state.segment<3>(idx) = system_state.contacts[i].velocity;
 				idx += 3;
 			}
-			if (locomotion_variables_.contact_acc) {
-				generalized_state.segment<3>(idx) = locomotion_state.contacts[i].acceleration;
+			if (system_variables_.contact_acc) {
+				generalized_state.segment<3>(idx) = system_state.contacts[i].acceleration;
 				idx += 3;
 			}
-			if (locomotion_variables_.contact_for) {
-				generalized_state.segment<3>(idx) = locomotion_state.contacts[i].force;
+			if (system_variables_.contact_for) {
+				generalized_state.segment<3>(idx) = system_state.contacts[i].force;
 				idx += 3;
 			}
 		}
@@ -398,7 +398,7 @@ void DynamicalSystem::fromWholeBodyState(Eigen::VectorXd& generalized_state,
 
 bool DynamicalSystem::isFixedStepIntegration()
 {
-	return !locomotion_variables_.time;
+	return !system_variables_.time;
 }
 
 
@@ -411,11 +411,11 @@ bool DynamicalSystem::isFullTrajectoryOptimization()
 void DynamicalSystem::computeStateDimension()
 {
 	// Computing the state dimension give the locomotion variables
-	state_dimension_ = locomotion_variables_.time + (locomotion_variables_.position +
-			locomotion_variables_.velocity + locomotion_variables_.acceleration) * system_.getSystemDoF()
-			+ locomotion_variables_.effort * system_.getJointDoF() + 3 *
-			(locomotion_variables_.contact_pos + locomotion_variables_.contact_vel +
-					locomotion_variables_.contact_acc + locomotion_variables_.contact_for) *
+	state_dimension_ = system_variables_.time + (system_variables_.position +
+			system_variables_.velocity + system_variables_.acceleration) * system_.getSystemDoF()
+			+ system_variables_.effort * system_.getJointDoF() + 3 *
+			(system_variables_.contact_pos + system_variables_.contact_vel +
+					system_variables_.contact_acc + system_variables_.contact_for) *
 					system_.getNumberOfEndEffectors();
 }
 

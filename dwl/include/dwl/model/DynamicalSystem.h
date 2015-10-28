@@ -200,7 +200,7 @@ class DynamicalSystem : public Constraint
 		 * @param WholeBodyState& Whole-body state
 		 * @param const Eigen::VectorXd& Generalized state vector
 		 */
-		void toWholeBodyState(WholeBodyState& state_model,
+		void toWholeBodyState(WholeBodyState& system_state,
 							  const Eigen::VectorXd& generalized_state);
 
 		/**
@@ -209,7 +209,7 @@ class DynamicalSystem : public Constraint
 		 * @param const WholeBodyState& Whole-body state
 		 */
 		void fromWholeBodyState(Eigen::VectorXd& generalized_state,
-								const WholeBodyState& state_model);
+								const WholeBodyState& system_state);
 
 		/** @brief Returns true if it's a fixed-step integration */
 		bool isFixedStepIntegration();
@@ -238,7 +238,7 @@ class DynamicalSystem : public Constraint
 		WholeBodyState upper_state_bound_;
 
 		/** @brief Whole-body variables defined given a dynamical system constraint */
-		WholeBodyVariables locomotion_variables_;
+		WholeBodyVariables system_variables_;
 
 		/** @brief Step integration method */
 		StepIntegrationMethod integration_method_;
