@@ -27,7 +27,7 @@ void ComplementaryConstraint::init(std::string urdf_model,
 
 
 void ComplementaryConstraint::compute(Eigen::VectorXd& constraint,
-									  const LocomotionState& state)
+									  const WholeBodyState& state)
 {
 	// Computing the first and second constraints
 	Eigen::VectorXd first_constraint, second_constraint;

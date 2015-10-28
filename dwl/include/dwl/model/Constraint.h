@@ -57,10 +57,10 @@ class Constraint
 		/**
 		 * @brief Computes the constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		virtual void compute(Eigen::VectorXd& constraint,
-							 const LocomotionState& state) = 0;
+							 const WholeBodyState& state) = 0;
 
 		/**
 		 * @brief Gets the lower and upper bounds of the constraint
@@ -72,9 +72,9 @@ class Constraint
 
 		/**
 		 * @brief Sets the last state that could be used for the constraint
-		 * @param LocomotionState& Last state
+		 * @param WholeBodyState& Last whole-body state
 		 */
-		void setLastState(LocomotionState& last_state);
+		void setLastState(WholeBodyState& last_state);
 
 		/** @brief Resets the state buffer */
 		void resetStateBuffer();
@@ -97,7 +97,7 @@ class Constraint
 		unsigned int constraint_dimension_;
 
 		/** @brief Sets the last state */
-		boost::circular_buffer<LocomotionState> state_buffer_;
+		boost::circular_buffer<WholeBodyState> state_buffer_;
 
 		/** @brief A floating-base system definition */
 		FloatingBaseSystem system_;

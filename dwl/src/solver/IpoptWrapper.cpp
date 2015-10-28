@@ -220,7 +220,7 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 }
 
 
-std::vector<LocomotionState>& IpoptWrapper::getSolution()
+WholeBodyTrajectory& IpoptWrapper::getSolution()
 {
 	return locomotion_solution_;
 }

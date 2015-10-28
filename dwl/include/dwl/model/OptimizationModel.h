@@ -97,9 +97,9 @@ class OptimizationModel
 
 		/**
 		 * @brief Sets the initial trajectory
-		 * @param std::vector<LocomotionState>& Initial trajectory
+		 * @param WholeBodyTrajectory& Initial whole-body trajectory
 		 */
-		void setStartingTrajectory(std::vector<LocomotionState>& initial_trajectory);
+		void setStartingTrajectory(WholeBodyTrajectory& initial_trajectory);
 
 		/**
 		 * @brief Gets the starting point of the problem
@@ -155,9 +155,9 @@ class OptimizationModel
 		/**
 		 * @brief Evaluates the solution from an optimizer
 		 * @param const Eigen::Ref<const Eigen::VectorXd>& Solution vector
-		 * @return std::vector<LocomotionState>& Returns the locomotion trajectory solution
+		 * @return WholeBodyTrajectory& Returns the whole-body trajectory solution
 		 */
-		std::vector<LocomotionState>& evaluateSolution(const Eigen::Ref<const Eigen::VectorXd>& solution);
+		WholeBodyTrajectory& evaluateSolution(const Eigen::Ref<const Eigen::VectorXd>& solution);
 
 		/**
 		 * @brief Adds the dynamical system (active constraints) to the optimization problem
@@ -245,8 +245,8 @@ class OptimizationModel
 		/** @brief Numerical differentiation mode */
 		Eigen::NumericalDiffMode num_diff_mode_;
 
-		/** @brief Locomotion solution */
-		std::vector<LocomotionState> locomotion_solution_;
+		/** @brief Whole-body solution */
+		WholeBodyTrajectory locomotion_solution_;
 
 		/** @brief Dimension of the state vector at instantaneous point */
 		unsigned int state_dimension_;

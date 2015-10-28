@@ -41,7 +41,7 @@ void FullDynamicalSystem::initDynamicalSystem()
 
 
 void FullDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint,
-													 const LocomotionState& state)
+													 const WholeBodyState& state)
 {
 	// Resizing the constraint vector
 	constraint.resize(system_.getSystemDoF());

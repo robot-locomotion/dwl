@@ -20,7 +20,7 @@ TerminalStateTrackingEnergyCost::~TerminalStateTrackingEnergyCost()
 
 
 void TerminalStateTrackingEnergyCost::compute(double& cost,
-											  const LocomotionState& state)
+											  const WholeBodyState& state)
 {
 	// Setting the initial value of the cost
 	cost = 0;

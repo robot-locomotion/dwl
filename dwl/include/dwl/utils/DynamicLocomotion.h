@@ -107,13 +107,13 @@ struct ContactSearchRegion
 };
 
 /**
- * @struct LocomotionState
- * @brief Defines a locomotion state
+ * @struct WholeBodyState
+ * @brief Defines a whole-body state of the robot
  */
-struct LocomotionState
+struct WholeBodyState
 {
-	LocomotionState(unsigned int num_joints = 0,
-					unsigned int num_end_effectors = 0) : time(0.), duration(0.) {
+	WholeBodyState(unsigned int num_joints = 0,
+				   unsigned int num_end_effectors = 0) : time(0.), duration(0.) {
 		base_pos.setZero();
 		base_vel.setZero();
 		base_acc.setZero();
@@ -149,6 +149,9 @@ struct LocomotionState
 	Eigen::VectorXd joint_eff;
 	std::vector<Contact> contacts;
 };
+
+/** @brief Defines a whole-body trajectory */
+typedef std::vector<WholeBodyState> WholeBodyTrajectory;
 
 /**
  * @struct RobotAndTerrain

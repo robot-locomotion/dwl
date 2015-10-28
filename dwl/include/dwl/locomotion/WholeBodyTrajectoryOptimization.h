@@ -14,8 +14,6 @@ namespace dwl
 namespace locomotion
 {
 
-typedef std::vector<LocomotionState> LocomotionTrajectory;
-
 /**
  * @class WholeBodyTrajectoryOptimization
  * @brief This class solves whole-body trajectory optimization problem given dynamical system
@@ -83,18 +81,18 @@ class WholeBodyTrajectoryOptimization
 
 		/**
 		 * @brief Sets the nominal trajectory
-		 * @param std::vector<LocomotionState>& Nominal trajectory
+		 * @param WholeBodyTrajectory& Nominal whole-body trajectory
 		 */
-		void setNominalTrajectory(std::vector<LocomotionState>& nom_trajectory);
+		void setNominalTrajectory(WholeBodyTrajectory& nom_trajectory);
 
 		/**
 		 * @brief Computes a whole-body trajectory
-		 * @param const LocomotionState& Current whole-body state
-		 * @param const LocomotionState& Desired whole-body state
+		 * @param const WholeBodyState& Current whole-body state
+		 * @param const WholeBodyState& Desired whole-body state
 		 * @param double Allowed computation time
 		 */
-		bool compute(const LocomotionState& current_state,
-					 const LocomotionState& desired_state,
+		bool compute(const WholeBodyState& current_state,
+					 const WholeBodyState& desired_state,
 					 double computation_time);
 
 		/** @brief Gets the dynamical system constraint */
@@ -102,24 +100,24 @@ class WholeBodyTrajectoryOptimization
 
 		/**
 		 * @brief Gets the whole-body trajectory
-		 * @return LocomotionTrajectory& Whole-body trajectory
+		 * @return WholeBodyTrajectory& Whole-body trajectory
 		 */
-		const LocomotionTrajectory& getWholeBodyTrajectory();
+		const WholeBodyTrajectory& getWholeBodyTrajectory();
 
 		/**
 		 * @brief Gets the interpolated whole-body trajectory
 		 * @param const double Time of interpolation
-		 * @return LocomotionTrajectory& Whole-body trajectory
+		 * @return WholeBodyTrajectory& Whole-body trajectory
 		 */
-		const LocomotionTrajectory& getInterpolatedWholeBodyTrajectory(const double& interpolation_time);
+		const WholeBodyTrajectory& getInterpolatedWholeBodyTrajectory(const double& interpolation_time);
 
 
 	private:
 		/** @brief Optimization solver */
 		solver::OptimizationSolver* solver_;
 
-		/** @brief Interpolated locomotion trajectory */
-		LocomotionTrajectory interpolated_trajectory_;
+		/** @brief Interpolated whole-body trajectory */
+		WholeBodyTrajectory interpolated_trajectory_;
 };
 
 } //@namespace locomotion

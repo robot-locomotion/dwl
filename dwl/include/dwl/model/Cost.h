@@ -48,22 +48,22 @@ class Cost
 		/**
 		 * @brief Computes the cost value given a certain state
 		 * @param double& Cost value
-		 * @param const LocomotionState& State value
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		virtual void compute(double& cost,
-							 const LocomotionState& state) = 0;
+							 const WholeBodyState& state) = 0;
 
 		/**
-		 * @brief Sets the locomotion state weights which are used by specific cost function
-		 * @param LocomotionState& weights
+		 * @brief Sets the whole-body state weights which are used by specific cost function
+		 * @param WholeBodyState& Whole-body weights
 		 */
-		void setWeights(const LocomotionState& weights);
+		void setWeights(const WholeBodyState& weights);
 
 		/**
-		 * @brief Sets the desired state
-		 * @param const LocomotionState& Desired state
+		 * @brief Sets the desired whole-body state
+		 * @param const WholeBodyState& Desired whole-body state
 		 */
-		void setDesiredState(const LocomotionState& desired_state);
+		void setDesiredState(const WholeBodyState& desired_state);
 
 		/**
 		 * @brief Gets the name of the cost
@@ -79,11 +79,11 @@ class Cost
 		/** @brief Cost variables defines by the locomotion weights */
 		CostVariables cost_variables_;
 
-		/** @brief Locomotion state weights */
-		LocomotionState locomotion_weights_;
+		/** @brief Whole-body state weights */
+		WholeBodyState locomotion_weights_;
 
-		/** @brief Desired locomotion state */
-		LocomotionState desired_state_;
+		/** @brief Desired whole-body state */
+		WholeBodyState desired_state_;
 };
 
 } //@namespace model

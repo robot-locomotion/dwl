@@ -20,7 +20,7 @@ IntegralControlEnergyCost::~IntegralControlEnergyCost()
 
 
 void IntegralControlEnergyCost::compute(double& cost,
-										const LocomotionState& state)
+										const WholeBodyState& state)
 {
 	// Checking sizes
 	if (state.joint_eff.size() != locomotion_weights_.joint_eff.size()) {

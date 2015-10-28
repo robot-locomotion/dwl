@@ -21,7 +21,7 @@ class HS071DynamicalSystem : public DynamicalSystem
 			system_.setJointDoF(4);
 			system_.setTypeOfDynamicSystem(FixedBase);
 
-			LocomotionState starting_state;
+			WholeBodyState starting_state;
 			starting_state.joint_pos.resize(4);
 			starting_state.joint_pos(0) = 1.0;
 			starting_state.joint_pos(1) = 5.0;
@@ -29,7 +29,7 @@ class HS071DynamicalSystem : public DynamicalSystem
 			starting_state.joint_pos(3) = 1.0;
 			setInitialState(starting_state);
 
-			LocomotionState lower_state_bound, upper_state_bound;
+			WholeBodyState lower_state_bound, upper_state_bound;
 			lower_state_bound.joint_pos.resize(4);
 			lower_state_bound.joint_pos(0) = 1.0;
 			lower_state_bound.joint_pos(1) = 1.0;
@@ -47,7 +47,7 @@ class HS071DynamicalSystem : public DynamicalSystem
 		~HS071DynamicalSystem() {}
 
 		void compute(Eigen::VectorXd& constraint,
-					 const LocomotionState& state)
+					 const WholeBodyState& state)
 		{
 			constraint = Eigen::VectorXd::Zero(constraint_dimension_);
 			constraint(0) = state.joint_pos(0) * state.joint_pos(1) *

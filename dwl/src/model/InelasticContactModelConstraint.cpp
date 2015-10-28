@@ -39,7 +39,7 @@ void InelasticContactModelConstraint::init(std::string urdf_model,
 
 
 void InelasticContactModelConstraint::computeFirstComplement(Eigen::VectorXd& constraint,
-															 const LocomotionState& state)
+															 const WholeBodyState& state)
 {
 	// Resizing the complementary constraint dimension
 	constraint.resize(system_.getNumberOfEndEffectors());
@@ -51,7 +51,7 @@ void InelasticContactModelConstraint::computeFirstComplement(Eigen::VectorXd& co
 
 
 void InelasticContactModelConstraint::computeSecondComplement(Eigen::VectorXd& constraint,
-															  const LocomotionState& state)
+															  const WholeBodyState& state)
 {
 	// Resizing the complementary constraint dimension
 	constraint.resize(system_.getNumberOfEndEffectors());

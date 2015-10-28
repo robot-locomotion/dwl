@@ -48,7 +48,7 @@ void CentroidalDynamicalSystem::initDynamicalSystem()
 
 
 void CentroidalDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint,
-														   const LocomotionState& state)
+														   const WholeBodyState& state)
 {
 	// Resizing the constraint vector
 	constraint.resize(4 * system_.getNumberOfEndEffectors());//(1+3)

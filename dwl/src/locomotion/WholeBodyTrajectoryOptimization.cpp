@@ -98,14 +98,14 @@ void WholeBodyTrajectoryOptimization::setStepIntegrationTime(const double& step_
 }
 
 
-void WholeBodyTrajectoryOptimization::setNominalTrajectory(std::vector<LocomotionState>& nom_trajectory)
+void WholeBodyTrajectoryOptimization::setNominalTrajectory(std::vector<WholeBodyState>& nom_trajectory)
 {
 	solver_->getOptimizationModel().setStartingTrajectory(nom_trajectory);
 }
 
 
-bool WholeBodyTrajectoryOptimization::compute(const LocomotionState& current_state,
-											  const LocomotionState& desired_state,
+bool WholeBodyTrajectoryOptimization::compute(const WholeBodyState& current_state,
+											  const WholeBodyState& desired_state,
 											  double computation_time)
 {
 	if (solver_ != NULL) {
@@ -132,19 +132,19 @@ model::DynamicalSystem* WholeBodyTrajectoryOptimization::getDynamicalSystem()
 }
 
 
-const LocomotionTrajectory& WholeBodyTrajectoryOptimization::getWholeBodyTrajectory()
+const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getWholeBodyTrajectory()
 {
 	return solver_->getWholeBodyTrajectory();
 }
 
 
-const LocomotionTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWholeBodyTrajectory(const double& interpolation_time)
+const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWholeBodyTrajectory(const double& interpolation_time)
 {
 	// Deleting old information
 	interpolated_trajectory_.clear();
 
 	// Getting the whole-body trajectory
-	LocomotionTrajectory trajectory = solver_->getWholeBodyTrajectory();
+	WholeBodyTrajectory trajectory = solver_->getWholeBodyTrajectory();
 
 	// Getting the number of joints and end-effectors
 	unsigned int num_joints = getDynamicalSystem()->getFloatingBaseSystem().getJointDoF();
@@ -169,7 +169,7 @@ const LocomotionTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhol
 		double duration = trajectory[k+1].duration;
 
 		// Interpolating the current state
-		LocomotionState current_state(num_joints);
+		WholeBodyState current_state(num_joints);
 		math::Spline::Point current_point;
 		unsigned int index = floor(duration / interpolation_time);
 		for (unsigned int t = 0; t < index; t++) {

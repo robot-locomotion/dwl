@@ -30,18 +30,18 @@ class InelasticContactModelConstraint : public ComplementaryConstraint
 		/**
 		 * @brief Computes the first complement constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		void computeFirstComplement(Eigen::VectorXd& constraint,
-									const LocomotionState& state);
+									const WholeBodyState& state);
 
 		/**
 		 * @brief Computes the second complement constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		void computeSecondComplement(Eigen::VectorXd& constraint,
-									 const LocomotionState& state);
+									 const WholeBodyState& state);
 
 
 	private:

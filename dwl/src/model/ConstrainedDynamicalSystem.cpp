@@ -33,7 +33,7 @@ void ConstrainedDynamicalSystem::setActiveEndEffectors(const rbd::BodySelector& 
 
 
 void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint,
-															const LocomotionState& state)
+															const WholeBodyState& state)
 {
 	// Resizing the constraint vector
 	constraint.resize(system_.getJointDoF() + 3 * num_actived_endeffectors_);

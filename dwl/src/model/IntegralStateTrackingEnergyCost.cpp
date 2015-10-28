@@ -20,7 +20,7 @@ IntegralStateTrackingEnergyCost::~IntegralStateTrackingEnergyCost()
 
 
 void IntegralStateTrackingEnergyCost::compute(double& cost,
-											  const LocomotionState& state)
+											  const WholeBodyState& state)
 {
 	desired_state_.duration = 0.1;
 	if (state.time < 0.11 && state.time > 0.09) {

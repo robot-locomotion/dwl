@@ -30,10 +30,10 @@ class ComplementaryConstraint : public Constraint
 		/**
 		 * @brief Computes the complementary constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		void compute(Eigen::VectorXd& constraint,
-					 const LocomotionState& state);
+					 const WholeBodyState& state);
 
 		/**
 		 * @brief Gets the bounds of the complementary constraints
@@ -46,18 +46,18 @@ class ComplementaryConstraint : public Constraint
 		/**
 		 * @brief Computes the first complement constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		virtual void computeFirstComplement(Eigen::VectorXd& constraint,
-											const LocomotionState& state) = 0;
+											const WholeBodyState& state) = 0;
 
 		/**
 		 * @brief Computes the second complement constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		virtual void computeSecondComplement(Eigen::VectorXd& constraint,
-											 const LocomotionState& state) = 0;
+											 const WholeBodyState& state) = 0;
 
 
 	protected:

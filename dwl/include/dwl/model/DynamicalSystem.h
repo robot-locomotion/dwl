@@ -67,38 +67,38 @@ class DynamicalSystem : public Constraint
 		/**
 		 * @brief Computes the dynamical and time integration constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		virtual void compute(Eigen::VectorXd& constraint,
-							 const LocomotionState& state);
+							 const WholeBodyState& state);
 
 		/**
 		 * @brief Computes the dynamical constraint vector given a certain state. Note that the
 		 * time integration of the dynamical system is computed in the available numerical
 		 * integration methods implemented in compute() function.
 		 * @param Eigen::VectorXd& Evaluated the dynamical constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		virtual void computeDynamicalConstraint(Eigen::VectorXd& constraint,
-				 	 	 	 	 	 	 	 	const LocomotionState& state);
+				 	 	 	 	 	 	 	 	const WholeBodyState& state);
 
 		/**
 		 * @brief Computes the terminal constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated the terminal constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		void computeTerminalConstraint(Eigen::VectorXd& constraint,
-									   const LocomotionState& state);
+									   const WholeBodyState& state);
 
 		/**
 		 * @brief Computes the constraint from the time integration. Additionally, it's updated
 		 * the time value in case of fixed-step integration, i.e. optimization without time as a
 		 * decision variable. Note that there are different numerical integration methods
 		 * @param Eigen::VectorXd& Evaluated the dynamical constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		void numericalIntegration(Eigen::VectorXd& constraint,
-								  const LocomotionState& state);
+								  const WholeBodyState& state);
 
 		/**
 		 * @brief Gets the bounds of the dynamical system constraint which included the time
@@ -129,23 +129,23 @@ class DynamicalSystem : public Constraint
 
 		/**
 		 * @brief Sets the lower and upper state bounds
-		 * @param const LocomotionState& Lower state bounds
-		 * @param const LocomotionState& Upper state bounds
+		 * @param const WholeBodyState& Lower whole-body state bounds
+		 * @param const WholeBodyState& Upper whole-body state bounds
 		 */
-		void setStateBounds(const LocomotionState& lower_bound,
-							const LocomotionState& upper_bound);
+		void setStateBounds(const WholeBodyState& lower_bound,
+							const WholeBodyState& upper_bound);
 
 		/**
 		 * @brief Sets the initial state of the dynamical constraint
-		 * @param const LocomotionState& Initial state
+		 * @param const WholeBodyState& Initial whole-body state
 		 */
-		void setInitialState(const LocomotionState& initial_state);
+		void setInitialState(const WholeBodyState& initial_state);
 
 		/**
 		 * @brief Sets the terminal state
-		 * @param const LocomotionState& Terminal state
+		 * @param const WholeBodyState& Terminal whole-body state
 		 */
-		void setTerminalState(const LocomotionState& terminal_state);
+		void setTerminalState(const WholeBodyState& terminal_state);
 
 		/**
 		 * @brief Sets the step integration method (fixed or variable). The default value is fixed
@@ -167,17 +167,17 @@ class DynamicalSystem : public Constraint
 
 		/**
 		 * @brief Gets the lower and upper state bounds
-		 * @param LocomotionState& Lower state bounds
-		 * @param LocomotionState& Upper state bounds
+		 * @param WholeBodyState& Lower whole-body state bounds
+		 * @param WholeBodyState& Upper whole-body state bounds
 		 */
-		void getStateBounds(LocomotionState& lower_bound,
-							LocomotionState& upper_bound);
+		void getStateBounds(WholeBodyState& lower_bound,
+							WholeBodyState& upper_bound);
 
-		/** @brief Gets the initial state of the dynamical constraint */
-		const LocomotionState& getInitialState();
+		/** @brief Gets the initial whole-body state of the dynamical constraint */
+		const WholeBodyState& getInitialState();
 
-		/** @brief Gets the terminal state of the dynamical constraint */
-		const LocomotionState& getTerminalState();
+		/** @brief Gets the terminal whole-body state of the dynamical constraint */
+		const WholeBodyState& getTerminalState();
 
 		/** @brief Gets the dimension of the dynamical state */
 		unsigned int getDimensionOfState();
@@ -197,19 +197,19 @@ class DynamicalSystem : public Constraint
 
 		/**
 		 * @brief Converts the generalized state vector to locomotion state
-		 * @param LocomotionState& Locomotion state
+		 * @param WholeBodyState& Whole-body state
 		 * @param const Eigen::VectorXd& Generalized state vector
 		 */
-		void toLocomotionState(LocomotionState& state_model,
+		void toLocomotionState(WholeBodyState& state_model,
 							   const Eigen::VectorXd& generalized_state);
 
 		/**
 		 * @brief Converts the locomotion state to generalized state vector
 		 * @param Eigen::VectorXd& Generalized state vector
-		 * @param const LocomotionState& Locomotion state
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		void fromLocomotionState(Eigen::VectorXd& generalized_state,
-								 const LocomotionState& state_model);
+								 const WholeBodyState& state_model);
 
 		/** @brief Returns true if it's a fixed-step integration */
 		bool isFixedStepIntegration();
@@ -225,17 +225,17 @@ class DynamicalSystem : public Constraint
 		/** @brief Dimension of the terminal constraint */
 		unsigned int terminal_constraint_dimension_;
 
-		/** @brief Initial state */
-		LocomotionState initial_state_;
+		/** @brief Initial whole-body state */
+		WholeBodyState initial_state_;
 
-		/** @brief Terminal state */
-		LocomotionState terminal_state_;
+		/** @brief Terminal whole-body state */
+		WholeBodyState terminal_state_;
 
-		/** @brief Lower state bounds */
-		LocomotionState lower_state_bound_;
+		/** @brief Lower whole-body state bounds */
+		WholeBodyState lower_state_bound_;
 
-		/** @brief Upper state bounds */
-		LocomotionState upper_state_bound_;
+		/** @brief Upper whole-body state bounds */
+		WholeBodyState upper_state_bound_;
 
 		/** @brief Locomotion variables defined given a dynamical system constraint */
 		LocomotionVariables locomotion_variables_;

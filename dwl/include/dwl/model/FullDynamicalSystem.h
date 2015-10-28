@@ -31,10 +31,10 @@ class FullDynamicalSystem : public DynamicalSystem
 		/**
 		 * @brief Computes the dynamic constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const LocomotionState& State vector
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		void computeDynamicalConstraint(Eigen::VectorXd& constraint,
-										const LocomotionState& state);
+										const WholeBodyState& state);
 
 		/**
 		 * @brief Gets the bounds of the dynamical system constraint

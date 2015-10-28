@@ -68,7 +68,7 @@ void DynamicalSystem::jointLimitsFromURDF(std::string urdf_model)
 
 
 void DynamicalSystem::compute(Eigen::VectorXd& constraint,
-							  const LocomotionState& state)
+							  const WholeBodyState& state)
 {
 	// Evaluating the numerical integration
 	Eigen::VectorXd time_constraint;
@@ -87,7 +87,7 @@ void DynamicalSystem::compute(Eigen::VectorXd& constraint,
 
 
 void DynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint,
-												 const LocomotionState& state)
+												 const WholeBodyState& state)
 {
 	printf(RED "FATAL: the dynamical constraint was not implemented\n" COLOR_RESET);
 	exit(EXIT_FAILURE);
@@ -95,7 +95,7 @@ void DynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint,
 
 
 void DynamicalSystem::computeTerminalConstraint(Eigen::VectorXd& constraint,
-												const LocomotionState& state)
+												const WholeBodyState& state)
 {
 	constraint.resize(system_.getFloatingBaseDoF());
 
@@ -110,7 +110,7 @@ void DynamicalSystem::computeTerminalConstraint(Eigen::VectorXd& constraint,
 
 
 void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
-										   const LocomotionState& state)
+										   const WholeBodyState& state)
 {
 	// Resizing the constraint vector
 	constraint.resize(system_.getSystemDoF());
@@ -192,41 +192,41 @@ WholeBodyDynamics& DynamicalSystem::getDynamics()
 }
 
 
-void DynamicalSystem::setStateBounds(const LocomotionState& lower_bound,
-									 const LocomotionState& upper_bound)
+void DynamicalSystem::setStateBounds(const WholeBodyState& lower_bound,
+									 const WholeBodyState& upper_bound)
 {
 	lower_state_bound_ = lower_bound;
 	upper_state_bound_ = upper_bound;
 }
 
 
-void DynamicalSystem::setInitialState(const LocomotionState& initial_state)
+void DynamicalSystem::setInitialState(const WholeBodyState& initial_state)
 {
 	initial_state_ = initial_state;
 }
 
 
-void DynamicalSystem::setTerminalState(const LocomotionState& terminal_state)
+void DynamicalSystem::setTerminalState(const WholeBodyState& terminal_state)
 {
 	terminal_state_ = terminal_state;
 }
 
 
-void DynamicalSystem::getStateBounds(LocomotionState& lower_bound,
-									 LocomotionState& upper_bound)
+void DynamicalSystem::getStateBounds(WholeBodyState& lower_bound,
+									 WholeBodyState& upper_bound)
 {
 	lower_bound = lower_state_bound_;
 	upper_bound = upper_state_bound_;
 }
 
 
-const LocomotionState& DynamicalSystem::getInitialState()
+const WholeBodyState& DynamicalSystem::getInitialState()
 {
 	return initial_state_;
 }
 
 
-const LocomotionState& DynamicalSystem::getTerminalState()
+const WholeBodyState& DynamicalSystem::getTerminalState()
 {
 	return terminal_state_;
 }
@@ -262,7 +262,7 @@ void DynamicalSystem::setFullTrajectoryOptimization()
 }
 
 
-void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
+void DynamicalSystem::toLocomotionState(WholeBodyState& locomotion_state,
 										const Eigen::VectorXd& generalized_state)
 {
 	// Resizing the joint dimensions
@@ -330,7 +330,7 @@ void DynamicalSystem::toLocomotionState(LocomotionState& locomotion_state,
 
 
 void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
-										  const LocomotionState& locomotion_state)
+										  const WholeBodyState& locomotion_state)
 {
 	// Resizing the generalized state vector
 	generalized_state.resize(state_dimension_);

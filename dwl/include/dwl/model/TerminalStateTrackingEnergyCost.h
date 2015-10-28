@@ -27,10 +27,10 @@ class TerminalStateTrackingEnergyCost : public Cost
 		 * @brief Computes the state-tracking energy cost given a locomotion state. The
 		 * state-tracking energy is defined as quadratic cost function
 		 * @param double& Cost value
-		 * @param const LocomotionState& Locomotion state
+		 * @param const WholeBodyState& Whole-body state
 		 */
 		void compute(double& cost,
-					 const LocomotionState& state);
+					 const WholeBodyState& state);
 };
 
 } //@namespace model

@@ -46,9 +46,9 @@ class OptimizationSolver
 
 		/**
 		 * @brief Gets the whole-body trajectory computed by the optimizer
-		 * @return const std::vector<LocomotionState> Whole-body trajectory
+		 * @return const WholeBodyTrajectory Whole-body trajectory
 		 */
-		const std::vector<LocomotionState>& getWholeBodyTrajectory();
+		const WholeBodyTrajectory& getWholeBodyTrajectory();
 
 		/**
 		 * @brief Gets the name of the solver
@@ -65,7 +65,7 @@ class OptimizationSolver
 		model::OptimizationModel model_;
 
 		/** @brief Computed whole-body trajectory */
-		std::vector<LocomotionState> locomotion_trajectory_;
+		WholeBodyTrajectory locomotion_trajectory_;
 };
 
 } //@namespace solver

@@ -18,7 +18,7 @@ class HS071Cost : public Cost
 		~HS071Cost() {}
 
 		void compute(double& cost,
-					 const LocomotionState& state)
+					 const WholeBodyState& state)
 		{
 //			assert(n == 4);
 
