@@ -113,7 +113,7 @@ struct ContactSearchRegion
 struct WholeBodyState
 {
 	WholeBodyState(unsigned int num_joints = 0,
-				   unsigned int num_end_effectors = 0) : time(0.), duration(0.) {
+				   unsigned int num_contacts = 0) : time(0.), duration(0.) {
 		base_pos.setZero();
 		base_vel.setZero();
 		base_acc.setZero();
@@ -126,8 +126,8 @@ struct WholeBodyState
 			joint_eff.setZero(num_joints);
 		}
 
-		if (num_end_effectors != 0)
-			contacts.resize(num_end_effectors);
+		if (num_contacts != 0)
+			contacts.resize(num_contacts);
 	}
 
 	void setJointDoF(unsigned int num_joints) {
@@ -135,6 +135,10 @@ struct WholeBodyState
 		joint_vel.setZero(num_joints);
 		joint_acc.setZero(num_joints);
 		joint_eff.setZero(num_joints);
+	}
+
+	void setContactDoF(unsigned int num_contacts) {
+		contacts.resize(num_contacts);
 	}
 
 	double time;
