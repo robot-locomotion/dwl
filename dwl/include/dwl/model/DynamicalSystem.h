@@ -10,10 +10,10 @@ namespace dwl
 namespace model
 {
 
-/** @brief Defines the locomotion variables of the optimization problem */
-struct LocomotionVariables
+/** @brief Defines the whole-body variables of the optimization problem */
+struct WholeBodyVariables
 {
-	LocomotionVariables(bool full_opt = false) : time(full_opt), position(full_opt),
+	WholeBodyVariables(bool full_opt = false) : time(full_opt), position(full_opt),
 			velocity(full_opt),	acceleration(full_opt), effort(full_opt),
 			contact_pos(full_opt), contact_vel(full_opt), contact_acc(full_opt),
 			contact_for(full_opt) {}
@@ -196,20 +196,20 @@ class DynamicalSystem : public Constraint
 		void setFullTrajectoryOptimization();
 
 		/**
-		 * @brief Converts the generalized state vector to locomotion state
+		 * @brief Converts the generalized state vector to whole-body state
 		 * @param WholeBodyState& Whole-body state
 		 * @param const Eigen::VectorXd& Generalized state vector
 		 */
-		void toLocomotionState(WholeBodyState& state_model,
-							   const Eigen::VectorXd& generalized_state);
+		void toWholeBodyState(WholeBodyState& state_model,
+							  const Eigen::VectorXd& generalized_state);
 
 		/**
-		 * @brief Converts the locomotion state to generalized state vector
+		 * @brief Converts the whole-body state to generalized state vector
 		 * @param Eigen::VectorXd& Generalized state vector
 		 * @param const WholeBodyState& Whole-body state
 		 */
-		void fromLocomotionState(Eigen::VectorXd& generalized_state,
-								 const WholeBodyState& state_model);
+		void fromWholeBodyState(Eigen::VectorXd& generalized_state,
+								const WholeBodyState& state_model);
 
 		/** @brief Returns true if it's a fixed-step integration */
 		bool isFixedStepIntegration();
@@ -237,8 +237,8 @@ class DynamicalSystem : public Constraint
 		/** @brief Upper whole-body state bounds */
 		WholeBodyState upper_state_bound_;
 
-		/** @brief Locomotion variables defined given a dynamical system constraint */
-		LocomotionVariables locomotion_variables_;
+		/** @brief Whole-body variables defined given a dynamical system constraint */
+		WholeBodyVariables locomotion_variables_;
 
 		/** @brief Step integration method */
 		StepIntegrationMethod integration_method_;

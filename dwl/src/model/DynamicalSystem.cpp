@@ -262,8 +262,8 @@ void DynamicalSystem::setFullTrajectoryOptimization()
 }
 
 
-void DynamicalSystem::toLocomotionState(WholeBodyState& locomotion_state,
-										const Eigen::VectorXd& generalized_state)
+void DynamicalSystem::toWholeBodyState(WholeBodyState& locomotion_state,
+									   const Eigen::VectorXd& generalized_state)
 {
 	// Resizing the joint dimensions
 	locomotion_state.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
@@ -329,8 +329,8 @@ void DynamicalSystem::toLocomotionState(WholeBodyState& locomotion_state,
 }
 
 
-void DynamicalSystem::fromLocomotionState(Eigen::VectorXd& generalized_state,
-										  const WholeBodyState& locomotion_state)
+void DynamicalSystem::fromWholeBodyState(Eigen::VectorXd& generalized_state,
+										 const WholeBodyState& locomotion_state)
 {
 	// Resizing the generalized state vector
 	generalized_state.resize(state_dimension_);

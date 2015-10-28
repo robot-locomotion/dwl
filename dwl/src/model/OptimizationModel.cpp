@@ -92,7 +92,7 @@ void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initia
 
 			// Getting the current state vector
 			Eigen::VectorXd current_state;
-			dynamical_system_->fromLocomotionState(current_state, current_locomotion_state);
+			dynamical_system_->fromWholeBodyState(current_state, current_locomotion_state);
 
 			// Adding the current state vector
 			full_initial_point.segment(k * state_dimension_, state_dimension_) = current_state;
@@ -102,7 +102,7 @@ void OptimizationModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initia
 		unsigned int state_dimension = dynamical_system_->getDimensionOfState();
 		for (unsigned int k = 0; k < horizon_; k++) {
 			Eigen::VectorXd current_state;
-			dynamical_system_->fromLocomotionState(current_state, locomotion_solution_[k]);
+			dynamical_system_->fromWholeBodyState(current_state, locomotion_solution_[k]);
 
 			full_initial_point.segment(k * state_dimension, state_dimension) = current_state;
 		}
@@ -121,8 +121,8 @@ void OptimizationModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lo
 
 	// Converting locomotion state bounds to state bounds
 	Eigen::VectorXd state_lower_bound, state_upper_bound;
-	dynamical_system_->fromLocomotionState(state_lower_bound, locomotion_lower_bound);
-	dynamical_system_->fromLocomotionState(state_upper_bound, locomotion_upper_bound);
+	dynamical_system_->fromWholeBodyState(state_lower_bound, locomotion_lower_bound);
+	dynamical_system_->fromWholeBodyState(state_upper_bound, locomotion_upper_bound);
 
 	// Getting the lower and upper constraint bounds for a certain time
 	unsigned int index = 0;
@@ -224,7 +224,7 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 	for (unsigned int k = 0; k < horizon_; k++) {
 		// Converting the decision variable for a certain time to a robot state
 		decision_state = decision_var.segment(k * state_dimension_, state_dimension_);
-		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
+		dynamical_system_->toWholeBodyState(locomotion_state, decision_state);
 
 		// Adding the time information in cases that time is not a decision variable
 		if (dynamical_system_->isFixedStepIntegration())
@@ -306,7 +306,7 @@ void OptimizationModel::evaluateCosts(double& cost,
 	for (unsigned int k = 0; k < horizon_; k++) {
 		// Converting the decision variable for a certain time to a robot state
 		Eigen::VectorXd decision_state = decision_var.segment(k * state_dimension_, state_dimension_);
-		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
+		dynamical_system_->toWholeBodyState(locomotion_state, decision_state);
 
 		// Adding the time information in cases that time is not a decision variable
 		if (dynamical_system_->isFixedStepIntegration())
@@ -380,7 +380,7 @@ WholeBodyTrajectory& OptimizationModel::evaluateSolution(const Eigen::Ref<const 
 		// Converting the decision variable for a certain time to a robot state
 		WholeBodyState locomotion_state;
 		decision_state = solution.segment(k * state_dim, state_dim);
-		dynamical_system_->toLocomotionState(locomotion_state, decision_state);
+		dynamical_system_->toWholeBodyState(locomotion_state, decision_state);
 
 		// Setting the time information in cases where time is not a decision variable
 		if (dynamical_system_->isFixedStepIntegration())
@@ -396,7 +396,7 @@ WholeBodyTrajectory& OptimizationModel::evaluateSolution(const Eigen::Ref<const 
 			last_locomotion_state = dynamical_system_->getInitialState();
 		else {
 			Eigen::VectorXd last_decision_state = solution.segment((k - 1) * state_dim, state_dim);
-			dynamical_system_->toLocomotionState(last_locomotion_state, last_decision_state);
+			dynamical_system_->toWholeBodyState(last_locomotion_state, last_decision_state);
 		}
 
 		if (locomotion_state.base_acc.isZero() && locomotion_state.joint_acc.isZero()) {
