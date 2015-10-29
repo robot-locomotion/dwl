@@ -340,14 +340,9 @@ void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contact
 						 joint_forces, contacts);
 
 	// Detecting active end-effector by using a force threshold
-	for (rbd::BodyWrench::iterator endeffector_it = contact_forces.begin();
-			endeffector_it != contact_forces.end(); endeffector_it++) {
-		std::string endeffector_name = endeffector_it->first;
-		dwl::rbd::Vector6d contact_wrench = endeffector_it->second;
-
-		if (contact_wrench.norm() > force_threshold)
-			active_contacts.push_back(endeffector_name);
-	}
+	getActiveContacts(active_contacts,
+					  contact_forces,
+					  force_threshold);
 }
 
 
@@ -377,6 +372,22 @@ void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contact
 FloatingBaseSystem& WholeBodyDynamics::getFloatingBaseSystem()
 {
 	return system_;
+}
+
+
+void WholeBodyDynamics::getActiveContacts(rbd::BodySelector& active_contacts,
+										  const rbd::BodyWrench& contact_forces,
+										  double force_threshold)
+{
+	// Detecting active end-effector by using a force threshold
+	for (rbd::BodyWrench::const_iterator endeffector_it = contact_forces.begin();
+			endeffector_it != contact_forces.end(); endeffector_it++) {
+		std::string endeffector_name = endeffector_it->first;
+		dwl::rbd::Vector6d contact_wrench = endeffector_it->second;
+
+		if (contact_wrench.norm() > force_threshold)
+			active_contacts.push_back(endeffector_name);
+	}
 }
 
 

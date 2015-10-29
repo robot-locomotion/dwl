@@ -225,6 +225,16 @@ class WholeBodyDynamics
 		/** @brief Gets the floating-base system information */
 		FloatingBaseSystem& getFloatingBaseSystem();
 
+		/**
+		 * @brief Detectes the active contacts
+		 * @param rbd::BodySelector& Detected active contacts
+		 * @param rbd::BodyWrench& Contact forces
+		 * @param double Force threshold
+		 */
+		void getActiveContacts(rbd::BodySelector& active_contacs,
+							   const rbd::BodyWrench& contact_forces,
+							   double force_threshold);
+
 
 	private:
 		/**
