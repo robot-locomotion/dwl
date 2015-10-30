@@ -95,6 +95,10 @@ class OptimizationModel
 		/** @brief Destructor function */
 		~OptimizationModel();
 
+		/** @brief Initializes the optimization model, i.e. the dimensions of the optimization
+		 * vectors */
+		void init();
+
 		/**
 		 * @brief Sets the initial trajectory
 		 * @param WholeBodyTrajectory& Initial whole-body trajectory

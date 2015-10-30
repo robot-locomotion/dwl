@@ -35,6 +35,24 @@ OptimizationModel::~OptimizationModel()
 }
 
 
+void OptimizationModel::init()
+{
+	// Reading the state dimension
+	state_dimension_ = dynamical_system_->getDimensionOfState();
+
+	// Initializing the constraint dimension
+	constraint_dimension_ = 0;
+	constraint_dimension_ += dynamical_system_->getConstraintDimension();
+	if (is_added_constraint_)
+		for (unsigned int i = 0; i < constraints_.size(); i++)
+			constraint_dimension_ += constraints_[i]->getConstraintDimension();
+
+	// Initializing the terminal constraint dimension
+	if (dynamical_system_->isFullTrajectoryOptimization())
+		terminal_constraint_dimension_ = dynamical_system_->getTerminalConstraintDimension();
+}
+
+
 void OptimizationModel::setStartingTrajectory(WholeBodyTrajectory& initial_trajectory)
 {
 	//TODO should convert to the defined horizon and time step integration
@@ -495,27 +513,14 @@ void OptimizationModel::addDynamicalSystem(DynamicalSystem* dynamical_system)
 	printf(GREEN "Adding the %s dynamical system\n" COLOR_RESET, dynamical_system->getName().c_str());
 	dynamical_system_ = dynamical_system;
 	is_added_dynamic_system_ = true;
-
-	// Reading the state dimension
-	state_dimension_ = dynamical_system_->getDimensionOfState();
-
-	// Updating the constraint dimension
-	constraint_dimension_ += dynamical_system_->getConstraintDimension();
-
-	// Updating the terminal constraint dimension
-	if (dynamical_system_->isFullTrajectoryOptimization())
-		terminal_constraint_dimension_ = dynamical_system_->getTerminalConstraintDimension();
 }
 
 
 void OptimizationModel::removeDynamicalSystem()
 {
-	if (is_added_dynamic_system_) {
+	if (is_added_dynamic_system_)
 		is_added_dynamic_system_ = false;
-
-		// Updating the constraint dimension
-		constraint_dimension_ -= dynamical_system_->getConstraintDimension();
-	} else
+	else
 		printf(YELLOW "There was not added a dynamical system\n" COLOR_RESET);
 }
 
@@ -527,9 +532,6 @@ void OptimizationModel::addConstraint(Constraint* constraint)
 
 	if (!is_added_constraint_)
 		is_added_constraint_ = true;
-
-	// Updating the constraint dimension
-	constraint_dimension_ += constraint->getConstraintDimension();
 }
 
 
@@ -540,9 +542,6 @@ void OptimizationModel::removeConstraint(std::string constraint_name)
 		for (unsigned int i = 0; i < num_constraints; i++) {
 			if (constraint_name == constraints_[i]->getName().c_str()) {
 				printf(GREEN "Removing the %s constraint\n" COLOR_RESET, constraints_[i]->getName().c_str());
-
-				// Updating the constraint dimension
-				constraint_dimension_ -= constraints_[i]->getConstraintDimension();
 
 				// Deleting the constraint
 				delete constraints_.at(i);

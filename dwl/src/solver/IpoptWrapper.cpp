@@ -28,6 +28,9 @@ void IpoptWrapper::setOptimizationModel(model::OptimizationModel* model)
 bool IpoptWrapper::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 								Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
+	// Initializing the optimization model
+	opt_model_->init();
+
 	// Getting the dimension of decision variables for every knots
 	n = opt_model_->getDimensionOfState();
 
