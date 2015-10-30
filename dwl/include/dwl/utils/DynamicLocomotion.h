@@ -139,6 +139,14 @@ struct WholeBodyState
 
 	void setContactDoF(unsigned int num_contacts) {
 		contacts.resize(num_contacts);
+
+		for (unsigned int i = 0; i < num_contacts; i++) {
+			contacts[i].end_effector = 0;
+			contacts[i].position.setZero();
+			contacts[i].velocity.setZero();
+			contacts[i].acceleration.setZero();
+			contacts[i].force.setZero();
+		}
 	}
 
 	double time;
