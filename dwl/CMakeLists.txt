@@ -74,8 +74,6 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/model/FullDynamicalSystem.cpp
 							 src/model/CentroidalDynamicalSystem.cpp
 							 src/model/ConstrainedDynamicalSystem.cpp
-							 src/model/KinematicConstraint.cpp
-							 src/model/StabilityConstraint.cpp
 							 src/model/ComplementaryConstraint.cpp
 							 src/model/InelasticContactModelConstraint.cpp
 							 src/model/InelasticContactVelocityConstraint.cpp
