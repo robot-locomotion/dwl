@@ -22,7 +22,7 @@ ModelPredictiveControl::~ModelPredictiveControl()
 }
 
 
-bool ModelPredictiveControl::reset(dwl::model::LinearModel* model,
+bool ModelPredictiveControl::reset(dwl::model::LinearDynamicalSystem* model,
 								   dwl::solver::QuadraticProgram* optimizer)
 {
 	// Setting of the pointer of the model, optimizer and simulator classes

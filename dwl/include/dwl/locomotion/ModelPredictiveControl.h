@@ -1,7 +1,7 @@
 #ifndef DWL__LOCOMOTION__MODEL_PREDICTIVE_CONTROL__H
 #define DWL__LOCOMOTION__MODEL_PREDICTIVE_CONTROL__H
 
-#include <dwl/model/LinearModel.h>
+#include <dwl/model/LinearDynamicalSystem.h>
 #include <dwl/solver/QuadraticProgram.h>
 
 #include <Eigen/Dense>
@@ -32,16 +32,15 @@ class ModelPredictiveControl
 
 		/**
 		 @brief Function to specify and set the settings of all the components within the MPC
-		 problem. The mpc::ModelPredictiveControl class can change individual parts of the MPC
-		 problem; such as the model (mpc::model::Model and derived classes), the optimizer
-		 (mpc::optimizer::Optimizer and derived classes) and, if used, the plant simulator
-		 (mpc::model::Simulator and derived classes) in order to allow different combinations of
-		 these parts when solving.
-		 @param mpc::model::Model Pointer to the model of the plant to be used in the algorithm
-		 @param mpc::optimizer::Optimizer Pointer to the optimization library to be used in the
+		 problem. The dwl::locomotion::ModelPredictiveControl class can change individual parts of
+		 the MPC problem; such as the model (dwl::model::LinearDynamicalSystem and derived classes)
+		 and the optimizer (dwl::solver::QuadracticProgram and derived classes)
+		 @param dwl::model::LinearDynamicalSystem Pointer to the model of the plant to be used in
+		 the algorithm
+		 @param dwl::solver::QuadraticProgram Pointer to the optimization library to be used in the
 		 algorithm
 		 */
-		virtual bool reset(dwl::model::LinearModel* model,
+		virtual bool reset(dwl::model::LinearDynamicalSystem* model,
 						   dwl::solver::QuadraticProgram* optimizer) = 0;
 
 		/**
@@ -56,10 +55,10 @@ class ModelPredictiveControl
 		/**
 		  @brief Function to update the MPC algorithm for the next iteration. The parameters
 		  defined and calculated in dwl::solver::ModelPredictiveControl::init() are used together
-		  with the methods taken from the MPC class components (mpc::model::Model,
-		  mpc::optimizer::Optimizer and mpc::model::Simulator) to find a solution to the
-		  optimization problem. This is where the different variants of MPC algorithms can be
-		  implemented in a source file from a derived class.
+		  with the methods taken from the MPC class components (dwl::model::LinearDynamicalSystem,
+		  and dwl::solver::QuadraticProgram) to find a solution to the optimization problem.
+		  This is where the different variants of MPC algorithms can be implemented in a source
+		  file from a derived class.
 		  @param double* State vector
 		  @param double* Reference vector
 		 */
@@ -77,14 +76,11 @@ class ModelPredictiveControl
 
 			
 	protected:
-		/** @brief Pointer of dynamic model of the system */
-		mpc::model::Model *model_;
-			
-		/** @brief Pointer of the simulator of the system */
-		mpc::model::Simulator *simulator_;
+		/** @brief Pointer of linear dynamical model of the system */
+		dwl::model::LinearDynamicalSystem* model_;
 			
 		/** @brief Pointer of the optimizer of the MPC */
-		mpc::optimizer::Optimizer *optimizer_;
+		dwl::solver::QuadraticProgram* optimizer_;
 			
 		/** @brief Number of states of the dynamic model */
 		int states_;
@@ -154,9 +150,6 @@ class ModelPredictiveControl
 			
 		/** @brief Label that indicates if it will be save the data */
 		bool enable_record_;
-
-
-		private:
 };
 
 } //@namespace locomotion
