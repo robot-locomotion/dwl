@@ -27,92 +27,83 @@ namespace solver
 class QuadraticProgram
 {
 	public:
-	/** @brief Constructor function */
-	QuadraticProgram() {};
+		/** @brief Constructor function */
+		QuadraticProgram();
 
-	/** @brief Destructor function */
-	~QuadraticProgram() {};
+		/** @brief Destructor function */
+		virtual ~QuadraticProgram();
 
-	/**
-	 @brief Function to perform the initialization of optimizer, if this applies.
-	 @return Label that indicates if the initialization of the optimizer is successful
-	 */
-	virtual bool init() = 0;
+		/**
+	 	 * @brief Function to perform the initialization of optimizer, if this applies.
+	 	 * @return Label that indicates if the initialization of the optimizer is successful
+		 */
+		virtual bool init() = 0;
 				
-	/**
-	 @brief Function to compute the optimization algorithm associated to the MPC problem.
-	 @param double* H Hessian matrix
-	 @param double* g Gradient vector
-	 @param double* G	Constraint matrix
-	 @param double* lb	Low bound vector
-	 @param double* ub	Upper bound vector
-	 @param double* lbG	Low constraint vector
-	 @param double* lbG	Upper constraint vector
-	 @param double cputime	CPU-time for computing the optimization. If NULL, it provides on output
-	 the actual calculation time of the optimization problem.
-	 @return bool Label that indicates if the computation of the optimization is successful
-	 */
-	virtual bool computeOpt(double *H, double *g, double *G, double *lb, double *ub, double *lbG, double *ubG, double cputime) = 0;
+		/**
+	 	 * @brief Function to compute the optimization algorithm associated to the MPC problem.
+	 	 * @param double* H Hessian matrix
+	 	 * @param double* g Gradient vector
+	 	 * @param double* G	Constraint matrix
+	 	 * @param double* lb	Low bound vector
+	 	 * @param double* ub	Upper bound vector
+	 	 * @param double* lbG	Low constraint vector
+	 	 * @param double* lbG	Upper constraint vector
+	 	 * @param double cputime	CPU-time for computing the optimization. If NULL, it provides on output
+	 	 * the actual calculation time of the optimization problem.
+	 	 * @return bool Label that indicates if the computation of the optimization is successful
+		 */
+		virtual bool compute(double *H,
+							 double *g,
+							 double *G,
+							 double *lb,
+							 double *ub,
+							 double *lbG,
+							 double *ubG,
+							 double cputime) = 0;
 				
-	/**
-	 @brief Get the vector of optimal or sub-optimal solutions calculated by the
-	 dwl::solver::QuadraticProgram::computeOpt() function (optimality of the function is defined
-	 by the solver that is adapted).
-	 @return double* Optimal solution
-	 */
-	virtual double* getOptimalSolution() = 0;
-				
-	/**
-	 @brief Get the number of constraints
-	 @return int Number of constraints
-	 */
-	virtual int getConstraintNumber() const;
-				
-	/**
-	 @brief Get the number of variables, i.e inputs * horizon
-	 @return int Number of variables
-	 */
-	virtual int getVariableNumber() const;
-				
-	/** @brief Set the horizon of the MPC */
-	virtual void setHorizon(int horizon);
-				
-	/** @brief Set the number of variables, i.e inputs * horizon */
-	virtual void setVariableNumber(int variables);
-				
-	/** @brief Number of variables, i.e inputs * horizon */
-	int variables_;
-   				
-	/** @brief Number of constraints */
-	int constraints_;
-   				
-	/** @brief Horizon of MPC */
-	int horizon_;
+		/**
+	 	 * @brief Get the vector of optimal or sub-optimal solutions calculated by the
+	 	 * dwl::solver::QuadraticProgram::computeOpt() function (optimality of the function is defined
+	 	 * by the solver that is adapted).
+	 	 * @return double* Optimal solution
+		 */
+		virtual double* getOptimalSolution() = 0;
+
+		/** @brief Set the horizon of the MPC */
+		void setHorizon(int horizon); //TODO remove it
+
+		/** @brief Set the number of variables, i.e inputs * horizon */
+		void setNumberOfVariables(int variables);
+
+		/**
+	 	 * @brief Get the number of variables, i.e inputs * horizon
+	 	 * @return int Number of variables
+		 */
+		int getNumberOfVariables() const;
+
+		/**
+	 	 * @brief Get the number of constraints
+	 	 * @return int Number of constraints
+		 */
+		int getNumberOfConstraints() const;
+
+
+	protected:
+		/** @brief Label that indicates if QP solver had been initialized */
+		bool initialized_solver_;
+
+		/** @brief Horizon of MPC */
+		int horizon_;
+
+		/** @brief Number of variables, i.e inputs * horizon */
+		int variables_;
+
+		/** @brief Number of constraints */
+		int constraints_;
 };
 
 } //@namepace solver
 } //@namespace dwl
-
-
-inline int dwl::solver::QuadraticProgram::getConstraintNumber() const
-{
-	return constraints_;
-}
-
-inline int dwl::solver::QuadraticProgram::getVariableNumber() const
-{
-	return variables_;
-}
-
-inline void dwl::solver::QuadraticProgram::setHorizon(int horizon)
-{
-	horizon_ = horizon;
-}
-
-inline void dwl::solver::QuadraticProgram::setVariableNumber(int variables)
-{
-	variables_ = variables;
-}
 
 #endif
 

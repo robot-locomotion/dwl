@@ -28,7 +28,7 @@ namespace solver
 	lb(\mathbf{x_0})   \leq &\mathbf{x}&  \leq ub(\mathbf{x_0})
  \f}
  */
-class qpOASES : public dwl::solver::QuadraticProgram
+class qpOASES : public QuadraticProgram
 {
 	public:
 		/** @brief Constructor function */
@@ -38,30 +38,43 @@ class qpOASES : public dwl::solver::QuadraticProgram
 		~qpOASES();
 
 		/**
-	 	 @brief Function to define the initialization of qpOASES optimizer
-		 @return bool Label that indicates if the initialization of the optimizer is successful
+	 	 * @brief Function to define the initialization of qpOASES optimizer
+		 * @return bool Label that indicates if the initialization of the optimizer is successful
 		 */
-		virtual bool init();
+		bool init();
 
 		/**
- 	 	 @brief Function to solve the optimization problem formulated in the MPC
-	 	 @param double* H	Hessian matrix
-	 	 @param double* g	Gradient vector
-	 	 @param double* G	Constraint matrix
-	 	 @param double* lb	Low bound vector
-	 	 @param double* ub	Upper bound vector
-	 	 @param double* lbG	Low constraint vector
-	 	 @param double* lbG	Upper constraint vector
-	 	 @param double cputime	CPU-time for computing the optimization
-	 	 @return bool Label that indicates if the computation of the optimization is successful
+ 	 	 * @brief Function to solve the optimization problem formulated in the MPC
+	 	 * @param double* Hessian matrix
+	 	 * @param double* Gradient vector
+	 	 * @param double* Constraint matrix
+	 	 * @param double* Low bound vector
+	 	 * @param double* Upper bound vector
+	 	 * @param double* Low constraint vector
+	 	 * @param double* Upper constraint vector
+	 	 * @param double CPU-time for computing the optimization
+	 	 * @return bool Label that indicates if the computation of the optimization is successful
 		 */
-		virtual bool computeOpt(double *H, double *g, double *G, double *lb, double *ub, double *lbG, double *ubG, double cputime);
+		bool compute(double *H,
+					 double *g,
+					 double *G,
+					 double *lb,
+					 double *ub,
+					 double *lbG,
+					 double *ubG,
+					 double cputime);
 
 		/**
-	 	 @brief Get the vector of optimal solutions calculated by qpOASES
-	 	 @return double* Optimal solution
+	 	 * @brief Get the vector of optimal solutions calculated by qpOASES
+	 	 * @return double* Optimal solution
 		 */
 		double* getOptimalSolution();
+
+		/**
+		 * @brief Sets the number of working set recalculations used by qpOASES
+		 * @param double Number of working set recalculations
+		 */
+		void setNumberOfWorkingSetRecalculations(double num_wsr);
 
 
 	protected:
@@ -71,13 +84,10 @@ class qpOASES : public dwl::solver::QuadraticProgram
 				
 	private:
 		/** @brief SQProblem object which is used to solve the quadratic problem */
-		SQProblem *solver_;
-				
-		/** @brief Label that indicates if qpOASES had been initialized */
-		bool qpOASES_initialized_;
-				
+		SQProblem* solver_;
+
 		/** @brief Number of Working Set Recalculations */
-		int nWSR_;
+		int num_wsr_;
 };
 
 } // @namespace solver

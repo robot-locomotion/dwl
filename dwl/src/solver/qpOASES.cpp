@@ -1,6 +1,4 @@
 #include <dwl/solver/qpOASES.h>
-#include <iostream>
-#include <vector>
 
 
 USING_NAMESPACE_QPOASES
@@ -11,11 +9,9 @@ namespace dwl
 namespace solver
 {
 
-qpOASES::qpOASES()
+qpOASES::qpOASES() : solver_(NULL), num_wsr_(10)
 {
-	variables_ = 0;
-	constraints_ = 0;
-	horizon_ = 0;
+
 }
 
 
@@ -32,13 +28,9 @@ bool qpOASES::init()
 		ROS_INFO("Got param: number of constraints = %d", constraints_);
 	}
 	
-	nh_.param<int>("optimizer/working_set_recalculations", nWSR_, 10);
-	ROS_INFO("Got param: number of working set recalculations = %d", nWSR_);
-	
 	if (variables_ == 0 || constraints_ == 0 || horizon_ == 0)
 		return false;
 	
-	qpOASES_initialized_ = false;
 	solver_ = new SQProblem(variables_, constraints_ * horizon_);
 	Options myOptions;
 	myOptions.setToReliable();
@@ -50,46 +42,46 @@ bool qpOASES::init()
 	optimal_solution_ = new double[variables_];
 	
 	
-	ROS_INFO("qpOASES solver class successfully initialized.");
+	printf("qpOASES solver class successfully initialized.");
 	return true;
 }
 
 
-bool qpOASES::computeOpt(double *H, double *g, double *G, double *lb, double *ub, double *lbG, double *ubG, double cputime)
+bool qpOASES::compute(double *H,
+					  double *g,
+					  double *G,
+					  double *lb,
+					  double *ub,
+					  double *lbG,
+					  double *ubG,
+					  double cputime)
 {
 	// solve first QP.
-	int nWSR = nWSR_;
 	double cpu_time;
 	
 	returnValue retval;
-	if (!qpOASES_initialized_) {
-		cpu_time = cputime;
-		retval = solver_->init(H, g, G, lb, ub, lbG, ubG, nWSR, &cpu_time);
+	if (!initialized_solver_) {
+		retval = solver_->init(H, g, G, lb, ub, lbG, ubG, num_wsr_, &cputime);
 		if (retval == SUCCESSFUL_RETURN) {
-			ROS_INFO("qpOASES problem successfully initialized.");
-			qpOASES_initialized_ = true;
+			printf("qpOASES problem successfully initialized.");
+			initialized_solver_ = true;
 		}
-	}
-	else {
-		cpu_time = cputime;
-		retval = solver_->hotstart(H, g, G, lb, ub, lbG, ubG, nWSR, &cpu_time);
-	}
+	} else
+		retval = solver_->hotstart(H, g, G, lb, ub, lbG, ubG, num_wsr_, &cputime);
+
 	if (solver_->isInfeasible())
-		ROS_WARN("The quadratic programming is infeasible.");
+		printf("Warning: the quadratic programming is infeasible.");
 		
-	if (retval == SUCCESSFUL_RETURN) {
+	if (retval == SUCCESSFUL_RETURN)
 		solver_->getPrimalSolution(optimal_solution_);
-	}
 	else if (retval == RET_MAX_NWSR_REACHED) {
-		ROS_WARN("The QP couldn't solve because the maximun number of WSR was reached.");
+		printf("The QP couldn't solve because the maximun number of WSR was reached.");
 		return false;
-	}
-	else { 
-		ROS_WARN("The QP couldn't find the solution.");
+	} else {
+		printf("The QP could not find the solution.");
 		return false;
 	}	
 	
-	//std::cout << "cputime = " << cpu_time << std::endl;
 	return true;
 }
 
@@ -97,6 +89,14 @@ bool qpOASES::computeOpt(double *H, double *g, double *G, double *lb, double *ub
 double* qpOASES::getOptimalSolution()
 {
 	return optimal_solution_;
+}
+
+
+void qpOASES::setNumberOfWorkingSetRecalculations(double num_wsr)
+{
+	num_wsr_ = num_wsr;
+
+	printf("Setting the number of working set recalculations to %d", num_wsr_);
 }
 
 } //@namespace solver
