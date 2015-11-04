@@ -8,10 +8,8 @@ namespace dwl
 namespace locomotion
 {
 
-ModelPredictiveControl::ModelPredictiveControl()
+ModelPredictiveControl::ModelPredictiveControl() : model_(NULL), optimizer_(NULL)
 {
-	model_ = 0;
-	optimizer_ = 0;
 	simulator_ = 0;
 	enable_record_ = true;
 }
@@ -37,18 +35,7 @@ bool ModelPredictiveControl::reset(dwl::model::LinearDynamicalSystem* model,
 	
 	nh_.param<int>("infeasibility_hack_counter_max", infeasibility_hack_counter_max_, 1);
 	ROS_INFO("Got param: infeasibility_hack_counter_max = %d", infeasibility_hack_counter_max_);
-	
 
-	// Reading the path and data name
-	if (!nh_.getParam("path_name", path_name_)) {
-		ROS_WARN("The data will not save because could not found path name from parameter server.");
-		enable_record_ = false;
-	}
-	if (!nh_.getParam("data_name", data_name_)) {
-		ROS_WARN("The data will not save because could not found data name from parameter server.");
-		enable_record_ = false;
-	}
-	
 	
 	// Reading of the problem variables
 	states_ = model_->getStatesNumber();
@@ -59,14 +46,14 @@ bool ModelPredictiveControl::reset(dwl::model::LinearDynamicalSystem* model,
 	optimizer_->setHorizon(horizon_);
 	optimizer_->setVariableNumber(variables_);
 	
-	if (!optimizer_->init()) {
-		ROS_INFO("Could not initialize the optimizer class.");
+	if (!optimizer_->init())
 		return false;
-	}
+
 	constraints_ = optimizer_->getConstraintNumber();
 	
 	
-	ROS_INFO("Reset successful. States = %d \n Inputs = %d \n Outputs = %d \n Constraints = %d \n", states_,inputs_,outputs_,constraints_);
+	printf("Reset successful. States = %d \n Inputs = %d \n Outputs = %d \n Constraints = %d \n",
+			states_, inputs_, outputs_, constraints_);
 	return true;
 }
 
@@ -237,18 +224,19 @@ void ModelPredictiveControl::update(double* x_measured, double* x_reference)
 	Eigen::Map<Eigen::VectorXd> x_reference_eigen(x_reference, states_, 1);
 
 	// Update of the model parameters
+	Eigen::MatrixXd A, B;
 	if (model_->getModelType()) {
-		model_->computeLinearSystem(A_, B_);
+		model_->computeLinearSystem(A, B);
 	}
 	
 	// Compute steady state control based on updated system matrices
-	Eigen::JacobiSVD<Eigen::MatrixXd> SVD_B(B_, Eigen::ComputeThinU | Eigen::ComputeThinV);
-	u_reference_ = SVD_B.solve(x_reference_eigen - A_ * x_reference_eigen);
+	Eigen::JacobiSVD<Eigen::MatrixXd> SVD_B(B, Eigen::ComputeThinU | Eigen::ComputeThinV);
+	u_reference_ = SVD_B.solve(x_reference_eigen - A * x_reference_eigen);
 	
 	// Creation of the base vector
 	A_pow_.push_back(Eigen::MatrixXd::Identity(states_, states_));
 	for (int i = 1; i < horizon_ + 1; i++) {
-		Eigen::MatrixXd A_pow_i = A_pow_[i-1] * A_;
+		Eigen::MatrixXd A_pow_i = A_pow_[i-1] * A;
 		A_pow_.push_back(A_pow_i);
 	}
 
@@ -265,7 +253,7 @@ void ModelPredictiveControl::update(double* x_measured, double* x_reference)
 				if (j == 0)
 					x_ref_bar.block(i * states_, 0, states_, 1) = x_reference_eigen;
 				if (i > j) {
-					B_bar_.block(i * states_, j * inputs_, states_, inputs_) = A_pow_[i-j-1] * B_;
+					B_bar_.block(i * states_, j * inputs_, states_, inputs_) = A_pow_[i-j-1] * B;
 //					H_x.block(i * states_, j * states_, states_, states_) = A_p_BK_pow_[i-j-1];
 				}
 			}
@@ -275,7 +263,7 @@ void ModelPredictiveControl::update(double* x_measured, double* x_reference)
 					x_ref_bar.block(i * states_, 0, states_, 1) = x_reference_eigen;
 				}
 				if (i > j) {
-					B_bar_.block(i * states_, j * inputs_, states_, inputs_) = A_pow_[i-j-1] * B_;
+					B_bar_.block(i * states_, j * inputs_, states_, inputs_) = A_pow_[i-j-1] * B;
 //					H_x.block(i * states_, j * states_, states_, states_) = A_p_BK_pow_[i-j-1];
 				}
 			}
@@ -313,16 +301,21 @@ void ModelPredictiveControl::update(double* x_measured, double* x_reference)
 	
 	double cputime = 0.008;//1.0;//NULL;
 	bool success = false;
-	success = optimizer_->computeOpt(&hessian_matrix[0][0], gradient_vector, &constraint_matrix[0][0], lb_bar, ub_bar, lbG_bar, ubG_bar, cputime);
+	success = optimizer_->compute(&hessian_matrix[0][0],
+								  gradient_vector,
+								  &constraint_matrix[0][0],
+								  lb_bar, ub_bar,
+								  lbG_bar, ubG_bar,
+								  cputime);
 	if (success) {
 		mpc_solution_ = optimizer_->getOptimalSolution();
 		infeasibility_counter_ = 0;
 	}
 	else {
 		infeasibility_counter_++;
-		ROS_WARN("An optimal solution could not be obtained.");
+		printf("Warning: an optimal solution could not be obtained.");
 	}
-	
+
 	// Save the data of the MPC
 	for (int i = 0; i < states_; i++) {
 		x_[i].push_back(x_measured[i]);
