@@ -45,23 +45,23 @@ class qpOASES : public QuadraticProgram
 
 		/**
  	 	 * @brief Function to solve the optimization problem formulated in the MPC
-	 	 * @param double* Hessian matrix
-	 	 * @param double* Gradient vector
-	 	 * @param double* Constraint matrix
-	 	 * @param double* Low bound vector
-	 	 * @param double* Upper bound vector
-	 	 * @param double* Low constraint vector
-	 	 * @param double* Upper constraint vector
+	 	 * @param const Eigen::MatrixXd& Hessian matrix
+	 	 * @param const Eigen::VectorXd Gradient vector
+	 	 * @param const Eigen::MatrixXd& Constraint matrix
+	 	 * @param const Eigen::VectorXd Low bound vector
+	 	 * @param const Eigen::VectorXd Upper bound vector
+	 	 * @param const Eigen::VectorXd Low constraint vector
+	 	 * @param const Eigen::VectorXd Upper constraint vector
 	 	 * @param double CPU-time for computing the optimization
 	 	 * @return bool Label that indicates if the computation of the optimization is successful
 		 */
-		bool compute(double *H,
-					 double *g,
-					 double *G,
-					 double *lb,
-					 double *ub,
-					 double *lbG,
-					 double *ubG,
+		bool compute(const Eigen::MatrixXd& hessian,
+					 const Eigen::VectorXd& gradient,
+					 const Eigen::MatrixXd& constraint_mat,
+					 const Eigen::VectorXd& lower_bound,
+					 const Eigen::VectorXd& upper_bound,
+					 const Eigen::VectorXd& lower_constraint,
+					 const Eigen::VectorXd& upper_constraint,
 					 double cputime);
 
 		/**

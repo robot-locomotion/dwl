@@ -47,27 +47,38 @@ bool qpOASES::init()
 }
 
 
-bool qpOASES::compute(double *H,
-					  double *g,
-					  double *G,
-					  double *lb,
-					  double *ub,
-					  double *lbG,
-					  double *ubG,
-					  double cputime)
+bool qpOASES::compute(const Eigen::MatrixXd& hessian,
+		 	 	 	  const Eigen::VectorXd& gradient,
+		 	 	 	  const Eigen::MatrixXd& constraint_mat,
+		 	 	 	  const Eigen::VectorXd& lower_bound,
+		 	 	 	  const Eigen::VectorXd& upper_bound,
+		 	 	 	  const Eigen::VectorXd& lower_constraint,
+		 	 	 	  const Eigen::VectorXd& upper_constraint,
+		 	 	 	  double cputime)
 {
-	// solve first QP.
-	double cpu_time;
+	// Ensuring the hessian matrix is row-major storage
+	Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> hessian_rowmajor = hessian;
 	
+	// Solving first QP
 	returnValue retval;
 	if (!initialized_solver_) {
-		retval = solver_->init(H, g, G, lb, ub, lbG, ubG, num_wsr_, &cputime);
+		retval = solver_->init(hessian_rowmajor.data(),
+							   gradient.data(),
+							   constraint_mat.data(),
+							   lower_bound.data(), upper_bound.data(),
+							   lower_constraint.data(), upper_constraint.data(),
+							   num_wsr_, &cputime);
 		if (retval == SUCCESSFUL_RETURN) {
 			printf("qpOASES problem successfully initialized.");
 			initialized_solver_ = true;
 		}
 	} else
-		retval = solver_->hotstart(H, g, G, lb, ub, lbG, ubG, num_wsr_, &cputime);
+		retval = solver_->hotstart(hessian_rowmajor.data(),
+				   	   	   	   	   gradient.data(),
+				   	   	   	   	   constraint_mat.data(),
+				   	   	   	   	   lower_bound.data(), upper_bound.data(),
+				   	   	   	   	   lower_constraint.data(), upper_constraint.data(),
+				   	   	   	   	   num_wsr_, &cputime);
 
 	if (solver_->isInfeasible())
 		printf("Warning: the quadratic programming is infeasible.");

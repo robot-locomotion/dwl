@@ -41,24 +41,24 @@ class QuadraticProgram
 				
 		/**
 	 	 * @brief Function to compute the optimization algorithm associated to the MPC problem.
-	 	 * @param double* H Hessian matrix
-	 	 * @param double* g Gradient vector
-	 	 * @param double* G	Constraint matrix
-	 	 * @param double* lb	Low bound vector
-	 	 * @param double* ub	Upper bound vector
-	 	 * @param double* lbG	Low constraint vector
-	 	 * @param double* lbG	Upper constraint vector
-	 	 * @param double cputime	CPU-time for computing the optimization. If NULL, it provides on output
+	 	 * @param const Eigen::MatrixXd& Hessian matrix
+	 	 * @param const Eigen::VectorXd Gradient vector
+	 	 * @param const Eigen::MatrixXd& Constraint matrix
+	 	 * @param const Eigen::VectorXd Low bound vector
+	 	 * @param const Eigen::VectorXd Upper bound vector
+	 	 * @param const Eigen::VectorXd Low constraint vector
+	 	 * @param const Eigen::VectorXd Upper constraint vector
+	 	 * @param double CPU-time for computing the optimization. If NULL, it provides on output
 	 	 * the actual calculation time of the optimization problem.
 	 	 * @return bool Label that indicates if the computation of the optimization is successful
 		 */
-		virtual bool compute(double *H,
-							 double *g,
-							 double *G,
-							 double *lb,
-							 double *ub,
-							 double *lbG,
-							 double *ubG,
+		virtual bool compute(const Eigen::MatrixXd& hessian,
+							 const Eigen::VectorXd& gradient,
+							 const Eigen::MatrixXd& constraint_mat,
+							 const Eigen::VectorXd& lower_bound,
+							 const Eigen::VectorXd& upper_bound,
+							 const Eigen::VectorXd& lower_constraint,
+							 const Eigen::VectorXd& upper_constraint,
 							 double cputime) = 0;
 				
 		/**
