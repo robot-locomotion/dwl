@@ -7,8 +7,7 @@ namespace dwl
 namespace solver
 {
 
-QuadraticProgram::QuadraticProgram() : initialized_solver_(false), horizon_(0), variables_(0),
-		constraints_(0)
+QuadraticProgram::QuadraticProgram() : initialized_solver_(false), variables_(0), constraints_(0)
 
 {
 
@@ -20,25 +19,19 @@ QuadraticProgram::~QuadraticProgram()
 
 }
 
-void QuadraticProgram::setHorizon(int horizon)
+Eigen::VectorXd& QuadraticProgram::getOptimalSolution()
 {
-	horizon_ = horizon;
+	return solution_;
 }
 
 
-void QuadraticProgram::setNumberOfVariables(int variables)
-{
-	variables_ = variables;
-}
-
-
-int QuadraticProgram::getNumberOfVariables() const
+unsigned int QuadraticProgram::getNumberOfVariables() const
 {
 	return variables_;
 }
 
 
-int QuadraticProgram::getNumberOfConstraints() const
+unsigned int QuadraticProgram::getNumberOfConstraints() const
 {
 	return constraints_;
 }

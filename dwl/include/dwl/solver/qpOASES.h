@@ -39,9 +39,12 @@ class qpOASES : public QuadraticProgram
 
 		/**
 	 	 * @brief Function to define the initialization of qpOASES optimizer
+	 	 * @param unsigned int Number of variables of the QP problem
+	 	 * @param unsigned int Number of constraints of the QP problem
 		 * @return bool Label that indicates if the initialization of the optimizer is successful
 		 */
-		bool init();
+		bool init(unsigned int num_variables,
+				  unsigned int num_constraints);
 
 		/**
  	 	 * @brief Function to solve the optimization problem formulated in the MPC
@@ -65,26 +68,18 @@ class qpOASES : public QuadraticProgram
 					 double cputime);
 
 		/**
-	 	 * @brief Get the vector of optimal solutions calculated by qpOASES
-	 	 * @return double* Optimal solution
-		 */
-		double* getOptimalSolution();
-
-		/**
 		 * @brief Sets the number of working set recalculations used by qpOASES
 		 * @param double Number of working set recalculations
 		 */
 		void setNumberOfWorkingSetRecalculations(double num_wsr);
 
 
-	protected:
-		/** @brief Optimal solution obtained with the implementation of qpOASES */
-		double* optimal_solution_;
-				
-				
 	private:
 		/** @brief SQProblem object which is used to solve the quadratic problem */
 		SQProblem* solver_;
+
+		/** @brief Optimal solution obtained with the implementation of qpOASES */
+		double* qpOASES_solution_;
 
 		/** @brief Number of Working Set Recalculations */
 		int num_wsr_;

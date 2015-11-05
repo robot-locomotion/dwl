@@ -35,9 +35,12 @@ class QuadraticProgram
 
 		/**
 	 	 * @brief Function to perform the initialization of optimizer, if this applies.
+	 	 * @param unsigned int Number of variables of the QP problem
+	 	 * @param unsigned int Number of constraints of the QP problem
 	 	 * @return Label that indicates if the initialization of the optimizer is successful
 		 */
-		virtual bool init() = 0;
+		virtual bool init(unsigned int num_variables,
+				  	  	  unsigned int num_constraints) = 0;
 				
 		/**
 	 	 * @brief Function to compute the optimization algorithm associated to the MPC problem.
@@ -67,39 +70,33 @@ class QuadraticProgram
 	 	 * by the solver that is adapted).
 	 	 * @return double* Optimal solution
 		 */
-		virtual double* getOptimalSolution() = 0;
-
-		/** @brief Set the horizon of the MPC */
-		void setHorizon(int horizon); //TODO remove it
-
-		/** @brief Set the number of variables, i.e inputs * horizon */
-		void setNumberOfVariables(int variables);
+		Eigen::VectorXd& getOptimalSolution();
 
 		/**
 	 	 * @brief Get the number of variables, i.e inputs * horizon
-	 	 * @return int Number of variables
+	 	 * @return unsigned int Number of variables
 		 */
-		int getNumberOfVariables() const;
+		unsigned int getNumberOfVariables() const;
 
 		/**
 	 	 * @brief Get the number of constraints
-	 	 * @return int Number of constraints
+	 	 * @return unsigned int Number of constraints
 		 */
-		int getNumberOfConstraints() const;
+		unsigned int getNumberOfConstraints() const;
 
 
 	protected:
 		/** @brief Label that indicates if QP solver had been initialized */
 		bool initialized_solver_;
 
-		/** @brief Horizon of MPC */
-		int horizon_;
-
-		/** @brief Number of variables, i.e inputs * horizon */
-		int variables_;
+		/** @brief Number of variables */
+		unsigned int variables_;
 
 		/** @brief Number of constraints */
-		int constraints_;
+		unsigned int constraints_;
+
+		/** @brief Solution of the QP problem */
+		Eigen::VectorXd solution_;
 };
 
 } //@namepace solver

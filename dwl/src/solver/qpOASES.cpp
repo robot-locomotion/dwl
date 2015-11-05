@@ -9,7 +9,7 @@ namespace dwl
 namespace solver
 {
 
-qpOASES::qpOASES() : solver_(NULL), num_wsr_(10)
+qpOASES::qpOASES() : solver_(NULL), qpOASES_solution_(NULL), num_wsr_(10)
 {
 
 }
@@ -21,26 +21,27 @@ qpOASES::~qpOASES()
 }
 
 
-bool qpOASES::init()
+bool qpOASES::init(unsigned int num_variables,
+				   unsigned int num_constraints)
 {
-	// reading the parameters required for the solver
-	if (nh_.getParam("optimizer/number_constraints", constraints_)) {
-		ROS_INFO("Got param: number of constraints = %d", constraints_);
-	}
+	// Initializing the number of variables and constraints
+	variables_ = num_variables;
+	constraints_ = num_constraints;
+
+	// Initializing the qpOASES solution global variable
+	qpOASES_solution_ = new double[variables_];
+
+	// Initializing the SQP solver of qpOASES
+	solver_ = new SQProblem(variables_, constraints_);
 	
-	if (variables_ == 0 || constraints_ == 0 || horizon_ == 0)
-		return false;
-	
-	solver_ = new SQProblem(variables_, constraints_ * horizon_);
-	Options myOptions;
-	myOptions.setToReliable();
-//	myOptions.setToMPC();
-//	myOptions.enableFlippingBounds = BT_TRUE;
-//	myOptions.printLevel = PL_LOW;
-	solver_->setOptions(myOptions);
-	
-	optimal_solution_ = new double[variables_];
-	
+	// Setting the options of the SQP solver
+	Options my_options;
+	my_options.setToReliable();
+//	my_options.setToMPC();
+//	my_options.enableFlippingBounds = BT_TRUE;
+//	my_options.printLevel = PL_LOW;
+	solver_->setOptions(my_options);
+
 	
 	printf("qpOASES solver class successfully initialized.");
 	return true;
@@ -56,6 +57,9 @@ bool qpOASES::compute(const Eigen::MatrixXd& hessian,
 		 	 	 	  const Eigen::VectorXd& upper_constraint,
 		 	 	 	  double cputime)
 {
+	// Initializing the solution vector
+	solution_ = Eigen::VectorXd::Zero(variables_);
+
 	// Ensuring the hessian matrix is row-major storage
 	Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> hessian_rowmajor = hessian;
 	
@@ -69,7 +73,7 @@ bool qpOASES::compute(const Eigen::MatrixXd& hessian,
 							   lower_constraint.data(), upper_constraint.data(),
 							   num_wsr_, &cputime);
 		if (retval == SUCCESSFUL_RETURN) {
-			printf("qpOASES problem successfully initialized.");
+			printf("qpOASES problem successfully initialized");
 			initialized_solver_ = true;
 		}
 	} else
@@ -81,25 +85,21 @@ bool qpOASES::compute(const Eigen::MatrixXd& hessian,
 				   	   	   	   	   num_wsr_, &cputime);
 
 	if (solver_->isInfeasible())
-		printf("Warning: the quadratic programming is infeasible.");
+		printf("Warning: the quadratic programming is infeasible");
 		
-	if (retval == SUCCESSFUL_RETURN)
-		solver_->getPrimalSolution(optimal_solution_);
-	else if (retval == RET_MAX_NWSR_REACHED) {
-		printf("The QP couldn't solve because the maximun number of WSR was reached.");
+	if (retval == SUCCESSFUL_RETURN) {
+		solver_->getPrimalSolution(qpOASES_solution_);
+		Eigen::Map<Eigen::VectorXd> sol(qpOASES_solution_, variables_, 1);
+		solution_ = sol;
+	} else if (retval == RET_MAX_NWSR_REACHED) {
+		printf("The QP could not solve because the maximun number of WSR was reached");
 		return false;
 	} else {
-		printf("The QP could not find the solution.");
+		printf("The QP could not find the solution");
 		return false;
 	}	
 	
 	return true;
-}
-
-
-double* qpOASES::getOptimalSolution()
-{
-	return optimal_solution_;
 }
 
 
