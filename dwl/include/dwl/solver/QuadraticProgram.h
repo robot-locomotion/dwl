@@ -43,7 +43,7 @@ class QuadraticProgram
 				  	  	  unsigned int num_constraints) = 0;
 				
 		/**
-	 	 * @brief Function to compute the optimization algorithm associated to the MPC problem.
+	 	 * @brief Function to compute the QP solution
 	 	 * @param const Eigen::MatrixXd& Hessian matrix
 	 	 * @param const Eigen::VectorXd Gradient vector
 	 	 * @param const Eigen::MatrixXd& Constraint matrix

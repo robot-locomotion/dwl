@@ -47,7 +47,7 @@ class qpOASES : public QuadraticProgram
 				  unsigned int num_constraints);
 
 		/**
- 	 	 * @brief Function to solve the optimization problem formulated in the MPC
+ 	 	 * @brief Function to solve the QP solution
 	 	 * @param const Eigen::MatrixXd& Hessian matrix
 	 	 * @param const Eigen::VectorXd Gradient vector
 	 	 * @param const Eigen::MatrixXd& Constraint matrix
