@@ -10,23 +10,23 @@ namespace locomotion
 
 ModelPredictiveControl::ModelPredictiveControl() : model_(NULL), optimizer_(NULL)
 {
-	simulator_ = 0;
 	enable_record_ = true;
 }
 
 
 ModelPredictiveControl::~ModelPredictiveControl()
 {
+
 }
 
 
 bool ModelPredictiveControl::reset(dwl::model::LinearDynamicalSystem* model,
 								   dwl::solver::QuadraticProgram* optimizer)
 {
-	// Setting of the pointer of the model, optimizer and simulator classes
+	// Setting of the pointer of the model and optimizer classes
 	model_ = model;
 	optimizer_ = optimizer;
-	simulator_ = simulator;
+
 	time_index_ = 0;
 	
 	// Reading of the horizon value of the model predictive control algorithm
@@ -43,15 +43,13 @@ bool ModelPredictiveControl::reset(dwl::model::LinearDynamicalSystem* model,
 	outputs_ = model_->getOutputsNumber();
 	
 	variables_ = horizon_ * inputs_;
-	optimizer_->setHorizon(horizon_);
-	optimizer_->setVariableNumber(variables_);
-	
-	if (!optimizer_->init())
+	constraints_ = optimizer_->getConstraintNumber();
+
+
+	// Initializing the QP solver
+	if (!optimizer_->init(inputs_ * horizon_, constraints_ * horizon_))
 		return false;
 
-	constraints_ = optimizer_->getConstraintNumber();
-	
-	
 	printf("Reset successful. States = %d \n Inputs = %d \n Outputs = %d \n Constraints = %d \n",
 			states_, inputs_, outputs_, constraints_);
 	return true;

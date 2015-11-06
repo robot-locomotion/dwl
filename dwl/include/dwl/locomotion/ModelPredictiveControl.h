@@ -62,8 +62,8 @@ class ModelPredictiveControl
 		  @param double* State vector
 		  @param double* Reference vector
 		 */
-		virtual void update(double* x_measured,
-							double* x_reference) = 0;
+		virtual void update(dwl::WholeBodyState measured_state,
+							dwl::WholeBodyState current_state) = 0;
 
 		/**
 		 @brief Function to get the control signal generated for the MPC. As the MPC algorithm
