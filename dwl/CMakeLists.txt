@@ -17,6 +17,7 @@ pkg_check_modules(RBDL rbdl REQUIRED)
 find_package(URDF REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(ROBOTS)
+find_package(QPOASES)
 find_package(IPOPT)
 find_package(octomap)
 
@@ -65,7 +66,6 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/solver/AnytimeRepairingAStar.cpp
 							 src/solver/QuadraticProgram.cpp
 							 src/solver/QuadProg++QP.cpp
-						     #src/solver/qpOASES.cpp
 							 src/model/AdjacencyModel.cpp
 							 src/model/GridBasedBodyAdjacency.cpp
 							 src/model/LatticeBasedBodyAdjacency.cpp
@@ -130,6 +130,18 @@ if(hyq_FOUND)
 								         #src/robot/HyQWholeBodyDynamics.cpp
 endif()
 
+
+# Adding qpOASES components of the project
+if (qpoases_FOUND)
+    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${QPOASES_INCLUDE_DIRS})
+    list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${QPOASES_LIBRARY_DIR})
+    list(APPEND DEPENDENCIES_LIBRARIES  ${QPOASES_LIBRARIES})
+    
+    include_directories(${QPOASES_INCLUDE_DIRS})
+    set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
+                                 src/solver/qpOASES.cpp)
+
+endif()
 
 # Adding Ipopt components of the project
 if(ipopt_FOUND)
