@@ -1,24 +1,39 @@
+===============================================
 The Dynamic Whole-body Locomotion library (DWL)
 ===============================================
 
-This is the core of DWL
+.. contents:: Table of Contents
+
+Introduction
+===============================================
+The Dynamic Whole Body Locomotion library (DWL) implements a set of funcionalities to develop, design, and deploy locomotion algorithms, i.e. planning, control, etc. DWL has different modules such as: kinematics, dynamics, solvers (tree-search, optimization, etc), and environmet descriptions. All these tools are designed for many different locomotion problems such as planning, control and state estimation. DWL library is developed to be able to deploy in different robot framework systems such as ROS, and test it in real-time kernels. DWL has different library dependencies, which most of them are optional. DWL is develop by Carlos Mastalli (carlos.mastalli@iit.it) at Istituto Italiano di Tecnologia.
+
+As well as DWL source code, we provide implementation of different dwl-based locomotion modules such: control, planning and perception. All these modules use ROS as framework for communication between them. As standard message interface between them, we use dwl_msgs packages and a set of commons methods used in the controllers and planners.
 
 Visit the [DWL installation page](http://.html) for detailed installation instructions, and also the Dynamic Legged Systems Lab of Istituto Italiano di Tecnologia (http://www.iit.it/en/advr-labs/dynamic-legged-systems.html) for more details about the project.
 
-DWL has the following required dependencies:
 
+Software Overview
+===============================================
+The algorithms are built primarily in C/C++. The library uses a number of the local dependencies, which some of them are optionals.
+
+DWL has the following required dependencies:
 * [Boost](http://www.boost.org) (version x.x or higher)
 * [CMake](http://www.cmake.org) (version 2.8.3 or higher)
 * [Eigen](http://eigen.tuxfamily.org) (version 3.2.2 or higher)
-* [Odeint](http://headmyshoulder.github.io/odeint-v2/index.html) (version 2 or higher)
 * [Yaml-cpp](https://code.google.com/p/yaml-cpp/) (version 0.2.7 or higher)
+* [RBDL](http://rbdl.bitbucket.org/) (version 2.4.0 or higher)
 
-The following dependece are optional:
+The following dependecies are optional:
 * [Doxygen](http://www.doxygen.org)
+* [qpOASES](https://projects.coin-or.org/qpOASES) (version 3.2.0 or higher)
 * [Ipopt](https://projects.coin-or.org/Ipopt) (version 3.11.8 or higher)
 * [Octomap](http://octomap.github.io) (version 1.6.6 or higher)
 
-All these required dependencies can be installed using install_deps.sh script.
+
+Building
+===============================================
+All these required dependencies must be installed using install_deps.sh script.
 
 Once dependencies are installed, you can build DWL on Linux. Go to the top-level directory of DWL and type the
 following commands:
@@ -27,7 +42,17 @@ following commands:
     cd build/Release
     cmake ../..
 
-INSTALLATION:
+
+Installation
+===============================================
 - go to top folder (the folder this file is located in)
 - execute cmake: "cmake ."
 - either simply compile the library: "make", or call the installation: "sudo make install" (this will copy the library and header to your system folder and create a corresponding FindDWL.cmake file)
+
+
+
+Publications
+===============================================
+* C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, Hierarchical Planning of Dynamic Movements without Scheduled Contact Sequences, IEEE International Conference on Robotics and Automation (ICRA), 2016 (under review)
+* C. Mastalli, A. Winkler, I. Havoutis, D. G. Caldwell, C. Semini, On-line and On-board Planning and Perception for Quadrupedal Locomotion, IEEE International Conference on Technologies for Practical Robot Applications (TEPRA), 2015
+* A. Winkler, C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, Planning and Execution of Dynamic Whole-Body Locomotion for a Hydraulic Quadruped on Challenging Terrain, IEEE International Conference on Robotics and Automation (ICRA), 2015
