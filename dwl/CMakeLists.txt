@@ -63,8 +63,9 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/solver/Dijkstrap.cpp
 							 src/solver/AStar.cpp
 							 src/solver/AnytimeRepairingAStar.cpp
-							 src/solver/QuadProg++.cpp
+							 src/solver/QuadraticProgram.cpp
 							 src/solver/QuadProg++QP.cpp
+						     #src/solver/qpOASES.cpp
 							 src/model/AdjacencyModel.cpp
 							 src/model/GridBasedBodyAdjacency.cpp
 							 src/model/LatticeBasedBodyAdjacency.cpp
@@ -155,6 +156,7 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
 
 
+# Adding the test executables
 add_executable(my_planner  tests/HierarchicalPlanningTest.cpp)
 target_link_libraries(my_planner ${PROJECT_NAME})
 
@@ -171,7 +173,6 @@ target_link_libraries(yaml_bridge ${PROJECT_NAME})
 
 add_executable(dikstrap_algorithm  tests/DijkstraExample.cpp)
 add_executable(boost_dikstrap_algorithm  tests/DijkstraExampleBoost.cpp)
-
 
 add_executable(numdiff  tests/NumDiffEigenTest.cpp)
 target_link_libraries(numdiff ${PROJECT_NAME})
