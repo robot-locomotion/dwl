@@ -12,6 +12,22 @@ namespace dwl
 namespace solver
 {
 
+/**
+ * @class QuadProgQP
+ * @brief Class to interface the QuadProg++ library
+ * This class gives an interface with QuadProg++ library in order to implement a quadratic program
+ * using the dual method of Goldfarb and Idnani (1982: "Dual and Primal-Dual Methods for Solving
+ * Strictly Convex Quadratic Programs.", 1983: "A numerically stable dual method for solving strictly
+ * convex quadratic programs"). QuadProg++ solves a convex optimization class of the following form
+ * \f[
+ * 	\min_{\mathbf{x}} \frac{1}{2}\mathbf{x}^T\mathbf{H}\mathbf{x} + \mathbf{x}^T\mathbf{g(x_0)}
+ * \f]
+ * suject to
+ * \f{eqnarray*}{
+ *	\mathbf{CE}^T\mathbf{x} + \mathbf{ce0} = \mathbf{0} \\
+ *	\mathbf{CI}^T\mathbf{x} + \mathbf{ci0} \geq \mathbf{0}
+ * \f}
+ */
 class QuadProgQP : public QuadraticProgram
 {
 	public:

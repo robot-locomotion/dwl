@@ -12,11 +12,9 @@ namespace solver
 /**
  * @class QuadraticProgram
  * @brief Abstract class to define the optimization algorithm such as Model Predictive Control. This
- * class acts as an interface to use a defined optimization solver software as a part of this library in
- * order to provide different solver options for the end user to solve the basic optimization problem
- * that rises in MPC. As more solvers are adapted to this library with this class, more options to
- * try different optimization methods are available to select the most suitable one depending on
- * each case. The basic
+ * class acts as an interface to use a defined optimization solver software as a part of this library
+ * in order to provide different solver options for the end user to solve the basic optimization
+ * problem. The basic
  * \f{eqnarray*}{
  *	\mbox{Minimize} \; F(x) && \\
  * 	\mbox{subject to} \; G(x) & = & 0 \\

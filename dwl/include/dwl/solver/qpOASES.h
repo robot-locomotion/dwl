@@ -14,19 +14,21 @@ namespace solver
 {
 
 /**
- @class qpOASES
- @brief Class to interface the qpOASES library
- This class gives an interface with qpOASES library in order to implement a quadratic program using
- online active set strategy for MPC controller. qpOASES solve a convex optimization class of the
- following form
- \f[
-	\min_{\mathbf{x}} \frac{1}{2}\mathbf{x}^T\mathbf{H}\mathbf{x} + \mathbf{x}^T\mathbf{g(x_0)}
- \f]
- suject to
- \f{eqnarray*}{
-   	lbG(\mathbf{x_0}) \leq &\mathbf{Gx}& \leq ubG(\mathbf{x_0}) \\
-	lb(\mathbf{x_0})   \leq &\mathbf{x}&  \leq ub(\mathbf{x_0})
- \f}
+ * @class qpOASES
+ * @brief Class to interface the qpOASES library
+ * This class gives an interface with qpOASES library in order to implement a quadratic program using
+ * online active set strategy of Ferreau et at. (2008: "An online active set strategy to overcome
+ * the limitations of explicit MPC" such as used in MPC controllers", 2014: "{qpOASES}: A parametric
+ * active-set algorithm for quadratic programming"). qpOASES solve a convex optimization
+ * class of the following form
+ * \f[
+ * 	\min_{\mathbf{x}} \frac{1}{2}\mathbf{x}^T\mathbf{H}\mathbf{x} + \mathbf{x}^T\mathbf{g(x_0)}
+ * \f]
+ * suject to
+ * \f{eqnarray*}{
+ *	lbG(\mathbf{x_0}) \leq &\mathbf{Gx}& \leq ubG(\mathbf{x_0}) \\
+ *	lb(\mathbf{x_0})   \leq &\mathbf{x}&  \leq ub(\mathbf{x_0})
+ * \f}
  */
 class qpOASES : public QuadraticProgram
 {
