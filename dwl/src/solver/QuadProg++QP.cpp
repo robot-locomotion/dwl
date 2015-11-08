@@ -58,8 +58,10 @@ bool QuadProgQP::compute(const Eigen::MatrixXd& hessian,
 	}
 
 	// Computing the constraint in/equality matrix and in/equality bound
-	Eigen::MatrixXd eq_constraint_mat = Eigen::MatrixXd::Zero(num_eq_constraints + num_eq_bounds);
-	Eigen::MatrixXd ineq_constraint_mat = Eigen::MatrixXd::Zero(num_ineq_constraints + num_ineq_bounds);
+	Eigen::MatrixXd eq_constraint_mat = Eigen::MatrixXd::Zero(num_eq_constraints + num_eq_bounds,
+															  num_eq_constraints + num_eq_bounds);
+	Eigen::MatrixXd ineq_constraint_mat = Eigen::MatrixXd::Zero(num_ineq_constraints + num_ineq_bounds,
+																num_ineq_constraints + num_ineq_bounds);
 	Eigen::VectorXd eq_bound = Eigen::VectorXd::Zero(num_eq_constraints);
 	Eigen::VectorXd ineq_bound = Eigen::VectorXd::Zero(num_ineq_constraints);
 	unsigned int eq_idx = 0;
@@ -107,10 +109,10 @@ bool QuadProgQP::compute(const Eigen::MatrixXd& hessian,
 
 	Eigen::MatrixXd copy_hessian = hessian;
 	Eigen::VectorXd copy_gradient = gradient;
-	double cost = solve_quadprog(copy_hessian, copy_gradient,
-								 eq_constraint_mat, eq_bound,
-								 ineq_constraint_mat, ineq_bound,
-								 solution_);
+	solve_quadprog(copy_hessian, copy_gradient,
+				   eq_constraint_mat, eq_bound,
+				   ineq_constraint_mat, ineq_bound,
+				   solution_);
 
 	return true;
 }
