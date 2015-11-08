@@ -16,11 +16,11 @@ namespace locomotion
 {
 
 /**
- @class ModelPredictiveControl
- @brief This class serves as a base class in order to expand the functionality of the library and
- implement different sorts of MPC algorithms. The methods defined here are conceived in the simplest
- way possible to allow different implementations in the derived classes.\n
-*/
+ * @class ModelPredictiveControl
+ * @brief This class serves as a base class in order to expand the functionality of the library and
+ * implement different sorts of MPC algorithms. The methods defined here are conceived in the simplest
+ * way possible to allow different implementations in the derived classes.\n
+ */
 class ModelPredictiveControl
 {
 	public:
@@ -40,8 +40,8 @@ class ModelPredictiveControl
 		 @param dwl::solver::QuadraticProgram Pointer to the optimization library to be used in the
 		 algorithm
 		 */
-		virtual bool reset(dwl::model::LinearDynamicalSystem* model,
-						   dwl::solver::QuadraticProgram* optimizer) = 0;
+		virtual bool reset(model::LinearDynamicalSystem* model,
+						   solver::QuadraticProgram* optimizer) = 0;
 
 		/**
 		 @brief Function to initialize the calculation of the MPC algorithm. The function reads
@@ -59,11 +59,11 @@ class ModelPredictiveControl
 		  and dwl::solver::QuadraticProgram) to find a solution to the optimization problem.
 		  This is where the different variants of MPC algorithms can be implemented in a source
 		  file from a derived class.
-		  @param double* State vector
-		  @param double* Reference vector
+		  @param WholeBodyState Current state
+		  @param WholeBodyState Reference state
 		 */
-		virtual void update(dwl::WholeBodyState measured_state,
-							dwl::WholeBodyState current_state) = 0;
+		virtual void update(WholeBodyState& measured_state,
+							WholeBodyState& current_state) = 0;
 
 		/**
 		 @brief Function to get the control signal generated for the MPC. As the MPC algorithm
@@ -77,10 +77,10 @@ class ModelPredictiveControl
 			
 	protected:
 		/** @brief Pointer of linear dynamical model of the system */
-		dwl::model::LinearDynamicalSystem* model_;
+		model::LinearDynamicalSystem* model_;
 
 		/** @brief Pointer of the optimizer of the MPC */
-		dwl::solver::QuadraticProgram* optimizer_;
+		solver::QuadraticProgram* optimizer_;
 
 		/** @brief Number of states of the dynamic model */
 		int states_;
@@ -99,6 +99,9 @@ class ModelPredictiveControl
 
 		/** @brief Number of constraints */
 		int constraints_;
+
+		/** @brief MPC solution */
+		Eigen::VectorXd mpc_solution_;
 
 		/** @brief Vector of the operation points for the states in case of a LTI model */
 		double* operation_states_;
@@ -121,29 +124,8 @@ class ModelPredictiveControl
 		/** @brief Input error weight matrix */
 		Eigen::MatrixXd R_;
 
-		/** @brief Vector of the MPC solution */
-		double *mpc_solution_;
-
 		/** @brief Stationary control signal for the reference state vector */
 		Eigen::MatrixXd u_reference_;
-
-		/** @brief Control signal computes for MPC */
-		double *control_signal_;
-
-		/** @brief Data of the time vector of the system */
-		std::vector<int> t_;
-
-		/** @brief Data of the state vector of the system */
-		std::vector<std::vector<double> > x_;
-
-		/** @brief Data of the reference state vector of the system */
-		std::vector<std::vector<double> > xref_;
-
-		/** @brief Data of the control signal vector of the system */
-		std::vector<std::vector<double> > u_;
-
-		/** @brief Label that indicates if it will be save the data */
-		bool enable_record_;
 };
 
 } //@namespace locomotion
@@ -152,13 +134,6 @@ class ModelPredictiveControl
 
 inline double* dwl::locomotion::ModelPredictiveControl::getControlSignal() const
 {
-	for (int i = 0; i < inputs_; i++) {
-		if (infeasibility_counter_ < infeasibility_hack_counter_max_)
-			control_signal_[i] = mpc_solution_[infeasibility_counter_ * inputs_ + i];
-		else
-			control_signal_[i] = u_reference_(i);
-	}
-
 	return control_signal_;
 }
 

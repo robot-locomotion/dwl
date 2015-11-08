@@ -20,8 +20,8 @@ ModelPredictiveControl::~ModelPredictiveControl()
 }
 
 
-bool ModelPredictiveControl::reset(dwl::model::LinearDynamicalSystem* model,
-								   dwl::solver::QuadraticProgram* optimizer)
+bool ModelPredictiveControl::reset(model::LinearDynamicalSystem* model,
+								   solver::QuadraticProgram* optimizer)
 {
 	// Setting of the pointer of the model and optimizer classes
 	model_ = model;
@@ -60,8 +60,6 @@ bool ModelPredictiveControl::reset(dwl::model::LinearDynamicalSystem* model,
 bool ModelPredictiveControl::init()
 {
 	// Initialization of MPC solution
-	mpc_solution_ = new double[variables_];
-	control_signal_ = new double[inputs_];
 	operation_states_ = new double[states_];
 	operation_inputs_ = new double[inputs_];
 	
@@ -210,16 +208,17 @@ bool ModelPredictiveControl::init()
 	}
 	
 	
-	ROS_INFO("STDMPC class successfully initialized.");
+	printf("STDMPC class successfully initialized.");
 	return true;
 }
 
 
 
-void ModelPredictiveControl::update(double* x_measured, double* x_reference)
+void ModelPredictiveControl::update(WholeBodyState& current_state,
+									WholeBodyState& reference_state)
 {
-	Eigen::Map<Eigen::VectorXd> x_measured_eigen(x_measured, states_, 1);
-	Eigen::Map<Eigen::VectorXd> x_reference_eigen(x_reference, states_, 1);
+	Eigen::Map<Eigen::VectorXd> x_measured_eigen(x_measured, states_, 1);// current_state
+	Eigen::Map<Eigen::VectorXd> x_reference_eigen(x_reference, states_, 1);// reference state
 
 	// Update of the model parameters
 	Eigen::MatrixXd A, B;
@@ -232,84 +231,70 @@ void ModelPredictiveControl::update(double* x_measured, double* x_reference)
 	u_reference_ = SVD_B.solve(x_reference_eigen - A * x_reference_eigen);
 	
 	// Creation of the base vector
-	A_pow_.push_back(Eigen::MatrixXd::Identity(states_, states_));
+	std::vector<Eigen::MatrixXd> A_pow;
+	A_pow.push_back(Eigen::MatrixXd::Identity(states_, states_));
 	for (int i = 1; i < horizon_ + 1; i++) {
-		Eigen::MatrixXd A_pow_i = A_pow_[i-1] * A;
-		A_pow_.push_back(A_pow_i);
+		Eigen::MatrixXd A_pow_i = A_pow[i-1] * A;
+		A_pow.push_back(A_pow_i);
 	}
 
-	// Compute the hessian matrix and gradient vector for the quadratic program	
-	A_bar_ = Eigen::MatrixXd::Zero((horizon_ + 1) * states_, states_);
-	B_bar_ = Eigen::MatrixXd::Zero((horizon_ + 1) * states_, horizon_ * inputs_);
-//	Eigen::MatrixXd H_x = Eigen::MatrixXd::Zero((horizon_ + 1) * states_, horizon_ * states_);
+	// Computing the extended state and input matrixes for the predefined horizon
+	Eigen::MatrixXd A_bar = Eigen::MatrixXd::Zero((horizon_ + 1) * states_, states_);
+	Eigen::MatrixXd B_bar = Eigen::MatrixXd::Zero((horizon_ + 1) * states_, horizon_ * inputs_);
 	Eigen::MatrixXd x_ref_bar = Eigen::MatrixXd::Zero((horizon_ + 1) * states_, 1);
 	for (int i = 0; i < horizon_ + 1; i++) {
 		for (int j = 0; j < horizon_; j++) {
 			if (i == horizon_) {
-				if (j == 0)
-					A_bar_.block(i * states_, 0, states_, states_) = A_pow_[i];
-				if (j == 0)
-					x_ref_bar.block(i * states_, 0, states_, 1) = x_reference_eigen;
-				if (i > j) {
-					B_bar_.block(i * states_, j * inputs_, states_, inputs_) = A_pow_[i-j-1] * B;
-//					H_x.block(i * states_, j * states_, states_, states_) = A_p_BK_pow_[i-j-1];
-				}
-			}
-			else {
 				if (j == 0) {
-					A_bar_.block(i * states_, 0, states_, states_) = A_pow_[i];
+					A_bar.block(i * states_, 0, states_, states_) = A_pow[i];
 					x_ref_bar.block(i * states_, 0, states_, 1) = x_reference_eigen;
 				}
-				if (i > j) {
-					B_bar_.block(i * states_, j * inputs_, states_, inputs_) = A_pow_[i-j-1] * B;
-//					H_x.block(i * states_, j * states_, states_, states_) = A_p_BK_pow_[i-j-1];
+				if (i > j)
+					B_bar.block(i * states_, j * inputs_, states_, inputs_) = A_pow[i-j-1] * B;
+			} else {
+				if (j == 0) {
+					A_bar.block(i * states_, 0, states_, states_) = A_pow[i];
+					x_ref_bar.block(i * states_, 0, states_, 1) = x_reference_eigen;
 				}
+				if (i > j)
+					B_bar.block(i * states_, j * inputs_, states_, inputs_) = A_pow[i-j-1] * B;
 			}
 		}
 	}
-	double hessian_matrix[horizon_ * inputs_][horizon_ * inputs_];
-	double gradient_vector[horizon_ * inputs_];
-	Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> > H(&hessian_matrix[0][0], horizon_ * inputs_, horizon_ * inputs_);
-	Eigen::Map<Eigen::VectorXd> g(gradient_vector, horizon_ * inputs_, 1);
 	
 	// Computing the values of the Hessian matrix and Gradient vector
-	H = B_bar_.transpose() * Q_bar_ * B_bar_ + R_bar_;
-	g = B_bar_.transpose() * Q_bar_ * (A_bar_ * x_measured_eigen - x_ref_bar);
+	Eigen::MatrixXd hessian = Eigen::Matrix::Zero(horizon_ * inputs_, horizon_ * inputs_);
+	Eigen::VectorXd gradient = Eigen::VectorXd::Zero(horizon_ * inputs_);
+	hessian = B_bar.transpose() * Q_bar_ * B_bar + R_bar_;
+	gradient = B_bar.transpose() * Q_bar_ * (A_bar * x_measured_eigen - x_ref_bar);
 	
-	// Transforming constraints and bounds to array
-	double lbG_bar[constraints_ * horizon_];
-	double ubG_bar[constraints_ * horizon_];
-	double lb_bar[horizon_ * inputs_];
-	double ub_bar[horizon_ * inputs_];
-	Eigen::Map<Eigen::VectorXd> lbG_bar_eigen(lbG_bar, constraints_ * horizon_, 1);
-	Eigen::Map<Eigen::VectorXd> ubG_bar_eigen(ubG_bar, constraints_ * horizon_, 1);
-	Eigen::Map<Eigen::VectorXd> lb_bar_eigen(lb_bar, inputs_ * horizon_, 1);
-	Eigen::Map<Eigen::VectorXd> ub_bar_eigen(ub_bar, inputs_ * horizon_, 1);
-	lbG_bar_eigen = lbG_bar_ - M_bar_ * A_bar_ * x_measured_eigen;
-	ubG_bar_eigen = ubG_bar_ - M_bar_ * A_bar_ * x_measured_eigen;
-	lb_bar_eigen = lb_bar_;
-	ub_bar_eigen = ub_bar_;
+	// Computing the constraint and state bounds for the predefined horizon;
+	Eigen::VectorXd lbG_bar = Eigen::VectorXd::Zero(horizon_ * constraints_);
+	Eigen::VectorXd ubG_bar = Eigen::VectorXd::Zero(horizon_ * constraints_);
+	Eigen::VectorXd lb_bar = Eigen::VectorXd::Zero(horizon_ * inputs_);
+	Eigen::VectorXd ub_bar = Eigen::VectorXd::Zero(horizon_ * inputs_);
+	model_->getConstraintsBounds(lbG_bar, ubG_bar);
+	model_->getStateBounds(lb_bar, ub_bar);
+	lbG_bar = lbG_bar - M_bar_ * A_bar * x_measured_eigen;
+	ubG_bar = ubG_bar - M_bar_ * A_bar * x_measured_eigen;
 
+	// Computing the extended constraint matrix
+	Eigen::MatrixXd constraint_matrix = Eigen::MatrixXd::Zero(horizon_ * constraints_,
+															  horizon_ * inputs_);
+	constraint_matrix = M_bar_ * B_bar;
 	
-	// Mapping of the extended constraint matrix G_bar_
-	double constraint_matrix[horizon_ * constraints_][horizon_ * inputs_];
-	Eigen::Map<Eigen::MatrixXd, Eigen::RowMajor> G_bar(&constraint_matrix[0][0], constraints_ * horizon_, horizon_ * inputs_);
-	G_bar = M_bar_ * B_bar_;
-	
-	
+	// Solving the QP problem
 	double cputime = 0.008;//1.0;//NULL;
 	bool success = false;
-	success = optimizer_->compute(&hessian_matrix[0][0],
-								  gradient_vector,
-								  &constraint_matrix[0][0],
+	success = optimizer_->compute(hessian, gradient,
+								  constraint_matrix,
 								  lb_bar, ub_bar,
 								  lbG_bar, ubG_bar,
 								  cputime);
 	if (success) {
 		mpc_solution_ = optimizer_->getOptimalSolution();
 		infeasibility_counter_ = 0;
-	}
-	else {
+	} else {
 		infeasibility_counter_++;
 		printf("Warning: an optimal solution could not be obtained.");
 	}
@@ -330,5 +315,3 @@ void ModelPredictiveControl::update(double* x_measured, double* x_reference)
 
 } //@namespace locomotion
 } //@namespace dwl
-
-
