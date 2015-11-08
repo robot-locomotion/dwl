@@ -233,7 +233,7 @@ echo "under certain conditions; see the filecontent for more information."
 # <http://www.gnu.org/licenses/>.
 
 echo ""
-read -s -p "Press enter to start the installation." 
+read -s -p "Press enter to start the installation. " 
 echo ""
 
 
@@ -246,7 +246,7 @@ cd ${SELF_PATH}/thirdparty
 echo ""
 echo -e "${COLOR_BOLD}Installing Eigen ...${COLOR_RESET}"
 if [ -d "/usr/local/include/eigen3" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install Eigen 3.2.4? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install Eigen 3.2.4? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_EIGEN
 	if [ "$ANSWER_EIGEN" == "Y" ] || [ "$ANSWER_EIGEN" == "y" ]; then
 		install_eigen
@@ -263,7 +263,7 @@ echo ""
 echo -e "${COLOR_BOLD}Installing URDF facilities ...${COLOR_RESET}"
 # Installing urdfdom_headers
 if [ -d "/usr/include/urdf_model" ] || [ -d "/usr/local/include/urdf_model" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install URDFDOM Headers? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install URDFDOM Headers? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_URDF
 	if [ "${ANSWER_URDF}" == "Y" ] || [ "${ANSWER_URDF}" == "y" ]; then
 		install_urdfdom_headers
@@ -273,7 +273,7 @@ else
 fi
 # Installing console_bridge
 if [ -d "/usr/include/console_bridge" ] || [ -d "/usr/local/include/console_bridge" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install console bridge? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install console bridge? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_CONSOLE
 	if [ "${ANSWER_CONSOLE}" == "Y" ] || [ "${ANSWER_CONSOLE}" == "y" ]; then
 		install_console_bridge
@@ -283,7 +283,7 @@ else
 fi
 # Installing urdfdom
 if [ -d "/usr/include/urdf_parser" ] || [ -d "/usr/local/include/urdf_parser" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install urdf parser? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install urdf parser? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_URDFPARSER
 	if [ "${ANSWER_URDFPARSER}" == "Y" ] || [ "${ANSWER_URDFPARSER}" == "y" ]; then
 		install_urdfdom
@@ -299,7 +299,7 @@ fi
 echo ""
 echo -e "${COLOR_BOLD}Installing RBDL ...${COLOR_RESET}"
 if [ -d "/usr/local/include/rbdl" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_RBDL
 	if [ "$ANSWER_RBDL" == "Y" ] || [ "$ANSWER_RBDL" == "y" ]; then
 		install_rbdl
@@ -317,13 +317,13 @@ echo ""
 echo -e "${COLOR_BOLD}Installing Odeint ...${COLOR_RESET}"
 if [ -d "odeint" ]; then
 	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install Odeint 2? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install Odeint 2? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_ODEINT
 	if [ "$ANSWER_ODEINT" == "Y" ] || [ "$ANSWER_ODEINT" == "y" ]; then
 		install_odeint
     fi
 else
-	echo -e -n "${COLOR_QUES}Do you want to install Odeint 2? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to install Odeint 2? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_ODEINT
 	if [ "$ANSWER_ODEINT" == "Y" ] || [ "$ANSWER_ODEINT" == "y" ]; then
 		install_odeint
@@ -337,7 +337,7 @@ fi
 echo ""
 echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
 if [ -d "/usr/local/include/yaml-cpp" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.3.0? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.3.0? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_YAMLCPP
 	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
 		install_yamlcpp
@@ -354,13 +354,13 @@ echo ""
 echo -e "${COLOR_BOLD}Installing qpOASES ...${COLOR_RESET}"
 if [ -d "qpOASES" ]; then
 	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install qpOASES 3.2.0? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install qpOASES 3.2.0? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_QPOASES
 	if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
 		install_qpoases
     fi
 else
-	echo -e -n "${COLOR_QUES}Do you want to install qpOASES 3.2.0? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to install qpOASES 3.2.0? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_QPOASES
 	if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
 		install_qpoases
@@ -375,13 +375,13 @@ echo ""
 echo -e "${COLOR_BOLD}Installing Ipopt ...${COLOR_RESET}"
 if [ -d "ipopt" ]; then
 	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install Ipopt 3.12.2? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install Ipopt 3.12.2? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_IPOPT
 	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
 		install_ipopt
     fi
 else
-	echo -e -n "${COLOR_QUES}Do you want to install Ipopt 3.12.2? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to install Ipopt 3.12.2? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_IPOPT
 	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
 		install_ipopt
@@ -390,18 +390,18 @@ fi
 
 
 ##---------------------------------------------------------------##
-##---------------------- Installing Octomap -----------------------##
+##--------------------- Installing Octomap ----------------------##
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing Octomap ...${COLOR_RESET}"
 if [ -d "/usr/local/include/octomap" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install Octomap 1.6.8? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install Octomap 1.6.8? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_OCTOMAP
 	if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
 		install_octomap
     fi
 else
-	echo -e -n "${COLOR_QUES}Do you want to install Octomap 1.6.8? (Y/N) > ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to install Octomap 1.6.8? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_OCTOMAP
 	if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
 		install_octomap
