@@ -63,10 +63,14 @@ void CentroidalDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& cons
 	// to implement it, and move it to WholeBodyDynamics class
 	Eigen::Vector3d estimated_com_acc = Eigen::Vector3d::Zero();
 
-	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
-		estimated_com_acc += state.contacts[k].force / total_mass_;
-	estimated_com_acc += system_.getRBDModel().gravity;
+	urdf_model::LinkID contact_links = system_.getEndEffectors();
+	for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
+			contact_it != contact_links.end(); contact_it++) {
+		std::string name = contact_it->first;
 
+		estimated_com_acc += state.contact_eff.at(name).segment<3>(rbd::LZ) / total_mass_;
+		estimated_com_acc += system_.getRBDModel().gravity;
+	}
 	constraint(0) = estimated_com_acc(rbd::Z) - base_acc(rbd::LZ);
 
 
@@ -76,8 +80,8 @@ void CentroidalDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& cons
 										 state.base_pos, state.joint_pos,
 										 end_effector_names_, rbd::Linear);
 	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
-		constraint.segment<3>(3 * k + 1) = contact_pos.find(end_effector_names_[k])->second -
-			state.contacts[k].position;
+		constraint.segment<3>(3 * k + 1) = contact_pos.at(end_effector_names_[k]) -
+			state.contact_pos.at(end_effector_names_[k]);
 }
 
 

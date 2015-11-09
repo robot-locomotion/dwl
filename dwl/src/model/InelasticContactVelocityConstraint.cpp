@@ -45,8 +45,13 @@ void InelasticContactVelocityConstraint::computeFirstComplement(Eigen::VectorXd&
 	constraint.resize(system_.getNumberOfEndEffectors());
 
 	// Adding the normal contact forces per every end-effector as a the first complementary
-	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
-		constraint(k) = state.contacts[k].force(rbd::Z);
+	urdf_model::LinkID contact_links = system_.getEndEffectors();
+	for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
+			contact_it != contact_links.end(); contact_it++) {
+		std::string name = contact_it->first;
+		unsigned int id = contact_it->second;
+		constraint(id) = state.contact_eff.at(name)(rbd::LZ);
+	}
 }
 
 

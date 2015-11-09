@@ -24,10 +24,10 @@ typedef std::map<unsigned int, std::vector<std::string> > PatchMap; //TODO
 /** @brief Defines a Vector3d map */
 typedef std::map<unsigned int, Eigen::Vector3d> Vector3dMap;
 
-/** @brief Enumarates types of states */
+/** @brief Enumerates types of states */
 enum TypeOfState {XY, XY_Y, XYZ_RPY};
 
-/** @brief Enumarates types of solvers */
+/** @brief Enumerates types of solvers */
 enum TypeOfSolver {BodyPathSolver, BodyPoseSolver, ContactSolver};
 
 /**
@@ -112,8 +112,7 @@ struct ContactSearchRegion
  */
 struct WholeBodyState
 {
-	WholeBodyState(unsigned int num_joints = 0,
-				   unsigned int num_contacts = 0) : time(0.), duration(0.) {
+	WholeBodyState(unsigned int num_joints = 0) : time(0.), duration(0.) {
 		base_pos.setZero();
 		base_vel.setZero();
 		base_acc.setZero();
@@ -125,9 +124,6 @@ struct WholeBodyState
 			joint_acc.setZero(num_joints);
 			joint_eff.setZero(num_joints);
 		}
-
-		if (num_contacts != 0)
-			contacts.resize(num_contacts);
 	}
 
 	void setJointDoF(unsigned int num_joints) {
@@ -135,18 +131,6 @@ struct WholeBodyState
 		joint_vel.setZero(num_joints);
 		joint_acc.setZero(num_joints);
 		joint_eff.setZero(num_joints);
-	}
-
-	void setContactDoF(unsigned int num_contacts) {
-		contacts.resize(num_contacts);
-
-		for (unsigned int i = 0; i < num_contacts; i++) {
-			contacts[i].end_effector = 0;
-			contacts[i].position.setZero();
-			contacts[i].velocity.setZero();
-			contacts[i].acceleration.setZero();
-			contacts[i].force.setZero();
-		}
 	}
 
 	double time;
@@ -159,7 +143,10 @@ struct WholeBodyState
 	Eigen::VectorXd joint_vel;
 	Eigen::VectorXd joint_acc;
 	Eigen::VectorXd joint_eff;
-	std::vector<Contact> contacts;
+	rbd::BodyVector contact_pos;
+	rbd::BodyVector contact_vel;
+	rbd::BodyVector contact_acc;
+	rbd::BodyWrench contact_eff;
 };
 
 /** @brief Defines a whole-body trajectory */

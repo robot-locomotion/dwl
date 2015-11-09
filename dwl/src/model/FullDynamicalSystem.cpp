@@ -53,11 +53,6 @@ void FullDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint
 	Eigen::VectorXd base_acc = (state.base_vel - state_buffer_[0].base_vel) / step_time;
 	Eigen::VectorXd joint_acc = (state.joint_vel - state_buffer_[0].joint_vel) / step_time;
 
-	// Setting the contact forces
-	rbd::BodyWrench contact_forces;
-	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
-		contact_forces[end_effector_names_[k]] << 0, 0, 0, state.contacts[k].force;
-
 	// Computing the full inverse dynamics. In real-cases, the floating-base effort (state.base_eff)
 	// is always equals to zero, which implicates that we are imposing that the base_wrench equals
 	// to null vector. TODO Another implementation could be posed as floating-base inverse dynamics
@@ -66,7 +61,7 @@ void FullDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint
 	dynamics_.computeInverseDynamics(estimated_base_wrench, estimated_joint_forces,
 									 state.base_pos, state.joint_pos,
 									 state.base_vel, state.joint_vel,
-									 base_acc, joint_acc, contact_forces);
+									 base_acc, joint_acc, state.contact_eff);
 	constraint = system_.toGeneralizedJointState(estimated_base_wrench - state.base_eff,
 												 estimated_joint_forces - state.joint_eff);
 }
