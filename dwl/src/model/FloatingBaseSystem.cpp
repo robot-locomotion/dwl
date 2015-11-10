@@ -272,7 +272,7 @@ const urdf_model::JointID& FloatingBaseSystem::getJoints()
 }
 
 
-std::vector<std::string>& FloatingBaseSystem::getJointNames()
+rbd::BodySelector& FloatingBaseSystem::getJointNames()
 {
 	return joint_names_;
 }
@@ -296,7 +296,7 @@ const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors()
 }
 
 
-std::vector<std::string> FloatingBaseSystem::getEndEffectorNames()
+rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames()
 {
 	return end_effector_names_;
 }

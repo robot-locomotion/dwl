@@ -148,9 +148,9 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the joint names list
-		 * @return std::vector<std::string>& Joint names list
+		 * @return rbd::BodySelector& Joint names list
 		 */
-		std::vector<std::string>& getJointNames();
+		rbd::BodySelector& getJointNames();
 
 		/**
 		 * @brief Gets the type of floating-base system
@@ -174,7 +174,7 @@ class FloatingBaseSystem
 		 * @brief Gets the end-effector names list
 		 * @return std::vector<std::string>& End-effector names list
 		 */
-		std::vector<std::string> getEndEffectorNames();
+		rbd::BodySelector& getEndEffectorNames();
 
 		/** @brief Returns true if the system has fully floating-base */
 		bool isFullyFloatingBase();
@@ -262,7 +262,7 @@ class FloatingBaseSystem
 		/** @brief End-effector information */
 		urdf_model::LinkID end_effectors;
 		unsigned int num_end_effectors;
-		std::vector<std::string> end_effector_names_;
+		rbd::BodySelector end_effector_names_;
 };
 
 } //@namespace
