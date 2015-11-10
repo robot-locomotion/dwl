@@ -140,7 +140,6 @@ if (qpoases_FOUND)
     include_directories(${QPOASES_INCLUDE_DIRS})
     set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
                                  src/solver/qpOASES.cpp)
-
 endif()
 
 # Adding Ipopt components of the project

@@ -117,7 +117,7 @@ function install_qpoases
 	unzip release
 	mv qpOASES-3.2.0 qpOASES
 	cd qpOASES
-	make
+	make REPLACE_LINALG=0
 	cd ../
 	rm -rf release
 }
