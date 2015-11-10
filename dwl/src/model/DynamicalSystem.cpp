@@ -305,23 +305,25 @@ void DynamicalSystem::toWholeBodyState(WholeBodyState& system_state,
 	}
 	if (system_variables_.contact_pos || system_variables_.contact_vel ||
 			system_variables_.contact_acc || system_variables_.contact_for) {
-		system_state.contacts.resize(system_.getNumberOfEndEffectors());
-		for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(); i++) {
-			system_state.contacts[i].end_effector = i;
+		urdf_model::LinkID contact_links = system_.getEndEffectors();
+		for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
+				contact_it != contact_links.end(); contact_it++) {
+			std::string name = contact_it->first;
+
 			if (system_variables_.contact_pos) {
-				system_state.contacts[i].position = generalized_state.segment<3>(idx);
+				system_state.contact_pos[name] = generalized_state.segment<3>(idx);
 				idx += 3;
 			}
 			if (system_variables_.contact_vel) {
-				system_state.contacts[i].velocity = generalized_state.segment<3>(idx);
+				system_state.contact_vel[name] = generalized_state.segment<3>(idx);
 				idx += 3;
 			}
 			if (system_variables_.contact_acc) {
-				system_state.contacts[i].acceleration = generalized_state.segment<3>(idx);
+				system_state.contact_acc[name] = generalized_state.segment<3>(idx);
 				idx += 3;
 			}
 			if (system_variables_.contact_for) {
-				system_state.contacts[i].force = generalized_state.segment<3>(idx);
+				system_state.contact_eff[name] << 0, 0, 0, generalized_state.segment<3>(idx);
 				idx += 3;
 			}
 		}
@@ -369,26 +371,25 @@ void DynamicalSystem::fromWholeBodyState(Eigen::VectorXd& generalized_state,
 	}
 	if (system_variables_.contact_pos || system_variables_.contact_vel ||
 			system_variables_.contact_acc || system_variables_.contact_for) {
-		if (system_state.contacts.size() != system_.getNumberOfEndEffectors()) {
-			printf(RED "FATAL: the number of contact and end-effectors are not consistent\n" COLOR_RESET);
-			exit(EXIT_FAILURE);
-		}
+		urdf_model::LinkID contact_links = system_.getEndEffectors();
+		for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
+				contact_it != contact_links.end(); contact_it++) {
+			std::string name = contact_it->first;
 
-		for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(); i++) {
 			if (system_variables_.contact_pos) {
-				generalized_state.segment<3>(idx) = system_state.contacts[i].position;
+				generalized_state.segment<3>(idx) = system_state.contact_pos.at(name);
 				idx += 3;
 			}
 			if (system_variables_.contact_vel) {
-				generalized_state.segment<3>(idx) = system_state.contacts[i].velocity;
+				generalized_state.segment<3>(idx) = system_state.contact_vel.at(name);
 				idx += 3;
 			}
 			if (system_variables_.contact_acc) {
-				generalized_state.segment<3>(idx) = system_state.contacts[i].acceleration;
+				generalized_state.segment<3>(idx) = system_state.contact_acc.at(name);
 				idx += 3;
 			}
 			if (system_variables_.contact_for) {
-				generalized_state.segment<3>(idx) = system_state.contacts[i].force;
+				generalized_state.segment<3>(idx) = system_state.contact_eff.at(name).segment<3>(rbd::LZ);
 				idx += 3;
 			}
 		}
@@ -444,32 +445,34 @@ void DynamicalSystem::initialConditions()
 	upper_state_bound_.joint_acc = NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
 	upper_state_bound_.base_eff = NO_BOUND * rbd::Vector6d::Ones();
 	upper_state_bound_.joint_eff = NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
-	lower_state_bound_.contacts.resize(system_.getNumberOfEndEffectors());
-	upper_state_bound_.contacts.resize(system_.getNumberOfEndEffectors());
-	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++) {
-		lower_state_bound_.contacts[k].position = -NO_BOUND * Eigen::Vector3d::Ones();
-		lower_state_bound_.contacts[k].velocity = -NO_BOUND * Eigen::Vector3d::Ones();
-		lower_state_bound_.contacts[k].acceleration = -NO_BOUND * Eigen::Vector3d::Ones();
-		lower_state_bound_.contacts[k].force = -NO_BOUND * Eigen::Vector3d::Ones();
-		upper_state_bound_.contacts[k].position = NO_BOUND * Eigen::Vector3d::Ones();
-		upper_state_bound_.contacts[k].velocity = NO_BOUND * Eigen::Vector3d::Ones();
-		upper_state_bound_.contacts[k].acceleration = NO_BOUND * Eigen::Vector3d::Ones();
-		upper_state_bound_.contacts[k].force = NO_BOUND * Eigen::Vector3d::Ones();
-	}
+	urdf_model::LinkID contact_links = system_.getEndEffectors();
+	for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
+			contact_it != contact_links.end(); contact_it++) {
+		std::string name = contact_it->first;
 
+		lower_state_bound_.contact_pos[name] = -NO_BOUND * Eigen::Vector3d::Ones();
+		lower_state_bound_.contact_vel[name] = -NO_BOUND * Eigen::Vector3d::Ones();
+		lower_state_bound_.contact_acc[name] = -NO_BOUND * Eigen::Vector3d::Ones();
+		lower_state_bound_.contact_eff[name] = -NO_BOUND * rbd::Vector6d::Ones();
+		upper_state_bound_.contact_pos[name] = NO_BOUND * Eigen::Vector3d::Ones();
+		upper_state_bound_.contact_vel[name] = NO_BOUND * Eigen::Vector3d::Ones();
+		upper_state_bound_.contact_acc[name] = NO_BOUND * Eigen::Vector3d::Ones();
+		upper_state_bound_.contact_eff[name] = NO_BOUND * rbd::Vector6d::Ones();
+	}
 
 	// Initial state
 	initial_state_.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
 	initial_state_.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
 	initial_state_.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
 	initial_state_.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
-	initial_state_.contacts.resize(system_.getNumberOfEndEffectors());
-	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++) {
-		initial_state_.contacts[k].end_effector = 0;
-		initial_state_.contacts[k].position = Eigen::Vector3d::Zero();
-		initial_state_.contacts[k].velocity = Eigen::Vector3d::Zero();
-		initial_state_.contacts[k].acceleration = Eigen::Vector3d::Zero();
-		initial_state_.contacts[k].force = Eigen::Vector3d::Zero();
+	for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
+			contact_it != contact_links.end(); contact_it++) {
+		std::string name = contact_it->first;
+
+		initial_state_.contact_pos[name] = Eigen::Vector3d::Zero();
+		initial_state_.contact_vel[name] = Eigen::Vector3d::Zero();
+		initial_state_.contact_acc[name] = Eigen::Vector3d::Zero();
+		initial_state_.contact_eff[name] = rbd::Vector6d::Zero();
 	}
 }
 

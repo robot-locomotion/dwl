@@ -427,10 +427,6 @@ WholeBodyTrajectory& OptimizationModel::evaluateSolution(const Eigen::Ref<const 
 
 
 		// Setting the contact information in cases where time is not a decision variable
-		// Checking if there are contact information
-		if (system_state.contacts.size() == 0)
-			system_state.contacts.resize(dynamical_system_->getFloatingBaseSystem().getNumberOfEndEffectors());
-
 		urdf_model::LinkID contacts = dynamical_system_->getFloatingBaseSystem().getEndEffectors();
 		rbd::BodySelector contact_names;
 		for (urdf_model::LinkID::const_iterator contact_it = contacts.begin();
@@ -440,40 +436,36 @@ WholeBodyTrajectory& OptimizationModel::evaluateSolution(const Eigen::Ref<const 
 			contact_names.push_back(name);
 		}
 
-		if (system_state.contacts[0].position.isZero()) {
-			rbd::BodyVector contact_pos;
-			dynamical_system_->getKinematics().computeForwardKinematics(contact_pos,
-																		system_state.base_pos,
-																		system_state.joint_pos,
-																		contact_names, rbd::Linear);
-			for (unsigned int i = 0; i < contact_names.size(); i++)
-				system_state.contacts[i].position = contact_pos.find(contact_names[i])->second;
-		}
+		for (urdf_model::LinkID::const_iterator contact_it = contacts.begin();
+				contact_it != contacts.end(); contact_it++) {
+			std::string name = contact_it->first;
 
-		if (system_state.contacts[0].velocity.isZero()) {
-			rbd::BodyVector contact_vel;
-			dynamical_system_->getKinematics().computeVelocity(contact_vel,
-													   	   	   system_state.base_pos,
-															   system_state.joint_pos,
-															   system_state.base_vel,
-															   system_state.joint_vel,
-															   contact_names, rbd::Linear);
-			for (unsigned int i = 0; i < contact_names.size(); i++)
-				system_state.contacts[i].velocity = contact_vel.find(contact_names[i])->second;
-		}
+			if (system_state.contact_pos[name].isZero()) {
+				dynamical_system_->getKinematics().computeForwardKinematics(system_state.contact_pos,
+																			system_state.base_pos,
+																			system_state.joint_pos,
+																			contact_names, rbd::Linear);
+			}
 
-		if (system_state.contacts[0].acceleration.isZero()) {
-			rbd::BodyVector contact_acc;
-			dynamical_system_->getKinematics().computeAcceleration(contact_acc,
-													   	   	   	   system_state.base_pos,
+			if (system_state.contact_vel[name].isZero()) {
+				dynamical_system_->getKinematics().computeVelocity(system_state.contact_vel,
+														   	   	   system_state.base_pos,
 																   system_state.joint_pos,
 																   system_state.base_vel,
 																   system_state.joint_vel,
-																   system_state.base_acc,
-																   system_state.joint_acc,
 																   contact_names, rbd::Linear);
-			for (unsigned int i = 0; i < contact_names.size(); i++)
-				system_state.contacts[i].acceleration = contact_acc.find(contact_names[i])->second;
+			}
+
+			if (system_state.contact_acc[name].isZero()) {
+				dynamical_system_->getKinematics().computeAcceleration(system_state.contact_acc,
+														   	   	   	   system_state.base_pos,
+																	   system_state.joint_pos,
+																	   system_state.base_vel,
+																	   system_state.joint_vel,
+																	   system_state.base_acc,
+																	   system_state.joint_acc,
+																	   contact_names, rbd::Linear);
+			}
 		}
 
 		// Pushing the current state
@@ -492,10 +484,15 @@ WholeBodyTrajectory& OptimizationModel::evaluateSolution(const Eigen::Ref<const 
 		std::cout << "base_acc = " << system_state.base_acc.transpose() << std::endl;
 		std::cout << "joint_acc = " << system_state.joint_acc.transpose() << std::endl;
 		std::cout << "joint_eff = " << system_state.joint_eff.transpose() << std::endl;
-		std::cout << "contact_pos = " << system_state.contacts[0].position.transpose() << std::endl;
-		std::cout << "contact_vel = " << system_state.contacts[0].velocity.transpose() << std::endl;
-		std::cout << "contact_acc = " << system_state.contacts[0].acceleration.transpose() << std::endl;
-		std::cout << "contact_for = " << system_state.contacts[0].force.transpose() << std::endl;
+		for (urdf_model::LinkID::const_iterator contact_it = contacts.begin();
+				contact_it != contacts.end(); contact_it++) {
+			std::string name = contact_it->first;
+
+			std::cout << "contact_pos[" << name << "] = " << system_state.contact_pos[name].transpose() << std::endl;
+			std::cout << "contact_vel[" << name << "] = " << system_state.contact_vel[name].transpose() << std::endl;
+			std::cout << "contact_acc[" << name << "] = " << system_state.contact_acc[name].transpose() << std::endl;
+			std::cout << "contact_for[" << name << "] = " << system_state.contact_eff[name].transpose() << std::endl;
+		}
 		std::cout << "-------------------------------------" << std::endl;
 	}
 

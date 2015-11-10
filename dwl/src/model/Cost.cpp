@@ -31,11 +31,12 @@ void Cost::setWeights(const WholeBodyState& weights)
 	cost_variables_.joint_acc = !weights.joint_acc.isZero();
 	cost_variables_.joint_eff = !weights.joint_eff.isZero();
 
-	if (weights.contacts.size() > 0) {
-		cost_variables_.contact_pos = weights.contacts[0].position.isZero();
-		cost_variables_.contact_vel = weights.contacts[0].velocity.isZero();
-		cost_variables_.contact_acc = weights.contacts[0].acceleration.isZero();
-		cost_variables_.contact_for = weights.contacts[0].force.isZero();
+	if (weights.contact_pos.size() > 0) {
+		std::string name = "foot"; // TODO read through system
+		cost_variables_.contact_pos = !weights.contact_pos.at(name).isZero();
+		cost_variables_.contact_vel = !weights.contact_vel.at(name).isZero();
+		cost_variables_.contact_acc = !weights.contact_acc.at(name).isZero();
+		cost_variables_.contact_for = !weights.contact_eff.at(name).isZero();
 	}
 
 	locomotion_weights_ = weights;
