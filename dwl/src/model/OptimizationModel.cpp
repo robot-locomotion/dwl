@@ -428,43 +428,49 @@ WholeBodyTrajectory& OptimizationModel::evaluateSolution(const Eigen::Ref<const 
 
 		// Setting the contact information in cases where time is not a decision variable
 		urdf_model::LinkID contacts = dynamical_system_->getFloatingBaseSystem().getEndEffectors();
-		rbd::BodySelector contact_names;
-		for (urdf_model::LinkID::const_iterator contact_it = contacts.begin();
-				contact_it != contacts.end(); contact_it++) {
-			// Getting and setting the end-effector names
-			std::string name = contact_it->first;
-			contact_names.push_back(name);
-		}
-
+		rbd::BodySelector contact_names = dynamical_system_->getFloatingBaseSystem().getEndEffectorNames();
 		for (urdf_model::LinkID::const_iterator contact_it = contacts.begin();
 				contact_it != contacts.end(); contact_it++) {
 			std::string name = contact_it->first;
 
-			if (system_state.contact_pos[name].isZero()) {
-				dynamical_system_->getKinematics().computeForwardKinematics(system_state.contact_pos,
-																			system_state.base_pos,
-																			system_state.joint_pos,
-																			contact_names, rbd::Linear);
-			}
+			// Defining the contact iterators
+			dwl::rbd::BodyVector::const_iterator pos_it, vel_it, acc_it;
+			dwl::rbd::BodyWrench::const_iterator eff_it;
 
-			if (system_state.contact_vel[name].isZero()) {
-				dynamical_system_->getKinematics().computeVelocity(system_state.contact_vel,
-														   	   	   system_state.base_pos,
-																   system_state.joint_pos,
-																   system_state.base_vel,
-																   system_state.joint_vel,
-																   contact_names, rbd::Linear);
+			// Filling the desired contact state
+			pos_it = system_state.contact_pos.find(name);
+			vel_it = system_state.contact_vel.find(name);
+			acc_it = system_state.contact_acc.find(name);
+			eff_it = system_state.contact_eff.find(name);
+			if (pos_it != system_state.contact_pos.end()) {
+				if (system_state.contact_pos[name].isZero()) {
+					dynamical_system_->getKinematics().computeForwardKinematics(system_state.contact_pos,
+																				system_state.base_pos,
+																				system_state.joint_pos,
+																				contact_names, rbd::Linear);
+				}
 			}
-
-			if (system_state.contact_acc[name].isZero()) {
-				dynamical_system_->getKinematics().computeAcceleration(system_state.contact_acc,
-														   	   	   	   system_state.base_pos,
+			if (vel_it != system_state.contact_vel.end()) {
+				if (system_state.contact_vel[name].isZero()) {
+					dynamical_system_->getKinematics().computeVelocity(system_state.contact_vel,
+															   	   	   system_state.base_pos,
 																	   system_state.joint_pos,
 																	   system_state.base_vel,
 																	   system_state.joint_vel,
-																	   system_state.base_acc,
-																	   system_state.joint_acc,
 																	   contact_names, rbd::Linear);
+				}
+			}
+			if (acc_it != system_state.contact_acc.end()) {
+				if (system_state.contact_acc[name].isZero()) {
+					dynamical_system_->getKinematics().computeAcceleration(system_state.contact_acc,
+															   	   	   	   system_state.base_pos,
+																		   system_state.joint_pos,
+																		   system_state.base_vel,
+																		   system_state.joint_vel,
+																		   system_state.base_acc,
+																		   system_state.joint_acc,
+																		   contact_names, rbd::Linear);
+				}
 			}
 		}
 
