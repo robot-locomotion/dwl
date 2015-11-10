@@ -239,6 +239,11 @@ const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhole
 
 					// Computing the contact interpolation per each coordinate (x,y,z)
 					for (unsigned int coord_idx = 3; coord_idx < 6; coord_idx++) {
+						// Sanity check: checking if there are effort information
+						rbd::BodyWrench::const_iterator contact_it = trajectory[k].contact_eff.find(name);
+						if (contact_it == trajectory[k].contact_eff.end())
+							break;
+
 						// Getting the 6d coordinate
 						rbd::Coords6d coord = rbd::Coords6d(coord_idx);
 						if (t == 0) {
