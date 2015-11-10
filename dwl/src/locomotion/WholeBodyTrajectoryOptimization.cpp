@@ -234,28 +234,26 @@ const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhole
 					std::string name = contact_it->first;
 					unsigned int id = contact_it->second;
 
-					// Resizing the number of coordinate of the spline
-					contact_force_spline[id].resize(3);
+					// Sanity check: checking if there are effort information
+					if (trajectory[k].contact_eff.find(name) != trajectory[k].contact_eff.end()) {
+						// Resizing the number of coordinate of the spline
+						contact_force_spline[id].resize(3);
 
-					// Computing the contact interpolation per each coordinate (x,y,z)
-					for (unsigned int coord_idx = 3; coord_idx < 6; coord_idx++) {
-						// Sanity check: checking if there are effort information
-						rbd::BodyWrench::const_iterator contact_it = trajectory[k].contact_eff.find(name);
-						if (contact_it == trajectory[k].contact_eff.end())
-							break;
-
-						// Getting the 6d coordinate
-						rbd::Coords6d coord = rbd::Coords6d(coord_idx);
-						if (t == 0) {
-							// Initialization of the contact force splines
-							math::Spline::Point force_starting(trajectory[k].contact_eff.at(name)(coord));
-							math::Spline::Point force_ending(trajectory[k+1].contact_eff.at(name)(coord));
-							contact_force_spline[id][coord_idx].setBoundary(starting_time, duration,
-																			force_starting, force_ending);
-						} else {
-							// Getting and setting the force interpolated point
-							contact_force_spline[id][coord_idx].getPoint(time, current_point);
-							current_state.contact_eff[name](coord_idx) = current_point.x;
+						// Computing the contact interpolation per each coordinate (x,y,z)
+						for (unsigned int coord_idx = 3; coord_idx < 6; coord_idx++) {
+							// Getting the 6d coordinate
+							rbd::Coords6d coord = rbd::Coords6d(coord_idx);
+							if (t == 0) {
+								// Initialization of the contact force splines
+								math::Spline::Point force_starting(trajectory[k].contact_eff[name](coord));
+								math::Spline::Point force_ending(trajectory[k+1].contact_eff[name](coord));
+								contact_force_spline[id][coord_idx].setBoundary(starting_time, duration,
+																				force_starting, force_ending);
+							} else {
+								// Getting and setting the force interpolated point
+								contact_force_spline[id][coord_idx-3].getPoint(time, current_point);
+								current_state.contact_eff[name](coord) = current_point.x;
+							}
 						}
 					}
 				}
