@@ -110,19 +110,6 @@ function install_yamlcpp
 }
 
 
-function install_qpoases
-{
-	# Getting the qpOASES 3.2.0
-	wget www.qpoases.org/go/release
-	unzip release
-	mv qpOASES-3.2.0 qpOASES
-	cd qpOASES
-	make REPLACE_LINALG=0
-	cd ../
-	rm -rf release
-}
-
-
 function install_ipopt
 {
 	# Installing necessary packages
@@ -185,6 +172,20 @@ function install_ipopt
 	make install
 	cd ../../
 	rm -rf Ipopt-3.12.2.tgz
+}
+
+
+
+function install_qpoases
+{
+	# Getting the qpOASES 3.2.0
+	wget www.qpoases.org/go/release
+	unzip release
+	mv qpOASES-3.2.0 qpOASES
+	cd qpOASES
+	make REPLACE_LINALG=0
+	cd ../
+	rm -rf release
 }
 
 
@@ -348,27 +349,6 @@ fi
 
 
 ##---------------------------------------------------------------##
-##--------------------- Installing qpOASES ----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing qpOASES ...${COLOR_RESET}"
-if [ -d "qpOASES" ]; then
-	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install qpOASES 3.2.0? [Y/n]: ${COLOR_RESET}"
-	read ANSWER_QPOASES
-	if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
-		install_qpoases
-    fi
-else
-	echo -e -n "${COLOR_QUES}Do you want to install qpOASES 3.2.0? [Y/n]: ${COLOR_RESET}"
-	read ANSWER_QPOASES
-	if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
-		install_qpoases
-	fi
-fi
-
-
-##---------------------------------------------------------------##
 ##---------------------- Installing Ipopt -----------------------##
 ##---------------------------------------------------------------##
 echo ""
@@ -385,6 +365,27 @@ else
 	read ANSWER_IPOPT
 	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
 		install_ipopt
+	fi
+fi
+
+
+##---------------------------------------------------------------##
+##--------------------- Installing qpOASES ----------------------##
+##---------------------------------------------------------------##
+echo ""
+echo -e "${COLOR_BOLD}Installing qpOASES ...${COLOR_RESET}"
+if [ -d "qpOASES" ]; then
+	# Control will enter here if $DIRECTORY exists.
+	echo -e -n "${COLOR_QUES}Do you want to re-install qpOASES 3.2.0? [Y/n]: ${COLOR_RESET}"
+	read ANSWER_QPOASES
+	if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
+		install_qpoases
+    fi
+else
+	echo -e -n "${COLOR_QUES}Do you want to install qpOASES 3.2.0? [Y/n]: ${COLOR_RESET}"
+	read ANSWER_QPOASES
+	if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
+		install_qpoases
 	fi
 fi
 
