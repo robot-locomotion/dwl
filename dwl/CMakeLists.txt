@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(dwl)
 
-set(DWL_VERSION 0.2.9 CACHE STRING "DWL version")
+set(DWL_VERSION 0.8.2 CACHE STRING "DWL version")
 message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
 message("Copyright (C) 2014-2016 Carlos Mastalli - Istituto Italiano di Tecnologia.")
 message("Released under the XXX License.")
@@ -17,6 +17,7 @@ pkg_check_modules(RBDL rbdl REQUIRED)
 find_package(URDF REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(ROBOTS)
+find_package(QPOASES)
 find_package(IPOPT)
 find_package(octomap)
 
@@ -63,7 +64,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/solver/Dijkstrap.cpp
 							 src/solver/AStar.cpp
 							 src/solver/AnytimeRepairingAStar.cpp
-							 src/solver/QuadProg++.cpp
+							 src/solver/QuadraticProgram.cpp
 							 src/solver/QuadProg++QP.cpp
 							 src/model/AdjacencyModel.cpp
 							 src/model/GridBasedBodyAdjacency.cpp
@@ -130,6 +131,18 @@ if(hyq_FOUND)
 endif()
 
 
+# Adding qpOASES components of the project
+if (qpoases_FOUND)
+    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${QPOASES_INCLUDE_DIRS})
+    list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${QPOASES_LIBRARY_DIR})
+    list(APPEND DEPENDENCIES_LIBRARIES  ${QPOASES_LIBRARIES})
+    
+    include_directories(${QPOASES_INCLUDE_DIRS})
+    set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
+                                 src/solver/qpOASES.cpp)
+
+endif()
+
 # Adding Ipopt components of the project
 if(ipopt_FOUND)
     list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${IPOPT_INCLUDE_DIRS})
@@ -155,6 +168,7 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
 
 
+# Adding the test executables
 add_executable(my_planner  tests/HierarchicalPlanningTest.cpp)
 target_link_libraries(my_planner ${PROJECT_NAME})
 
@@ -171,7 +185,6 @@ target_link_libraries(yaml_bridge ${PROJECT_NAME})
 
 add_executable(dikstrap_algorithm  tests/DijkstraExample.cpp)
 add_executable(boost_dikstrap_algorithm  tests/DijkstraExampleBoost.cpp)
-
 
 add_executable(numdiff  tests/NumDiffEigenTest.cpp)
 target_link_libraries(numdiff ${PROJECT_NAME})
