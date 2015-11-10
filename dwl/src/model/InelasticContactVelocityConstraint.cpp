@@ -45,12 +45,12 @@ void InelasticContactVelocityConstraint::computeFirstComplement(Eigen::VectorXd&
 	constraint.resize(system_.getNumberOfEndEffectors());
 
 	// Adding the normal contact forces per every end-effector as a the first complementary
-	urdf_model::LinkID contact_links = system_.getEndEffectors();
-	for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
-			contact_it != contact_links.end(); contact_it++) {
+	for (rbd::BodyWrench::const_iterator contact_it = state.contact_eff.begin();
+			contact_it != state.contact_eff.end(); contact_it++) {
 		std::string name = contact_it->first;
-		unsigned int id = contact_it->second;
-		constraint(id) = state.contact_eff.at(name)(rbd::LZ);
+		unsigned int id = system_.getEndEffectors().find(name)->second;
+
+		constraint(id) = contact_it->second(rbd::LZ);
 	}
 }
 
@@ -73,9 +73,14 @@ void InelasticContactVelocityConstraint::computeSecondComplement(Eigen::VectorXd
 
 	// Adding the contact distance per every end-effector as a the second complementary
 	// TODO there is missing the concept of surface
-	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
-		constraint(k) = current_contact_pos.find(end_effector_names_[k])->second(rbd::X) -
-			last_contact_pos.find(end_effector_names_[k])->second(rbd::X);
+	for (rbd::BodyVector::const_iterator contact_it = state.contact_pos.begin();
+			contact_it != state.contact_pos.end(); contact_it++) {
+		std::string name = contact_it->first;
+		Eigen::VectorXd position = contact_it->second;
+		unsigned int id = system_.getEndEffectors().find(name)->second;
+
+		constraint(id) = position(rbd::X) - last_contact_pos.find(name)->second(rbd::X);
+	}
 }
 
 } //@namespace model
