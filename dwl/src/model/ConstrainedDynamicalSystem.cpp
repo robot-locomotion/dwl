@@ -66,9 +66,9 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 			endeffector_it != endeffectors_vel.end(); endeffector_it++) {
 		// Getting the end-effector index
 		std::string name = endeffector_it->first;
-		unsigned int end_effector_idx = system_.getEndEffectors().find(name)->second;
+		unsigned int id = system_.getEndEffectors().find(name)->second;
 
-		constraint.segment<3>(system_.getJointDoF() + 3 * end_effector_idx) = endeffector_it->second;
+		constraint.segment<3>(system_.getJointDoF() + 3 * id) = endeffector_it->second;
 	}
 }
 
