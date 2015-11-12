@@ -115,9 +115,9 @@ function install_ipopt
 	# Installing necessary packages
 	sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
 
-	# Getting Ipopt 3.12.2
-	wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.2.tgz
-	mkdir ipopt && tar xzvf Ipopt-3.12.2.tgz -C ipopt --strip-components 1
+	# Getting Ipopt 3.12.4
+	wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.4.tgz
+	mkdir ipopt && tar xzvf Ipopt-3.12.4.tgz -C ipopt --strip-components 1
 	# Documentation for Ipopt Third Party modules:
 	# http://www.coin-or.org/Ipopt/documentation/node13.html
 	cd ipopt/ThirdParty
@@ -171,7 +171,7 @@ function install_ipopt
 	../configure --enable-static --prefix ${SELF_PATH}/thirdparty/ipopt
 	make install
 	cd ../../
-	rm -rf Ipopt-3.12.2.tgz
+	rm -rf Ipopt-3.12.4.tgz
 }
 
 
@@ -355,13 +355,13 @@ echo ""
 echo -e "${COLOR_BOLD}Installing Ipopt ...${COLOR_RESET}"
 if [ -d "ipopt" ]; then
 	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install Ipopt 3.12.2? [Y/n]: ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install Ipopt 3.12.4? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_IPOPT
 	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
 		install_ipopt
     fi
 else
-	echo -e -n "${COLOR_QUES}Do you want to install Ipopt 3.12.2? [Y/n]: ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to install Ipopt 3.12.4? [Y/n]: ${COLOR_RESET}"
 	read ANSWER_IPOPT
 	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
 		install_ipopt
