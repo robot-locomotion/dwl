@@ -42,10 +42,14 @@ void OptimizationModel::init()
 
 	// Initializing the constraint dimension
 	constraint_dimension_ = 0;
-	constraint_dimension_ += dynamical_system_->getConstraintDimension();
-	if (is_added_constraint_)
-		for (unsigned int i = 0; i < constraints_.size(); i++)
-			constraint_dimension_ += constraints_[i]->getConstraintDimension();
+	if (!dynamical_system_->isSoftConstraint())
+		constraint_dimension_ += dynamical_system_->getConstraintDimension();
+	if (is_added_constraint_) {
+		for (unsigned int i = 0; i < constraints_.size(); i++) {
+			if (!constraints_[i]->isSoftConstraint())
+				constraint_dimension_ += constraints_[i]->getConstraintDimension();
+		}
+	}
 
 	// Initializing the terminal constraint dimension
 	if (dynamical_system_->isFullTrajectoryOptimization())
@@ -143,55 +147,62 @@ void OptimizationModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lo
 	dynamical_system_->fromWholeBodyState(state_upper_bound, locomotion_upper_bound);
 
 	// Getting the lower and upper constraint bounds for a certain time
-	unsigned int index = 0;
-	unsigned int num_constraints = constraints_.size();
-	Eigen::VectorXd constraint_lower_bound(constraint_dimension_),
-			constraint_upper_bound(constraint_dimension_);
-	for (unsigned int i = 0; i < num_constraints + 1; i++) {
-		Eigen::VectorXd lower_bound, upper_bound;
-		unsigned int current_bound_dim;
-		if (i == 0) {
-			// Getting the dynamical constraint bounds
-			dynamical_system_->getBounds(lower_bound, upper_bound);
+	if (constraint_dimension_ != 0) {
+		unsigned int index = 0;
+		unsigned int num_constraints = constraints_.size();
+		Eigen::VectorXd constraint_lower_bound = Eigen::VectorXd::Zero(constraint_dimension_);
+		Eigen::VectorXd constraint_upper_bound = Eigen::VectorXd::Zero(constraint_dimension_);
+		for (unsigned int j = 0; j < num_constraints + 1; j++) {
+			Eigen::VectorXd lower_bound, upper_bound;
+			unsigned int current_bound_dim = 0;
+			if (j == 0) {
+				if (!dynamical_system_->isSoftConstraint()) {
+					// Getting the dynamical constraint bounds
+					dynamical_system_->getBounds(lower_bound, upper_bound);
 
-			// Checking the bound dimension
-			current_bound_dim = dynamical_system_->getConstraintDimension();
-			if (current_bound_dim != (unsigned) lower_bound.size()) {
-				printf(RED "FATAL: the bound dimension of %s constraint is not consistent\n"
-						COLOR_RESET, dynamical_system_->getName().c_str());
-				exit(EXIT_FAILURE);
-			}
-		} else {
-			// Getting the set of constraint bounds
-			constraints_[i-1]->getBounds(lower_bound, upper_bound);
+					// Checking the bound dimension
+					current_bound_dim = dynamical_system_->getConstraintDimension();
+					if (current_bound_dim != (unsigned) lower_bound.size()) {
+						printf(RED "FATAL: the bound dimension of %s constraint is not consistent\n"
+								COLOR_RESET, dynamical_system_->getName().c_str());
+						exit(EXIT_FAILURE);
+					}
+				}
+			} else if (!constraints_[j-1]->isSoftConstraint()) {
+				// Getting the set of constraint bounds
+				constraints_[j-1]->getBounds(lower_bound, upper_bound);
 
-			// Checking the bound dimension
-			current_bound_dim = constraints_[i-1]->getConstraintDimension();
-			if (current_bound_dim != (unsigned) lower_bound.size()) {
-				printf(RED "FATAL: the bound dimension of %s constraint is not consistent\n"
-						COLOR_RESET, constraints_[i-1]->getName().c_str());
-				exit(EXIT_FAILURE);
+				// Checking the bound dimension
+				current_bound_dim = constraints_[j-1]->getConstraintDimension();
+				if (current_bound_dim != (unsigned) lower_bound.size()) {
+					printf(RED "FATAL: the bound dimension of %s constraint is not consistent\n"
+							COLOR_RESET, constraints_[j-1]->getName().c_str());
+					exit(EXIT_FAILURE);
+				}
 			}
+
+			// Setting the full constraint vector
+			constraint_lower_bound.segment(index, current_bound_dim) = lower_bound;
+			constraint_upper_bound.segment(index, current_bound_dim) = upper_bound;
+
+			index += current_bound_dim;
 		}
 
-		// Setting the full constraint vector
-		constraint_lower_bound.segment(index, current_bound_dim) = lower_bound;
-		constraint_upper_bound.segment(index, current_bound_dim) = upper_bound;
-
-		index += current_bound_dim;
+		// Setting the full-constraint lower and upper bounds for the predefined horizon
+		for (unsigned int k = 0; k < horizon_; k++) {
+			// Setting dynamic system bounds
+			full_constraint_lower_bound.segment(k * constraint_dimension_,
+												constraint_dimension_) = constraint_lower_bound;
+			full_constraint_upper_bound.segment(k * constraint_dimension_,
+												constraint_dimension_) = constraint_upper_bound;
+		}
 	}
 
-	// Setting the full (state and constraint) lower and upper bounds for the predefined horizon
+	// Setting the full-state lower and upper bounds for the predefined horizon
 	for (unsigned int k = 0; k < horizon_; k++) {
 		// Setting state bounds
 		full_state_lower_bound.segment(k * state_dimension_, state_dimension_) = state_lower_bound;
 		full_state_upper_bound.segment(k * state_dimension_, state_dimension_) = state_upper_bound;
-
-		// Setting dynamic system bounds
-		full_constraint_lower_bound.segment(k * constraint_dimension_,
-											constraint_dimension_) = constraint_lower_bound;
-		full_constraint_upper_bound.segment(k * constraint_dimension_,
-											constraint_dimension_) = constraint_upper_bound;
 	}
 
 	// Computing the terminal bounds in case of full trajectory optimization
@@ -250,38 +261,45 @@ void OptimizationModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_con
 		system_state.time += system_state.duration;
 
 		// Computing the constraints for a certain time
-		for (unsigned int j = 0; j < num_constraints + 1; j++) {
-			Eigen::VectorXd constraint;
-			unsigned int current_constraint_dim;
-			if (j == 0) {// dynamic system constraint
-				// Evaluating the dynamical constraint
-				dynamical_system_->compute(constraint, system_state);
-				dynamical_system_->setLastState(system_state);
+		if (constraint_dimension_ != 0) {
+			for (unsigned int j = 0; j < num_constraints + 1; j++) {
+				Eigen::VectorXd constraint;
+				unsigned int current_constraint_dim = 0;
+				if (j == 0) {// dynamic system constraint
+					// Evaluating the dynamical constraint
+					if (!dynamical_system_->isSoftConstraint()) {
+						dynamical_system_->compute(constraint, system_state);
+						dynamical_system_->setLastState(system_state);
 
-				// Checking the constraint dimension
-				current_constraint_dim = dynamical_system_->getConstraintDimension();
-				if (current_constraint_dim != (unsigned) constraint.size()) {
-					printf(RED "FATAL: the constraint dimension of %s constraint is not consistent\n"
-							COLOR_RESET, dynamical_system_->getName().c_str());
-					exit(EXIT_FAILURE);
-				}
-			} else {
-				constraints_[j-1]->compute(constraint, system_state);
-				constraints_[j-1]->setLastState(system_state);
+						// Checking the constraint dimension
+						current_constraint_dim = dynamical_system_->getConstraintDimension();
+						if (current_constraint_dim != (unsigned) constraint.size()) {
+							printf(RED "FATAL: the constraint dimension of %s constraint is not consistent\n"
+									COLOR_RESET, dynamical_system_->getName().c_str());
+							exit(EXIT_FAILURE);
+						}
+					}
+				} else {
+					// Evaluating the constraints
+					if (!constraints_[j-1]->isSoftConstraint()) {
+						constraints_[j-1]->compute(constraint, system_state);
+						constraints_[j-1]->setLastState(system_state);
 
-				// Checking the constraint dimension
-				current_constraint_dim = constraints_[j-1]->getConstraintDimension();
-				if (current_constraint_dim != (unsigned) constraint.size()) {
-					printf(RED "FATAL: the constraint dimension of %s constraint is not consistent\n"
-							COLOR_RESET, constraints_[j-1]->getName().c_str());
-					exit(EXIT_FAILURE);
+						// Checking the constraint dimension
+						current_constraint_dim = constraints_[j-1]->getConstraintDimension();
+						if (current_constraint_dim != (unsigned) constraint.size()) {
+							printf(RED "FATAL: the constraint dimension of %s constraint is not consistent\n"
+									COLOR_RESET, constraints_[j-1]->getName().c_str());
+							exit(EXIT_FAILURE);
+						}
+					}
 				}
+
+				// Setting in the full constraint vector
+				full_constraint.segment(index, current_constraint_dim) = constraint;
+
+				index += current_constraint_dim;
 			}
-
-			// Setting in the full constraint vector
-			full_constraint.segment(index, current_constraint_dim) = constraint;
-
-			index += current_constraint_dim;
 		}
 
 		// Computing the terminal constraint in case of full trajectory optimization
@@ -319,6 +337,18 @@ void OptimizationModel::evaluateCosts(double& cost,
 	// Initializing the cost value
 	cost = 0;
 
+	// Getting the initial conditions of the locomotion state
+	WholeBodyState locomotion_initial_cond = dynamical_system_->getInitialState();
+
+	// Setting the initial state
+	unsigned int num_constraints = constraints_.size();
+	for (unsigned int j = 0; j < num_constraints + 1; j++) {
+		if (j == 0) // dynamic system constraint
+			dynamical_system_->setLastState(locomotion_initial_cond);
+		else
+			constraints_[j-1]->setLastState(locomotion_initial_cond);
+	}
+
 	// Computing the cost for predefined horizon
 	WholeBodyState system_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
 	for (unsigned int k = 0; k < horizon_; k++) {
@@ -331,13 +361,36 @@ void OptimizationModel::evaluateCosts(double& cost,
 			system_state.duration = dynamical_system_->getFixedStepTime();
 		system_state.time += system_state.duration;
 
-		// Computing the function cost for a certain time
+		// Computing the cost function for a certain time
 		double simple_cost;
 		unsigned int num_cost_functions = costs_.size();
 		for (unsigned int j = 0; j < num_cost_functions; j++) {
 			costs_[j]->compute(simple_cost, system_state);
 			cost += simple_cost;
 		}
+
+		// Computing the soft-constraints for a certain time
+		for (unsigned int j = 0; j < num_constraints + 1; j++) {
+			if (j == 0) {// dynamic system constraint
+				if (dynamical_system_->isSoftConstraint()) {
+					dynamical_system_->computeSoft(simple_cost, system_state);
+					dynamical_system_->setLastState(system_state);
+					cost += simple_cost;
+				}
+			} else if (constraints_[j-1]->isSoftConstraint()) {
+				constraints_[j-1]->computeSoft(simple_cost, system_state);
+				constraints_[j-1]->setLastState(system_state);
+				cost += simple_cost;
+			}
+		}
+	}
+
+	// Resetting the state buffer
+	for (unsigned int j = 0; j < num_constraints + 1; j++) {
+		if (j == 0) // dynamic system constraint
+			dynamical_system_->resetStateBuffer();
+		else
+			constraints_[j-1]->resetStateBuffer();
 	}
 }
 

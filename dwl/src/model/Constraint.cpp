@@ -7,7 +7,7 @@ namespace dwl
 namespace model
 {
 
-Constraint::Constraint() : constraint_dimension_(0)
+Constraint::Constraint() : constraint_dimension_(0), is_soft_(false)
 {
 	state_buffer_.set_capacity(4);
 }
@@ -61,6 +61,28 @@ void Constraint::init(std::string urdf_model,
 					  bool info)
 {
 
+}
+
+
+void Constraint::computeSoft(double& constraint_cost,
+							 const WholeBodyState& state)
+{
+	// Getting the constraint value and bounds
+	Eigen::VectorXd constraint, lower_bound, upper_bound;
+	compute(constraint, state);
+
+	getBounds(lower_bound, upper_bound);
+
+	// Computing a quadratic cost of the constraint violation
+	Eigen::VectorXd lower_violation = lower_bound - constraint;
+	Eigen::VectorXd upper_violation = constraint - upper_bound;
+	constraint_cost = 100000*(lower_violation.norm() + upper_violation.norm());
+}
+
+
+bool Constraint::isSoftConstraint()
+{
+	return is_soft_;
 }
 
 

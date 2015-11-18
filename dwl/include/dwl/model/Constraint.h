@@ -55,6 +55,14 @@ class Constraint
 						  bool info = false);
 
 		/**
+		 * @brief Computes the soft-value of the constraint given a certain state
+		 * @param double& Soft-value or the associated cost to the constraint
+		 * @param const WholeBodyState& Whole-body state
+		 */
+		void computeSoft(double& constraint_cost,
+						 const WholeBodyState& state);
+
+		/**
 		 * @brief Computes the constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
 		 * @param const WholeBodyState& Whole-body state
@@ -69,6 +77,9 @@ class Constraint
 		 */
 		virtual void getBounds(Eigen::VectorXd& lower_bound,
 							   Eigen::VectorXd& upper_bound) = 0;
+
+		/** @brief Indicates is the constraint is implemented as soft-constraint */
+		bool isSoftConstraint();
 
 		/**
 		 * @brief Sets the last state that could be used for the constraint
@@ -95,6 +106,9 @@ class Constraint
 
 		/** @brief Dimension of the constraint */
 		unsigned int constraint_dimension_;
+
+		/** @brief Label that indicates if it's implemented as soft constraint */
+		bool is_soft_;
 
 		/** @brief Sets the last state */
 		boost::circular_buffer<WholeBodyState> state_buffer_;

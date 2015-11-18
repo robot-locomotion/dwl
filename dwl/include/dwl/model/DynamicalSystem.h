@@ -69,8 +69,8 @@ class DynamicalSystem : public Constraint
 		 * @param Eigen::VectorXd& Evaluated constraint function
 		 * @param const WholeBodyState& Whole-body state
 		 */
-		virtual void compute(Eigen::VectorXd& constraint,
-							 const WholeBodyState& state);
+		void compute(Eigen::VectorXd& constraint,
+					 const WholeBodyState& state);
 
 		/**
 		 * @brief Computes the dynamical constraint vector given a certain state. Note that the
@@ -106,8 +106,8 @@ class DynamicalSystem : public Constraint
 		 * @param Eigen::VectorXd& Lower bounds
 		 * @param Eigen::VectorXd& Upper bounds
 		 */
-		virtual void getBounds(Eigen::VectorXd& lower_bound,
-							   Eigen::VectorXd& upper_bound);
+		void getBounds(Eigen::VectorXd& lower_bound,
+					   Eigen::VectorXd& upper_bound);
 
 		/**
 		 * @brief Gets the dynamical system bounds vector given a certain state. Note that the
