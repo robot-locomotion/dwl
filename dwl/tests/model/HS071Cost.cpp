@@ -20,8 +20,6 @@ class HS071Cost : public Cost
 		void compute(double& cost,
 					 const WholeBodyState& state)
 		{
-//			assert(n == 4);
-
 			cost = state.joint_pos(0) * state.joint_pos(3) * (state.joint_pos(0) +
 					state.joint_pos(1) + state.joint_pos(2)) + state.joint_pos(2);
 		}

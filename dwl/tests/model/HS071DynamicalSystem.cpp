@@ -17,26 +17,26 @@ class HS071DynamicalSystem : public DynamicalSystem
 		{
 			name_ = "HS071";
 			state_dimension_ = 4;
+			constraint_dimension_ = 2;
 			system_variables_.position = true;
-			system_.setJointDoF(4);
+			system_.setJointDoF(state_dimension_);
+			system_.setSystemDoF(state_dimension_);
 			system_.setTypeOfDynamicSystem(FixedBase);
 
-			WholeBodyState starting_state;
-			starting_state.joint_pos.resize(4);
+			WholeBodyState starting_state(state_dimension_);
 			starting_state.joint_pos(0) = 1.0;
 			starting_state.joint_pos(1) = 5.0;
 			starting_state.joint_pos(2) = 5.0;
 			starting_state.joint_pos(3) = 1.0;
 			setInitialState(starting_state);
+			setTerminalState(starting_state);
 
-			WholeBodyState lower_state_bound, upper_state_bound;
-			lower_state_bound.joint_pos.resize(4);
+			WholeBodyState lower_state_bound(state_dimension_), upper_state_bound(state_dimension_);
 			lower_state_bound.joint_pos(0) = 1.0;
 			lower_state_bound.joint_pos(1) = 1.0;
 			lower_state_bound.joint_pos(2) = 1.0;
 			lower_state_bound.joint_pos(3) = 1.0;
 
-			upper_state_bound.joint_pos.resize(4);
 			upper_state_bound.joint_pos(0) = 5.0;
 			upper_state_bound.joint_pos(1) = 5.0;
 			upper_state_bound.joint_pos(2) = 5.0;
