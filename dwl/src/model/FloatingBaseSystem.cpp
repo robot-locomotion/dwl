@@ -198,6 +198,12 @@ void FloatingBaseSystem::setTypeOfDynamicSystem(enum TypeOfSystem _type_of_syste
 }
 
 
+void FloatingBaseSystem::setSystemDoF(unsigned int _num_dof)
+{
+	num_system_joints = _num_dof;
+}
+
+
 void FloatingBaseSystem::setJointDoF(unsigned int _num_joints)
 {
 	num_joints = _num_joints;

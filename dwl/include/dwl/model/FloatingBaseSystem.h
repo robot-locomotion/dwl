@@ -96,6 +96,13 @@ class FloatingBaseSystem
 		 */
 		void setTypeOfDynamicSystem(enum TypeOfSystem _type_of_system);
 
+
+		/**
+		 * @brief Sets the system DoF
+		 * @param unsigned int Number of DoF
+		 */
+		void setSystemDoF(unsigned int _num_dof);
+
 		/**
 		 * @brief Sets the actuated joint DoF
 		 * @param unsigned int Number of joints
