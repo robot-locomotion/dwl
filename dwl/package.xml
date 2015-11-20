@@ -23,11 +23,11 @@
   <!--   <buildtool_depend>catkin</buildtool_depend> -->
   <!-- Use run_depend for packages you need at runtime: -->
   
-  <buildtool_depend>cmake</buildtool_depend>
+  <buildtool_depend>catkin</buildtool_depend>
   
 <!-- <build_depend>octomap</build_depend>
   <build_depend>eigen</build_depend>   -->
-  
+
   <run_depend>catkin</run_depend>
 <!-- <run_depend>octomap</run_depend>
   <run_depend>eigen</run_depend>   -->
@@ -41,7 +41,7 @@
 <!--  <run_depend>octomap_msgs</run_depend>-->
   
 
-  <export>
+<!--   <export>
 	<build_type>cmake</build_type>
-  </export>
+  </export> -->
 </package>

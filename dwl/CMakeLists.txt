@@ -6,9 +6,17 @@ message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
 message("Copyright (C) 2014-2016 Carlos Mastalli - Istituto Italiano di Tecnologia.")
 message("Released under the XXX License.")
 
-
 # Appending the project module path
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+set(CATKIN_CALL "${CATKIN_DEVEL_PREFIX}")
+if(CATKIN_CALL)
+	message("Using Catkin")
+	find_package(catkin REQUIRED)
+	#find_package(cmake_modules REQUIRED)
+else()
+	message("Not Catkin")
+endif()	
 
 # Finding dependencies
 find_package(Eigen3 REQUIRED)
@@ -20,6 +28,16 @@ find_package(ROBOTS)
 find_package(QPOASES)
 find_package(IPOPT)
 find_package(octomap)
+
+
+if(CATKIN_CALL)
+	catkin_package(
+	INCLUDE_DIRS include
+	LIBRARIES ${PROJECT_NAME}
+	DEPENDS system_lib
+	)
+endif()	
+
 
 
 # Set a default build type to 'Release' if none was specified
@@ -34,9 +52,12 @@ endif()
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
 
 # Seting the output directories for libraries and executables
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
+if(NOT CATKIN_CALL)
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
+endif()
+
 
 # Setting the thirdparties directories and libraries
 set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS} ${URDF_INCLUDE_DIRS})
