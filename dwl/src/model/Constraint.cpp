@@ -83,7 +83,7 @@ void Constraint::computeSoft(double& constraint_cost,
 	}
 
 	// Computing a quadratic cost of the constraint violation
-	double weight = 10000
+	double weight = 10000;
 	Eigen::VectorXd lower_violation = lower_bound - constraint;
 	Eigen::VectorXd upper_violation = constraint - upper_bound;
 	constraint_cost = weight * (lower_violation.norm() + upper_violation.norm());
