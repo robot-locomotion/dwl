@@ -6,9 +6,21 @@ message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
 message("Copyright (C) 2014-2016 Carlos Mastalli - Istituto Italiano di Tecnologia.")
 message("Released under the XXX License.")
 
+# Checking if the project is compiling with Catkin or CMake
+set(CATKIN_CALL "${CATKIN_DEVEL_PREFIX}")
+if(CATKIN_CALL)
+	message("Compiling DWL library as a Catkin project")
+	find_package(catkin REQUIRED)
+else()
+	message("Compiling DWL library as a CMake project")
+	# Setting the output directories for libraries and executables
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
+endif()	
 
 # Appending the project module path
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Finding dependencies
 find_package(Eigen3 REQUIRED)
@@ -21,7 +33,6 @@ find_package(QPOASES)
 find_package(IPOPT)
 find_package(octomap)
 
-
 # Set a default build type to 'Release' if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -32,11 +43,6 @@ endif()
 
 # Setting flags for optimization
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
-
-# Seting the output directories for libraries and executables
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
 
 # Setting the thirdparties directories and libraries
 set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS} ${URDF_INCLUDE_DIRS})
@@ -130,7 +136,6 @@ if(hyq_FOUND)
 								         #src/robot/HyQWholeBodyDynamics.cpp
 endif()
 
-
 # Adding qpOASES components of the project
 if (qpoases_FOUND)
     list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${QPOASES_INCLUDE_DIRS})
@@ -161,7 +166,6 @@ if(octomap_FOUND)
                                          src/environment/ObstacleMap.cpp)
 endif()
 
-
 # Adding the dwl library
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
@@ -189,7 +193,6 @@ add_executable(numdiff  tests/NumDiffEigenTest.cpp)
 target_link_libraries(numdiff ${PROJECT_NAME})
 
 
-
 # Installing catkin package.xml and dw-config.cmake
 install(FILES package.xml DESTINATION share/dwl)
 install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" DESTINATION share/dwl/cmake)
@@ -198,12 +201,20 @@ install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" DES
 # (this registers the build-tree with a global CMake-registry)
 export(PACKAGE dwl)
 
-# Creating a dwl-config.cmake file for the use from the build tree
-set(DWL_INCLUDE_DIRS  ${INCLUDE_DIRS}
-                      ${DEPENDENCIES_INCLUDE_DIRS})
-set(DWL_LIBRARY_DIRS  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
-                      ${DEPENDENCIES_LIBRARY_DIRS})
-set(DWL_LIBRARIES  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libdwl${CMAKE_SHARED_LIBRARY_SUFFIX}
-                   ${DEPENDENCIES_LIBRARIES})
-configure_file(dwl-config.cmake.in
-  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" @ONLY)
+# Adding the description of the dwl library
+if(CATKIN_CALL)
+	catkin_package(
+		INCLUDE_DIRS include ${DEPENDENCIES_INCLUDE_DIRS}
+		LIBRARIES ${PROJECT_NAME} 
+		DEPENDS system_lib ${DEPENDENCIES_LIBRARIES} ${DEPENDENCIES_LIBRARY_DIRS} ${DEPENDENCIES_INCLUDE_DIRS})
+else()
+	# Creating a dwl-config.cmake file for the use from the build tree
+	set(DWL_INCLUDE_DIRS  ${INCLUDE_DIRS}
+	                      ${DEPENDENCIES_INCLUDE_DIRS})
+	set(DWL_LIBRARY_DIRS  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+	                      ${DEPENDENCIES_LIBRARY_DIRS})
+	set(DWL_LIBRARIES  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libdwl${CMAKE_SHARED_LIBRARY_SUFFIX}
+	                   ${DEPENDENCIES_LIBRARIES})
+	configure_file(dwl-config.cmake.in
+	  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" @ONLY)
+endif()
