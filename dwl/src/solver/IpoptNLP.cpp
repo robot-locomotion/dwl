@@ -34,6 +34,7 @@ bool IpoptNLP::init()
 
 	// Change some options (do not touch these)
 	app_->Options()->SetNumericValue("tol", 1e-7);
+//	app_->Options()->SetNumericValue("acceptable_tol", 1e-2);
 	app_->Options()->SetStringValue("mu_strategy", "adaptive");
 //	app_->Options()->SetStringValue("output_file", "ipopt.out");
 	app_->Options()->SetIntegerValue("max_iter", std::numeric_limits<int>::max());
@@ -41,7 +42,12 @@ bool IpoptNLP::init()
 
 	// Computing Hessian numerically (do not need to implement)
 	app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
-//	app_->Options()->SetStringValue("warm_start_init_point", "yes");
+
+	app_->Options()->SetStringValue("warm_start_init_point", "yes");
+
+//	app_->Options()->SetNumericValue("dual_inf_tol", 1000);
+//	app_->Options()->SetNumericValue("constr_viol_tol", 0.1);
+//	app_->Options()->SetNumericValue("compl_inf_tol", 0.1);
 
 	// Initialize the IpoptApplication and process the options
 	Ipopt::ApplicationReturnStatus status;
