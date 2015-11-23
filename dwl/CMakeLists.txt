@@ -6,9 +6,21 @@ message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
 message("Copyright (C) 2014-2016 Carlos Mastalli - Istituto Italiano di Tecnologia.")
 message("Released under the XXX License.")
 
+# Checking if the project is compiling with Catkin or CMake
+set(CATKIN_CALL "${CATKIN_DEVEL_PREFIX}")
+if(CATKIN_CALL)
+	message("Compiling DWL library as a Catkin project")
+	find_package(catkin REQUIRED)
+else()
+	message("Compiling DWL library as a CMake project")
+	# Setting the output directories for libraries and executables
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
+endif()	
 
 # Appending the project module path
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Finding dependencies
 find_package(Eigen3 REQUIRED)
@@ -21,22 +33,16 @@ find_package(QPOASES)
 find_package(IPOPT)
 find_package(octomap)
 
-
 # Set a default build type to 'Release' if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-    message(STATUS "Setting build type to 'Release' as none was specified.")
+	message(STATUS "Setting build type to 'Release' as none was specified.")
 	set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-    # Set the possible values of build type for cmake-gui
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+	# Set the possible values of build type for cmake-gui
+	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
 # Setting flags for optimization
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
-
-# Seting the output directories for libraries and executables
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
 
 # Setting the thirdparties directories and libraries
 set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS} ${URDF_INCLUDE_DIRS})
@@ -113,59 +119,56 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 
 # Adding robot components of the project
 if(hyl_FOUND)
-    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${hyl_INCLUDE_DIRS})
-    list(APPEND DEPENDENCIES_LIBRARIES  ${hyl_LIBRARIES})
+	list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${hyl_INCLUDE_DIRS})
+	list(APPEND DEPENDENCIES_LIBRARIES  ${hyl_LIBRARIES})
 
-    include_directories(${hyl_INCLUDE_DIRS})
+	include_directories(${hyl_INCLUDE_DIRS})
 	list(APPEND ${PROJECT_NAME}_SOURCES  src/robot/HyLWholeBodyKinematics.cpp
-								         src/robot/HyLWholeBodyDynamics.cpp)
+										 src/robot/HyLWholeBodyDynamics.cpp)
 endif()
 
 if(hyq_FOUND)
-    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${hyq_INCLUDE_DIRS})
-    list(APPEND DEPENDENCIES_LIBRARIES  ${hyq_LIBRARIES})
+	list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${hyq_INCLUDE_DIRS})
+	list(APPEND DEPENDENCIES_LIBRARIES  ${hyq_LIBRARIES})
 
-    include_directories(${hyq_INCLUDE_DIRS})
+	include_directories(${hyq_INCLUDE_DIRS})
 	list(APPEND ${PROJECT_NAME}_SOURCES  src/robot/HyQWholeBodyKinematics.cpp)
 								         #src/robot/HyQWholeBodyDynamics.cpp
 endif()
 
-
 # Adding qpOASES components of the project
 if (qpoases_FOUND)
-    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${QPOASES_INCLUDE_DIRS})
-    list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${QPOASES_LIBRARY_DIR})
-    list(APPEND DEPENDENCIES_LIBRARIES  ${QPOASES_LIBRARIES})
+	list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${QPOASES_INCLUDE_DIRS})
+	list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${QPOASES_LIBRARY_DIR})
+	list(APPEND DEPENDENCIES_LIBRARIES  ${QPOASES_LIBRARIES})
     
-    include_directories(${QPOASES_INCLUDE_DIRS})
-    set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
-                                 src/solver/qpOASES.cpp)
+	include_directories(${QPOASES_INCLUDE_DIRS})
+	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
+								 src/solver/qpOASES.cpp)
 endif()
 
 # Adding Ipopt components of the project
 if(ipopt_FOUND)
-    list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${IPOPT_INCLUDE_DIRS})
-    list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${IPOPT_LIBRARY_DIR})
-    list(APPEND DEPENDENCIES_LIBRARIES  ${IPOPT_LIBRARIES})
+	list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${IPOPT_INCLUDE_DIRS})
+	list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${IPOPT_LIBRARY_DIR})
+	list(APPEND DEPENDENCIES_LIBRARIES  ${IPOPT_LIBRARIES})
     
-    include_directories(${IPOPT_INCLUDE_DIRS})
-    set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
-                                 src/solver/IpoptWrapper.cpp
-                                 src/solver/IpoptNLP.cpp)
+	include_directories(${IPOPT_INCLUDE_DIRS})
+	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
+								 src/solver/IpoptWrapper.cpp
+								 src/solver/IpoptNLP.cpp)
 endif()
 
 # Adding Octomap components of the project
 if(octomap_FOUND)
-    include_directories(${OCTOMAP_INCLUDE_DIRS}) 
-    list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/RewardMap.cpp
-                                         src/environment/ObstacleMap.cpp)
+	include_directories(${OCTOMAP_INCLUDE_DIRS}) 
+	list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/RewardMap.cpp
+										 src/environment/ObstacleMap.cpp)
 endif()
-
 
 # Adding the dwl library
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
-
 
 # Adding the test executables
 add_executable(my_planner  tests/HierarchicalPlanningTest.cpp)
@@ -174,8 +177,8 @@ target_link_libraries(my_planner ${PROJECT_NAME})
 include_directories(tests)
 if(ipopt_FOUND)
 	add_executable(ipopt_test  tests/IpoptDWLTest.cpp
-	                           tests/model/HS071DynamicalSystem.cpp
-	                           tests/model/HS071Cost.cpp)
+							   tests/model/HS071DynamicalSystem.cpp
+							   tests/model/HS071Cost.cpp)
 	target_link_libraries(ipopt_test ${PROJECT_NAME})
 endif()
 
@@ -189,7 +192,6 @@ add_executable(numdiff  tests/NumDiffEigenTest.cpp)
 target_link_libraries(numdiff ${PROJECT_NAME})
 
 
-
 # Installing catkin package.xml and dw-config.cmake
 install(FILES package.xml DESTINATION share/dwl)
 install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" DESTINATION share/dwl/cmake)
@@ -198,12 +200,20 @@ install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" DES
 # (this registers the build-tree with a global CMake-registry)
 export(PACKAGE dwl)
 
-# Creating a dwl-config.cmake file for the use from the build tree
-set(DWL_INCLUDE_DIRS  ${INCLUDE_DIRS}
-                      ${DEPENDENCIES_INCLUDE_DIRS})
-set(DWL_LIBRARY_DIRS  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
-                      ${DEPENDENCIES_LIBRARY_DIRS})
-set(DWL_LIBRARIES  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libdwl${CMAKE_SHARED_LIBRARY_SUFFIX}
-                   ${DEPENDENCIES_LIBRARIES})
-configure_file(dwl-config.cmake.in
-  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" @ONLY)
+# Adding the description of the dwl library
+if(CATKIN_CALL)
+	catkin_package(
+		INCLUDE_DIRS include ${DEPENDENCIES_INCLUDE_DIRS}
+		LIBRARIES ${PROJECT_NAME} 
+		DEPENDS system_lib ${DEPENDENCIES_LIBRARIES} ${DEPENDENCIES_LIBRARY_DIRS} ${DEPENDENCIES_INCLUDE_DIRS})
+else()
+	# Creating a dwl-config.cmake file for the use from the build tree
+	set(DWL_INCLUDE_DIRS  ${INCLUDE_DIRS}
+						  ${DEPENDENCIES_INCLUDE_DIRS})
+	set(DWL_LIBRARY_DIRS  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+						  ${DEPENDENCIES_LIBRARY_DIRS})
+	set(DWL_LIBRARIES  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libdwl${CMAKE_SHARED_LIBRARY_SUFFIX}
+					   ${DEPENDENCIES_LIBRARIES})
+	configure_file(dwl-config.cmake.in
+		"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" @ONLY)
+endif()
