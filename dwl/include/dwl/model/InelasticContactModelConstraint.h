@@ -20,7 +20,7 @@ class InelasticContactModelConstraint : public ComplementaryConstraint
 		~InelasticContactModelConstraint();
 
 		/**
-		 * @brief Initializes the ineslatic contact model constraint given an URDF model (xml)
+		 * @brief Initializes the inelastic contact model constraint given an URDF model (xml)
 		 * @param std::string URDF model
 		 * @param Print model information
 		 */
