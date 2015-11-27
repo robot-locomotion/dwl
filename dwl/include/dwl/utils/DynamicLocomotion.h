@@ -113,6 +113,12 @@ struct ContactSearchRegion
 struct WholeBodyState
 {
 	WholeBodyState(unsigned int num_joints = 0) : time(0.), duration(0.) {
+		com_pos.setZero();
+		com_vel.setZero();
+		com_acc.setZero();
+		cop_pos.setZero();
+		cop_vel.setZero();
+		cop_acc.setZero();
 		base_pos.setZero();
 		base_vel.setZero();
 		base_acc.setZero();
@@ -135,6 +141,12 @@ struct WholeBodyState
 
 	double time;
 	double duration;
+	Eigen::Vector3d com_pos;
+	Eigen::Vector3d com_vel;
+	Eigen::Vector3d com_acc;
+	Eigen::Vector2d cop_pos;
+	Eigen::Vector2d cop_vel;
+	Eigen::Vector2d cop_acc;
 	rbd::Vector6d base_pos;
 	rbd::Vector6d base_vel;
 	rbd::Vector6d base_acc;
