@@ -29,19 +29,10 @@ CentroidalDynamicalSystem::~CentroidalDynamicalSystem()
 void CentroidalDynamicalSystem::initDynamicalSystem()
 {
 	// Getting the end-effector names
-	end_effector_names_.clear();
-	urdf_model::LinkID end_effector = system_.getEndEffectors();
-	for (urdf_model::LinkID::const_iterator endeffector_it = end_effector.begin();
-			endeffector_it != end_effector.end(); endeffector_it++) {
-		// Getting and setting the end-effector names
-		std::string name = endeffector_it->first;
-		end_effector_names_.push_back(name);
-	}
+	end_effector_names_ = system_.getEndEffectorNames();
 
 	// Getting the total mass
-	unsigned int num_bodies = system_.getRBDModel().mBodies.size();
-	for (unsigned int i = 0; i < num_bodies; i++)
-		total_mass_ += system_.getRBDModel().mBodies[i].mMass;
+	total_mass_ = system_.getTotalMass();
 }
 
 

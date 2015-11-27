@@ -216,6 +216,17 @@ RigidBodyDynamics::Model& FloatingBaseSystem::getRBDModel()
 }
 
 
+double FloatingBaseSystem::getTotalMass()
+{
+	double mass = 0.;
+	unsigned int num_bodies = rbd_model.mBodies.size();
+	for (unsigned int i = 0; i < num_bodies; i++)
+		mass += rbd_model.mBodies[i].mMass;
+
+	return mass;
+}
+
+
 const unsigned int& FloatingBaseSystem::getSystemDoF()
 {
 	return num_system_joints;

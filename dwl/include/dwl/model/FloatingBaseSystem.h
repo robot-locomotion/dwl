@@ -116,6 +116,12 @@ class FloatingBaseSystem
 		RigidBodyDynamics::Model& getRBDModel();
 
 		/**
+		 * @brief Gets the total mass of the rigid body system
+		 * @return double The total mass of the rigid body system
+		 */
+		double getTotalMass();
+
+		/**
 		 * @brief Gets the floating-base system DoF
 		 * @return const unsigned int& Number of DoF of the floating-base system
 		 */
