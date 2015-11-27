@@ -19,7 +19,7 @@ function install_eigen
 	mkdir -p build
 	cd build
 	cmake ../
-	sudo make install
+	sudo make -j install
 	cd ../../
 	rm -rf 3.2.4.tar.bz2
 }
@@ -36,7 +36,7 @@ function install_rbdl
 	cd build
 	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON ../
 	cmake -D CMAKE_INSTALL_LIBDIR:string=lib ../
-	sudo make install
+	sudo make -j install
 	cd ../../
 	rm default.zip
 }
@@ -52,7 +52,7 @@ function install_urdfdom_headers
 	mkdir -p build
 	cd build
 	cmake ../
-	sudo make install
+	sudo make -j install
 	cd ../../
 }
 
@@ -67,7 +67,7 @@ function install_console_bridge
 	mkdir -p build
 	cd build
 	cmake ../
-	sudo make install
+	sudo make -j install
 	cd ../../
 }
 
@@ -82,7 +82,7 @@ function install_urdfdom
 	mkdir -p build
 	cd build
 	cmake ../
-	sudo make install
+	sudo make -j install
 }
 
 
@@ -169,7 +169,7 @@ function install_ipopt
 	cd build
 	# start building
 	../configure --enable-static --prefix ${SELF_PATH}/thirdparty/ipopt
-	make install
+	make -j install
 	cd ../../
 	rm -rf Ipopt-3.12.4.tgz
 }
@@ -183,7 +183,7 @@ function install_qpoases
 	unzip release
 	mv qpOASES-3.2.0 qpOASES
 	cd qpOASES
-	make REPLACE_LINALG=0
+	make -j REPLACE_LINALG=0
 	cd ../
 	rm -rf release
 }
@@ -198,7 +198,7 @@ function install_octomap
 	mkdir -p build
 	cd build
 	cmake ../
-	sudo make install
+	sudo make -j install
 	cd ../../
 	rm -rf v1.6.8.tar.gz
 }
