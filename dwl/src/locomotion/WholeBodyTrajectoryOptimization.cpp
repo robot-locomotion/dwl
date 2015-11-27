@@ -226,46 +226,42 @@ const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhole
 				}
 			}
 
-			// Contact interpolation if there are part of the optimization variables
-			if (trajectory[k].contact_pos.size() != 0) {
-				urdf_model::LinkID contact_links = getDynamicalSystem()->getFloatingBaseSystem().getEndEffectors();
-				for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
-						contact_it != contact_links.end(); contact_it++) {
-					std::string name = contact_it->first;
-					unsigned int id = contact_it->second;
-
-					// Sanity check: checking if there are effort information
-					rbd::BodyWrench::const_iterator init_it = trajectory[k].contact_eff.find(name);
-					rbd::BodyWrench::const_iterator end_it = trajectory[k+1].contact_eff.find(name);
-					if (init_it != trajectory[k].contact_eff.end() &&
-							end_it != trajectory[k+1].contact_eff.end()) {
-						// Resizing the number of coordinate of the spline
-						contact_force_spline[id].resize(3);
-
-						rbd::Vector6d init_eff = init_it->second;
-						rbd::Vector6d end_eff = end_it->second;
-
-						// Computing the contact interpolation per each coordinate (x,y,z)
-						rbd::Vector6d eff_state = rbd::Vector6d::Zero();
-						for (unsigned int coord_idx = 3; coord_idx < 6; coord_idx++) {
-							// Getting the 6d coordinate
-							rbd::Coords6d coord = rbd::Coords6d(coord_idx);
-							if (t == 0) {
-								// Initialization of the contact force splines
-								math::Spline::Point force_starting(init_eff(coord));
-								math::Spline::Point force_ending(end_eff(coord));
-								contact_force_spline[id][coord_idx].setBoundary(starting_time, duration,
-																				force_starting, force_ending);
-							} else {
-								// Getting and setting the force interpolated point
-								contact_force_spline[id][coord_idx-3].getPoint(time, current_point);
-								eff_state(coord) = current_point.x;
-							}
-						}
-						current_state.contact_eff[name] = eff_state;
-					}
-				}
-			}
+			// Compute the contact information
+			// Computing the contact positions
+			rbd::BodySelector end_effector_names = getDynamicalSystem()->getFloatingBaseSystem().getEndEffectorNames();
+			getDynamicalSystem()->getKinematics().computeForwardKinematics(current_state.contact_pos,
+																		   current_state.base_pos,
+																		   current_state.joint_pos,
+																		   end_effector_names,
+																		   dwl::rbd::Linear);
+			// Computing the contact velocities
+			getDynamicalSystem()->getKinematics().computeVelocity(current_state.contact_vel,
+																  current_state.base_pos,
+																  current_state.joint_pos,
+																  current_state.base_vel,
+																  current_state.joint_vel,
+																  end_effector_names,
+																  dwl::rbd::Linear);
+			// Computing the contact accelerations
+			getDynamicalSystem()->getKinematics().computeAcceleration(current_state.contact_acc,
+																	  current_state.base_pos,
+																	  current_state.joint_pos,
+																	  current_state.base_vel,
+																	  current_state.joint_vel,
+																	  current_state.base_acc,
+																	  current_state.joint_acc,
+																	  end_effector_names,
+																	  dwl::rbd::Linear);
+			// Computing the contact forces
+			getDynamicalSystem()->getDynamics().computeContactForces(current_state.contact_eff,
+																	 current_state.base_pos,
+																	 current_state.joint_pos,
+																	 current_state.base_vel,
+																	 current_state.joint_vel,
+																	 current_state.base_acc,
+																	 current_state.joint_acc,
+																	 current_state.joint_eff,
+																	 end_effector_names);
 
 			// Adding the current state
 			if (t != 0) {
