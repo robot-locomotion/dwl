@@ -11,10 +11,9 @@ namespace solver
 
 /**
  * @class QuadraticProgram
- * @brief Abstract class to define the optimization algorithm such as Model Predictive Control. This
- * class acts as an interface to use a defined optimization solver software as a part of this library
- * in order to provide different solver options for the end user to solve the basic optimization
- * problem. The basic
+ * @brief Abstract class for Quadratic Program (QP) solvers.
+ * This class acts as an interface for QP solvers to DWL. This functionality allows end-user to
+ * use a specific QP solver in their applications. A QP problem is defined as:
  * \f{eqnarray*}{
  *	\mbox{Minimize} \; F(x) && \\
  * 	\mbox{subject to} \; G(x) & = & 0 \\

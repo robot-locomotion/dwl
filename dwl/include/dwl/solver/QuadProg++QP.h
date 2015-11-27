@@ -14,11 +14,12 @@ namespace solver
 
 /**
  * @class QuadProgQP
- * @brief Class to interface the QuadProg++ library
- * This class gives an interface with QuadProg++ library in order to implement a quadratic program
- * using the dual method of Goldfarb and Idnani (1982: "Dual and Primal-Dual Methods for Solving
+ * @brief Implementation class of the QuadProg++ library
+ * This class gives an implementation of QuadProg++ library. QuadProg solves the QP problem using
+ * the dual method of Goldfarb and Idnani (1982: "Dual and Primal-Dual Methods for Solving
  * Strictly Convex Quadratic Programs.", 1983: "A numerically stable dual method for solving strictly
- * convex quadratic programs"). QuadProg++ solves a convex optimization class of the following form
+ * convex quadratic programs"). QuadProg++ solves a quadratic optimization class of the following
+ * form
  * \f[
  * 	\min_{\mathbf{x}} \frac{1}{2}\mathbf{x}^T\mathbf{H}\mathbf{x} + \mathbf{x}^T\mathbf{g(x_0)}
  * \f]

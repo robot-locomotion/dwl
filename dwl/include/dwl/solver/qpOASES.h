@@ -15,12 +15,12 @@ namespace solver
 
 /**
  * @class qpOASES
- * @brief Class to interface the qpOASES library
- * This class gives an interface with qpOASES library in order to implement a quadratic program using
- * online active set strategy of Ferreau et at. (2008: "An online active set strategy to overcome
- * the limitations of explicit MPC" such as used in MPC controllers", 2014: "{qpOASES}: A parametric
- * active-set algorithm for quadratic programming"). qpOASES solve a convex optimization
- * class of the following form
+ * @brief Implementation class of the qpOASES library as QP solver
+ * This class gives us an implementation of the qpOASES library in our abstract class
+ * "QuadraticProgram". qpOASES is QP solver that uses the online active set strategy of
+ * Ferreau et at. (2008: "An online active set strategy to overcome the limitations of explicit
+ * MPC" such as used in MPC controllers", 2014: "{qpOASES}: A parametric active-set algorithm
+ * for quadratic programming"). qpOASES solve a convex optimization class of the following form
  * \f[
  * 	\min_{\mathbf{x}} \frac{1}{2}\mathbf{x}^T\mathbf{H}\mathbf{x} + \mathbf{x}^T\mathbf{g(x_0)}
  * \f]
