@@ -10,14 +10,47 @@ namespace dwl
 namespace simulation
 {
 
-struct PreviewParameters
+struct PreviewState
+{
+	PreviewState() : time(0.), head_pos(0.), head_vel(0.), head_acc(0.) {
+		com_pos.setZero();
+		com_vel.setZero();
+		com_acc.setZero();
+	}
+
+	double time;
+	Eigen::Vector3d com_pos;
+	Eigen::Vector3d com_vel;
+	Eigen::Vector3d com_acc;
+	double head_pos;
+	double head_vel;
+	double head_acc;
+	rbd::BodyVector support_region;
+};
+
+typedef std::vector<PreviewState> PreviewTrajectory;
+
+struct StancePreviewParameters
 {
 	double duration;
 	Eigen::Vector2d initial_cop;
 	Eigen::Vector2d terminal_cop;
-	double initial_lenght;
-	double terminal_lenght;
-	double heading_acc;
+	double initial_length;
+	double terminal_length;
+	double head_acc;
+};
+
+struct FlightPreviewParameters
+{
+	double duration;
+};
+
+struct QuadrupedalPreviewParameters
+{
+	StancePreviewParameters four_support;
+	StancePreviewParameters three_support;
+	StancePreviewParameters two_support;
+	FlightPreviewParameters flight;
 };
 
 /**
@@ -48,25 +81,42 @@ class PreviewLocomotion
 		 */
 		void resetFromURDFFile(std::string filename);
 
-		void setSampleTime(double sample_time);
-
 		/**
 		 * @brief Resets the system information from URDF model
 		 * @param std::string URDF model
 		 */
 		void resetFromURDFModel(std::string urdf_model);
 
-		void previewScheduled(WholeBodyTrajectory& trajectory,
-							  std::vector<PreviewParameters> control_params);
+		/**
+		 * @brief Sets the sample time of the preview trajectory
+		 * @param double Sample time
+		 */
+		void setSampleTime(double sample_time);
 
-		void stancePreview(WholeBodyState& state, double time);
-		void flightPreview(WholeBodyState& state, double time);
+
+//		void previewScheduled(PreviewTrajectory& trajectory,
+//							  std::vector<QuadrupedalPreviewParameters> control_params);
+
+
+		void stancePreview(PreviewTrajectory& trajectory,
+						   const PreviewState& initial_state,
+						   const StancePreviewParameters& params);
+		void flightPreview(PreviewTrajectory& trajectory,
+				   	   	   const PreviewState& initial_state,
+						   const FlightPreviewParameters& params);
+
 
 	private:
-		void evalutateSLIP(double com, double time);
-
+		/** @brief Floating-base system information */
 		model::FloatingBaseSystem system_;
+
+		/** @brief Sample time of the preview trajectory */
 		double sample_time_;
+
+		/** @brief Gravity acceleration magnitude */
+		double gravity_;
+
+		double mass_;
 };
 
 } //@namespace simulation
