@@ -97,10 +97,26 @@ class PreviewLocomotion
 //		void previewScheduled(PreviewTrajectory& trajectory,
 //							  std::vector<QuadrupedalPreviewParameters> control_params);
 
-
+		/**
+		 * @brief Computes the preview of the stance-phase given the stance parameters
+		 * The preview is computed according a Spring Linear Inverted Pendulum (SLIP) model, and by
+		 * assuming that the Center of Pressure (CoP) and the pendulum length are linearly controlled
+		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
+		 * @param const PreviewState& Initial low-dimensional state
+		 * @param const StancePreviewParameters& Preview parameters
+		 */
 		void stancePreview(PreviewTrajectory& trajectory,
 						   const PreviewState& initial_state,
 						   const StancePreviewParameters& params);
+
+		/**
+		 * @brief Computes the preview of the flight-phase given the duration of the phase
+		 * The preview is computed according the projectile Equation of Motion (EoM), and assuming
+		 * the non-changes in the angular momentum
+		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
+		 * @param const PreviewState& Initial low-dimensional state
+		 * @param const FlightPreviewParameters& Preview parameters
+		 */
 		void flightPreview(PreviewTrajectory& trajectory,
 				   	   	   const PreviewState& initial_state,
 						   const FlightPreviewParameters& params);
@@ -116,6 +132,7 @@ class PreviewLocomotion
 		/** @brief Gravity acceleration magnitude */
 		double gravity_;
 
+		/** @brief Total mass of the system */
 		double mass_;
 };
 
