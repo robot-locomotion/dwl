@@ -15,13 +15,13 @@ function install_eigen
 	# Getting Eigen 3.2.4
 	wget http://www.bitbucket.org/eigen/eigen/get/3.2.4.tar.bz2
 	mkdir eigen && tar jxf 3.2.4.tar.bz2 -C eigen --strip-components 1
+	rm -rf 3.2.4.tar.bz2
 	cd eigen
 	mkdir -p build
 	cd build
 	cmake ../
 	sudo make -j install
 	cd ../../
-	rm -rf 3.2.4.tar.bz2
 }
 
 
@@ -30,6 +30,7 @@ function install_rbdl
 	# Getting RBDL 2.4.0
 	wget https://bitbucket.org/rbdl/rbdl/get/default.zip
 	unzip default.zip
+	rm default.zip
 	mv rbdl-rbdl-9c0426a923a4 rbdl
 	cd rbdl
 	mkdir -p build
@@ -38,7 +39,6 @@ function install_rbdl
 	cmake -D CMAKE_INSTALL_LIBDIR:string=lib ../
 	sudo make -j install
 	cd ../../
-	rm default.zip
 }
 
 
@@ -99,14 +99,13 @@ function install_yamlcpp
 {
 	# Getting the YAML-CPP 0.3.0
 	wget https://yaml-cpp.googlecode.com/files/yaml-cpp-0.3.0.tar.gz
-	tar zxf yaml-cpp-0.3.0.tar.gz
+	tar zxf yaml-cpp-0.3.0.tar.gz && rm -rf yaml-cpp-0.3.0.tar.gz
 	cd yaml-cpp
 	mkdir -p build
 	cd build
 	cmake -D BUILD_SHARED_LIBS:bool=ON ../
 	sudo make install
 	cd ../../
-	rm -rf yaml-cpp-0.3.0.tar.gz
 }
 
 
@@ -118,6 +117,7 @@ function install_ipopt
 	# Getting Ipopt 3.12.4
 	wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.4.tgz
 	mkdir ipopt && tar xzvf Ipopt-3.12.4.tgz -C ipopt --strip-components 1
+	rm -rf Ipopt-3.12.4.tgz
 	# Documentation for Ipopt Third Party modules:
 	# http://www.coin-or.org/Ipopt/documentation/node13.html
 	cd ipopt/ThirdParty
@@ -171,7 +171,6 @@ function install_ipopt
 	../configure --enable-static --prefix ${SELF_PATH}/thirdparty/ipopt
 	make -j install
 	cd ../../
-	rm -rf Ipopt-3.12.4.tgz
 }
 
 
@@ -179,13 +178,12 @@ function install_ipopt
 function install_qpoases
 {
 	# Getting the qpOASES 3.2.0
-	wget www.qpoases.org/go/release
-	unzip release
+	wget http://www.coin-or.org/download/source/qpOASES/qpOASES-3.2.0.tgz
+	tar xzfv qpOASES-3.2.0.tgz && rm qpOASES-3.2.0.tgz
 	mv qpOASES-3.2.0 qpOASES
 	cd qpOASES
 	make -j REPLACE_LINALG=0
 	cd ../
-	rm -rf release
 }
 
 
@@ -194,13 +192,13 @@ function install_octomap
 	# Getting Octomap 1.6.8
 	wget https://github.com/OctoMap/octomap/archive/v1.6.8.tar.gz
 	mkdir octomap && tar zxf v1.6.8.tar.gz -C octomap --strip-components 1
+	rm -rf v1.6.8.tar.gz
 	cd octomap
 	mkdir -p build
 	cd build
 	cmake ../
 	sudo make -j install
 	cd ../../
-	rm -rf v1.6.8.tar.gz
 }
 
 
