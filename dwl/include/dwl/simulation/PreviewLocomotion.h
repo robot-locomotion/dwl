@@ -1,7 +1,9 @@
 #ifndef DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 #define DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 
+#include <dwl/model/WholeBodyDynamics.h>
 #include <dwl/model/FloatingBaseSystem.h>
+#include <dwl/utils/DynamicLocomotion.h>
 
 
 namespace dwl
@@ -121,10 +123,30 @@ class PreviewLocomotion
 				   	   	   const PreviewState& initial_state,
 						   const FlightPreviewParameters& params);
 
+		/**
+		 * @brief Converts the preview state vector to whole-body state
+		 * @param WholeBodyState& Whole-body state
+		 * @param const PreviewStated& Preview state vector
+		 */
+		void toWholeBodyState(WholeBodyState& full_state,
+							  const PreviewState& preview_state);
+
+		/**
+		 * @brief Converts the whole-body state to preview state vector
+		 * @param PreviewStated& Preview state vector
+		 * @param const WholeBodyState& Whole-body state
+		 */
+		void fromWholeBodyState(PreviewState& preview_state,
+								const WholeBodyState& full_state);
+
+
 
 	private:
 		/** @brief Floating-base system information */
 		model::FloatingBaseSystem system_;
+
+		/** @brief Whole-body dynamics */
+		model::WholeBodyDynamics dynamics_;
 
 		/** @brief Sample time of the preview trajectory */
 		double sample_time_;
@@ -134,6 +156,9 @@ class PreviewLocomotion
 
 		/** @brief Total mass of the system */
 		double mass_;
+
+		/** @brief Base Center of Mass (CoM) */
+		Eigen::Vector3d com_;
 };
 
 } //@namespace simulation

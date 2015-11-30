@@ -9,7 +9,7 @@ namespace simulation
 
 PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.)
 {
-
+	com_.setZero();
 }
 
 
@@ -43,13 +43,22 @@ void PreviewLocomotion::resetFromURDFFile(std::string filename)
 
 void PreviewLocomotion::resetFromURDFModel(std::string urdf_model)
 {
+	// Resetting the model of the floating-base system
 	system_.resetFromURDFModel(urdf_model);
+
+	// Initializing the dynamic from the URDF model
+	dynamics_.modelFromURDFModel(urdf_model);
 
 	// Setting the gravity magnitude from the rigid-body dynamic model
 	gravity_ = system_.getRBDModel().gravity.norm();
 
 	// Getting the total mass of the system
 	mass_ = system_.getTotalMass();
+	std::cout << "Mass = " << mass_ << std::endl;
+
+	// Getting the base CoM
+	com_ = system_.getRBDModel().mBodies[1].mCenterOfMass;
+	std::cout << "CoM = " << com_.transpose() << std::endl;
 }
 
 
@@ -174,6 +183,37 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 		current_state.head_vel = initial_state.head_vel;
 		current_state.head_acc = 0.;
 	}
+}
+
+
+void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
+										 const PreviewState& preview_state)
+{
+	rbd::linearPart(full_state.base_pos) = preview_state.com_pos - com_;
+	rbd::linearPart(full_state.base_vel) = preview_state.com_vel;
+	rbd::linearPart(full_state.base_acc) = preview_state.com_acc;
+
+	full_state.base_pos(rbd::AZ) = preview_state.head_pos;
+	full_state.base_vel(rbd::AZ) = preview_state.head_vel;
+	full_state.base_acc(rbd::AZ) = preview_state.head_acc;
+
+	//TODO Contact positions
+}
+
+
+void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
+										   const WholeBodyState& full_state)
+{
+	preview_state.com_pos = full_state.base_pos.segment<3>(rbd::LX) + com_;
+	preview_state.com_vel = full_state.base_vel.segment<3>(rbd::LX);
+	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX);
+	preview_state.head_pos = full_state.base_pos(rbd::AZ);
+	preview_state.head_vel = full_state.base_vel(rbd::AZ);
+	preview_state.head_acc = full_state.base_acc(rbd::AZ);
+
+//	dynamics_.getActiveContacts(active_contacts,
+//			  full_state.contact_eff,
+//			  force_threshold); TODO
 }
 
 } //@namespace simulation
