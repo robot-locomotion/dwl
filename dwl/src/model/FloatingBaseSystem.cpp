@@ -238,6 +238,20 @@ double FloatingBaseSystem::getTotalMass()
 }
 
 
+const Eigen::Vector3d& FloatingBaseSystem::getFloatingBaseCoM()
+{
+	unsigned int body_id = rbd_model.GetBodyId(floating_body_name_.c_str());
+	return rbd_model.mBodies[body_id].mCenterOfMass;
+}
+
+
+const Eigen::Vector3d& FloatingBaseSystem::getBodyCoM(std::string body_name)
+{
+	unsigned int body_id = rbd_model.GetBodyId(body_name.c_str());
+	return rbd_model.mBodies[body_id].mCenterOfMass;
+}
+
+
 const unsigned int& FloatingBaseSystem::getSystemDoF()
 {
 	return num_system_joints;

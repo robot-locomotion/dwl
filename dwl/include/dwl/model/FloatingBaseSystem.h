@@ -122,6 +122,19 @@ class FloatingBaseSystem
 		double getTotalMass();
 
 		/**
+		 * @brief Gets the Center of Mass (CoM) of floating-base
+		 * @return double The CoM of the floating-base
+		 */
+		const Eigen::Vector3d& getFloatingBaseCoM();
+
+		/**
+		 * @brief Gets the Center of Mass (CoM) of a specific body
+		 * @param std::string Body name
+		 * @return double The CoM of the body
+		 */
+		const Eigen::Vector3d& getBodyCoM(std::string body_name);
+
+		/**
 		 * @brief Gets the floating-base system DoF
 		 * @return const unsigned int& Number of DoF of the floating-base system
 		 */
