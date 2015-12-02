@@ -174,15 +174,15 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the floating-base joint names list
-		 * @return rbd::BodySelector& Joint names list
+		 * @return const rbd::BodySelector& Joint names list
 		 */
-		rbd::BodySelector& getFloatingJointNames();
+		const rbd::BodySelector& getFloatingJointNames();
 
 		/**
 		 * @brief Gets the joint names list
-		 * @return rbd::BodySelector& Joint names list
+		 * @return const rbd::BodySelector& Joint names list
 		 */
-		rbd::BodySelector& getJointNames();
+		const rbd::BodySelector& getJointNames();
 
 		/**
 		 * @brief Gets the body name of the floating-base
@@ -210,9 +210,9 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the end-effector names list
-		 * @return std::vector<std::string>& End-effector names list
+		 * @return const rbd::BodySelector& End-effector names list
 		 */
-		rbd::BodySelector& getEndEffectorNames();
+		const rbd::BodySelector& getEndEffectorNames();
 
 		/** @brief Returns true if the system has fully floating-base */
 		bool isFullyFloatingBase();

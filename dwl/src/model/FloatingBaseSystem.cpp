@@ -313,13 +313,13 @@ const urdf_model::JointID& FloatingBaseSystem::getJoints()
 	return joints;
 }
 
-rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames()
+const rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames()
 {
 	return floating_joint_names_;
 }
 
 
-rbd::BodySelector& FloatingBaseSystem::getJointNames()
+const rbd::BodySelector& FloatingBaseSystem::getJointNames()
 {
 	return joint_names_;
 }
@@ -349,7 +349,7 @@ const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors()
 }
 
 
-rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames()
+const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames()
 {
 	return end_effector_names_;
 }
