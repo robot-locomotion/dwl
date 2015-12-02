@@ -54,11 +54,9 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model)
 
 	// Getting the total mass of the system
 	mass_ = system_.getTotalMass();
-	std::cout << "Mass = " << mass_ << std::endl;
 
-	// Getting the base CoM
-	com_ = system_.getRBDModel().mBodies[1].mCenterOfMass;
-	std::cout << "CoM = " << com_.transpose() << std::endl;
+	// Getting the floating-base CoM
+	com_ = system_.getFloatingBaseCoM();
 }
 
 
@@ -106,7 +104,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	Eigen::Vector2d beta_2 = slip_hor_proj / 2 - (slip_hor_disp - cop_disp) / alpha;
 
 	// Computing the coefficients of the spring-mass system response
-	double spring_gain = 400.; //TODO set it
+	double spring_gain = 60000.; //wn = 16.3//TODO set it
 	double spring_omega = sqrt(spring_gain / mass_);
 	double delta_length = params.terminal_length - params.initial_length;
 	double d_1 = initial_state.com_pos(rbd::Z) - params.initial_length + gravity_ /
