@@ -172,6 +172,12 @@ class FloatingBaseSystem
 		rbd::BodySelector& getJointNames();
 
 		/**
+		 * @brief Gets the body name of the floating-base
+		 * @return std::string Floating-base body
+		 */
+		std::string getFloatingBaseBody();
+
+		/**
 		 * @brief Gets the type of floating-base system
 		 * @return enum TypeOfSystem Type of floating-base system
 		 */
@@ -275,6 +281,9 @@ class FloatingBaseSystem
 		rbd::BodySelector floating_joint_names_;
 		urdf_model::JointID joints;
 		rbd::BodySelector joint_names_;
+
+		/** @brief System bodies */
+		std::string floating_body_name_;
 
 		/** @brief Type of system */
 		enum TypeOfSystem type_of_system;

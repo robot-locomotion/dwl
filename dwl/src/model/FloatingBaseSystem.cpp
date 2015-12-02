@@ -77,6 +77,14 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 		}
 	}
 
+	// Getting the floating-base body name
+	unsigned int base_id = 0;
+	if (isFullyFloatingBase())
+		base_id = 6;
+	else
+		base_id = getFloatingBaseDoF();
+	floating_body_name_ = rbd_model.GetBodyName(base_id);
+
 	// Getting the information about the actuated joints
 	urdf_model::JointID free_joint_names;
 	urdf_model::getJointNames(free_joint_names, urdf_model, urdf_model::free);
@@ -300,6 +308,12 @@ rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames()
 rbd::BodySelector& FloatingBaseSystem::getJointNames()
 {
 	return joint_names_;
+}
+
+
+std::string FloatingBaseSystem::getFloatingBaseBody()
+{
+	return floating_body_name_;
 }
 
 
