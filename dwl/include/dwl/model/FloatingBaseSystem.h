@@ -160,6 +160,12 @@ class FloatingBaseSystem
 		const urdf_model::JointID& getJoints();
 
 		/**
+		 * @brief Gets the floating-base joint names list
+		 * @return rbd::BodySelector& Joint names list
+		 */
+		rbd::BodySelector& getFloatingJointNames();
+
+		/**
 		 * @brief Gets the joint names list
 		 * @return rbd::BodySelector& Joint names list
 		 */
@@ -266,8 +272,9 @@ class FloatingBaseSystem
 		FloatingBaseJoint LX;
 		FloatingBaseJoint LY;
 		FloatingBaseJoint LZ;
+		rbd::BodySelector floating_joint_names_;
 		urdf_model::JointID joints;
-		std::vector<std::string> joint_names_;
+		rbd::BodySelector joint_names_;
 
 		/** @brief Type of system */
 		enum TypeOfSystem type_of_system;

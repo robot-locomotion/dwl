@@ -63,6 +63,9 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 			unsigned int joint_motion = jnt_it->second;
 			unsigned int joint_id = floating_joint_names.find(joint_name)->second;
 
+			// Setting the floating-base joint names
+			floating_joint_names_.push_back(joint_name);
+
 			// Setting the floating joint information
 			FloatingBaseJoint joint(true, joint_id, joint_name);
 			if (joint_motion == 6) {
@@ -286,6 +289,11 @@ unsigned int FloatingBaseSystem::getFloatingBaseJointCoordinate(unsigned int id)
 const urdf_model::JointID& FloatingBaseSystem::getJoints()
 {
 	return joints;
+}
+
+rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames()
+{
+	return floating_joint_names_;
 }
 
 
