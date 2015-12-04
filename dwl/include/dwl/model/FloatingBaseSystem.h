@@ -122,6 +122,19 @@ class FloatingBaseSystem
 		double getTotalMass();
 
 		/**
+		 * @brief Gets the Center of Mass (CoM) of floating-base
+		 * @return double The CoM of the floating-base
+		 */
+		const Eigen::Vector3d& getFloatingBaseCoM();
+
+		/**
+		 * @brief Gets the Center of Mass (CoM) of a specific body
+		 * @param std::string Body name
+		 * @return double The CoM of the body
+		 */
+		const Eigen::Vector3d& getBodyCoM(std::string body_name);
+
+		/**
 		 * @brief Gets the floating-base system DoF
 		 * @return const unsigned int& Number of DoF of the floating-base system
 		 */
@@ -160,10 +173,22 @@ class FloatingBaseSystem
 		const urdf_model::JointID& getJoints();
 
 		/**
-		 * @brief Gets the joint names list
-		 * @return rbd::BodySelector& Joint names list
+		 * @brief Gets the floating-base joint names list
+		 * @return const rbd::BodySelector& Joint names list
 		 */
-		rbd::BodySelector& getJointNames();
+		const rbd::BodySelector& getFloatingJointNames();
+
+		/**
+		 * @brief Gets the joint names list
+		 * @return const rbd::BodySelector& Joint names list
+		 */
+		const rbd::BodySelector& getJointNames();
+
+		/**
+		 * @brief Gets the body name of the floating-base
+		 * @return std::string Floating-base body
+		 */
+		std::string getFloatingBaseBody();
 
 		/**
 		 * @brief Gets the type of floating-base system
@@ -185,9 +210,9 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the end-effector names list
-		 * @return std::vector<std::string>& End-effector names list
+		 * @return const rbd::BodySelector& End-effector names list
 		 */
-		rbd::BodySelector& getEndEffectorNames();
+		const rbd::BodySelector& getEndEffectorNames();
 
 		/** @brief Returns true if the system has fully floating-base */
 		bool isFullyFloatingBase();
@@ -266,8 +291,12 @@ class FloatingBaseSystem
 		FloatingBaseJoint LX;
 		FloatingBaseJoint LY;
 		FloatingBaseJoint LZ;
+		rbd::BodySelector floating_joint_names_;
 		urdf_model::JointID joints;
-		std::vector<std::string> joint_names_;
+		rbd::BodySelector joint_names_;
+
+		/** @brief System bodies */
+		std::string floating_body_name_;
 
 		/** @brief Type of system */
 		enum TypeOfSystem type_of_system;
