@@ -14,8 +14,8 @@ Spline::Spline() : initial_time_(0.), duration_(0.)
 }
 
 
-Spline::Spline(double initial_time,
-			   double duration,
+Spline::Spline(const double& initial_time,
+			   const double& duration,
 			   const Point& start_p,
 			   const Point& end_p) : initial_time_(initial_time), duration_(duration),
 					   start_(start_p), end_(end_p)
@@ -31,8 +31,8 @@ Spline::~Spline()
 }
 
 
-void Spline::setBoundary(double initial_time,
-						 double duration,
+void Spline::setBoundary(const double& initial_time,
+						 const double& duration,
 						 const Point& start_p,
 						 const Point& end_p)
 {
@@ -43,8 +43,8 @@ void Spline::setBoundary(double initial_time,
 }
 
 
-void Spline::setBoundary(double initial_time,
-						 double duration,
+void Spline::setBoundary(const double& initial_time,
+						 const double& duration,
 						 const double& start_p,
 						 const double& end_p)
 {
@@ -61,8 +61,8 @@ void Spline::setBoundary(double initial_time,
 }
 
 
-CubicSpline::CubicSpline(double initial_time,
-						 double duration,
+CubicSpline::CubicSpline(const double& initial_time,
+						 const double& duration,
 						 const Point& start,
 						 const Point& end) :
 	Spline(initial_time, duration, start, end)
@@ -139,8 +139,8 @@ FifthOrderPolySpline::FifthOrderPolySpline()
 }
 
 
-FifthOrderPolySpline::FifthOrderPolySpline(double initial_time,
-										   double duration,
+FifthOrderPolySpline::FifthOrderPolySpline(const double& initial_time,
+										   const double& duration,
 										   const Point& start,
 										   const Point& end) :
 	Spline(initial_time, duration, start, end)
@@ -217,8 +217,8 @@ LinearSpline::LinearSpline()
 }
 
 
-LinearSpline::LinearSpline(double initial_time,
-						   double duration,
+LinearSpline::LinearSpline(const double& initial_time,
+						   const double& duration,
 						   const Point& start,
 						   const Point& end) :
 	Spline(initial_time, duration, start, end)

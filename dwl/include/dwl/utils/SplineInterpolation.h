@@ -41,13 +41,13 @@ class Spline
 
 		/**
 		 * @brief Constructor function
-		 * @param double Initial time
-		 * @param double Duration of the spline
+		 * @param const double& Initial time
+		 * @param const double& Duration of the spline
 		 * @param const Point& Start point
 		 * @param const Point& End point
 		 */
-		Spline(double initial_time,
-			   double duration,
+		Spline(const double& initial_time,
+			   const double& duration,
 			   const Point& start,
 			   const Point& end);
 
@@ -56,25 +56,25 @@ class Spline
 
 		/**
 		 * @brief Sets the boundary of the spline
-		 * @param double Initial time
-		 * @param double Duration of the spline
+		 * @param const double& Initial time
+		 * @param const double& Duration of the spline
 		 * @param const Point& Start point
 		 * @param const Point& End point
 		 */
-		void setBoundary(double initial_time,
-						 double duration,
+		void setBoundary(const double& initial_time,
+						 const double& duration,
 						 const Point& start_p,
 						 const Point& end_p);
 
 		/**
 		 * @brief Sets the boundary of the spline
-		 * @param double Initial time
-		 * @param double Duration of the spline
+		 * @param const double& Initial time
+		 * @param const double& Duration of the spline
 		 * @param const double& Start point
 		 * @param const double& End point
 		 */
-		void setBoundary(double initial_time,
-						 double duration,
+		void setBoundary(const double& initial_time,
+						 const double& duration,
 						 const double& start_p,
 						 const double& end_p);
 
@@ -121,13 +121,13 @@ class CubicSpline : public Spline
 
 		/**
 		 * @brief Constructor function
-		 * @param double Initial time
-		 * @param double Duration of the spline
+		 * @param const double& Initial time
+		 * @param const double& Duration of the spline
 		 * @param const Point& Start point
 		 * @param const Point& End point
 		 */
-		CubicSpline(double initial_time,
-					double duration,
+		CubicSpline(const double& initial_time,
+					const double& duration,
 					const Point& start,
 					const Point& end);
 
@@ -163,13 +163,13 @@ class FifthOrderPolySpline : public Spline
 
 		/**
 		 * @brief Constructor function
-		 * @param double Initial time
-		 * @param double Duration of the spline
+		 * @param const double& Initial time
+		 * @param const double& Duration of the spline
 		 * @param const Point& Start point
 		 * @param const Point& End point
 		 */
-		FifthOrderPolySpline(double initial_time,
-							 double duration,
+		FifthOrderPolySpline(const double& initial_time,
+							 const double& duration,
 							 const Point& start,
 							 const Point& end);
 
@@ -205,13 +205,13 @@ class LinearSpline : public Spline
 
 		/**
 		 * @brief Constructor function
-		 * @param double Initial time
-		 * @param double Duration of the spline
+		 * @param const double& Initial time
+		 * @param const double& Duration of the spline
 		 * @param const Point& Start point
 		 * @param const Point& End point
 		 */
-		LinearSpline(double initial_time,
-					 double duration,
+		LinearSpline(const double& initial_time,
+					 const double& duration,
 					 const Point& start,
 					 const Point& end);
 
