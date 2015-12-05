@@ -122,6 +122,12 @@ class FloatingBaseSystem
 		double getTotalMass();
 
 		/**
+		 * @brief Gets the body mass
+		 * @return double The mass of the body
+		 */
+		double getBodyMass(std::string body_name);
+
+		/**
 		 * @brief Gets the Center of Mass (CoM) of floating-base
 		 * @return double The CoM of the floating-base
 		 */
