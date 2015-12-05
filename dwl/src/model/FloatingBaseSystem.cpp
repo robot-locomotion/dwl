@@ -63,6 +63,9 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 			unsigned int joint_motion = jnt_it->second;
 			unsigned int joint_id = floating_joint_names.find(joint_name)->second;
 
+			// Setting the floating-base joint names
+			floating_joint_names_.push_back(joint_name);
+
 			// Setting the floating joint information
 			FloatingBaseJoint joint(true, joint_id, joint_name);
 			if (joint_motion == 6) {
@@ -73,6 +76,14 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 			}
 		}
 	}
+
+	// Getting the floating-base body name
+	unsigned int base_id = 0;
+	if (isFullyFloatingBase())
+		base_id = 6;
+	else
+		base_id = getFloatingBaseDoF();
+	floating_body_name_ = rbd_model.GetBodyName(base_id);
 
 	// Getting the information about the actuated joints
 	urdf_model::JointID free_joint_names;
@@ -227,6 +238,27 @@ double FloatingBaseSystem::getTotalMass()
 }
 
 
+double FloatingBaseSystem::getBodyMass(std::string body_name)
+{
+	unsigned int body_id = rbd_model.GetBodyId(body_name.c_str());
+	return rbd_model.mBodies[body_id].mMass;
+}
+
+
+const Eigen::Vector3d& FloatingBaseSystem::getFloatingBaseCoM()
+{
+	unsigned int body_id = rbd_model.GetBodyId(floating_body_name_.c_str());
+	return rbd_model.mBodies[body_id].mCenterOfMass;
+}
+
+
+const Eigen::Vector3d& FloatingBaseSystem::getBodyCoM(std::string body_name)
+{
+	unsigned int body_id = rbd_model.GetBodyId(body_name.c_str());
+	return rbd_model.mBodies[body_id].mCenterOfMass;
+}
+
+
 const unsigned int& FloatingBaseSystem::getSystemDoF()
 {
 	return num_system_joints;
@@ -288,10 +320,21 @@ const urdf_model::JointID& FloatingBaseSystem::getJoints()
 	return joints;
 }
 
+const rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames()
+{
+	return floating_joint_names_;
+}
 
-rbd::BodySelector& FloatingBaseSystem::getJointNames()
+
+const rbd::BodySelector& FloatingBaseSystem::getJointNames()
 {
 	return joint_names_;
+}
+
+
+std::string FloatingBaseSystem::getFloatingBaseBody()
+{
+	return floating_body_name_;
 }
 
 
@@ -313,7 +356,7 @@ const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors()
 }
 
 
-rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames()
+const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames()
 {
 	return end_effector_names_;
 }

@@ -93,6 +93,8 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/model/FloatingBaseSystem.cpp
 							 src/model/WholeBodyKinematics.cpp
 							 src/model/WholeBodyDynamics.cpp
+							 src/simulation/PreviewLocomotion.cpp
+							 src/simulation/FootSplinePatternGenerator.cpp
 							 src/behavior/MotorPrimitives.cpp
 							 src/behavior/BodyMotorPrimitives.cpp
 							 src/environment/EnvironmentInformation.cpp
