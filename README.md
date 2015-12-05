@@ -12,6 +12,7 @@ As well as DWL source code, we provide implementation of different dwl-based loc
 
 Visit the DWL installation page for detailed installation instructions, and also the Dynamic Legged Systems Lab of Istituto Italiano di Tecnologia (http://www.iit.it/en/advr-labs/dynamic-legged-systems.html) for more details about the project.
 
+[![ScreenShot](https://j.gifs.com/zJEDWD.gif)](https://www.youtube.com/watch?v=ENHvCGrnr2g)
 
 Software Overview
 ===============================================
