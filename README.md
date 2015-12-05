@@ -6,11 +6,11 @@ The Dynamic Whole-body Locomotion library (DWL)
 
 Introduction
 ===============================================
-The Dynamic Whole Body Locomotion library (DWL) implements a set of funcionalities to develop, design, and deploy locomotion algorithms, i.e. planning, control, etc. DWL has different modules such as: kinematics, dynamics, solvers (tree-search, optimization, etc), and environmet descriptions. All these tools are designed for many different locomotion problems such as planning, control and state estimation. DWL library is developed to be able to deploy in different robot framework systems such as ROS, and test it in real-time kernels. DWL has different library dependencies, which most of them are optional. DWL is develop by Carlos Mastalli (carlos.mastalli@iit.it) at Istituto Italiano di Tecnologia.
+The Dynamic Whole Body Locomotion library (DWL) implements a set of functionalities to develop, design, and deploy locomotion algorithms, i.e. planning, control, etc. DWL has different modules such as: kinematics, dynamics, solvers (tree-search, optimization, etc), and environment descriptions. All these tools are designed for many different locomotion problems such as planning, control and state estimation. DWL library is developed to be able to deploy in different robot framework systems such as ROS, and test it on real-time kernels. DWL has different library dependencies, which most of them are optional. DWL is develop by Carlos Mastalli (carlos.mastalli@iit.it) at Istituto Italiano di Tecnologia.
 
-As well as DWL source code, we provide implementation of different dwl-based locomotion modules such: control, planning and perception. All these modules use ROS as framework for communication between them. As standard message interface between them, we use dwl_msgs packages and a set of commons methods used in the controllers and planners.
+As well as DWL source code, we provide implementation of different dwl-based locomotion modules such: control, planning and perception. All these modules use ROS as framework for communication between them. As standard message interface between them, we use dwl_msgs packages and a set of commons methods for controllers and planners.
 
-Visit the [DWL installation page](http://.html) for detailed installation instructions, and also the Dynamic Legged Systems Lab of Istituto Italiano di Tecnologia (http://www.iit.it/en/advr-labs/dynamic-legged-systems.html) for more details about the project.
+Visit the DWL installation page for detailed installation instructions, and also the Dynamic Legged Systems Lab of Istituto Italiano di Tecnologia (http://www.iit.it/en/advr-labs/dynamic-legged-systems.html) for more details about the project.
 
 
 Software Overview
