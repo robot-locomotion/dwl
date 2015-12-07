@@ -1,6 +1,7 @@
 #ifndef DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 #define DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 
+#include <dwl/simulation/FootSplinePatternGenerator.h>
 #include <dwl/model/WholeBodyDynamics.h>
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/utils/DynamicLocomotion.h>
@@ -96,8 +97,9 @@ class PreviewLocomotion
 		void setSampleTime(double sample_time);
 
 
-//		void previewScheduled(PreviewTrajectory& trajectory,
-//							  std::vector<QuadrupedalPreviewParameters> control_params);
+		void previewScheduled(PreviewTrajectory& trajectory,
+							  const PreviewState& initial_state,
+							  const std::vector<QuadrupedalPreviewParameters>& control_params);
 
 		/**
 		 * @brief Computes the preview of the stance-phase given the stance parameters
@@ -142,6 +144,9 @@ class PreviewLocomotion
 
 
 	private:
+		/** @brief Foot pattern generator */
+		simulation::FootSplinePatternGenerator foot_pattern_generator_;
+
 		/** @brief Floating-base system information */
 		model::FloatingBaseSystem system_;
 
