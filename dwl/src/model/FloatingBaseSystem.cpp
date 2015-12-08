@@ -94,7 +94,7 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 	for (urdf_model::JointID::iterator jnt_it = free_joint_names.begin();
 			jnt_it != free_joint_names.end(); jnt_it++) {
 		std::string joint_name = jnt_it->first;
-		unsigned int joint_id = jnt_it->second;
+		unsigned int joint_id = jnt_it->second - num_floating_joints;
 
 		// Checking if it's a virtual floating-base joint
 		if (num_floating_joints > 0) {
