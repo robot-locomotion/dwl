@@ -41,20 +41,6 @@ void getEndEffectors(LinkID& end_effectors,
 
 /**
  * @brief Get the joint limits from URDF model. Floating-base joint are not considered as joints
- * @param Eigen::VectorXd& Lower joint position limits
- * @param Eigen::VectorXd& Upper joint position limits
- * @param Eigen::VectorXd& Joint velocity limits
- * @param Eigen::VectorXd& Joint effort limits
- * @param std::string URDF model
- */
-void getJointLimits(Eigen::VectorXd& lower_joint_pos,
-					Eigen::VectorXd& upper_joint_pos,
-					Eigen::VectorXd& joint_vel,
-					Eigen::VectorXd& joint_eff,
-					std::string urdf_model);
-
-/**
- * @brief Get the joint limits from URDF model. Floating-base joint are not considered as joints
  * @param JointLimits& Joint names and limits
  * @param std::string URDF model
  */
