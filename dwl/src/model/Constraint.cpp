@@ -53,12 +53,11 @@ void Constraint::modelFromURDFModel(std::string urdf_model,
 	dynamics_.modelFromURDFModel(urdf_model, false);
 
 	// Initializing the information of the specific constraint
-	init(urdf_model);
+	init(info);
 }
 
 
-void Constraint::init(std::string urdf_model,
-					  bool info)
+void Constraint::init(bool info)
 {
 
 }

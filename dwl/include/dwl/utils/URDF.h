@@ -16,6 +16,7 @@ namespace urdf_model
 
 typedef std::map<std::string,unsigned int> JointID;
 typedef std::map<std::string,Eigen::Vector3d> JointAxis;
+typedef std::map<std::string,urdf::JointLimits> JointLimits;
 typedef std::map<std::string,unsigned int> LinkID;
 enum JointType {free=0, fixed, floating, all};
 enum JointMotion {AX = 0, AY, AZ, LX, LY, LZ, FULL};
@@ -40,15 +41,10 @@ void getEndEffectors(LinkID& end_effectors,
 
 /**
  * @brief Get the joint limits from URDF model. Floating-base joint are not considered as joints
- * @param Eigen::VectorXd& Lower joint position limits
- * @param Eigen::VectorXd& Upper joint position limits
- * @param Eigen::VectorXd& Joint velocity limits
- * @param Eigen::VectorXd& Joint effort limits
+ * @param JointLimits& Joint names and limits
+ * @param std::string URDF model
  */
-void getJointLimits(Eigen::VectorXd& lower_joint_pos,
-					Eigen::VectorXd& upper_joint_pos,
-					Eigen::VectorXd& joint_vel,
-					Eigen::VectorXd& joint_eff,
+void getJointLimits(JointLimits& joint_limits,
 					std::string urdf_model);
 
 /**

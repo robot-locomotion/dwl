@@ -20,8 +20,7 @@ InelasticContactVelocityConstraint::~InelasticContactVelocityConstraint()
 }
 
 
-void InelasticContactVelocityConstraint::init(std::string urdf_model,
-										   bool info)
+void InelasticContactVelocityConstraint::init(bool info)
 {
 	// Getting the end-effector names
 	end_effector_names_.clear();

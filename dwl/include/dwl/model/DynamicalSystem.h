@@ -49,20 +49,15 @@ class DynamicalSystem : public Constraint
 
 		/**
 		 * @brief Initializes the dynamical system constraint given an URDF model (xml)
-		 * @param std::string URDF model
 		 * @param Print model information
 		 */
-		void init(std::string urdf_model,
-				  bool info);
+		void init(bool info);
 
 		/** @brief Initializes the dynamical system properties */
 		virtual void initDynamicalSystem();
 
-		/**
-		 * @brief Reads and sets the joint limit from an URDF model
-		 * @param std::string URDF model
-		 */
-		void jointLimitsFromURDF(std::string urdf_model);
+		/** @brief Reads and sets the joint limit from an URDF model */
+		void jointLimitsFromURDF();
 
 		/**
 		 * @brief Computes the dynamical and time integration constraint vector given a certain state

@@ -21,11 +21,9 @@ class InelasticContactVelocityConstraint : public ComplementaryConstraint
 
 		/**
 		 * @brief Initializes the ineslatic contact velocity constraint given an URDF model (xml)
-		 * @param std::string URDF model
 		 * @param Print model information
 		 */
-		void init(std::string urdf_model,
-				  bool info);
+		void init(bool info);
 
 		/**
 		 * @brief Computes the first complement constraint vector given a certain state

@@ -1,3 +1,4 @@
+#include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/model/WholeBodyKinematics.h>
 #include <dwl/model/WholeBodyDynamics.h>
 #include <ctime>
@@ -29,12 +30,30 @@ inline double timer_stop (TimerInfo *timer) {
 
 int main(int argc, char **argv)
 {
+	dwl::model::FloatingBaseSystem sys;
 	dwl::model::WholeBodyKinematics kin;
 	dwl::model::WholeBodyDynamics dyn;
 
-	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl/thirdparty/rbdl/hyq.urdf";
+	std::string model_file = "/home/cmastalli/ros_workspace/src/dwl-distro/dwl/thirdparty/rbdl/hyq.urdf";
+	sys.resetFromURDFFile(model_file);
 	kin.modelFromURDFFile(model_file, true);
 	dyn.modelFromURDFFile(model_file);
+
+	dwl::urdf_model::JointLimits limits = sys.getJointLimits();
+	dwl::urdf_model::JointID ids = sys.getJoints();
+	std::cout << "floating-base dof = " << sys.getFloatingBaseDoF() << std::endl;
+	for (dwl::urdf_model::JointLimits::iterator jnt_it = limits.begin();
+			jnt_it != limits.end(); jnt_it++) {
+			std::string joint_name = jnt_it->first;
+			urdf::JointLimits joint_limits = jnt_it->second;
+			unsigned int joint_id = ids.find(joint_name)->second;
+
+			std::cout << "joint_id = " << joint_id << std::endl;
+			std::cout << joint_name << ".lower = " << joint_limits.lower << std::endl;
+			std::cout << joint_name << ".upper = " << joint_limits.upper << std::endl;
+			std::cout << joint_name << ".velocity = " << joint_limits.velocity << std::endl;
+			std::cout << joint_name << ".effort = " << joint_limits.effort << std::endl;
+	}
 
 	dwl::rbd::Vector6d base_wrench, base_pos, base_vel, base_acc;
 	Eigen::VectorXd joint_forces(12), joint_pos(12), joint_vel(12), joint_acc(12);
