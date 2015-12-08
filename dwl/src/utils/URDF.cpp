@@ -177,6 +177,46 @@ void getJointLimits(Eigen::VectorXd& lower_joint_pos,
 }
 
 
+void getJointLimits(JointLimits& joint_limits,
+					std::string urdf_model)
+{
+	// Parsing the URDF-XML
+	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
+
+	// Getting the free joint names
+	JointID free_joints;
+	getJointNames(free_joints, urdf_model, free);
+
+	// Computing the number of actuated joints
+	unsigned num_joints = 0;
+	for (urdf_model::JointID::iterator jnt_it = free_joints.begin();
+			jnt_it != free_joints.end(); jnt_it++) {
+		std::string joint_name = jnt_it->first;
+		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
+
+		if (current_joint->type != urdf::Joint::FLOATING)
+			if (current_joint->limits->effort != 0) // Virtual floating-base joints
+				num_joints++;
+	}
+
+	// Searching the joint limits
+	for (urdf_model::JointID::iterator jnt_it = free_joints.begin();
+			jnt_it != free_joints.end(); jnt_it++) {
+		std::string joint_name = jnt_it->first;
+		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
+
+		if (current_joint->type != urdf::Joint::FLOATING) {
+			if (current_joint->limits->effort != 0) {  // Virtual floating-base joints
+				joint_limits[joint_name].lower = current_joint->limits->lower;
+				joint_limits[joint_name].upper = current_joint->limits->upper;
+				joint_limits[joint_name].velocity = current_joint->limits->velocity;
+				joint_limits[joint_name].effort = current_joint->limits->effort;
+			}
+		}
+	}
+}
+
+
 void getJointAxis(JointAxis& joints,
 				  std::string urdf_model,
 				  enum JointType type)
