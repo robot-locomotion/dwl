@@ -67,6 +67,7 @@ int main(int argc, char **argv)
 	joint_vel << 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
 	joint_acc << 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.;//= Eigen::VectorXd::Zero(12);
 
+	std::cout << "System CoM = " << sys.getSystemCoM(base_pos, joint_pos).transpose() << std::endl;
 
 	// Defining contacts
 	dwl::rbd::BodySelector contacts;

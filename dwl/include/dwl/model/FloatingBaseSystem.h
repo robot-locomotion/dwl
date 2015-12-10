@@ -128,6 +128,13 @@ class FloatingBaseSystem
 		double getBodyMass(std::string body_name);
 
 		/**
+		 * @brief Gets the Center of Mass (CoM) of the floating-base system
+		 * @return double The CoM of the floating-base system
+		 */
+		const Eigen::Vector3d& getSystemCoM(rbd::Vector6d& base_state,
+				   	   	   	   	   	   	    Eigen::VectorXd& joint_state);
+
+		/**
 		 * @brief Gets the Center of Mass (CoM) of floating-base
 		 * @return double The CoM of the floating-base
 		 */
@@ -290,6 +297,7 @@ class FloatingBaseSystem
 	private:
 		/** @brief Rigid-body dynamic model */
 		RigidBodyDynamics::Model rbd_model_;
+		RigidBodyDynamics::Math::Vector3d com_system_;
 
 		/** @brief Number of DoFs */
 		unsigned int num_system_joints_;

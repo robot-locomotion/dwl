@@ -247,6 +247,19 @@ double FloatingBaseSystem::getBodyMass(std::string body_name)
 }
 
 
+const Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(rbd::Vector6d& base_pos,
+		   	   	   	   	   	   	   	   	   	   	   	    Eigen::VectorXd& joint_pos)
+{
+	Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
+	Eigen::VectorXd qd = Eigen::VectorXd::Zero(num_system_joints_);
+
+	double mass;
+	RigidBodyDynamics::Utils::CalcCenterOfMass(rbd_model_, q, qd, mass, com_system_);
+
+	return com_system_;
+}
+
+
 const Eigen::Vector3d& FloatingBaseSystem::getFloatingBaseCoM()
 {
 	unsigned int body_id = rbd_model_.GetBodyId(floating_body_name_.c_str());
