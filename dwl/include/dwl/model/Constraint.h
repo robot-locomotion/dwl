@@ -35,7 +35,7 @@ class Constraint
 		 * @param std::string URDF file
 		 * @param Print model information
 		 */
-		void modelFromURDFFile(std::string urdf_model,
+		void modelFromURDFFile(std::string filename,
 							   bool info = false);
 
 		/**
@@ -48,11 +48,9 @@ class Constraint
 
 		/**
 		 * @brief Initializes the constraint properties given an URDF model (xml)
-		 * @param std::string URDF model
 		 * @param Print model information
 		 */
-		virtual void init(std::string urdf_model,
-						  bool info = false);
+		virtual void init(bool info = false);
 
 		/**
 		 * @brief Computes the soft-value of the constraint given a certain state

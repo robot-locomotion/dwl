@@ -65,29 +65,41 @@ void PreviewLocomotion::setSampleTime(double sample_time)
 	sample_time_ = sample_time;
 }
 
-/*
+
 void PreviewLocomotion::previewScheduled(PreviewTrajectory& trajectory,
-										 std::vector<QuadrupedalPreviewParameters> control_params)
+										 const PreviewState& initial_state,
+										 const std::vector<QuadrupedalPreviewParameters>& control_params)
 {
-	unsigned int num_phases = control_params.size();
-	for (unsigned int i = 0; i < num_phases; i++) {
-		// Computing the number of samples
-		double phase_duration = control_params[i].four_support.duration;
-		unsigned int num_samples = round(phase_duration / sample_time_);
+//	unsigned int num_phases = control_params.size();
+//	for (unsigned int i = 0; i < num_phases; i++) {
+//		// Computing the number of samples
+//		double phase_duration = control_params[i].four_support.duration;
+//		unsigned int num_samples = round(phase_duration / sample_time_);
+//
+//		for (unsigned int k = 0; k < num_samples; k++) {
+//			double current_time = sample_time_ * k;
+//
+//			// Computing the preview locomotion trajectory
+//			WholeBodyState current_state;
+//			stancePreview(current_state, current_time);
+//
+//			trajectory.push_back(current_state);
+//		}
+//
+//	}
 
-		for (unsigned int k = 0; k < num_samples; k++) {
-			double current_time = sample_time_ * k;
 
-			// Computing the preview locomotion trajectory
-			WholeBodyState current_state;
-			stancePreview(current_state, current_time);
 
-			trajectory.push_back(current_state);
-		}
 
-	}
+
+	// Initializing the foot pattern generator
+//	double step_height = 0.1; //TODO set it
+//	simulation::StepParameters step_params(params.duration, step_height);
+//	Eigen::Vector3d initial_foot_pos;
+//	Eigen::Vector3d target_foot_pos;
+//	foot_pattern_generator_.setParameters(initial_state.time, initial_foot_pos, target_foot_pos, step_params);
 }
-*/
+
 
 void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 									  const PreviewState& initial_state,

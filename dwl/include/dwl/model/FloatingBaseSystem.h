@@ -179,6 +179,12 @@ class FloatingBaseSystem
 		const urdf_model::JointID& getJoints();
 
 		/**
+		 * @brief Gets actuated joint limits
+		 * @return const urdf_model::JointLimits& Joint names and limits
+		 */
+		const urdf_model::JointLimits& getJointLimits();
+
+		/**
 		 * @brief Gets the floating-base joint names list
 		 * @return const rbd::BodySelector& Joint names list
 		 */
@@ -299,6 +305,7 @@ class FloatingBaseSystem
 		FloatingBaseJoint LZ;
 		rbd::BodySelector floating_joint_names_;
 		urdf_model::JointID joints;
+		urdf_model::JointLimits joint_limits_;
 		rbd::BodySelector joint_names_;
 
 		/** @brief System bodies */

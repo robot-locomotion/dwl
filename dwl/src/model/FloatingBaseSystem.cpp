@@ -88,12 +88,13 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 	// Getting the information about the actuated joints
 	urdf_model::JointID free_joint_names;
 	urdf_model::getJointNames(free_joint_names, urdf_model, urdf_model::free);
+	urdf_model::getJointLimits(joint_limits_, urdf_model);
 	unsigned int num_free_joints = free_joint_names.size();
 	num_joints = num_free_joints - num_floating_joints;
 	for (urdf_model::JointID::iterator jnt_it = free_joint_names.begin();
 			jnt_it != free_joint_names.end(); jnt_it++) {
 		std::string joint_name = jnt_it->first;
-		unsigned int joint_id = jnt_it->second;
+		unsigned int joint_id = jnt_it->second - num_floating_joints;
 
 		// Checking if it's a virtual floating-base joint
 		if (num_floating_joints > 0) {
@@ -319,6 +320,13 @@ const urdf_model::JointID& FloatingBaseSystem::getJoints()
 {
 	return joints;
 }
+
+
+const urdf_model::JointLimits& FloatingBaseSystem::getJointLimits()
+{
+	return joint_limits_;
+}
+
 
 const rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames()
 {

@@ -21,8 +21,7 @@ DynamicalSystem::~DynamicalSystem()
 }
 
 
-void DynamicalSystem::init(std::string urdf_model,
-						   bool info)
+void DynamicalSystem::init(bool info)
 {
 	// Computing the state dimension of the dynamical system constraint
 	computeStateDimension();
@@ -31,7 +30,7 @@ void DynamicalSystem::init(std::string urdf_model,
 	initialConditions();
 
 	// Reading and setting the joint limits
-	jointLimitsFromURDF(urdf_model);
+	jointLimitsFromURDF();
 
 	// Initializing the dynamical system
 	initDynamicalSystem();
@@ -50,20 +49,30 @@ void DynamicalSystem::initDynamicalSystem()
 }
 
 
-void DynamicalSystem::jointLimitsFromURDF(std::string urdf_model)
+void DynamicalSystem::jointLimitsFromURDF()
 {
-	// Reading the joint limits
+	// Initializing the joint limits
+	unsigned int num_joints = system_.getJointDoF();
 	Eigen::VectorXd lower_joint_pos, upper_joint_pos, joint_vel, joint_eff;
-	urdf_model::getJointLimits(lower_joint_pos, upper_joint_pos,
-							   joint_vel, joint_eff, urdf_model);
+	lower_joint_pos = -NO_BOUND * Eigen::VectorXd::Ones(num_joints);
+	upper_joint_pos = NO_BOUND * Eigen::VectorXd::Ones(num_joints);
+	joint_vel = NO_BOUND * Eigen::VectorXd::Ones(num_joints);
+	joint_eff = NO_BOUND * Eigen::VectorXd::Ones(num_joints);
 
-	// Setting the joint limits
-	lower_state_bound_.joint_pos = lower_joint_pos;
-	lower_state_bound_.joint_vel = -joint_vel;
-	lower_state_bound_.joint_eff = -joint_eff;
-	upper_state_bound_.joint_pos = upper_joint_pos;
-	upper_state_bound_.joint_vel = joint_vel;
-	upper_state_bound_.joint_eff = joint_eff;
+	// Reading the joint limits
+	dwl::urdf_model::JointLimits joint_limits = system_.getJointLimits();
+	dwl::urdf_model::JointID joint_ids = system_.getJoints();
+	for (dwl::urdf_model::JointLimits::iterator jnt_it = joint_limits.begin();
+			jnt_it != joint_limits.end(); jnt_it++) {
+		std::string joint_name = jnt_it->first;
+		urdf::JointLimits joint_limits = jnt_it->second;
+		unsigned int joint_id = joint_ids.find(joint_name)->second;
+
+		lower_joint_pos(joint_id) = joint_limits.lower;
+		upper_joint_pos(joint_id) = joint_limits.upper;
+		joint_vel(joint_id) = joint_limits.velocity;
+		joint_eff(joint_id) = joint_limits.effort;
+	}
 }
 
 
