@@ -289,22 +289,22 @@ class FloatingBaseSystem
 
 	private:
 		/** @brief Rigid-body dynamic model */
-		RigidBodyDynamics::Model rbd_model;
+		RigidBodyDynamics::Model rbd_model_;
 
 		/** @brief Number of DoFs */
-		unsigned int num_system_joints;
-		unsigned int num_floating_joints;
-		unsigned int num_joints;
+		unsigned int num_system_joints_;
+		unsigned int num_floating_joints_;
+		unsigned int num_joints_;
 
 		/** @brief System joints */
-		FloatingBaseJoint AX;
-		FloatingBaseJoint AY;
-		FloatingBaseJoint AZ;
-		FloatingBaseJoint LX;
-		FloatingBaseJoint LY;
-		FloatingBaseJoint LZ;
+		FloatingBaseJoint floating_ax_;
+		FloatingBaseJoint floating_ay_;
+		FloatingBaseJoint floating_az_;
+		FloatingBaseJoint floating_lx_;
+		FloatingBaseJoint floating_ly_;
+		FloatingBaseJoint floating_lz_;
 		rbd::BodySelector floating_joint_names_;
-		urdf_model::JointID joints;
+		urdf_model::JointID joints_;
 		urdf_model::JointLimits joint_limits_;
 		rbd::BodySelector joint_names_;
 
@@ -312,11 +312,11 @@ class FloatingBaseSystem
 		std::string floating_body_name_;
 
 		/** @brief Type of system */
-		enum TypeOfSystem type_of_system;
+		enum TypeOfSystem type_of_system_;
 
 		/** @brief End-effector information */
-		urdf_model::LinkID end_effectors;
-		unsigned int num_end_effectors;
+		urdf_model::LinkID end_effectors_;
+		unsigned int num_end_effectors_;
 		rbd::BodySelector end_effector_names_;
 };
 
