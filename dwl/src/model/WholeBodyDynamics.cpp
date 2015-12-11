@@ -320,6 +320,56 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 }
 
 
+void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
+												const rbd::BodyWrench& contact_for,
+												const rbd::BodyVector& contact_pos,
+												const rbd::BodySelector& ground_contacts)
+{
+	// TODO: Compute the com position for case when the normal surface is different to z
+	// Initializing the variables
+	cop_pos.setZero();
+	double sum = 0.;
+
+	// Computing the Center of Pressure (CoP) position
+	for (rbd::BodySelector::const_iterator contact_iter = ground_contacts.begin();
+			contact_iter != ground_contacts.end(); contact_iter++) {
+		std::string name = *contact_iter;
+
+		// Getting the ground reaction forces
+		rbd::Vector6d force;
+		rbd::BodyWrench::const_iterator for_it = contact_for.find(name);
+		if (for_it != contact_for.end())
+			force = for_it->second;
+		else {
+			printf(YELLOW "Warning: there is missing the contact force of %s\n" COLOR_RESET,
+					name.c_str());
+			return;
+		}
+
+		// Getting the contact position
+		rbd::BodyVector::const_iterator pos_it = contact_pos.find(name);
+		Eigen::VectorXd position;
+		if (pos_it != contact_pos.end())
+			position = pos_it->second;
+		else {
+			printf(YELLOW "Warning: there is missing the contact position of %s\n" COLOR_RESET,
+					name.c_str());
+			return;
+		}
+
+		// Accumulate the cop position as a weighted sum, where the weight is the
+		// z component of the force at each contact point
+		double norm_for = force(rbd::LZ);
+		if (position.size() == 6)
+			cop_pos += norm_for * position.segment<3>(rbd::LX);
+		else
+			cop_pos += norm_for * position;
+		sum += norm_for;
+	}
+	cop_pos /= sum;
+}
+
+
 void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contacts,
 											   rbd::BodyWrench& contact_forces,
 											   const rbd::Vector6d& base_pos,
