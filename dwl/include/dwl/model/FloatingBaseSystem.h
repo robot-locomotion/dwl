@@ -129,10 +129,25 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of the floating-base system
+		 * @param rbd::Vector6d& Base position
+		 * @param Eigen::VectorXd& Joint position
 		 * @return double The CoM of the floating-base system
 		 */
-		const Eigen::Vector3d& getSystemCoM(rbd::Vector6d& base_state,
-				   	   	   	   	   	   	    Eigen::VectorXd& joint_state);
+		const Eigen::Vector3d& getSystemCoM(rbd::Vector6d& base_pos,
+				   	   	   	   	   	   	    Eigen::VectorXd& joint_pos);
+
+		/**
+		 * @brief Gets the Center of Mass (CoM) rate of the floating-base system
+		 * @param rbd::Vector6d& Base position
+		 * @param Eigen::VectorXd& Joint position
+		 * @param rbd::Vector6d& Base velocity
+		 * @param Eigen::VectorXd& Joint velocity
+		 * @return double The CoM rate of the floating-base system
+		 */
+		const Eigen::Vector3d& getSystemCoMRate(rbd::Vector6d& base_pos,
+												Eigen::VectorXd& joint_pos,
+												rbd::Vector6d& base_vel,
+												Eigen::VectorXd& joint_vel);
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of floating-base
@@ -298,6 +313,7 @@ class FloatingBaseSystem
 		/** @brief Rigid-body dynamic model */
 		RigidBodyDynamics::Model rbd_model_;
 		RigidBodyDynamics::Math::Vector3d com_system_;
+		RigidBodyDynamics::Math::Vector3d comd_system_;
 
 		/** @brief Number of DoFs */
 		unsigned int num_system_joints_;

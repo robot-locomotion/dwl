@@ -260,6 +260,21 @@ const Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(rbd::Vector6d& base_pos,
 }
 
 
+const Eigen::Vector3d& FloatingBaseSystem::getSystemCoMRate(rbd::Vector6d& base_pos,
+		   	   	   	   	   	   	   	   	   	   	   	    	Eigen::VectorXd& joint_pos,
+															rbd::Vector6d& base_vel,
+															Eigen::VectorXd& joint_vel)
+{
+	Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
+	Eigen::VectorXd qd = toGeneralizedJointState(base_vel, joint_vel);
+
+	double mass;
+	RigidBodyDynamics::Utils::CalcCenterOfMass(rbd_model_, q, qd, mass, com_system_, &comd_system_);
+
+	return comd_system_;
+}
+
+
 const Eigen::Vector3d& FloatingBaseSystem::getFloatingBaseCoM()
 {
 	unsigned int body_id = rbd_model_.GetBodyId(floating_body_name_.c_str());
