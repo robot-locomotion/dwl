@@ -28,7 +28,6 @@ find_package(PkgConfig)
 pkg_check_modules(RBDL rbdl REQUIRED)
 find_package(URDF REQUIRED)
 find_package(YAMLCPP REQUIRED)
-find_package(ROBOTS)
 find_package(QPOASES)
 find_package(IPOPT)
 find_package(octomap)
@@ -88,8 +87,6 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/model/TerminalStateTrackingEnergyCost.cpp
 							 src/model/IntegralStateTrackingEnergyCost.cpp
 							 src/model/IntegralControlEnergyCost.cpp
-							 src/model/RobCoGenWholeBodyKinematics.cpp
-							 src/model/RobCoGenWholeBodyDynamics.cpp
 							 src/model/FloatingBaseSystem.cpp
 							 src/model/WholeBodyKinematics.cpp
 							 src/model/WholeBodyDynamics.cpp
@@ -118,25 +115,6 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/utils/URDF.cpp
 							 src/utils/SplineInterpolation.cpp
 							 src/utils/YamlWrapper.cpp)
-
-# Adding robot components of the project
-if(hyl_FOUND)
-	list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${hyl_INCLUDE_DIRS})
-	list(APPEND DEPENDENCIES_LIBRARIES  ${hyl_LIBRARIES})
-
-	include_directories(${hyl_INCLUDE_DIRS})
-	list(APPEND ${PROJECT_NAME}_SOURCES  src/robot/HyLWholeBodyKinematics.cpp
-										 src/robot/HyLWholeBodyDynamics.cpp)
-endif()
-
-if(hyq_FOUND)
-	list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${hyq_INCLUDE_DIRS})
-	list(APPEND DEPENDENCIES_LIBRARIES  ${hyq_LIBRARIES})
-
-	include_directories(${hyq_INCLUDE_DIRS})
-	list(APPEND ${PROJECT_NAME}_SOURCES  src/robot/HyQWholeBodyKinematics.cpp)
-								         #src/robot/HyQWholeBodyDynamics.cpp
-endif()
 
 # Adding qpOASES components of the project
 if (qpoases_FOUND)
