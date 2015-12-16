@@ -129,25 +129,25 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of the floating-base system
-		 * @param rbd::Vector6d& Base position
-		 * @param Eigen::VectorXd& Joint position
+		 * @param const rbd::Vector6d& Base position
+		 * @param const Eigen::VectorXd& Joint position
 		 * @return double The CoM of the floating-base system
 		 */
-		const Eigen::Vector3d& getSystemCoM(rbd::Vector6d& base_pos,
-				   	   	   	   	   	   	    Eigen::VectorXd& joint_pos);
+		const Eigen::Vector3d& getSystemCoM(const rbd::Vector6d& base_pos,
+				   	   	   	   	   	   	    const Eigen::VectorXd& joint_pos);
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) rate of the floating-base system
-		 * @param rbd::Vector6d& Base position
-		 * @param Eigen::VectorXd& Joint position
-		 * @param rbd::Vector6d& Base velocity
-		 * @param Eigen::VectorXd& Joint velocity
+		 * @param const rbd::Vector6d& Base position
+		 * @param const Eigen::VectorXd& Joint position
+		 * @param const rbd::Vector6d& Base velocity
+		 * @param const Eigen::VectorXd& Joint velocity
 		 * @return double The CoM rate of the floating-base system
 		 */
-		const Eigen::Vector3d& getSystemCoMRate(rbd::Vector6d& base_pos,
-												Eigen::VectorXd& joint_pos,
-												rbd::Vector6d& base_vel,
-												Eigen::VectorXd& joint_vel);
+		const Eigen::Vector3d& getSystemCoMRate(const rbd::Vector6d& base_pos,
+												const Eigen::VectorXd& joint_pos,
+												const rbd::Vector6d& base_vel,
+												const Eigen::VectorXd& joint_vel);
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of floating-base
