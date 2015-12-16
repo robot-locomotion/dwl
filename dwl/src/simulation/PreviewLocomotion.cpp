@@ -9,7 +9,7 @@ namespace simulation
 
 PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.)
 {
-	com_.setZero();
+	base_com_.setZero();
 }
 
 
@@ -56,7 +56,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model)
 	mass_ = system_.getTotalMass();
 
 	// Getting the floating-base CoM
-	com_ = system_.getFloatingBaseCoM();
+	base_com_ = system_.getFloatingBaseCoM();
 }
 
 
@@ -199,7 +199,9 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 										 const PreviewState& preview_state)
 {
-	rbd::linearPart(full_state.base_pos) = preview_state.com_pos - com_;
+	// From the preview model we do not know the joint states, so we neglect the joint-related
+	// components of the CoM
+	rbd::linearPart(full_state.base_pos) = preview_state.com_pos - base_com_;
 	rbd::linearPart(full_state.base_vel) = preview_state.com_vel;
 	rbd::linearPart(full_state.base_acc) = preview_state.com_acc;
 
@@ -214,12 +216,20 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 										   const WholeBodyState& full_state)
 {
-	preview_state.com_pos = full_state.base_pos.segment<3>(rbd::LX) + com_;
-	preview_state.com_vel = full_state.base_vel.segment<3>(rbd::LX);
-	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX);
+	// Computing the CoM position, velocity and acceleration
+	preview_state.com_pos = system_.getSystemCoM(full_state.base_pos, full_state.joint_pos);
+	preview_state.com_vel = system_.getSystemCoMRate(full_state.base_pos, full_state.joint_pos,
+													 full_state.base_vel, full_state.joint_vel);
+	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX); //Neglecting the joint accelerations components
 	preview_state.head_pos = full_state.base_pos(rbd::AZ);
 	preview_state.head_vel = full_state.base_vel(rbd::AZ);
 	preview_state.head_acc = full_state.base_acc(rbd::AZ);
+
+	// Computing the CoP
+	dynamics_.computeCenterOfPressure(preview_state.cop,
+									  full_state.contact_eff,
+									  full_state.contact_pos,
+									  system_.getEndEffectorNames());
 
 //	dynamics_.getActiveContacts(active_contacts,
 //			  full_state.contact_eff,

@@ -19,6 +19,7 @@ struct PreviewState
 		com_pos.setZero();
 		com_vel.setZero();
 		com_acc.setZero();
+		cop.setZero();
 	}
 
 	double time;
@@ -28,6 +29,7 @@ struct PreviewState
 	double head_pos;
 	double head_vel;
 	double head_acc;
+	Eigen::Vector3d cop;
 	rbd::BodyVector support_region;
 };
 
@@ -163,7 +165,7 @@ class PreviewLocomotion
 		double mass_;
 
 		/** @brief Base Center of Mass (CoM) */
-		Eigen::Vector3d com_;
+		Eigen::Vector3d base_com_;
 };
 
 } //@namespace simulation
