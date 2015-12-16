@@ -325,10 +325,18 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 												const rbd::BodyVector& contact_pos,
 												const rbd::BodySelector& ground_contacts)
 {
-	// TODO: Compute the com position for case when the normal surface is different to z
+	// TODO: Compute the CoM position for case when the normal surface is different to z
 	// Initializing the variables
 	cop_pos.setZero();
 	double sum = 0.;
+
+	// Sanity check: checking if there are contact information and the size
+	if ((contact_for.size() == 0) || (contact_pos.size() == 0) ||
+			contact_for.size() != contact_pos.size()) {
+		printf(YELLOW "Warning: could not compute the CoP because there is missing information"
+				COLOR_RESET);
+		return;
+	}
 
 	// Computing the Center of Pressure (CoP) position
 	for (rbd::BodySelector::const_iterator contact_iter = ground_contacts.begin();
