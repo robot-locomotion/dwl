@@ -39,7 +39,6 @@ struct StancePreviewParameters
 {
 	double duration;
 	Eigen::Vector2d terminal_cop;
-	double initial_length;
 	double terminal_length;
 	double head_acc;
 };
@@ -99,7 +98,7 @@ class PreviewLocomotion
 
 
 		void previewScheduled(PreviewTrajectory& trajectory,
-							  const PreviewState& initial_state,
+							  const PreviewState& state,
 							  const std::vector<QuadrupedalPreviewParameters>& control_params);
 
 		/**
@@ -111,7 +110,7 @@ class PreviewLocomotion
 		 * @param const StancePreviewParameters& Preview parameters
 		 */
 		void stancePreview(PreviewTrajectory& trajectory,
-						   const PreviewState& initial_state,
+						   const PreviewState& state,
 						   const StancePreviewParameters& params);
 
 		/**
@@ -123,7 +122,7 @@ class PreviewLocomotion
 		 * @param const FlightPreviewParameters& Preview parameters
 		 */
 		void flightPreview(PreviewTrajectory& trajectory,
-				   	   	   const PreviewState& initial_state,
+				   	   	   const PreviewState& state,
 						   const FlightPreviewParameters& params);
 
 		/**

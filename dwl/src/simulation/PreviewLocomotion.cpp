@@ -102,26 +102,29 @@ void PreviewLocomotion::previewScheduled(PreviewTrajectory& trajectory,
 
 
 void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
-									  const PreviewState& initial_state,
+									  const PreviewState& state,
 									  const StancePreviewParameters& params)
 {
-	// Computing the coefficients of the SLIP response
+	// Computing the coefficients of the Spring Loaded Inverted Pendulum (SLIP) response
 	double pendulum_height = 0.58; //TODO set it
 	double slip_omega = sqrt(gravity_ / pendulum_height);
 	double alpha = 2 * slip_omega * params.duration;
-	Eigen::Vector2d slip_hor_proj = initial_state.com_pos.head<2>() - initial_state.cop.head<2>();
-	Eigen::Vector2d cop_disp = initial_state.cop.head<2>() - params.terminal_cop;
-	Eigen::Vector2d slip_hor_disp = initial_state.com_vel.head<2>() * params.duration;
+	Eigen::Vector2d slip_hor_proj = (state.com_pos - state.cop).head<2>();
+	Eigen::Vector2d cop_disp = state.cop.head<2>() - params.terminal_cop;
+	Eigen::Vector2d slip_hor_disp = state.com_vel.head<2>() * params.duration;
 	Eigen::Vector2d beta_1 = slip_hor_proj / 2 + (slip_hor_disp - cop_disp) / alpha;
 	Eigen::Vector2d beta_2 = slip_hor_proj / 2 - (slip_hor_disp - cop_disp) / alpha;
+
+	// Computing the initial length of the pendulum
+	double initial_length = (state.com_pos - state.cop).norm();
 
 	// Computing the coefficients of the spring-mass system response
 	double spring_gain = 60000.; //wn = 16.3//TODO set it
 	double spring_omega = sqrt(spring_gain / mass_);
-	double delta_length = params.terminal_length - params.initial_length;
-	double d_1 = initial_state.com_pos(rbd::Z) - params.initial_length + gravity_ /
+	double delta_length = params.terminal_length - initial_length;
+	double d_1 = state.com_pos(rbd::Z) - initial_length + gravity_ /
 			pow(spring_omega,2);
-	double d_2 = initial_state.com_vel(rbd::Z) / spring_omega -
+	double d_2 = state.com_vel(rbd::Z) / spring_omega -
 			delta_length / (spring_omega * params.duration);
 
 	// Computing the preview trajectory
@@ -131,12 +134,12 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 		// Computing the current time of the preview trajectory
 		PreviewState current_state;
-		current_state.time = initial_state.time + time;
+		current_state.time = state.time + time;
 
 		// Computing the horizontal motion of the CoM according to the SLIP system
 		current_state.com_pos.head<2>() = beta_1 * exp(slip_omega * time) +
 				beta_2 * exp(-slip_omega * time) +
-				(cop_disp / params.duration) * time + initial_state.cop.head<2>();
+				(cop_disp / params.duration) * time + state.cop.head<2>();
 		current_state.com_vel.head<2>() = beta_1 * slip_omega * exp(slip_omega * time) -
 				beta_2 * slip_omega * exp(-slip_omega * time) +
 				cop_disp / params.duration;
@@ -146,7 +149,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		// Computing the vertical motion of the CoM according to the spring-mass system
 		current_state.com_pos(rbd::Z) = d_1 * cos(spring_omega * time) +
 				d_2 * sin(spring_omega * time) + (delta_length / params.duration) * time +
-				params.initial_length -	gravity_ / pow(spring_omega,2);
+				initial_length - gravity_ / pow(spring_omega,2);
 		current_state.com_vel(rbd::Z) = -d_1 * spring_omega * sin(spring_omega * time) +
 				d_2 * spring_omega * cos(spring_omega * time) +
 				delta_length / params.duration;
@@ -154,9 +157,9 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 				d_2 * pow(spring_omega,2) * sin(spring_omega * time);
 
 		// Computing the heading motion according to heading kinematic equation
-		current_state.head_pos = initial_state.head_pos + initial_state.head_vel * time +
+		current_state.head_pos = state.head_pos + state.head_vel * time +
 				0.5 * params.head_acc * pow(time,2);
-		current_state.head_vel = initial_state.head_vel + params.head_acc * time;
+		current_state.head_vel = state.head_vel + params.head_acc * time;
 		current_state.head_acc = params.head_acc;
 
 		// Appending the current state to the preview trajectory
@@ -166,7 +169,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 
 void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
-						   	   	   	  const PreviewState& initial_state,
+						   	   	   	  const PreviewState& state,
 									  const FlightPreviewParameters& params)
 {
 	// Setting the gravity vector
@@ -180,17 +183,17 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 
 		// Computing the current time of the preview trajectory
 		PreviewState current_state;
-		current_state.time = initial_state.time + time;
+		current_state.time = state.time + time;
 
 		// Computing the CoM motion according to the projectile EoM
-		current_state.com_pos = initial_state.com_pos + initial_state.com_vel * time +
+		current_state.com_pos = state.com_pos + state.com_vel * time +
 				0.5 * gravity_vec * pow(time,2);
-		current_state.com_vel = initial_state.com_vel + gravity_vec * time;
+		current_state.com_vel = state.com_vel + gravity_vec * time;
 		current_state.com_acc = gravity_vec;
 
 		// Computing the heading motion by assuming that there isn't change in the angular momentum
-		current_state.head_pos = initial_state.head_pos + initial_state.head_vel * time;
-		current_state.head_vel = initial_state.head_vel;
+		current_state.head_pos = state.head_pos + state.head_vel * time;
+		current_state.head_vel = state.head_vel;
 		current_state.head_acc = 0.;
 	}
 }
