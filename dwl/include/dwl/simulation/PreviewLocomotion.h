@@ -96,6 +96,12 @@ class PreviewLocomotion
 		 */
 		void setSampleTime(double sample_time);
 
+		/**
+		 * @brief Sets the spring gain that module the vertical movement
+		 * @param double gain Spring gain
+		 */
+		void setSpringGain(double gain);
+
 
 		void previewScheduled(PreviewTrajectory& trajectory,
 							  const PreviewState& state,
@@ -161,6 +167,9 @@ class PreviewLocomotion
 
 		/** @brief Total mass of the system */
 		double mass_;
+
+		/** @brief Spring gain that module the vertical movement */
+		double spring_gain_;
 
 		/** @brief Base Center of Mass (CoM) */
 		Eigen::Vector3d base_com_;

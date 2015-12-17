@@ -7,7 +7,8 @@ namespace dwl
 namespace simulation
 {
 
-PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.)
+PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.),
+		spring_gain_(0.)
 {
 	base_com_.setZero();
 }
@@ -66,6 +67,12 @@ void PreviewLocomotion::setSampleTime(double sample_time)
 }
 
 
+void PreviewLocomotion::setSpringGain(double gain)
+{
+	spring_gain_ = gain;
+}
+
+
 void PreviewLocomotion::previewScheduled(PreviewTrajectory& trajectory,
 										 const PreviewState& initial_state,
 										 const std::vector<QuadrupedalPreviewParameters>& control_params)
@@ -119,8 +126,8 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	double initial_length = (state.com_pos - state.cop).norm();
 
 	// Computing the coefficients of the spring-mass system response
-	double spring_gain = 60000.; //wn = 16.3//TODO set it
-	double spring_omega = sqrt(spring_gain / mass_);
+	spring_gain_ = 60000.; //wn = 16.3//TODO set it
+	double spring_omega = sqrt(spring_gain_ / mass_);
 	double delta_length = params.terminal_length - initial_length;
 	double d_1 = state.com_pos(rbd::Z) - initial_length + gravity_ /
 			pow(spring_omega,2);
@@ -204,7 +211,7 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 {
 	// From the preview model we do not know the joint states, so we neglect the joint-related
 	// components of the CoM
-	rbd::linearPart(full_state.base_pos) = preview_state.com_pos - base_com_;
+	rbd::linearPart(full_state.base_pos) = preview_state.com_pos;// - base_com_; TODO for debugging
 	rbd::linearPart(full_state.base_vel) = preview_state.com_vel;
 	rbd::linearPart(full_state.base_acc) = preview_state.com_acc;
 
@@ -233,7 +240,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 									  full_state.contact_eff,
 									  full_state.contact_pos,
 									  system_.getEndEffectorNames());
-	preview_state.cop +=  full_state.base_pos.segment<3>(rbd::LX);
+	preview_state.cop += full_state.base_pos.segment<3>(rbd::LX);
 
 //	dynamics_.getActiveContacts(active_contacts,
 //			  full_state.contact_eff,
