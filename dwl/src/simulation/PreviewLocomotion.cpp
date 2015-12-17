@@ -73,7 +73,7 @@ void PreviewLocomotion::setModel(const SLIPModel& model)
 
 
 void PreviewLocomotion::previewScheduled(PreviewTrajectory& trajectory,
-										 const PreviewState& initial_state,
+										 const PreviewState& state,
 										 const std::vector<QuadrupedalPreviewParameters>& control_params)
 {
 //	unsigned int num_phases = control_params.size();
@@ -112,7 +112,6 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 									  const StancePreviewParameters& params)
 {
 	// Computing the coefficients of the Spring Loaded Inverted Pendulum (SLIP) response
-	slip_.height = 0.58; //TODO set it
 	double slip_omega = sqrt(gravity_ / slip_.height);
 	double alpha = 2 * slip_omega * params.duration;
 	Eigen::Vector2d slip_hor_proj = (state.com_pos - state.cop).head<2>();
@@ -125,7 +124,6 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	double initial_length = (state.com_pos - state.cop).norm();
 
 	// Computing the coefficients of the spring-mass system response
-	slip_.stiffness = 60000.; //wn = 16.3//TODO set it
 	double spring_omega = sqrt(slip_.stiffness / mass_);
 	double delta_length = params.terminal_length - initial_length;
 	double d_1 = state.com_pos(rbd::Z) - initial_length + gravity_ /
