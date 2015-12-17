@@ -7,8 +7,7 @@ namespace dwl
 namespace simulation
 {
 
-PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.),
-		spring_gain_(0.)
+PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.)
 {
 	base_com_.setZero();
 }
@@ -67,9 +66,9 @@ void PreviewLocomotion::setSampleTime(double sample_time)
 }
 
 
-void PreviewLocomotion::setSpringGain(double gain)
+void PreviewLocomotion::setModel(const SLIPModel& model)
 {
-	spring_gain_ = gain;
+	slip_ = model;
 }
 
 
@@ -113,8 +112,8 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 									  const StancePreviewParameters& params)
 {
 	// Computing the coefficients of the Spring Loaded Inverted Pendulum (SLIP) response
-	double pendulum_height = 0.58; //TODO set it
-	double slip_omega = sqrt(gravity_ / pendulum_height);
+	slip_.height = 0.58; //TODO set it
+	double slip_omega = sqrt(gravity_ / slip_.height);
 	double alpha = 2 * slip_omega * params.duration;
 	Eigen::Vector2d slip_hor_proj = (state.com_pos - state.cop).head<2>();
 	Eigen::Vector2d cop_disp = state.cop.head<2>() - params.terminal_cop;
@@ -126,8 +125,8 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	double initial_length = (state.com_pos - state.cop).norm();
 
 	// Computing the coefficients of the spring-mass system response
-	spring_gain_ = 60000.; //wn = 16.3//TODO set it
-	double spring_omega = sqrt(spring_gain_ / mass_);
+	slip_.stiffness = 60000.; //wn = 16.3//TODO set it
+	double spring_omega = sqrt(slip_.stiffness / mass_);
 	double delta_length = params.terminal_length - initial_length;
 	double d_1 = state.com_pos(rbd::Z) - initial_length + gravity_ /
 			pow(spring_omega,2);

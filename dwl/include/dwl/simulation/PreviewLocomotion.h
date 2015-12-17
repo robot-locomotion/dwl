@@ -56,6 +56,15 @@ struct QuadrupedalPreviewParameters
 	FlightPreviewParameters flight;
 };
 
+struct SLIPModel
+{
+	SLIPModel() : height(0.), stiffness(0.) {}
+	SLIPModel(double _height, double _stiffness) : height(_height), stiffness(_stiffness) {};
+
+	double height;
+	double stiffness;
+};
+
 /**
  * @class PreviewLocomotion
  * @brief Describes a preview locomotion
@@ -97,10 +106,10 @@ class PreviewLocomotion
 		void setSampleTime(double sample_time);
 
 		/**
-		 * @brief Sets the spring gain that module the vertical movement
-		 * @param double gain Spring gain
+		 * @brief Sets the Spring Loaded Inverted Pendulum (SLIP) model
+		 * @param const SLIPModel& SLIP model
 		 */
-		void setSpringGain(double gain);
+		void setModel(const SLIPModel& model);
 
 
 		void previewScheduled(PreviewTrajectory& trajectory,
@@ -168,8 +177,8 @@ class PreviewLocomotion
 		/** @brief Total mass of the system */
 		double mass_;
 
-		/** @brief Spring gain that module the vertical movement */
-		double spring_gain_;
+		/** @brief SLIP model */
+		SLIPModel slip_;
 
 		/** @brief Base Center of Mass (CoM) */
 		Eigen::Vector3d base_com_;
