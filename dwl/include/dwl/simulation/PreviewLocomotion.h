@@ -35,7 +35,7 @@ struct PreviewState
 
 typedef std::vector<PreviewState> PreviewTrajectory;
 
-struct StancePreviewParameters
+struct PreviewControl
 {
 	double duration;
 	Eigen::Vector2d terminal_cop;
@@ -43,17 +43,13 @@ struct StancePreviewParameters
 	double head_acc;
 };
 
-struct FlightPreviewParameters
-{
-	double duration;
-};
 
-struct QuadrupedalPreviewParameters
+struct QuadrupedalPreviewControl
 {
-	StancePreviewParameters four_support;
-	StancePreviewParameters three_support;
-	StancePreviewParameters two_support;
-	FlightPreviewParameters flight;
+	PreviewControl four_support;
+	PreviewControl three_support;
+	PreviewControl two_support;
+	PreviewControl flight;
 };
 
 struct SLIPModel
@@ -114,7 +110,7 @@ class PreviewLocomotion
 
 		void previewScheduled(PreviewTrajectory& trajectory,
 							  const PreviewState& state,
-							  const std::vector<QuadrupedalPreviewParameters>& control_params);
+							  const std::vector<QuadrupedalPreviewControl>& control);
 
 		/**
 		 * @brief Computes the preview of the stance-phase given the stance parameters
@@ -122,11 +118,11 @@ class PreviewLocomotion
 		 * assuming that the Center of Pressure (CoP) and the pendulum length are linearly controlled
 		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
 		 * @param const PreviewState& Initial low-dimensional state
-		 * @param const StancePreviewParameters& Preview parameters
+		 * @param const PreviewControl& Preview control parameters
 		 */
 		void stancePreview(PreviewTrajectory& trajectory,
 						   const PreviewState& state,
-						   const StancePreviewParameters& params);
+						   const PreviewControl& control);
 
 		/**
 		 * @brief Computes the preview of the flight-phase given the duration of the phase
@@ -134,11 +130,11 @@ class PreviewLocomotion
 		 * the non-changes in the angular momentum
 		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
 		 * @param const PreviewState& Initial low-dimensional state
-		 * @param const FlightPreviewParameters& Preview parameters
+		 * @param const PreviewParameters& Preview control parameters
 		 */
 		void flightPreview(PreviewTrajectory& trajectory,
 				   	   	   const PreviewState& state,
-						   const FlightPreviewParameters& params);
+						   const PreviewControl& control);
 
 		/**
 		 * @brief Converts the preview state vector to whole-body state

@@ -74,12 +74,12 @@ void PreviewLocomotion::setModel(const SLIPModel& model)
 
 void PreviewLocomotion::previewScheduled(PreviewTrajectory& trajectory,
 										 const PreviewState& state,
-										 const std::vector<QuadrupedalPreviewParameters>& control_params)
+										 const std::vector<QuadrupedalPreviewControl>& control)
 {
-//	unsigned int num_phases = control_params.size();
+//	unsigned int num_phases = control.size();
 //	for (unsigned int i = 0; i < num_phases; i++) {
 //		// Computing the number of samples
-//		double phase_duration = control_params[i].four_support.duration;
+//		double phase_duration = control[i].four_support.duration;
 //		unsigned int num_samples = round(phase_duration / sample_time_);
 //
 //		for (unsigned int k = 0; k < num_samples; k++) {
@@ -109,14 +109,14 @@ void PreviewLocomotion::previewScheduled(PreviewTrajectory& trajectory,
 
 void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 									  const PreviewState& state,
-									  const StancePreviewParameters& params)
+									  const PreviewControl& control)
 {
 	// Computing the coefficients of the Spring Loaded Inverted Pendulum (SLIP) response
 	double slip_omega = sqrt(gravity_ / slip_.height);
-	double alpha = 2 * slip_omega * params.duration;
+	double alpha = 2 * slip_omega * control.duration;
 	Eigen::Vector2d slip_hor_proj = (state.com_pos - state.cop).head<2>();
-	Eigen::Vector2d cop_disp = state.cop.head<2>() - params.terminal_cop;
-	Eigen::Vector2d slip_hor_disp = state.com_vel.head<2>() * params.duration;
+	Eigen::Vector2d cop_disp = state.cop.head<2>() - control.terminal_cop;
+	Eigen::Vector2d slip_hor_disp = state.com_vel.head<2>() * control.duration;
 	Eigen::Vector2d beta_1 = slip_hor_proj / 2 + (slip_hor_disp - cop_disp) / alpha;
 	Eigen::Vector2d beta_2 = slip_hor_proj / 2 - (slip_hor_disp - cop_disp) / alpha;
 
@@ -125,14 +125,14 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 	// Computing the coefficients of the spring-mass system response
 	double spring_omega = sqrt(slip_.stiffness / mass_);
-	double delta_length = params.terminal_length - initial_length;
+	double delta_length = control.terminal_length - initial_length;
 	double d_1 = state.com_pos(rbd::Z) - initial_length + gravity_ /
 			pow(spring_omega,2);
 	double d_2 = state.com_vel(rbd::Z) / spring_omega -
-			delta_length / (spring_omega * params.duration);
+			delta_length / (spring_omega * control.duration);
 
 	// Computing the preview trajectory
-	unsigned int num_samples = round(params.duration / sample_time_);
+	unsigned int num_samples = round(control.duration / sample_time_);
 	for (unsigned int k = 0; k < num_samples; k++) {
 		double time = sample_time_ * k;
 
@@ -143,28 +143,28 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		// Computing the horizontal motion of the CoM according to the SLIP system
 		current_state.com_pos.head<2>() = beta_1 * exp(slip_omega * time) +
 				beta_2 * exp(-slip_omega * time) +
-				(cop_disp / params.duration) * time + state.cop.head<2>();
+				(cop_disp / control.duration) * time + state.cop.head<2>();
 		current_state.com_vel.head<2>() = beta_1 * slip_omega * exp(slip_omega * time) -
 				beta_2 * slip_omega * exp(-slip_omega * time) +
-				cop_disp / params.duration;
+				cop_disp / control.duration;
 		current_state.com_vel.head<2>() = beta_1 * pow(slip_omega,2) * exp(slip_omega * time) +
 				beta_2 * pow(slip_omega,2) * exp(-slip_omega * time);
 
 		// Computing the vertical motion of the CoM according to the spring-mass system
 		current_state.com_pos(rbd::Z) = d_1 * cos(spring_omega * time) +
-				d_2 * sin(spring_omega * time) + (delta_length / params.duration) * time +
+				d_2 * sin(spring_omega * time) + (delta_length / control.duration) * time +
 				initial_length - gravity_ / pow(spring_omega,2);
 		current_state.com_vel(rbd::Z) = -d_1 * spring_omega * sin(spring_omega * time) +
 				d_2 * spring_omega * cos(spring_omega * time) +
-				delta_length / params.duration;
+				delta_length / control.duration;
 		current_state.com_acc(rbd::Z) = -d_1 * pow(spring_omega,2) * cos(spring_omega * time) -
 				d_2 * pow(spring_omega,2) * sin(spring_omega * time);
 
 		// Computing the heading motion according to heading kinematic equation
 		current_state.head_pos = state.head_pos + state.head_vel * time +
-				0.5 * params.head_acc * pow(time,2);
-		current_state.head_vel = state.head_vel + params.head_acc * time;
-		current_state.head_acc = params.head_acc;
+				0.5 * control.head_acc * pow(time,2);
+		current_state.head_vel = state.head_vel + control.head_acc * time;
+		current_state.head_acc = control.head_acc;
 
 		// Appending the current state to the preview trajectory
 		trajectory.push_back(current_state);
@@ -174,14 +174,14 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 						   	   	   	  const PreviewState& state,
-									  const FlightPreviewParameters& params)
+									  const PreviewControl& control)
 {
 	// Setting the gravity vector
 	Eigen::Vector3d gravity_vec = Eigen::Vector3d::Zero();
 	gravity_vec(rbd::Z) = -gravity_;
 
 	// Computing the preview trajectory
-	unsigned int num_samples = round(params.duration / sample_time_);
+	unsigned int num_samples = round(control.duration / sample_time_);
 	for (unsigned int k = 0; k < num_samples; k++) {
 		double time = sample_time_ * k;
 
