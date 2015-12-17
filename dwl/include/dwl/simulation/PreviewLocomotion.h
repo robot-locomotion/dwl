@@ -38,7 +38,6 @@ typedef std::vector<PreviewState> PreviewTrajectory;
 struct StancePreviewParameters
 {
 	double duration;
-	Eigen::Vector2d initial_cop;
 	Eigen::Vector2d terminal_cop;
 	double initial_length;
 	double terminal_length;

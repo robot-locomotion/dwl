@@ -109,8 +109,8 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	double pendulum_height = 0.58; //TODO set it
 	double slip_omega = sqrt(gravity_ / pendulum_height);
 	double alpha = 2 * slip_omega * params.duration;
-	Eigen::Vector2d slip_hor_proj = initial_state.com_pos.head<2>() - params.initial_cop;
-	Eigen::Vector2d cop_disp = params.initial_cop - params.terminal_cop;
+	Eigen::Vector2d slip_hor_proj = initial_state.com_pos.head<2>() - initial_state.cop.head<2>();
+	Eigen::Vector2d cop_disp = initial_state.cop.head<2>() - params.terminal_cop;
 	Eigen::Vector2d slip_hor_disp = initial_state.com_vel.head<2>() * params.duration;
 	Eigen::Vector2d beta_1 = slip_hor_proj / 2 + (slip_hor_disp - cop_disp) / alpha;
 	Eigen::Vector2d beta_2 = slip_hor_proj / 2 - (slip_hor_disp - cop_disp) / alpha;
@@ -136,7 +136,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		// Computing the horizontal motion of the CoM according to the SLIP system
 		current_state.com_pos.head<2>() = beta_1 * exp(slip_omega * time) +
 				beta_2 * exp(-slip_omega * time) +
-				(cop_disp / params.duration) * time + params.initial_cop;
+				(cop_disp / params.duration) * time + initial_state.cop.head<2>();
 		current_state.com_vel.head<2>() = beta_1 * slip_omega * exp(slip_omega * time) -
 				beta_2 * slip_omega * exp(-slip_omega * time) +
 				cop_disp / params.duration;
