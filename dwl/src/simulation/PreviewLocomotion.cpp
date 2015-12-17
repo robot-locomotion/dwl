@@ -233,6 +233,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 									  full_state.contact_eff,
 									  full_state.contact_pos,
 									  system_.getEndEffectorNames());
+	preview_state.cop +=  full_state.base_pos.segment<3>(rbd::LX);
 
 //	dynamics_.getActiveContacts(active_contacts,
 //			  full_state.contact_eff,
