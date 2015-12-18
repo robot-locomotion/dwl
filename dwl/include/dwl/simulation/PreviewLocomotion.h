@@ -33,8 +33,6 @@ struct PreviewState
 	rbd::BodyVector support_region;
 };
 
-typedef std::vector<PreviewState> PreviewTrajectory;
-
 struct PreviewControl
 {
 	double duration;
@@ -43,14 +41,8 @@ struct PreviewControl
 	double head_acc;
 };
 
-
-struct QuadrupedalPreviewControl
-{
-	PreviewControl four_support;
-	PreviewControl three_support;
-	PreviewControl two_support;
-	PreviewControl flight;
-};
+typedef std::vector<PreviewState> PreviewStateTrajectory;
+typedef std::vector<PreviewControl> PreviewControlTrajectory;
 
 struct SLIPModel
 {
@@ -108,19 +100,19 @@ class PreviewLocomotion
 		void setModel(const SLIPModel& model);
 
 
-		void previewScheduled(PreviewTrajectory& trajectory,
-							  const PreviewState& state,
-							  const std::vector<QuadrupedalPreviewControl>& control);
+		void multiPhasePreview(PreviewStateTrajectory& trajectory,
+							   const PreviewState& state,
+							   const PreviewControlTrajectory& control);
 
 		/**
 		 * @brief Computes the preview of the stance-phase given the stance parameters
 		 * The preview is computed according a Spring Linear Inverted Pendulum (SLIP) model, and by
 		 * assuming that the Center of Pressure (CoP) and the pendulum length are linearly controlled
-		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
+		 * @param PreviewStateTrajectory& Preview trajectory at the predefined sample time
 		 * @param const PreviewState& Initial low-dimensional state
 		 * @param const PreviewControl& Preview control parameters
 		 */
-		void stancePreview(PreviewTrajectory& trajectory,
+		void stancePreview(PreviewStateTrajectory& trajectory,
 						   const PreviewState& state,
 						   const PreviewControl& control);
 
@@ -128,11 +120,11 @@ class PreviewLocomotion
 		 * @brief Computes the preview of the flight-phase given the duration of the phase
 		 * The preview is computed according the projectile Equation of Motion (EoM), and assuming
 		 * the non-changes in the angular momentum
-		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
+		 * @param PreviewStateTrajectory& Preview trajectory at the predefined sample time
 		 * @param const PreviewState& Initial low-dimensional state
 		 * @param const PreviewParameters& Preview control parameters
 		 */
-		void flightPreview(PreviewTrajectory& trajectory,
+		void flightPreview(PreviewStateTrajectory& trajectory,
 				   	   	   const PreviewState& state,
 						   const PreviewControl& control);
 
@@ -151,7 +143,6 @@ class PreviewLocomotion
 		 */
 		void fromWholeBodyState(PreviewState& preview_state,
 								const WholeBodyState& full_state);
-
 
 
 	private:

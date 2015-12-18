@@ -72,9 +72,9 @@ void PreviewLocomotion::setModel(const SLIPModel& model)
 }
 
 
-void PreviewLocomotion::previewScheduled(PreviewTrajectory& trajectory,
-										 const PreviewState& state,
-										 const std::vector<QuadrupedalPreviewControl>& control)
+void PreviewLocomotion::multiPhasePreview(PreviewStateTrajectory& trajectory,
+										  const PreviewState& state,
+										  const PreviewControlTrajectory& control)
 {
 //	unsigned int num_phases = control.size();
 //	for (unsigned int i = 0; i < num_phases; i++) {
@@ -107,7 +107,7 @@ void PreviewLocomotion::previewScheduled(PreviewTrajectory& trajectory,
 }
 
 
-void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
+void PreviewLocomotion::stancePreview(PreviewStateTrajectory& trajectory,
 									  const PreviewState& state,
 									  const PreviewControl& control)
 {
@@ -172,7 +172,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 }
 
 
-void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
+void PreviewLocomotion::flightPreview(PreviewStateTrajectory& trajectory,
 						   	   	   	  const PreviewState& state,
 									  const PreviewControl& control)
 {
