@@ -72,27 +72,27 @@ void PreviewLocomotion::setModel(const SLIPModel& model)
 }
 
 
-void PreviewLocomotion::multiPhasePreview(PreviewStateTrajectory& trajectory,
+void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 										  const PreviewState& state,
-										  const PreviewControlTrajectory& control)
+										  const MultiPhasePreviewControl& control)
 {
-//	unsigned int num_phases = control.size();
-//	for (unsigned int i = 0; i < num_phases; i++) {
-//		// Computing the number of samples
-//		double phase_duration = control[i].four_support.duration;
-//		unsigned int num_samples = round(phase_duration / sample_time_);
-//
-//		for (unsigned int k = 0; k < num_samples; k++) {
-//			double current_time = sample_time_ * k;
-//
-//			// Computing the preview locomotion trajectory
-//			WholeBodyState current_state;
-//			stancePreview(current_state, current_time);
-//
-//			trajectory.push_back(current_state);
-//		}
-//
-//	}
+	// Getting the number of phases
+	unsigned int num_phases = control.size();
+
+	// Computing the preview for multi-phase
+	for (unsigned int i = 0; i < num_phases; i++) {
+		PreviewControl actual_control = control[i];
+
+		// Getting the actual preview state for this phase
+		PreviewState actual_state;
+		if (i == 0)
+			actual_state = state;
+		else
+			actual_state = trajectory.back();
+
+		// Computing the preview of the actual phase
+		stancePreview(trajectory, actual_state, actual_control);
+	}
 
 
 
@@ -107,7 +107,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewStateTrajectory& trajectory,
 }
 
 
-void PreviewLocomotion::stancePreview(PreviewStateTrajectory& trajectory,
+void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 									  const PreviewState& state,
 									  const PreviewControl& control)
 {
@@ -172,7 +172,7 @@ void PreviewLocomotion::stancePreview(PreviewStateTrajectory& trajectory,
 }
 
 
-void PreviewLocomotion::flightPreview(PreviewStateTrajectory& trajectory,
+void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 						   	   	   	  const PreviewState& state,
 									  const PreviewControl& control)
 {

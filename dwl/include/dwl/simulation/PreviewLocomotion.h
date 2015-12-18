@@ -41,8 +41,8 @@ struct PreviewControl
 	double head_acc;
 };
 
-typedef std::vector<PreviewState> PreviewStateTrajectory;
-typedef std::vector<PreviewControl> PreviewControlTrajectory;
+typedef std::vector<PreviewState> PreviewTrajectory;
+typedef std::vector<PreviewControl> MultiPhasePreviewControl;
 
 struct SLIPModel
 {
@@ -100,19 +100,19 @@ class PreviewLocomotion
 		void setModel(const SLIPModel& model);
 
 
-		void multiPhasePreview(PreviewStateTrajectory& trajectory,
+		void multiPhasePreview(PreviewTrajectory& trajectory,
 							   const PreviewState& state,
-							   const PreviewControlTrajectory& control);
+							   const MultiPhasePreviewControl& control);
 
 		/**
 		 * @brief Computes the preview of the stance-phase given the stance parameters
 		 * The preview is computed according a Spring Linear Inverted Pendulum (SLIP) model, and by
 		 * assuming that the Center of Pressure (CoP) and the pendulum length are linearly controlled
-		 * @param PreviewStateTrajectory& Preview trajectory at the predefined sample time
+		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
 		 * @param const PreviewState& Initial low-dimensional state
 		 * @param const PreviewControl& Preview control parameters
 		 */
-		void stancePreview(PreviewStateTrajectory& trajectory,
+		void stancePreview(PreviewTrajectory& trajectory,
 						   const PreviewState& state,
 						   const PreviewControl& control);
 
@@ -120,11 +120,11 @@ class PreviewLocomotion
 		 * @brief Computes the preview of the flight-phase given the duration of the phase
 		 * The preview is computed according the projectile Equation of Motion (EoM), and assuming
 		 * the non-changes in the angular momentum
-		 * @param PreviewStateTrajectory& Preview trajectory at the predefined sample time
+		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
 		 * @param const PreviewState& Initial low-dimensional state
-		 * @param const PreviewParameters& Preview control parameters
+		 * @param const PreviewControl& Preview control parameters
 		 */
-		void flightPreview(PreviewStateTrajectory& trajectory,
+		void flightPreview(PreviewTrajectory& trajectory,
 				   	   	   const PreviewState& state,
 						   const PreviewControl& control);
 
