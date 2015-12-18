@@ -244,5 +244,24 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 //			  force_threshold); TODO
 }
 
+
+void PreviewLocomotion::toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
+											  const PreviewTrajectory& preview_traj)
+{
+	// Getting the number of points defined in the preview trajectory
+	unsigned int traj_size = preview_traj.size();
+
+	// Resizing the full trajectory vector
+	full_traj.resize(traj_size);
+
+	// Getting the full trajectory
+	dwl::WholeBodyState full_state;
+	for (unsigned int k = 0; k < traj_size; k++) {
+		toWholeBodyState(full_state, preview_traj[k]);
+
+		full_traj[k] = full_state;
+	}
+}
+
 } //@namespace simulation
 } //@namespace dwl

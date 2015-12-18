@@ -144,6 +144,14 @@ class PreviewLocomotion
 		void fromWholeBodyState(PreviewState& preview_state,
 								const WholeBodyState& full_state);
 
+		/**
+		 * @brief Converts a preview trajectory to a whole-body trajectory
+		 * @param WholeBodyTrajectory& Whole-body trajectory
+		 * @param const PreviewTrajectory& Preview trajectory
+		 */
+		void toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
+								   const PreviewTrajectory& preview_traj);
+
 
 	private:
 		/** @brief Foot pattern generator */
