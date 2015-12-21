@@ -256,7 +256,10 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	full_state.base_vel(rbd::AZ) = preview_state.head_vel;
 	full_state.base_acc(rbd::AZ) = preview_state.head_acc;
 
-	//TODO Contact positions
+	// Contact positions
+	full_state.contact_pos = preview_state.foot_pos;
+	full_state.contact_vel = preview_state.foot_vel;
+	full_state.contact_acc = preview_state.foot_acc;
 }
 
 
@@ -292,6 +295,12 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 
 		preview_state.support_region[name] = full_state.contact_pos.find(name)->second;
 	}
+
+
+	// Getting the contact states
+	preview_state.foot_pos = full_state.contact_pos;
+	preview_state.foot_vel = full_state.contact_vel;
+	preview_state.foot_acc = full_state.contact_acc;
 }
 
 
