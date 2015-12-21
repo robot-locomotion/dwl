@@ -100,17 +100,6 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		// Computing the preview of the actual phase
 		stancePreview(trajectory, actual_state, actual_control);
 	}
-
-
-
-
-
-	// Initializing the foot pattern generator
-//	double step_height = 0.1; //TODO set it
-//	simulation::StepParameters step_params(params.duration, step_height);
-//	Eigen::Vector3d initial_foot_pos;
-//	Eigen::Vector3d target_foot_pos;
-//	foot_pattern_generator_.setParameters(initial_state.time, initial_foot_pos, target_foot_pos, step_params);
 }
 
 
@@ -206,6 +195,50 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 		current_state.head_pos = state.head_pos + state.head_vel * time;
 		current_state.head_vel = state.head_vel;
 		current_state.head_acc = 0.;
+	}
+}
+
+
+void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
+										const PreviewControl& control)
+{
+	// Getting the actual time and sample time
+	double initial_time = trajectory[0].time;
+	double sample_time = trajectory[1].time - trajectory[0].time;
+
+	for (rbd::BodyVector::const_iterator swing_it = control.foot_target.begin();
+			swing_it != control.foot_target.end(); swing_it++) {
+		std::string name = swing_it->first;
+
+		// Getting the actual and target position of the contact
+		Eigen::Vector3d actual_pos = (Eigen::Vector3d) trajectory[0].foot_pos.find(name)->second;
+		Eigen::Vector3d target_pos = (Eigen::Vector3d) swing_it->second;
+
+		// Initializing the foot pattern generator
+		double step_height = 0.1; //TODO set it
+		simulation::StepParameters step_params(control.duration, step_height);
+		foot_pattern_generator_.setParameters(initial_time,
+											  actual_pos,
+											  target_pos,
+											  step_params);
+
+		// Computing the swing trajectory
+		unsigned int num_samples = round(control.duration / sample_time);
+		for (unsigned int k = 0; k < num_samples; k++) {
+			double time = initial_time + sample_time * k;
+
+			// Generating the swing positions, velocities and accelerations
+			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
+			foot_pattern_generator_.generateTrajectory(foot_pos,
+													   foot_vel,
+													   foot_acc,
+													   time);
+
+			// Added the swing state to the trajectory
+			trajectory[k].foot_pos[name] = foot_pos;
+			trajectory[k].foot_vel[name] = foot_vel;
+			trajectory[k].foot_acc[name] = foot_acc;
+		}
 	}
 }
 

@@ -31,6 +31,9 @@ struct PreviewState
 	double head_acc;
 	Eigen::Vector3d cop;
 	rbd::BodyVector support_region;
+	rbd::BodyVector foot_pos;
+	rbd::BodyVector foot_vel;
+	rbd::BodyVector foot_acc;
 };
 
 struct PreviewControl
@@ -39,6 +42,7 @@ struct PreviewControl
 	Eigen::Vector2d terminal_cop;
 	double terminal_length;
 	double head_acc;
+	rbd::BodyVector foot_target;
 };
 
 typedef std::vector<PreviewState> PreviewTrajectory;
@@ -133,6 +137,14 @@ class PreviewLocomotion
 		void flightPreview(PreviewTrajectory& trajectory,
 				   	   	   const PreviewState& state,
 						   const PreviewControl& control);
+
+		/**
+		 * @brief Computes the swing trajectory of the contact
+		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
+		 * @param const PreviewControl& Preview control parameters
+		 */
+		void addSwingPattern(PreviewTrajectory& trajectory,
+							 const PreviewControl& control);
 
 		/**
 		 * @brief Converts the preview state vector to whole-body state
