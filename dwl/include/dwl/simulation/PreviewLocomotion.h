@@ -99,6 +99,12 @@ class PreviewLocomotion
 		 */
 		void setModel(const SLIPModel& model);
 
+		/**
+		 * @brief Sets the force threshold used for detecting active contacts
+		 * @param double Force threshold
+		 */
+		void setForceThreshold(double force_threshold);
+
 
 		void multiPhasePreview(PreviewTrajectory& trajectory,
 							   const PreviewState& state,
@@ -177,6 +183,9 @@ class PreviewLocomotion
 
 		/** @brief Actual Center of Mass (CoM) of the system */
 		Eigen::Vector3d actual_system_com_;
+
+		/** @brief Force threshold */
+		double force_threshold_;
 };
 
 } //@namespace simulation

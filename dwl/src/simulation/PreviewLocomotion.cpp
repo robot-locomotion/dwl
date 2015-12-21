@@ -7,7 +7,8 @@ namespace dwl
 namespace simulation
 {
 
-PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.)
+PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.),
+		force_threshold_(0.)
 {
 	actual_system_com_.setZero();
 }
@@ -69,6 +70,12 @@ void PreviewLocomotion::setSampleTime(double sample_time)
 void PreviewLocomotion::setModel(const SLIPModel& model)
 {
 	slip_ = model;
+}
+
+
+void PreviewLocomotion::setForceThreshold(double force_threshold)
+{
+	force_threshold_ = force_threshold;
 }
 
 
@@ -224,7 +231,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 										   const WholeBodyState& full_state)
 {
 	// Computing the CoM position, velocity and acceleration
-	actual_system_com_ = system_.getSystemCoM(dwl::rbd::Vector6d::Zero(), full_state.joint_pos);
+	actual_system_com_ = system_.getSystemCoM(rbd::Vector6d::Zero(), full_state.joint_pos);
 	preview_state.com_pos = system_.getSystemCoM(full_state.base_pos, full_state.joint_pos);
 	preview_state.com_vel = system_.getSystemCoMRate(full_state.base_pos, full_state.joint_pos,
 													 full_state.base_vel, full_state.joint_vel);
@@ -240,9 +247,18 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 									  system_.getEndEffectorNames());
 	preview_state.cop += full_state.base_pos.segment<3>(rbd::LX);
 
-//	dynamics_.getActiveContacts(active_contacts,
-//			  full_state.contact_eff,
-//			  force_threshold); TODO
+	// Getting the support region by detecting the active contacts
+	rbd::BodySelector active_contacts;
+	dynamics_.getActiveContacts(active_contacts,
+								full_state.contact_eff,
+								force_threshold_);
+
+	unsigned int num_active_contacts = active_contacts.size();
+	for (unsigned int i = 0; i < num_active_contacts; i++) {
+		std::string name = active_contacts[i];
+
+		preview_state.support_region[name] = full_state.contact_pos.find(name)->second;
+	}
 }
 
 
