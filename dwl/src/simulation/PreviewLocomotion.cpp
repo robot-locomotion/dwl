@@ -9,7 +9,7 @@ namespace simulation
 
 PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.)
 {
-	base_com_.setZero();
+	actual_system_com_.setZero();
 }
 
 
@@ -56,7 +56,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model)
 	mass_ = system_.getTotalMass();
 
 	// Getting the floating-base CoM
-	base_com_ = system_.getFloatingBaseCoM();
+	actual_system_com_ = system_.getFloatingBaseCoM();
 }
 
 
@@ -208,7 +208,7 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 {
 	// From the preview model we do not know the joint states, so we neglect the joint-related
 	// components of the CoM
-	rbd::linearPart(full_state.base_pos) = preview_state.com_pos;// - base_com_; TODO for debugging
+	rbd::linearPart(full_state.base_pos) = preview_state.com_pos - actual_system_com_;
 	rbd::linearPart(full_state.base_vel) = preview_state.com_vel;
 	rbd::linearPart(full_state.base_acc) = preview_state.com_acc;
 
@@ -224,6 +224,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 										   const WholeBodyState& full_state)
 {
 	// Computing the CoM position, velocity and acceleration
+	actual_system_com_ = system_.getSystemCoM(dwl::rbd::Vector6d::Zero(), full_state.joint_pos);
 	preview_state.com_pos = system_.getSystemCoM(full_state.base_pos, full_state.joint_pos);
 	preview_state.com_vel = system_.getSystemCoMRate(full_state.base_pos, full_state.joint_pos,
 													 full_state.base_vel, full_state.joint_vel);

@@ -175,8 +175,8 @@ class PreviewLocomotion
 		/** @brief SLIP model */
 		SLIPModel slip_;
 
-		/** @brief Base Center of Mass (CoM) */
-		Eigen::Vector3d base_com_;
+		/** @brief Actual Center of Mass (CoM) of the system */
+		Eigen::Vector3d actual_system_com_;
 };
 
 } //@namespace simulation
