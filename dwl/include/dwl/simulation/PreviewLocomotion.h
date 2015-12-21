@@ -141,9 +141,11 @@ class PreviewLocomotion
 		/**
 		 * @brief Computes the swing trajectory of the contact
 		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
+		 * @param const PreviewState& Initial low-dimensional state
 		 * @param const PreviewControl& Preview control parameters
 		 */
 		void addSwingPattern(PreviewTrajectory& trajectory,
+							 const PreviewState& state,
 							 const PreviewControl& control);
 
 		/**

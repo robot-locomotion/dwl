@@ -88,17 +88,18 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 
 	// Computing the preview for multi-phase
 	for (unsigned int i = 0; i < num_phases; i++) {
-		PreviewControl actual_control = control[i];
 
+		PreviewControl actual_control = control[i];
 		// Getting the actual preview state for this phase
 		PreviewState actual_state;
 		if (i == 0)
 			actual_state = state;
 		else
 			actual_state = trajectory.back();
-
+std::cout << "-------------------- " << i << std::endl;
 		// Computing the preview of the actual phase
 		stancePreview(trajectory, actual_state, actual_control);
+		addSwingPattern(trajectory, actual_state, actual_control);
 	}
 }
 
@@ -200,6 +201,7 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 
 
 void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
+										const PreviewState& state,
 										const PreviewControl& control)
 {
 	// Getting the actual time and sample time
@@ -209,11 +211,12 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 	for (rbd::BodyVector::const_iterator swing_it = control.foot_target.begin();
 			swing_it != control.foot_target.end(); swing_it++) {
 		std::string name = swing_it->first;
+		std::cout << name << std::endl;
 
 		// Getting the actual and target position of the contact
-		Eigen::Vector3d actual_pos = (Eigen::Vector3d) trajectory[0].foot_pos.find(name)->second;
+		Eigen::Vector3d actual_pos = (Eigen::Vector3d) state.foot_pos.find(name)->second;
 		Eigen::Vector3d target_pos = (Eigen::Vector3d) swing_it->second;
-
+		std::cout << "3.2.3" << std::endl;
 		// Initializing the foot pattern generator
 		double step_height = 0.1; //TODO set it
 		simulation::StepParameters step_params(control.duration, step_height);
@@ -226,6 +229,8 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 		unsigned int num_samples = round(control.duration / sample_time);
 		for (unsigned int k = 0; k < num_samples; k++) {
 			double time = initial_time + sample_time * k;
+			if (time > control.duration)
+				time = control.duration;
 
 			// Generating the swing positions, velocities and accelerations
 			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
@@ -239,6 +244,7 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 			trajectory[k].foot_vel[name] = foot_vel;
 			trajectory[k].foot_acc[name] = foot_acc;
 		}
+		std::cout << "3.2.8" << std::endl;
 	}
 }
 
@@ -296,11 +302,17 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 		preview_state.support_region[name] = full_state.contact_pos.find(name)->second;
 	}
 
-
 	// Getting the contact states
-	preview_state.foot_pos = full_state.contact_pos;
-	preview_state.foot_vel = full_state.contact_vel;
-	preview_state.foot_acc = full_state.contact_acc;
+	Eigen::Vector3d base_pos = full_state.base_pos.segment<3>(rbd::LX);
+	Eigen::Vector3d base_vel = full_state.base_vel.segment<3>(rbd::LX);
+	Eigen::Vector3d base_acc = full_state.base_acc.segment<3>(rbd::LX);
+	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(); i++) {
+		std::string name = system_.getEndEffectorNames()[i];
+
+		preview_state.foot_pos[name] = base_pos + full_state.contact_pos.find(name)->second;
+		preview_state.foot_vel[name] = base_vel + full_state.contact_vel.find(name)->second;
+		preview_state.foot_acc[name] = base_acc + full_state.contact_acc.find(name)->second;
+	}
 }
 
 
