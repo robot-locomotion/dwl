@@ -87,8 +87,8 @@ Vector6d convertPointVelocityToSpatialVelocity(Vector6d& velocity,
 											   const Eigen::Vector3d& point)
 {
 	rbd::Vector6d spatial_velocity;
-	spatial_velocity.segment(rbd::AX,3) = angularPart(velocity);
-	spatial_velocity.segment(rbd::LX,3) = linearPart(velocity) +
+	spatial_velocity.segment<3>(rbd::AX) = angularPart(velocity);
+	spatial_velocity.segment<3>(rbd::LX) = linearPart(velocity) +
 	math::skewSymmentricMatrixFrom3DVector(point) * angularPart(velocity);
 
 	return spatial_velocity;
@@ -99,9 +99,9 @@ Vector6d convertPointForceToSpatialForce(Vector6d& force,
 										 const Eigen::Vector3d& point)
 {
 	rbd::Vector6d spatial_force;
-	spatial_force.segment(rbd::AX,3) = angularPart(force) +
+	spatial_force.segment<3>(rbd::AX) = angularPart(force) +
 			math::skewSymmentricMatrixFrom3DVector(point) * linearPart(force);
-	spatial_force.segment(rbd::LX,3) = linearPart(force);
+	spatial_force.segment<3>(rbd::LX) = linearPart(force);
 
 	return spatial_force;
 }
@@ -143,9 +143,9 @@ void computePointJacobian(RigidBodyDynamics::Model& model,
 		unsigned int q_index = model.mJoints[j].q_index;
 
 		if (model.mJoints[j].mDoFCount == 3) {
-			G.block(0,q_index,6,3) = ((point_trans * model.X_base[j].inverse()).toMatrix() * model.multdof3_S[j]);
+			G.block<6,3>(0,q_index) = ((point_trans * model.X_base[j].inverse()).toMatrix() * model.multdof3_S[j]);
 		} else {
-			G.block(0,q_index,6,1) = point_trans.apply(model.X_base[j].inverse().apply(model.S[j]));
+			G.block<6,1>(0,q_index) = point_trans.apply(model.X_base[j].inverse().apply(model.S[j]));
 		}
 
 		j = model.lambda[j];
@@ -330,6 +330,7 @@ void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
 		}
 	}
 }
+
 
 void FloatingBaseInverseDynamics(RigidBodyDynamics::Model& model,
 								 unsigned int base_dof,
