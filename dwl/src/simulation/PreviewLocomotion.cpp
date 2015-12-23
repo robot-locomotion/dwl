@@ -47,7 +47,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model)
 	// Resetting the model of the floating-base system
 	system_.resetFromURDFModel(urdf_model);
 
-	// Initializing the dynamic from the URDF model
+	// Initializing the dynamics from the URDF model
 	dynamics_.modelFromURDFModel(urdf_model);
 
 	// Setting the gravity magnitude from the rigid-body dynamic model
@@ -233,32 +233,26 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 												  actual_pos,
 												  target_pos,
 												  step_params);
-		}
 
-		// Computing the swing trajectory
-		unsigned int num_samples = round(control.duration / sample_time);
-		for (unsigned int k = 0; k < num_samples; k++) {
-			double time = initial_time + sample_time * k;
-			if (time > control.duration)
-				time = control.duration;
-
+			// Computing the swing trajectory
 			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-			if (swing_it != control.foot_target.end()) {
+			unsigned int num_samples = round(control.duration / sample_time);
+			for (unsigned int k = 0; k < num_samples; k++) {
+				double time = initial_time + sample_time * k;
+				if (time > control.duration)
+					time = control.duration;
+
 				// Generating the swing positions, velocities and accelerations
 				foot_pattern_generator_.generateTrajectory(foot_pos,
 														   foot_vel,
 														   foot_acc,
 														   time);
-			} else {
-				foot_pos = actual_pos;
-				foot_vel = Eigen::Vector3d::Zero();
-				foot_acc = Eigen::Vector3d::Zero();
-			}
 
-			// Added the swing state to the trajectory
-			trajectory[k].foot_pos[name] = foot_pos;
-			trajectory[k].foot_vel[name] = foot_vel;
-			trajectory[k].foot_acc[name] = foot_acc;
+				// Added the swing state to the trajectory
+				trajectory[k].foot_pos[name] = foot_pos;
+				trajectory[k].foot_vel[name] = foot_vel;
+				trajectory[k].foot_acc[name] = foot_acc;
+			}
 		}
 	}
 }
@@ -303,12 +297,18 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	preview_state.head_vel = full_state.base_vel(rbd::AZ);
 	preview_state.head_acc = full_state.base_acc(rbd::AZ);
 
-	// Computing the CoP
-	dynamics_.computeCenterOfPressure(preview_state.cop,
+	// Getting the world to base transformation
+	Eigen::Vector3d base_traslation = full_state.base_pos.segment<3>(rbd::LX);
+	Eigen::Vector3d base_rpy = full_state.base_pos.segment<3>(rbd::AX);
+	Eigen::Matrix3d base_rotation = math::getRotationMatrix(base_rpy);
+
+	// Computing the CoP in the world frame
+	Eigen::Vector3d cop_wrt_base;
+	dynamics_.computeCenterOfPressure(cop_wrt_base,
 									  full_state.contact_eff,
 									  full_state.contact_pos,
 									  system_.getEndEffectorNames());
-	preview_state.cop += full_state.base_pos.segment<3>(rbd::LX);
+	preview_state.cop = base_traslation + base_rotation * cop_wrt_base;
 
 	// Getting the support region by detecting the active contacts
 	rbd::BodySelector active_contacts;
@@ -323,17 +323,10 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 		preview_state.support_region[name] = full_state.contact_pos.find(name)->second;
 	}
 
-	// Getting the contact states
-	Eigen::Vector3d base_pos = full_state.base_pos.segment<3>(rbd::LX);
-	Eigen::Vector3d base_vel = full_state.base_vel.segment<3>(rbd::LX);
-	Eigen::Vector3d base_acc = full_state.base_acc.segment<3>(rbd::LX);
-	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(); i++) {
-		std::string name = system_.getEndEffectorNames()[i];
-
-		preview_state.foot_pos[name] = base_pos + full_state.contact_pos.find(name)->second;
-		preview_state.foot_vel[name] = base_vel + full_state.contact_vel.find(name)->second;
-		preview_state.foot_acc[name] = base_acc + full_state.contact_acc.find(name)->second;
-	}
+	// Adding the contact positions, velocities and accelerations w.r.t the base frame
+	preview_state.foot_pos = full_state.contact_pos;
+	preview_state.foot_vel = full_state.contact_vel;
+	preview_state.foot_acc = full_state.contact_acc;
 }
 
 
