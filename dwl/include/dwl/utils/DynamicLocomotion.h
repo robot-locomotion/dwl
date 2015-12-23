@@ -133,6 +133,10 @@ struct WholeBodyState
 		joint_eff.setZero(num_joints);
 	}
 
+	const unsigned int getJointDof() const {
+		return joint_pos.size();
+	}
+
 	double time;
 	double duration;
 	rbd::Vector6d base_pos;
