@@ -104,6 +104,12 @@ class PreviewLocomotion
 		void setModel(const SLIPModel& model);
 
 		/**
+		 * @brief Sets the step height for the swing trajectory generation
+		 * @param double Step height
+		 */
+		void setStepHeight(double step_height);
+
+		/**
 		 * @brief Sets the force threshold used for detecting active contacts
 		 * @param double Force threshold
 		 */
@@ -194,6 +200,9 @@ class PreviewLocomotion
 
 		/** @brief SLIP model */
 		SLIPModel slip_;
+
+		/** @brief Step height for the swing generation */
+		double step_height_;
 
 		/** @brief Actual Center of Mass (CoM) of the system */
 		Eigen::Vector3d actual_system_com_;

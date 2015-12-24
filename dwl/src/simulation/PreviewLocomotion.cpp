@@ -8,7 +8,7 @@ namespace simulation
 {
 
 PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.),
-		force_threshold_(0.)
+		step_height_(0.1), force_threshold_(0.)
 {
 	actual_system_com_.setZero();
 }
@@ -70,6 +70,12 @@ void PreviewLocomotion::setSampleTime(double sample_time)
 void PreviewLocomotion::setModel(const SLIPModel& model)
 {
 	slip_ = model;
+}
+
+
+void PreviewLocomotion::setStepHeight(double step_height)
+{
+	step_height_ = step_height;
 }
 
 
@@ -226,8 +232,7 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 			target_pos = (Eigen::Vector3d) swing_it->second;
 
 			// Initializing the foot pattern generator
-			double step_height = 0.1; //TODO set it
-			simulation::StepParameters step_params(control.duration, step_height);
+			simulation::StepParameters step_params(control.duration, step_height_);
 			foot_pattern_generator_.setParameters(state.time,
 												  actual_pos,
 												  target_pos,
