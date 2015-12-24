@@ -136,7 +136,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	unsigned int num_samples = round(control.duration / sample_time_);
 	trajectory.resize(num_samples);
 	for (unsigned int k = 0; k < num_samples; k++) {
-		double time = sample_time_ * k;
+		double time = sample_time_ * (k + 1);
 
 		// Computing the current time of the preview trajectory
 		PreviewState current_state;
@@ -185,7 +185,7 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 	// Computing the preview trajectory
 	unsigned int num_samples = round(control.duration / sample_time_);
 	for (unsigned int k = 0; k < num_samples; k++) {
-		double time = sample_time_ * k;
+		double time = sample_time_ * (k + 1);
 
 		// Computing the current time of the preview trajectory
 		PreviewState current_state;
@@ -210,7 +210,6 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 										const PreviewControl& control)
 {
 	// Getting the actual time and sample time
-	double initial_time = trajectory[0].time;
 	double sample_time = trajectory[1].time - trajectory[0].time;
 
 	for (rbd::BodyVector::const_iterator contact_it = state.foot_pos.begin();
@@ -229,7 +228,7 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 			// Initializing the foot pattern generator
 			double step_height = 0.1; //TODO set it
 			simulation::StepParameters step_params(control.duration, step_height);
-			foot_pattern_generator_.setParameters(initial_time,
+			foot_pattern_generator_.setParameters(state.time,
 												  actual_pos,
 												  target_pos,
 												  step_params);
@@ -238,9 +237,9 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
 			unsigned int num_samples = round(control.duration / sample_time);
 			for (unsigned int k = 0; k < num_samples; k++) {
-				double time = initial_time + sample_time * k;
-				if (time > control.duration)
-					time = control.duration;
+				double time = state.time + sample_time * (k + 1);
+				if (time > state.time + control.duration)
+					time = state.time + control.duration;
 
 				// Generating the swing positions, velocities and accelerations
 				foot_pattern_generator_.generateTrajectory(foot_pos,
@@ -248,10 +247,29 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 														   foot_acc,
 														   time);
 
-				// Added the swing state to the trajectory
+				// Adding the swing state to the trajectory
 				trajectory[k].foot_pos[name] = foot_pos;
 				trajectory[k].foot_vel[name] = foot_vel;
 				trajectory[k].foot_acc[name] = foot_acc;
+			}
+		} else {
+			// There is not swing trajectory to generated (foot on ground). Nevertheless, we have
+			// to updated their positions w.r.t the base frame
+			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
+			unsigned int num_samples = round(control.duration / sample_time);
+			Eigen::Vector3d actual_base_pos = trajectory[0].com_pos - actual_system_com_;
+			for (unsigned int k = 0; k < num_samples; k++) {
+				double time = state.time + sample_time * (k + 1);
+				if (time > state.time + control.duration)
+					time = state.time + control.duration;
+
+				Eigen::Vector3d base_pos = trajectory[k].com_pos - actual_system_com_;
+
+
+				// Adding the swing state to the trajectory
+				trajectory[k].foot_pos[name] = (actual_pos + actual_base_pos) - base_pos;
+				trajectory[k].foot_vel[name] = Eigen::Vector3d::Zero();
+				trajectory[k].foot_acc[name] = Eigen::Vector3d::Zero();
 			}
 		}
 	}
