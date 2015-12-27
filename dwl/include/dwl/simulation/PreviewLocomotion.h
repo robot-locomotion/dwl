@@ -31,6 +31,9 @@ struct PreviewState
 	double head_acc;
 	Eigen::Vector3d cop;
 	rbd::BodyVector support_region;
+	rbd::BodyVector foot_pos;
+	rbd::BodyVector foot_vel;
+	rbd::BodyVector foot_acc;
 };
 
 struct PreviewControl
@@ -39,6 +42,7 @@ struct PreviewControl
 	Eigen::Vector2d terminal_cop;
 	double terminal_length;
 	double head_acc;
+	rbd::BodyVector foot_target;
 };
 
 typedef std::vector<PreviewState> PreviewTrajectory;
@@ -99,6 +103,18 @@ class PreviewLocomotion
 		 */
 		void setModel(const SLIPModel& model);
 
+		/**
+		 * @brief Sets the step height for the swing trajectory generation
+		 * @param double Step height
+		 */
+		void setStepHeight(double step_height);
+
+		/**
+		 * @brief Sets the force threshold used for detecting active contacts
+		 * @param double Force threshold
+		 */
+		void setForceThreshold(double force_threshold);
+
 
 		void multiPhasePreview(PreviewTrajectory& trajectory,
 							   const PreviewState& state,
@@ -127,6 +143,16 @@ class PreviewLocomotion
 		void flightPreview(PreviewTrajectory& trajectory,
 				   	   	   const PreviewState& state,
 						   const PreviewControl& control);
+
+		/**
+		 * @brief Computes the swing trajectory of the contact
+		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
+		 * @param const PreviewState& Initial low-dimensional state
+		 * @param const PreviewControl& Preview control parameters
+		 */
+		void addSwingPattern(PreviewTrajectory& trajectory,
+							 const PreviewState& state,
+							 const PreviewControl& control);
 
 		/**
 		 * @brief Converts the preview state vector to whole-body state
@@ -175,8 +201,14 @@ class PreviewLocomotion
 		/** @brief SLIP model */
 		SLIPModel slip_;
 
-		/** @brief Base Center of Mass (CoM) */
-		Eigen::Vector3d base_com_;
+		/** @brief Step height for the swing generation */
+		double step_height_;
+
+		/** @brief Actual Center of Mass (CoM) of the system */
+		Eigen::Vector3d actual_system_com_;
+
+		/** @brief Force threshold */
+		double force_threshold_;
 };
 
 } //@namespace simulation

@@ -41,11 +41,11 @@ void FootSplinePatternGenerator::setParameters(const double& initial_time,
 								(double) initial_pos(rbd::Y),
 								(double) target_pos(rbd::Y));
 	foot_spliner_up_z_.setBoundary(initial_time,
-								   params.duration/2,
+								   params.duration / 2,
 								   (double) initial_pos(rbd::Z),
 								   target_appex);
-	foot_spliner_down_z_.setBoundary(initial_time,
-									 params.duration/2,
+	foot_spliner_down_z_.setBoundary(initial_time + params.duration / 2,
+									 params.duration / 2,
 									 target_appex,
 									 (double) target_pos(rbd::Z));
 }
