@@ -14,22 +14,26 @@ Visit the DWL installation page for detailed installation instructions, and also
 
 [![ScreenShot](https://j.gifs.com/zJEDWD.gif)](https://www.youtube.com/watch?v=ENHvCGrnr2g)
 
+
 Software Overview
 ===============================================
 The algorithms are built primarily in C/C++. The library uses a number of the local dependencies, which some of them are optionals.
 
 DWL has the following required dependencies:
-* [Boost](http://www.boost.org) (version x.x or higher)
+* [Boost](http://www.boost.org) (version 1.5.4 or higher)
 * [CMake](http://www.cmake.org) (version 2.8.3 or higher)
-* [Eigen](http://eigen.tuxfamily.org) (version 3.2.2 or higher)
+* [Eigen](http://eigen.tuxfamily.org) (version 3.2.4 or higher)
 * [Yaml-cpp](https://code.google.com/p/yaml-cpp/) (version 0.2.7 or higher)
 * [RBDL](http://rbdl.bitbucket.org/) (version 2.4.0 or higher)
+* [urdfdom_header](https://github.com/ros/urdfdom_headers) (version 0.2.3 or higher)
+* [console_bridge](https://github.com/ros/console_bridge) (version 0.2.7 or higher)
+* [urdfdom](https://github.com/ros/urdfdom) (version 0.2.10 or higher)
 
-The following dependecies are optional:
+The following dependencies are optional:
 * [Doxygen](http://www.doxygen.org)
 * [qpOASES](https://projects.coin-or.org/qpOASES) (version 3.2.0 or higher)
-* [Ipopt](https://projects.coin-or.org/Ipopt) (version 3.11.8 or higher)
-* [Octomap](http://octomap.github.io) (version 1.6.6 or higher)
+* [Ipopt](https://projects.coin-or.org/Ipopt) (version 3.12.4 or higher)
+* [Octomap](http://octomap.github.io) (version 1.6.8 or higher)
 
 
 Building
