@@ -187,6 +187,35 @@ function install_qpoases
 }
 
 
+function install_libcmaes
+{
+	# Installing libcmaes dependecies
+	sudo apt-get install autoconf automake libtool libgoogle-glog-dev libgflags-dev
+	
+	# Getting the current path
+	CURRENT_PATH=$(pwd -P)
+	
+	# Compiling and installing Google unit test framework
+	cd /usr/src/gtest
+	mkdir -p build
+	cd build
+	sudo cmake ../
+	sudo make
+	sudo cp *.a /usr/lib
+	cd $CURRENT_PATH
+	
+	# Getting the libcmaes 0.9.5
+	wget https://github.com/beniz/libcmaes/archive/0.9.5.tar.gz
+	mkdir libcmaes && tar zxf 0.9.5.tar.gz -C libcmaes --strip-components 1
+	rm -rf 0.9.5.tar.gz
+	cd libcmaes
+	./autogen.sh
+	./configure
+	sudo make -j install
+	cd ../
+}
+
+
 function install_octomap
 {
 	# Getting Octomap 1.6.8
@@ -384,6 +413,27 @@ else
 	read ANSWER_QPOASES
 	if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
 		install_qpoases
+	fi
+fi
+
+
+##---------------------------------------------------------------##
+##--------------------- Installing CMA-ES -----------------------##
+##---------------------------------------------------------------##
+echo ""
+echo -e "${COLOR_BOLD}Installing libcmaes ...${COLOR_RESET}"
+if [ -d "/usr/local/include/libcmaes" ]; then
+	# Control will enter here if $DIRECTORY exists.
+	echo -e -n "${COLOR_QUES}Do you want to re-install libcmaes 0.9.5? [Y/n]: ${COLOR_RESET}"
+	read ANSWER_LIBCMAES
+	if [ "$ANSWER_LIBCMAES" == "Y" ] || [ "$ANSWER_LIBCMAES" == "y" ]; then
+		install_libcmaes
+    fi
+else
+	echo -e -n "${COLOR_QUES}Do you want to install libcmaes 0.9.5? [Y/n]: ${COLOR_RESET}"
+	read ANSWER_LIBCMAES
+	if [ "$ANSWER_LIBCMAES" == "Y" ] || [ "$ANSWER_LIBCMAES" == "y" ]; then
+		install_libcmaes
 	fi
 fi
 
