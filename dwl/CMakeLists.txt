@@ -30,6 +30,7 @@ find_package(URDF REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(QPOASES)
 find_package(IPOPT)
+pkg_check_modules(LIBCMAES libcmaes)
 find_package(octomap)
 
 # Set a default build type to 'Release' if none was specified
@@ -41,6 +42,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Setting flags for optimization
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
 
 # Setting the thirdparties directories and libraries
@@ -137,6 +139,22 @@ if(ipopt_FOUND)
 	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
 								 src/solver/IpoptWrapper.cpp
 								 src/solver/IpoptNLP.cpp)
+endif()
+
+# Adding the CMA-ES components of the project
+if(LIBCMAES_FOUND)
+	list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${LIBCMAES_INCLUDE_DIRS})
+	list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${LIBCMAES_LIBRARY_DIR})
+	list(APPEND DEPENDENCIES_LIBRARIES  ${LIBCMAES_LIBRARIES} glog)
+    
+	include_directories(${LIBCMAES_INCLUDE_DIRS})
+	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
+								 src/solver/CMAES.cpp)
+    message("${LIBCMAES_INCLUDE_DIRS} --- 1")
+    message("${LIBCMAES_LIBRARY_DIR} --- 2")
+    message("${LIBCMAES_LIBRARIES} --- 3")
+    message("${LIBCMAES_CFLAGS} --- 4")
+    message("${LIBCMAES_LDFLAGS} --- 4")
 endif()
 
 # Adding Octomap components of the project
