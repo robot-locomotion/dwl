@@ -210,7 +210,7 @@ function install_libcmaes
 	rm -rf 0.9.5.tar.gz
 	cd libcmaes
 	./autogen.sh
-	./configure
+	./configure --enable-gglog
 	sudo make -j install
 	cd ../
 }
