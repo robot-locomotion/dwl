@@ -174,6 +174,7 @@ if(ipopt_FOUND)
 							   tests/model/HS071Cost.cpp)
 	target_link_libraries(ipopt_test ${PROJECT_NAME})
 endif()
+
 if(LIBCMAES_FOUND)
 	add_executable(cmaes_test  tests/cmaesFamilyDWLTest.cpp
 							   tests/model/HS071DynamicalSystem.cpp
