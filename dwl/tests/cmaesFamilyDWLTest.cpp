@@ -1,5 +1,5 @@
 #include <dwl/solver/OptimizationSolver.h>
-#include <dwl/solver/CMAES.h>
+#include <dwl/solver/cmaesSOFamily.h>
 #include <model/HS071DynamicalSystem.cpp>
 #include <model/HS071Cost.cpp>
 

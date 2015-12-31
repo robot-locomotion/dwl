@@ -149,7 +149,7 @@ if(LIBCMAES_FOUND)
     
 	include_directories(${LIBCMAES_INCLUDE_DIRS})
 	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
-								 src/solver/CMAES.cpp)
+								 src/solver/cmaesSOFamily.cpp)
 endif()
 
 # Adding Octomap components of the project

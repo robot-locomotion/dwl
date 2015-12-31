@@ -1,4 +1,4 @@
-#include <dwl/solver/CMAES.h>
+#include <dwl/solver/cmaesSOFamily.h>
 
 
 namespace dwl
