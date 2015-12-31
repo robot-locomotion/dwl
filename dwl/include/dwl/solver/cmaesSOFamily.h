@@ -2,7 +2,9 @@
 #define DWL__SOLVER__CMAESSOFAMILY__H
 
 #include <dwl/solver/OptimizationSolver.h>
-#include <cmaes.h>
+#pragma GCC system_header // This pragma turns off the warning messages in this file
+#pragma message "Turning off the warning messages of libcmaes"
+#include_next <cmaes.h>
 
 
 namespace dwl
