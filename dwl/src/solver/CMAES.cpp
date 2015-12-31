@@ -7,16 +7,62 @@ namespace dwl
 namespace solver
 {
 
-CMAES::CMAES()
+cmaesSOFamily::cmaesSOFamily()
+{
+	name_ = "cmaes family";
+}
+
+
+cmaesSOFamily::~cmaesSOFamily()
 {
 
 }
 
 
-CMAES::~CMAES()
+void cmaesSOFamily::setAlgorithm(enum CMAESAlgorithms alg)
 {
+	switch (alg) {
+		case CMAES:
 
+			break;
+		case IPOP:
+
+			break;
+		case BIPOP:
+
+			break;
+		case ACMAES:
+
+			break;
+		case AIPOP:
+
+			break;
+		case ABIPOP:
+
+			break;
+		case SEPCMAES:
+
+			break;
+		case SEPIPOP:
+
+			break;
+		case SEPBIPOP:
+
+			break;
+		case SEPACMAES:
+
+			break;
+		case SEPAIPOP:
+
+			break;
+		case SEPABIPOP:
+
+			break;
+		default:
+			break;
+	}
 }
+
 
 libcmaes::FitFunc fsphere = [](const double *x, const int N)
 {
@@ -26,13 +72,29 @@ libcmaes::FitFunc fsphere = [](const double *x, const int N)
   return val;
 };
 
-bool CMAES::init()
+bool cmaesSOFamily::init()
 {
 	int dim = 10; // problem dimensions.
 	std::vector<double> x0(dim,10.0);
 	double sigma = 0.1;
 	//int lambda = 100; // offsprings at each generation.
 	libcmaes::CMAParameters<> cmaparams(x0,sigma);
+
+	double max_iter = 100;
+	cmaparams.set_max_iter(max_iter);
+
+	double max_fevals = 1000;
+	cmaparams.set_max_fevals(max_fevals);
+
+	std::string fplot = "out.data";
+	cmaparams.set_fplot(fplot);
+
+	bool with_gradient = false;
+	cmaparams.set_gradient(with_gradient);
+
+	int elitist = 0;
+	cmaparams.set_elitism(elitist);
+
 	//cmaparams.set_algo(BIPOP_CMAES);
 	libcmaes::CMASolutions cmasols = libcmaes::cmaes<>(fsphere, cmaparams);
 	std::cout << "best solution: " << cmasols << std::endl;
@@ -43,7 +105,7 @@ bool CMAES::init()
 }
 
 
-bool CMAES::compute(double allocated_time_secs)
+bool cmaesSOFamily::compute(double allocated_time_secs)
 {
 	return true;
 }
