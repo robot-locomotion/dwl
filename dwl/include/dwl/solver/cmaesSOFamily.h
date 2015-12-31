@@ -14,7 +14,8 @@ namespace solver
 {
 
 enum CMAESAlgorithms {CMAES, IPOP, BIPOP, ACMAES, AIPOP, ABIPOP, SEPCMAES,
-	SEPIPOP, SEPBIPOP, SEPACMAES, SEPAIPOP, SEPABIPOP};
+	SEPIPOP, SEPBIPOP, SEPACMAES, SEPAIPOP, SEPABIPOP, VDCMA, VDIPOPCMA,
+	VDBIPOPCMA};
 
 class cmaesSOFamily : public OptimizationSolver
 {
@@ -25,6 +26,10 @@ class cmaesSOFamily : public OptimizationSolver
 		void setAlgorithm(enum CMAESAlgorithms alg);
 		bool init();
 		bool compute(double allocated_time_secs);
+
+
+	private:
+		libcmaes::CMAParameters<>* cmaes_params_;
 };
 
 } //@namespace solver

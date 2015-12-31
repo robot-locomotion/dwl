@@ -7,7 +7,7 @@ namespace dwl
 namespace solver
 {
 
-cmaesSOFamily::cmaesSOFamily()
+cmaesSOFamily::cmaesSOFamily() : cmaes_params_(NULL)
 {
 	name_ = "cmaes family";
 }
@@ -23,42 +23,52 @@ void cmaesSOFamily::setAlgorithm(enum CMAESAlgorithms alg)
 {
 	switch (alg) {
 		case CMAES:
-
+			cmaes_params_->set_algo(CMAES);
 			break;
 		case IPOP:
-
+			cmaes_params_->set_algo(IPOP);
 			break;
 		case BIPOP:
-
+			cmaes_params_->set_algo(BIPOP);
 			break;
 		case ACMAES:
-
+			cmaes_params_->set_algo(ACMAES);
 			break;
 		case AIPOP:
-
+			cmaes_params_->set_algo(AIPOP);
 			break;
 		case ABIPOP:
-
+			cmaes_params_->set_algo(ABIPOP);
 			break;
 		case SEPCMAES:
-
+			cmaes_params_->set_algo(SEPCMAES);
 			break;
 		case SEPIPOP:
-
+			cmaes_params_->set_algo(SEPIPOP);
 			break;
 		case SEPBIPOP:
-
+			cmaes_params_->set_algo(SEPBIPOP);
 			break;
 		case SEPACMAES:
-
+			cmaes_params_->set_algo(SEPACMAES);
 			break;
 		case SEPAIPOP:
-
+			cmaes_params_->set_algo(SEPAIPOP);
 			break;
 		case SEPABIPOP:
-
+			cmaes_params_->set_algo(SEPABIPOP);
+			break;
+		case VDCMA:
+			cmaes_params_->set_algo(VDCMA);
+			break;
+		case VDIPOPCMA:
+			cmaes_params_->set_algo(VDIPOPCMA);
+			break;
+		case VDBIPOPCMA:
+			cmaes_params_->set_algo(VDBIPOPCMA);
 			break;
 		default:
+			cmaes_params_->set_algo(CMAES);
 			break;
 	}
 }
@@ -78,25 +88,25 @@ bool cmaesSOFamily::init()
 	std::vector<double> x0(dim,10.0);
 	double sigma = 0.1;
 	//int lambda = 100; // offsprings at each generation.
-	libcmaes::CMAParameters<> cmaparams(x0,sigma);
+	cmaes_params_ = new libcmaes::CMAParameters<>(x0,sigma);
 
 	double max_iter = 100;
-	cmaparams.set_max_iter(max_iter);
+	cmaes_params_->set_max_iter(max_iter);
 
 	double max_fevals = 1000;
-	cmaparams.set_max_fevals(max_fevals);
+	cmaes_params_->set_max_fevals(max_fevals);
 
 	std::string fplot = "out.data";
-	cmaparams.set_fplot(fplot);
+	cmaes_params_->set_fplot(fplot);
 
 	bool with_gradient = false;
-	cmaparams.set_gradient(with_gradient);
+	cmaes_params_->set_gradient(with_gradient);
 
 	int elitist = 0;
-	cmaparams.set_elitism(elitist);
+	cmaes_params_->set_elitism(elitist);
 
-	//cmaparams.set_algo(BIPOP_CMAES);
-	libcmaes::CMASolutions cmasols = libcmaes::cmaes<>(fsphere, cmaparams);
+
+	libcmaes::CMASolutions cmasols = libcmaes::cmaes<>(fsphere, *cmaes_params_);
 	std::cout << "best solution: " << cmasols << std::endl;
 	std::cout << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
 	return cmasols.run_status();
