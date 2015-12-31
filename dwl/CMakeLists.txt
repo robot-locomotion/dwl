@@ -150,11 +150,6 @@ if(LIBCMAES_FOUND)
 	include_directories(${LIBCMAES_INCLUDE_DIRS})
 	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
 								 src/solver/CMAES.cpp)
-    message("${LIBCMAES_INCLUDE_DIRS} --- 1")
-    message("${LIBCMAES_LIBRARY_DIR} --- 2")
-    message("${LIBCMAES_LIBRARIES} --- 3")
-    message("${LIBCMAES_CFLAGS} --- 4")
-    message("${LIBCMAES_LDFLAGS} --- 4")
 endif()
 
 # Adding Octomap components of the project
@@ -178,6 +173,12 @@ if(ipopt_FOUND)
 							   tests/model/HS071DynamicalSystem.cpp
 							   tests/model/HS071Cost.cpp)
 	target_link_libraries(ipopt_test ${PROJECT_NAME})
+endif()
+if(LIBCMAES_FOUND)
+	add_executable(cmaes_test  tests/cmaesFamilyDWLTest.cpp
+							   tests/model/HS071DynamicalSystem.cpp
+							   tests/model/HS071Cost.cpp)
+	target_link_libraries(cmaes_test ${PROJECT_NAME})
 endif()
 
 add_executable(yaml_bridge  tests/YamlWrapperTest.cpp)
