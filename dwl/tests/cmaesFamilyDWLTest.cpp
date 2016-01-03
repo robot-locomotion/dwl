@@ -10,10 +10,10 @@ int main(int argc, char **argv)
 	dwl::solver::cmaesSOFamily* cmaes_solver = new dwl::solver::cmaesSOFamily();
 	dwl::solver::OptimizationSolver* solver = cmaes_solver;
 
-//	dwl::model::DynamicalSystem* dynamical_system = new dwl::model::HS071DynamicalSystem();
+	dwl::model::DynamicalSystem* dynamical_system = new dwl::model::HS071DynamicalSystem();
 	dwl::model::Cost* cost = new dwl::model::HS071Cost();
 
-//	solver->getOptimizationModel().addDynamicalSystem(dynamical_system);
+	solver->getOptimizationModel().addDynamicalSystem(dynamical_system);
 	solver->getOptimizationModel().addCost(cost);
 
 //	dwl::model::OptimizationModel model;

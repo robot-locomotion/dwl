@@ -84,7 +84,7 @@ libcmaes::FitFunc fsphere = [](const double *x, const int N)
 
 bool cmaesSOFamily::init()
 {
-	int dim = 10; // problem dimensions.
+	int dim = 4; // problem dimensions.
 	std::vector<double> x0(dim,10.0);
 	double sigma = 0.1;
 	//int lambda = 100; // offsprings at each generation.
@@ -106,7 +106,15 @@ bool cmaesSOFamily::init()
 	cmaes_params_->set_elitism(elitist);
 
 
-	libcmaes::CMASolutions cmasols = libcmaes::cmaes<>(fsphere, *cmaes_params_);
+	// Initializing the optimization model
+	model_.init();
+
+	// Wrapping the fitness function
+	using namespace std::placeholders;
+	libcmaes::FitFunc fitness = std::bind(&cmaesSOFamily::fitnessFunction, this, _1, _2);
+
+
+	libcmaes::CMASolutions cmasols = libcmaes::cmaes<>(fitness, *cmaes_params_);
 	std::cout << "best solution: " << cmasols << std::endl;
 	std::cout << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
 	return cmasols.run_status();
@@ -122,7 +130,7 @@ bool cmaesSOFamily::compute(double allocated_time_secs)
 
 
 double cmaesSOFamily::fitnessFunction(const double* x,
-									  const int n)
+									  const int& n)
 {
 	// Eigen interfacing to raw buffers
 	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
