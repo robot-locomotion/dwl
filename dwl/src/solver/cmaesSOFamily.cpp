@@ -120,5 +120,19 @@ bool cmaesSOFamily::compute(double allocated_time_secs)
 	return true;
 }
 
+
+double cmaesSOFamily::fitnessFunction(const double* x,
+									  const int n)
+{
+	// Eigen interfacing to raw buffers
+	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
+
+	// Numerical evaluation of the cost function
+	double obj_value = 0;
+	model_.evaluateCosts(obj_value, decision_var);
+
+	return obj_value;
+}
+
 } //@namespace solver
 } //@namespace dwl
