@@ -31,6 +31,7 @@ class cmaesSOFamily : public OptimizationSolver
 	private:
 		double fitnessFunction(const double* x,
 							   const int& n);
+		void allAsSoftConstraints();
 		libcmaes::CMAParameters<>* cmaes_params_;
 };
 

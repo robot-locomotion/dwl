@@ -113,7 +113,10 @@ bool cmaesSOFamily::init()
 	using namespace std::placeholders;
 	libcmaes::FitFunc fitness = std::bind(&cmaesSOFamily::fitnessFunction, this, _1, _2);
 
+	// Defining all the constraints as soft constraints
+	allAsSoftConstraints();
 
+	// Computing the solution
 	libcmaes::CMASolutions cmasols = libcmaes::cmaes<>(fitness, *cmaes_params_);
 	std::cout << "best solution: " << cmasols << std::endl;
 	std::cout << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
@@ -140,6 +143,18 @@ double cmaesSOFamily::fitnessFunction(const double* x,
 	model_.evaluateCosts(obj_value, decision_var);
 
 	return obj_value;
+}
+
+
+void cmaesSOFamily::allAsSoftConstraints()
+{
+	// Defining the dynamical system constraint as soft
+	model_.getDynamicalSystem()->defineAsSoftConstraint();
+
+	// Defining the all constraints as soft
+	unsigned int num_constraints = model_.getConstraints().size();
+	for (unsigned int i = 0; i < num_constraints; i++)
+		model_.getConstraints()[i]->defineAsSoftConstraint();
 }
 
 } //@namespace solver
