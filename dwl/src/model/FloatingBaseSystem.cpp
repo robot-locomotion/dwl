@@ -104,6 +104,10 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 				Joint joint(joint_id, joint_name);
 				setJoint(joint);
 			}
+		} else if (num_floating_joints_ == 0) {
+			// Setting the actuated joint information
+			Joint joint(joint_id, joint_name);
+			setJoint(joint);
 		}
 	}
 
