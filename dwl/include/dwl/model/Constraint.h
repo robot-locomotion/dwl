@@ -46,6 +46,12 @@ class Constraint
 		void modelFromURDFModel(std::string urdf_model,
 								bool info = false);
 
+		/** @brief Sets the constraint as soft constraint, i.e. inside the cost function */
+		void defineAsSoftConstraint();
+
+		/** @brief Sets the constraint as hard constraint, i.e. inside the cost function */
+		void defineAsHardConstraint();
+
 		/**
 		 * @brief Initializes the constraint properties given an URDF model (xml)
 		 * @param Print model information

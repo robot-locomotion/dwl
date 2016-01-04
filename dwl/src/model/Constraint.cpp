@@ -57,6 +57,18 @@ void Constraint::modelFromURDFModel(std::string urdf_model,
 }
 
 
+void Constraint::defineAsSoftConstraint()
+{
+	is_soft_ = true;
+}
+
+
+void Constraint::defineAsHardConstraint()
+{
+	is_soft_ = false;
+}
+
+
 void Constraint::init(bool info)
 {
 
