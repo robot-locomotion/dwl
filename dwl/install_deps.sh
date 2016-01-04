@@ -197,7 +197,7 @@ function install_libcmaes
 	
 	# Compiling and installing Google unit test framework
 	cd /usr/src/gtest
-	mkdir -p build
+	sudo mkdir -p build
 	cd build
 	sudo cmake ../
 	sudo make
