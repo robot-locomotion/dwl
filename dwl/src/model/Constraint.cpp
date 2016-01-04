@@ -72,20 +72,23 @@ void Constraint::computeSoft(double& constraint_cost,
 
 	getBounds(lower_bound, upper_bound);
 
-	// Checking unbound values
+	// Computing the violation vector
 	unsigned int bound_dim = lower_bound.size();
+	Eigen::VectorXd violation_vec = Eigen::VectorXd::Zero(bound_dim);
 	for (unsigned int i = 0; i < bound_dim; i++) {
-		if (lower_bound(i) == NO_BOUND)
-			lower_bound(i) = constraint(i);
-		if (upper_bound(i) == NO_BOUND)
-			upper_bound(i) = constraint(i);
+		double lower_val = lower_bound(i);
+		double upper_val = upper_bound(i);
+		double const_val = constraint(i);
+		if (lower_val > const_val)
+			violation_vec(i) += lower_val - const_val;
+
+		if (upper_val < const_val)
+			violation_vec(i) += const_val - upper_val;
 	}
 
-	// Computing a quadratic cost of the constraint violation
+	// Computing a weighted quadratic cost of the constraint violation
 	double weight = 10000;
-	Eigen::VectorXd lower_violation = lower_bound - constraint;
-	Eigen::VectorXd upper_violation = constraint - upper_bound;
-	constraint_cost = weight * (lower_violation.norm() + upper_violation.norm());
+	constraint_cost = weight * violation_vec.norm();
 }
 
 
