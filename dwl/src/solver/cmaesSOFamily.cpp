@@ -96,7 +96,7 @@ bool cmaesSOFamily::init()
 	double max_fevals = 1000;
 	cmaes_params_->set_max_fevals(max_fevals);
 
-	std::string fplot = "out.data";
+	std::string fplot = "out.dat";
 	cmaes_params_->set_fplot(fplot);
 
 	bool with_gradient = false;
