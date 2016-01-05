@@ -1,10 +1,10 @@
-#include <dwl/model/CentroidalDynamicalSystem.h>
+#include <dwl/ocp/CentroidalDynamicalSystem.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 CentroidalDynamicalSystem::CentroidalDynamicalSystem() : total_mass_(0.)
@@ -81,5 +81,5 @@ void CentroidalDynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
 	upper_bound = Eigen::VectorXd::Zero(4 * system_.getNumberOfEndEffectors());
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

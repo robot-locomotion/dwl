@@ -1,10 +1,10 @@
-#include <dwl/model/Constraint.h>
+#include <dwl/ocp/Constraint.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 Constraint::Constraint() : constraint_dimension_(0), is_soft_(false)
@@ -125,5 +125,5 @@ std::string Constraint::getName()
 	return name_;
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

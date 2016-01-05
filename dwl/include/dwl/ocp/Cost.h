@@ -1,5 +1,5 @@
-#ifndef DWL__MODEL__COST__H
-#define DWL__MODEL__COST__H
+#ifndef DWL__OCP__COST__H
+#define DWL__OCP__COST__H
 
 #include <dwl/environment/RewardMap.h>
 #include <dwl/utils/utils.h>
@@ -8,7 +8,7 @@
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 struct CostVariables
@@ -86,7 +86,7 @@ class Cost
 		WholeBodyState desired_state_;
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 #endif

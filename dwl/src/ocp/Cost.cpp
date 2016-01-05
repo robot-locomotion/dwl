@@ -1,10 +1,10 @@
-#include <dwl/model/Cost.h>
+#include <dwl/ocp/Cost.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 Cost::Cost()
@@ -81,5 +81,5 @@ std::string Cost::getName()
 	return name_;
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

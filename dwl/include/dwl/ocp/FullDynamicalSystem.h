@@ -1,13 +1,13 @@
-#ifndef DWL__MODEL__FULL_DYNAMICAL_SYSTEM__H
-#define DWL__MODEL__FULL_DYNAMICAL_SYSTEM__H
+#ifndef DWL__OCP__FULL_DYNAMICAL_SYSTEM__H
+#define DWL__OCP__FULL_DYNAMICAL_SYSTEM__H
 
-#include <dwl/model/DynamicalSystem.h>
+#include <dwl/ocp/DynamicalSystem.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 /**
@@ -50,7 +50,7 @@ class FullDynamicalSystem : public DynamicalSystem
 		std::vector<std::string> end_effector_names_;
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 #endif

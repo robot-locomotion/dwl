@@ -1,13 +1,13 @@
-#ifndef DWL__MODEL__CENTROIDAL_DYNAMICAL_SYSTEM__H
-#define DWL__MODEL__CENTROIDAL_DYNAMICAL_SYSTEM__H
+#ifndef DWL__OCP__CENTROIDAL_DYNAMICAL_SYSTEM__H
+#define DWL__OCP__CENTROIDAL_DYNAMICAL_SYSTEM__H
 
-#include <dwl/model/DynamicalSystem.h>
+#include <dwl/ocp/DynamicalSystem.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 /**
@@ -55,7 +55,7 @@ class CentroidalDynamicalSystem : public DynamicalSystem
 		double total_mass_;
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 #endif

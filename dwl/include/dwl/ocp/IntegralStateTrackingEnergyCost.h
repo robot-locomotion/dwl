@@ -1,27 +1,27 @@
-#ifndef DWL__MODEL__TERMINAL_STATE_TRACKING_ENERGY_COST__H
-#define DWL__MODEL__TERMINAL_STATE_TRACKING_ENERGY_COST__H
+#ifndef DWL__OCP__INTEGRAL_STATE_TRACKING_ENERGY_COST__H
+#define DWL__OCP__INTEGRAL_STATE_TRACKING_ENERGY_COST__H
 
-#include <dwl/model/Cost.h>
+#include <dwl/ocp/Cost.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 /**
- * @class Implements a quadratic cost function for computing a terminal state (position, velocity
+ * @class Implements a quadratic cost function for computing a integral state (position, velocity
  * and acceleration) tracking energy cost given a locomotion state
  */
-class TerminalStateTrackingEnergyCost : public Cost
+class IntegralStateTrackingEnergyCost : public Cost
 {
 	public:
 		/** @brief Constructor function */
-		TerminalStateTrackingEnergyCost();
+		IntegralStateTrackingEnergyCost();
 
 		/** @brief Destructor function */
-		~TerminalStateTrackingEnergyCost();
+		~IntegralStateTrackingEnergyCost();
 
 		/**
 		 * @brief Computes the state-tracking energy cost given a locomotion state. The
@@ -33,7 +33,7 @@ class TerminalStateTrackingEnergyCost : public Cost
 					 const WholeBodyState& state);
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 #endif

@@ -26,7 +26,7 @@ void WholeBodyTrajectoryOptimization::init(solver::OptimizationSolver* solver)
 }
 
 
-void WholeBodyTrajectoryOptimization::addDynamicalSystem(model::DynamicalSystem* system)
+void WholeBodyTrajectoryOptimization::addDynamicalSystem(ocp::DynamicalSystem* system)
 {
 	oc_model_.addDynamicalSystem(system);
 }
@@ -38,7 +38,7 @@ void WholeBodyTrajectoryOptimization::removeDynamicalSystem()
 }
 
 
-void WholeBodyTrajectoryOptimization::addConstraint(model::Constraint* constraint)
+void WholeBodyTrajectoryOptimization::addConstraint(ocp::Constraint* constraint)
 {
 	oc_model_.addConstraint(constraint);
 }
@@ -50,7 +50,7 @@ void WholeBodyTrajectoryOptimization::removeConstraint(std::string name)
 }
 
 
-void WholeBodyTrajectoryOptimization::addCost(model::Cost* cost)
+void WholeBodyTrajectoryOptimization::addCost(ocp::Cost* cost)
 {
 	oc_model_.addCost(cost);
 }
@@ -97,7 +97,7 @@ bool WholeBodyTrajectoryOptimization::compute(const WholeBodyState& current_stat
 }
 
 
-model::DynamicalSystem* WholeBodyTrajectoryOptimization::getDynamicalSystem()
+ocp::DynamicalSystem* WholeBodyTrajectoryOptimization::getDynamicalSystem()
 {
 	return oc_model_.getDynamicalSystem();
 }

@@ -1,10 +1,10 @@
-#include <dwl/model/IntegralControlEnergyCost.h>
+#include <dwl/ocp/IntegralControlEnergyCost.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 IntegralControlEnergyCost::IntegralControlEnergyCost()
@@ -34,5 +34,5 @@ void IntegralControlEnergyCost::compute(double& cost,
 	cost *= state.duration;
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

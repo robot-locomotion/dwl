@@ -1,10 +1,10 @@
-#include <dwl/model/ComplementaryConstraint.h>
+#include <dwl/ocp/ComplementaryConstraint.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 ComplementaryConstraint::ComplementaryConstraint() : complementary_dimension_(0)
@@ -64,5 +64,5 @@ void ComplementaryConstraint::getBounds(Eigen::VectorXd& lower_bound,
 	upper_bound(2 * complementary_dimension_) = 0.0;
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

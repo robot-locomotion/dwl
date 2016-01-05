@@ -1,10 +1,10 @@
-#include <dwl/model/LinearDynamicalSystem.h>
+#include <dwl/ocp/LinearDynamicalSystem.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 LinearDynamicalSystem::LinearDynamicalSystem()
@@ -18,5 +18,5 @@ LinearDynamicalSystem::~LinearDynamicalSystem()
 
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

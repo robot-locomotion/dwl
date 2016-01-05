@@ -1,13 +1,13 @@
-#ifndef DWL__MODEL__INTEGRAL_CONTROL_ENERGY_COST__H
-#define DWL__MODEL__INTEGRAL_CONTROL_ENERGY_COST__H
+#ifndef DWL__OCP__INTEGRAL_CONTROL_ENERGY_COST__H
+#define DWL__OCP__INTEGRAL_CONTROL_ENERGY_COST__H
 
-#include <dwl/model/Cost.h>
+#include <dwl/ocp/Cost.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 /**
@@ -33,7 +33,7 @@ class IntegralControlEnergyCost : public Cost
 					 const WholeBodyState& state);
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 #endif

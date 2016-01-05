@@ -1,10 +1,10 @@
-#include <dwl/model/FullDynamicalSystem.h>
+#include <dwl/ocp/FullDynamicalSystem.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 FullDynamicalSystem::FullDynamicalSystem()
@@ -74,5 +74,5 @@ void FullDynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
 	upper_bound = Eigen::VectorXd::Zero(system_.getSystemDoF());
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

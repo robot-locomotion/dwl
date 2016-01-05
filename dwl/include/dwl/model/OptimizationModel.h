@@ -1,9 +1,6 @@
 #ifndef DWL__MODEL__OPTIMIZATION_MODEL__H
 #define DWL__MODEL__OPTIMIZATION_MODEL__H
 
-#include <dwl/model/DynamicalSystem.h>
-#include <dwl/model/Constraint.h>
-#include <dwl/model/Cost.h>
 #include <unsupported/Eigen/NumericalDiff>
 #include <dwl/utils/utils.h>
 

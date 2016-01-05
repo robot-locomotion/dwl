@@ -1,10 +1,10 @@
-#include <dwl/model/TerminalStateTrackingEnergyCost.h>
+#include <dwl/ocp/TerminalStateTrackingEnergyCost.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 TerminalStateTrackingEnergyCost::TerminalStateTrackingEnergyCost()
@@ -74,5 +74,5 @@ void TerminalStateTrackingEnergyCost::compute(double& cost,
 	}
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

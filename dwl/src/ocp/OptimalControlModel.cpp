@@ -1,10 +1,10 @@
-#include <dwl/model/OptimalControlModel.h>
+#include <dwl/ocp/OptimalControlModel.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 OptimalControlModel::OptimalControlModel() : dynamical_system_(NULL),
@@ -641,5 +641,5 @@ const unsigned int& OptimalControlModel::getHorizon()
 	return horizon_;
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

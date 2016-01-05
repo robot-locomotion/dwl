@@ -1,7 +1,7 @@
 #ifndef DWL__MODEL__HS071_DYNAMICAL_SYSTEM__H
 #define DWL__MODEL__HS071_DYNAMICAL_SYSTEM__H
 
-#include <dwl/model/DynamicalSystem.h>
+#include <dwl/ocp/DynamicalSystem.h>
 
 
 namespace dwl
@@ -10,7 +10,7 @@ namespace dwl
 namespace model
 {
 
-class HS071DynamicalSystem : public DynamicalSystem
+class HS071DynamicalSystem : public ocp::DynamicalSystem
 {
 	public:
 		HS071DynamicalSystem()

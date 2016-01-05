@@ -1,10 +1,10 @@
-#include <dwl/model/IntegralStateTrackingEnergyCost.h>
+#include <dwl/ocp/IntegralStateTrackingEnergyCost.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 IntegralStateTrackingEnergyCost::IntegralStateTrackingEnergyCost()
@@ -134,5 +134,5 @@ void IntegralStateTrackingEnergyCost::compute(double& cost,
 	cost *= state.duration;
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

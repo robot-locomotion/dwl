@@ -1,13 +1,13 @@
-#ifndef DWL__MODEL__CONSTRAINED_DYNAMICAL_SYSTEM__H
-#define DWL__MODEL__CONSTRAINED_DYNAMICAL_SYSTEM__H
+#ifndef DWL__OCP__CONSTRAINED_DYNAMICAL_SYSTEM__H
+#define DWL__OCP__CONSTRAINED_DYNAMICAL_SYSTEM__H
 
-#include <dwl/model/DynamicalSystem.h>
+#include <dwl/ocp/DynamicalSystem.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 /**
@@ -58,7 +58,7 @@ class ConstrainedDynamicalSystem : public DynamicalSystem
 		unsigned int num_actived_endeffectors_;
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 #endif

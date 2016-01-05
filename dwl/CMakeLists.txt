@@ -73,26 +73,26 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/solver/AnytimeRepairingAStar.cpp
 							 src/solver/QuadraticProgram.cpp
 							 src/solver/QuadProg++QP.cpp
+ 							 src/model/FloatingBaseSystem.cpp
+							 src/model/WholeBodyKinematics.cpp
+							 src/model/WholeBodyDynamics.cpp
 							 src/model/AdjacencyModel.cpp
 							 src/model/GridBasedBodyAdjacency.cpp
 							 src/model/LatticeBasedBodyAdjacency.cpp
 							 src/model/OptimizationModel.cpp
-							 src/model/OptimalControlModel.cpp
-							 src/model/Constraint.cpp
-							 src/model/DynamicalSystem.cpp
-							 src/model/FullDynamicalSystem.cpp
-							 src/model/CentroidalDynamicalSystem.cpp
-							 src/model/ConstrainedDynamicalSystem.cpp
-							 src/model/ComplementaryConstraint.cpp
-							 src/model/InelasticContactModelConstraint.cpp
-							 src/model/InelasticContactVelocityConstraint.cpp
-							 src/model/Cost.cpp
-							 src/model/TerminalStateTrackingEnergyCost.cpp
-							 src/model/IntegralStateTrackingEnergyCost.cpp
-							 src/model/IntegralControlEnergyCost.cpp
-							 src/model/FloatingBaseSystem.cpp
-							 src/model/WholeBodyKinematics.cpp
-							 src/model/WholeBodyDynamics.cpp
+							 src/ocp/OptimalControlModel.cpp
+							 src/ocp/Constraint.cpp
+							 src/ocp/DynamicalSystem.cpp
+							 src/ocp/FullDynamicalSystem.cpp
+							 src/ocp/CentroidalDynamicalSystem.cpp
+							 src/ocp/ConstrainedDynamicalSystem.cpp
+							 src/ocp/ComplementaryConstraint.cpp
+							 src/ocp/InelasticContactModelConstraint.cpp
+							 src/ocp/InelasticContactVelocityConstraint.cpp
+							 src/ocp/Cost.cpp
+							 src/ocp/TerminalStateTrackingEnergyCost.cpp
+							 src/ocp/IntegralStateTrackingEnergyCost.cpp
+							 src/ocp/IntegralControlEnergyCost.cpp
 							 src/simulation/PreviewLocomotion.cpp
 							 src/simulation/FootSplinePatternGenerator.cpp
 							 src/behavior/MotorPrimitives.cpp

@@ -1,14 +1,14 @@
-#ifndef DWL__MODEL__LINEAR_DYNAMICAL_SYSTEM__H
-#define DWL__MODEL__LINEAR_DYNAMICAL_SYSTEM__H
+#ifndef DWL__OCP__LINEAR_DYNAMICAL_SYSTEM__H
+#define DWL__OCP__LINEAR_DYNAMICAL_SYSTEM__H
 
-#include <dwl/model/DynamicalSystem.h>
+#include <dwl/ocp/DynamicalSystem.h>
 #include <Eigen/Dense>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 /**
  * @brief This is the abstract class used to create and define different process models, in a
@@ -93,7 +93,7 @@ class LinearDynamicalSystem : public DynamicalSystem
 		bool time_variant_;
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 

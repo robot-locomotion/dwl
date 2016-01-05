@@ -2,7 +2,7 @@
 #define DWL__MODEL__HS071_COST__H
 
 
-#include <dwl/model/Cost.h>
+#include <dwl/ocp/Cost.h>
 
 
 namespace dwl
@@ -11,7 +11,7 @@ namespace dwl
 namespace model
 {
 
-class HS071Cost : public Cost
+class HS071Cost : public ocp::Cost
 {
 	public:
 		HS071Cost() {name_ = "HS071";}

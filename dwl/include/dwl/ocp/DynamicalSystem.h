@@ -1,13 +1,13 @@
-#ifndef DWL__MODEL__DYNAMICAL_SYSTEM__H
-#define DWL__MODEL__DYNAMICAL_SYSTEM__H
+#ifndef DWL__OCP__DYNAMICAL_SYSTEM__H
+#define DWL__OCP__DYNAMICAL_SYSTEM__H
 
-#include <dwl/model/Constraint.h>
+#include <dwl/ocp/Constraint.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 /** @brief Defines the whole-body variables of the optimization problem */
@@ -155,10 +155,10 @@ class DynamicalSystem : public Constraint
 		void setStepIntegrationTime(const double& step_time);
 
 		/** @brief Gets the kinematics of the system */
-		WholeBodyKinematics& getKinematics();
+		model::WholeBodyKinematics& getKinematics();
 
 		/** @brief Gets the dynamics of the system */
-		WholeBodyDynamics& getDynamics();
+		model::WholeBodyDynamics& getDynamics();
 
 		/**
 		 * @brief Gets the lower and upper state bounds
@@ -181,7 +181,7 @@ class DynamicalSystem : public Constraint
 		unsigned int getTerminalConstraintDimension();
 
 		/** @brief Gets the floating-base system information */
-		FloatingBaseSystem& getFloatingBaseSystem();
+		model::FloatingBaseSystem& getFloatingBaseSystem();
 
 		/** @brief Gets the fixed-step time of integration */
 		const double& getFixedStepTime();
@@ -253,7 +253,7 @@ class DynamicalSystem : public Constraint
 		bool is_full_trajectory_optimization_;
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef DWL__LOCOMOTION__WHOLE_BODY_TRAJECTORY_OPTIMIZATION__H
 #define DWL__LOCOMOTION__WHOLE_BODY_TRAJECTORY_OPTIMIZATION__H
 
-#include <dwl/model/OptimalControlModel.h>
+#include <dwl/ocp/OptimalControlModel.h>
 #include <dwl/solver/OptimizationSolver.h>
 #include <dwl/utils/SplineInterpolation.h>
 
@@ -34,18 +34,18 @@ class WholeBodyTrajectoryOptimization
 
 		/**
 		 * @brief Adds the dynamical system constraint
-		 * @param model::DynamicalSystem* Pointer to the dynamical system constraint
+		 * @param ocp::DynamicalSystem* Pointer to the dynamical system constraint
 		 */
-		void addDynamicalSystem(model::DynamicalSystem* system);
+		void addDynamicalSystem(ocp::DynamicalSystem* system);
 
 		/** @brief Removes the current dynamical system */
 		void removeDynamicalSystem();
 
 		/**
 		 * @brief Adds the constraint
-		 * @param model::Constraint* Pointer to the constraint
+		 * @param ocp::Constraint* Pointer to the constraint
 		 */
-		void addConstraint(model::Constraint* constraint);
+		void addConstraint(ocp::Constraint* constraint);
 
 		/**
 		 * @brief Removes the current dynamical system
@@ -55,9 +55,9 @@ class WholeBodyTrajectoryOptimization
 
 		/**
 		 * @brief Adds the cost function
-		 * @param model::Cost* Pointer to the cost function
+		 * @param ocp::Cost* Pointer to the cost function
 		 */
-		void addCost(model::Cost* cost);
+		void addCost(ocp::Cost* cost);
 
 		/**
 		 * @brief Removes the cost function
@@ -94,7 +94,7 @@ class WholeBodyTrajectoryOptimization
 					 double computation_time);
 
 		/** @brief Gets the dynamical system constraint */
-		model::DynamicalSystem* getDynamicalSystem();
+		ocp::DynamicalSystem* getDynamicalSystem();
 
 		/**
 		 * @brief Gets the whole-body trajectory
@@ -115,7 +115,7 @@ class WholeBodyTrajectoryOptimization
 		solver::OptimizationSolver* solver_;
 
 		/** @brief Optimal control model */
-		dwl::model::OptimalControlModel oc_model_;
+		dwl::ocp::OptimalControlModel oc_model_;
 
 		/** @brief Interpolated whole-body trajectory */
 		WholeBodyTrajectory interpolated_trajectory_;

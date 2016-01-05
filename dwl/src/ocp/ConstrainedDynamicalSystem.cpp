@@ -1,10 +1,10 @@
-#include <dwl/model/ConstrainedDynamicalSystem.h>
+#include <dwl/ocp/ConstrainedDynamicalSystem.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 ConstrainedDynamicalSystem::ConstrainedDynamicalSystem() : num_actived_endeffectors_(0)
@@ -80,5 +80,5 @@ void ConstrainedDynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound
 	upper_bound = Eigen::VectorXd::Zero(system_.getJointDoF() + 3 * num_actived_endeffectors_);
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

@@ -42,7 +42,7 @@ class OptimizationSolver
 		 * @brief Abstract method for computing a solution of an optimization problem
 		 * @return True if it was computed a solution
 		 */
-		virtual bool compute(double computation_time = NO_BOUND) = 0;
+		virtual bool compute(double computation_time = 2e19) = 0;
 
 		/**
 		 * @brief Gets the optimization model

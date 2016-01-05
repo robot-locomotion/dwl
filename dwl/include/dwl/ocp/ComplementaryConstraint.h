@@ -1,13 +1,13 @@
-#ifndef DWL__MODEL__COMPLEMENTARY_CONSTRAINT__H
-#define DWL__MODEL__COMPLEMENTARY_CONSTRAINT__H
+#ifndef DWL__OCP__COMPLEMENTARY_CONSTRAINT__H
+#define DWL__OCP__COMPLEMENTARY_CONSTRAINT__H
 
-#include <dwl/model/Constraint.h>
+#include <dwl/ocp/Constraint.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 class ComplementaryConstraint : public Constraint
@@ -65,7 +65,7 @@ class ComplementaryConstraint : public Constraint
 		unsigned int complementary_dimension_;
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 #endif

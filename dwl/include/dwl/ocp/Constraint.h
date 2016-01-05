@@ -1,5 +1,5 @@
-#ifndef DWL__MODEL__CONSTRAINT__H
-#define DWL__MODEL__CONSTRAINT__H
+#ifndef DWL__OCP__CONSTRAINT__H
+#define DWL__OCP__CONSTRAINT__H
 
 #include <dwl/model/WholeBodyKinematics.h>
 #include <dwl/model/WholeBodyDynamics.h>
@@ -14,7 +14,7 @@
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 /**
@@ -118,16 +118,16 @@ class Constraint
 		boost::circular_buffer<WholeBodyState> state_buffer_;
 
 		/** @brief A floating-base system definition */
-		FloatingBaseSystem system_;
+		model::FloatingBaseSystem system_;
 
 		/** @brief Whole-body kinematical model */
-		WholeBodyKinematics kinematics_;
+		model::WholeBodyKinematics kinematics_;
 
 		/** @brief Whole-body dynamical model */
-		WholeBodyDynamics dynamics_;
+		model::WholeBodyDynamics dynamics_;
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 #endif

@@ -1,16 +1,16 @@
-#ifndef DWL__MODEL__OPTIMAL_CONTROL_MODEL__H
-#define DWL__MODEL__OPTIMAL_CONTROL_MODEL__H
+#ifndef DWL__OCP__OPTIMAL_CONTROL_MODEL__H
+#define DWL__OCP__OPTIMAL_CONTROL_MODEL__H
 
 #include <dwl/model/OptimizationModel.h>
-#include <dwl/model/DynamicalSystem.h>
-#include <dwl/model/Constraint.h>
-#include <dwl/model/Cost.h>
+#include <dwl/ocp/DynamicalSystem.h>
+#include <dwl/ocp/Constraint.h>
+#include <dwl/ocp/Cost.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 /**
@@ -20,7 +20,7 @@ namespace model
  * different locomotion (control and planning) models. For instance, we can defined different
  * decision variables (time; base and joint position, velocity and acceleration; contact forces)
  */
-class OptimalControlModel : public OptimizationModel
+class OptimalControlModel : public model::OptimizationModel
 {
 	public:
 		/** @brief Constructor function */
@@ -154,7 +154,7 @@ class OptimalControlModel : public OptimizationModel
 		bool is_added_cost_;
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 

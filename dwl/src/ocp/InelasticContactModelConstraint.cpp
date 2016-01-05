@@ -1,10 +1,10 @@
-#include <dwl/model/InelasticContactModelConstraint.h>
+#include <dwl/ocp/InelasticContactModelConstraint.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 InelasticContactModelConstraint::InelasticContactModelConstraint()
@@ -83,5 +83,5 @@ void InelasticContactModelConstraint::computeSecondComplement(Eigen::VectorXd& c
 	}
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

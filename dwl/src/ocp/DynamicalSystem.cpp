@@ -1,10 +1,10 @@
-#include <dwl/model/DynamicalSystem.h>
+#include <dwl/ocp/DynamicalSystem.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 DynamicalSystem::DynamicalSystem() : state_dimension_(0), terminal_constraint_dimension_(0),
@@ -189,13 +189,13 @@ void DynamicalSystem::setStepIntegrationTime(const double& step_time)
 }
 
 
-WholeBodyKinematics& DynamicalSystem::getKinematics()
+model::WholeBodyKinematics& DynamicalSystem::getKinematics()
 {
 	return kinematics_;
 }
 
 
-WholeBodyDynamics& DynamicalSystem::getDynamics()
+model::WholeBodyDynamics& DynamicalSystem::getDynamics()
 {
 	return dynamics_;
 }
@@ -253,7 +253,7 @@ unsigned int DynamicalSystem::getTerminalConstraintDimension()
 }
 
 
-FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
+model::FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
 {
 	return system_;
 }
@@ -306,7 +306,7 @@ void DynamicalSystem::toWholeBodyState(WholeBodyState& system_state,
 	}
 	if (system_variables_.effort) {
 		// Defining a fake floating-base system (fixed-base) for converting only joint effort
-		FloatingBaseSystem fake_system(false, system_.getJointDoF());
+		model::FloatingBaseSystem fake_system(false, system_.getJointDoF());
 		fake_system.fromGeneralizedJointState(system_state.base_eff,
 											  system_state.joint_eff,
 											  (Eigen::VectorXd) generalized_state.segment(idx, system_.getJointDoF()));
@@ -372,7 +372,7 @@ void DynamicalSystem::fromWholeBodyState(Eigen::VectorXd& generalized_state,
 	}
 	if (system_variables_.effort) {
 		// Defining a fake floating-base system (fixed-base) for converting only joint effort
-		FloatingBaseSystem fake_system(false, system_.getJointDoF());
+		model::FloatingBaseSystem fake_system(false, system_.getJointDoF());
 		generalized_state.segment(idx, system_.getJointDoF()) =
 				fake_system.toGeneralizedJointState(system_state.base_eff,
 											 	 	system_state.joint_eff);
@@ -485,5 +485,5 @@ void DynamicalSystem::initialConditions()
 	}
 }
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl

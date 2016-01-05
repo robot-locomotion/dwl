@@ -1,13 +1,13 @@
-#ifndef DWL__MODEL__INELASTIC_CONTACT_MODEL_CONSTRAINT__H
-#define DWL__MODEL__INELASTIC_CONTACT_MODEL_CONSTRAINT__H
+#ifndef DWL__OCP__INELASTIC_CONTACT_MODEL_CONSTRAINT__H
+#define DWL__OCP__INELASTIC_CONTACT_MODEL_CONSTRAINT__H
 
-#include <dwl/model/ComplementaryConstraint.h>
+#include <dwl/ocp/ComplementaryConstraint.h>
 
 
 namespace dwl
 {
 
-namespace model
+namespace ocp
 {
 
 class InelasticContactModelConstraint : public ComplementaryConstraint
@@ -47,7 +47,7 @@ class InelasticContactModelConstraint : public ComplementaryConstraint
 		std::vector<std::string> end_effector_names_;
 };
 
-} //@namespace model
+} //@namespace ocp
 } //@namespace dwl
 
 #endif
