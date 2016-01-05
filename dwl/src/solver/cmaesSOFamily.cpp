@@ -107,7 +107,7 @@ bool cmaesSOFamily::init()
 
 
 	// Initializing the optimization model
-	model_.init();
+	model_->init();
 
 	// Wrapping the fitness function
 	using namespace std::placeholders;
@@ -140,7 +140,7 @@ double cmaesSOFamily::fitnessFunction(const double* x,
 
 	// Numerical evaluation of the cost function
 	double obj_value = 0;
-	model_.evaluateCosts(obj_value, decision_var);
+	model_->evaluateCosts(obj_value, decision_var);
 
 	return obj_value;
 }
@@ -149,12 +149,12 @@ double cmaesSOFamily::fitnessFunction(const double* x,
 void cmaesSOFamily::allAsSoftConstraints()
 {
 	// Defining the dynamical system constraint as soft
-	model_.getDynamicalSystem()->defineAsSoftConstraint();
+//	model_.getDynamicalSystem()->defineAsSoftConstraint();
 
 	// Defining the all constraints as soft
-	unsigned int num_constraints = model_.getConstraints().size();
-	for (unsigned int i = 0; i < num_constraints; i++)
-		model_.getConstraints()[i]->defineAsSoftConstraint();
+//	unsigned int num_constraints = model_.getConstraints().size();
+//	for (unsigned int i = 0; i < num_constraints; i++)
+//		model_.getConstraints()[i]->defineAsSoftConstraint();
 }
 
 } //@namespace solver

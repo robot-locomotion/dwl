@@ -1,12 +1,13 @@
 #include <dwl/model/FullDynamicalSystem.h>
 #include <dwl/model/ConstrainedDynamicalSystem.h>
 #include <model/HS071DynamicalSystem.cpp>
-#include <dwl/model/OptimizationModel.h>
+#include <dwl/model/OptimalControlModel.h>
 #include <unsupported/Eigen/NumericalDiff>
 #include <iostream>
 
 
-dwl::model::OptimizationModel opt_model;
+dwl::model::OptimalControlModel opt_ctrl;
+dwl::model::OptimizationModel* opt_model = &opt_ctrl;
 
 template<typename _Scalar, int NX=Eigen::Dynamic, int NY=Eigen::Dynamic>
 struct Functor
@@ -36,7 +37,7 @@ struct ConstraintFunction : Functor<double>
     int operator() (const Eigen::VectorXd& x, Eigen::VectorXd& fvec) const
     {
     	fvec.resize(5);
-    	opt_model.evaluateConstraints(fvec, x);
+    	opt_model->evaluateConstraints(fvec, x);
     	return 0;
     }
 };
@@ -72,7 +73,7 @@ int main(int argc, char **argv)
 //		new dwl::model::HS071DynamicalSystem();
 	dynamical_system->modelFromURDFFile(model_file, true);
 
-	opt_model.addDynamicalSystem(dynamical_system);
+	opt_ctrl.addDynamicalSystem(dynamical_system);
 
 	// Converting locomotion state to generalized coordinates
 	Eigen::VectorXd q(3), qd(3), qdd(3), tau(2);

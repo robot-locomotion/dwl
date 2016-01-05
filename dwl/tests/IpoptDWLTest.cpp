@@ -1,3 +1,4 @@
+#include <dwl/model/OptimalControlModel.h>
 #include <dwl/solver/OptimizationSolver.h>
 #include <dwl/solver/IpoptNLP.h>
 #include <model/HS071DynamicalSystem.cpp>
@@ -7,25 +8,15 @@
 
 int main(int argc, char **argv)
 {
-//	dwl::solver::Solver* solver = new dwl::solver::IpoptNLP();
-	dwl::solver::IpoptNLP* ipopt_solver = new dwl::solver::IpoptNLP();
-	dwl::solver::OptimizationSolver* solver = ipopt_solver;
+	dwl::solver::OptimizationSolver* solver = new dwl::solver::IpoptNLP();
+	dwl::model::OptimalControlModel optimal_control;
+	solver->setOptimizationModel(&optimal_control);
 
 	dwl::model::DynamicalSystem* dynamical_system = new dwl::model::HS071DynamicalSystem();
 	dwl::model::Cost* cost = new dwl::model::HS071Cost();
 
-//	ipopt_solver->getIpopt().getOptimizationModel().addDynamicalSystem(dynamical_system);
-//	ipopt_solver->getIpopt().getOptimizationModel().addCost(cost);
-	solver->getOptimizationModel().addDynamicalSystem(dynamical_system);
-	solver->getOptimizationModel().addCost(cost);
-
-//	dwl::model::OptimizationModel model;
-//	model.addDynamicalSystem(dynamical_system);
-//	model.addCost(cost);
-//	solver->setModel(&model);
-
-
-//	planning_ptr_->reset(&robot_, solver_, environment_);
+	optimal_control.addDynamicalSystem(dynamical_system);
+	optimal_control.addCost(cost);
 
 	solver->init();
 	solver->compute();

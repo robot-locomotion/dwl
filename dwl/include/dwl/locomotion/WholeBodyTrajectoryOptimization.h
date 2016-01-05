@@ -1,10 +1,8 @@
 #ifndef DWL__LOCOMOTION__WHOLE_BODY_TRAJECTORY_OPTIMIZATION__H
 #define DWL__LOCOMOTION__WHOLE_BODY_TRAJECTORY_OPTIMIZATION__H
 
+#include <dwl/model/OptimalControlModel.h>
 #include <dwl/solver/OptimizationSolver.h>
-#include <dwl/model/DynamicalSystem.h>
-#include <dwl/model/Constraint.h>
-#include <dwl/model/Cost.h>
 #include <dwl/utils/SplineInterpolation.h>
 
 
@@ -115,6 +113,9 @@ class WholeBodyTrajectoryOptimization
 	private:
 		/** @brief Optimization solver */
 		solver::OptimizationSolver* solver_;
+
+		/** @brief Optimal control model */
+		dwl::model::OptimalControlModel oc_model_;
 
 		/** @brief Interpolated whole-body trajectory */
 		WholeBodyTrajectory interpolated_trajectory_;

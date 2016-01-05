@@ -93,50 +93,46 @@ class OptimizationModel
 		OptimizationModel();
 
 		/** @brief Destructor function */
-		~OptimizationModel();
+		virtual ~OptimizationModel();
 
 		/** @brief Initializes the optimization model, i.e. the dimensions of the optimization
 		 * vectors */
-		void init();
-
-		/**
-		 * @brief Sets the initial trajectory
-		 * @param WholeBodyTrajectory& Initial whole-body trajectory
-		 */
-		void setStartingTrajectory(WholeBodyTrajectory& initial_trajectory);
+		virtual void init() = 0;
 
 		/**
 		 * @brief Gets the starting point of the problem
 		 * @param Eigen::Ref<Eigen::VectorXd> Full initial point
 		 */
-		void getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point);
+		virtual void getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point) = 0;
 
 		/**
-		 * @brief Evaluates the bounds of the problem
+		 * @brief Pure abstract method for evaluating the bounds of the problem
 		 * @param Eigen::Ref<Eigen::VectorXd> Full state lower bound
 		 * @param Eigen::Ref<Eigen::VectorXd> Full state upper bound
 		 * @param Eigen::Ref<Eigen::VectorXd> Full constraint lower bound
 		 * @param Eigen::Ref<Eigen::VectorXd> Full constraint upper bound
 		 */
-		void evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lower_bound,
-							Eigen::Ref<Eigen::VectorXd> full_state_upper_bound,
-							Eigen::Ref<Eigen::VectorXd> full_constraint_lower_bound,
-							Eigen::Ref<Eigen::VectorXd> full_constraint_upper_bound);
+		virtual void evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lower_bound,
+									Eigen::Ref<Eigen::VectorXd> full_state_upper_bound,
+									Eigen::Ref<Eigen::VectorXd> full_constraint_lower_bound,
+									Eigen::Ref<Eigen::VectorXd> full_constraint_upper_bound) = 0;
 		/**
-		 * @brief Evaluates the constraint function given a current decision state
+		 * @brief Pure abstract method for evaluating the constraint function given a
+		 * current decision state
 		 * @param Eigen::Ref<Eigen::VectorXd> Constraint vector
 		 * @param const Eigen::Ref<const Eigen:VectorXd>& Decision vector
 		 */
-		void evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constraint,
-								 const Eigen::Ref<const Eigen::VectorXd>& decision_var);
+		virtual void evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constraint,
+								 	 	 const Eigen::Ref<const Eigen::VectorXd>& decision_var) = 0;
 
 		/**
-		 * @brief Evaluates the cost function given a current decision state
+		 * @brief Pure abstract method for evaluating the cost function given a current
+		 * decision state
 		 * @param double& Cost value
 		 * @param const Eigen::Ref<const Eigen:VectorXd>& Decision vector
 		 */
-		void evaluateCosts(double& cost,
-						   const Eigen::Ref<const Eigen::VectorXd>& decision_var);
+		virtual void evaluateCosts(double& cost,
+								   const Eigen::Ref<const Eigen::VectorXd>& decision_var) = 0;
 
 		/**
 		 * @brief Evaluates the jacobian of the constraint function given a current decision
@@ -144,8 +140,8 @@ class OptimizationModel
 		 * @param Eigen::MatrixXd& Jacobian of the constraint function
 		 * @param const Eigen::VectorXd& Decision vector
 		 */
-		void evaluateConstraintJacobian(Eigen::MatrixXd& jacobian,
-										const Eigen::VectorXd& decision_var);
+		virtual void evaluateConstraintJacobian(Eigen::MatrixXd& jacobian,
+												const Eigen::VectorXd& decision_var);
 
 		/**
 		 * @brief Evaluates the gradient of the cost function given a current decision
@@ -153,54 +149,15 @@ class OptimizationModel
 		 * @param Eigen::MatrixXd& Gradient of the cost function
 		 * @param const Eigen::VectorXd& Decision vector
 		 */
-		void evaluateCostGradient(Eigen::MatrixXd& gradient,
-								  const Eigen::VectorXd& decision_var);
+		virtual void evaluateCostGradient(Eigen::MatrixXd& gradient,
+										  const Eigen::VectorXd& decision_var);
 
 		/**
 		 * @brief Evaluates the solution from an optimizer
 		 * @param const Eigen::Ref<const Eigen::VectorXd>& Solution vector
 		 * @return WholeBodyTrajectory& Returns the whole-body trajectory solution
 		 */
-		WholeBodyTrajectory& evaluateSolution(const Eigen::Ref<const Eigen::VectorXd>& solution);
-
-		/**
-		 * @brief Adds the dynamical system (active constraints) to the optimization problem
-		 * @param DynamicalSystem* Dynamical system constraint to add it
-		 */
-		void addDynamicalSystem(DynamicalSystem* dynamical_system);
-
-		/** @brief Removes the current dynamical system constraint */
-		void removeDynamicalSystem();
-
-		/**
-		 * @brief Adds an active or inactive constraints to the optimization problem
-		 * @param Constraint* Constraint to add it
-		 */
-		void addConstraint(Constraint* constraint);
-
-		/**
-		 * @brief Removes an active or inactive constraints to the optimization problem
-		 * @param Constraint* Constraint to remove it
-		 */
-		void removeConstraint(std::string constraint_name);
-
-		/**
-		 * @brief Adds a cost function for the optimization problem
-		 * @param Cost* Cost to add it
-		 */
-		void addCost(Cost* cost);
-
-		/**
-		 * @brief Removes a cost function for the optimization problem
-		 * @param Cost* Cost to remove it
-		 */
-		void removeCost(std::string cost_name);
-
-		/**
-		 * @brief Sets the horizon steps
-		 * @param unsigned int Horizon
-		 */
-		void setHorizon(unsigned int horizon);
+		virtual WholeBodyTrajectory& evaluateSolution(const Eigen::Ref<const Eigen::VectorXd>& solution) = 0;
 
 		/**
 		 * @brief Configures the numerical differentiation algorithm
@@ -211,35 +168,14 @@ class OptimizationModel
 		void configureNumericalDifferentiation(enum Eigen::NumericalDiffMode,
 											   double epsilon = 1E-06);
 
-		/** @brief Gets the dynamical system constraint */
-		DynamicalSystem* getDynamicalSystem();
-
-		/** @brief Gets the active and inactive constraints, which not include the dynamical one */
-		std::vector<Constraint*> getConstraints();
-
-		/** @brief Gets the cost functions */
-		std::vector<Cost*> getCosts();
-
 		/** @brief Gets the dimension of the state vector of the optimization problem */
 		unsigned int getDimensionOfState();
 
 		/** @brief Gets the dimension of the constraints of the optimization problem */
 		unsigned int getDimensionOfConstraints();
 
-		/** @brief Gets the horizon value of the optimization problem */
-		const unsigned int& getHorizon();
-
 
 	protected:
-		/** @brief Dynamical system constraint pointer */
-		DynamicalSystem* dynamical_system_;
-
-		/** @brief Vector of active and inactive constraints pointers */
-		std::vector<Constraint*> constraints_;
-
-		/** @brief Vector of costs pointers */
-		std::vector<Cost*> costs_;
-
 		/** @brief Constraint functor for numerical differentiation */
 		ConstraintFunction constraint_function_;
 
@@ -267,15 +203,6 @@ class OptimizationModel
 		/** @brief Machine epsilon constant which gives an upper bound on the relative error
 		    due to rounding in floating point arithmetic */
 		double epsilon_;
-
-		/** @brief Indicates if it was added an active constraint in the solver */
-		bool is_added_dynamic_system_;
-
-		/** @brief Indicates if it was added a constraint in the solver */
-		bool is_added_constraint_;
-
-		/** @brief Indicates if it was added a cost in the solver */
-		bool is_added_cost_;
 };
 
 } //@namespace model

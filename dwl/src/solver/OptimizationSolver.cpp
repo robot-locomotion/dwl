@@ -7,7 +7,7 @@ namespace dwl
 namespace solver
 {
 
-OptimizationSolver::OptimizationSolver()
+OptimizationSolver::OptimizationSolver() : model_(NULL)
 {
 
 }
@@ -19,7 +19,13 @@ OptimizationSolver::~OptimizationSolver()
 }
 
 
-model::OptimizationModel& OptimizationSolver::getOptimizationModel()
+void OptimizationSolver::setOptimizationModel(model::OptimizationModel* model)
+{
+	model_ = model;
+}
+
+
+model::OptimizationModel* OptimizationSolver::getOptimizationModel()
 {
 	return model_;
 }

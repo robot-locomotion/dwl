@@ -21,86 +21,62 @@ WholeBodyTrajectoryOptimization::~WholeBodyTrajectoryOptimization()
 void WholeBodyTrajectoryOptimization::init(solver::OptimizationSolver* solver)
 {
 	solver_ = solver;
+	solver->setOptimizationModel(&oc_model_);
 	solver_->init();
 }
 
 
 void WholeBodyTrajectoryOptimization::addDynamicalSystem(model::DynamicalSystem* system)
 {
-	if (solver_ != NULL)
-		solver_->getOptimizationModel().addDynamicalSystem(system);
-	else
-		printf(RED "FATAL: there was not defined a solver for setting the %s dynamical constraint"
-				COLOR_RESET, system->getName().c_str());
+	oc_model_.addDynamicalSystem(system);
 }
 
 
 void WholeBodyTrajectoryOptimization::removeDynamicalSystem()
 {
-	if (solver_ != NULL)
-		solver_->getOptimizationModel().removeDynamicalSystem();
-	else
-		printf(YELLOW "WARNING: there was not defined a solver, it could be removed the dynamical"
-				" constraint");
+	oc_model_.removeDynamicalSystem();
 }
 
 
 void WholeBodyTrajectoryOptimization::addConstraint(model::Constraint* constraint)
 {
-	if (solver_ != NULL)
-		solver_->getOptimizationModel().addConstraint(constraint);
-	else
-		printf(RED "FATAL: there was not defined a solver for setting the %s constraint"
-				COLOR_RESET, constraint->getName().c_str());
+	oc_model_.addConstraint(constraint);
 }
 
 
 void WholeBodyTrajectoryOptimization::removeConstraint(std::string name)
 {
-	if (solver_ != NULL)
-		solver_->getOptimizationModel().removeConstraint(name);
-	else
-		printf(YELLOW "WARNING: there was not defined a solver, it could be removed the constraint");
+	oc_model_.removeConstraint(name);
 }
 
 
 void WholeBodyTrajectoryOptimization::addCost(model::Cost* cost)
 {
-	if (solver_ != NULL)
-		solver_->getOptimizationModel().addCost(cost);
-	else
-		printf(RED "FATAL: there is not defined a solver for setting the %s cost"
-				COLOR_RESET, cost->getName().c_str());
+	oc_model_.addCost(cost);
 }
 
 
 void WholeBodyTrajectoryOptimization::removeCost(std::string name)
 {
-	if (solver_ != NULL)
-		solver_->getOptimizationModel().removeCost(name);
-	else
-		printf(YELLOW "WARNING: there was not defined a solver, it could be removed the cost");
+	oc_model_.removeCost(name);
 }
 
 
 void WholeBodyTrajectoryOptimization::setHorizon(unsigned int horizon)
 {
-	if (solver_ != NULL)
-		solver_->getOptimizationModel().setHorizon(horizon);
-	else
-		printf(RED "FATAL: there is not defined a solver for setting the horizon" COLOR_RESET);
+	oc_model_.setHorizon(horizon);
 }
 
 
 void WholeBodyTrajectoryOptimization::setStepIntegrationTime(const double& step_time)
 {
-	solver_->getOptimizationModel().getDynamicalSystem()->setStepIntegrationTime(step_time);
+	oc_model_.getDynamicalSystem()->setStepIntegrationTime(step_time);
 }
 
 
 void WholeBodyTrajectoryOptimization::setNominalTrajectory(std::vector<WholeBodyState>& nom_trajectory)
 {
-	solver_->getOptimizationModel().setStartingTrajectory(nom_trajectory);
+	oc_model_.setStartingTrajectory(nom_trajectory);
 }
 
 
@@ -108,27 +84,22 @@ bool WholeBodyTrajectoryOptimization::compute(const WholeBodyState& current_stat
 											  const WholeBodyState& desired_state,
 											  double computation_time)
 {
-	if (solver_ != NULL) {
-		// Setting the current state, terminal and the starting state for the optimization
-		solver_->getOptimizationModel().getDynamicalSystem()->setInitialState(current_state);
-		solver_->getOptimizationModel().getDynamicalSystem()->setTerminalState(desired_state);
+	// Setting the current state, terminal and the starting state for the optimization
+	oc_model_.getDynamicalSystem()->setInitialState(current_state);
+	oc_model_.getDynamicalSystem()->setTerminalState(desired_state);
 
-		// Setting the desired state to the cost functions
-		unsigned int num_cost = solver_->getOptimizationModel().getCosts().size();
-		for (unsigned int i = 0; i < num_cost; i++)
-			solver_->getOptimizationModel().getCosts()[i]->setDesiredState(desired_state);
+	// Setting the desired state to the cost functions
+	unsigned int num_cost = oc_model_.getCosts().size();
+	for (unsigned int i = 0; i < num_cost; i++)
+		oc_model_.getCosts()[i]->setDesiredState(desired_state);
 
-		return solver_->compute(computation_time);
-	} else {
-		printf(RED "FATAL: there was not defined a solver" COLOR_RESET);
-		return false;
-	}
+	return solver_->compute(computation_time);
 }
 
 
 model::DynamicalSystem* WholeBodyTrajectoryOptimization::getDynamicalSystem()
 {
-	return solver_->getOptimizationModel().getDynamicalSystem();
+	return oc_model_.getDynamicalSystem();
 }
 
 
@@ -159,7 +130,7 @@ const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhole
 	contact_force_spline.resize(num_contacts);
 
 	// Computing the interpolation of the whole-body trajectory
-	unsigned int horizon = solver_->getOptimizationModel().getHorizon();
+	unsigned int horizon = oc_model_.getHorizon();
 	for (unsigned int k = 0; k < horizon; k++) {
 		// Adding the starting state
 		interpolated_trajectory_.push_back(trajectory[k]);

@@ -27,6 +27,12 @@ class OptimizationSolver
 		virtual ~OptimizationSolver();
 
 		/**
+		 * @brief Sets the optimization model
+		 * @param model::OptimizationModel* Pointer to the optimization model
+		 */
+		void setOptimizationModel(model::OptimizationModel* model);
+
+		/**
 		 * @brief Abstract method for initialization of the solver
 		 * @return True if was initialized
 		 */
@@ -40,9 +46,9 @@ class OptimizationSolver
 
 		/**
 		 * @brief Gets the optimization model
-		 * @return the reference object of the optimization model
+		 * @return the object pointer of the optimization model
 		 */
-		model::OptimizationModel& getOptimizationModel();
+		model::OptimizationModel* getOptimizationModel();
 
 		/**
 		 * @brief Gets the whole-body trajectory computed by the optimizer
@@ -62,7 +68,7 @@ class OptimizationSolver
 		std::string name_;
 
 		/** @brief Optimization model */
-		model::OptimizationModel model_;
+		model::OptimizationModel* model_;
 
 		/** @brief Computed whole-body trajectory */
 		WholeBodyTrajectory locomotion_trajectory_;

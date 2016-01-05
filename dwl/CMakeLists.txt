@@ -77,6 +77,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/model/GridBasedBodyAdjacency.cpp
 							 src/model/LatticeBasedBodyAdjacency.cpp
 							 src/model/OptimizationModel.cpp
+							 src/model/OptimalControlModel.cpp
 							 src/model/Constraint.cpp
 							 src/model/DynamicalSystem.cpp
 							 src/model/FullDynamicalSystem.cpp

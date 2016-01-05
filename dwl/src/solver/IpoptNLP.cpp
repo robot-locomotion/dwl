@@ -10,9 +10,6 @@ namespace solver
 IpoptNLP::IpoptNLP()
 {
 	name_ = "IpoptNLP";
-
-	// Setting the optimization model to Ipopt wrapper
-	ipopt_.setOptimizationModel(&model_);
 }
 
 
@@ -24,6 +21,9 @@ IpoptNLP::~IpoptNLP()
 
 bool IpoptNLP::init()
 {
+	// Setting the optimization model to Ipopt wrapper
+	ipopt_.setOptimizationModel(model_);
+
 	// Create a new instance of your NLP
 	nlp_ptr_ = &ipopt_;
 
