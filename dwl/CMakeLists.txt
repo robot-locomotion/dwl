@@ -192,10 +192,6 @@ add_executable(numdiff  tests/NumDiffEigenTest.cpp)
 target_link_libraries(numdiff ${PROJECT_NAME})
 
 
-# Installing catkin package.xml and dw-config.cmake
-install(FILES package.xml DESTINATION share/dwl)
-install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" DESTINATION share/dwl/cmake)
-
 # Exporting the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
 export(PACKAGE dwl)
@@ -207,6 +203,10 @@ if(CATKIN_CALL)
 		LIBRARIES ${PROJECT_NAME} 
 		DEPENDS system_lib ${DEPENDENCIES_LIBRARIES} ${DEPENDENCIES_LIBRARY_DIRS} ${DEPENDENCIES_INCLUDE_DIRS})
 else()
+    # Installing catkin package.xml and dwl-config.cmake for dwl as pure cmake project
+    install(FILES package.xml DESTINATION share/dwl)
+    install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" DESTINATION share/dwl/cmake)
+
 	# Creating a dwl-config.cmake file for the use from the build tree
 	set(DWL_INCLUDE_DIRS  ${INCLUDE_DIRS}
 						  ${DEPENDENCIES_INCLUDE_DIRS})
