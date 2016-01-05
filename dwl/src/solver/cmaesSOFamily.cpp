@@ -74,14 +74,6 @@ void cmaesSOFamily::setAlgorithm(enum CMAESAlgorithms alg)
 }
 
 
-libcmaes::FitFunc fsphere = [](const double *x, const int N)
-{
-  double val = 0.0;
-  for (int i=0;i<N;i++)
-    val += x[i]*x[i];
-  return val;
-};
-
 bool cmaesSOFamily::init()
 {
 	int dim = 4; // problem dimensions.
