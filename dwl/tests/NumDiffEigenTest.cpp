@@ -1,12 +1,12 @@
-#include <dwl/model/FullDynamicalSystem.h>
-#include <dwl/model/ConstrainedDynamicalSystem.h>
+#include <dwl/ocp/OptimalControlModel.h>
+#include <dwl/ocp/FullDynamicalSystem.h>
+#include <dwl/ocp/ConstrainedDynamicalSystem.h>
 #include <model/HS071DynamicalSystem.cpp>
-#include <dwl/model/OptimalControlModel.h>
 #include <unsupported/Eigen/NumericalDiff>
 #include <iostream>
 
 
-dwl::model::OptimalControlModel opt_ctrl;
+dwl::ocp::OptimalControlModel opt_ctrl;
 dwl::model::OptimizationModel* opt_model = &opt_ctrl;
 
 template<typename _Scalar, int NX=Eigen::Dynamic, int NY=Eigen::Dynamic>
@@ -64,11 +64,11 @@ int main(int argc, char **argv)
 	dwl::model::FloatingBaseSystem system;
 	system.setFloatingBaseJoint(joint, dwl::rbd::LZ);
 
-	dwl::model::ConstrainedDynamicalSystem* constrained_system = new dwl::model::ConstrainedDynamicalSystem();
+	dwl::ocp::ConstrainedDynamicalSystem* constrained_system = new dwl::ocp::ConstrainedDynamicalSystem();
 	dwl::rbd::BodySelector active_contact;
 	active_contact.push_back("foot");
 	constrained_system->setActiveEndEffectors(active_contact);
-	dwl::model::DynamicalSystem* dynamical_system = constrained_system;
+	dwl::ocp::DynamicalSystem* dynamical_system = constrained_system;
 //		new dwl::model::FullDynamicalSystem();
 //		new dwl::model::HS071DynamicalSystem();
 	dynamical_system->modelFromURDFFile(model_file, true);
