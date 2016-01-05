@@ -8,8 +8,7 @@ namespace ocp
 {
 
 OptimalControl::OptimalControl() : dynamical_system_(NULL),
-		num_diff_mode_(Eigen::Central), is_added_dynamic_system_(false),
-		is_added_constraint_(false), is_added_cost_(false)
+		is_added_dynamic_system_(false), is_added_constraint_(false), is_added_cost_(false)
 {
 
 }

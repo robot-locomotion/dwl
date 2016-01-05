@@ -141,9 +141,6 @@ class OptimalControl : public model::OptimizationModel
 		/** @brief Vector of costs pointers */
 		std::vector<Cost*> costs_;
 
-		/** @brief Numerical differentiation mode */
-		Eigen::NumericalDiffMode num_diff_mode_;
-
 		/** @brief Indicates if it was added an active constraint in the solver */
 		bool is_added_dynamic_system_;
 
