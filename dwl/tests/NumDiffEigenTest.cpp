@@ -1,4 +1,4 @@
-#include <dwl/ocp/OptimalControlModel.h>
+#include <dwl/ocp/OptimalControl.h>
 #include <dwl/ocp/FullDynamicalSystem.h>
 #include <dwl/ocp/ConstrainedDynamicalSystem.h>
 #include <model/HS071DynamicalSystem.cpp>
@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-dwl::ocp::OptimalControlModel opt_ctrl;
+dwl::ocp::OptimalControl opt_ctrl;
 dwl::model::OptimizationModel* opt_model = &opt_ctrl;
 
 template<typename _Scalar, int NX=Eigen::Dynamic, int NY=Eigen::Dynamic>

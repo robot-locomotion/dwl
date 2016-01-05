@@ -1,4 +1,4 @@
-#include <dwl/ocp/OptimalControlModel.h>
+#include <dwl/ocp/OptimalControl.h>
 
 
 namespace dwl
@@ -7,7 +7,7 @@ namespace dwl
 namespace ocp
 {
 
-OptimalControlModel::OptimalControlModel() : dynamical_system_(NULL),
+OptimalControl::OptimalControl() : dynamical_system_(NULL),
 		num_diff_mode_(Eigen::Central), is_added_dynamic_system_(false),
 		is_added_constraint_(false), is_added_cost_(false)
 {
@@ -15,7 +15,7 @@ OptimalControlModel::OptimalControlModel() : dynamical_system_(NULL),
 }
 
 
-OptimalControlModel::~OptimalControlModel()
+OptimalControl::~OptimalControl()
 {
 	delete dynamical_system_;
 
@@ -33,7 +33,7 @@ OptimalControlModel::~OptimalControlModel()
 }
 
 
-void OptimalControlModel::init()
+void OptimalControl::init()
 {
 	// Reading the state dimension
 	state_dimension_ = dynamical_system_->getDimensionOfState();
@@ -55,14 +55,14 @@ void OptimalControlModel::init()
 }
 
 
-void OptimalControlModel::setStartingTrajectory(WholeBodyTrajectory& initial_trajectory)
+void OptimalControl::setStartingTrajectory(WholeBodyTrajectory& initial_trajectory)
 {
 	//TODO should convert to the defined horizon and time step integration
 	motion_solution_ = initial_trajectory;
 }
 
 
-void OptimalControlModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
+void OptimalControl::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
 {
 	if (motion_solution_.size() == 0) {
 		// Getting the initial and ending locomotion state
@@ -130,10 +130,10 @@ void OptimalControlModel::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_init
 }
 
 
-void OptimalControlModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lower_bound,
-										 Eigen::Ref<Eigen::VectorXd> full_state_upper_bound,
-										 Eigen::Ref<Eigen::VectorXd> full_constraint_lower_bound,
-										 Eigen::Ref<Eigen::VectorXd> full_constraint_upper_bound)
+void OptimalControl::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lower_bound,
+									Eigen::Ref<Eigen::VectorXd> full_state_upper_bound,
+									Eigen::Ref<Eigen::VectorXd> full_constraint_lower_bound,
+									Eigen::Ref<Eigen::VectorXd> full_constraint_upper_bound)
 {
 	// Getting the lower and upper bound of the locomotion state
 	WholeBodyState locomotion_lower_bound, locomotion_upper_bound;
@@ -224,8 +224,8 @@ void OptimalControlModel::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_
 }
 
 
-void OptimalControlModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constraint,
-											  const Eigen::Ref<const Eigen::VectorXd>& decision_var)
+void OptimalControl::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constraint,
+										 const Eigen::Ref<const Eigen::VectorXd>& decision_var)
 {
 	if (state_dimension_ != (decision_var.size() / horizon_)) {
 		printf(RED "FATAL: the state and decision dimensions are not consistent\n" COLOR_RESET);
@@ -324,8 +324,8 @@ void OptimalControlModel::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_c
 }
 
 
-void OptimalControlModel::evaluateCosts(double& cost,
-										const Eigen::Ref<const Eigen::VectorXd>& decision_var)
+void OptimalControl::evaluateCosts(double& cost,
+								   const Eigen::Ref<const Eigen::VectorXd>& decision_var)
 {
 	if (state_dimension_ != (decision_var.size() / horizon_)) {
 		printf(RED "FATAL: the state and decision dimensions are not consistent\n" COLOR_RESET);
@@ -393,7 +393,7 @@ void OptimalControlModel::evaluateCosts(double& cost,
 }
 
 
-WholeBodyTrajectory& OptimalControlModel::evaluateSolution(const Eigen::Ref<const Eigen::VectorXd>& solution)
+WholeBodyTrajectory& OptimalControl::evaluateSolution(const Eigen::Ref<const Eigen::VectorXd>& solution)
 {
 	// Getting the state dimension
 	unsigned int state_dim = dynamical_system_->getDimensionOfState();
@@ -515,7 +515,7 @@ WholeBodyTrajectory& OptimalControlModel::evaluateSolution(const Eigen::Ref<cons
 }
 
 
-void OptimalControlModel::addDynamicalSystem(DynamicalSystem* dynamical_system)
+void OptimalControl::addDynamicalSystem(DynamicalSystem* dynamical_system)
 {
 	if (is_added_dynamic_system_) {
 		printf(YELLOW "Could not added two dynamical systems\n" COLOR_RESET);
@@ -528,7 +528,7 @@ void OptimalControlModel::addDynamicalSystem(DynamicalSystem* dynamical_system)
 }
 
 
-void OptimalControlModel::removeDynamicalSystem()
+void OptimalControl::removeDynamicalSystem()
 {
 	if (is_added_dynamic_system_)
 		is_added_dynamic_system_ = false;
@@ -537,7 +537,7 @@ void OptimalControlModel::removeDynamicalSystem()
 }
 
 
-void OptimalControlModel::addConstraint(Constraint* constraint)
+void OptimalControl::addConstraint(Constraint* constraint)
 {
 	printf(GREEN "Adding the %s constraint\n" COLOR_RESET, constraint->getName().c_str());
 	constraints_.push_back(constraint);
@@ -547,7 +547,7 @@ void OptimalControlModel::addConstraint(Constraint* constraint)
 }
 
 
-void OptimalControlModel::removeConstraint(std::string constraint_name)
+void OptimalControl::removeConstraint(std::string constraint_name)
 {
 	if (is_added_constraint_) {
 		unsigned int num_constraints = constraints_.size();
@@ -570,7 +570,7 @@ void OptimalControlModel::removeConstraint(std::string constraint_name)
 }
 
 
-void OptimalControlModel::addCost(Cost* cost)
+void OptimalControl::addCost(Cost* cost)
 {
 	printf(GREEN "Adding the %s cost\n" COLOR_RESET, cost->getName().c_str());
 
@@ -579,7 +579,7 @@ void OptimalControlModel::addCost(Cost* cost)
 }
 
 
-void OptimalControlModel::removeCost(std::string cost_name)
+void OptimalControl::removeCost(std::string cost_name)
 {
 	if (is_added_cost_) {
 		if (costs_.size() == 0)
@@ -609,7 +609,7 @@ void OptimalControlModel::removeCost(std::string cost_name)
 }
 
 
-void OptimalControlModel::setHorizon(unsigned int horizon)
+void OptimalControl::setHorizon(unsigned int horizon)
 {
 	if (horizon == 0)
 		horizon_ = 1;
@@ -618,25 +618,25 @@ void OptimalControlModel::setHorizon(unsigned int horizon)
 }
 
 
-DynamicalSystem* OptimalControlModel::getDynamicalSystem()
+DynamicalSystem* OptimalControl::getDynamicalSystem()
 {
 	return dynamical_system_;
 }
 
 
-std::vector<Constraint*> OptimalControlModel::getConstraints()
+std::vector<Constraint*> OptimalControl::getConstraints()
 {
 	return constraints_;
 }
 
 
-std::vector<Cost*> OptimalControlModel::getCosts()
+std::vector<Cost*> OptimalControl::getCosts()
 {
 	return costs_;
 }
 
 
-const unsigned int& OptimalControlModel::getHorizon()
+const unsigned int& OptimalControl::getHorizon()
 {
 	return horizon_;
 }

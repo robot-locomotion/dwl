@@ -80,7 +80,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/model/GridBasedBodyAdjacency.cpp
 							 src/model/LatticeBasedBodyAdjacency.cpp
 							 src/model/OptimizationModel.cpp
-							 src/ocp/OptimalControlModel.cpp
+							 src/ocp/OptimalControl.cpp
 							 src/ocp/Constraint.cpp
 							 src/ocp/DynamicalSystem.cpp
 							 src/ocp/FullDynamicalSystem.cpp

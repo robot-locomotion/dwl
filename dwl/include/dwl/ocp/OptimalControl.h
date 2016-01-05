@@ -1,5 +1,5 @@
-#ifndef DWL__OCP__OPTIMAL_CONTROL_MODEL__H
-#define DWL__OCP__OPTIMAL_CONTROL_MODEL__H
+#ifndef DWL__OCP__OPTIMAL_CONTROL__H
+#define DWL__OCP__OPTIMAL_CONTROL__H
 
 #include <dwl/model/OptimizationModel.h>
 #include <dwl/ocp/DynamicalSystem.h>
@@ -14,20 +14,20 @@ namespace ocp
 {
 
 /**
- * @class OptimalControlModel
+ * @class OptimalControl
  * @brief An optimal control problem requires information of constraints (dynamical, active or
  * inactive) and cost functions. Thus, OptimalControlModel is a class that allows us to implement
  * different locomotion (control and planning) models. For instance, we can defined different
  * decision variables (time; base and joint position, velocity and acceleration; contact forces)
  */
-class OptimalControlModel : public model::OptimizationModel
+class OptimalControl : public model::OptimizationModel
 {
 	public:
 		/** @brief Constructor function */
-		OptimalControlModel();
+		OptimalControl();
 
 		/** @brief Destructor function */
-		~OptimalControlModel();
+		~OptimalControl();
 
 		/** @brief Initializes the optimization model, i.e. the dimensions of the optimization
 		 * vectors */

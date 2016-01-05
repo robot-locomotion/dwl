@@ -1,4 +1,4 @@
-#include <dwl/ocp/OptimalControlModel.h>
+#include <dwl/ocp/OptimalControl.h>
 #include <dwl/solver/OptimizationSolver.h>
 #include <dwl/solver/IpoptNLP.h>
 #include <model/HS071DynamicalSystem.cpp>
@@ -9,7 +9,7 @@
 int main(int argc, char **argv)
 {
 	dwl::solver::OptimizationSolver* solver = new dwl::solver::IpoptNLP();
-	dwl::ocp::OptimalControlModel optimal_control;
+	dwl::ocp::OptimalControl optimal_control;
 	solver->setOptimizationModel(&optimal_control);
 
 	dwl::ocp::DynamicalSystem* dynamical_system = new dwl::model::HS071DynamicalSystem();
