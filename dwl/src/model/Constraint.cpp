@@ -22,23 +22,7 @@ Constraint::~Constraint()
 void Constraint::modelFromURDFFile(std::string filename,
 								   bool info)
 {
-	// Reading the file
-	std::ifstream model_file(filename.c_str());
-	if (!model_file) {
-		std::cerr << "Error opening file '" << filename << "'." << std::endl;
-		abort();
-	}
-
-	// Reserving memory for the contents of the file
-	std::string model_xml_string;
-	model_file.seekg(0, std::ios::end);
-	model_xml_string.reserve(model_file.tellg());
-	model_file.seekg(0, std::ios::beg);
-	model_xml_string.assign((std::istreambuf_iterator<char>(model_file)),
-			std::istreambuf_iterator<char>());
-	model_file.close();
-
-	modelFromURDFModel(model_xml_string, info);
+	modelFromURDFModel(urdf_model::fileToXml(filename), info);
 }
 
 

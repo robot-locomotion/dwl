@@ -22,6 +22,13 @@ enum JointType {free=0, fixed, floating, all};
 enum JointMotion {AX = 0, AY, AZ, LX, LY, LZ, FULL};
 
 /**
+ * @brief Converts an urdf file to urdf xml
+ * @param const std::string& File name, the full path has to be defined
+ * @return Returns the urdf xml description
+ */
+std::string fileToXml(const std::string& filename);
+
+/**
  * @brief Gets the joint names from URDF model. By default free joints are get but it's possible
  * to get free, fixed, floating or all joints
  * @param JointID& Joint ids and names
