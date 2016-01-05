@@ -93,6 +93,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/ocp/TerminalStateTrackingEnergyCost.cpp
 							 src/ocp/IntegralStateTrackingEnergyCost.cpp
 							 src/ocp/IntegralControlEnergyCost.cpp
+							 src/ocp/PreviewOptimization.cpp
 							 src/simulation/PreviewLocomotion.cpp
 							 src/simulation/FootSplinePatternGenerator.cpp
 							 src/behavior/MotorPrimitives.cpp
