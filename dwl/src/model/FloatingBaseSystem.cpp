@@ -349,6 +349,11 @@ unsigned int FloatingBaseSystem::getFloatingBaseJointCoordinate(unsigned int id)
 }
 
 
+unsigned int& FloatingBaseSystem::getJointId(std::string joint_name)
+{
+	return joints_.find(joint_name)->second;
+}
+
 const urdf_model::JointID& FloatingBaseSystem::getJoints()
 {
 	return joints_;
@@ -388,6 +393,12 @@ enum TypeOfSystem FloatingBaseSystem::getTypeOfDynamicSystem()
 const unsigned int& FloatingBaseSystem::getNumberOfEndEffectors()
 {
 	return num_end_effectors_;
+}
+
+
+unsigned int& FloatingBaseSystem::getEndEffectorId(std::string contact_name)
+{
+	return end_effectors_.find(contact_name)->second;
 }
 
 
