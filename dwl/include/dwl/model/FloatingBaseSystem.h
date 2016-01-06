@@ -195,6 +195,12 @@ class FloatingBaseSystem
 		unsigned int getFloatingBaseJointCoordinate(unsigned int id);
 
 		/**
+		 * @brief Gets the name of the floating-base body
+		 * @return Returns the name of the floating-base body
+		 */
+		const std::string& getFloatingBaseName();
+
+		/**
 		 * @brief Gets the joint id given the name
 		 * @param std::string Joint name
 		 * @return Returns the joint id

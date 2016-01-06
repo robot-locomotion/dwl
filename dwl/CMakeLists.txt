@@ -163,10 +163,19 @@ endif()
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
 
-# Adding the test executables
-add_executable(my_planner  tests/HierarchicalPlanningTest.cpp)
-target_link_libraries(my_planner ${PROJECT_NAME})
 
+# Adding sample executables
+add_executable(fb_sample  sample/FloatingBaseSample.cpp)
+target_link_libraries(fb_sample ${PROJECT_NAME})
+
+add_executable(kin_sample  sample/WholeBodyKinematicsSample.cpp)
+target_link_libraries(kin_sample ${PROJECT_NAME})
+
+add_executable(dyn_sample  sample/WholeBodyDynamicsSample.cpp)
+target_link_libraries(dyn_sample ${PROJECT_NAME})
+
+
+# Adding the test executables
 include_directories(tests)
 if(ipopt_FOUND)
 	add_executable(ipopt_test  tests/IpoptDWLTest.cpp

@@ -349,6 +349,12 @@ unsigned int FloatingBaseSystem::getFloatingBaseJointCoordinate(unsigned int id)
 }
 
 
+const std::string& FloatingBaseSystem::getFloatingBaseName()
+{
+	return floating_body_name_;
+}
+
+
 unsigned int& FloatingBaseSystem::getJointId(std::string joint_name)
 {
 	return joints_.find(joint_name)->second;
