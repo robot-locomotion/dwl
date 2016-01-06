@@ -23,11 +23,17 @@ class YamlWrapper
 		~YamlWrapper();
 
 		/**
+		 * @brief Reads a integer
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param int& Data to read it
+		 */
+		void read(const YAML::Node& node, int& data);
+
+		/**
 		 * @brief Reads a double
 		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param double& Data to read it
 		 */
-
 		void read(const YAML::Node& node, double& data);
 
 		/**

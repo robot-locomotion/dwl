@@ -16,6 +16,12 @@ YamlWrapper::~YamlWrapper()
 }
 
 
+void YamlWrapper::read(const YAML::Node& node, int& data)
+{
+	node >> data;
+}
+
+
 void YamlWrapper::read(const YAML::Node& node, double& data)
 {
 	node >> data;
