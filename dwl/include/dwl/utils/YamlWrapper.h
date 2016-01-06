@@ -24,87 +24,135 @@ class YamlWrapper
 
 		/**
 		 * @brief Reads a integer
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param int& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, int& data);
+		bool read(int& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a double
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param double& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, double& data);
+		bool read(double& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a string
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param std::string& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, std::string& data);
+		bool read(std::string& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a std vector of doubles
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param std::vector<double>& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, std::vector<double>& data);
+		bool read(std::vector<double>& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a std vector of string
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param std::vector<string>& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, std::vector<std::string>& data);
+		bool read(std::vector<std::string>& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a 2d vector
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param Eigen::Vector2d& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, Eigen::Vector2d& data);
+		bool read(Eigen::Vector2d& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a 3d vector
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param Eigen::Vector3d& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, Eigen::Vector3d& data);
+		bool read(Eigen::Vector3d& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a quaternion
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param Eigen::Quaterniond& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, Eigen::Quaterniond& data);
+		bool read(Eigen::Quaterniond& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a pose
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param Pose& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, Pose& data);
+		bool read(Pose& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a 3d pose
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param Pose3d& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, Pose3d& data);
+		bool read(Pose3d& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a 3d action
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param Action3d& Data to read
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, Action3d& data);
+		bool read(Action3d& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 
 		/**
 		 * @brief Reads a search area
-		 * @param const YAML::Node& Namespace where is defined the data
 		 * @param SearchArea& Data to read
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
 		 */
-		void read(const YAML::Node& node, SearchArea& data);
+		bool read(SearchArea& data,
+				  const YAML::Node& node,
+				  std::string field_name);
 };
 
 } //@namespace dwl

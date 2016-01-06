@@ -33,44 +33,28 @@ int main(int argc, char **argv)
 			const YAML::Node& test = *ptest;
 
 			// Reading the double vector
-			if (const YAML::Node* pdouble_vec = test.FindValue("double_vector")) {
-				yaml_reader.read(*pdouble_vec, double_vec);
-			}
+			yaml_reader.read(double_vec, test, "double_vector");
 
 			// Reading the string vector
-			if (const YAML::Node* pstring_vec = test.FindValue("string_vector")) {
-				yaml_reader.read(*pstring_vec, string_vec);
-			}
+			yaml_reader.read(string_vec, test, "string_vector");
 
 			// Reading the 3d vector
-			if (const YAML::Node* pvector_3d = test.FindValue("vector_3d")) {
-				yaml_reader.read(*pvector_3d, vector_3d);
-			}
+			yaml_reader.read(vector_3d, test, "vector_3d");
 
 			// Reading the quaternion
-			if (const YAML::Node* pquaternion = test.FindValue("quaternion")) {
-				yaml_reader.read(*pquaternion, quaternion);
-			}
+			yaml_reader.read(quaternion, test, "quaternion");
 
 			// Reading the pose
-			if (const YAML::Node* ppose = test.FindValue("pose")) {
-				yaml_reader.read(*ppose, pose);
-			}
+			yaml_reader.read(pose, test, "pose");
 
 			// Reading the pose 3d
-			if (const YAML::Node* ppose3d = test.FindValue("pose3d")) {
-				yaml_reader.read(*ppose3d, pose3d);
-			}
+			yaml_reader.read(pose3d, test, "pose3d");
 
 			// Reading the action 3d
-			if (const YAML::Node* paction3d = test.FindValue("action3d")) {
-				yaml_reader.read(*paction3d, action3d);
-			}
+			yaml_reader.read(action3d, test, "action3d");
 
 			// Reading the search area
-			if (const YAML::Node* psearch_area = test.FindValue("search_area")) {
-				yaml_reader.read(*psearch_area, search_area);
-			}
+			yaml_reader.read(search_area, test, "search_area");
 		}
 	}
 

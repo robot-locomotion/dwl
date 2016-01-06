@@ -16,158 +16,238 @@ YamlWrapper::~YamlWrapper()
 }
 
 
-void YamlWrapper::read(const YAML::Node& node, int& data)
+bool YamlWrapper::read(int& data,
+					   const YAML::Node& node,
+					   std::string field_name)
 {
-	node >> data;
-}
-
-
-void YamlWrapper::read(const YAML::Node& node, double& data)
-{
-	node >> data;
-}
-
-
-void YamlWrapper::read(const YAML::Node& node, std::string& data)
-{
-	node >> data;
-}
-
-
-void YamlWrapper::read(const YAML::Node& node, std::vector<double>& data)
-{
-	int node_size = node.size();
-	for (int i = 0; i < node_size; i++) {
-		double number;
-
-		read(node[i], number);
-		data.push_back(number);
-	}
-}
-
-
-void YamlWrapper::read(const YAML::Node& node, std::vector<std::string>& data)
-{
-	int node_size = node.size();
-	for (int i = 0; i < node_size; i++) {
-		std::string str;
-
-		read(node[i], str);
-		data.push_back(str);
-	}
-}
-
-
-void YamlWrapper::read(const YAML::Node& node, Eigen::Vector2d& data)
-{
-	node[0] >> data(0);
-	node[1] >> data(1);
-}
-
-
-void YamlWrapper::read(const YAML::Node& node, Eigen::Vector3d& data)
-{
-	node[0] >> data(0);
-	node[1] >> data(1);
-	node[2] >> data(2);
-}
-
-
-void YamlWrapper::read(const YAML::Node& node, Eigen::Quaterniond& data)
-{
-	double w, x, y, z;
-	read(node[0], w);
-	read(node[1], x);
-	read(node[2], y);
-	read(node[3], z);
-
-	Eigen::Quaterniond orientation(w, x, y, z);
-	data = orientation;
-}
-
-
-void YamlWrapper::read(const YAML::Node& node, Pose& data)
-{
-	if (const YAML::Node* pposition = node.FindValue("position"))
-		read(*pposition, data.position);
-	else
-		data.position = Eigen::Vector3d::Zero();
-
-	if (const YAML::Node* porientation = node.FindValue("orientation"))
-		read(*porientation, data.orientation);
-	else {
-		Eigen::Quaterniond default_orientation(1, 0, 0, 0);
-		data.orientation = default_orientation;
-	}
-}
-
-
-void YamlWrapper::read(const YAML::Node& node, Pose3d& data)
-{
-	if (const YAML::Node* pposition = node.FindValue("position"))
-		read(*pposition, data.position);
-	else
-		data.position = Eigen::Vector2d::Zero();
-
-	if (const YAML::Node* porientation = node.FindValue("orientation"))
-		read(*porientation, data.orientation);
-	else
-		data.orientation = 0;
-}
-
-
-void YamlWrapper::read(const YAML::Node& node, Action3d& data)
-{
-	if (const YAML::Node* ppose = node.FindValue("pose"))
-		read(*ppose, data.pose);
-	else {
-		data.pose.position = Eigen::Vector2d::Zero();
-		data.pose.orientation = 0;
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		*pnode >> data;
+		return true;
 	}
 
-	if (const YAML::Node* pcost = node.FindValue("cost"))
-		read(*pcost, data.cost);
-	else
-		data.cost = 0;
+	return false;
 }
 
 
-void YamlWrapper::read(const YAML::Node& node, SearchArea& data)
+bool YamlWrapper::read(double& data,
+					   const YAML::Node& node,
+					   std::string field_name)
 {
-	if (const YAML::Node* pmin_x = node.FindValue("min_x"))
-		read(*pmin_x, data.min_x);
-	else
-		data.min_x = 0;
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		*pnode >> data;
+		return true;
+	}
 
-	if (const YAML::Node* pmax_x = node.FindValue("max_x"))
-		read(*pmax_x, data.max_x);
-	else
-		data.max_x = 0;
+	return false;
+}
 
-	if (const YAML::Node* pmin_y = node.FindValue("min_y"))
-		read(*pmin_y, data.min_y);
-	else
-		data.min_y = 0;
 
-	if (const YAML::Node* pmax_y = node.FindValue("max_y"))
-		read(*pmax_y, data.max_y);
-	else
-		data.max_y = 0;
+bool YamlWrapper::read(std::string& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		*pnode >> data;
+		return true;
+	}
 
-	if (const YAML::Node* pmin_z = node.FindValue("min_z"))
-		read(*pmin_z, data.min_z);
-	else
-		data.min_z = 0;
+	return false;
+}
 
-	if (const YAML::Node* pmax_z = node.FindValue("max_z"))
-		read(*pmax_z, data.max_z);
-	else
-		data.max_z = 0;
 
-	if (const YAML::Node* presolution = node.FindValue("resolution"))
-		read(*presolution, data.resolution);
-	else
-		data.resolution = 0;
+bool YamlWrapper::read(std::vector<double>& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		int node_size = pnode->size();
+		data.resize(node_size);
+		for (int i = 0; i < node_size; i++) {
+			double number;
+
+			if (const YAML::Node* inode = pnode->FindValue(i)) {
+				*inode >> number;
+				data[i] = number;
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+
+bool YamlWrapper::read(std::vector<std::string>& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		int node_size = pnode->size();
+		data.resize(node_size);
+		for (int i = 0; i < node_size; i++) {
+			std::string str;
+
+			if (const YAML::Node* inode = pnode->FindValue(i)) {
+				*inode >> str;
+				data[i] = str;
+			}
+		}
+		return true;
+	}
+
+	return false;
+}
+
+
+bool YamlWrapper::read(Eigen::Vector2d& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		for (int i = 0; i < 2; i++) {
+			if (const YAML::Node* inode = pnode->FindValue(i)) {
+				*inode >> data(i);
+			}
+		}
+		return true;
+	}
+
+	return false;
+}
+
+
+bool YamlWrapper::read(Eigen::Vector3d& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		for (int i = 0; i < 3; i++) {
+			if (const YAML::Node* inode = pnode->FindValue(i)) {
+				*inode >> data(i);
+			}
+		}
+		return true;
+	}
+
+	return false;
+}
+
+
+bool YamlWrapper::read(Eigen::Quaterniond& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		Eigen::VectorXd q = Eigen::VectorXd::Zero(4); // (w,x,y,z)^T
+		for (int i = 0; i < 4; i++) {
+			if (const YAML::Node* inode = pnode->FindValue(i)) {
+				*inode >> q(i);
+			}
+		}
+
+		Eigen::Quaterniond orientation(q(0), q(1), q(2), q(3));
+		data = orientation;
+		return true;
+	}
+
+	return false;
+}
+
+
+bool YamlWrapper::read(Pose& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		// Reading the position data
+		if (!read(data.position, *pnode, "position"))
+			data.position = Eigen::Vector3d::Zero();
+
+		// Reading the orientation data
+		if (!read(data.orientation, *pnode, "orientation")) {
+			Eigen::Quaterniond default_orientation(1, 0, 0, 0);
+			data.orientation = default_orientation;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+
+bool YamlWrapper::read(Pose3d& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		// Reading the position data
+		if (!read(data.position, *pnode, "position"))
+			data.position = Eigen::Vector2d::Zero();
+
+		// Reading the orientation data
+		if (!read(data.orientation, *pnode, "orientation"))
+			data.orientation = 0.;
+
+		return true;
+	}
+
+	return false;
+}
+
+
+bool YamlWrapper::read(Action3d& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		// Reading pose data
+		if (!read(data.pose, *pnode, "pose")) {
+			data.pose.position = Eigen::Vector2d::Zero();
+			data.pose.orientation = 0;
+		}
+
+		// Reading the cost data
+		if (!read(data.cost, *pnode, "cost"))
+			data.cost = 0;
+
+		return true;
+	}
+
+	return false;
+}
+
+
+bool YamlWrapper::read(SearchArea& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		// Reading the vertices
+		if (!read(data.min_x, *pnode, "min_x"))
+			data.min_x = 0;
+		if (!read(data.max_x, *pnode, "max_x"))
+			data.max_x = 0;
+
+		if (!read(data.min_y, *pnode, "min_y"))
+			data.min_y = 0;
+		if (!read(data.max_y, *pnode, "max_y"))
+			data.max_y = 0;
+
+		if (!read(data.min_z, *pnode, "min_z"))
+			data.min_z = 0;
+		if (!read(data.max_z, *pnode, "max_z"))
+			data.max_z = 0;
+
+		// Reading the resolution
+		if (!read(data.resolution, *pnode, "resolution"))
+			data.resolution = 0;
+
+		return true;
+	}
+
+	return false;
 }
 
 }
