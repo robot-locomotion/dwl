@@ -33,7 +33,7 @@ void Robot::read(std::string filepath)
 	for (YAML::Iterator it = doc.begin(); it != doc.end(); ++it) {
 		// Reading the name of the robot
 		std::string robot_name;
-		yaml_reader_.read(it.first(), robot_name);
+		it.first() >> robot_name;
 
 		// Reading the robot properties
 		if (const YAML::Node* probot = doc.FindValue(robot_name)) {
@@ -44,39 +44,34 @@ void Robot::read(std::string filepath)
 				const YAML::Node& description = *pdescription;
 
 				// Reading the end-effectors of the robot
-				if (const YAML::Node* pend_effectors = description.FindValue("end_effectors")) {
-					std::vector<std::string> end_effectors;
-					yaml_reader_.read(*pend_effectors, end_effectors);
-					for (unsigned int i = 0; i < end_effectors.size(); i++) {
+				std::vector<std::string> end_effectors;
+				if (yaml_reader_.read(end_effectors, *pdescription, "end_effectors")) {
+					for (unsigned int i = 0; i < end_effectors.size(); i++)
 						end_effectors_[i] = end_effectors[i];
-					}
 				} else
 					printf(YELLOW "Warning: the end-effector was not read\n" COLOR_RESET);
 
 				// Reading the feet of the robot
-				if (const YAML::Node* pfeet = description.FindValue("feet")) {
-					std::vector<std::string> feet;
-					yaml_reader_.read(*pfeet, feet);
-					number_legs_ = feet.size();
-					for (unsigned int i = 0; i < number_legs_; i++) {
+				std::vector<std::string> feet;
+				if (yaml_reader_.read(feet, *pdescription, "feet")) {
+					for (unsigned int i = 0; i < number_legs_; i++)
 						feet_[i] = feet[i];
-					}
 				} else
 					printf(YELLOW "Warning: the feet was not read\n" COLOR_RESET);
 
 				// Reading the end-effectors description
 				if (const YAML::Node* pee_description = description.FindValue("end_effector_descriptions")) {
-					const YAML::Node& ee_description = *pee_description;
-
 					for (EndEffectorMap::iterator e = end_effectors_.begin(); e != end_effectors_.end(); e++) {
 						unsigned int ee_id = e->first;
 						std::string ee_name = e->second;
 
-						if (const YAML::Node* ppatchs = ee_description.FindValue(ee_name)) {
-							std::vector<std::string> patchs;
-							yaml_reader_.read(*ppatchs, patchs);
+						// Reading the patches
+						std::vector<std::string> patchs;
+						if (yaml_reader_.read(feet, *pee_description, ee_name))
 							patchs_[ee_id] = patchs;
-						}
+						else
+							printf(YELLOW "Warning: the patches of %s was not read\n" COLOR_RESET,
+									ee_name.c_str());
 					}
 				}
 			} else
@@ -88,16 +83,14 @@ void Robot::read(std::string filepath)
 				const YAML::Node& properties = *pproperties;
 
 				if (const YAML::Node* ppattern_locomotion = properties.FindValue("pattern_locomotion")) {
-					const YAML::Node& pattern_locomotion = *ppattern_locomotion;
-
 					for (EndEffectorMap::iterator f = feet_.begin(); f != feet_.end(); ++f) {
 						unsigned int leg_id = f->first;
 						std::string leg_name = f->second;
 
-						if (const YAML::Node* pleg = pattern_locomotion.FindValue(leg_name)) {
-							std::string next_leg_name;
-							unsigned int next_leg_id = 0;
-							yaml_reader_.read(*pleg, next_leg_name);
+						// Reading the next swing leg
+						std::string next_leg_name;
+						unsigned int next_leg_id = 0;
+						if (yaml_reader_.read(next_leg_name, *ppattern_locomotion, leg_name)) {
 							for (EndEffectorMap::iterator l = feet_.begin(); l != feet_.end(); ++l) {
 								std::string potential_leg_name = l->second;
 								if (next_leg_name == potential_leg_name) {
@@ -105,7 +98,6 @@ void Robot::read(std::string filepath)
 									break;
 								}
 							}
-
 							pattern_locomotion_[leg_id] = next_leg_id;
 						} else
 							printf(YELLOW "Warning: the next leg of %s was not read\n" COLOR_RESET,
@@ -117,15 +109,14 @@ void Robot::read(std::string filepath)
 
 				// Reading the nominal stance properties of the robot
 				if (const YAML::Node* pnom_stance = properties.FindValue("nominal_stance")) {
-					const YAML::Node& nom_stance = *pnom_stance;
-
+					// Reading the nominal stance position
 					for (EndEffectorMap::iterator it = feet_.begin(); it != feet_.end(); ++it) {
 						std::string leg_name = it->second;
-						if (const YAML::Node* pleg = nom_stance.FindValue(leg_name)) {
-							unsigned int leg_id = it->first;
 
-							Eigen::Vector3d stance;
-							yaml_reader_.read(*pleg, stance);
+						// Reading the nominal stance position for the actual foot
+						Eigen::Vector3d stance;
+						if (yaml_reader_.read(stance, *pnom_stance, leg_name)) {
+							unsigned int leg_id = it->first;
 							stance(2) = estimated_ground_from_body_;
 							nominal_stance_[leg_id] = stance;
 						} else
@@ -133,14 +124,12 @@ void Robot::read(std::string filepath)
 									leg_name.c_str());
 					}
 
-					if (const YAML::Node* pleg_offset = nom_stance.FindValue("lateral_offset"))
-						yaml_reader_.read(*pleg_offset, leg_lateral_offset_);
-					else
+					// Reading the lateral offset
+					if (!yaml_reader_.read(leg_lateral_offset_, *pnom_stance, "lateral_offset"))
 						printf(YELLOW "Warning: the lateral offset was not read\n" COLOR_RESET);
 
-					if (const YAML::Node* pdisplacement = nom_stance.FindValue("displacement"))
-						yaml_reader_.read(*pdisplacement, displacement_);
-					else
+					// Reading the frontal displacement
+					if (!yaml_reader_.read(displacement_, *pnom_stance, "displacement"))
 						printf(YELLOW "Warning: the displacement was not read\n" COLOR_RESET);
 				} else
 					printf(YELLOW "Warning: the nominal stance description was not read\n" COLOR_RESET);
@@ -148,17 +137,14 @@ void Robot::read(std::string filepath)
 
 				// Reading the footstep search window
 				if (const YAML::Node* pfootstep_area = properties.FindValue("footstep_search_window")) {
-					const YAML::Node& footstep_area = *pfootstep_area;
-
 					for (EndEffectorMap::iterator it = feet_.begin(); it != feet_.end(); ++it) {
 						std::string leg_name = it->second;
 
-						if (const YAML::Node* pfootstep = footstep_area.FindValue(leg_name)) {
+						// Reading the search window for the actual foot
+						SearchArea search_area;
+						if (yaml_reader_.read(search_area, *pfootstep_area, leg_name)) {
 							unsigned int leg_id = it->first;
-
-							SearchArea footstep_area;
-							yaml_reader_.read(*pfootstep, footstep_area);
-							footstep_window_[leg_id] = footstep_area;
+							footstep_window_[leg_id] = search_area;
 						} else
 							printf(YELLOW "Warning: the footstep search window of %s leg was not read\n"
 									COLOR_RESET, leg_name.c_str());
@@ -169,18 +155,14 @@ void Robot::read(std::string filepath)
 
 				// Reading the leg work window
 				if (const YAML::Node* pleg_area = properties.FindValue("leg_workspace")) {
-					const YAML::Node& leg_area = *pleg_area;
-
 					for (EndEffectorMap::iterator it = feet_.begin(); it != feet_.end(); ++it) {
 						std::string leg_name = it->second;
 
-						if (const YAML::Node* pleg = leg_area.FindValue(leg_name)) {
+						// Reading the work window for the actual foot
+						SearchArea work_area;
+						if (yaml_reader_.read(work_area, *pleg_area, leg_name)) {
 							unsigned int leg_id = it->first;
-
-							SearchArea leg_area;
-							yaml_reader_.read(*pleg, leg_area);
-
-							leg_workspaces_[leg_id] = leg_area;
+							leg_workspaces_[leg_id] = work_area;
 						} else
 							printf(YELLOW "Warning: the workspace of %s leg was not read\n" COLOR_RESET,
 									leg_name.c_str());
@@ -189,9 +171,7 @@ void Robot::read(std::string filepath)
 					printf(YELLOW "Warning: the leg workspace description was not read\n" COLOR_RESET);
 
 				// Reading the body work window
-				if (const YAML::Node* pbody_area = properties.FindValue("body_workspace")) {
-					yaml_reader_.read(*pbody_area, body_workspace_);
-				} else
+				if (!yaml_reader_.read(body_workspace_, *pproperties, "body_workspace"))
 					printf(YELLOW "Warning: the body workspace description was not read\n" COLOR_RESET);
 			} else
 				printf(YELLOW "Warning: the predefined properties was not read\n" COLOR_RESET);
