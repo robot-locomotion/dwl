@@ -33,6 +33,12 @@ class OptimizationSolver
 		void setOptimizationModel(model::OptimizationModel* model);
 
 		/**
+		 * @brief Set the configuration parameters from a yaml file
+		 * @param std::string Filename
+		 */
+		virtual void setFromConfigFile(std::string filename) {}
+
+		/**
 		 * @brief Abstract method for initialization of the solver
 		 * @return True if was initialized
 		 */
