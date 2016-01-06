@@ -76,11 +76,48 @@ void cmaesSOFamily::setAlgorithm(enum CMAESAlgorithms alg)
 
 bool cmaesSOFamily::init()
 {
-	int dim = 4; // problem dimensions.
-	std::vector<double> x0(dim,10.0);
+	// Initializing the optimization model
+	model_->init(true);
+
+	// Resizing the warm point dimension and getting the warm point
+	unsigned int state_dim = model_->getDimensionOfState();
+	warm_point_.resize(state_dim);
+	model_->getStartingPoint(warm_point_);
+
+	// Converting the warm point to std::vector
+	std::vector<double> x0(state_dim);
+	for (unsigned int i = 0; i < state_dim; i++)
+		x0[i] = warm_point_(i);
+
+	// Safety checking of hard-constraints
+	unsigned int constraint_dim = model_->getDimensionOfConstraints();
+	if (constraint_dim > 0)
+		printf(YELLOW "The hard constraint will not consider in the optimization problem."
+				COLOR_RESET);
+
+	// Getting the bounds of the optimization problem
+	// Eigen interfacing to raw buffers
+	double x_l[state_dim], x_u[state_dim];
+	double g_l[constraint_dim], g_u[constraint_dim];
+	Eigen::Map<Eigen::VectorXd> state_lower_bound(x_l, state_dim);
+	Eigen::Map<Eigen::VectorXd> state_upper_bound(x_u, state_dim);
+	Eigen::Map<Eigen::VectorXd> constraint_lower_bound(g_l, constraint_dim);
+	Eigen::Map<Eigen::VectorXd> constraint_upper_bound(g_u, constraint_dim);
+
+	// Evaluating the bounds. Note that CMA-ES cannot handle hard constraints
+	model_->evaluateBounds(state_lower_bound, state_upper_bound,
+						   constraint_lower_bound, constraint_upper_bound);
+
+	// Defining the associated bound of the genotype and phenotype
+	libcmaes::GenoPheno<libcmaes::pwqBoundStrategy> gp(x_l, x_u, state_dim);
+
+
+
 	double sigma = 0.1;
 	//int lambda = 100; // offsprings at each generation.
-	cmaes_params_ = new libcmaes::CMAParameters<>(x0,sigma);
+	cmaes_params_ = // -1 for automatically decided lambda, 0 is for random seeding of the internal generator.
+			new libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy>>(x0, sigma,
+																						 -1, 0, gp);
 
 	double max_iter = 100;
 	cmaes_params_->set_max_iter(max_iter);
@@ -98,21 +135,11 @@ bool cmaesSOFamily::init()
 	cmaes_params_->set_elitism(elitist);
 
 
-	// Initializing the optimization model
-	model_->init();
+
 
 	// Wrapping the fitness function
 	using namespace std::placeholders;
-	libcmaes::FitFunc fitness = std::bind(&cmaesSOFamily::fitnessFunction, this, _1, _2);
-
-	// Defining all the constraints as soft constraints
-	allAsSoftConstraints();
-
-	// Computing the solution
-	libcmaes::CMASolutions cmasols = libcmaes::cmaes<>(fitness, *cmaes_params_);
-	std::cout << "best solution: " << cmasols << std::endl;
-	std::cout << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
-	return cmasols.run_status();
+	fitness_ = std::bind(&cmaesSOFamily::fitnessFunction, this, _1, _2);
 
 	return true;
 }
@@ -120,6 +147,16 @@ bool cmaesSOFamily::init()
 
 bool cmaesSOFamily::compute(double allocated_time_secs)
 {
+	// Setting the warm-point
+	model_->getStartingPoint(warm_point_);
+	cmaes_params_->set_x0(warm_point_);
+
+	// Computing the solution
+	libcmaes::CMASolutions cmasols = libcmaes::cmaes<>(fitness_, *cmaes_params_);
+	std::cout << "best solution: " << cmasols << std::endl;
+	std::cout << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
+	return cmasols.run_status();
+
 	return true;
 }
 
@@ -135,18 +172,6 @@ double cmaesSOFamily::fitnessFunction(const double* x,
 	model_->evaluateCosts(obj_value, decision_var);
 
 	return obj_value;
-}
-
-
-void cmaesSOFamily::allAsSoftConstraints()
-{
-	// Defining the dynamical system constraint as soft
-//	model_.getDynamicalSystem()->defineAsSoftConstraint();
-
-	// Defining the all constraints as soft
-//	unsigned int num_constraints = model_.getConstraints().size();
-//	for (unsigned int i = 0; i < num_constraints; i++)
-//		model_.getConstraints()[i]->defineAsSoftConstraint();
 }
 
 } //@namespace solver
