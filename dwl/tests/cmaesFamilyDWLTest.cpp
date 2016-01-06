@@ -27,6 +27,7 @@ int main(int argc, char **argv)
 	}
 
 	solver->init();
+	solver->setFromConfigFile("../config/cmaes_config.yaml");
 	solver->compute();
 
 	return 0;

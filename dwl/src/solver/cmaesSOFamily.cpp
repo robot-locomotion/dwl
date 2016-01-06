@@ -19,7 +19,51 @@ cmaesSOFamily::~cmaesSOFamily()
 }
 
 
-void cmaesSOFamily::setAlgorithm(enum CMAESAlgorithms alg)
+void cmaesSOFamily::setFromConfigFile(std::string filename)
+{
+	std::ifstream fin(filename.c_str());
+
+	// Yaml reader
+	dwl::YamlWrapper yaml_reader;
+
+	// Parsing the configuration file
+	YAML::Parser parser(fin);
+	YAML::Node doc;
+	parser.GetNextDocument(doc);
+	for (YAML::Iterator it = doc.begin(); it != doc.end(); ++it) {
+		// Reading the cmaes namespace
+		std::string file_ns;
+		it.first() >> file_ns;
+		printf("Reading the configuration parameters from the %s namespace\n", file_ns.c_str());
+
+		// Getting the cmaes namespace
+		const YAML::Node& cmaes_ns = *doc.FindValue(file_ns);
+
+		// Reading and setting up the type of family
+		int family;
+		if (yaml_reader.read(family, cmaes_ns, "family"))
+			setFamily(CMAESFamily(family));
+
+		// Reading and setting up the allowed number of iteration
+		int max_iter;
+		if (yaml_reader.read(max_iter, cmaes_ns, "max_iter"))
+			setAllowedNumberofIterations(max_iter);
+
+		// Reading and setting up the allowed number of function evaluations
+		int max_fevals;
+		if (yaml_reader.read(max_fevals, cmaes_ns, "max_fevals"))
+			setAllowedNumberOfFunctionEvalutions(max_fevals);
+
+		// Reading and setting up the type of elitism
+		int elitism;
+		if (yaml_reader.read(elitism, cmaes_ns, "elitism"))
+			setElitism(elitism);
+	}
+
+}
+
+
+void cmaesSOFamily::setFamily(enum CMAESFamily alg)
 {
 	switch (alg) {
 		case CMAES:
@@ -71,6 +115,24 @@ void cmaesSOFamily::setAlgorithm(enum CMAESAlgorithms alg)
 			cmaes_params_->set_algo(CMAES);
 			break;
 	}
+}
+
+
+void cmaesSOFamily::setAllowedNumberofIterations(unsigned int max_iter)
+{
+	cmaes_params_->set_max_iter(max_iter);
+}
+
+
+void cmaesSOFamily::setAllowedNumberOfFunctionEvalutions(unsigned int max_fevals)
+{
+	cmaes_params_->set_max_fevals(max_fevals);
+}
+
+
+void cmaesSOFamily::setElitism(unsigned int elitism)
+{
+	cmaes_params_->set_elitism(elitism);
 }
 
 

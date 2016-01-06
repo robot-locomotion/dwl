@@ -1,0 +1,29 @@
+cmaes:
+  # Type of families
+  #   0 -> IPOP
+  #   1 -> BIPOP
+  #   2 -> ACMAES
+  #   3 -> AIPOP
+  #   4 -> ABIPOP
+  #   5 -> SEPCMAES
+  #   6 -> SEPIPOP
+  #   7 -> SEPBIPOP
+  #   8 -> SEPACMAES
+  #   9 -> SEPAIPOP
+  #  10 -> SEPABIPOP
+  #  11 -> VDCMA
+  #  12 -> VDIPOPCMA
+  #  13 -> VDBIPOPCMA
+  family: 0
+  # Allowed number of iteration
+  max_iter: 100
+  # Allowed number of function evaluations 
+  max_fevals: 1000
+  # Type of elitism
+  #   0 -> no elitism
+  #   1 -> elitism: reinjects the best-ever seen solution
+  #   2 -> initial elitism: reinject x0 as long as it is not improved upon
+  #   3 -> initial elitism on restart: restart if best encountered solution is not the
+  #        the final solution and reinjects the best solution until the population
+  #        has better fitness, in its majority
+  elitism: 0
