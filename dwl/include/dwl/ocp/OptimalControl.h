@@ -31,7 +31,7 @@ class OptimalControl : public model::OptimizationModel
 
 		/** @brief Initializes the optimization model, i.e. the dimensions of the optimization
 		 * vectors */
-		void init();
+		void init(bool only_soft_constraints);
 
 		/**
 		 * @brief Sets the initial trajectory

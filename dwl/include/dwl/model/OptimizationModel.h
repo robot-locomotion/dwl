@@ -94,7 +94,7 @@ class OptimizationModel
 
 		/** @brief Initializes the optimization model, i.e. the dimensions of the optimization
 		 * vectors */
-		virtual void init() = 0;
+		virtual void init(bool only_soft_constraints = false) = 0;
 
 		/**
 		 * @brief Gets the starting point of the problem

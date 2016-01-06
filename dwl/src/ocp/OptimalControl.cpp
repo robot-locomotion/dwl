@@ -32,25 +32,33 @@ OptimalControl::~OptimalControl()
 }
 
 
-void OptimalControl::init()
+void OptimalControl::init(bool only_soft_constraints)
 {
 	// Reading the state dimension
 	state_dimension_ = dynamical_system_->getDimensionOfState();
 
 	// Initializing the constraint dimension
 	constraint_dimension_ = 0;
-	if (!dynamical_system_->isSoftConstraint())
-		constraint_dimension_ += dynamical_system_->getConstraintDimension();
-	if (is_added_constraint_) {
-		for (unsigned int i = 0; i < constraints_.size(); i++) {
-			if (!constraints_[i]->isSoftConstraint())
-				constraint_dimension_ += constraints_[i]->getConstraintDimension();
+	if (!only_soft_constraints) {
+		if (!dynamical_system_->isSoftConstraint())
+			constraint_dimension_ += dynamical_system_->getConstraintDimension();
+		if (is_added_constraint_) {
+			for (unsigned int i = 0; i < constraints_.size(); i++) {
+				if (!constraints_[i]->isSoftConstraint())
+					constraint_dimension_ += constraints_[i]->getConstraintDimension();
+			}
 		}
-	}
+		// Initializing the terminal constraint dimension
+		if (dynamical_system_->isFullTrajectoryOptimization())
+			terminal_constraint_dimension_ = dynamical_system_->getTerminalConstraintDimension();
+	} else { // Imposing all the constraint as soft
+		// Defining the dynamical system constraint as soft
+		dynamical_system_->defineAsSoftConstraint();
 
-	// Initializing the terminal constraint dimension
-	if (dynamical_system_->isFullTrajectoryOptimization())
-		terminal_constraint_dimension_ = dynamical_system_->getTerminalConstraintDimension();
+		// Defining the all constraints as soft
+		for (unsigned int i = 0; i < constraints_.size(); i++)
+			constraints_[i]->defineAsSoftConstraint();
+	}
 }
 
 
