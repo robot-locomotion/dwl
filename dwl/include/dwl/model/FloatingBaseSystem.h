@@ -195,6 +195,19 @@ class FloatingBaseSystem
 		unsigned int getFloatingBaseJointCoordinate(unsigned int id);
 
 		/**
+		 * @brief Gets the name of the floating-base body
+		 * @return Returns the name of the floating-base body
+		 */
+		const std::string& getFloatingBaseName();
+
+		/**
+		 * @brief Gets the joint id given the name
+		 * @param std::string Joint name
+		 * @return Returns the joint id
+		 */
+		unsigned int& getJointId(std::string joint_name);
+
+		/**
 		 * @brief Gets actuated joint information
 		 * @return const urdf_model::JointID& Joint names and Ids
 		 */
@@ -235,6 +248,13 @@ class FloatingBaseSystem
 		 * @return const unsigned int& Number of end-effectors
 		 */
 		const unsigned int& getNumberOfEndEffectors();
+
+		/**
+		 * @brief Gets the end-effector id given the name
+		 * @param std::string End-effector name
+		 * @return Returns the end-effector id
+		 */
+		unsigned int& getEndEffectorId(std::string contact_name);
 
 		/**
 		 * @brief Gets the end-effectors names
