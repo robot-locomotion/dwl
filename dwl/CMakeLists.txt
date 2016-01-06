@@ -196,9 +196,6 @@ endif()
 add_executable(yaml_bridge  tests/YamlWrapperTest.cpp)
 target_link_libraries(yaml_bridge ${PROJECT_NAME})
 
-add_executable(dikstrap_algorithm  tests/DijkstraExample.cpp)
-add_executable(boost_dikstrap_algorithm  tests/DijkstraExampleBoost.cpp)
-
 add_executable(numdiff  tests/NumDiffEigenTest.cpp)
 target_link_libraries(numdiff ${PROJECT_NAME})
 
