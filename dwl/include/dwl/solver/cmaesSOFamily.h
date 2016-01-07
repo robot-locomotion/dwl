@@ -27,9 +27,9 @@ class cmaesSOFamily : public OptimizationSolver
 		void setFromConfigFile(std::string filename);
 
 		void setFamily(enum CMAESFamily alg);
-		void setAllowedNumberofIterations(unsigned int max_iter);
-		void setAllowedNumberOfFunctionEvalutions(unsigned int max_fevals);
-		void setElitism(unsigned int elitism);
+		void setAllowedNumberofIterations(int max_iter);
+		void setAllowedNumberOfFunctionEvalutions(int max_fevals);
+		void setElitism(int elitism);
 
 		bool init();
 		bool compute(double allocated_time_secs);

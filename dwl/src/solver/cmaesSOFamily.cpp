@@ -118,19 +118,19 @@ void cmaesSOFamily::setFamily(enum CMAESFamily alg)
 }
 
 
-void cmaesSOFamily::setAllowedNumberofIterations(unsigned int max_iter)
+void cmaesSOFamily::setAllowedNumberofIterations(int max_iter)
 {
 	cmaes_params_->set_max_iter(max_iter);
 }
 
 
-void cmaesSOFamily::setAllowedNumberOfFunctionEvalutions(unsigned int max_fevals)
+void cmaesSOFamily::setAllowedNumberOfFunctionEvalutions(int max_fevals)
 {
 	cmaes_params_->set_max_fevals(max_fevals);
 }
 
 
-void cmaesSOFamily::setElitism(unsigned int elitism)
+void cmaesSOFamily::setElitism(int elitism)
 {
 	cmaes_params_->set_elitism(elitism);
 }
