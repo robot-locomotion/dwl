@@ -23,6 +23,12 @@ class IpoptNLP : public OptimizationSolver
 		~IpoptNLP();
 
 		/**
+		 * @brief Set the ipopt configuration parameters from a yaml file
+		 * @param std::string Filename
+		 */
+		void setFromConfigFile(std::string filename);
+
+		/**
 		 * @brief Initialization of the NLP solver using Ipopt
 		 * @return True if was initialized
 		 */

@@ -19,6 +19,7 @@ int main(int argc, char **argv)
 	optimal_control.addCost(cost);
 
 	solver->init();
+	solver->setFromConfigFile("../config/ipopt_config.yaml");
 	solver->compute();
 
 	return 0;

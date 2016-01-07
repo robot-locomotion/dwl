@@ -2,6 +2,7 @@
 #define DWL__SOLVER__OPTIMIZATION_SOLVER__H
 
 #include <dwl/model/OptimizationModel.h>
+#include <dwl/utils/YamlWrapper.h>
 #include <dwl/utils/utils.h>
 
 
