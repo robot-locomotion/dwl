@@ -265,6 +265,13 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 }
 
 
+const unsigned int& PreviewLocomotion::getControlDimension()
+{
+	int num_phases = 8;
+	return 5 * num_phases + 2 * system_.getNumberOfEndEffectors(); // TODO from a defined schedule
+}
+
+
 void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 										 const PreviewState& preview_state)
 {

@@ -154,6 +154,9 @@ class PreviewLocomotion
 							 const PreviewState& state,
 							 const PreviewParams& control);
 
+		/** @brief Returns the control dimension of the preview schedule */
+		const unsigned int& getControlDimension();
+
 		/**
 		 * @brief Converts the preview state vector to whole-body state
 		 * @param WholeBodyState& Whole-body state
