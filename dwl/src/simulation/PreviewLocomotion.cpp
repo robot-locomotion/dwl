@@ -71,7 +71,7 @@ void PreviewLocomotion::setForceThreshold(double force_threshold)
 
 void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 										  const PreviewState& state,
-										  const MultiPhasePreviewControl& control)
+										  const PreviewControl& control)
 {
 	// Getting the number of phases
 	unsigned int num_phases = control.size();
@@ -80,7 +80,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 	for (unsigned int i = 0; i < num_phases; i++) {
 		PreviewTrajectory phase_traj;
 
-		PreviewControl actual_control = control[i];
+		PreviewParams actual_control = control[i];
 		// Getting the actual preview state for this phase
 		PreviewState actual_state;
 		if (i == 0)
@@ -100,7 +100,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 
 void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 									  const PreviewState& state,
-									  const PreviewControl& control)
+									  const PreviewParams& control)
 {
 	// Computing the coefficients of the Spring Loaded Inverted Pendulum (SLIP) response
 	double slip_omega = sqrt(gravity_ / slip_.height);
@@ -166,7 +166,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 						   	   	   	  const PreviewState& state,
-									  const PreviewControl& control)
+									  const PreviewParams& control)
 {
 	// Setting the gravity vector
 	Eigen::Vector3d gravity_vec = Eigen::Vector3d::Zero();
@@ -197,7 +197,7 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 
 void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 										const PreviewState& state,
-										const PreviewControl& control)
+										const PreviewParams& control)
 {
 	// Getting the actual time and sample time
 	double sample_time = trajectory[1].time - trajectory[0].time;

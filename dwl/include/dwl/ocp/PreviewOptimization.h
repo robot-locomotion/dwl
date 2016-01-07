@@ -33,10 +33,10 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/**
 		 * @brief Sets the initial sequence of preview control parameters
-		 * @param const simulation::MultiPhasePreviewControl& Initial sequence of preview
+		 * @param const simulation::PreviewControl& Initial sequence of preview
 		 * control parameters
 		 */
-		void setStartingPreviewControl(const simulation::MultiPhasePreviewControl& control);
+		void setStartingPreviewControl(const simulation::PreviewControl& control);
 
 		/**
 		 * @brief Gets the starting point of the problem
@@ -77,6 +77,10 @@ class PreviewOptimization : public model::OptimizationModel
 		 * @return WholeBodyTrajectory& Returns the whole-body trajectory solution
 		 */
 		WholeBodyTrajectory& evaluateSolution(const Eigen::Ref<const Eigen::VectorXd>& solution);
+
+
+	private:
+		simulation::PreviewLocomotion preview_;
 };
 
 } //@namespace ocp

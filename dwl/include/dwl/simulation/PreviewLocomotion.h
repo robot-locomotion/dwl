@@ -36,7 +36,7 @@ struct PreviewState
 	rbd::BodyVector foot_acc;
 };
 
-struct PreviewControl
+struct PreviewParams
 {
 	double duration;
 	Eigen::Vector2d terminal_cop;
@@ -46,7 +46,7 @@ struct PreviewControl
 };
 
 typedef std::vector<PreviewState> PreviewTrajectory;
-typedef std::vector<PreviewControl> MultiPhasePreviewControl;
+typedef std::vector<PreviewParams> PreviewControl;
 
 struct SLIPModel
 {
@@ -118,7 +118,7 @@ class PreviewLocomotion
 
 		void multiPhasePreview(PreviewTrajectory& trajectory,
 							   const PreviewState& state,
-							   const MultiPhasePreviewControl& control);
+							   const PreviewControl& control);
 
 		/**
 		 * @brief Computes the preview of the stance-phase given the stance parameters
@@ -126,11 +126,11 @@ class PreviewLocomotion
 		 * assuming that the Center of Pressure (CoP) and the pendulum length are linearly controlled
 		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
 		 * @param const PreviewState& Initial low-dimensional state
-		 * @param const PreviewControl& Preview control parameters
+		 * @param const PreviewParams& Preview control parameters
 		 */
 		void stancePreview(PreviewTrajectory& trajectory,
 						   const PreviewState& state,
-						   const PreviewControl& control);
+						   const PreviewParams& control);
 
 		/**
 		 * @brief Computes the preview of the flight-phase given the duration of the phase
@@ -138,21 +138,21 @@ class PreviewLocomotion
 		 * the non-changes in the angular momentum
 		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
 		 * @param const PreviewState& Initial low-dimensional state
-		 * @param const PreviewControl& Preview control parameters
+		 * @param const PreviewParams& Preview control parameters
 		 */
 		void flightPreview(PreviewTrajectory& trajectory,
 				   	   	   const PreviewState& state,
-						   const PreviewControl& control);
+						   const PreviewParams& control);
 
 		/**
 		 * @brief Computes the swing trajectory of the contact
 		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
 		 * @param const PreviewState& Initial low-dimensional state
-		 * @param const PreviewControl& Preview control parameters
+		 * @param const PreviewParams& Preview control parameters
 		 */
 		void addSwingPattern(PreviewTrajectory& trajectory,
 							 const PreviewState& state,
-							 const PreviewControl& control);
+							 const PreviewParams& control);
 
 		/**
 		 * @brief Converts the preview state vector to whole-body state
