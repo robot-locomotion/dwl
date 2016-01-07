@@ -36,7 +36,7 @@ class OptimizationSolver
 		 * @brief Set the configuration parameters from a yaml file
 		 * @param std::string Filename
 		 */
-		virtual void setFromConfigFile(std::string filename) {}
+		virtual void setFromConfigFile(std::string filename);
 
 		/**
 		 * @brief Abstract method for initialization of the solver
