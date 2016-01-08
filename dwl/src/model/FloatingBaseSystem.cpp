@@ -11,7 +11,7 @@ FloatingBaseSystem::FloatingBaseSystem(bool full, unsigned int _num_joints) : nu
 		num_floating_joints_(6 * full), num_joints_(_num_joints),
 		floating_ax_(full), floating_ay_(full), floating_az_(full),
 		floating_lx_(full), floating_ly_(full), floating_lz_(full),
-		type_of_system_(FixedBase), num_end_effectors_(0)
+		type_of_system_(FixedBase), num_end_effectors_(0) , num_feet_(0)
 {
 
 }
@@ -133,6 +133,13 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 
 	// Defining the number of end-effectors
 	num_end_effectors_ = end_effectors_.size();
+
+	if (num_feet_ == 0) {
+		printf(YELLOW "Warning: setting up all the end-effectors are feet\n" COLOR_RESET);
+		num_feet_ = num_end_effectors_;
+		foot_names_ = end_effector_names_;
+		feet_ = end_effectors_;
+	}
 }
 
 
@@ -157,6 +164,9 @@ void FloatingBaseSystem::resetSystemDescription(std::string filename)
 
 		// Reading and setting up the foot names
 		if (yaml_reader.read(foot_names_, system_ns, "feet")) {
+			// Getting the number of foot
+			num_feet_ = foot_names_.size();
+
 			// Adding to the feet to the end-effector lists if it doesn't exist
 			for (unsigned int i = 0; i < foot_names_.size(); i++) {
 				std::string name = foot_names_[i];
@@ -422,9 +432,12 @@ enum TypeOfSystem FloatingBaseSystem::getTypeOfDynamicSystem()
 }
 
 
-const unsigned int& FloatingBaseSystem::getNumberOfEndEffectors()
+const unsigned int& FloatingBaseSystem::getNumberOfEndEffectors(enum TypeOfEndEffector type)
 {
-	return num_end_effectors_;
+	if (type == ALL)
+		return num_end_effectors_;
+	else
+		return num_feet_;
 }
 
 
@@ -434,9 +447,12 @@ unsigned int& FloatingBaseSystem::getEndEffectorId(std::string contact_name)
 }
 
 
-const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors()
+const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors(enum TypeOfEndEffector type)
 {
-	return end_effectors_;
+	if (type == ALL)
+		return end_effectors_;
+	else
+		return feet_;
 }
 
 

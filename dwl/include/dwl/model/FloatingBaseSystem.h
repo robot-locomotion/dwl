@@ -259,9 +259,10 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the number of end-effectors
+		 * @param enum TypeOfEndEffector Type of end-effector
 		 * @return const unsigned int& Number of end-effectors
 		 */
-		const unsigned int& getNumberOfEndEffectors();
+		const unsigned int& getNumberOfEndEffectors(enum TypeOfEndEffector type = ALL);
 
 		/**
 		 * @brief Gets the end-effector id given the name
@@ -274,7 +275,7 @@ class FloatingBaseSystem
 		 * @brief Gets the end-effectors names
 		 * @return const urdf_model::LinkID& Names and ids of the end-effectors
 		 */
-		const urdf_model::LinkID& getEndEffectors();
+		const urdf_model::LinkID& getEndEffectors(enum TypeOfEndEffector type = ALL);
 
 		/**
 		 * @brief Gets the end-effector names list
@@ -380,6 +381,9 @@ class FloatingBaseSystem
 		urdf_model::LinkID end_effectors_;
 		unsigned int num_end_effectors_;
 		rbd::BodySelector end_effector_names_;
+
+		urdf_model::LinkID feet_;
+		unsigned int num_feet_;
 		rbd::BodySelector foot_names_;
 };
 
