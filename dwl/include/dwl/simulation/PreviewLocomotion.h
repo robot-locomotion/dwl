@@ -94,14 +94,18 @@ class PreviewLocomotion
 		/**
 		 * @brief Resets the system information from an URDF file
 		 * @param std::string URDF filename
+		 * @param std::string Semantic system description filename
 		 */
-		void resetFromURDFFile(std::string filename);
+		void resetFromURDFFile(std::string urdf_file,
+							   std::string system_file = std::string());
 
 		/**
 		 * @brief Resets the system information from URDF model
 		 * @param std::string URDF model
+		 * @param std::string Semantic system description filename
 		 */
-		void resetFromURDFModel(std::string urdf_model);
+		void resetFromURDFModel(std::string urdf_model,
+								std::string system_file = std::string());
 
 		/**
 		 * @brief Sets the sample time of the preview trajectory

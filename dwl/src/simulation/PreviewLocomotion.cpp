@@ -41,19 +41,21 @@ PreviewLocomotion::~PreviewLocomotion()
 }
 
 
-void PreviewLocomotion::resetFromURDFFile(std::string filename)
+void PreviewLocomotion::resetFromURDFFile(std::string urdf_file,
+										  std::string system_file)
 {
-	resetFromURDFFile(urdf_model::fileToXml(filename));
+	resetFromURDFFile(urdf_model::fileToXml(urdf_file), system_file);
 }
 
 
-void PreviewLocomotion::resetFromURDFModel(std::string urdf_model)
+void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
+										   std::string system_file)
 {
 	// Resetting the model of the floating-base system
-	system_.resetFromURDFModel(urdf_model);
+	system_.resetFromURDFModel(urdf_model, system_file);
 
 	// Initializing the dynamics from the URDF model
-	dynamics_.modelFromURDFModel(urdf_model);
+	dynamics_.modelFromURDFModel(urdf_model, system_file);
 
 	// Setting the gravity magnitude from the rigid-body dynamic model
 	gravity_ = system_.getRBDModel().gravity.norm();
@@ -344,7 +346,7 @@ unsigned int PreviewLocomotion::getControlDimension()
 	for (unsigned int k = 0; k < phases_; k++)
 		control_dim += getParamsDimension(k);
 
-	control_dim += 2 * system_.getNumberOfEndEffectors();
+	control_dim += 2 * system_.getNumberOfEndEffectors(model::FOOT);
 
 	return control_dim;
 }
