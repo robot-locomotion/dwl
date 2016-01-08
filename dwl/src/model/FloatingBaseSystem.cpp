@@ -157,12 +157,13 @@ void FloatingBaseSystem::resetSystemDescription(std::string filename)
 
 		// Reading and setting up the foot names
 		if (yaml_reader.read(foot_names_, system_ns, "feet")) {
-			// Adding to the end-effector map if it doesn't exist
+			// Adding to the feet to the end-effector lists if it doesn't exist
 			for (unsigned int i = 0; i < foot_names_.size(); i++) {
 				std::string name = foot_names_[i];
 				if (end_effectors_.count(name) == 0) {
 					unsigned int id = end_effectors_.size() + 1;
 					end_effectors_[name] = id;
+					end_effector_names_.push_back(name);
 				}
 			}
 		}
@@ -439,9 +440,12 @@ const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors()
 }
 
 
-const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames()
+const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames(enum TypeOfEndEffector type)
 {
-	return end_effector_names_;
+	if (type == ALL)
+		return end_effector_names_;
+	else
+		return foot_names_;
 }
 
 

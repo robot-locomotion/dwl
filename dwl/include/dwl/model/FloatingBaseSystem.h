@@ -38,6 +38,9 @@ struct Joint {
 	std::string name;
 };
 
+/** @brief Defines the type of end-effectors */
+enum TypeOfEndEffector {ALL, FOOT};
+
 /**
  * @class FloatingBaseSystem
  * @brief FloatingBaseSystem class read the floating-base system information from an URDF file.
@@ -275,9 +278,10 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the end-effector names list
+		 * @param enum TypeOfEndEffector Type of end-effector
 		 * @return const rbd::BodySelector& End-effector names list
 		 */
-		const rbd::BodySelector& getEndEffectorNames();
+		const rbd::BodySelector& getEndEffectorNames(enum TypeOfEndEffector type = ALL);
 
 		/** @brief Returns true if the system has fully floating-base */
 		bool isFullyFloatingBase();
