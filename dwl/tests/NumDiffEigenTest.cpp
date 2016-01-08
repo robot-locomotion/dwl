@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 	dwl::ocp::DynamicalSystem* dynamical_system = constrained_system;
 //		new dwl::model::FullDynamicalSystem();
 //		new dwl::model::HS071DynamicalSystem();
-	dynamical_system->modelFromURDFFile(model_file, true);
+	dynamical_system->modelFromURDFFile(model_file);
 
 	opt_ctrl.addDynamicalSystem(dynamical_system);
 

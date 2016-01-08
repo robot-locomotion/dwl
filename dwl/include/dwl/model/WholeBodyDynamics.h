@@ -28,17 +28,21 @@ class WholeBodyDynamics
 		/**
 		 * @brief Builds the model rigid-body system from an URDF file
 		 * @param std::string URDF filename
+		 * @param std::string Semantic system description filename
 		 * @param Print model information
 		 */
-		void modelFromURDFFile(std::string filename,
+		void modelFromURDFFile(std::string urdf_file,
+							   std::string system_file = std::string(),
 							   bool info = false);
 
 		/**
 		 * @brief Builds the model rigid-body system from an URDF model (xml)
 		 * @param std::string URDF model
+		 * @param std::string Semantic system description filename
 		 * @param Print model information
 		 */
 		void modelFromURDFModel(std::string urdf_model,
+								std::string system_file = std::string(),
 								bool info = false);
 
 		/**
