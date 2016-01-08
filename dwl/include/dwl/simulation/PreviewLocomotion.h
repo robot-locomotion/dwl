@@ -42,11 +42,23 @@ struct PreviewParams
 	Eigen::Vector2d terminal_cop;
 	double terminal_length;
 	double head_acc;
-	rbd::BodyVector foot_target;
+};
+
+struct SwingParams
+{
+	double duration;
+	rbd::BodyVector footholds;
+};
+
+struct PreviewControl
+{
+	std::vector<PreviewParams> base;
+	rbd::BodyVector footholds;
 };
 
 typedef std::vector<PreviewState> PreviewTrajectory;
-typedef std::vector<PreviewParams> PreviewControl;
+
+enum TypeOfPhases {STANCE, FLIGHT};
 
 struct SLIPModel
 {
@@ -130,7 +142,7 @@ class PreviewLocomotion
 		 */
 		void stancePreview(PreviewTrajectory& trajectory,
 						   const PreviewState& state,
-						   const PreviewParams& control);
+						   const PreviewParams& params);
 
 		/**
 		 * @brief Computes the preview of the flight-phase given the duration of the phase
@@ -142,20 +154,28 @@ class PreviewLocomotion
 		 */
 		void flightPreview(PreviewTrajectory& trajectory,
 				   	   	   const PreviewState& state,
-						   const PreviewParams& control);
+						   const PreviewParams& params);
 
 		/**
 		 * @brief Computes the swing trajectory of the contact
 		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
 		 * @param const PreviewState& Initial low-dimensional state
-		 * @param const PreviewParams& Preview control parameters
+		 * @param const SwingParams& Preview control parameters
 		 */
 		void addSwingPattern(PreviewTrajectory& trajectory,
 							 const PreviewState& state,
-							 const PreviewParams& control);
+							 const SwingParams& params);
 
 		/** @brief Returns the control dimension of the preview schedule */
-		const unsigned int& getControlDimension();
+		unsigned int getControlDimension();
+
+		/**
+		 * @brief Converts the generalized control vector to preview control
+		 * @param PreviewControl& Preview control
+		 * @param const Eigen::VectorXd& Generalized control vector
+		 */
+		void toPreviewControl(PreviewControl& preview_control,
+							  const Eigen::VectorXd& generalized_control);
 
 		/**
 		 * @brief Converts the preview state vector to whole-body state
@@ -183,6 +203,13 @@ class PreviewLocomotion
 
 
 	private:
+		/**
+		 * @brief Gets the control dimension of the preview schedule
+		 * @param const unsigned int& Phase index
+		 * @return Returns the control dimension of the preview schedule
+		 */
+		unsigned int getParamsDimension(const unsigned int& phase);
+
 		/** @brief Foot pattern generator */
 		simulation::FootSplinePatternGenerator foot_pattern_generator_;
 
@@ -212,6 +239,11 @@ class PreviewLocomotion
 
 		/** @brief Force threshold */
 		double force_threshold_;
+
+		/** @brief Number of phases of the schedule */
+		unsigned int phases_;
+
+		std::vector<TypeOfPhases> schedule_;
 };
 
 } //@namespace simulation
