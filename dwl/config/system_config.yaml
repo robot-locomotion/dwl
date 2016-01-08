@@ -1,2 +1,3 @@
 hyq:
+  # Names of the feet
   feet: [lf_foot, rf_foot, lh_foot, rf_foot]

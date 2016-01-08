@@ -120,7 +120,6 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 
 	// Getting the end-effectors information
 	urdf_model::getEndEffectors(end_effectors_, urdf_model);
-	num_end_effectors_ = end_effectors_.size();
 
 	// Getting the end-effector name list
 	for (dwl::urdf_model::LinkID::const_iterator ee_it = end_effectors_.begin();
@@ -131,6 +130,9 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 
 	// Resetting the system description
 	resetSystemDescription(system_file);
+
+	// Defining the number of end-effectors
+	num_end_effectors_ = end_effectors_.size();
 }
 
 
