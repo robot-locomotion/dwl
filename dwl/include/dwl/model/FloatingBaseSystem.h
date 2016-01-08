@@ -6,6 +6,7 @@
 #include <dwl/utils/RigidBodyDynamics.h>
 #include <dwl/utils/URDF.h>
 #include <dwl/utils/Math.h>
+#include <dwl/utils/YamlWrapper.h>
 #include <fstream>
 
 
@@ -55,14 +56,24 @@ class FloatingBaseSystem
 		/**
 		 * @brief Resets the system information from an URDF file
 		 * @param std::string URDF filename
+		 * @param std::string Semantic system description filename
 		 */
-		void resetFromURDFFile(std::string filename);
+		void resetFromURDFFile(std::string urdf_file,
+							   std::string system_file = std::string());
 
 		/**
 		 * @brief Resets the system information from URDF model
 		 * @param std::string URDF model
+		 * @param std::string Semantic system description filename
 		 */
-		void resetFromURDFModel(std::string urdf_model);
+		void resetFromURDFModel(std::string urdf_model,
+								std::string system_file = std::string());
+
+		/**
+		 * @brief Resets the system sematic description from yaml file
+		 * @param std::string Semantic system description filename
+		 */
+		void resetSystemDescription(std::string filename);
 
 		/**
 		 * @brief Sets the 6d floating-base joint information
@@ -335,6 +346,9 @@ class FloatingBaseSystem
 		RigidBodyDynamics::Math::Vector3d com_system_;
 		RigidBodyDynamics::Math::Vector3d comd_system_;
 
+		/** @brief System name */
+		std::string system_name_;
+
 		/** @brief Number of DoFs */
 		unsigned int num_system_joints_;
 		unsigned int num_floating_joints_;
@@ -362,6 +376,7 @@ class FloatingBaseSystem
 		urdf_model::LinkID end_effectors_;
 		unsigned int num_end_effectors_;
 		rbd::BodySelector end_effector_names_;
+		rbd::BodySelector foot_names_;
 };
 
 } //@namespace

@@ -23,13 +23,15 @@ FloatingBaseSystem::~FloatingBaseSystem()
 }
 
 
-void FloatingBaseSystem::resetFromURDFFile(std::string filename)
+void FloatingBaseSystem::resetFromURDFFile(std::string urdf_file,
+										   std::string system_file)
 {
-	resetFromURDFModel(urdf_model::fileToXml(filename));
+	resetFromURDFModel(urdf_model::fileToXml(urdf_file), system_file);
 }
 
 
-void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
+void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
+											std::string system_file)
 {
 	// Getting the RBDL model from URDF model
 	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &rbd_model_, false);
@@ -125,6 +127,43 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 			ee_it != end_effectors_.end(); ee_it++) {
 		std::string name = ee_it->first;
 		end_effector_names_.push_back(name);
+	}
+
+	// Resetting the system description
+	resetSystemDescription(system_file);
+}
+
+
+void FloatingBaseSystem::resetSystemDescription(std::string filename)
+{
+	std::ifstream fin(filename.c_str());
+
+	// Yaml reader
+	dwl::YamlWrapper yaml_reader;
+
+	// Parsing the configuration file
+	YAML::Parser parser(fin);
+	YAML::Node doc;
+	parser.GetNextDocument(doc);
+	for (YAML::Iterator it = doc.begin(); it != doc.end(); ++it) {
+		// Reading the robot namespace
+		it.first() >> system_name_;
+		printf("Reading the configuration parameters of the %s \n", system_name_.c_str());
+
+		// Getting the system namespace
+		const YAML::Node& system_ns = *doc.FindValue(system_name_);
+
+		// Reading and setting up the foot names
+		if (yaml_reader.read(foot_names_, system_ns, "feet")) {
+			// Adding to the end-effector map if it doesn't exist
+			for (unsigned int i = 0; i < foot_names_.size(); i++) {
+				std::string name = foot_names_[i];
+				if (end_effectors_.count(name) == 0) {
+					unsigned int id = end_effectors_.size() + 1;
+					end_effectors_[name] = id;
+				}
+			}
+		}
 	}
 }
 
