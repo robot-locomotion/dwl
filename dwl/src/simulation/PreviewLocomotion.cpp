@@ -8,30 +8,9 @@ namespace simulation
 {
 
 PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.),
-		step_height_(0.1), force_threshold_(0.), phases_(12)
+		step_height_(0.1), force_threshold_(0.), phases_(0), set_schedule_(false)
 {
 	actual_system_com_.setZero();
-
-	schedule_.push_back(STANCE);
-	schedule_.push_back(STANCE);
-	schedule_.push_back(STANCE);
-	schedule_.push_back(FLIGHT);
-
-	schedule_.push_back(STANCE);
-	schedule_.push_back(STANCE);
-	schedule_.push_back(STANCE);
-	schedule_.push_back(FLIGHT);
-
-	schedule_.push_back(STANCE);
-	schedule_.push_back(STANCE);
-	schedule_.push_back(STANCE);
-	schedule_.push_back(FLIGHT);
-
-	schedule_.push_back(STANCE);
-	schedule_.push_back(STANCE);
-	schedule_.push_back(STANCE);
-	schedule_.push_back(FLIGHT);
-	phases_ = schedule_.size();
 }
 
 
@@ -92,10 +71,25 @@ void PreviewLocomotion::setForceThreshold(double force_threshold)
 }
 
 
+void PreviewLocomotion::setSchedule(const PreviewSchedule& schedule)
+{
+	// Setting the schedule and the number of phases
+	schedule_ = schedule;
+	phases_ = schedule_.size();
+
+	set_schedule_ = true;
+}
+
+
 void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 										  const PreviewState& state,
 										  const PreviewControl& control)
 {
+	if (!set_schedule_) {
+		printf(RED "Error: there is not defined the preview schedule \n" COLOR_RESET);
+		return;
+	}
+
 	// TODO: set the swing parameters in the right way (using duration of stance phases
 	SwingParams swing_params;
 
@@ -297,6 +291,11 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 
 unsigned int PreviewLocomotion::getControlDimension()
 {
+	if (!set_schedule_) {
+		printf(RED "Error: there is not defined the preview schedule \n" COLOR_RESET);
+		return 0;
+	}
+
 	unsigned int control_dim = 0;
 	for (unsigned int k = 0; k < phases_; k++)
 		control_dim += getParamsDimension(k);
@@ -304,6 +303,13 @@ unsigned int PreviewLocomotion::getControlDimension()
 	control_dim += 2 * system_.getNumberOfEndEffectors(model::FOOT);
 
 	return control_dim;
+}
+
+
+
+const TypeOfPhases& PreviewLocomotion::getPhaseType(const unsigned int& phase)
+{
+	return schedule_[phase];
 }
 
 
@@ -343,8 +349,8 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 	}
 
 	// Adding the foothold target positions o the preview control
-	rbd::BodySelector legs = system_.getEndEffectorNames();
-	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(); i++) {
+	rbd::BodySelector legs = system_.getEndEffectorNames(model::FOOT);
+	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(model::FOOT); i++) {
 		std::string leg_name = legs[i];
 		Eigen::VectorXd foothold = generalized_control.segment<2>(actual_idx);
 		preview_control.footholds[leg_name] = foothold;
@@ -445,6 +451,11 @@ void PreviewLocomotion::toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
 
 unsigned int PreviewLocomotion::getParamsDimension(const unsigned int& phase)
 {
+	if (!set_schedule_) {
+		printf(RED "Error: there is not defined the preview schedule \n" COLOR_RESET);
+		return 0;
+	}
+
 	unsigned int phase_dim = 0;
 	switch (schedule_[phase]) {
 		case STANCE:
