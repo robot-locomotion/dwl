@@ -84,6 +84,9 @@ class PreviewOptimization : public model::OptimizationModel
 		 */
 		WholeBodyTrajectory& evaluateSolution(const Eigen::Ref<const Eigen::VectorXd>& solution);
 
+		/** @brief Returns the preview system pointer */
+		simulation::PreviewLocomotion* getPreviewSystem();
+
 
 	private:
 		double stepTimeCost(const simulation::PreviewControl& preview_control);
