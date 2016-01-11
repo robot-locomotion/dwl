@@ -295,6 +295,18 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 }
 
 
+unsigned int PreviewLocomotion::getControlDimension()
+{
+	unsigned int control_dim = 0;
+	for (unsigned int k = 0; k < phases_; k++)
+		control_dim += getParamsDimension(k);
+
+	control_dim += 2 * system_.getNumberOfEndEffectors(model::FOOT);
+
+	return control_dim;
+}
+
+
 void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 										 const Eigen::VectorXd& generalized_control)
 {
@@ -337,18 +349,6 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 		Eigen::VectorXd foothold = generalized_control.segment<2>(actual_idx);
 		preview_control.footholds[leg_name] = foothold;
 	}
-}
-
-
-unsigned int PreviewLocomotion::getControlDimension()
-{
-	unsigned int control_dim = 0;
-	for (unsigned int k = 0; k < phases_; k++)
-		control_dim += getParamsDimension(k);
-
-	control_dim += 2 * system_.getNumberOfEndEffectors(model::FOOT);
-
-	return control_dim;
 }
 
 
