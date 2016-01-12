@@ -217,6 +217,11 @@ bool cmaesSOFamily::compute(double allocated_time_secs)
 	libcmaes::CMASolutions cmasols = libcmaes::cmaes<>(fitness_, *cmaes_params_);
 	std::cout << "best solution: " << cmasols << std::endl;
 	std::cout << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
+
+	// Evaluation of the solution
+	Eigen::VectorXd solution = cmaes_params_->get_gp().pheno(cmasols.best_candidate().get_x_dvec());
+	locomotion_trajectory_ = model_->evaluateSolution(solution);
+
 	return cmasols.run_status();
 
 	return true;
