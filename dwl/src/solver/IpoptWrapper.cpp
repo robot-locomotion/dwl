@@ -219,13 +219,13 @@ void IpoptWrapper::finalize_solution(Ipopt::SolverReturn status,
 	const Eigen::Map<const Eigen::VectorXd> solution(x, n);
 
 	// Evaluating the solution
-	locomotion_solution_ = opt_model_->evaluateSolution(solution);
+	solution_ = solution;
 }
 
 
-WholeBodyTrajectory& IpoptWrapper::getSolution()
+const Eigen::VectorXd& IpoptWrapper::getSolution()
 {
-	return locomotion_solution_;
+	return solution_;
 }
 
 } //@namespace solver

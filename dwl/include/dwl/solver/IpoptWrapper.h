@@ -181,9 +181,9 @@ class IpoptWrapper : public Ipopt::TNLP
 
 		/**
 		 * @brief Gets the solution of the optimizer
-		 * @return WholeBodyTrajectory Reference of the solution
+		 * @return const Eigen::VectorXd& Reference of the solution
 		 */
-		WholeBodyTrajectory& getSolution();
+		const Eigen::VectorXd& getSolution();
 
 
 	private:
@@ -201,8 +201,8 @@ class IpoptWrapper : public Ipopt::TNLP
 		/** @brief Optimizer's model which defines cost functions and constraints */
 		model::OptimizationModel* opt_model_;
 
-		/** @brief Whole-body solution */
-		WholeBodyTrajectory locomotion_solution_;
+		/** @brief Solution vector */
+		Eigen::VectorXd solution_;
 };
 
 } //@namespace solver
