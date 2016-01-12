@@ -56,9 +56,10 @@ struct PreviewControl
 	rbd::BodyVector footholds;
 };
 
-typedef std::vector<PreviewState> PreviewTrajectory;
-
 enum TypeOfPhases {STANCE, FLIGHT};
+typedef std::vector<PreviewState> PreviewTrajectory;
+typedef std::vector<TypeOfPhases> PreviewSchedule;
+
 
 struct SLIPModel
 {
@@ -131,6 +132,11 @@ class PreviewLocomotion
 		 */
 		void setForceThreshold(double force_threshold);
 
+		/**
+		 * @brief Sets the schedule, or the sequence of phases
+		 * @param const PreviewSchedule& Sequence of phases (schedule)
+		 */
+		void setSchedule(const PreviewSchedule& schedule);
 
 		void multiPhasePreview(PreviewTrajectory& trajectory,
 							   const PreviewState& state,
@@ -172,6 +178,13 @@ class PreviewLocomotion
 
 		/** @brief Returns the control dimension of the preview schedule */
 		unsigned int getControlDimension();
+
+		/**
+		 * @brief Returns the type of phase given a specific phase
+		 * @param const unsigned int& Phase index
+		 * @return const TypeOfPhase& Type of phase
+		 */
+		const TypeOfPhases& getPhaseType(const unsigned int& phase);
 
 		/**
 		 * @brief Converts the generalized control vector to preview control
@@ -244,10 +257,14 @@ class PreviewLocomotion
 		/** @brief Force threshold */
 		double force_threshold_;
 
+		/** @brief Preview schedule */
+		PreviewSchedule schedule_;
+
 		/** @brief Number of phases of the schedule */
 		unsigned int phases_;
 
-		std::vector<TypeOfPhases> schedule_;
+		/** @brief Indicates it was set the schedule */
+		bool set_schedule_;
 };
 
 } //@namespace simulation

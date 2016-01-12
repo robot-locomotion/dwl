@@ -32,6 +32,12 @@ class PreviewOptimization : public model::OptimizationModel
 		void init(bool only_soft_constraints);
 
 		/**
+		 * @brief Sets the actual whole-body state
+		 * @param const WholeBodyState& Actual whole-body state
+		 */
+		void setActualWholeBodyState(const WholeBodyState& state);
+
+		/**
 		 * @brief Sets the initial sequence of preview control parameters
 		 * @param const simulation::PreviewControl& Initial sequence of preview
 		 * control parameters
@@ -78,9 +84,15 @@ class PreviewOptimization : public model::OptimizationModel
 		 */
 		WholeBodyTrajectory& evaluateSolution(const Eigen::Ref<const Eigen::VectorXd>& solution);
 
+		/** @brief Returns the preview system pointer */
+		simulation::PreviewLocomotion* getPreviewSystem();
+
 
 	private:
+		double stepTimeCost(const simulation::PreviewControl& preview_control);
+		double comAccelerationCost(const simulation::PreviewControl& preview_control);
 		simulation::PreviewLocomotion preview_;
+		simulation::PreviewState actual_state_;
 };
 
 } //@namespace ocp

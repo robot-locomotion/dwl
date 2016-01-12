@@ -129,7 +129,8 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 	}
 
 	// Resetting the system description
-	resetSystemDescription(system_file);
+	if (!system_file.empty())
+		resetSystemDescription(system_file);
 
 	// Defining the number of end-effectors
 	num_end_effectors_ = end_effectors_.size();

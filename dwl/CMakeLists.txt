@@ -66,6 +66,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/locomotion/ContactPlanning.cpp
 							 src/locomotion/GreedyFootstepPlanning.cpp
 							 src/locomotion/WholeBodyTrajectoryOptimization.cpp
+							 src/locomotion/PreviewTrajectoryOptimization.cpp
 							 src/solver/SearchTreeSolver.cpp	
 							 src/solver/OptimizationSolver.cpp
 							 src/solver/Dijkstrap.cpp
