@@ -11,7 +11,7 @@ FloatingBaseSystem::FloatingBaseSystem(bool full, unsigned int _num_joints) : nu
 		num_floating_joints_(6 * full), num_joints_(_num_joints),
 		floating_ax_(full), floating_ay_(full), floating_az_(full),
 		floating_lx_(full), floating_ly_(full), floating_lz_(full),
-		type_of_system_(FixedBase), num_end_effectors_(0)
+		type_of_system_(FixedBase), num_end_effectors_(0) , num_feet_(0)
 {
 
 }
@@ -23,13 +23,15 @@ FloatingBaseSystem::~FloatingBaseSystem()
 }
 
 
-void FloatingBaseSystem::resetFromURDFFile(std::string filename)
+void FloatingBaseSystem::resetFromURDFFile(std::string urdf_file,
+										   std::string system_file)
 {
-	resetFromURDFModel(urdf_model::fileToXml(filename));
+	resetFromURDFModel(urdf_model::fileToXml(urdf_file), system_file);
 }
 
 
-void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
+void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
+											std::string system_file)
 {
 	// Getting the RBDL model from URDF model
 	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &rbd_model_, false);
@@ -118,13 +120,63 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model)
 
 	// Getting the end-effectors information
 	urdf_model::getEndEffectors(end_effectors_, urdf_model);
-	num_end_effectors_ = end_effectors_.size();
 
 	// Getting the end-effector name list
 	for (dwl::urdf_model::LinkID::const_iterator ee_it = end_effectors_.begin();
 			ee_it != end_effectors_.end(); ee_it++) {
 		std::string name = ee_it->first;
 		end_effector_names_.push_back(name);
+	}
+
+	// Resetting the system description
+	resetSystemDescription(system_file);
+
+	// Defining the number of end-effectors
+	num_end_effectors_ = end_effectors_.size();
+
+	if (num_feet_ == 0) {
+		printf(YELLOW "Warning: setting up all the end-effectors are feet\n" COLOR_RESET);
+		num_feet_ = num_end_effectors_;
+		foot_names_ = end_effector_names_;
+		feet_ = end_effectors_;
+	}
+}
+
+
+void FloatingBaseSystem::resetSystemDescription(std::string filename)
+{
+	std::ifstream fin(filename.c_str());
+
+	// Yaml reader
+	dwl::YamlWrapper yaml_reader;
+
+	// Parsing the configuration file
+	YAML::Parser parser(fin);
+	YAML::Node doc;
+	parser.GetNextDocument(doc);
+	for (YAML::Iterator it = doc.begin(); it != doc.end(); ++it) {
+		// Reading the robot namespace
+		it.first() >> system_name_;
+		printf("Reading the configuration parameters of the %s \n", system_name_.c_str());
+
+		// Getting the system namespace
+		const YAML::Node& system_ns = *doc.FindValue(system_name_);
+
+		// Reading and setting up the foot names
+		if (yaml_reader.read(foot_names_, system_ns, "feet")) {
+			// Getting the number of foot
+			num_feet_ = foot_names_.size();
+
+			// Adding to the feet to the end-effector lists if it doesn't exist
+			for (unsigned int i = 0; i < foot_names_.size(); i++) {
+				std::string name = foot_names_[i];
+				if (end_effectors_.count(name) == 0) {
+					unsigned int id = end_effectors_.size() + 1;
+					end_effectors_[name] = id;
+					end_effector_names_.push_back(name);
+				}
+			}
+		}
 	}
 }
 
@@ -380,9 +432,12 @@ enum TypeOfSystem FloatingBaseSystem::getTypeOfDynamicSystem()
 }
 
 
-const unsigned int& FloatingBaseSystem::getNumberOfEndEffectors()
+const unsigned int& FloatingBaseSystem::getNumberOfEndEffectors(enum TypeOfEndEffector type)
 {
-	return num_end_effectors_;
+	if (type == ALL)
+		return num_end_effectors_;
+	else
+		return num_feet_;
 }
 
 
@@ -392,15 +447,21 @@ unsigned int& FloatingBaseSystem::getEndEffectorId(std::string contact_name)
 }
 
 
-const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors()
+const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors(enum TypeOfEndEffector type)
 {
-	return end_effectors_;
+	if (type == ALL)
+		return end_effectors_;
+	else
+		return feet_;
 }
 
 
-const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames()
+const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames(enum TypeOfEndEffector type)
 {
-	return end_effector_names_;
+	if (type == ALL)
+		return end_effector_names_;
+	else
+		return foot_names_;
 }
 
 

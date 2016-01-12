@@ -6,6 +6,7 @@
 #include <dwl/utils/RigidBodyDynamics.h>
 #include <dwl/utils/URDF.h>
 #include <dwl/utils/Math.h>
+#include <dwl/utils/YamlWrapper.h>
 #include <fstream>
 
 
@@ -37,6 +38,9 @@ struct Joint {
 	std::string name;
 };
 
+/** @brief Defines the type of end-effectors */
+enum TypeOfEndEffector {ALL, FOOT};
+
 /**
  * @class FloatingBaseSystem
  * @brief FloatingBaseSystem class read the floating-base system information from an URDF file.
@@ -55,14 +59,24 @@ class FloatingBaseSystem
 		/**
 		 * @brief Resets the system information from an URDF file
 		 * @param std::string URDF filename
+		 * @param std::string Semantic system description filename
 		 */
-		void resetFromURDFFile(std::string filename);
+		void resetFromURDFFile(std::string urdf_file,
+							   std::string system_file = std::string());
 
 		/**
 		 * @brief Resets the system information from URDF model
 		 * @param std::string URDF model
+		 * @param std::string Semantic system description filename
 		 */
-		void resetFromURDFModel(std::string urdf_model);
+		void resetFromURDFModel(std::string urdf_model,
+								std::string system_file = std::string());
+
+		/**
+		 * @brief Resets the system sematic description from yaml file
+		 * @param std::string Semantic system description filename
+		 */
+		void resetSystemDescription(std::string filename);
 
 		/**
 		 * @brief Sets the 6d floating-base joint information
@@ -245,9 +259,10 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the number of end-effectors
+		 * @param enum TypeOfEndEffector Type of end-effector
 		 * @return const unsigned int& Number of end-effectors
 		 */
-		const unsigned int& getNumberOfEndEffectors();
+		const unsigned int& getNumberOfEndEffectors(enum TypeOfEndEffector type = ALL);
 
 		/**
 		 * @brief Gets the end-effector id given the name
@@ -260,13 +275,14 @@ class FloatingBaseSystem
 		 * @brief Gets the end-effectors names
 		 * @return const urdf_model::LinkID& Names and ids of the end-effectors
 		 */
-		const urdf_model::LinkID& getEndEffectors();
+		const urdf_model::LinkID& getEndEffectors(enum TypeOfEndEffector type = ALL);
 
 		/**
 		 * @brief Gets the end-effector names list
+		 * @param enum TypeOfEndEffector Type of end-effector
 		 * @return const rbd::BodySelector& End-effector names list
 		 */
-		const rbd::BodySelector& getEndEffectorNames();
+		const rbd::BodySelector& getEndEffectorNames(enum TypeOfEndEffector type = ALL);
 
 		/** @brief Returns true if the system has fully floating-base */
 		bool isFullyFloatingBase();
@@ -335,6 +351,9 @@ class FloatingBaseSystem
 		RigidBodyDynamics::Math::Vector3d com_system_;
 		RigidBodyDynamics::Math::Vector3d comd_system_;
 
+		/** @brief System name */
+		std::string system_name_;
+
 		/** @brief Number of DoFs */
 		unsigned int num_system_joints_;
 		unsigned int num_floating_joints_;
@@ -362,6 +381,10 @@ class FloatingBaseSystem
 		urdf_model::LinkID end_effectors_;
 		unsigned int num_end_effectors_;
 		rbd::BodySelector end_effector_names_;
+
+		urdf_model::LinkID feet_;
+		unsigned int num_feet_;
+		rbd::BodySelector foot_names_;
 };
 
 } //@namespace

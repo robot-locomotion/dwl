@@ -11,7 +11,8 @@ int main(int argc, char **argv)
 
 	// Resetting the system from the hyq urdf file
 	string model_file = "../sample/hyq.urdf";
-	sys.resetFromURDFFile(model_file);
+	string system_file = "../config/system_config.yaml";
+	sys.resetFromURDFFile(model_file, system_file);
 
 	// Getting the total mass of the system. Note that you could also get the mass of a specific
 	// body (e.g. sys.getBodyMass(body_name))

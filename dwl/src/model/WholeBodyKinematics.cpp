@@ -19,18 +19,20 @@ WholeBodyKinematics::~WholeBodyKinematics()
 }
 
 
-void WholeBodyKinematics::modelFromURDFFile(std::string filename,
+void WholeBodyKinematics::modelFromURDFFile(std::string urdf_file,
+											std::string system_file,
 											bool info)
 {
-	modelFromURDFModel(urdf_model::fileToXml(filename), info);
+	modelFromURDFModel(urdf_model::fileToXml(urdf_file), system_file, info);
 }
 
 
 void WholeBodyKinematics::modelFromURDFModel(std::string urdf_model,
+											 std::string system_file,
 											 bool info)
 {
 	// Reseting the floating-base system information given an URDF model
-	system_.resetFromURDFModel(urdf_model);
+	system_.resetFromURDFModel(urdf_model, system_file);
 
 	// Getting the list of movable and fixed bodies
 	rbd::getListOfBodies(body_id_, system_.getRBDModel());

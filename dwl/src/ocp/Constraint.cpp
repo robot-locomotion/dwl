@@ -19,22 +19,24 @@ Constraint::~Constraint()
 }
 
 
-void Constraint::modelFromURDFFile(std::string filename,
+void Constraint::modelFromURDFFile(std::string urdf_file,
+								   std::string system_file,
 								   bool info)
 {
-	modelFromURDFModel(urdf_model::fileToXml(filename), info);
+	modelFromURDFModel(urdf_model::fileToXml(urdf_file), system_file, info);
 }
 
 
 void Constraint::modelFromURDFModel(std::string urdf_model,
+									std::string system_file,
 									bool info)
 {
 	// Reseting the floating-base system information given an URDF model
-	system_.resetFromURDFModel(urdf_model);
+	system_.resetFromURDFModel(urdf_model, system_file);
 
 	// Initializing the kinematical and dynamical model from the URDF model
-	kinematics_.modelFromURDFModel(urdf_model, info);
-	dynamics_.modelFromURDFModel(urdf_model, false);
+	kinematics_.modelFromURDFModel(urdf_model, system_file, info);
+	dynamics_.modelFromURDFModel(urdf_model, system_file, false);
 
 	// Initializing the information of the specific constraint
 	init(info);

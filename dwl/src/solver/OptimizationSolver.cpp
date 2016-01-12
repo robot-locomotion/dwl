@@ -19,6 +19,12 @@ OptimizationSolver::~OptimizationSolver()
 }
 
 
+void OptimizationSolver::setFromConfigFile(std::string filename)
+{
+
+}
+
+
 void OptimizationSolver::setOptimizationModel(model::OptimizationModel* model)
 {
 	model_ = model;

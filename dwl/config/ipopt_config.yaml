@@ -1,0 +1,34 @@
+ipopt:
+  output:
+    # Sets the default verbosity level for console output. The larger
+    # this value the more detailed is the output. The valid range for
+    # this integer option is  0 <= print_level <= 12 and its default
+    # value is 5.
+    print_level: 5
+    # Determines at which iteration frequency the summarizing iteration
+    # output line should be printed
+    print_frequency_iter: 1
+    # Generates an output file if the name is defined
+    output_file:
+      # File name
+      option_file_name: ipopt.opt
+      # Verbosity level for output file. 
+      file_print_level: 5
+  termination:
+    # Desired convergence tolerance (relative)
+    tol: 1e-7
+    # Allowed number of iteration (-1 for unlimited)
+    max_iter: -1
+    # Desired threshold for the dual infeasibility
+    dual_inf_tol: 1.
+    # Desired threshold for the constraint violation
+    constr_viol_tol: 0.0001
+    # Desired threshold for the complementarity conditions
+    compl_inf_tol: 0.0001
+    # "Acceptable" convergence tolerance (relative)
+    acceptable_tol: 1e-6
+    # Number of "acceptable" iterates before triggering termination
+    acceptable_iter: 15
+  barrier:
+    # Update strategy for barrier parameter. Possible values are: monotone and adaptive
+    mu_strategy: adaptive
