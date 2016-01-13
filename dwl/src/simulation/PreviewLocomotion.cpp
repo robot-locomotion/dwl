@@ -91,7 +91,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 	}
 
 	// TODO: set the swing parameters in the right way (using duration of stance phases
-	SwingParams swing_params;
+//	SwingParams swing_params;
 
 	// Computing the preview for multi-phase
 	for (unsigned int i = 0; i < phases_; i++) {
@@ -114,7 +114,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			flightPreview(phase_traj, actual_state, preview_params);
 
 		// Adding the swing pattern
-		addSwingPattern(phase_traj, actual_state, swing_params);
+//		addSwingPattern(phase_traj, actual_state, swing_params);
 
 		// Appending the actual phase trajectory
 		trajectory.insert(trajectory.end(), phase_traj.begin(), phase_traj.end());
@@ -289,6 +289,12 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 }
 
 
+model::FloatingBaseSystem* PreviewLocomotion::getFloatingBaseSystem()
+{
+	return &system_;
+}
+
+
 unsigned int PreviewLocomotion::getControlDimension()
 {
 	if (!set_schedule_) {
@@ -305,6 +311,11 @@ unsigned int PreviewLocomotion::getControlDimension()
 	return control_dim;
 }
 
+
+unsigned int PreviewLocomotion::getNumberOfPhases()
+{
+	return phases_;
+}
 
 
 const TypeOfPhases& PreviewLocomotion::getPhaseType(const unsigned int& phase)
@@ -358,6 +369,41 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 		std::string leg_name = legs[i];
 		Eigen::VectorXd foothold = generalized_control.segment<2>(actual_idx);
 		preview_control.footholds[leg_name] = foothold;
+		actual_idx += 2; //Foothold position
+	}
+}
+
+
+void PreviewLocomotion::fromPreviewControl(Eigen::VectorXd& generalized_control,
+										   const PreviewControl& preview_control)
+{
+	// Resizing the generalized control vector
+	generalized_control.resize(getControlDimension());
+
+	// Converting the preview params for every phase
+	unsigned int actual_idx = 0;
+	for (unsigned int k = 0; k < phases_; k++) {
+		// Appending the preview duration
+		generalized_control(actual_idx) = preview_control.base[k].duration;
+		actual_idx += 1;
+
+		// Appenging the preview parameters for the stance phase
+		if (schedule_[k] == STANCE) {
+			generalized_control.segment<2>(actual_idx) = preview_control.base[k].terminal_cop;
+			actual_idx += 2;
+
+			generalized_control(actual_idx) = preview_control.base[k].terminal_length;
+			actual_idx += 1;
+
+			generalized_control(actual_idx) = preview_control.base[k].head_acc;
+			actual_idx += 1;
+		}
+	}
+
+	// Converting the footholds
+	rbd::BodySelector legs = system_.getEndEffectorNames(model::FOOT);
+	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(model::FOOT); i++) {
+		generalized_control.segment<2>(actual_idx) = preview_control.footholds.find(legs[i])->second;
 		actual_idx += 2; //Foothold position
 	}
 }

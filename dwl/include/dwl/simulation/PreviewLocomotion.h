@@ -176,8 +176,14 @@ class PreviewLocomotion
 							 const PreviewState& state,
 							 const SwingParams& params);
 
+		/** @brief Returns the floating-base system pointer */
+		model::FloatingBaseSystem* getFloatingBaseSystem();
+
 		/** @brief Returns the control dimension of the preview schedule */
 		unsigned int getControlDimension();
+
+		/** @brief Returns the defined number of phases */
+		unsigned int getNumberOfPhases();
 
 		/**
 		 * @brief Returns the type of phase given a specific phase
@@ -193,6 +199,14 @@ class PreviewLocomotion
 		 */
 		void toPreviewControl(PreviewControl& preview_control,
 							  const Eigen::VectorXd& generalized_control);
+
+		/**
+		 * @brief Converts the preview control to generalized control vector
+		 * @param Eigen::VectorXd& Generalized control vector
+		 * @param const PreviewControl& Preview control
+		 */
+		void fromPreviewControl(Eigen::VectorXd& generalized_control,
+								const PreviewControl& preview_control);
 
 		/**
 		 * @brief Converts the preview state vector to whole-body state
