@@ -39,7 +39,7 @@ struct PreviewState
 struct PreviewParams
 {
 	double duration;
-	Eigen::Vector2d terminal_cop;
+	Eigen::Vector2d cop_shift;
 	double terminal_length;
 	double head_acc;
 };

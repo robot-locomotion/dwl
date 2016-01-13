@@ -133,10 +133,9 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	double slip_omega = sqrt(gravity_ / slip_.height);
 	double alpha = 2 * slip_omega * params.duration;
 	Eigen::Vector2d slip_hor_proj = (state.com_pos - state.cop).head<2>();
-	Eigen::Vector2d cop_disp = state.cop.head<2>() - params.terminal_cop;
 	Eigen::Vector2d slip_hor_disp = state.com_vel.head<2>() * params.duration;
-	Eigen::Vector2d beta_1 = slip_hor_proj / 2 + (slip_hor_disp - cop_disp) / alpha;
-	Eigen::Vector2d beta_2 = slip_hor_proj / 2 - (slip_hor_disp - cop_disp) / alpha;
+	Eigen::Vector2d beta_1 = slip_hor_proj / 2 + (slip_hor_disp - params.cop_shift) / alpha;
+	Eigen::Vector2d beta_2 = slip_hor_proj / 2 - (slip_hor_disp - params.cop_shift) / alpha;
 
 	// Computing the initial length of the pendulum
 	double initial_length = (state.com_pos - state.cop).norm();
@@ -162,10 +161,10 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		// Computing the horizontal motion of the CoM according to the SLIP system
 		current_state.com_pos.head<2>() = beta_1 * exp(slip_omega * time) +
 				beta_2 * exp(-slip_omega * time) +
-				(cop_disp / params.duration) * time + state.cop.head<2>();
+				(params.cop_shift / params.duration) * time + state.cop.head<2>();
 		current_state.com_vel.head<2>() = beta_1 * slip_omega * exp(slip_omega * time) -
 				beta_2 * slip_omega * exp(-slip_omega * time) +
-				cop_disp / params.duration;
+				params.cop_shift / params.duration;
 		current_state.com_vel.head<2>() = beta_1 * pow(slip_omega,2) * exp(slip_omega * time) +
 				beta_2 * pow(slip_omega,2) * exp(-slip_omega * time);
 
@@ -349,12 +348,12 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 		// Converting the generalized param vector to preview params
 		if (schedule_[k] == STANCE) {
 			params.duration = decision_params(0);
-			params.terminal_cop = decision_params.segment<2>(1);
+			params.cop_shift = decision_params.segment<2>(1);
 			params.terminal_length = decision_params(3);
 			params.head_acc = decision_params(4);
 		} else {// Flight phase
 			params.duration = decision_params(0);
-			params.terminal_cop = Eigen::Vector2d::Zero();
+			params.cop_shift = Eigen::Vector2d::Zero();
 			params.terminal_length = 0.;
 			params.head_acc = 0.;
 		}
@@ -392,7 +391,7 @@ void PreviewLocomotion::fromPreviewControl(Eigen::VectorXd& generalized_control,
 
 		// Appenging the preview parameters for the stance phase
 		if (schedule_[k] == STANCE) {
-			generalized_control.segment<2>(actual_idx) = preview_control.base[k].terminal_cop;
+			generalized_control.segment<2>(actual_idx) = preview_control.base[k].cop_shift;
 			actual_idx += 2;
 
 			generalized_control(actual_idx) = preview_control.base[k].terminal_length;
