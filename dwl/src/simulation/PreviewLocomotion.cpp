@@ -90,6 +90,9 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		return;
 	}
 
+	// Clearing the trajectory
+	trajectory.clear();
+
 	// TODO: set the swing parameters in the right way (using duration of stance phases
 //	SwingParams swing_params;
 
