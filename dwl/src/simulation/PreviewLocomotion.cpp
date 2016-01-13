@@ -323,9 +323,9 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 	}
 
 	// Converting the preview params for every phase
-	PreviewParams params;
 	unsigned int actual_idx = 0;
 	for (unsigned int k = 0; k < phases_; k++) {
+		PreviewParams params;
 		// Getting the preview params dimension for the actual phase
 		unsigned int params_dim = getParamsDimension(k);
 
@@ -338,8 +338,12 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 			params.terminal_cop = decision_params.segment<2>(1);
 			params.terminal_length = decision_params(3);
 			params.head_acc = decision_params(4);
-		} else // Flight phase
+		} else {// Flight phase
 			params.duration = decision_params(0);
+			params.terminal_cop = Eigen::Vector2d::Zero();
+			params.terminal_length = 0.;
+			params.head_acc = 0.;
+		}
 
 		// Adding the actual preview params to the preview control vector
 		preview_control.base.push_back(params);
@@ -354,6 +358,7 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 		std::string leg_name = legs[i];
 		Eigen::VectorXd foothold = generalized_control.segment<2>(actual_idx);
 		preview_control.footholds[leg_name] = foothold;
+		actual_idx += 2; //Foothold position
 	}
 }
 
@@ -437,6 +442,7 @@ void PreviewLocomotion::toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
 	unsigned int traj_size = preview_traj.size();
 
 	// Resizing the full trajectory vector
+	full_traj.clear();
 	full_traj.resize(traj_size);
 
 	// Getting the full trajectory
