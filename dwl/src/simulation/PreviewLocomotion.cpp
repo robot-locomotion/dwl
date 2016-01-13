@@ -142,11 +142,10 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 	// Computing the coefficients of the spring-mass system response
 	double spring_omega = sqrt(slip_.stiffness / mass_);
-	double delta_length = params.terminal_length - initial_length;
 	double d_1 = state.com_pos(rbd::Z) - initial_length + gravity_ /
 			pow(spring_omega,2);
 	double d_2 = state.com_vel(rbd::Z) / spring_omega -
-			delta_length / (spring_omega * params.duration);
+			params.length_shift / (spring_omega * params.duration);
 
 	// Computing the preview trajectory
 	unsigned int num_samples = round(params.duration / sample_time_);
@@ -170,11 +169,11 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 		// Computing the vertical motion of the CoM according to the spring-mass system
 		current_state.com_pos(rbd::Z) = d_1 * cos(spring_omega * time) +
-				d_2 * sin(spring_omega * time) + (delta_length / params.duration) * time +
+				d_2 * sin(spring_omega * time) + (params.length_shift / params.duration) * time +
 				initial_length - gravity_ / pow(spring_omega,2);
 		current_state.com_vel(rbd::Z) = -d_1 * spring_omega * sin(spring_omega * time) +
 				d_2 * spring_omega * cos(spring_omega * time) +
-				delta_length / params.duration;
+				params.length_shift / params.duration;
 		current_state.com_acc(rbd::Z) = -d_1 * pow(spring_omega,2) * cos(spring_omega * time) -
 				d_2 * pow(spring_omega,2) * sin(spring_omega * time);
 
@@ -349,12 +348,12 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 		if (schedule_[k] == STANCE) {
 			params.duration = decision_params(0);
 			params.cop_shift = decision_params.segment<2>(1);
-			params.terminal_length = decision_params(3);
+			params.length_shift = decision_params(3);
 			params.head_acc = decision_params(4);
 		} else {// Flight phase
 			params.duration = decision_params(0);
 			params.cop_shift = Eigen::Vector2d::Zero();
-			params.terminal_length = 0.;
+			params.length_shift = 0.;
 			params.head_acc = 0.;
 		}
 
@@ -394,7 +393,7 @@ void PreviewLocomotion::fromPreviewControl(Eigen::VectorXd& generalized_control,
 			generalized_control.segment<2>(actual_idx) = preview_control.base[k].cop_shift;
 			actual_idx += 2;
 
-			generalized_control(actual_idx) = preview_control.base[k].terminal_length;
+			generalized_control(actual_idx) = preview_control.base[k].length_shift;
 			actual_idx += 1;
 
 			generalized_control(actual_idx) = preview_control.base[k].head_acc;

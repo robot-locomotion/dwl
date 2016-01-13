@@ -40,7 +40,7 @@ struct PreviewParams
 {
 	double duration;
 	Eigen::Vector2d cop_shift;
-	double terminal_length;
+	double length_shift;
 	double head_acc;
 };
 
