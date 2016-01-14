@@ -116,7 +116,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			for (unsigned int j = 0; j < schedule_[i].feet.size(); j++) {
 				std::string foot_name = schedule_[i].feet[j];
 				Eigen::Vector3d foothold;
-				foothold << (Eigen::Vector2d) control.footholds.find(foot_name)->second, 0.; //TODO defined z position
+				foothold << (Eigen::Vector2d) control.feet_shift.find(foot_name)->second, 0.; //TODO defined z position
 				swing_footholds[foot_name] = foothold;
 			}
 
@@ -265,10 +265,10 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 		Eigen::Vector3d actual_pos = (Eigen::Vector3d) state.foot_pos.find(name)->second;
 
 		Eigen::Vector3d target_pos;
-		rbd::BodyVector::const_iterator swing_it = params.footholds.find(name);
-		if (swing_it != params.footholds.end()) {
+		rbd::BodyVector::const_iterator swing_it = params.feet_shift.find(name);
+		if (swing_it != params.feet_shift.end()) {
 			// Getting the target position of the contact
-			target_pos = (Eigen::Vector3d) swing_it->second;
+			target_pos = (Eigen::Vector3d) swing_it->second + actual_pos;
 
 			// Initializing the foot pattern generator
 			simulation::StepParameters step_params(params.duration, step_height_);
@@ -396,9 +396,9 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 	rbd::BodySelector feet = system_.getEndEffectorNames(model::FOOT);
 	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(model::FOOT); i++) {
 		std::string foot_name = feet[i];
-		Eigen::VectorXd foothold = generalized_control.segment<2>(actual_idx);
-		preview_control.footholds[foot_name] = foothold;
-		actual_idx += 2; //Foothold position
+		Eigen::VectorXd foot_shift = generalized_control.segment<2>(actual_idx);
+		preview_control.feet_shift[foot_name] = foot_shift;
+		actual_idx += 2; //Foothold displacement
 	}
 }
 
@@ -432,7 +432,7 @@ void PreviewLocomotion::fromPreviewControl(Eigen::VectorXd& generalized_control,
 	// Converting the footholds
 	rbd::BodySelector feet = system_.getEndEffectorNames(model::FOOT);
 	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(model::FOOT); i++) {
-		generalized_control.segment<2>(actual_idx) = preview_control.footholds.find(feet[i])->second;
+		generalized_control.segment<2>(actual_idx) = preview_control.feet_shift.find(feet[i])->second;
 		actual_idx += 2; //Foothold position
 	}
 }

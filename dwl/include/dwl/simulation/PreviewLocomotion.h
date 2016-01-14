@@ -54,22 +54,22 @@ struct PreviewParams
 
 struct SwingParams
 {
-	SwingParams() : duration(0.), footholds(rbd::BodyVector()) {}
+	SwingParams() : duration(0.), feet_shift(rbd::BodyVector()) {}
 	SwingParams(double _duration,
-				rbd::BodyVector _footholds) : duration(_duration), footholds(_footholds) {}
+				rbd::BodyVector _feet_shift) : duration(_duration), feet_shift(_feet_shift) {}
 
 	double duration;
-	rbd::BodyVector footholds;
+	rbd::BodyVector feet_shift;
 };
 
 struct PreviewControl
 {
-	PreviewControl() : base(std::vector<PreviewParams>()), footholds(rbd::BodyVector()) {}
+	PreviewControl() : base(std::vector<PreviewParams>()), feet_shift(rbd::BodyVector()) {}
 	PreviewControl(std::vector<PreviewParams> _base,
-				   rbd::BodyVector _footholds) : base(_base), footholds(_footholds) {}
+				   rbd::BodyVector _feet_shift) : base(_base), feet_shift(_feet_shift) {}
 
 	std::vector<PreviewParams> base;
-	rbd::BodyVector footholds;
+	rbd::BodyVector feet_shift;
 };
 
 enum TypeOfPhases {STANCE, FLIGHT};
