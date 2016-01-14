@@ -38,6 +38,14 @@ struct PreviewState
 
 struct PreviewParams
 {
+	PreviewParams() : duration(0.), cop_shift(Eigen::Vector2d::Zero()),
+			  length_shift(0.), head_acc(0.) {}
+	PreviewParams(double _duration,
+				  Eigen::Vector2d _cop_shift,
+				  double _length_shift,
+				  double _head_acc) : duration(_duration), cop_shift(_cop_shift),
+						  length_shift(_length_shift), head_acc(_head_acc) {}
+
 	double duration;
 	Eigen::Vector2d cop_shift;
 	double length_shift;
@@ -46,12 +54,20 @@ struct PreviewParams
 
 struct SwingParams
 {
+	SwingParams() : duration(0.), footholds(rbd::BodyVector()) {}
+	SwingParams(double _duration,
+				rbd::BodyVector _footholds) : duration(_duration), footholds(_footholds) {}
+
 	double duration;
 	rbd::BodyVector footholds;
 };
 
 struct PreviewControl
 {
+	PreviewControl() : base(std::vector<PreviewParams>()), footholds(rbd::BodyVector()) {}
+	PreviewControl(std::vector<PreviewParams> _base,
+				   rbd::BodyVector _footholds) : base(_base), footholds(_footholds) {}
+
 	std::vector<PreviewParams> base;
 	rbd::BodyVector footholds;
 };
@@ -59,6 +75,7 @@ struct PreviewControl
 enum TypeOfPhases {STANCE, FLIGHT};
 struct PreviewPhase
 {
+	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()) {}
 	PreviewPhase(enum TypeOfPhases _type,
 				 rbd::BodySelector _feet) : type(_type), feet(_feet) {}
 
