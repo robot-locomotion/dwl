@@ -57,8 +57,17 @@ struct PreviewControl
 };
 
 enum TypeOfPhases {STANCE, FLIGHT};
+struct PreviewPhase
+{
+	PreviewPhase(enum TypeOfPhases _type,
+				 rbd::BodySelector _feet) : type(_type), feet(_feet) {}
+
+	TypeOfPhases type;
+	rbd::BodySelector feet;
+};
+
 typedef std::vector<PreviewState> PreviewTrajectory;
-typedef std::vector<TypeOfPhases> PreviewSchedule;
+typedef std::vector<PreviewPhase> PreviewSchedule;
 
 
 struct SLIPModel
@@ -186,11 +195,11 @@ class PreviewLocomotion
 		unsigned int getNumberOfPhases();
 
 		/**
-		 * @brief Returns the type of phase given a specific phase
+		 * @brief Returns the phase description given a specific phase index
 		 * @param const unsigned int& Phase index
-		 * @return const TypeOfPhase& Type of phase
+		 * @return const PreviewPhase& Phase description
 		 */
-		const TypeOfPhases& getPhaseType(const unsigned int& phase);
+		const PreviewPhase& getPhase(const unsigned int& phase);
 
 		/**
 		 * @brief Converts the generalized control vector to preview control

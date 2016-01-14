@@ -111,7 +111,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			actual_state = trajectory.back();
 
 		// Computing the preview of the actual phase
-		if (schedule_[i] == STANCE)
+		if (schedule_[i].type == STANCE)
 			stancePreview(phase_traj, actual_state, preview_params);
 		else
 			flightPreview(phase_traj, actual_state, preview_params);
@@ -319,7 +319,7 @@ unsigned int PreviewLocomotion::getNumberOfPhases()
 }
 
 
-const TypeOfPhases& PreviewLocomotion::getPhaseType(const unsigned int& phase)
+const PreviewPhase& PreviewLocomotion::getPhase(const unsigned int& phase)
 {
 	return schedule_[phase];
 }
@@ -345,7 +345,7 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 		Eigen::VectorXd decision_params = generalized_control.segment(actual_idx, params_dim);
 
 		// Converting the generalized param vector to preview params
-		if (schedule_[k] == STANCE) {
+		if (schedule_[k].type == STANCE) {
 			params.duration = decision_params(0);
 			params.cop_shift = decision_params.segment<2>(1);
 			params.length_shift = decision_params(3);
@@ -388,8 +388,8 @@ void PreviewLocomotion::fromPreviewControl(Eigen::VectorXd& generalized_control,
 		generalized_control(actual_idx) = preview_control.base[k].duration;
 		actual_idx += 1;
 
-		// Appenging the preview parameters for the stance phase
-		if (schedule_[k] == STANCE) {
+		// Appending the preview parameters for the stance phase
+		if (schedule_[k].type == STANCE) {
 			generalized_control.segment<2>(actual_idx) = preview_control.base[k].cop_shift;
 			actual_idx += 2;
 
@@ -510,7 +510,7 @@ unsigned int PreviewLocomotion::getParamsDimension(const unsigned int& phase)
 	}
 
 	unsigned int phase_dim = 0;
-	switch (schedule_[phase]) {
+	switch (schedule_[phase].type) {
 		case STANCE:
 			phase_dim = 5;
 			break;
