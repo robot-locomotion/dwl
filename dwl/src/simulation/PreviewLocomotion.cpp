@@ -111,17 +111,25 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		if (schedule_[i].type == STANCE) {
 			stancePreview(phase_traj, actual_state, preview_params);
 
-			// Getting the swing feet
-			rbd::BodyVector swing_footholds;
+			// Getting the swing shift per foot
+			rbd::BodyVector swing_shift;
 			for (unsigned int j = 0; j < schedule_[i].feet.size(); j++) {
 				std::string foot_name = schedule_[i].feet[j];
-				Eigen::Vector3d foothold;
-				foothold << (Eigen::Vector2d) control.feet_shift.find(foot_name)->second, 0.; //TODO defined z position
-				swing_footholds[foot_name] = foothold;
+				Eigen::Vector2d foot_shift_2d = (Eigen::Vector2d) control.feet_shift.find(foot_name)->second;
+
+				// Computing the z displacement of the foot from the height map. TODO hard coded
+//				Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
+//				Eigen::Vector2d foothold_2d = foot_shift_2d + terminal_base_pos.head<2>();
+				double z_shift = 0.;
+
+				Eigen::Vector3d foot_shift(foot_shift_2d(dwl::rbd::X),
+										   foot_shift_2d(dwl::rbd::Y),
+										   z_shift);
+				swing_shift[foot_name] = foot_shift;
 			}
 
 			// Adding the swing pattern
-			SwingParams swing_params(preview_params.duration, swing_footholds);
+			SwingParams swing_params(preview_params.duration, swing_shift);
 			addSwingPattern(phase_traj, actual_state, swing_params);
 		} else {
 			flightPreview(phase_traj, actual_state, preview_params);
@@ -262,7 +270,6 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 	// Getting the actual and terminal base position for computing the footholds trajectories
 	// w.r.t. the base
 	Eigen::Vector3d actual_base_pos = trajectory[0].com_pos - actual_system_com_;
-	Eigen::Vector3d terminal_base_pos = trajectory[num_samples-1].com_pos - actual_system_com_;
 
 	// Generating the feet trajectories
 	for (rbd::BodyVector::const_iterator contact_it = state.foot_pos.begin();
@@ -405,7 +412,8 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 	rbd::BodySelector feet = system_.getEndEffectorNames(model::FOOT);
 	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(model::FOOT); i++) {
 		std::string foot_name = feet[i];
-		Eigen::VectorXd foot_shift = generalized_control.segment<2>(actual_idx);
+		Eigen::Vector2d foot_shift = generalized_control.segment<2>(actual_idx);
+
 		preview_control.feet_shift[foot_name] = foot_shift;
 		actual_idx += 2; //Foothold displacement
 	}
