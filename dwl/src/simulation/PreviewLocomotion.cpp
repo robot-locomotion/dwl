@@ -256,7 +256,15 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 	if (params.duration < sample_time_)
 		return; // duration it's always position, and makes sense when is bigger than the sample time
 
+	// Getting the number of samples of the trajectory
 	unsigned int num_samples = round(params.duration / sample_time_);
+
+	// Getting the actual and terminal base position for computing the footholds trajectories
+	// w.r.t. the base
+	Eigen::Vector3d actual_base_pos = trajectory[0].com_pos - actual_system_com_;
+	Eigen::Vector3d terminal_base_pos = trajectory[num_samples-1].com_pos - actual_system_com_;
+
+	// Generating the feet trajectories
 	for (rbd::BodyVector::const_iterator contact_it = state.foot_pos.begin();
 			contact_it != state.foot_pos.end(); contact_it++) {
 		std::string name = contact_it->first;
@@ -267,8 +275,10 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 		Eigen::Vector3d target_pos;
 		rbd::BodyVector::const_iterator swing_it = params.feet_shift.find(name);
 		if (swing_it != params.feet_shift.end()) {
-			// Getting the target position of the contact
-			target_pos = (Eigen::Vector3d) swing_it->second + actual_pos;
+			// Getting the target position of the contact w.r.t the base
+			Eigen::Vector3d foot_shift = (Eigen::Vector3d) swing_it->second;
+			Eigen::Vector3d stance_pos = actual_pos; // TODO read it
+			target_pos = stance_pos + foot_shift;
 
 			// Initializing the foot pattern generator
 			simulation::StepParameters step_params(params.duration, step_height_);
@@ -299,17 +309,16 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 			// There is not swing trajectory to generated (foot on ground). Nevertheless, we have
 			// to updated their positions w.r.t the base frame
 			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-			Eigen::Vector3d actual_base_pos = trajectory[0].com_pos - actual_system_com_;
 			for (unsigned int k = 0; k < num_samples; k++) {
 				double time = state.time + sample_time_ * (k + 1);
 				if (time > state.time + params.duration)
 					time = state.time + params.duration;
 
+				// Getting the base position of the specific time
 				Eigen::Vector3d base_pos = trajectory[k].com_pos - actual_system_com_;
 
-
 				// Adding the swing state to the trajectory
-				trajectory[k].foot_pos[name] = (actual_pos + actual_base_pos) - base_pos;
+				trajectory[k].foot_pos[name] = actual_pos - (base_pos - actual_base_pos);
 				trajectory[k].foot_vel[name] = Eigen::Vector3d::Zero();
 				trajectory[k].foot_acc[name] = Eigen::Vector3d::Zero();
 			}
@@ -472,7 +481,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	preview_state.com_pos = system_.getSystemCoM(full_state.base_pos, full_state.joint_pos);
 	preview_state.com_vel = system_.getSystemCoMRate(full_state.base_pos, full_state.joint_pos,
 													 full_state.base_vel, full_state.joint_vel);
-	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX); //Neglecting the joint accelerations components
+	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX); // Neglecting the joint accelerations components
 	preview_state.head_pos = full_state.base_pos(rbd::AZ);
 	preview_state.head_vel = full_state.base_vel(rbd::AZ);
 	preview_state.head_acc = full_state.base_acc(rbd::AZ);
