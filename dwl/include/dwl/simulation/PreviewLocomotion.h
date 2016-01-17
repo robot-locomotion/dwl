@@ -205,6 +205,9 @@ class PreviewLocomotion
 		/** @brief Returns the floating-base system pointer */
 		model::FloatingBaseSystem* getFloatingBaseSystem();
 
+		/** @brief Returns the sample time */
+		double getSampleTime();
+
 		/** @brief Returns the control dimension of the preview schedule */
 		unsigned int getControlDimension();
 

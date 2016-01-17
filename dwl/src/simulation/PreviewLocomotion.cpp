@@ -340,6 +340,12 @@ model::FloatingBaseSystem* PreviewLocomotion::getFloatingBaseSystem()
 }
 
 
+double PreviewLocomotion::getSampleTime()
+{
+	return sample_time_;
+}
+
+
 unsigned int PreviewLocomotion::getControlDimension()
 {
 	if (!set_schedule_) {
