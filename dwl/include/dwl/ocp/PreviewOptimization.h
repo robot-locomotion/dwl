@@ -89,8 +89,10 @@ class PreviewOptimization : public model::OptimizationModel
 
 
 	private:
-		double stepCost(const simulation::PreviewControl& preview_control);
-		double comAccelerationCost(const simulation::PreviewControl& preview_control);
+		double stepCost(const simulation::PreviewTrajectory& preview_traj,
+						const simulation::PreviewControl& preview_control);
+		double comAccelerationCost(const simulation::PreviewTrajectory& preview_traj,
+								   const simulation::PreviewControl& preview_control);
 		simulation::PreviewLocomotion preview_;
 		simulation::PreviewState actual_state_;
 };
