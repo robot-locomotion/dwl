@@ -66,21 +66,21 @@ void inRadiiTriangle(double& inradii,
 /**
  * @brief Computes the plane parameters (normal vector of the plane)
  * @param Eigen::Vector3d& Parameters or normal vector of the plane
- * @param std::vector<Eigen::Vector3f> Points of the cloud
+ * @param const std::vector<Eigen::Vector3f> Points of the cloud
  */
 void computePlaneParameters(Eigen::Vector3d& normal,
-							std::vector<Eigen::Vector3f> points);
+							const std::vector<Eigen::Vector3f>& points);
 
 /**
  * @brief Computes the mean and covariance of the cloud of 3D points
- * @param std::vector<Eigen::Vector3f> Cloud of 3D points
- * @param Eigen::Matrix3d& Matrix of covariance
  * @param Eigen::Vector3d& Mean vector
+ * @param Eigen::Matrix3d& Matrix of covariance
+ * @param const std::vector<Eigen::Vector3f> Cloud of 3D points
  * @return The size of the cloud
  */
-unsigned int computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> cloud,
+unsigned int computeMeanAndCovarianceMatrix(Eigen::Vector3d& mean,
 											Eigen::Matrix3d& covariance_matrix,
-											Eigen::Vector3d& mean);
+											const std::vector<Eigen::Vector3f>& cloud);
 
 /**
  * @brief Solves the plane parameters
@@ -94,21 +94,21 @@ void solvePlaneParameters(Eigen::Vector3d& normal_vector,
 
 /**
  * @brief Computes the roots of a third order equation
- * @param Eigen::Matrix3d& Matrix
  * @param Eigen::Vector3d& Roots
+ * @param Eigen::Matrix3d& Matrix
  */
-void computeRoots(const Eigen::Matrix3d& m,
-				  Eigen::Vector3d& roots);
+void computeRoots(Eigen::Vector3d& roots,
+				  const Eigen::Matrix3d& m);
 
 /**
  * @brief Complementary function of the computeRoots method
+ * @param Eigen::Vector3d& roots
  * @param const Eigen::Matrix3d::Scalar& b
  * @param const Eigen::Matrix3d::Scalar& c
- * @param Eigen::Vector3d& roots
  */
-void computeRoots2(const Eigen::Matrix3d::Scalar& b,
-				   const Eigen::Matrix3d::Scalar& c,
-				   Eigen::Vector3d& roots);
+void computeRoots2(Eigen::Vector3d& roots,
+				   const Eigen::Matrix3d::Scalar& b,
+				   const Eigen::Matrix3d::Scalar& c);
 
 /**
  * @brief Checks if p2 is on the right side of line from p0 to p1

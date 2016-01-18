@@ -251,9 +251,9 @@ void RewardMap::computeRewards(octomap::OcTree* octomap,
 		// Computing terrain info
 		EIGEN_ALIGN16 Eigen::Matrix3d covariance_matrix;
 		if (neighbors_position.size() < 3 ||
-				math::computeMeanAndCovarianceMatrix(neighbors_position,
+				math::computeMeanAndCovarianceMatrix(terrain_info.position,
 													 covariance_matrix,
-													 terrain_info.position) == 0)
+													 neighbors_position) == 0)
 			return;
 
 		if (!using_cloud_mean_) {

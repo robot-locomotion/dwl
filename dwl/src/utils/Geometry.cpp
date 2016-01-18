@@ -52,7 +52,7 @@ void inRadiiTriangle(double& inradii,
 
 
 void computePlaneParameters(Eigen::Vector3d& normal,
-							std::vector<Eigen::Vector3f> points)
+							const std::vector<Eigen::Vector3f>& points)
 {
 	if (points.size() <= 3)
 		printf(YELLOW "Warning: could not computed the plane parameter"
@@ -62,15 +62,15 @@ void computePlaneParameters(Eigen::Vector3d& normal,
 		Eigen::Vector3d mean;
 		double curvature;
 
-		computeMeanAndCovarianceMatrix(points, covariance, mean);
+		computeMeanAndCovarianceMatrix(mean, covariance, points);
 		solvePlaneParameters(normal, curvature, covariance);
 	}
 }
 
 
-unsigned int computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> cloud,
-											Eigen::Matrix3d &covariance_matrix,
-											Eigen::Vector3d &mean)
+unsigned int computeMeanAndCovarianceMatrix(Eigen::Vector3d& mean,
+											Eigen::Matrix3d& covariance_matrix,
+											const std::vector<Eigen::Vector3f>& cloud)
 {
 	// create the buffer on the stack which is much faster than using
 	// cloud[indices[i]] and mean as a buffer
@@ -127,7 +127,7 @@ void solvePlaneParameters(Eigen::Vector3d &normal_vector,
 	Eigen::Matrix3d scaledMat = covariance_matrix / scale;
 
 	Eigen::Vector3d eigenvalues;
-	computeRoots(scaledMat, eigenvalues);
+	computeRoots(eigenvalues, scaledMat);
 
 	eigenvalue = eigenvalues(0) * scale;
 
@@ -161,8 +161,8 @@ void solvePlaneParameters(Eigen::Vector3d &normal_vector,
 }
 
 
-void computeRoots(const Eigen::Matrix3d& m,
-				  Eigen::Vector3d& roots)
+void computeRoots(Eigen::Vector3d& roots,
+				  const Eigen::Matrix3d& m)
 {
 	// The characteristic equation is x^3 - c2*x^2 + c1*x - c0 = 0. The
 	// eigenvalues are the roots to this equation, all guaranteed to be
@@ -179,7 +179,7 @@ void computeRoots(const Eigen::Matrix3d& m,
 
 
 	if (fabs (c0) < Eigen::NumTraits<Eigen::Matrix3d::Scalar>::epsilon ())// one root is 0 -> quadratic equation
-		computeRoots2(c2, c1, roots);
+		computeRoots2(roots, c2, c1);
 	else
 	{
 		const Eigen::Matrix3d::Scalar s_inv3 = Eigen::Matrix3d::Scalar(1.0 / 3.0);
@@ -223,14 +223,14 @@ void computeRoots(const Eigen::Matrix3d& m,
 		roots(2) = roots2;
 
 		if (roots(0) <= 0) // eigenvalue for symmetric positive semi-definite matrix can not be negative! Set it to 0
-			computeRoots2(c2, c1, roots);
+			computeRoots2(roots, c2, c1);
 	}
 }
 
 
-void computeRoots2(const Eigen::Matrix3d::Scalar& b,
-				   const Eigen::Matrix3d::Scalar& c,
-				   Eigen::Vector3d& roots)
+void computeRoots2(Eigen::Vector3d& roots,
+				   const Eigen::Matrix3d::Scalar& b,
+				   const Eigen::Matrix3d::Scalar& c)
 {
 	roots(0) = Eigen::Matrix3d::Scalar(0);
 	Eigen::Matrix3d::Scalar d = Eigen::Matrix3d::Scalar(b * b - 4.0 * c);
