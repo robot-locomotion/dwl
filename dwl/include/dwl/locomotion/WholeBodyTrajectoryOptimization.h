@@ -29,8 +29,10 @@ class WholeBodyTrajectoryOptimization
 		/**
 		 * @brief Initializes the whole-body trajectory optimizer
 		 * @param solver::OptimizationSolver* Pointer to the optimization solver
+		 * @param std::string Configuration filename
 		 */
-		void init(solver::OptimizationSolver* solver);
+		void init(solver::OptimizationSolver* solver,
+				  std::string config_filename = std::string());
 
 		/**
 		 * @brief Adds the dynamical system constraint

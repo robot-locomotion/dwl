@@ -18,11 +18,16 @@ WholeBodyTrajectoryOptimization::~WholeBodyTrajectoryOptimization()
 
 }
 
-void WholeBodyTrajectoryOptimization::init(solver::OptimizationSolver* solver)
+void WholeBodyTrajectoryOptimization::init(solver::OptimizationSolver* solver,
+										   std::string config_filename)
 {
 	solver_ = solver;
 	solver_->setOptimizationModel(&oc_model_);
 	solver_->init();
+
+	// Setting up the configuration parameters of solver
+	if (config_filename != std::string())
+		solver_->setFromConfigFile(config_filename);
 }
 
 
