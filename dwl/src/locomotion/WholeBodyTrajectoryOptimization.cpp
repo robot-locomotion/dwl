@@ -21,7 +21,7 @@ WholeBodyTrajectoryOptimization::~WholeBodyTrajectoryOptimization()
 void WholeBodyTrajectoryOptimization::init(solver::OptimizationSolver* solver)
 {
 	solver_ = solver;
-	solver->setOptimizationModel(&oc_model_);
+	solver_->setOptimizationModel(&oc_model_);
 	solver_->init();
 }
 
