@@ -116,9 +116,9 @@ void computeRoots2(Eigen::Vector3d& roots,
  * 			=0 for p2 on the line
  * 			<0 for p2 left of the line
  */
-inline double isRight(const Eigen::Vector3d p0,
-					  const Eigen::Vector3d p1,
-					  const Eigen::Vector3d p2);
+double isRight(const Eigen::Vector3d p0,
+			   const Eigen::Vector3d p1,
+			   const Eigen::Vector3d p2);
 
 /**
  * @brief Performs a clockwise radial sort of the input points starting
@@ -145,9 +145,9 @@ void counterClockwiseSort(std::vector<Eigen::Vector3d>& p);
  * @param bool Normalized coefficients
  * @return The line coefficients
  */
-inline LineCoeff2d lineCoeff(const Eigen::Vector3d& pt0,
-							 const Eigen::Vector3d& pt1,
-							 bool normalize = true);
+LineCoeff2d lineCoeff(const Eigen::Vector3d& pt0,
+					  const Eigen::Vector3d& pt1,
+					  bool normalize = true);
 
 } //@namespace math
 } //@namespace dwl

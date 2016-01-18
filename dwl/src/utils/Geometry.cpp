@@ -244,9 +244,9 @@ void computeRoots2(Eigen::Vector3d& roots,
 }
 
 
-inline double isRight(const Eigen::Vector3d p0,
-		  	  	  	  const Eigen::Vector3d p1,
-					  const Eigen::Vector3d p2)
+double isRight(const Eigen::Vector3d p0,
+			   const Eigen::Vector3d p1,
+			   const Eigen::Vector3d p2)
 {
 	return (p2(X) - p0(X)) * (p1(Y) - p0(Y)) -
 			(p1(X) - p0(X)) * (p2(Y) - p0(Y));
@@ -287,9 +287,9 @@ void counterClockwiseSort(std::vector<Eigen::Vector3d>& p)
 }
 
 
-inline LineCoeff2d LineCoeff(const Eigen::Vector3d& pt0,
-							 const Eigen::Vector3d& pt1,
-							 bool normalize)
+LineCoeff2d lineCoeff(const Eigen::Vector3d& pt0,
+					  const Eigen::Vector3d& pt1,
+					  bool normalize)
 {
 	// (p,q).dot(x-x0, y-y0)=0 implicit line equation
 	// px + qy -rx0 -qy0 = 0 => px + qy + r = 0
