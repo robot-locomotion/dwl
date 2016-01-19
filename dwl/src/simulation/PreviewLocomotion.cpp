@@ -205,6 +205,10 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		current_state.com_acc(rbd::Z) = -d_1 * pow(spring_omega,2) * cos(spring_omega * time) -
 				d_2 * pow(spring_omega,2) * sin(spring_omega * time);
 
+		// Computing the CoP position given the linear assumption
+		Eigen::Vector3d cop_shift_3d(params.cop_shift(rbd::X), params.cop_shift(rbd::Y), 0.);
+		current_state.cop = state.cop +	(time / params.duration) * cop_shift_3d;
+
 		// Computing the heading motion according to heading kinematic equation
 		current_state.head_pos = state.head_pos + state.head_vel * time +
 				0.5 * params.head_acc * pow(time,2);
