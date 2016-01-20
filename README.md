@@ -2,7 +2,15 @@
 The Dynamic Whole-body Locomotion library (DWL)
 ===============================================
 
-.. contents:: Table of Contents
+Table of Contents
+===============================================
+1. [Introduction](#introduction)
+2. [Software Overview](#software-overview)
+3. [Building](#building)
+4. [Installation](#installation)
+5. [Publications](#publications)
+
+
 
 Introduction
 ===============================================
