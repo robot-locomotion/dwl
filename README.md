@@ -49,6 +49,7 @@ following commands:
     cmake ../..
 
 Additionally you could installed as catkin project as follows:
+
 	cd your_ros_ws/
 	catkin_make
 
