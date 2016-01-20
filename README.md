@@ -33,6 +33,7 @@ The following dependencies are optional:
 * [Doxygen](http://www.doxygen.org)
 * [qpOASES](https://projects.coin-or.org/qpOASES) (version 3.2.0 or higher)
 * [Ipopt](https://projects.coin-or.org/Ipopt) (version 3.12.4 or higher)
+* [libcmaes](https://github.com/beniz/libcmaes) (version 0.9.5 or higher)
 * [Octomap](http://octomap.github.io) (version 1.6.8 or higher)
 
 
@@ -47,6 +48,10 @@ following commands:
     cd build/Release
     cmake ../..
 
+Additionally you could installed as catkin project as follows:
+	cd your_ros_ws/
+	catkin_make
+
 
 Installation
 ===============================================
@@ -58,6 +63,6 @@ Installation
 
 Publications
 ===============================================
-* C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, Hierarchical Planning of Dynamic Movements without Scheduled Contact Sequences, IEEE International Conference on Robotics and Automation (ICRA), 2016 (under review)
+* C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, Hierarchical Planning of Dynamic Movements without Scheduled Contact Sequences, IEEE International Conference on Robotics and Automation (ICRA), 2016
 * C. Mastalli, A. Winkler, I. Havoutis, D. G. Caldwell, C. Semini, On-line and On-board Planning and Perception for Quadrupedal Locomotion, IEEE International Conference on Technologies for Practical Robot Applications (TEPRA), 2015
 * A. Winkler, C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, Planning and Execution of Dynamic Whole-Body Locomotion for a Hydraulic Quadruped on Challenging Terrain, IEEE International Conference on Robotics and Automation (ICRA), 2015
