@@ -47,7 +47,7 @@ class WholeBodyTrajectoryOptimization
 		 * @brief Adds the constraint
 		 * @param ocp::Constraint* Pointer to the constraint
 		 */
-		void addConstraint(ocp::Constraint* constraint);
+		void addConstraint(ocp::Constraint<WholeBodyState>* constraint);
 
 		/**
 		 * @brief Removes the current dynamical system

@@ -18,7 +18,7 @@ OptimalControl::~OptimalControl()
 {
 	delete dynamical_system_;
 
-	typedef std::vector<Constraint*>::iterator ConstraintItr;
+	typedef std::vector<Constraint<WholeBodyState>*>::iterator ConstraintItr;
 	typedef std::vector<Cost*>::iterator CostItr;
 	if (is_added_constraint_) {
 		for (ConstraintItr i = constraints_.begin(); i != constraints_.end(); i++)
@@ -544,7 +544,7 @@ void OptimalControl::removeDynamicalSystem()
 }
 
 
-void OptimalControl::addConstraint(Constraint* constraint)
+void OptimalControl::addConstraint(Constraint<WholeBodyState>* constraint)
 {
 	printf(GREEN "Adding the %s constraint\n" COLOR_RESET, constraint->getName().c_str());
 	constraints_.push_back(constraint);
@@ -631,7 +631,7 @@ DynamicalSystem* OptimalControl::getDynamicalSystem()
 }
 
 
-std::vector<Constraint*> OptimalControl::getConstraints()
+std::vector<Constraint<WholeBodyState>*> OptimalControl::getConstraints()
 {
 	return constraints_;
 }

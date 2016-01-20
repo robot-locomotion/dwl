@@ -10,7 +10,7 @@ namespace dwl
 namespace ocp
 {
 
-class ComplementaryConstraint : public Constraint
+class ComplementaryConstraint : public Constraint<WholeBodyState>
 {
 	public:
 		/** @brief Constructor function */

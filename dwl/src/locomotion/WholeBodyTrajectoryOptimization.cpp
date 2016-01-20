@@ -43,7 +43,7 @@ void WholeBodyTrajectoryOptimization::removeDynamicalSystem()
 }
 
 
-void WholeBodyTrajectoryOptimization::addConstraint(ocp::Constraint* constraint)
+void WholeBodyTrajectoryOptimization::addConstraint(ocp::Constraint<WholeBodyState>* constraint)
 {
 	oc_model_.addConstraint(constraint);
 }

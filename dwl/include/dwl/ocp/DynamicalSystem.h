@@ -38,7 +38,7 @@ enum StepIntegrationMethod {Fixed, Variable};
  * initial state, starting state, state dimension, etc. Some of these information are extracted
  * from an URDF model
  */
-class DynamicalSystem : public Constraint
+class DynamicalSystem : public Constraint<WholeBodyState>
 {
 	public:
 		/** @brief Constructor function */
