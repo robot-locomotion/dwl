@@ -1,4 +1,3 @@
-#include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/model/WholeBodyKinematics.h>
 
 using namespace std;
