@@ -90,6 +90,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/ocp/ComplementaryConstraint.cpp
 							 src/ocp/InelasticContactModelConstraint.cpp
 							 src/ocp/InelasticContactVelocityConstraint.cpp
+							 src/ocp/SupportPolygonConstraint.cpp
 							 src/ocp/Cost.cpp
 							 src/ocp/TerminalStateTrackingEnergyCost.cpp
 							 src/ocp/IntegralStateTrackingEnergyCost.cpp
