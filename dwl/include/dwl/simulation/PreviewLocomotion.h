@@ -38,27 +38,53 @@ struct PreviewState
 
 struct PreviewParams
 {
+	PreviewParams() : duration(0.), cop_shift(Eigen::Vector2d::Zero()),
+			  length_shift(0.), head_acc(0.) {}
+	PreviewParams(double _duration,
+				  Eigen::Vector2d _cop_shift,
+				  double _length_shift,
+				  double _head_acc) : duration(_duration), cop_shift(_cop_shift),
+						  length_shift(_length_shift), head_acc(_head_acc) {}
+
 	double duration;
-	Eigen::Vector2d terminal_cop;
-	double terminal_length;
+	Eigen::Vector2d cop_shift;
+	double length_shift;
 	double head_acc;
 };
 
 struct SwingParams
 {
+	SwingParams() : duration(0.), feet_shift(rbd::BodyVector()) {}
+	SwingParams(double _duration,
+				rbd::BodyVector _feet_shift) : duration(_duration), feet_shift(_feet_shift) {}
+
 	double duration;
-	rbd::BodyVector footholds;
+	rbd::BodyVector feet_shift;
 };
 
 struct PreviewControl
 {
+	PreviewControl() : base(std::vector<PreviewParams>()), feet_shift(rbd::BodyVector()) {}
+	PreviewControl(std::vector<PreviewParams> _base,
+				   rbd::BodyVector _feet_shift) : base(_base), feet_shift(_feet_shift) {}
+
 	std::vector<PreviewParams> base;
-	rbd::BodyVector footholds;
+	rbd::BodyVector feet_shift;
 };
 
 enum TypeOfPhases {STANCE, FLIGHT};
+struct PreviewPhase
+{
+	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()) {}
+	PreviewPhase(enum TypeOfPhases _type,
+				 rbd::BodySelector _feet) : type(_type), feet(_feet) {}
+
+	TypeOfPhases type;
+	rbd::BodySelector feet;
+};
+
 typedef std::vector<PreviewState> PreviewTrajectory;
-typedef std::vector<TypeOfPhases> PreviewSchedule;
+typedef std::vector<PreviewPhase> PreviewSchedule;
 
 
 struct SLIPModel
@@ -176,15 +202,24 @@ class PreviewLocomotion
 							 const PreviewState& state,
 							 const SwingParams& params);
 
+		/** @brief Returns the floating-base system pointer */
+		model::FloatingBaseSystem* getFloatingBaseSystem();
+
+		/** @brief Returns the sample time */
+		double getSampleTime();
+
 		/** @brief Returns the control dimension of the preview schedule */
 		unsigned int getControlDimension();
 
+		/** @brief Returns the defined number of phases */
+		unsigned int getNumberOfPhases();
+
 		/**
-		 * @brief Returns the type of phase given a specific phase
+		 * @brief Returns the phase description given a specific phase index
 		 * @param const unsigned int& Phase index
-		 * @return const TypeOfPhase& Type of phase
+		 * @return const PreviewPhase& Phase description
 		 */
-		const TypeOfPhases& getPhaseType(const unsigned int& phase);
+		const PreviewPhase& getPhase(const unsigned int& phase);
 
 		/**
 		 * @brief Converts the generalized control vector to preview control
@@ -193,6 +228,14 @@ class PreviewLocomotion
 		 */
 		void toPreviewControl(PreviewControl& preview_control,
 							  const Eigen::VectorXd& generalized_control);
+
+		/**
+		 * @brief Converts the preview control to generalized control vector
+		 * @param Eigen::VectorXd& Generalized control vector
+		 * @param const PreviewControl& Preview control
+		 */
+		void fromPreviewControl(Eigen::VectorXd& generalized_control,
+								const PreviewControl& preview_control);
 
 		/**
 		 * @brief Converts the preview state vector to whole-body state

@@ -7,7 +7,8 @@ namespace dwl
 namespace math
 {
 
-void normalizeAngle(double& angle, AngleRepresentation angle_notation)
+void normalizeAngle(double& angle,
+					AngleRepresentation angle_notation)
 {
 	switch (angle_notation) {
 		case ZeroTo2Pi:
@@ -28,14 +29,17 @@ void normalizeAngle(double& angle, AngleRepresentation angle_notation)
 			break;
 
 		default:
-			printf(YELLOW "Warning: it was not normalize the angle because the angle notation is "
-					"incoherent \n" COLOR_RESET);
+			printf(YELLOW "Warning: it was not normalize the angle"
+					" because the angle notation is incoherent \n" COLOR_RESET);
 			break;
 	}
 }
 
 
-void inRadiiTriangle(double& inradii, double size_a, double size_b, double size_c)
+void inRadiiTriangle(double& inradii,
+					 double size_a,
+					 double size_b,
+					 double size_c)
 {
 	double s = (size_a + size_b + size_c) / 2;
 	double a = (s - size_a) * (s - size_b) * (s - size_c) / s;
@@ -47,25 +51,29 @@ void inRadiiTriangle(double& inradii, double size_a, double size_b, double size_
 }
 
 
-void computePlaneParameters(Eigen::Vector3d& normal, std::vector<Eigen::Vector3f> points)
+void computePlaneParameters(Eigen::Vector3d& normal,
+							const std::vector<Eigen::Vector3f>& points)
 {
 	if (points.size() <= 3)
-		printf(YELLOW "Warning: could not computed the plane parameter with less of 4 points\n" COLOR_RESET);
+		printf(YELLOW "Warning: could not computed the plane parameter"
+				" with less of 4 points\n" COLOR_RESET);
 	else {
 		Eigen::Matrix3d covariance;
 		Eigen::Vector3d mean;
 		double curvature;
 
-		computeMeanAndCovarianceMatrix(points, covariance, mean);
+		computeMeanAndCovarianceMatrix(mean, covariance, points);
 		solvePlaneParameters(normal, curvature, covariance);
 	}
 }
 
 
-unsigned int computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> cloud,
-											Eigen::Matrix3d &covariance_matrix, Eigen::Vector3d &mean)
+unsigned int computeMeanAndCovarianceMatrix(Eigen::Vector3d& mean,
+											Eigen::Matrix3d& covariance_matrix,
+											const std::vector<Eigen::Vector3f>& cloud)
 {
-	// create the buffer on the stack which is much faster than using cloud[indices[i]] and mean as a buffer
+	// create the buffer on the stack which is much faster than using
+	// cloud[indices[i]] and mean as a buffer
 	Eigen::VectorXd accu = Eigen::VectorXd::Zero(9, 1);
 
 	for (size_t i = 0; i < cloud.size(); ++i) {
@@ -101,7 +109,9 @@ unsigned int computeMeanAndCovarianceMatrix(std::vector<Eigen::Vector3f> cloud,
 }
 
 
-void solvePlaneParameters(Eigen::Vector3d &normal_vector, double &curvature, const Eigen::Matrix3d covariance_matrix)
+void solvePlaneParameters(Eigen::Vector3d &normal_vector,
+						  double &curvature,
+						  const Eigen::Matrix3d covariance_matrix)
 {
 	// Extract the smallest eigenvalue and its eigenvector
 	EIGEN_ALIGN16 Eigen::Vector3d::Scalar eigenvalue;
@@ -117,7 +127,7 @@ void solvePlaneParameters(Eigen::Vector3d &normal_vector, double &curvature, con
 	Eigen::Matrix3d scaledMat = covariance_matrix / scale;
 
 	Eigen::Vector3d eigenvalues;
-	computeRoots(scaledMat, eigenvalues);
+	computeRoots(eigenvalues, scaledMat);
 
 	eigenvalue = eigenvalues(0) * scale;
 
@@ -142,7 +152,8 @@ void solvePlaneParameters(Eigen::Vector3d &normal_vector, double &curvature, con
 	normal_vector = eigenvector;
 
 	// Compute the curvature surface change
-	float eig_sum = covariance_matrix.coeff(0) + covariance_matrix.coeff(4) + covariance_matrix.coeff(8);
+	float eig_sum = covariance_matrix.coeff(0) +
+			covariance_matrix.coeff(4) + covariance_matrix.coeff(8);
 	if (eig_sum != 0)
 		curvature = fabsf(eigenvalue / eig_sum);
 	else
@@ -150,7 +161,8 @@ void solvePlaneParameters(Eigen::Vector3d &normal_vector, double &curvature, con
 }
 
 
-void computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots)
+void computeRoots(Eigen::Vector3d& roots,
+				  const Eigen::Matrix3d& m)
 {
 	// The characteristic equation is x^3 - c2*x^2 + c1*x - c0 = 0. The
 	// eigenvalues are the roots to this equation, all guaranteed to be
@@ -167,7 +179,7 @@ void computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots)
 
 
 	if (fabs (c0) < Eigen::NumTraits<Eigen::Matrix3d::Scalar>::epsilon ())// one root is 0 -> quadratic equation
-		computeRoots2(c2, c1, roots);
+		computeRoots2(roots, c2, c1);
 	else
 	{
 		const Eigen::Matrix3d::Scalar s_inv3 = Eigen::Matrix3d::Scalar(1.0 / 3.0);
@@ -211,12 +223,14 @@ void computeRoots(const Eigen::Matrix3d& m, Eigen::Vector3d& roots)
 		roots(2) = roots2;
 
 		if (roots(0) <= 0) // eigenvalue for symmetric positive semi-definite matrix can not be negative! Set it to 0
-			computeRoots2(c2, c1, roots);
+			computeRoots2(roots, c2, c1);
 	}
 }
 
 
-void computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scalar& c, Eigen::Vector3d& roots)
+void computeRoots2(Eigen::Vector3d& roots,
+				   const Eigen::Matrix3d::Scalar& b,
+				   const Eigen::Matrix3d::Scalar& c)
 {
 	roots(0) = Eigen::Matrix3d::Scalar(0);
 	Eigen::Matrix3d::Scalar d = Eigen::Matrix3d::Scalar(b * b - 4.0 * c);
@@ -227,6 +241,76 @@ void computeRoots2(const Eigen::Matrix3d::Scalar& b, const Eigen::Matrix3d::Scal
 
 	roots(2) = 0.5f * (b + sd);
 	roots(1) = 0.5f * (b - sd);
+}
+
+
+double isRight(const Eigen::Vector3d p0,
+			   const Eigen::Vector3d p1,
+			   const Eigen::Vector3d p2)
+{
+	return (p2(X) - p0(X)) * (p1(Y) - p0(Y)) -
+			(p1(X) - p0(X)) * (p2(Y) - p0(Y));
+}
+
+
+void clockwiseSort(std::vector<Eigen::Vector3d>& p)
+{
+	// Sorting clockwise
+	for (unsigned int i = 1; i < p.size() - 1; i++) {
+		for (unsigned int j = i + 1; j < p.size(); j++) {
+	        // The point p2 should always be on the right to be cwise
+			// thus if it is on the left <0 i swap
+			if (isRight(p[0], p[i], p[j])  < 0.0) {
+				Eigen::Vector3d tmp = p[i];
+				p[i] = p[j];
+				p[j] = tmp;
+			}
+		}
+	}
+}
+
+
+void counterClockwiseSort(std::vector<Eigen::Vector3d>& p)
+{
+	// Sorting counter clockwise
+	for (unsigned int i = 1; i < p.size() - 1; i++) {
+		for (unsigned int j = i + 1; j < p.size(); j++) {
+	        // The point p2 should always be on the left of the line
+			// to be ccwise thus if it is on the right  >0  swap
+			if (isRight(p[0], p[i], p[j])  > 0.0) {
+				Eigen::Vector3d tmp = p[i];
+				p[i] = p[j];
+				p[j] = tmp;
+			}
+		}
+	}
+}
+
+
+LineCoeff2d lineCoeff(const Eigen::Vector3d& pt0,
+					  const Eigen::Vector3d& pt1,
+					  bool normalize)
+{
+	// (p,q).dot(x-x0, y-y0)=0 implicit line equation
+	// px + qy -rx0 -qy0 = 0 => px + qy + r = 0
+	// To find (p,q) I know this is the normal to the line, so if
+	// I have another point x1 a solution with (p,q) perpendicular to
+	// the segment S=(x1- x0, y1-y0) is p= -(y1-y0) q=x1-x0 for which
+	// (p,q).dot(S) = 0
+	LineCoeff2d ret;
+	ret.p = pt0(Y) - pt1(Y);
+	ret.q = pt1(X) - pt0(X);
+	ret.r = -ret.p * pt0(X) - ret.q * pt0(Y);
+
+	// normalize the equation in order to intuitively use stability margins
+	if (normalize) {
+		double norm = hypot(ret.p, ret.q);
+		ret.p /= norm;
+		ret.q /= norm;
+		ret.r /= norm;
+	}
+
+	return ret;
 }
 
 } //@namespace math

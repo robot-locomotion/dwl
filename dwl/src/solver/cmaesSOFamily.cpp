@@ -7,7 +7,7 @@ namespace dwl
 namespace solver
 {
 
-cmaesSOFamily::cmaesSOFamily() : cmaes_params_(NULL)
+cmaesSOFamily::cmaesSOFamily() : cmaes_params_(NULL), sigma_(-1.)
 {
 	name_ = "cmaes family";
 }
@@ -136,6 +136,12 @@ void cmaesSOFamily::setElitism(int elitism)
 }
 
 
+void cmaesSOFamily::setInitialDistribution(double sigma)
+{
+	sigma_ = sigma;
+}
+
+
 bool cmaesSOFamily::init()
 {
 	// Initializing the optimization model
@@ -173,12 +179,9 @@ bool cmaesSOFamily::init()
 	// Defining the associated bound of the genotype and phenotype
 	libcmaes::GenoPheno<libcmaes::pwqBoundStrategy> gp(x_l, x_u, state_dim);
 
-
-
-	double sigma = 0.1;
 	//int lambda = 100; // offsprings at each generation.
 	cmaes_params_ = // -1 for automatically decided lambda, 0 is for random seeding of the internal generator.
-			new libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy>>(x0, sigma,
+			new libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy>>(x0, sigma_,
 																						 -1, 0, gp);
 
 	double max_iter = 100;
@@ -195,8 +198,6 @@ bool cmaesSOFamily::init()
 
 	int elitist = 0;
 	cmaes_params_->set_elitism(elitist);
-
-
 
 
 	// Wrapping the fitness function
@@ -217,6 +218,11 @@ bool cmaesSOFamily::compute(double allocated_time_secs)
 	libcmaes::CMASolutions cmasols = libcmaes::cmaes<>(fitness_, *cmaes_params_);
 	std::cout << "best solution: " << cmasols << std::endl;
 	std::cout << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
+
+	// Evaluation of the solution
+	Eigen::VectorXd solution = cmaes_params_->get_gp().pheno(cmasols.best_candidate().get_x_dvec());
+	locomotion_trajectory_ = model_->evaluateSolution(solution);
+
 	return cmasols.run_status();
 
 	return true;

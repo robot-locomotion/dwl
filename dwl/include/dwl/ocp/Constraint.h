@@ -19,8 +19,10 @@ namespace ocp
 
 /**
  * @class Constraint
- * @brief Abstract class for defining constraints in the planning of motion sequences problem
+ * @brief Abstract class for defining constraints used in an
+ * optimization-based locomotion approach
  */
+template <class TState=WholeBodyState>
 class Constraint
 {
 	public:
@@ -65,18 +67,18 @@ class Constraint
 		/**
 		 * @brief Computes the soft-value of the constraint given a certain state
 		 * @param double& Soft-value or the associated cost to the constraint
-		 * @param const WholeBodyState& Whole-body state
+		 * @param const TState& Whole-body state
 		 */
 		void computeSoft(double& constraint_cost,
-						 const WholeBodyState& state);
+						 const TState& state);
 
 		/**
 		 * @brief Computes the constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const WholeBodyState& Whole-body state
+		 * @param const TState& Whole-body state
 		 */
 		virtual void compute(Eigen::VectorXd& constraint,
-							 const WholeBodyState& state) = 0;
+							 const TState& state) = 0;
 
 		/**
 		 * @brief Gets the lower and upper bounds of the constraint
@@ -90,10 +92,17 @@ class Constraint
 		bool isSoftConstraint();
 
 		/**
-		 * @brief Sets the last state that could be used for the constraint
-		 * @param WholeBodyState& Last whole-body state
+		 * @brief Sets the weight for computing the soft-constraint, i.e.
+		 * the associated cost
+		 * @param double Weight value
 		 */
-		void setLastState(WholeBodyState& last_state);
+		void setSoftWeight(double weight);
+
+		/**
+		 * @brief Sets the last state that could be used for the constraint
+		 * @param TState& Last whole-body state
+		 */
+		void setLastState(TState& last_state);
 
 		/** @brief Resets the state buffer */
 		void resetStateBuffer();
@@ -118,8 +127,11 @@ class Constraint
 		/** @brief Label that indicates if it's implemented as soft constraint */
 		bool is_soft_;
 
+		/** @brief Weight for computing as soft-constraint */
+		double soft_weight_;
+
 		/** @brief Sets the last state */
-		boost::circular_buffer<WholeBodyState> state_buffer_;
+		boost::circular_buffer<TState> state_buffer_;
 
 		/** @brief A floating-base system definition */
 		model::FloatingBaseSystem system_;
@@ -133,5 +145,7 @@ class Constraint
 
 } //@namespace ocp
 } //@namespace dwl
+
+#include <dwl/ocp/impl/Constraint.hcc>
 
 #endif

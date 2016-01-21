@@ -90,8 +90,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		return;
 	}
 
-	// TODO: set the swing parameters in the right way (using duration of stance phases
-	SwingParams swing_params;
+	// Clearing the trajectory
+	trajectory.clear();
 
 	// Computing the preview for multi-phase
 	for (unsigned int i = 0; i < phases_; i++) {
@@ -108,16 +108,43 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			actual_state = trajectory.back();
 
 		// Computing the preview of the actual phase
-		if (schedule_[i] == STANCE)
+		if (schedule_[i].type == STANCE) {
 			stancePreview(phase_traj, actual_state, preview_params);
-		else
+
+			// Getting the swing shift per foot
+			rbd::BodyVector swing_shift;
+			for (unsigned int j = 0; j < schedule_[i].feet.size(); j++) {
+				std::string foot_name = schedule_[i].feet[j];
+				Eigen::Vector2d foot_shift_2d = (Eigen::Vector2d) control.feet_shift.find(foot_name)->second;
+
+				// Computing the z displacement of the foot from the height map. TODO hard coded
+//				Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
+//				Eigen::Vector2d foothold_2d = foot_shift_2d + terminal_base_pos.head<2>();
+				double z_shift = 0.;
+
+				Eigen::Vector3d foot_shift(foot_shift_2d(dwl::rbd::X),
+										   foot_shift_2d(dwl::rbd::Y),
+										   z_shift);
+				swing_shift[foot_name] = foot_shift;
+			}
+
+			// Adding the swing pattern
+			SwingParams swing_params(preview_params.duration, swing_shift);
+			addSwingPattern(phase_traj, actual_state, swing_params);
+		} else {
 			flightPreview(phase_traj, actual_state, preview_params);
 
-		// Adding the swing pattern
-		addSwingPattern(phase_traj, actual_state, swing_params);
+			// Adding the swing pattern
+			SwingParams swing_params(preview_params.duration, rbd::BodyVector()); // no foothold targets
+			addSwingPattern(phase_traj, actual_state, swing_params);
+		}
 
 		// Appending the actual phase trajectory
 		trajectory.insert(trajectory.end(), phase_traj.begin(), phase_traj.end());
+
+		// Sanity action: defining the actual state if there isn't a trajectory
+		if (trajectory.size() == 0)
+			trajectory.push_back(state);
 	}
 }
 
@@ -126,25 +153,27 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 									  const PreviewState& state,
 									  const PreviewParams& params)
 {
+	// Checking the preview duration
+	if (params.duration < sample_time_)
+		return; // duration it's always position, and makes sense when is bigger than the sample time
+
 	// Computing the coefficients of the Spring Loaded Inverted Pendulum (SLIP) response
 	double slip_omega = sqrt(gravity_ / slip_.height);
 	double alpha = 2 * slip_omega * params.duration;
 	Eigen::Vector2d slip_hor_proj = (state.com_pos - state.cop).head<2>();
-	Eigen::Vector2d cop_disp = state.cop.head<2>() - params.terminal_cop;
 	Eigen::Vector2d slip_hor_disp = state.com_vel.head<2>() * params.duration;
-	Eigen::Vector2d beta_1 = slip_hor_proj / 2 + (slip_hor_disp - cop_disp) / alpha;
-	Eigen::Vector2d beta_2 = slip_hor_proj / 2 - (slip_hor_disp - cop_disp) / alpha;
+	Eigen::Vector2d beta_1 = slip_hor_proj / 2 + (slip_hor_disp - params.cop_shift) / alpha;
+	Eigen::Vector2d beta_2 = slip_hor_proj / 2 - (slip_hor_disp - params.cop_shift) / alpha;
 
 	// Computing the initial length of the pendulum
 	double initial_length = (state.com_pos - state.cop).norm();
 
 	// Computing the coefficients of the spring-mass system response
 	double spring_omega = sqrt(slip_.stiffness / mass_);
-	double delta_length = params.terminal_length - initial_length;
 	double d_1 = state.com_pos(rbd::Z) - initial_length + gravity_ /
 			pow(spring_omega,2);
 	double d_2 = state.com_vel(rbd::Z) / spring_omega -
-			delta_length / (spring_omega * params.duration);
+			params.length_shift / (spring_omega * params.duration);
 
 	// Computing the preview trajectory
 	unsigned int num_samples = round(params.duration / sample_time_);
@@ -159,22 +188,26 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		// Computing the horizontal motion of the CoM according to the SLIP system
 		current_state.com_pos.head<2>() = beta_1 * exp(slip_omega * time) +
 				beta_2 * exp(-slip_omega * time) +
-				(cop_disp / params.duration) * time + state.cop.head<2>();
+				(params.cop_shift / params.duration) * time + state.cop.head<2>();
 		current_state.com_vel.head<2>() = beta_1 * slip_omega * exp(slip_omega * time) -
 				beta_2 * slip_omega * exp(-slip_omega * time) +
-				cop_disp / params.duration;
+				params.cop_shift / params.duration;
 		current_state.com_vel.head<2>() = beta_1 * pow(slip_omega,2) * exp(slip_omega * time) +
 				beta_2 * pow(slip_omega,2) * exp(-slip_omega * time);
 
 		// Computing the vertical motion of the CoM according to the spring-mass system
 		current_state.com_pos(rbd::Z) = d_1 * cos(spring_omega * time) +
-				d_2 * sin(spring_omega * time) + (delta_length / params.duration) * time +
+				d_2 * sin(spring_omega * time) + (params.length_shift / params.duration) * time +
 				initial_length - gravity_ / pow(spring_omega,2);
 		current_state.com_vel(rbd::Z) = -d_1 * spring_omega * sin(spring_omega * time) +
 				d_2 * spring_omega * cos(spring_omega * time) +
-				delta_length / params.duration;
+				params.length_shift / params.duration;
 		current_state.com_acc(rbd::Z) = -d_1 * pow(spring_omega,2) * cos(spring_omega * time) -
 				d_2 * pow(spring_omega,2) * sin(spring_omega * time);
+
+		// Computing the CoP position given the linear assumption
+		Eigen::Vector3d cop_shift_3d(params.cop_shift(rbd::X), params.cop_shift(rbd::Y), 0.);
+		current_state.cop = state.cop +	(time / params.duration) * cop_shift_3d;
 
 		// Computing the heading motion according to heading kinematic equation
 		current_state.head_pos = state.head_pos + state.head_vel * time +
@@ -192,12 +225,17 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 						   	   	   	  const PreviewState& state,
 									  const PreviewParams& params)
 {
+	// Checking the preview duration
+	if (params.duration < sample_time_)
+		return; // duration it's always position, and makes sense when is bigger than the sample time
+
 	// Setting the gravity vector
 	Eigen::Vector3d gravity_vec = Eigen::Vector3d::Zero();
 	gravity_vec(rbd::Z) = -gravity_;
 
 	// Computing the preview trajectory
 	unsigned int num_samples = round(params.duration / sample_time_);
+	trajectory.resize(num_samples);
 	for (unsigned int k = 0; k < num_samples; k++) {
 		double time = sample_time_ * (k + 1);
 
@@ -215,6 +253,9 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 		current_state.head_pos = state.head_pos + state.head_vel * time;
 		current_state.head_vel = state.head_vel;
 		current_state.head_acc = 0.;
+
+		// Appending the current state to the preview trajectory
+		trajectory[k] = current_state;
 	}
 }
 
@@ -223,9 +264,18 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 										const PreviewState& state,
 										const SwingParams& params)
 {
-	// Getting the actual time and sample time
-	double sample_time = trajectory[1].time - trajectory[0].time;
+	// Checking the preview duration
+	if (params.duration < sample_time_)
+		return; // duration it's always position, and makes sense when is bigger than the sample time
 
+	// Getting the number of samples of the trajectory
+	unsigned int num_samples = round(params.duration / sample_time_);
+
+	// Getting the actual and terminal base position for computing the footholds trajectories
+	// w.r.t. the base
+	Eigen::Vector3d actual_base_pos = trajectory[0].com_pos - actual_system_com_;
+
+	// Generating the feet trajectories
 	for (rbd::BodyVector::const_iterator contact_it = state.foot_pos.begin();
 			contact_it != state.foot_pos.end(); contact_it++) {
 		std::string name = contact_it->first;
@@ -234,10 +284,12 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 		Eigen::Vector3d actual_pos = (Eigen::Vector3d) state.foot_pos.find(name)->second;
 
 		Eigen::Vector3d target_pos;
-		rbd::BodyVector::const_iterator swing_it = params.footholds.find(name);
-		if (swing_it != params.footholds.end()) {
-			// Getting the target position of the contact
-			target_pos = (Eigen::Vector3d) swing_it->second;
+		rbd::BodyVector::const_iterator swing_it = params.feet_shift.find(name);
+		if (swing_it != params.feet_shift.end()) {
+			// Getting the target position of the contact w.r.t the base
+			Eigen::Vector3d foot_shift = (Eigen::Vector3d) swing_it->second;
+			Eigen::Vector3d stance_pos = actual_pos; // TODO read it
+			target_pos = stance_pos + foot_shift;
 
 			// Initializing the foot pattern generator
 			simulation::StepParameters step_params(params.duration, step_height_);
@@ -248,9 +300,8 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 
 			// Computing the swing trajectory
 			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-			unsigned int num_samples = round(params.duration / sample_time);
 			for (unsigned int k = 0; k < num_samples; k++) {
-				double time = state.time + sample_time * (k + 1);
+				double time = state.time + sample_time_ * (k + 1);
 				if (time > state.time + params.duration)
 					time = state.time + params.duration;
 
@@ -269,23 +320,33 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 			// There is not swing trajectory to generated (foot on ground). Nevertheless, we have
 			// to updated their positions w.r.t the base frame
 			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-			unsigned int num_samples = round(params.duration / sample_time);
-			Eigen::Vector3d actual_base_pos = trajectory[0].com_pos - actual_system_com_;
 			for (unsigned int k = 0; k < num_samples; k++) {
-				double time = state.time + sample_time * (k + 1);
+				double time = state.time + sample_time_ * (k + 1);
 				if (time > state.time + params.duration)
 					time = state.time + params.duration;
 
+				// Getting the base position of the specific time
 				Eigen::Vector3d base_pos = trajectory[k].com_pos - actual_system_com_;
 
-
 				// Adding the swing state to the trajectory
-				trajectory[k].foot_pos[name] = (actual_pos + actual_base_pos) - base_pos;
+				trajectory[k].foot_pos[name] = actual_pos - (base_pos - actual_base_pos);
 				trajectory[k].foot_vel[name] = Eigen::Vector3d::Zero();
 				trajectory[k].foot_acc[name] = Eigen::Vector3d::Zero();
 			}
 		}
 	}
+}
+
+
+model::FloatingBaseSystem* PreviewLocomotion::getFloatingBaseSystem()
+{
+	return &system_;
+}
+
+
+double PreviewLocomotion::getSampleTime()
+{
+	return sample_time_;
 }
 
 
@@ -306,8 +367,13 @@ unsigned int PreviewLocomotion::getControlDimension()
 }
 
 
+unsigned int PreviewLocomotion::getNumberOfPhases()
+{
+	return phases_;
+}
 
-const TypeOfPhases& PreviewLocomotion::getPhaseType(const unsigned int& phase)
+
+const PreviewPhase& PreviewLocomotion::getPhase(const unsigned int& phase)
 {
 	return schedule_[phase];
 }
@@ -323,9 +389,9 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 	}
 
 	// Converting the preview params for every phase
-	PreviewParams params;
 	unsigned int actual_idx = 0;
 	for (unsigned int k = 0; k < phases_; k++) {
+		PreviewParams params;
 		// Getting the preview params dimension for the actual phase
 		unsigned int params_dim = getParamsDimension(k);
 
@@ -333,13 +399,17 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 		Eigen::VectorXd decision_params = generalized_control.segment(actual_idx, params_dim);
 
 		// Converting the generalized param vector to preview params
-		if (schedule_[k] == STANCE) {
+		if (schedule_[k].type == STANCE) {
 			params.duration = decision_params(0);
-			params.terminal_cop = decision_params.segment<2>(1);
-			params.terminal_length = decision_params(3);
+			params.cop_shift = decision_params.segment<2>(1);
+			params.length_shift = decision_params(3);
 			params.head_acc = decision_params(4);
-		} else // Flight phase
+		} else {// Flight phase
 			params.duration = decision_params(0);
+			params.cop_shift = Eigen::Vector2d::Zero();
+			params.length_shift = 0.;
+			params.head_acc = 0.;
+		}
 
 		// Adding the actual preview params to the preview control vector
 		preview_control.base.push_back(params);
@@ -349,11 +419,48 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 	}
 
 	// Adding the foothold target positions o the preview control
-	rbd::BodySelector legs = system_.getEndEffectorNames(model::FOOT);
+	rbd::BodySelector feet = system_.getEndEffectorNames(model::FOOT);
 	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(model::FOOT); i++) {
-		std::string leg_name = legs[i];
-		Eigen::VectorXd foothold = generalized_control.segment<2>(actual_idx);
-		preview_control.footholds[leg_name] = foothold;
+		std::string foot_name = feet[i];
+		Eigen::Vector2d foot_shift = generalized_control.segment<2>(actual_idx);
+
+		preview_control.feet_shift[foot_name] = foot_shift;
+		actual_idx += 2; //Foothold displacement
+	}
+}
+
+
+void PreviewLocomotion::fromPreviewControl(Eigen::VectorXd& generalized_control,
+										   const PreviewControl& preview_control)
+{
+	// Resizing the generalized control vector
+	generalized_control.resize(getControlDimension());
+
+	// Converting the preview params for every phase
+	unsigned int actual_idx = 0;
+	for (unsigned int k = 0; k < phases_; k++) {
+		// Appending the preview duration
+		generalized_control(actual_idx) = preview_control.base[k].duration;
+		actual_idx += 1;
+
+		// Appending the preview parameters for the stance phase
+		if (schedule_[k].type == STANCE) {
+			generalized_control.segment<2>(actual_idx) = preview_control.base[k].cop_shift;
+			actual_idx += 2;
+
+			generalized_control(actual_idx) = preview_control.base[k].length_shift;
+			actual_idx += 1;
+
+			generalized_control(actual_idx) = preview_control.base[k].head_acc;
+			actual_idx += 1;
+		}
+	}
+
+	// Converting the footholds
+	rbd::BodySelector feet = system_.getEndEffectorNames(model::FOOT);
+	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(model::FOOT); i++) {
+		generalized_control.segment<2>(actual_idx) = preview_control.feet_shift.find(feet[i])->second;
+		actual_idx += 2; //Foothold position
 	}
 }
 
@@ -392,7 +499,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	preview_state.com_pos = system_.getSystemCoM(full_state.base_pos, full_state.joint_pos);
 	preview_state.com_vel = system_.getSystemCoMRate(full_state.base_pos, full_state.joint_pos,
 													 full_state.base_vel, full_state.joint_vel);
-	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX); //Neglecting the joint accelerations components
+	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX); // Neglecting the joint accelerations components
 	preview_state.head_pos = full_state.base_pos(rbd::AZ);
 	preview_state.head_vel = full_state.base_vel(rbd::AZ);
 	preview_state.head_acc = full_state.base_acc(rbd::AZ);
@@ -437,6 +544,7 @@ void PreviewLocomotion::toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
 	unsigned int traj_size = preview_traj.size();
 
 	// Resizing the full trajectory vector
+	full_traj.clear();
 	full_traj.resize(traj_size);
 
 	// Getting the full trajectory
@@ -457,7 +565,7 @@ unsigned int PreviewLocomotion::getParamsDimension(const unsigned int& phase)
 	}
 
 	unsigned int phase_dim = 0;
-	switch (schedule_[phase]) {
+	switch (schedule_[phase].type) {
 		case STANCE:
 			phase_dim = 5;
 			break;

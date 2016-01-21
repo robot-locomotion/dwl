@@ -92,7 +92,7 @@ class OptimalControl : public model::OptimizationModel
 		 * @brief Adds an active or inactive constraints to the optimization problem
 		 * @param Constraint* Constraint to add it
 		 */
-		void addConstraint(Constraint* constraint);
+		void addConstraint(Constraint<WholeBodyState>* constraint);
 
 		/**
 		 * @brief Removes an active or inactive constraints to the optimization problem
@@ -122,7 +122,7 @@ class OptimalControl : public model::OptimizationModel
 		DynamicalSystem* getDynamicalSystem();
 
 		/** @brief Gets the active and inactive constraints, which not include the dynamical one */
-		std::vector<Constraint*> getConstraints();
+		std::vector<Constraint<WholeBodyState>*> getConstraints();
 
 		/** @brief Gets the cost functions */
 		std::vector<Cost*> getCosts();
@@ -136,7 +136,7 @@ class OptimalControl : public model::OptimizationModel
 		DynamicalSystem* dynamical_system_;
 
 		/** @brief Vector of active and inactive constraints pointers */
-		std::vector<Constraint*> constraints_;
+		std::vector<Constraint<WholeBodyState>*> constraints_;
 
 		/** @brief Vector of costs pointers */
 		std::vector<Cost*> costs_;

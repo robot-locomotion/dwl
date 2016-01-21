@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv)
 {
-	bool op = false;
+	bool op = true;
 	dwl::solver::OptimizationSolver* solver = new dwl::solver::cmaesSOFamily();
 	dwl::ocp::OptimalControl optimal_control;
 	dwl::ocp::PreviewOptimization preview_opt;

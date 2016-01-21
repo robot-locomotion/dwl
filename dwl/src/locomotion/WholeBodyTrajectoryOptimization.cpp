@@ -18,11 +18,16 @@ WholeBodyTrajectoryOptimization::~WholeBodyTrajectoryOptimization()
 
 }
 
-void WholeBodyTrajectoryOptimization::init(solver::OptimizationSolver* solver)
+void WholeBodyTrajectoryOptimization::init(solver::OptimizationSolver* solver,
+										   std::string config_filename)
 {
 	solver_ = solver;
-	solver->setOptimizationModel(&oc_model_);
+	solver_->setOptimizationModel(&oc_model_);
 	solver_->init();
+
+	// Setting up the configuration parameters of solver
+	if (config_filename != std::string())
+		solver_->setFromConfigFile(config_filename);
 }
 
 
@@ -38,7 +43,7 @@ void WholeBodyTrajectoryOptimization::removeDynamicalSystem()
 }
 
 
-void WholeBodyTrajectoryOptimization::addConstraint(ocp::Constraint* constraint)
+void WholeBodyTrajectoryOptimization::addConstraint(ocp::Constraint<WholeBodyState>* constraint)
 {
 	oc_model_.addConstraint(constraint);
 }
