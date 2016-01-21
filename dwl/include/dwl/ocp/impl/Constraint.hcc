@@ -9,7 +9,8 @@ namespace ocp
 {
 
 template <typename TState>
-Constraint<TState>::Constraint() : constraint_dimension_(0), is_soft_(false)
+Constraint<TState>::Constraint() : constraint_dimension_(0), is_soft_(false),
+		soft_weight_(10000.)
 {
 	state_buffer_.set_capacity(4);
 }
@@ -94,8 +95,7 @@ void Constraint<TState>::computeSoft(double& constraint_cost,
 	}
 
 	// Computing a weighted quadratic cost of the constraint violation
-	double weight = 10000;
-	constraint_cost = weight * violation_vec.norm();
+	constraint_cost = soft_weight_ * violation_vec.norm();
 }
 
 
@@ -103,6 +103,13 @@ template <typename TState>
 bool Constraint<TState>::isSoftConstraint()
 {
 	return is_soft_;
+}
+
+
+template <typename TState>
+void Constraint<TState>::setSoftWeight(double weight)
+{
+	soft_weight_ = weight;
 }
 
 

@@ -19,7 +19,8 @@ namespace ocp
 
 /**
  * @class Constraint
- * @brief Abstract class for defining constraints in the planning of motion sequences problem
+ * @brief Abstract class for defining constraints used in an
+ * optimization-based locomotion approach
  */
 template <class TState=WholeBodyState>
 class Constraint
@@ -91,6 +92,13 @@ class Constraint
 		bool isSoftConstraint();
 
 		/**
+		 * @brief Sets the weight for computing the soft-constraint, i.e.
+		 * the associated cost
+		 * @param double Weight value
+		 */
+		void setSoftWeight(double weight);
+
+		/**
 		 * @brief Sets the last state that could be used for the constraint
 		 * @param TState& Last whole-body state
 		 */
@@ -118,6 +126,9 @@ class Constraint
 
 		/** @brief Label that indicates if it's implemented as soft constraint */
 		bool is_soft_;
+
+		/** @brief Weight for computing as soft-constraint */
+		double soft_weight_;
 
 		/** @brief Sets the last state */
 		boost::circular_buffer<TState> state_buffer_;
