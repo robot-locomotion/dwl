@@ -80,9 +80,9 @@ void Constraint<TState>::computeSoft(double& constraint_cost,
 	getBounds(lower_bound, upper_bound);
 
 	// Computing the violation vector
-	unsigned int bound_dim = lower_bound.size();
-	Eigen::VectorXd violation_vec = Eigen::VectorXd::Zero(bound_dim);
-	for (unsigned int i = 0; i < bound_dim; i++) {
+	unsigned int vec_dim = constraint.size();
+	Eigen::VectorXd violation_vec = Eigen::VectorXd::Zero(vec_dim);
+	for (unsigned int i = 0; i < vec_dim; i++) {
 		double lower_val = lower_bound(i);
 		double upper_val = upper_bound(i);
 		double const_val = constraint(i);
