@@ -2,7 +2,9 @@
 #define DWL__OCP__PREVIEW_OPTIMIZATION__H
 
 #include <dwl/model/OptimizationModel.h>
+#include <dwl/ocp/SupportPolygonConstraint.h>
 #include <dwl/simulation/PreviewLocomotion.h>
+
 
 namespace dwl
 {
@@ -113,6 +115,7 @@ class PreviewOptimization : public model::OptimizationModel
 								   const simulation::PreviewControl& preview_control);
 		double copStabilitySoftConstraint(const simulation::PreviewTrajectory& preview_traj,
 										  const simulation::PreviewControl& preview_control);
+		ocp::SupportPolygonConstraint polygon_constraint_;
 		simulation::PreviewLocomotion preview_;
 		simulation::PreviewState actual_state_;
 
