@@ -22,6 +22,13 @@ struct PolygonState
 	double margin;
 };
 
+/**
+ * @class SupportPolygonConstraint
+ * @brief This is specialization class for imposing polygonal
+ * constraints, i.e. a 2d point inside the defined polygon. This
+ * method could be used for imposing static and dynamic stabilities
+ * constraints
+ */
 class SupportPolygonConstraint : public Constraint<PolygonState>
 {
 	public:
@@ -31,7 +38,7 @@ class SupportPolygonConstraint : public Constraint<PolygonState>
 		/**
 		 * @brief Computes the constraint vector given a certain state
 		 * @param Eigen::VectorXd& Evaluated constraint function
-		 * @param const PolygonState& Whole-body state
+		 * @param const PolygonState& Polygon state
 		 */
 		void compute(Eigen::VectorXd& constraint,
 					 const PolygonState& state);
