@@ -39,7 +39,6 @@ void SupportPolygonConstraint::compute(Eigen::VectorXd& constraint,
 		line_coeff = math::lineCoeff(polygon[j], polygon[(j + 1) % num_lines_]); //I set true to normalize and use stab margin
 
 		// Filling the line in the polygon matrix
-		double stability_margin = 0.;
 		polygon_mat(j,0) = line_coeff.p;
 		polygon_mat(j,1) = line_coeff.q;
 		polygon_mat(j,2) = line_coeff.r - state.margin;
