@@ -115,6 +115,8 @@ class PreviewOptimization : public model::OptimizationModel
 								   const simulation::PreviewControl& preview_control);
 		double copStabilitySoftConstraint(const simulation::PreviewTrajectory& preview_traj,
 										  const simulation::PreviewControl& preview_control);
+		double previewModelSoftConstraint(const simulation::PreviewTrajectory& preview_traj,
+										  const simulation::PreviewControl& preview_control);
 		ocp::SupportPolygonConstraint polygon_constraint_;
 		simulation::PreviewLocomotion preview_;
 		simulation::PreviewState actual_state_;
