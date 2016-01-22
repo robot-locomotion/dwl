@@ -65,6 +65,14 @@ class PreviewOptimization : public model::OptimizationModel
 									  double z_weight);
 
 		/**
+		 * @brief Sets the reference step properties
+		 * @param double Step duration
+		 * @param double Step distance
+		 */
+		void setDesiredStep(double duration,
+							double distance);
+
+		/**
 		 * @brief Gets the starting point of the problem
 		 * @param Eigen::Ref<Eigen::VectorXd> Full initial point
 		 */
@@ -121,6 +129,8 @@ class PreviewOptimization : public model::OptimizationModel
 		simulation::PreviewLocomotion preview_;
 		simulation::PreviewState actual_state_;
 
+		double desired_step_duration_;
+		double desired_step_distance_;
 		double step_time_weight_;
 		double step_dist_weight_;
 		Eigen::Vector3d acc_int_weight_;
