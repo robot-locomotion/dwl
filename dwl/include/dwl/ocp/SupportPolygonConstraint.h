@@ -14,7 +14,8 @@ struct PolygonState
 {
 	PolygonState(Eigen::Vector3d& _point,
 				 std::vector<Eigen::Vector3d> _vertexes,
-				 double _margin) : point(_point), vertexes(_vertexes),
+				 double _margin) : point(_point),
+						 vertexes(_vertexes.begin(), _vertexes.end()),
 						 margin(_margin) {}
 
 	Eigen::Vector3d point;
