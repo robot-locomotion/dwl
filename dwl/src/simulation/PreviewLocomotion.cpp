@@ -155,7 +155,8 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 {
 	// Checking the preview duration
 	if (params.duration < sample_time_)
-		return; // duration it's always position, and makes sense when is bigger than the sample time
+		return; // duration it's always positive, and makes sense when
+				// is bigger than the sample time
 
 	// Computing the coefficients of the Spring Loaded Inverted Pendulum (SLIP) response
 	double slip_omega = sqrt(gravity_ / slip_.height);
@@ -176,7 +177,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 			params.length_shift / (spring_omega * params.duration);
 
 	// Computing the preview trajectory
-	unsigned int num_samples = round(params.duration / sample_time_);
+	unsigned int num_samples = ceil(params.duration / sample_time_);
 	trajectory.resize(num_samples);
 	for (unsigned int k = 0; k < num_samples; k++) {
 		double time = sample_time_ * (k + 1);
@@ -227,14 +228,15 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 {
 	// Checking the preview duration
 	if (params.duration < sample_time_)
-		return; // duration it's always position, and makes sense when is bigger than the sample time
+		return; // duration it's always positive, and makes sense when
+				// is bigger than the sample time
 
 	// Setting the gravity vector
 	Eigen::Vector3d gravity_vec = Eigen::Vector3d::Zero();
 	gravity_vec(rbd::Z) = -gravity_;
 
 	// Computing the preview trajectory
-	unsigned int num_samples = round(params.duration / sample_time_);
+	unsigned int num_samples = ceil(params.duration / sample_time_);
 	trajectory.resize(num_samples);
 	for (unsigned int k = 0; k < num_samples; k++) {
 		double time = sample_time_ * (k + 1);
@@ -266,10 +268,11 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 {
 	// Checking the preview duration
 	if (params.duration < sample_time_)
-		return; // duration it's always position, and makes sense when is bigger than the sample time
+		return; // duration it's always positive, and makes sense when
+				// is bigger than the sample time
 
 	// Getting the number of samples of the trajectory
-	unsigned int num_samples = round(params.duration / sample_time_);
+	unsigned int num_samples = ceil(params.duration / sample_time_);
 
 	// Getting the actual and terminal base position for computing the footholds trajectories
 	// w.r.t. the base
