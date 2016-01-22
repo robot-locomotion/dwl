@@ -7,8 +7,9 @@ namespace dwl
 namespace simulation
 {
 
-PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81), mass_(0.),
-		step_height_(0.1), force_threshold_(0.), phases_(0), set_schedule_(false)
+PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81),
+		mass_(0.), step_height_(0.1), force_threshold_(0.), phases_(0),
+		set_schedule_(false)
 {
 	actual_system_com_.setZero();
 }
@@ -86,7 +87,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 										  const PreviewControl& control)
 {
 	if (!set_schedule_) {
-		printf(RED "Error: there is not defined the preview schedule \n" COLOR_RESET);
+		printf(RED "Error: there is not defined the preview schedule\n"
+				COLOR_RESET);
 		return;
 	}
 
@@ -115,7 +117,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			rbd::BodyVector swing_shift;
 			for (unsigned int j = 0; j < schedule_[i].feet.size(); j++) {
 				std::string foot_name = schedule_[i].feet[j];
-				Eigen::Vector2d foot_shift_2d = (Eigen::Vector2d) control.feet_shift.find(foot_name)->second;
+				Eigen::Vector2d foot_shift_2d =
+						(Eigen::Vector2d) control.feet_shift.find(foot_name)->second;
 
 				// Computing the z displacement of the foot from the height map. TODO hard coded
 //				Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
@@ -158,13 +161,16 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		return; // duration it's always positive, and makes sense when
 				// is bigger than the sample time
 
-	// Computing the coefficients of the Spring Loaded Inverted Pendulum (SLIP) response
+	// Computing the coefficients of the Spring Loaded Inverted Pendulum
+	// (SLIP) response
 	double slip_omega = sqrt(gravity_ / slip_.height);
 	double alpha = 2 * slip_omega * params.duration;
 	Eigen::Vector2d slip_hor_proj = (state.com_pos - state.cop).head<2>();
 	Eigen::Vector2d slip_hor_disp = state.com_vel.head<2>() * params.duration;
-	Eigen::Vector2d beta_1 = slip_hor_proj / 2 + (slip_hor_disp - params.cop_shift) / alpha;
-	Eigen::Vector2d beta_2 = slip_hor_proj / 2 - (slip_hor_disp - params.cop_shift) / alpha;
+	Eigen::Vector2d beta_1 = slip_hor_proj / 2 +
+			(slip_hor_disp - params.cop_shift) / alpha;
+	Eigen::Vector2d beta_2 = slip_hor_proj / 2 -
+			(slip_hor_disp - params.cop_shift) / alpha;
 
 	// Computing the initial length of the pendulum
 	double initial_length = (state.com_pos - state.cop).norm();
@@ -186,28 +192,40 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		PreviewState current_state;
 		current_state.time = state.time + time;
 
-		// Computing the horizontal motion of the CoM according to the SLIP system
-		current_state.com_pos.head<2>() = beta_1 * exp(slip_omega * time) +
+		// Computing the horizontal motion of the CoM according to
+		// the SLIP system
+		current_state.com_pos.head<2>() =
+				beta_1 * exp(slip_omega * time) +
 				beta_2 * exp(-slip_omega * time) +
-				(params.cop_shift / params.duration) * time + state.cop.head<2>();
-		current_state.com_vel.head<2>() = beta_1 * slip_omega * exp(slip_omega * time) -
+				(params.cop_shift / params.duration) * time +
+				state.cop.head<2>();
+		current_state.com_vel.head<2>() =
+				beta_1 * slip_omega * exp(slip_omega * time) -
 				beta_2 * slip_omega * exp(-slip_omega * time) +
 				params.cop_shift / params.duration;
-		current_state.com_vel.head<2>() = beta_1 * pow(slip_omega,2) * exp(slip_omega * time) +
+		current_state.com_vel.head<2>() =
+				beta_1 * pow(slip_omega,2) * exp(slip_omega * time) +
 				beta_2 * pow(slip_omega,2) * exp(-slip_omega * time);
 
-		// Computing the vertical motion of the CoM according to the spring-mass system
-		current_state.com_pos(rbd::Z) = d_1 * cos(spring_omega * time) +
-				d_2 * sin(spring_omega * time) + (params.length_shift / params.duration) * time +
+		// Computing the vertical motion of the CoM according to
+		// the spring-mass system
+		current_state.com_pos(rbd::Z) =
+				d_1 * cos(spring_omega * time) +
+				d_2 * sin(spring_omega * time) +
+				(params.length_shift / params.duration) * time +
 				initial_length - gravity_ / pow(spring_omega,2);
-		current_state.com_vel(rbd::Z) = -d_1 * spring_omega * sin(spring_omega * time) +
+		current_state.com_vel(rbd::Z) =
+				-d_1 * spring_omega * sin(spring_omega * time) +
 				d_2 * spring_omega * cos(spring_omega * time) +
 				params.length_shift / params.duration;
-		current_state.com_acc(rbd::Z) = -d_1 * pow(spring_omega,2) * cos(spring_omega * time) -
+		current_state.com_acc(rbd::Z) =
+				-d_1 * pow(spring_omega,2) * cos(spring_omega * time) -
 				d_2 * pow(spring_omega,2) * sin(spring_omega * time);
 
 		// Computing the CoP position given the linear assumption
-		Eigen::Vector3d cop_shift_3d(params.cop_shift(rbd::X), params.cop_shift(rbd::Y), 0.);
+		Eigen::Vector3d cop_shift_3d(params.cop_shift(rbd::X),
+									 params.cop_shift(rbd::Y),
+									 0.);
 		current_state.cop = state.cop +	(time / params.duration) * cop_shift_3d;
 
 		// Computing the heading motion according to heading kinematic equation
@@ -251,7 +269,8 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 		current_state.com_vel = state.com_vel + gravity_vec * time;
 		current_state.com_acc = gravity_vec;
 
-		// Computing the heading motion by assuming that there isn't change in the angular momentum
+		// Computing the heading motion by assuming that there isn't
+		// change in the angular momentum
 		current_state.head_pos = state.head_pos + state.head_vel * time;
 		current_state.head_vel = state.head_vel;
 		current_state.head_acc = 0.;
@@ -274,8 +293,8 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 	// Getting the number of samples of the trajectory
 	unsigned int num_samples = ceil(params.duration / sample_time_);
 
-	// Getting the actual and terminal base position for computing the footholds trajectories
-	// w.r.t. the base
+	// Getting the actual and terminal base position for computing the
+	// footholds trajectories w.r.t. the base
 	Eigen::Vector3d actual_base_pos = trajectory[0].com_pos - actual_system_com_;
 
 	// Generating the feet trajectories
@@ -284,7 +303,8 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 		std::string name = contact_it->first;
 
 		// Getting the actual position of the contact
-		Eigen::Vector3d actual_pos = (Eigen::Vector3d) state.foot_pos.find(name)->second;
+		Eigen::Vector3d actual_pos =
+				(Eigen::Vector3d) state.foot_pos.find(name)->second;
 
 		Eigen::Vector3d target_pos;
 		rbd::BodyVector::const_iterator swing_it = params.feet_shift.find(name);
@@ -320,8 +340,8 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 				trajectory[k].foot_acc[name] = foot_acc;
 			}
 		} else {
-			// There is not swing trajectory to generated (foot on ground). Nevertheless, we have
-			// to updated their positions w.r.t the base frame
+			// There is not swing trajectory to generated (foot on ground).
+			// Nevertheless, we have to updated their positions w.r.t the base frame
 			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
 			for (unsigned int k = 0; k < num_samples; k++) {
 				double time = state.time + sample_time_ * (k + 1);
@@ -356,7 +376,8 @@ double PreviewLocomotion::getSampleTime()
 unsigned int PreviewLocomotion::getControlDimension()
 {
 	if (!set_schedule_) {
-		printf(RED "Error: there is not defined the preview schedule \n" COLOR_RESET);
+		printf(RED "Error: there is not defined the preview schedule \n"
+				COLOR_RESET);
 		return 0;
 	}
 
@@ -387,7 +408,8 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 {
 
 	if (getControlDimension() != generalized_control.size()) {
-		printf(RED "FATAL: the preview-control and decision dimensions are not consistent\n" COLOR_RESET);
+		printf(RED "FATAL: the preview-control and decision dimensions are not"
+				" consistent\n" COLOR_RESET);
 		exit(EXIT_FAILURE);
 	}
 
@@ -398,8 +420,10 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 		// Getting the preview params dimension for the actual phase
 		unsigned int params_dim = getParamsDimension(k);
 
-		// Converting the decision control vector, for a certain time, to decision params
-		Eigen::VectorXd decision_params = generalized_control.segment(actual_idx, params_dim);
+		// Converting the decision control vector, for a certain time,
+		// to decision params
+		Eigen::VectorXd decision_params =
+				generalized_control.segment(actual_idx, params_dim);
 
 		// Converting the generalized param vector to preview params
 		if (schedule_[k].type == STANCE) {
@@ -462,7 +486,8 @@ void PreviewLocomotion::fromPreviewControl(Eigen::VectorXd& generalized_control,
 	// Converting the footholds
 	rbd::BodySelector feet = system_.getEndEffectorNames(model::FOOT);
 	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(model::FOOT); i++) {
-		generalized_control.segment<2>(actual_idx) = preview_control.feet_shift.find(feet[i])->second;
+		generalized_control.segment<2>(actual_idx) =
+				preview_control.feet_shift.find(feet[i])->second;
 		actual_idx += 2; //Foothold position
 	}
 }
@@ -474,9 +499,10 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	// Adding the time
 	full_state.time = preview_state.time;
 
-	// From the preview model we do not know the joint states, so we neglect the joint-related
-	// components of the CoM
-	rbd::linearPart(full_state.base_pos) = preview_state.com_pos - actual_system_com_;
+	// From the preview model we do not know the joint states, so we neglect
+	// the joint-related components of the CoM
+	rbd::linearPart(full_state.base_pos) =
+			preview_state.com_pos - actual_system_com_;
 	rbd::linearPart(full_state.base_vel) = preview_state.com_vel;
 	rbd::linearPart(full_state.base_acc) = preview_state.com_acc;
 
@@ -498,11 +524,17 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	preview_state.time = full_state.time;
 
 	// Computing the CoM position, velocity and acceleration
-	actual_system_com_ = system_.getSystemCoM(rbd::Vector6d::Zero(), full_state.joint_pos);
-	preview_state.com_pos = system_.getSystemCoM(full_state.base_pos, full_state.joint_pos);
-	preview_state.com_vel = system_.getSystemCoMRate(full_state.base_pos, full_state.joint_pos,
-													 full_state.base_vel, full_state.joint_vel);
-	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX); // Neglecting the joint accelerations components
+	actual_system_com_ = system_.getSystemCoM(rbd::Vector6d::Zero(),
+											  full_state.joint_pos);
+	preview_state.com_pos = system_.getSystemCoM(full_state.base_pos,
+												 full_state.joint_pos);
+	preview_state.com_vel = system_.getSystemCoMRate(full_state.base_pos,
+													 full_state.joint_pos,
+													 full_state.base_vel,
+													 full_state.joint_vel);
+	// Neglecting the joint accelerations components
+	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX);
+
 	preview_state.head_pos = full_state.base_pos(rbd::AZ);
 	preview_state.head_vel = full_state.base_vel(rbd::AZ);
 	preview_state.head_acc = full_state.base_acc(rbd::AZ);
@@ -530,10 +562,12 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	for (unsigned int i = 0; i < num_active_contacts; i++) {
 		std::string name = active_contacts[i];
 
-		preview_state.support_region[name] = full_state.contact_pos.find(name)->second;
+		preview_state.support_region[name] =
+				full_state.contact_pos.find(name)->second;
 	}
 
-	// Adding the contact positions, velocities and accelerations w.r.t the base frame
+	// Adding the contact positions, velocities and accelerations
+	// w.r.t the base frame
 	preview_state.foot_pos = full_state.contact_pos;
 	preview_state.foot_vel = full_state.contact_vel;
 	preview_state.foot_acc = full_state.contact_acc;
@@ -563,7 +597,8 @@ void PreviewLocomotion::toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
 unsigned int PreviewLocomotion::getParamsDimension(const unsigned int& phase)
 {
 	if (!set_schedule_) {
-		printf(RED "Error: there is not defined the preview schedule \n" COLOR_RESET);
+		printf(RED "Error: there is not defined the preview schedule\n"
+				COLOR_RESET);
 		return 0;
 	}
 
