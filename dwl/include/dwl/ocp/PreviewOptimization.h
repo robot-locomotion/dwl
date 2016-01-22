@@ -122,6 +122,8 @@ class PreviewOptimization : public model::OptimizationModel
 		double step_time_weight_;
 		double step_dist_weight_;
 		Eigen::Vector3d acc_int_weight_;
+
+		unsigned int num_feet_;
 };
 
 } //@namespace ocp
