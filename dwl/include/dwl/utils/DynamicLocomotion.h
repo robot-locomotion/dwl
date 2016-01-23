@@ -157,6 +157,29 @@ struct WholeBodyState
 typedef std::vector<WholeBodyState> WholeBodyTrajectory;
 
 /**
+ * @struct ReducedBodyState
+ * @brief Defines a reduced state of the robot
+ */
+struct ReducedBodyState
+{
+	ReducedBodyState() {
+		com_pos.setZero();
+		com_vel.setZero();
+		com_acc.setZero();
+		cop.setZero();
+	}
+
+	Eigen::Vector3d com_pos;
+	Eigen::Vector3d com_vel;
+	Eigen::Vector3d com_acc;
+	Eigen::Vector3d cop;
+	std::vector<Eigen::Vector3d> support;
+};
+
+/** @brief Defines a reduced-body trajectory */
+typedef std::vector<ReducedBodyState> ReducedBodyTrajectory;
+
+/**
  * @struct RobotAndTerrain
  * @brief Struct to define the relevant information of the robot and terrain for computing the reward
  */
