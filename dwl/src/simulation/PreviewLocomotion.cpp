@@ -562,8 +562,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	for (unsigned int i = 0; i < num_active_contacts; i++) {
 		std::string name = active_contacts[i];
 
-		preview_state.support_region[name] =
-				full_state.contact_pos.find(name)->second;
+		preview_state.support_region.push_back(full_state.contact_pos.find(name)->second);
 	}
 
 	// Adding the contact positions, velocities and accelerations

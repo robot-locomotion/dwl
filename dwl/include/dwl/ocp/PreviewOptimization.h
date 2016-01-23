@@ -117,6 +117,17 @@ class PreviewOptimization : public model::OptimizationModel
 
 
 	private:
+		/**
+		 * @brief Gets the preview states for each phase once a multi-phase was
+		 * computed, otherwise return zero transitions
+		 * @param simulation::PreviewTrajectory& Preview transitions between phases
+		 * @param const simulation::PreviewTrajectory& Generated preview trajectory
+		 * @param const simulation::PreviewControl& Applied preview control
+		 */
+		void getPreviewTransitions(simulation::PreviewTrajectory& transitions,
+				   	   	   	   	   const simulation::PreviewTrajectory& trajectory,
+								   const simulation::PreviewControl& control);
+
 		double stepCost(const simulation::PreviewTrajectory& preview_traj,
 						const simulation::PreviewControl& preview_control);
 		double comAccelerationCost(const simulation::PreviewTrajectory& preview_traj,
