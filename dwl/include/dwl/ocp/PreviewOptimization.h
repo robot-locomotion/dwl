@@ -115,6 +115,9 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Returns the preview system pointer */
 		simulation::PreviewLocomotion* getPreviewSystem();
 
+		/** @brief Returns the reduced-body trajectory */
+		ReducedBodyTrajectory& getReducedTrajectory();
+
 
 	private:
 		/**
@@ -141,6 +144,9 @@ class PreviewOptimization : public model::OptimizationModel
 		ocp::SupportPolygonConstraint polygon_constraint_;
 		simulation::PreviewLocomotion preview_;
 		simulation::PreviewState actual_state_;
+
+		ReducedBodyTrajectory reduced_traj_;
+		simulation::PreviewTrajectory preview_transitions_;
 
 		double desired_step_duration_;
 		double desired_step_distance_;
