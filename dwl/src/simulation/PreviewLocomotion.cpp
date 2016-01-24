@@ -510,8 +510,13 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	full_state.base_vel(rbd::AZ) = preview_state.head_vel;
 	full_state.base_acc(rbd::AZ) = preview_state.head_acc;
 
-	// Contact positions
-	full_state.contact_pos = preview_state.foot_pos;
+	// Adding the contact positions, velocities and accelerations
+	// w.r.t the base frame
+	for (rbd::BodyVector::const_iterator contact_it = preview_state.foot_pos.begin();
+			contact_it != preview_state.foot_pos.end(); contact_it++) {
+		std::string name = contact_it->first;
+		full_state.contact_pos[name] = contact_it->second + actual_system_com_;
+	}
 	full_state.contact_vel = preview_state.foot_vel;
 	full_state.contact_acc = preview_state.foot_acc;
 }
@@ -552,7 +557,8 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 									  system_.getEndEffectorNames());
 	preview_state.cop = base_traslation + base_rotation * cop_wrt_base;
 
-	// Getting the support region by detecting the active contacts
+	// Getting the support region by detecting the active contacts w.r.t
+	// the CoM frame
 	rbd::BodySelector active_contacts;
 	dynamics_.getActiveContacts(active_contacts,
 								full_state.contact_eff,
@@ -562,12 +568,17 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	for (unsigned int i = 0; i < num_active_contacts; i++) {
 		std::string name = active_contacts[i];
 
-		preview_state.support_region.push_back(full_state.contact_pos.find(name)->second);
+		preview_state.support_region.push_back(
+				full_state.contact_pos.find(name)->second -	actual_system_com_);
 	}
 
 	// Adding the contact positions, velocities and accelerations
-	// w.r.t the base frame
-	preview_state.foot_pos = full_state.contact_pos;
+	// w.r.t the CoM frame
+	for (rbd::BodyVector::const_iterator contact_it = full_state.contact_pos.begin();
+			contact_it != full_state.contact_pos.end(); contact_it++) {
+		std::string name = contact_it->first;
+		preview_state.foot_pos[name] = contact_it->second - actual_system_com_;
+	}
 	preview_state.foot_vel = full_state.contact_vel;
 	preview_state.foot_acc = full_state.contact_acc;
 }
