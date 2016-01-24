@@ -361,6 +361,73 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 }
 
 
+void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& transitions,
+											  const simulation::PreviewTrajectory& trajectory,
+											  const simulation::PreviewControl& control)
+{
+	// Resizing the transitions
+	transitions.resize(phases_ + 1);
+
+	// Adding the actual state
+	transitions[0].time = trajectory[0].time;
+	transitions[0].com_pos = trajectory[0].com_pos;
+	transitions[0].com_vel = trajectory[0].com_vel;
+	transitions[0].com_acc = trajectory[0].com_acc;
+	transitions[0].cop = trajectory[0].cop;
+
+	// Getting the preview transitions
+	int previous_index = -1;
+	for (unsigned int k = 0; k < phases_; k++) {
+		simulation::PreviewPhase phase = getPhase(k);
+
+		// Checking the preview duration
+		if (control.base[k].duration < sample_time_)
+			continue; // duration it's always positive, and makes sense when
+					  // is bigger than the sample time
+
+		// Getting the index of the actual phase. Note that there is a
+		// sanity check
+		int index = previous_index +
+				ceil(control.base[k].duration / sample_time_);
+		if (index < 0)
+			index = 0;
+
+		// Setting the index as the previous one, which it will be used it for
+		// the next for-iteration
+		previous_index = index;
+
+		// Adding the transition states
+		transitions[k+1].time = trajectory[index].time;
+		transitions[k+1].com_pos = trajectory[index].com_pos;
+		transitions[k+1].com_vel = trajectory[index].com_vel;
+		transitions[k+1].com_acc = trajectory[index].com_acc;
+		transitions[k+1].cop = trajectory[index].cop;
+
+		// Getting the support region of the actual phase
+		if (phase.type == simulation::STANCE) {
+			std::map<std::string, bool> swing_feet;
+			for (unsigned int f = 0; f < phase.feet.size(); f++) {
+				swing_feet[phase.feet[f]] = true;
+			}
+
+			rbd::BodyVector feet_pos = trajectory[index].foot_pos;
+			for (rbd::BodyVector::iterator feet_it = feet_pos.begin();
+					feet_it != feet_pos.end(); feet_it++) {
+				std::string foot_name = feet_it->first;
+
+				// Adding the foot as support polygon if it's not a swing foot
+				if (swing_feet.find(foot_name) == swing_feet.end()) {// it's not a swing phase
+					Eigen::Vector3d actual_foot_pos = feet_it->second;
+					Eigen::Vector3d foot_pos_com = actual_foot_pos +
+							transitions[k+1].com_pos - trajectory[0].com_pos;
+					transitions[k+1].support_region.push_back(foot_pos_com);
+				}
+			}
+		}
+	}
+}
+
+
 model::FloatingBaseSystem* PreviewLocomotion::getFloatingBaseSystem()
 {
 	return &system_;
