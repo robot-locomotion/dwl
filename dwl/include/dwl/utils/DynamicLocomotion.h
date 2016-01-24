@@ -162,13 +162,14 @@ typedef std::vector<WholeBodyState> WholeBodyTrajectory;
  */
 struct ReducedBodyState
 {
-	ReducedBodyState() {
+	ReducedBodyState() : time(0.) {
 		com_pos.setZero();
 		com_vel.setZero();
 		com_acc.setZero();
 		cop.setZero();
 	}
 
+	double time;
 	Eigen::Vector3d com_pos;
 	Eigen::Vector3d com_vel;
 	Eigen::Vector3d com_acc;
