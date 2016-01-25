@@ -100,7 +100,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		PreviewTrajectory phase_traj;
 
 		// Getting the preview params of the actual phase
-		PreviewParams preview_params = control.base[i];
+		PreviewParams preview_params = control.params[i];
 
 		// Getting the actual preview state for this phase
 		PreviewState actual_state;
@@ -373,15 +373,18 @@ void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& tra
 	for (unsigned int k = 0; k < phases_; k++) {
 		simulation::PreviewPhase phase = getPhase(k);
 
+		// Getting the actual preview params
+		PreviewParams params = control.params[k];
+
 		// Checking the preview duration
-		if (control.base[k].duration < sample_time_)
+		if (params.duration < sample_time_)
 			continue; // duration it's always positive, and makes sense when
 					  // is bigger than the sample time
 
 		// Getting the index of the actual phase. Note that there is a
 		// sanity check
 		int index = previous_index +
-				ceil(control.base[k].duration / sample_time_);
+				ceil(params.duration / sample_time_);
 		if (index < 0)
 			index = 0;
 
@@ -477,6 +480,7 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 	unsigned int actual_idx = 0;
 	for (unsigned int k = 0; k < phases_; k++) {
 		PreviewParams params;
+
 		// Getting the preview params dimension for the actual phase
 		unsigned int params_dim = getParamsDimension(k);
 
@@ -499,7 +503,7 @@ void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
 		}
 
 		// Adding the actual preview params to the preview control vector
-		preview_control.base.push_back(params);
+		preview_control.params.push_back(params);
 
 		// Updating the actual index of the decision vector
 		actual_idx += params_dim;
@@ -526,19 +530,22 @@ void PreviewLocomotion::fromPreviewControl(Eigen::VectorXd& generalized_control,
 	// Converting the preview params for every phase
 	unsigned int actual_idx = 0;
 	for (unsigned int k = 0; k < phases_; k++) {
+		// Getting the phase parameters
+		PreviewParams params = preview_control.params[k];
+
 		// Appending the preview duration
-		generalized_control(actual_idx) = preview_control.base[k].duration;
+		generalized_control(actual_idx) = params.duration;
 		actual_idx += 1;
 
 		// Appending the preview parameters for the stance phase
 		if (schedule_[k].type == STANCE) {
-			generalized_control.segment<2>(actual_idx) = preview_control.base[k].cop_shift;
+			generalized_control.segment<2>(actual_idx) = params.cop_shift;
 			actual_idx += 2;
 
-			generalized_control(actual_idx) = preview_control.base[k].length_shift;
+			generalized_control(actual_idx) = params.length_shift;
 			actual_idx += 1;
 
-			generalized_control(actual_idx) = preview_control.base[k].head_acc;
+			generalized_control(actual_idx) = params.head_acc;
 			actual_idx += 1;
 		}
 	}
@@ -617,8 +624,8 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 									  system_.getEndEffectorNames());
 	preview_state.cop = base_traslation + base_rotation * cop_wrt_base;
 
-	// Getting the support region by detecting the active contacts w.r.t
-	// the CoM frame
+	// Getting the support region w.r.t the CoM frame. The support region
+	// is defined by the active contacts
 	rbd::BodySelector active_contacts;
 	dynamics_.getActiveContacts(active_contacts,
 								full_state.contact_eff,

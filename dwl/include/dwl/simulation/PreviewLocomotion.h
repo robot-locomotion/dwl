@@ -36,6 +36,17 @@ struct PreviewState
 	rbd::BodyVector foot_acc;
 };
 
+enum TypeOfPhases {STANCE, FLIGHT};
+struct PreviewPhase
+{
+	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()) {}
+	PreviewPhase(enum TypeOfPhases _type,
+				 rbd::BodySelector _feet) : type(_type), feet(_feet) {}
+
+	TypeOfPhases type;
+	rbd::BodySelector feet;
+};
+
 struct PreviewParams
 {
 	PreviewParams() : duration(0.), cop_shift(Eigen::Vector2d::Zero()),
@@ -50,7 +61,27 @@ struct PreviewParams
 	Eigen::Vector2d cop_shift;
 	double length_shift;
 	double head_acc;
+	PreviewPhase phase;
 };
+
+struct PreviewControl
+{
+	PreviewControl() : params(std::vector<PreviewParams>()),
+			feet_shift(rbd::BodyVector()) {}
+	PreviewControl(std::vector<PreviewParams> _params,
+				   rbd::BodyVector _feet_shift) : params(_params),
+						   feet_shift(_feet_shift) {}
+
+	std::vector<PreviewParams> params;
+	rbd::BodyVector feet_shift;
+};
+
+
+typedef std::vector<PreviewState> PreviewTrajectory;
+typedef std::vector<PreviewPhase> PreviewSchedule; //TODO remove the schedule definition
+
+
+
 
 struct SwingParams
 {
@@ -61,30 +92,6 @@ struct SwingParams
 	double duration;
 	rbd::BodyVector feet_shift;
 };
-
-struct PreviewControl
-{
-	PreviewControl() : base(std::vector<PreviewParams>()), feet_shift(rbd::BodyVector()) {}
-	PreviewControl(std::vector<PreviewParams> _base,
-				   rbd::BodyVector _feet_shift) : base(_base), feet_shift(_feet_shift) {}
-
-	std::vector<PreviewParams> base;
-	rbd::BodyVector feet_shift;
-};
-
-enum TypeOfPhases {STANCE, FLIGHT};
-struct PreviewPhase
-{
-	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()) {}
-	PreviewPhase(enum TypeOfPhases _type,
-				 rbd::BodySelector _feet) : type(_type), feet(_feet) {}
-
-	TypeOfPhases type;
-	rbd::BodySelector feet;
-};
-
-typedef std::vector<PreviewState> PreviewTrajectory;
-typedef std::vector<PreviewPhase> PreviewSchedule;
 
 
 struct SLIPModel
