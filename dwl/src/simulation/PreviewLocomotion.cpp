@@ -294,15 +294,15 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 	unsigned int num_samples = ceil(params.duration / sample_time_);
 
 	// Getting the actual and terminal base position for computing the
-	// footholds trajectories w.r.t. the base
-	Eigen::Vector3d actual_base_pos = trajectory[0].com_pos - actual_system_com_;
+	// footholds trajectories w.r.t. the CoM frame
+	Eigen::Vector3d actual_com_pos = trajectory[0].com_pos;
 
 	// Generating the feet trajectories
 	for (rbd::BodyVector::const_iterator contact_it = state.foot_pos.begin();
 			contact_it != state.foot_pos.end(); contact_it++) {
 		std::string name = contact_it->first;
 
-		// Getting the actual position of the contact
+		// Getting the actual position of the contact w.r.t the CoM frame
 		Eigen::Vector3d actual_pos =
 				(Eigen::Vector3d) state.foot_pos.find(name)->second;
 
@@ -348,11 +348,11 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 				if (time > state.time + params.duration)
 					time = state.time + params.duration;
 
-				// Getting the base position of the specific time
-				Eigen::Vector3d base_pos = trajectory[k].com_pos - actual_system_com_;
+				// Getting the CoM position of the specific time
+				Eigen::Vector3d com_pos = trajectory[k].com_pos;
 
 				// Adding the swing state to the trajectory
-				trajectory[k].foot_pos[name] = actual_pos - (base_pos - actual_base_pos);
+				trajectory[k].foot_pos[name] = actual_pos - (com_pos - actual_com_pos);
 				trajectory[k].foot_vel[name] = Eigen::Vector3d::Zero();
 				trajectory[k].foot_acc[name] = Eigen::Vector3d::Zero();
 			}
@@ -366,14 +366,7 @@ void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& tra
 											  const simulation::PreviewControl& control)
 {
 	// Resizing the transitions
-	transitions.resize(phases_ + 1);
-
-	// Adding the actual state
-	transitions[0].time = trajectory[0].time;
-	transitions[0].com_pos = trajectory[0].com_pos;
-	transitions[0].com_vel = trajectory[0].com_vel;
-	transitions[0].com_acc = trajectory[0].com_acc;
-	transitions[0].cop = trajectory[0].cop;
+	transitions.resize(phases_);
 
 	// Getting the preview transitions
 	int previous_index = -1;
@@ -397,11 +390,11 @@ void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& tra
 		previous_index = index;
 
 		// Adding the transition states
-		transitions[k+1].time = trajectory[index].time;
-		transitions[k+1].com_pos = trajectory[index].com_pos;
-		transitions[k+1].com_vel = trajectory[index].com_vel;
-		transitions[k+1].com_acc = trajectory[index].com_acc;
-		transitions[k+1].cop = trajectory[index].cop;
+		transitions[k].time = trajectory[index].time;
+		transitions[k].com_pos = trajectory[index].com_pos;
+		transitions[k].com_vel = trajectory[index].com_vel;
+		transitions[k].com_acc = trajectory[index].com_acc;
+		transitions[k].cop = trajectory[index].cop;
 
 		// Getting the support region of the actual phase
 		if (phase.type == simulation::STANCE) {
@@ -419,8 +412,8 @@ void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& tra
 				if (swing_feet.find(foot_name) == swing_feet.end()) {// it's not a swing phase
 					Eigen::Vector3d actual_foot_pos = feet_it->second;
 					Eigen::Vector3d foot_pos_com = actual_foot_pos +
-							transitions[k+1].com_pos - trajectory[0].com_pos;
-					transitions[k+1].support_region.push_back(foot_pos_com);
+							transitions[k].com_pos - trajectory[0].com_pos;
+					transitions[k].support_region.push_back(foot_pos_com);
 				}
 			}
 		}
