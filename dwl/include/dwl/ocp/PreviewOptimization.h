@@ -131,6 +131,33 @@ class PreviewOptimization : public model::OptimizationModel
 										  const simulation::PreviewControl& preview_control);
 		double targetLegLengthSoftConstraint(const simulation::PreviewTrajectory& preview_traj,
 											 const simulation::PreviewControl& preview_control);
+
+		/** @brief Returns the control dimension of the preview schedule */
+		unsigned int getControlDimension();
+
+		/**
+		 * @brief Gets the control dimension of the preview schedule
+		 * @param const unsigned int& Phase index
+		 * @return Returns the control dimension of the preview schedule
+		 */
+		unsigned int getParamsDimension(const unsigned int& phase);
+
+		/**
+		 * @brief Converts the generalized control vector to preview control
+		 * @param simulation::PreviewControl& Preview control
+		 * @param const Eigen::VectorXd& Generalized control vector
+		 */
+		void toPreviewControl(simulation::PreviewControl& preview_control,
+							  const Eigen::VectorXd& generalized_control);
+
+		/**
+		 * @brief Converts the preview control to generalized control vector
+		 * @param Eigen::VectorXd& Generalized control vector
+		 * @param const simulation::PreviewControl& Preview control
+		 */
+		void fromPreviewControl(Eigen::VectorXd& generalized_control,
+								const simulation::PreviewControl& preview_control);
+
 		ocp::SupportPolygonConstraint polygon_constraint_;
 		simulation::PreviewLocomotion preview_;
 		simulation::PreviewState actual_state_;
@@ -144,7 +171,17 @@ class PreviewOptimization : public model::OptimizationModel
 		double step_dist_weight_;
 		Eigen::Vector3d acc_int_weight_;
 
+		rbd::BodySelector feet_;
 		unsigned int num_feet_;
+
+		/** @brief Preview schedule */
+		simulation::PreviewSchedule schedule_;
+
+		/** @brief Number of phases of the schedule */
+		unsigned int phases_;
+
+		/** @brief Indicates it was set the schedule */
+		bool set_schedule_;
 };
 
 } //@namespace ocp

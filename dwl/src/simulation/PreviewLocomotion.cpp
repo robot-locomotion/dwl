@@ -8,8 +8,7 @@ namespace simulation
 {
 
 PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81),
-		mass_(0.), step_height_(0.1), force_threshold_(0.), phases_(0),
-		set_schedule_(false)
+		mass_(0.), step_height_(0.1), force_threshold_(0.)
 {
 	actual_system_com_.setZero();
 }
@@ -72,51 +71,35 @@ void PreviewLocomotion::setForceThreshold(double force_threshold)
 }
 
 
-void PreviewLocomotion::setSchedule(const PreviewSchedule& schedule)
-{
-	// Setting the schedule and the number of phases
-	schedule_ = schedule;
-	phases_ = schedule_.size();
-
-	set_schedule_ = true;
-}
-
-
 void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 										  const PreviewState& state,
 										  const PreviewControl& control)
 {
-	if (!set_schedule_) {
-		printf(RED "Error: there is not defined the preview schedule\n"
-				COLOR_RESET);
-		return;
-	}
-
 	// Clearing the trajectory
 	trajectory.clear();
 
 	// Computing the preview for multi-phase
-	for (unsigned int i = 0; i < phases_; i++) {
+	for (unsigned int k = 0; k < control.params.size(); k++) {
 		PreviewTrajectory phase_traj;
 
 		// Getting the preview params of the actual phase
-		PreviewParams preview_params = control.params[i];
+		PreviewParams preview_params = control.params[k];
 
 		// Getting the actual preview state for this phase
 		PreviewState actual_state;
-		if (i == 0)
+		if (k == 0)
 			actual_state = state;
 		else
 			actual_state = trajectory.back();
 
 		// Computing the preview of the actual phase
-		if (schedule_[i].type == STANCE) {
+		if (preview_params.phase.type == STANCE) {
 			stancePreview(phase_traj, actual_state, preview_params);
 
 			// Getting the swing shift per foot
 			rbd::BodyVector swing_shift;
-			for (unsigned int j = 0; j < schedule_[i].feet.size(); j++) {
-				std::string foot_name = schedule_[i].feet[j];
+			for (unsigned int j = 0; j < preview_params.phase.feet.size(); j++) {
+				std::string foot_name = preview_params.phase.feet[j];
 				Eigen::Vector2d foot_shift_2d =
 						(Eigen::Vector2d) control.feet_shift.find(foot_name)->second;
 
@@ -366,13 +349,12 @@ void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& tra
 											  const simulation::PreviewControl& control)
 {
 	// Resizing the transitions
-	transitions.resize(phases_);
+	unsigned int phases = control.params.size();
+	transitions.resize(phases);
 
 	// Getting the preview transitions
 	int previous_index = -1;
-	for (unsigned int k = 0; k < phases_; k++) {
-		simulation::PreviewPhase phase = getPhase(k);
-
+	for (unsigned int k = 0; k < phases; k++) {
 		// Getting the actual preview params
 		PreviewParams params = control.params[k];
 
@@ -400,10 +382,10 @@ void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& tra
 		transitions[k].cop = trajectory[index].cop;
 
 		// Getting the support region of the actual phase
-		if (phase.type == simulation::STANCE) {
+		if (params.phase.type == simulation::STANCE) {
 			std::map<std::string, bool> swing_feet;
-			for (unsigned int f = 0; f < phase.feet.size(); f++) {
-				swing_feet[phase.feet[f]] = true;
+			for (unsigned int f = 0; f < params.phase.feet.size(); f++) {
+				swing_feet[params.phase.feet[f]] = true;
 			}
 
 			rbd::BodyVector feet_pos = trajectory[index].foot_pos;
@@ -433,130 +415,6 @@ model::FloatingBaseSystem* PreviewLocomotion::getFloatingBaseSystem()
 double PreviewLocomotion::getSampleTime()
 {
 	return sample_time_;
-}
-
-
-unsigned int PreviewLocomotion::getControlDimension()
-{
-	if (!set_schedule_) {
-		printf(RED "Error: there is not defined the preview schedule \n"
-				COLOR_RESET);
-		return 0;
-	}
-
-	unsigned int control_dim = 0;
-	for (unsigned int k = 0; k < phases_; k++)
-		control_dim += getParamsDimension(k);
-
-	control_dim += 2 * system_.getNumberOfEndEffectors(model::FOOT);
-
-	return control_dim;
-}
-
-
-unsigned int PreviewLocomotion::getNumberOfPhases()
-{
-	return phases_;
-}
-
-
-const PreviewPhase& PreviewLocomotion::getPhase(const unsigned int& phase)
-{
-	return schedule_[phase];
-}
-
-
-void PreviewLocomotion::toPreviewControl(PreviewControl& preview_control,
-										 const Eigen::VectorXd& generalized_control)
-{
-
-	if (getControlDimension() != generalized_control.size()) {
-		printf(RED "FATAL: the preview-control and decision dimensions are not"
-				" consistent\n" COLOR_RESET);
-		exit(EXIT_FAILURE);
-	}
-
-	// Converting the preview params for every phase
-	unsigned int actual_idx = 0;
-	for (unsigned int k = 0; k < phases_; k++) {
-		PreviewParams params;
-
-		// Getting the preview params dimension for the actual phase
-		unsigned int params_dim = getParamsDimension(k);
-
-		// Converting the decision control vector, for a certain time,
-		// to decision params
-		Eigen::VectorXd decision_params =
-				generalized_control.segment(actual_idx, params_dim);
-
-		// Converting the generalized param vector to preview params
-		if (schedule_[k].type == STANCE) {
-			params.duration = decision_params(0);
-			params.cop_shift = decision_params.segment<2>(1);
-			params.length_shift = decision_params(3);
-			params.head_acc = decision_params(4);
-		} else {// Flight phase
-			params.duration = decision_params(0);
-			params.cop_shift = Eigen::Vector2d::Zero();
-			params.length_shift = 0.;
-			params.head_acc = 0.;
-		}
-
-		// Adding the actual preview params to the preview control vector
-		preview_control.params.push_back(params);
-
-		// Updating the actual index of the decision vector
-		actual_idx += params_dim;
-	}
-
-	// Adding the foothold target positions o the preview control
-	rbd::BodySelector feet = system_.getEndEffectorNames(model::FOOT);
-	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(model::FOOT); i++) {
-		std::string foot_name = feet[i];
-		Eigen::Vector2d foot_shift = generalized_control.segment<2>(actual_idx);
-
-		preview_control.feet_shift[foot_name] = foot_shift;
-		actual_idx += 2; //Foothold displacement
-	}
-}
-
-
-void PreviewLocomotion::fromPreviewControl(Eigen::VectorXd& generalized_control,
-										   const PreviewControl& preview_control)
-{
-	// Resizing the generalized control vector
-	generalized_control.resize(getControlDimension());
-
-	// Converting the preview params for every phase
-	unsigned int actual_idx = 0;
-	for (unsigned int k = 0; k < phases_; k++) {
-		// Getting the phase parameters
-		PreviewParams params = preview_control.params[k];
-
-		// Appending the preview duration
-		generalized_control(actual_idx) = params.duration;
-		actual_idx += 1;
-
-		// Appending the preview parameters for the stance phase
-		if (schedule_[k].type == STANCE) {
-			generalized_control.segment<2>(actual_idx) = params.cop_shift;
-			actual_idx += 2;
-
-			generalized_control(actual_idx) = params.length_shift;
-			actual_idx += 1;
-
-			generalized_control(actual_idx) = params.head_acc;
-			actual_idx += 1;
-		}
-	}
-
-	// Converting the footholds
-	rbd::BodySelector feet = system_.getEndEffectorNames(model::FOOT);
-	for (unsigned int i = 0; i < system_.getNumberOfEndEffectors(model::FOOT); i++) {
-		generalized_control.segment<2>(actual_idx) =
-				preview_control.feet_shift.find(feet[i])->second;
-		actual_idx += 2; //Foothold position
-	}
 }
 
 
@@ -670,30 +528,6 @@ void PreviewLocomotion::toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
 	}
 }
 
-
-unsigned int PreviewLocomotion::getParamsDimension(const unsigned int& phase)
-{
-	if (!set_schedule_) {
-		printf(RED "Error: there is not defined the preview schedule\n"
-				COLOR_RESET);
-		return 0;
-	}
-
-	unsigned int phase_dim = 0;
-	switch (schedule_[phase].type) {
-		case STANCE:
-			phase_dim = 5;
-			break;
-		case FLIGHT:
-			phase_dim = 1;
-			break;
-		default:
-			printf(YELLOW "Warning: could not find the type of preview model");
-			break;
-	}
-
-	return phase_dim;
-}
 
 } //@namespace simulation
 } //@namespace dwl

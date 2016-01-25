@@ -226,35 +226,6 @@ class PreviewLocomotion
 		/** @brief Returns the sample time */
 		double getSampleTime();
 
-		/** @brief Returns the control dimension of the preview schedule */
-		unsigned int getControlDimension();
-
-		/** @brief Returns the defined number of phases */
-		unsigned int getNumberOfPhases();
-
-		/**
-		 * @brief Returns the phase description given a specific phase index
-		 * @param const unsigned int& Phase index
-		 * @return const PreviewPhase& Phase description
-		 */
-		const PreviewPhase& getPhase(const unsigned int& phase);
-
-		/**
-		 * @brief Converts the generalized control vector to preview control
-		 * @param PreviewControl& Preview control
-		 * @param const Eigen::VectorXd& Generalized control vector
-		 */
-		void toPreviewControl(PreviewControl& preview_control,
-							  const Eigen::VectorXd& generalized_control);
-
-		/**
-		 * @brief Converts the preview control to generalized control vector
-		 * @param Eigen::VectorXd& Generalized control vector
-		 * @param const PreviewControl& Preview control
-		 */
-		void fromPreviewControl(Eigen::VectorXd& generalized_control,
-								const PreviewControl& preview_control);
-
 		/**
 		 * @brief Converts the preview state vector to whole-body state
 		 * @param WholeBodyState& Whole-body state
@@ -281,13 +252,6 @@ class PreviewLocomotion
 
 
 	private:
-		/**
-		 * @brief Gets the control dimension of the preview schedule
-		 * @param const unsigned int& Phase index
-		 * @return Returns the control dimension of the preview schedule
-		 */
-		unsigned int getParamsDimension(const unsigned int& phase);
-
 		/** @brief Foot pattern generator */
 		simulation::FootSplinePatternGenerator foot_pattern_generator_;
 
@@ -317,15 +281,6 @@ class PreviewLocomotion
 
 		/** @brief Force threshold */
 		double force_threshold_;
-
-		/** @brief Preview schedule */
-		PreviewSchedule schedule_;
-
-		/** @brief Number of phases of the schedule */
-		unsigned int phases_;
-
-		/** @brief Indicates it was set the schedule */
-		bool set_schedule_;
 };
 
 } //@namespace simulation
