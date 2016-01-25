@@ -41,7 +41,8 @@ struct PreviewPhase
 {
 	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()) {}
 	PreviewPhase(enum TypeOfPhases _type,
-				 rbd::BodySelector _feet) : type(_type), feet(_feet) {}
+				 rbd::BodySelector _feet = rbd::BodySelector()) :
+					 type(_type), feet(_feet) {}
 
 	TypeOfPhases type;
 	rbd::BodySelector feet;
