@@ -77,12 +77,8 @@ struct PreviewControl
 	rbd::BodyVector feet_shift;
 };
 
-
 typedef std::vector<PreviewState> PreviewTrajectory;
-typedef std::vector<PreviewPhase> PreviewSchedule; //TODO remove the schedule definition
-
-
-
+typedef std::vector<PreviewPhase> PreviewSchedule;
 
 struct SwingParams
 {
@@ -93,7 +89,6 @@ struct SwingParams
 	double duration;
 	rbd::BodyVector feet_shift;
 };
-
 
 struct SLIPModel
 {
@@ -165,12 +160,6 @@ class PreviewLocomotion
 		 * @param double Force threshold
 		 */
 		void setForceThreshold(double force_threshold);
-
-		/**
-		 * @brief Sets the schedule, or the sequence of phases
-		 * @param const PreviewSchedule& Sequence of phases (schedule)
-		 */
-		void setSchedule(const PreviewSchedule& schedule);
 
 		void multiPhasePreview(PreviewTrajectory& trajectory,
 							   const PreviewState& state,
