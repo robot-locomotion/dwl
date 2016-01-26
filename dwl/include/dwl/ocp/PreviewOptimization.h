@@ -87,6 +87,18 @@ class PreviewOptimization : public model::OptimizationModel
 									  double z_weight);
 
 		/**
+		 * @brief Sets the CoP stability weight
+		 * @param double CoP stability weight
+		 */
+		void setCopStabilityWeight(double weight);
+
+		/**
+		 * @brief Sets the preview model weight
+		 * @param doublw Preview model weight
+		 */
+		void setPreviewModelWeight(double weight);
+
+		/**
 		 * @brief Sets the reference step properties
 		 * @param double Step duration
 		 * @param double Step distance
@@ -194,6 +206,7 @@ class PreviewOptimization : public model::OptimizationModel
 		double step_time_weight_;
 		double step_dist_weight_;
 		Eigen::Vector3d acc_int_weight_;
+		double preview_model_weight_;
 
 		rbd::BodySelector feet_;
 		unsigned int num_feet_;
