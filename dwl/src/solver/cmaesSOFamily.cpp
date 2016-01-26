@@ -184,20 +184,11 @@ bool cmaesSOFamily::init()
 			new libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy>>(x0, sigma_,
 																						 -1, 0, gp);
 
-	double max_iter = 100;
-	cmaes_params_->set_max_iter(max_iter);
-
-	double max_fevals = 1000;
-	cmaes_params_->set_max_fevals(max_fevals);
-
 	std::string fplot = "out.dat";
 	cmaes_params_->set_fplot(fplot);
 
 	bool with_gradient = false;
 	cmaes_params_->set_gradient(with_gradient);
-
-	int elitist = 0;
-	cmaes_params_->set_elitism(elitist);
 
 
 	// Wrapping the fitness function
