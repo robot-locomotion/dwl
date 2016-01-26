@@ -154,16 +154,16 @@ class PreviewOptimization : public model::OptimizationModel
 
 
 	private:
-		double stepCost(const simulation::PreviewTrajectory& preview_traj,
+		double stepCost(const simulation::PreviewTrajectory& preview_trans,
 						const simulation::PreviewState& actual_state,
 						const simulation::PreviewControl& preview_control);
-		double comAccelerationCost(const simulation::PreviewTrajectory& preview_traj,
-								   const simulation::PreviewControl& preview_control);
-		double copStabilitySoftConstraint(const simulation::PreviewTrajectory& preview_traj,
+		double comAccelerationCost(const simulation::PreviewTrajectory& preview_trans,
+								   const simulation::PreviewState& actual_state);
+		double copStabilitySoftConstraint(const simulation::PreviewTrajectory& preview_trans,
 										  const simulation::PreviewControl& preview_control);
-		double previewModelSoftConstraint(const simulation::PreviewTrajectory& preview_traj,
+		double previewModelSoftConstraint(const simulation::PreviewTrajectory& preview_trans,
 										  const simulation::PreviewControl& preview_control);
-		double targetLegLengthSoftConstraint(const simulation::PreviewTrajectory& preview_traj,
+		double targetLegLengthSoftConstraint(const simulation::PreviewTrajectory& preview_trans,
 											 const simulation::PreviewControl& preview_control);
 
 		/** @brief Returns the control dimension of the preview schedule */
