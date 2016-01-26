@@ -12,6 +12,21 @@ namespace dwl
 namespace ocp
 {
 
+struct PreviewVariables
+{
+	double duration;
+	Eigen::Vector2d cop_shift;
+	double length_shift;
+	Eigen::Vector2d foothold_shift;
+	double head_acc;
+};
+
+struct PreviewBounds
+{
+	PreviewVariables lower;
+	PreviewVariables upper;
+};
+
 /**
  * @class PreviewOptimization
  * @brief A preview optimization problem requires information of "modeling" constraint and "goals"
@@ -45,6 +60,13 @@ class PreviewOptimization : public model::OptimizationModel
 		 * control parameters
 		 */
 		void setStartingPreviewControl(const simulation::PreviewControl& control);
+
+		/**
+		 * @brief Sets the bounds of the preview optimization
+		 * @param PreviewBound Lower bound
+		 * @param PreviewBound Upper bound
+		 */
+		void setBounds(PreviewBounds bounds);
 
 		/**
 		 * @brief Sets the step cost weights
@@ -162,6 +184,8 @@ class PreviewOptimization : public model::OptimizationModel
 		simulation::PreviewLocomotion preview_;
 		simulation::PreviewState actual_state_;
 
+		PreviewBounds bounds_;
+
 		ReducedBodyTrajectory reduced_traj_;
 		simulation::PreviewTrajectory preview_transitions_;
 
@@ -182,6 +206,9 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief Indicates it was set the schedule */
 		bool set_schedule_;
+
+		/** @brief Indicates it was set the bounds */
+		bool is_bound_;
 };
 
 } //@namespace ocp
