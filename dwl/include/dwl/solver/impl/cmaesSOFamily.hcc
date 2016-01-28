@@ -38,7 +38,8 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 		// Reading the cmaes namespace
 		std::string file_ns;
 		it.first() >> file_ns;
-		printf("Reading the configuration parameters from the %s namespace\n", file_ns.c_str());
+		printf("Reading the configuration parameters from the %s namespace\n",
+				file_ns.c_str());
 
 		// Getting the cmaes namespace
 		const YAML::Node& cmaes_ns = *doc.FindValue(file_ns);
@@ -170,8 +171,8 @@ bool cmaesSOFamily<TScaling>::init()
 	// Safety checking of hard-constraints
 	unsigned int constraint_dim = model_->getDimensionOfConstraints();
 	if (constraint_dim > 0)
-		printf(YELLOW "The hard constraint will not consider in the optimization problem."
-				COLOR_RESET);
+		printf(YELLOW "The hard constraint will not consider in the"
+				" optimization problem.\n" COLOR_RESET);
 
 	// Getting the bounds of the optimization problem
 	// Eigen interfacing to raw buffers
@@ -191,7 +192,9 @@ bool cmaesSOFamily<TScaling>::init()
 						TScaling> gp(x_l, x_u, state_dim);
 
 	//int lambda = 100; // offsprings at each generation.
-	cmaes_params_ = // -1 for automatically decided lambda, 0 is for random seeding of the internal generator.
+	// -1 for automatically decided lambda, 0 is for random seeding of
+	// the internal generator.
+	cmaes_params_ =
 			new libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
 															TScaling>>(x0, sigma_,
 																	   -1, 0, gp);
@@ -219,12 +222,15 @@ bool cmaesSOFamily<TScaling>::compute(double allocated_time_secs)
 	cmaes_params_->set_x0(warm_point_);
 
 	// Computing the solution
-	libcmaes::CMASolutions cmasols = libcmaes::cmaes<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,TScaling>>(fitness_, *cmaes_params_);
+	libcmaes::CMASolutions cmasols =
+			libcmaes::cmaes<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
+												TScaling>>(fitness_, *cmaes_params_);
 	cmasols.print(std::cout,false,cmaes_params_->get_gp());
 	std::cout << std::endl << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
 
 	// Evaluation of the solution
-	Eigen::VectorXd solution = cmaes_params_->get_gp().pheno(cmasols.best_candidate().get_x_dvec());
+	Eigen::VectorXd solution =
+			cmaes_params_->get_gp().pheno(cmasols.best_candidate().get_x_dvec());
 	locomotion_trajectory_ = model_->evaluateSolution(solution);
 
 	return cmasols.run_status();
