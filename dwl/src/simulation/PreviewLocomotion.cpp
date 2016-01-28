@@ -165,6 +165,26 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	double d_2 = state.com_vel(rbd::Z) / spring_omega -
 			params.length_shift / (spring_omega * params.duration);
 
+
+	// Computing the support region. Note that the support region
+	// remains constant during this phase
+	PreviewState current_state;
+	std::map<std::string, bool> swing_feet;
+	for (unsigned int f = 0; f < params.phase.feet.size(); f++) {
+		swing_feet[params.phase.feet[f]] = true;
+	}
+	for (rbd::BodyVector::const_iterator foot_it = state.foot_pos.begin();
+			foot_it != state.foot_pos.end(); foot_it++) {
+		std::string foot_name = foot_it->first;
+
+		// Adding the foot as support polygon if it's not a swing foot
+		if (swing_feet.find(foot_name) == swing_feet.end()) {// it's not a swing phase
+			Eigen::Vector3d foot_pos_com = foot_it->second;
+			Eigen::Vector3d foot_pos_world = foot_pos_com + state.com_pos;
+			current_state.support_region.push_back(foot_pos_world);
+		}
+	}
+
 	// Computing the preview trajectory
 	unsigned int num_samples = ceil(params.duration / sample_time_);
 	trajectory.resize(num_samples);
@@ -172,7 +192,6 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		double time = sample_time_ * (k + 1);
 
 		// Computing the current time of the preview trajectory
-		PreviewState current_state;
 		current_state.time = state.time + time;
 
 		// Computing the horizontal motion of the CoM according to
@@ -381,27 +400,13 @@ void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& tra
 		transitions[k].com_acc = trajectory[index].com_acc;
 		transitions[k].cop = trajectory[index].cop;
 
-		// Getting the support region of the actual phase
-		if (params.phase.type == simulation::STANCE) {
-			std::map<std::string, bool> swing_feet;
-			for (unsigned int f = 0; f < params.phase.feet.size(); f++) {
-				swing_feet[params.phase.feet[f]] = true;
-			}
-
-			rbd::BodyVector feet_pos = trajectory[index].foot_pos;
-			for (rbd::BodyVector::iterator feet_it = feet_pos.begin();
-					feet_it != feet_pos.end(); feet_it++) {
-				std::string foot_name = feet_it->first;
-
-				// Adding the foot as support polygon if it's not a swing foot
-				if (swing_feet.find(foot_name) == swing_feet.end()) {// it's not a swing phase
-					Eigen::Vector3d actual_foot_pos = feet_it->second;
-					Eigen::Vector3d foot_pos_com = actual_foot_pos +
-							transitions[k].com_pos - trajectory[0].com_pos;
-					transitions[k].support_region.push_back(foot_pos_com);
-				}
-			}
-		}
+		// Getting the support region of the actual phase w.r.t. the
+		// actual CoM frame
+		unsigned int num_vertices = trajectory[index].support_region.size();
+		transitions[k].support_region.resize(num_vertices);
+		for (unsigned int f = 0; f < num_vertices; f++)
+			transitions[k].support_region[f] =
+					trajectory[index].support_region[f] - trajectory[0].com_pos; //TODO think about it
 	}
 }
 
