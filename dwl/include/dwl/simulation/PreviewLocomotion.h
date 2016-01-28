@@ -92,10 +92,9 @@ struct SwingParams
 
 struct SLIPModel
 {
-	SLIPModel() : height(0.), stiffness(0.) {}
-	SLIPModel(double _height, double _stiffness) : height(_height), stiffness(_stiffness) {};
+	SLIPModel() : stiffness(0.) {}
+	SLIPModel(double _stiffness) :  stiffness(_stiffness) {};
 
-	double height;
 	double stiffness;
 };
 

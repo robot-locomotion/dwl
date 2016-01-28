@@ -146,7 +146,8 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 	// Computing the coefficients of the Spring Loaded Inverted Pendulum
 	// (SLIP) response
-	double slip_omega = sqrt(gravity_ / slip_.height);
+	double slip_height = state.com_pos(rbd::Z) - state.cop(rbd::Z);
+	double slip_omega = sqrt(gravity_ / slip_height);
 	double alpha = 2 * slip_omega * params.duration;
 	Eigen::Vector2d slip_hor_proj = (state.com_pos - state.cop).head<2>();
 	Eigen::Vector2d slip_hor_disp = state.com_vel.head<2>() * params.duration;
@@ -166,6 +167,10 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 			params.length_shift / (spring_omega * params.duration);
 
 
+
+
+
+
 	// Computing the support region. Note that the support region
 	// remains constant during this phase
 	PreviewState current_state;
@@ -181,9 +186,20 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		if (swing_feet.find(foot_name) == swing_feet.end()) {// it's not a swing phase
 			Eigen::Vector3d foot_pos_com = foot_it->second;
 			Eigen::Vector3d foot_pos_world = foot_pos_com + state.com_pos;
+			std::cout << "						com_pos = " << state.com_pos.transpose() << std::endl;
+			std::cout << "						foot_pos_com = " << foot_pos_com.transpose() << std::endl;
+			std::cout << "						foot_pos_world = " << foot_pos_world.transpose() << std::endl;
 			current_state.support_region.push_back(foot_pos_world);
 		}
 	}
+	std::cout << "###############################" << std::endl;
+
+
+
+
+
+
+
 
 	// Computing the preview trajectory
 	unsigned int num_samples = ceil(params.duration / sample_time_);
@@ -346,10 +362,6 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 			// Nevertheless, we have to updated their positions w.r.t the base frame
 			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
 			for (unsigned int k = 0; k < num_samples; k++) {
-				double time = state.time + sample_time_ * (k + 1);
-				if (time > state.time + params.duration)
-					time = state.time + params.duration;
-
 				// Getting the CoM position of the specific time
 				Eigen::Vector3d com_pos = trajectory[k].com_pos;
 
@@ -406,7 +418,7 @@ void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& tra
 		transitions[k].support_region.resize(num_vertices);
 		for (unsigned int f = 0; f < num_vertices; f++)
 			transitions[k].support_region[f] =
-					trajectory[index].support_region[f] - trajectory[0].com_pos; //TODO think about it
+					trajectory[index].support_region[f] - 0*trajectory[0].com_pos; //TODO think about it
 	}
 }
 
