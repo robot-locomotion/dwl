@@ -17,6 +17,8 @@ namespace dwl
 namespace ocp
 {
 
+enum SoftConstraintFamily {UNWEIGHTED, QUADRATIC};
+
 /**
  * @class Constraint
  * @brief Abstract class for defining constraints used in an
@@ -95,8 +97,12 @@ class Constraint
 		 * @brief Sets the weight for computing the soft-constraint, i.e.
 		 * the associated cost
 		 * @param double Weight value
+		 * @param double Threshold value for computing the associated cost
+		 * @param enum Soft-constraint family
 		 */
-		void setSoftWeight(double weight);
+		void setSoftProperties(double weight,
+							   double threshold = 0,
+							   enum SoftConstraintFamily family = QUADRATIC);
 
 		/**
 		 * @brief Sets the last state that could be used for the constraint
@@ -127,8 +133,16 @@ class Constraint
 		/** @brief Label that indicates if it's implemented as soft constraint */
 		bool is_soft_;
 
+		/** @brief Describes the soft-constraint family */
+		SoftConstraintFamily soft_family_;
+
 		/** @brief Weight for computing as soft-constraint */
 		double soft_weight_;
+
+		/** @brief The threshold is used for defining when the penalty
+		 * will start
+		 */
+		double soft_threshold_;
 
 		/** @brief Sets the last state */
 		boost::circular_buffer<TState> state_buffer_;
