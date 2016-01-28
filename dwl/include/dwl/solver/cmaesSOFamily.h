@@ -17,6 +17,7 @@ enum CMAESFamily {CMAES, IPOP, BIPOP, ACMAES, AIPOP, ABIPOP, SEPCMAES,
 	SEPIPOP, SEPBIPOP, SEPACMAES, SEPAIPOP, SEPABIPOP, VDCMA, VDIPOPCMA,
 	VDBIPOPCMA};
 
+template<class TScaling=libcmaes::linScalingStrategy>
 class cmaesSOFamily : public OptimizationSolver
 {
 	public:
@@ -82,7 +83,7 @@ class cmaesSOFamily : public OptimizationSolver
 		libcmaes::FitFunc fitness_;
 
 		/** @brief Pointer to the CMA-ES configuration parameters */
-		libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy>>* cmaes_params_;
+		libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,TScaling>>* cmaes_params_;
 
 		/** @brief Warm point for the initialization of the optimization */
 		Eigen::VectorXd warm_point_;
@@ -94,5 +95,6 @@ class cmaesSOFamily : public OptimizationSolver
 } //@namespace solver
 } //@namespace dwl
 
+#include <dwl/solver/impl/cmaesSOFamily.hcc>
 
 #endif
