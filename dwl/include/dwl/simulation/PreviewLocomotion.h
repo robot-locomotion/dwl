@@ -30,7 +30,7 @@ struct PreviewState
 	double head_vel;
 	double head_acc;
 	Eigen::Vector3d cop;
-	std::vector<Eigen::Vector3d> support_region;
+	rbd::BodyPosition support_region;
 	rbd::BodyVector foot_pos;
 	rbd::BodyVector foot_vel;
 	rbd::BodyVector foot_acc;

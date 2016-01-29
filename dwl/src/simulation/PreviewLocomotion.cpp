@@ -189,7 +189,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 			std::cout << "						com_pos = " << state.com_pos.transpose() << std::endl;
 			std::cout << "						foot_pos_com = " << foot_pos_com.transpose() << std::endl;
 			std::cout << "						foot_pos_world = " << foot_pos_world.transpose() << std::endl;
-			current_state.support_region.push_back(foot_pos_world);
+			current_state.support_region[foot_name] = foot_pos_world;
 		}
 	}
 	std::cout << "###############################" << std::endl;
@@ -405,20 +405,14 @@ void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& tra
 		// the next for-iteration
 		previous_index = index;
 
-		// Adding the transition states
+		// Adding the transition states. Note that CoP position and support
+		// region are defined in the world frame
 		transitions[k].time = trajectory[index].time;
 		transitions[k].com_pos = trajectory[index].com_pos;
 		transitions[k].com_vel = trajectory[index].com_vel;
 		transitions[k].com_acc = trajectory[index].com_acc;
 		transitions[k].cop = trajectory[index].cop;
-
-		// Getting the support region of the actual phase w.r.t. the
-		// actual CoM frame
-		unsigned int num_vertices = trajectory[index].support_region.size();
-		transitions[k].support_region.resize(num_vertices);
-		for (unsigned int f = 0; f < num_vertices; f++)
-			transitions[k].support_region[f] =
-					trajectory[index].support_region[f] - 0*trajectory[0].com_pos; //TODO think about it
+		transitions[k].support_region = trajectory[index].support_region;
 	}
 }
 
@@ -496,7 +490,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	dynamics_.computeCenterOfPressure(cop_wrt_base,
 									  full_state.contact_eff,
 									  full_state.contact_pos,
-									  system_.getEndEffectorNames());
+									  system_.getEndEffectorNames(model::FOOT));
 	preview_state.cop = base_traslation + base_rotation * cop_wrt_base;
 
 	// Getting the support region w.r.t the CoM frame. The support region
@@ -505,13 +499,12 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	dynamics_.getActiveContacts(active_contacts,
 								full_state.contact_eff,
 								force_threshold_);
-
-	unsigned int num_active_contacts = active_contacts.size();
-	for (unsigned int i = 0; i < num_active_contacts; i++) {
+	preview_state.support_region.clear();
+	for (unsigned int i = 0; i < active_contacts.size(); i++) {
 		std::string name = active_contacts[i];
 
-		preview_state.support_region.push_back(
-				full_state.contact_pos.find(name)->second -	actual_system_com_);
+		preview_state.support_region[name] =
+				full_state.contact_pos.find(name)->second -	actual_system_com_;
 	}
 
 	// Adding the contact positions, velocities and accelerations

@@ -174,7 +174,7 @@ struct ReducedBodyState
 	Eigen::Vector3d com_vel;
 	Eigen::Vector3d com_acc;
 	Eigen::Vector3d cop;
-	std::vector<Eigen::Vector3d> support;
+	rbd::BodyPosition support_region;
 };
 
 /** @brief Defines a reduced-body trajectory */
