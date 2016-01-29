@@ -174,20 +174,14 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	// Computing the support region. Note that the support region
 	// remains constant during this phase
 	PreviewState current_state;
-	std::map<std::string, bool> swing_feet;
-	for (unsigned int f = 0; f < params.phase.feet.size(); f++) {
-		swing_feet[params.phase.feet[f]] = true;
-	}
 	for (rbd::BodyVector::const_iterator foot_it = state.foot_pos.begin();
 			foot_it != state.foot_pos.end(); foot_it++) {
 		std::string foot_name = foot_it->first;
 
 		// Adding the foot as support polygon if it's not a swing foot
-		if (swing_feet.find(foot_name) == swing_feet.end()) {// it's not a swing phase
+		if (params.phase.isSwingFoot(foot_name)) {// it's not a swing phase
 			Eigen::Vector3d foot_pos_com = foot_it->second;
 			Eigen::Vector3d foot_pos_world = foot_pos_com + state.com_pos;
-			std::cout << "						com_pos = " << state.com_pos.transpose() << std::endl;
-			std::cout << "						foot_pos_com = " << foot_pos_com.transpose() << std::endl;
 			std::cout << "						foot_pos_world = " << foot_pos_world.transpose() << std::endl;
 			current_state.support_region[foot_name] = foot_pos_world;
 		}

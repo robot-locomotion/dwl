@@ -42,10 +42,19 @@ struct PreviewPhase
 	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()) {}
 	PreviewPhase(enum TypeOfPhases _type,
 				 rbd::BodySelector _feet = rbd::BodySelector()) :
-					 type(_type), feet(_feet) {}
+					 type(_type), feet(_feet) {
+		// Setting the swing feet of this phase
+		for (unsigned int f = 0; f < feet.size(); f++)
+			swing_feet[feet[f]] = true;
+	}
+
+	bool isSwingFoot(std::string name) const {
+		return swing_feet.find(name) == swing_feet.end();
+	}
 
 	TypeOfPhases type;
 	rbd::BodySelector feet;
+	std::map<std::string,bool> swing_feet;
 };
 
 struct PreviewParams
