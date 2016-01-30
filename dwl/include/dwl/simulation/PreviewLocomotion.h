@@ -49,7 +49,11 @@ struct PreviewPhase
 	}
 
 	bool isSwingFoot(std::string name) const {
-		return swing_feet.find(name) == swing_feet.end();
+		std::map<std::string,bool>::const_iterator it = swing_feet.find(name);
+		if (it != swing_feet.end())
+			return it->second;
+		else
+			return false;
 	}
 
 	TypeOfPhases type;
