@@ -310,57 +310,60 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 	Eigen::Vector3d actual_com_pos = trajectory[0].com_pos;
 
 	// Generating the feet trajectories
-	for (rbd::BodyVector::const_iterator contact_it = state.foot_pos.begin();
-			contact_it != state.foot_pos.end(); contact_it++) {
-		std::string name = contact_it->first;
+	feet_spline_generator_.clear();
+	Eigen::Vector3d foot_pos, foot_vel, foot_acc;
+	for (unsigned int k = 0; k < num_samples; k++) {
+		double time = state.time + sample_time_ * (k + 1);
+		if (time > state.time + params.duration)
+			time = state.time + params.duration;
 
-		// Getting the actual position of the contact w.r.t the CoM frame
-		Eigen::Vector3d actual_pos =
-				(Eigen::Vector3d) state.foot_pos.find(name)->second;
+		// Generating the actual state for every feet
+		for (rbd::BodyVector::const_iterator foot_it = state.foot_pos.begin();
+				foot_it != state.foot_pos.end(); foot_it++) {
+			std::string name = foot_it->first;
 
-		Eigen::Vector3d target_pos;
-		rbd::BodyVector::const_iterator swing_it = params.feet_shift.find(name);
-		if (swing_it != params.feet_shift.end()) {
-			// Getting the target position of the contact w.r.t the base
-			Eigen::Vector3d foot_shift = (Eigen::Vector3d) swing_it->second;
-			Eigen::Vector3d stance_pos = actual_pos; // TODO read it
-			target_pos = stance_pos + foot_shift;
+			// Checking the feet that swing
+			rbd::BodyVector::const_iterator swing_it = params.feet_shift.find(name);
+			if (swing_it != params.feet_shift.end()) {
+				if (k == 0) { // Initialization of the swing generator
+					// Getting the actual position of the contact w.r.t the CoM frame
+					Eigen::Vector3d actual_pos = foot_it->second;
 
-			// Initializing the foot pattern generator
-			simulation::StepParameters step_params(num_samples * sample_time_,
-												   step_height_);
-			foot_pattern_generator_.setParameters(state.time,
-												  actual_pos,
-												  target_pos,
-												  step_params);
+					// Getting the target position of the contact w.r.t the base
+					Eigen::Vector3d target_pos;
+					Eigen::Vector3d foot_shift = (Eigen::Vector3d) swing_it->second;
+					Eigen::Vector3d stance_pos = actual_pos; // TODO read it
+					target_pos = stance_pos + foot_shift;
 
-			// Computing the swing trajectory
-			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-			for (unsigned int k = 0; k < num_samples; k++) {
-				double time = state.time + sample_time_ * (k + 1);
-				if (time > state.time + params.duration)
-					time = state.time + params.duration;
+					// Initializing the foot pattern generator
+					simulation::StepParameters step_params(num_samples * sample_time_,
+														   step_height_);
+					feet_spline_generator_[name].setParameters(state.time,
+															   actual_pos,
+															   target_pos,
+															   step_params);
+				}
 
 				// Generating the swing positions, velocities and accelerations
-				foot_pattern_generator_.generateTrajectory(foot_pos,
-														   foot_vel,
-														   foot_acc,
-														   time);
+				feet_spline_generator_[name].generateTrajectory(foot_pos,
+																foot_vel,
+																foot_acc,
+																time);
 
 				// Adding the swing state to the trajectory
 				trajectory[k].foot_pos[name] = foot_pos;
 				trajectory[k].foot_vel[name] = foot_vel;
 				trajectory[k].foot_acc[name] = foot_acc;
-			}
-		} else {
-			// There is not swing trajectory to generated (foot on ground).
-			// Nevertheless, we have to updated their positions w.r.t the base frame
-			Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-			for (unsigned int k = 0; k < num_samples; k++) {
+			} else {
+				// There is not swing trajectory to generated (foot on ground).
+				// Nevertheless, we have to updated their positions w.r.t the CoM frame
+				// Getting the actual position of the contact w.r.t the CoM frame
+				Eigen::Vector3d actual_pos = foot_it->second;
+
 				// Getting the CoM position of the specific time
 				Eigen::Vector3d com_pos = trajectory[k].com_pos;
 
-				// Adding the swing state to the trajectory
+				// Adding the foot states w.r.t. the CoM frame
 				trajectory[k].foot_pos[name] = actual_pos - (com_pos - actual_com_pos);
 				trajectory[k].foot_vel[name] = Eigen::Vector3d::Zero();
 				trajectory[k].foot_acc[name] = Eigen::Vector3d::Zero();

@@ -254,8 +254,8 @@ class PreviewLocomotion
 
 
 	private:
-		/** @brief Foot pattern generator */
-		simulation::FootSplinePatternGenerator foot_pattern_generator_;
+		/** @brief Feet spline generator */
+		std::map<std::string,simulation::FootSplinePatternGenerator> feet_spline_generator_;
 
 		/** @brief Floating-base system information */
 		model::FloatingBaseSystem system_;
