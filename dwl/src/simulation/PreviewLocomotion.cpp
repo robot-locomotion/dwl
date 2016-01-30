@@ -487,7 +487,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 									  system_.getEndEffectorNames(model::FOOT));
 	preview_state.cop = base_traslation + base_rotation * cop_wrt_base;
 
-	// Getting the support region w.r.t the CoM frame. The support region
+	// Getting the support region w.r.t the world frame. The support region
 	// is defined by the active contacts
 	rbd::BodySelector active_contacts;
 	dynamics_.getActiveContacts(active_contacts,
@@ -497,8 +497,8 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	for (unsigned int i = 0; i < active_contacts.size(); i++) {
 		std::string name = active_contacts[i];
 
-		preview_state.support_region[name] =
-				full_state.contact_pos.find(name)->second -	actual_system_com_;
+		preview_state.support_region[name] = base_traslation +
+				full_state.contact_pos.find(name)->second;
 	}
 
 	// Adding the contact positions, velocities and accelerations
