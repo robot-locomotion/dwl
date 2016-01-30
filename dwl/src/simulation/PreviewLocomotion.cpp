@@ -327,7 +327,8 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 			target_pos = stance_pos + foot_shift;
 
 			// Initializing the foot pattern generator
-			simulation::StepParameters step_params(params.duration, step_height_);
+			simulation::StepParameters step_params(num_samples * sample_time_,
+												   step_height_);
 			foot_pattern_generator_.setParameters(state.time,
 												  actual_pos,
 												  target_pos,
