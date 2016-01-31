@@ -305,10 +305,6 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 	// Getting the number of samples of the trajectory
 	unsigned int num_samples = ceil(params.duration / sample_time_);
 
-	// Getting the actual and terminal base position for computing the
-	// footholds trajectories w.r.t. the CoM frame
-	Eigen::Vector3d actual_com_pos = trajectory[0].com_pos;
-
 	// Generating the feet trajectories
 	feet_spline_generator_.clear();
 	Eigen::Vector3d foot_pos, foot_vel, foot_acc;
@@ -364,7 +360,7 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 				Eigen::Vector3d com_pos = trajectory[k].com_pos;
 
 				// Adding the foot states w.r.t. the CoM frame
-				trajectory[k].foot_pos[name] = actual_pos - (com_pos - actual_com_pos);
+				trajectory[k].foot_pos[name] = actual_pos - (com_pos - state.com_pos);
 				trajectory[k].foot_vel[name] = Eigen::Vector3d::Zero();
 				trajectory[k].foot_acc[name] = Eigen::Vector3d::Zero();
 			}
@@ -535,7 +531,6 @@ void PreviewLocomotion::toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
 		full_traj[k] = full_state;
 	}
 }
-
 
 } //@namespace simulation
 } //@namespace dwl
