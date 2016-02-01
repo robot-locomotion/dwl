@@ -56,6 +56,10 @@ bool FootSplinePatternGenerator::generateTrajectory(Eigen::Vector3d& foot_pos,
 													Eigen::Vector3d& foot_acc,
 													const double& time)
 {
+	if (time < initial_time_)
+		return false; // duration it's always positive, and makes sense when
+					  // is bigger than the sample time
+
 	// Computing the time that allows us to discriminate the swing-up or swing-down phase
 	dwl::math::Spline::Point swing_traj_x, swing_traj_y, swing_traj_z;
 	double dt = time - initial_time_;
