@@ -53,9 +53,10 @@ void PreviewLocomotion::setSampleTime(double sample_time)
 }
 
 
-void PreviewLocomotion::setModel(const SLIPModel& model)
+void PreviewLocomotion::setStiffnes(double stiffnes)
 {
-	slip_ = model;
+	SlipProperties model(mass_, stiffnes, gravity_);
+	lc_slip_.setModelProperties(model);
 }
 
 
@@ -144,34 +145,24 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		return; // duration it's always positive, and makes sense when
 				// is bigger than the sample time
 
-	// Computing the coefficients of the Spring Loaded Inverted Pendulum
-	// (SLIP) response
-	double slip_height = state.com_pos(rbd::Z) - state.cop(rbd::Z);
-	double slip_omega = sqrt(gravity_ / slip_height);
-	double alpha = 2 * slip_omega * params.duration;
-	Eigen::Vector2d slip_hor_proj = (state.com_pos - state.cop).head<2>();
-	Eigen::Vector2d slip_hor_disp = state.com_vel.head<2>() * params.duration;
-	Eigen::Vector2d beta_1 = slip_hor_proj / 2 +
-			(slip_hor_disp - params.cop_shift) / alpha;
+	// Initialization of the Linear Controlled SLIP model
+	Eigen::Vector3d cop_shift_3d(params.cop_shift(rbd::X),
+								 params.cop_shift(rbd::Y),
+								 0.);
+	SlipControlParams slip_params(params.duration,
+								  cop_shift_3d,
+								  params.length_shift);
+	lc_slip_.initResponse(state.time,
+						  state.com_pos,
+						  state.com_vel,
+						  state.com_acc,
+						  state.cop,
+						  slip_params);
+
+
+	// Adding the actual support region. Note that the support region
 	Eigen::Vector2d beta_2 = slip_hor_proj / 2 -
 			(slip_hor_disp - params.cop_shift) / alpha;
-
-	// Computing the initial length of the pendulum
-	double initial_length = (state.com_pos - state.cop).norm();
-
-	// Computing the coefficients of the spring-mass system response
-	double spring_omega = sqrt(slip_.stiffness / mass_);
-	double d_1 = state.com_pos(rbd::Z) - initial_length + gravity_ /
-			pow(spring_omega,2);
-	double d_2 = state.com_vel(rbd::Z) / spring_omega -
-			params.length_shift / (spring_omega * params.duration);
-
-
-
-
-
-
-	// Computing the support region. Note that the support region
 	// remains constant during this phase
 	PreviewState current_state;
 	for (rbd::BodyVector::const_iterator foot_it = state.foot_pos.begin();
@@ -188,57 +179,21 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	}
 	std::cout << "###############################" << std::endl;
 
-
-
-
-
-
-
-
 	// Computing the preview trajectory
 	unsigned int num_samples = ceil(params.duration / sample_time_);
 	trajectory.resize(num_samples);
 	for (unsigned int k = 0; k < num_samples; k++) {
-		double time = sample_time_ * (k + 1);
-
 		// Computing the current time of the preview trajectory
+		double time = sample_time_ * (k + 1);
 		current_state.time = state.time + time;
 
-		// Computing the horizontal motion of the CoM according to
-		// the SLIP system
-		current_state.com_pos.head<2>() =
-				beta_1 * exp(slip_omega * time) +
-				beta_2 * exp(-slip_omega * time) +
-				(params.cop_shift / params.duration) * time +
-				state.cop.head<2>();
-		current_state.com_vel.head<2>() =
-				beta_1 * slip_omega * exp(slip_omega * time) -
-				beta_2 * slip_omega * exp(-slip_omega * time) +
-				params.cop_shift / params.duration;
-		current_state.com_vel.head<2>() =
-				beta_1 * pow(slip_omega,2) * exp(slip_omega * time) +
-				beta_2 * pow(slip_omega,2) * exp(-slip_omega * time);
-
-		// Computing the vertical motion of the CoM according to
-		// the spring-mass system
-		current_state.com_pos(rbd::Z) =
-				d_1 * cos(spring_omega * time) +
-				d_2 * sin(spring_omega * time) +
-				(params.length_shift / params.duration) * time +
-				initial_length - gravity_ / pow(spring_omega,2);
-		current_state.com_vel(rbd::Z) =
-				-d_1 * spring_omega * sin(spring_omega * time) +
-				d_2 * spring_omega * cos(spring_omega * time) +
-				params.length_shift / params.duration;
-		current_state.com_acc(rbd::Z) =
-				-d_1 * pow(spring_omega,2) * cos(spring_omega * time) -
-				d_2 * pow(spring_omega,2) * sin(spring_omega * time);
-
-		// Computing the CoP position given the linear assumption
-		Eigen::Vector3d cop_shift_3d(params.cop_shift(rbd::X),
-									 params.cop_shift(rbd::Y),
-									 0.);
-		current_state.cop = state.cop +	(time / params.duration) * cop_shift_3d;
+		// Computing the response of the Linear Controlled SLIP
+		// dynamics
+		lc_slip_.computeResponse(current_state.com_pos,
+								 current_state.com_vel,
+								 current_state.com_acc,
+								 current_state.cop,
+								 current_state.time);
 
 		// Computing the heading motion according to heading kinematic equation
 		current_state.head_pos = state.head_pos + state.head_vel * time +

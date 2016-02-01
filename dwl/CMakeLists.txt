@@ -97,6 +97,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/ocp/IntegralControlEnergyCost.cpp
 							 src/ocp/PreviewOptimization.cpp
 							 src/simulation/PreviewLocomotion.cpp
+							 src/simulation/LinearControlledSlipModel.cpp
 							 src/simulation/FootSplinePatternGenerator.cpp
 							 src/behavior/MotorPrimitives.cpp
 							 src/behavior/BodyMotorPrimitives.cpp

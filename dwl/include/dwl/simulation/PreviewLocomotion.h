@@ -103,13 +103,6 @@ struct SwingParams
 	rbd::BodyVector feet_shift;
 };
 
-struct SLIPModel
-{
-	SLIPModel() : stiffness(0.) {}
-	SLIPModel(double _stiffness) :  stiffness(_stiffness) {};
-
-	double stiffness;
-};
 
 /**
  * @class PreviewLocomotion
@@ -157,9 +150,9 @@ class PreviewLocomotion
 
 		/**
 		 * @brief Sets the Spring Loaded Inverted Pendulum (SLIP) model
-		 * @param const SLIPModel& SLIP model
+		 * @param const SlipProperties& SLIP model
 		 */
-		void setModel(const SLIPModel& model);
+		void setStiffnes(double stiffnes);
 
 		/**
 		 * @brief Sets the step height for the swing trajectory generation
@@ -273,7 +266,7 @@ class PreviewLocomotion
 		double mass_;
 
 		/** @brief SLIP model */
-		SLIPModel slip_;
+		LinearControlledSlipModel lc_slip_;
 
 		/** @brief Step height for the swing generation */
 		double step_height_;
