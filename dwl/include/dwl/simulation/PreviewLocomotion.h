@@ -1,6 +1,7 @@
 #ifndef DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 #define DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 
+#include <dwl/simulation/LinearControlledSlipModel.h>
 #include <dwl/simulation/FootSplinePatternGenerator.h>
 #include <dwl/model/WholeBodyDynamics.h>
 #include <dwl/model/FloatingBaseSystem.h>
