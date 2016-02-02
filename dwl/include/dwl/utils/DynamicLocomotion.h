@@ -169,6 +169,14 @@ struct ReducedBodyState
 		cop.setZero();
 	}
 
+	ReducedBodyState(double _time,
+					 Eigen::Vector3d _com_pos,
+					 Eigen::Vector3d _com_vel,
+					 Eigen::Vector3d _com_acc,
+					 Eigen::Vector3d _cop) : time(_time), com_pos(_com_pos),
+							 com_vel(_com_vel), com_acc(_com_acc),
+							 cop(_cop) {}
+
 	double time;
 	Eigen::Vector3d com_pos;
 	Eigen::Vector3d com_vel;
