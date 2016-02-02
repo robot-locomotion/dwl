@@ -70,7 +70,7 @@ class LinearControlledSlipModel
 
 		/**
 		 * @brief Initializes the parameters for the computing the response
-		 * @param const Eigen::Vector3d& Initial reduced state
+		 * @param const ReducedBodyState& Initial reduced state
 		 * @param const SlipControlParams Slip control parameters
 		 */
 		void initResponse(const ReducedBodyState& state,
@@ -78,7 +78,7 @@ class LinearControlledSlipModel
 
 		/**
 		 * @brief Computes the response of LC-SLIP model
-		 * @param Eigen::Vector3d& Generated reduced state
+		 * @param ReducedBodyState& Generated reduced state
 		 * @param const double& Current time
 		 */
 		void computeResponse(ReducedBodyState& state,
