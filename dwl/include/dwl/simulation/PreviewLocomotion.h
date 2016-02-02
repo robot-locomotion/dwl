@@ -96,12 +96,13 @@ typedef std::vector<PreviewPhase> PreviewSchedule;
 
 struct SwingParams
 {
-	SwingParams() : duration(0.), feet_shift(rbd::BodyVector()) {}
+	SwingParams() : duration(0.), feet_shift(rbd::BodyPosition()) {}
 	SwingParams(double _duration,
-				rbd::BodyVector _feet_shift) : duration(_duration), feet_shift(_feet_shift) {}
+				rbd::BodyPosition _feet_shift) : duration(_duration),
+						feet_shift(_feet_shift) {}
 
 	double duration;
-	rbd::BodyVector feet_shift;
+	rbd::BodyPosition feet_shift;
 };
 
 

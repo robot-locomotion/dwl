@@ -98,7 +98,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			stancePreview(phase_traj, actual_state, preview_params);
 
 			// Getting the swing shift per foot
-			rbd::BodyVector swing_shift;
+			rbd::BodyPosition swing_shift;
 			for (unsigned int j = 0; j < preview_params.phase.feet.size(); j++) {
 				std::string foot_name = preview_params.phase.feet[j];
 				Eigen::Vector2d foot_shift_2d =
@@ -122,7 +122,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			flightPreview(phase_traj, actual_state, preview_params);
 
 			// Adding the swing pattern
-			SwingParams swing_params(preview_params.duration, rbd::BodyVector()); // no foothold targets
+			SwingParams swing_params(preview_params.duration, rbd::BodyPosition()); // no foothold targets
 			addSwingPattern(phase_traj, actual_state, swing_params);
 		}
 
@@ -274,7 +274,7 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 			std::string name = foot_it->first;
 
 			// Checking the feet that swing
-			rbd::BodyVector::const_iterator swing_it = params.feet_shift.find(name);
+			rbd::BodyPosition::const_iterator swing_it = params.feet_shift.find(name);
 			if (swing_it != params.feet_shift.end()) {
 				if (k == 0) { // Initialization of the swing generator
 					// Getting the actual position of the contact w.r.t the CoM frame
