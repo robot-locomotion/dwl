@@ -80,6 +80,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 	trajectory.clear();
 
 	// Computing the preview for multi-phase
+	PreviewState actual_state;
+	rbd::BodyPosition last_suppport_region;
 	for (unsigned int k = 0; k < control.params.size(); k++) {
 		PreviewTrajectory phase_traj;
 
@@ -87,11 +89,57 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		PreviewParams preview_params = control.params[k];
 
 		// Getting the actual preview state for this phase
-		PreviewState actual_state;
 		if (k == 0)
 			actual_state = state;
-		else
+		else {
 			actual_state = trajectory.back();
+
+			// Updating the support region for this phase
+			for (unsigned int f = 0; f < system_.getNumberOfEndEffectors(model::FOOT); f++) {
+				std::string name = system_.getEndEffectorNames()[f];
+
+				// Removing the swing foot of the actual phase
+				if (preview_params.phase.isSwingFoot(name)) {
+					last_suppport_region[name] = actual_state.support_region.find(name)->second;
+					actual_state.support_region.erase(name);
+				}
+
+				// Adding the foothold target of the previous phase
+				if (control.params[k-1].phase.isSwingFoot(name)) {
+					// Computing the target foothold of the contact w.r.t the world frame
+					Eigen::Vector2d foot_2d_shift = control.feet_shift.find(name)->second;
+					Eigen::Vector3d foot_shift(foot_2d_shift(0), foot_2d_shift(1), 0.);
+					Eigen::Vector3d stance_pos = last_suppport_region.find(name)->second;
+
+					// Computing the CoM target position
+					Eigen::Vector3d target_com_pos, target_com_vel;
+					Eigen::Vector3d target_com_acc, target_cop;
+					Eigen::Vector3d cop_shift_3d(preview_params.cop_shift(rbd::X),
+												preview_params.cop_shift(rbd::Y),
+												 0.);
+					SlipControlParams slip_params(preview_params.duration,
+												  cop_shift_3d,
+												  preview_params.length_shift);
+					lc_slip_.initResponse(0.,
+										  actual_state.com_pos,
+										  actual_state.com_vel,
+										  actual_state.com_acc,
+										  actual_state.cop,
+										  slip_params);
+					lc_slip_.computeResponse(target_com_pos,
+											 target_com_vel,
+											 target_com_acc,
+											 target_cop,
+											 preview_params.duration);
+					Eigen::Vector3d planar_com_pos(target_com_pos(rbd::X),
+												   target_com_pos(rbd::Y),
+												   0.);
+					Eigen::Vector3d next_foothold = planar_com_pos + stance_pos + foot_shift;
+
+					actual_state.support_region[name] = next_foothold;
+				}
+			}
+		}
 
 		// Computing the preview of the actual phase
 		if (preview_params.phase.type == STANCE) {
