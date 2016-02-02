@@ -1,6 +1,7 @@
 #ifndef DWL__SIMULATION__LINEAR_CONTROLLED_SLIP_MODEL__H
 #define DWL__SIMULATION__LINEAR_CONTROLLED_SLIP_MODEL__H
 
+#include <dwl/utils/DynamicLocomotion.h>
 #include <dwl/utils/RigidBodyDynamics.h>
 #include <dwl/utils/macros.h>
 
@@ -69,32 +70,18 @@ class LinearControlledSlipModel
 
 		/**
 		 * @brief Initializes the parameters for the computing the response
-		 * @param const double& Initial time
-		 * @param const Eigen::Vector3d& Initial CoM position
-		 * @param const Eigen::Vector3d& Initial CoM velocity
-		 * @param const Eigen::Vector3d& Initial CoM acceleration
-		 * @param const Eigen::Vector3d& Initial CoP position
+		 * @param const Eigen::Vector3d& Initial reduced state
 		 * @param const SlipControlParams Slip control parameters
 		 */
-		void initResponse(const double& initial_time,
-						  const Eigen::Vector3d& initial_com_pos,
-						  const Eigen::Vector3d& initial_com_vel,
-						  const Eigen::Vector3d& initial_com_acc,
-						  const Eigen::Vector3d& initial_cop,
+		void initResponse(const ReducedBodyState& state,
 						  const SlipControlParams& params);
 
 		/**
 		 * @brief Computes the response of LC-SLIP model
-		 * @param Eigen::Vector3d& Instantaneous CoM position
-		 * @param Eigen::Vector3d& Instantaneous CoM velocity
-		 * @param Eigen::Vector3d& Instantaneous CoM acceleration
-		 * @param Eigen::Vector3d& Instantaneous CoP position
+		 * @param Eigen::Vector3d& Generated reduced state
 		 * @param const double& Current time
 		 */
-		void computeResponse(Eigen::Vector3d& com_pos,
-							 Eigen::Vector3d& com_vel,
-							 Eigen::Vector3d& com_acc,
-							 Eigen::Vector3d& cop,
+		void computeResponse(ReducedBodyState& state,
 							 double time);
 
 
@@ -110,10 +97,7 @@ class LinearControlledSlipModel
 
 		/** @brief Initial state */
 		double initial_time_;
-		Eigen::Vector3d initial_com_pos_;
-		Eigen::Vector3d initial_com_vel_;
-		Eigen::Vector3d initial_com_acc_;
-		Eigen::Vector3d initial_cop_;
+		ReducedBodyState initial_state_;
 		double initial_length_;
 
 		/** @brief Horizontal dynamic coefficients */

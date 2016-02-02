@@ -112,27 +112,23 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 					Eigen::Vector3d stance_pos = last_suppport_region.find(name)->second;
 
 					// Computing the CoM target position
-					Eigen::Vector3d target_com_pos, target_com_vel;
-					Eigen::Vector3d target_com_acc, target_cop;
+					ReducedBodyState next_reduced_state;
+					ReducedBodyState actual_reduced_state(0.,
+														  actual_state.com_pos,
+														  actual_state.com_vel,
+														  actual_state.com_acc,
+														  actual_state.cop);
 					Eigen::Vector3d cop_shift_3d(preview_params.cop_shift(rbd::X),
 												preview_params.cop_shift(rbd::Y),
 												 0.);
 					SlipControlParams slip_params(preview_params.duration,
 												  cop_shift_3d,
 												  preview_params.length_shift);
-					lc_slip_.initResponse(0.,
-										  actual_state.com_pos,
-										  actual_state.com_vel,
-										  actual_state.com_acc,
-										  actual_state.cop,
-										  slip_params);
-					lc_slip_.computeResponse(target_com_pos,
-											 target_com_vel,
-											 target_com_acc,
-											 target_cop,
+					lc_slip_.initResponse(actual_reduced_state, slip_params);
+					lc_slip_.computeResponse(next_reduced_state,
 											 preview_params.duration);
-					Eigen::Vector3d planar_com_pos(target_com_pos(rbd::X),
-												   target_com_pos(rbd::Y),
+					Eigen::Vector3d planar_com_pos(next_reduced_state.com_pos(rbd::X),
+												   next_reduced_state.com_pos(rbd::Y),
 												   0.);
 					Eigen::Vector3d next_foothold = planar_com_pos + stance_pos + foot_shift;
 
@@ -194,18 +190,18 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 				// is bigger than the sample time
 
 	// Initialization of the Linear Controlled SLIP model
+	ReducedBodyState reduced_state(state.time,
+								   state.com_pos,
+								   state.com_vel,
+								   state.com_acc,
+								   state.cop);
 	Eigen::Vector3d cop_shift_3d(params.cop_shift(rbd::X),
 								 params.cop_shift(rbd::Y),
 								 0.);
 	SlipControlParams slip_params(params.duration,
 								  cop_shift_3d,
 								  params.length_shift);
-	lc_slip_.initResponse(state.time,
-						  state.com_pos,
-						  state.com_vel,
-						  state.com_acc,
-						  state.cop,
-						  slip_params);
+	lc_slip_.initResponse(reduced_state, slip_params);
 
 
 	// Adding the actual support region. Note that the support region
@@ -223,11 +219,13 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 		// Computing the response of the Linear Controlled SLIP
 		// dynamics
-		lc_slip_.computeResponse(current_state.com_pos,
-								 current_state.com_vel,
-								 current_state.com_acc,
-								 current_state.cop,
+		ReducedBodyState reduced_state;
+		lc_slip_.computeResponse(reduced_state,
 								 current_state.time);
+		current_state.com_pos = reduced_state.com_pos;
+		current_state.com_vel = reduced_state.com_vel;
+		current_state.com_acc = reduced_state.com_acc;
+		current_state.cop = reduced_state.cop;
 
 		// Computing the heading motion according to heading kinematic equation
 		current_state.head_pos = state.head_pos + state.head_vel * time +
