@@ -133,6 +133,9 @@ void LinearControlledSlipModel::computeSystemEnergy(Eigen::Vector3d& com_energy,
 
 	// Computing the CoM energy associated to the horizontal
 	// dynamics
+	// x_acc^2 = (beta1 * slip_omega^2)^2 * exp(2 * slip_omega * dt)
+	//			 (beta2 * slip_omega^2)^2 * exp(-2 * slip_omega * dt)
+	//			 beta1 * beta2 * slip_omega^4
 	double dt = params.duration;
 	Eigen::Vector2d c_1 = (beta_1_ * pow(slip_omega_,2)).array().pow(2);
 	Eigen::Vector2d c_2 = (beta_2_ * pow(slip_omega_,2)).array().pow(2);
@@ -144,11 +147,14 @@ void LinearControlledSlipModel::computeSystemEnergy(Eigen::Vector3d& com_energy,
 
 	// Computing the CoM energy associated to the vertical
 	// dynamics
+	// z_acc^2 = (d1 * spring_omega^2)^4 * cos^2(spring_omega_ * dt)) +
+	//			 (d2 * spring_omega^2)^4 * sin^2(spring_omega_ * dt)) +
+	//			 (d1 * d2 * spring_omega^4) * cos(spring_omega_ * dt) * sin(spring_omega_ * dt)
 	com_energy(rbd::Z) =
-			pow(d_1_ * pow(spring_omega_,2) * cos(spring_omega_ * dt),2) +
-			pow(d_2_ * pow(spring_omega_,2) * cos(spring_omega_ * dt),2) +
-			d_1_ * d_2_ * pow(spring_omega_,4) * cos(spring_omega_ * dt) *
-			sin(spring_omega_ * dt);
+			pow(d_1_,2) * pow(spring_omega_,4) *
+			(0.5 * dt + 0.25 * sin(spring_omega_ * dt) * cos(spring_omega_ * dt)) +
+			pow(d_2_,2) * pow(spring_omega_,4) * (0.5 * dt + 0.25 * sin(2 * spring_omega_ * dt)) +
+			d_1_ * d_2_ * pow(spring_omega_,4) * 0.5 * pow(sin(spring_omega_ * dt),2);
 }
 
 } //@namespace simulation
