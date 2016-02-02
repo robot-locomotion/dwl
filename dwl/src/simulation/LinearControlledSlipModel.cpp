@@ -133,6 +133,5 @@ void LinearControlledSlipModel::computeResponse(Eigen::Vector3d& com_pos,
 	cop = initial_cop_ + (dt / params_.duration) * params_.cop_shift;
 }
 
-
 } //@namespace simulation
 } //@namespace dwl
