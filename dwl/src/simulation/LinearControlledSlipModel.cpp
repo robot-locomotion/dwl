@@ -123,5 +123,33 @@ void LinearControlledSlipModel::computeResponse(ReducedBodyState& state,
 	state.cop = initial_state_.cop + (dt / params_.duration) * params_.cop_shift;
 }
 
+
+void LinearControlledSlipModel::computeSystemEnergy(Eigen::Vector3d& com_energy,
+													const ReducedBodyState& initial_state,
+													const SlipControlParams& params)
+{
+	// Initialization the coefficient of the LC-SLIP model
+	initResponse(initial_state, params);
+
+	// Computing the CoM energy associated to the horizontal
+	// dynamics
+	double dt = params.duration;
+	Eigen::Vector2d c_1 = (beta_1_ * pow(slip_omega_,2)).array().pow(2);
+	Eigen::Vector2d c_2 = (beta_2_ * pow(slip_omega_,2)).array().pow(2);
+	Eigen::Vector2d c_3 = beta_1_.cwiseProduct(beta_2_);
+	com_energy.head<2>() =
+			c_1 * exp(2 * slip_omega_ * dt) +
+			c_2 * exp(-2 * slip_omega_ * dt) +
+			c_3 * pow(slip_omega_,4);
+
+	// Computing the CoM energy associated to the vertical
+	// dynamics
+	com_energy(rbd::Z) =
+			pow(d_1_ * pow(spring_omega_,2) * cos(spring_omega_ * dt),2) +
+			pow(d_2_ * pow(spring_omega_,2) * cos(spring_omega_ * dt),2) +
+			d_1_ * d_2_ * pow(spring_omega_,4) * cos(spring_omega_ * dt) *
+			sin(spring_omega_ * dt);
+}
+
 } //@namespace simulation
 } //@namespace dwl

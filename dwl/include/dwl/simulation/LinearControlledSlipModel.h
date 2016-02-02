@@ -84,6 +84,15 @@ class LinearControlledSlipModel
 		void computeResponse(ReducedBodyState& state,
 							 double time);
 
+		/**
+		 * @brief Computes the energy associated to the CoM
+		 * @param Eigen::Vector3d& CoM energy
+		 * @param const ReducedBodyState& Initial reduced state
+		 * @param const SlipControlParams& Control parameters
+		 */
+		void computeSystemEnergy(Eigen::Vector3d& com_energy,
+								 const ReducedBodyState& initial_state,
+								 const SlipControlParams& params);
 
 	private:
 		/** @brief Slip model properties */
