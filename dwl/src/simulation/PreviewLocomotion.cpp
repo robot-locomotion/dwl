@@ -209,23 +209,9 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 
 	// Adding the actual support region. Note that the support region
-	Eigen::Vector2d beta_2 = slip_hor_proj / 2 -
-			(slip_hor_disp - params.cop_shift) / alpha;
 	// remains constant during this phase
 	PreviewState current_state;
-	for (rbd::BodyVector::const_iterator foot_it = state.foot_pos.begin();
-			foot_it != state.foot_pos.end(); foot_it++) {
-		std::string foot_name = foot_it->first;
-
-		// Adding the foot as support polygon if it's not a swing foot
-		if (params.phase.isSwingFoot(foot_name)) {// it's not a swing phase
-			Eigen::Vector3d foot_pos_com = foot_it->second;
-			Eigen::Vector3d foot_pos_world = foot_pos_com + state.com_pos;
-			std::cout << "						foot_pos_world = " << foot_pos_world.transpose() << std::endl;
-			current_state.support_region[foot_name] = foot_pos_world;
-		}
-	}
-	std::cout << "###############################" << std::endl;
+	current_state.support_region = state.support_region;
 
 	// Computing the preview trajectory
 	unsigned int num_samples = ceil(params.duration / sample_time_);
