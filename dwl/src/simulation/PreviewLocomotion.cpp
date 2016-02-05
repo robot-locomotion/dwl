@@ -177,6 +177,51 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 }
 
 
+void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
+										 const PreviewState& state,
+										 const PreviewControl& control)
+{
+	// Initializing the CoM energy vector
+	com_energy.setZero();
+
+	// Computing the energy for multi-phase
+	PreviewState actual_state = state;
+	rbd::BodyPosition last_suppport_region;
+	for (unsigned int k = 0; k < control.params.size(); k++) {
+		// Getting the preview params of the actual phase
+		PreviewParams preview_params = control.params[k];
+
+
+		// Computing the CoM energy of this phase
+		if (preview_params.phase.type == STANCE) {
+			Eigen::Vector3d phase_energy;
+			ReducedBodyState reduced_state(actual_state.time,
+										   actual_state.com_pos,
+										   actual_state.com_vel,
+										   actual_state.com_acc,
+										   actual_state.cop);
+			SlipControlParams slip_params(preview_params.duration,
+										  preview_params.cop_shift,
+										  preview_params.length_shift);
+			lc_slip_.computeSystemEnergy(phase_energy, reduced_state, slip_params);
+			com_energy += phase_energy;
+		} else { // Flight phase
+			// TODO compute the energy for flight phases
+		}
+
+		// Updating the actual state
+		ReducedBodyState next_reduced_state;
+		double time = actual_state.time + preview_params.duration;
+		lc_slip_.computeResponse(next_reduced_state, time);
+		actual_state.time = next_reduced_state.time;
+		actual_state.com_pos = next_reduced_state.com_pos;
+		actual_state.com_vel = next_reduced_state.com_vel;
+		actual_state.com_acc = next_reduced_state.com_acc;
+		actual_state.cop = next_reduced_state.cop;
+	}
+}
+
+
 void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 									  const PreviewState& state,
 									  const PreviewParams& params)
