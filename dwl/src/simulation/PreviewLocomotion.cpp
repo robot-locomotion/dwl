@@ -245,14 +245,10 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 								   state.com_vel,
 								   state.com_acc,
 								   state.cop);
-	Eigen::Vector3d cop_shift_3d(params.cop_shift(rbd::X),
-								 params.cop_shift(rbd::Y),
-								 0.);
 	SlipControlParams slip_params(params.duration,
-								  cop_shift_3d,
+								  params.cop_shift,
 								  params.length_shift);
 	lc_slip_.initResponse(reduced_state, slip_params);
-
 
 	// Adding the actual support region. Note that the support region
 	// remains constant during this phase
