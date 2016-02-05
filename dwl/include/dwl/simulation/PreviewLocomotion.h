@@ -184,12 +184,17 @@ class PreviewLocomotion
 							  const PreviewControl& control);
 
 		/**
-		 * @brief Computes the preview of the stance-phase given the stance parameters
-		 * The preview is computed according a Spring Linear Inverted Pendulum (SLIP) model, and by
-		 * assuming that the Center of Pressure (CoP) and the pendulum length are linearly controlled
-		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
+		 * @brief Computes the preview of a stance phase
+		 * The preview is computed according a Spring Loaded Linear
+		 * Inverted Pendulum (SLIP) model, and by assuming that the
+		 * Center of Pressure (CoP) and the pendulum length are linearly
+		 * controlled
+		 * @param PreviewTrajectory& Preview trajectory at the predefined
+		 * sample time
 		 * @param const PreviewState& Initial low-dimensional state
 		 * @param const PreviewParams& Preview control parameters
+		 * @param bool Label that indicates full preview or just the
+		 * terminal state
 		 */
 		void stancePreview(PreviewTrajectory& trajectory,
 						   const PreviewState& state,
@@ -197,12 +202,16 @@ class PreviewLocomotion
 						   bool full = true);
 
 		/**
-		 * @brief Computes the preview of the flight-phase given the duration of the phase
-		 * The preview is computed according the projectile Equation of Motion (EoM), and assuming
-		 * the non-changes in the angular momentum
-		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
+		 * @brief Computes the preview of a flight phase
+		 * The preview is computed according the projectile Equation
+		 * of Motion (EoM), and assuming the non-changes in the
+		 * angular momentum
+		 * @param PreviewTrajectory& Preview trajectory at the predefined
+		 * sample time
 		 * @param const PreviewState& Initial low-dimensional state
 		 * @param const PreviewParams& Preview control parameters
+		 * @param bool Label that indicates full preview or just the
+		 * terminal state
 		 */
 		void flightPreview(PreviewTrajectory& trajectory,
 				   	   	   const PreviewState& state,
@@ -211,7 +220,8 @@ class PreviewLocomotion
 
 		/**
 		 * @brief Computes the swing trajectory of the contact
-		 * @param PreviewTrajectory& Preview trajectory at the predefined sample time
+		 * @param PreviewTrajectory& Preview trajectory at the predefined
+		 * sample time
 		 * @param const PreviewState& Initial low-dimensional state
 		 * @param const SwingParams& Preview control parameters
 		 */
