@@ -421,48 +421,6 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 }
 
 
-void PreviewLocomotion::getPreviewTransitions(simulation::PreviewTrajectory& transitions,
-											  const simulation::PreviewTrajectory& trajectory,
-											  const simulation::PreviewControl& control)
-{
-	// Resizing the transitions
-	unsigned int phases = control.params.size();
-	transitions.resize(phases);
-
-	// Getting the preview transitions
-	int previous_index = -1;
-	for (unsigned int k = 0; k < phases; k++) {
-		// Getting the actual preview params
-		PreviewParams params = control.params[k];
-
-		// Checking the preview duration
-		if (params.duration < sample_time_)
-			continue; // duration it's always positive, and makes sense when
-					  // is bigger than the sample time
-
-		// Getting the index of the actual phase. Note that there is a
-		// sanity check
-		int index = previous_index +
-				ceil(params.duration / sample_time_);
-		if (index < 0)
-			index = 0;
-
-		// Setting the index as the previous one, which it will be used it for
-		// the next for-iteration
-		previous_index = index;
-
-		// Adding the transition states. Note that CoP position and support
-		// region are defined in the world frame
-		transitions[k].time = trajectory[index].time;
-		transitions[k].com_pos = trajectory[index].com_pos;
-		transitions[k].com_vel = trajectory[index].com_vel;
-		transitions[k].com_acc = trajectory[index].com_acc;
-		transitions[k].cop = trajectory[index].cop;
-		transitions[k].support_region = trajectory[index].support_region;
-	}
-}
-
-
 model::FloatingBaseSystem* PreviewLocomotion::getFloatingBaseSystem()
 {
 	return &system_;

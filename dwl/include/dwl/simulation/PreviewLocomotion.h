@@ -229,17 +229,6 @@ class PreviewLocomotion
 							 const PreviewState& state,
 							 const SwingParams& params);
 
-		/**
-		 * @brief Gets the preview states for each phase once a multi-phase was
-		 * computed, otherwise return zero transitions
-		 * @param simulation::PreviewTrajectory& Preview transitions between phases
-		 * @param const simulation::PreviewTrajectory& Generated preview trajectory
-		 * @param const simulation::PreviewControl& Applied preview control
-		 */
-		void getPreviewTransitions(simulation::PreviewTrajectory& transitions,
-				   	   	   	   	   const simulation::PreviewTrajectory& trajectory,
-								   const simulation::PreviewControl& control);
-
 		/** @brief Returns the floating-base system pointer */
 		model::FloatingBaseSystem* getFloatingBaseSystem();
 
