@@ -118,11 +118,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 														  actual_state.com_vel,
 														  actual_state.com_acc,
 														  actual_state.cop);
-					Eigen::Vector3d cop_shift_3d(preview_params.cop_shift(rbd::X),
-												preview_params.cop_shift(rbd::Y),
-												 0.);
 					SlipControlParams slip_params(preview_params.duration,
-												  cop_shift_3d,
+												  preview_params.cop_shift,
 												  preview_params.length_shift);
 					lc_slip_.initResponse(actual_reduced_state, slip_params);
 					lc_slip_.computeResponse(next_reduced_state,

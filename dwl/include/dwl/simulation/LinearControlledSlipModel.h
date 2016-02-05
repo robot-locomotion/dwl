@@ -30,11 +30,17 @@ struct SlipControlParams
 	SlipControlParams() : duration(0.), length_shift(0.) {
 		cop_shift.setZero();
 	}
-
 	SlipControlParams(double _duration,
 					  Eigen::Vector3d _cop_shift,
 					  double _length_shift) : duration(_duration),
 							  cop_shift(_cop_shift),
+							  length_shift(_length_shift) {}
+	SlipControlParams(double _duration,
+					  Eigen::Vector2d _cop_shift,
+					  double _length_shift) : duration(_duration),
+							  cop_shift(Eigen::Vector3d(_cop_shift(0),
+									  	  	  	  	  	_cop_shift(1),
+														0.)),
 							  length_shift(_length_shift) {}
 
 	double duration;
