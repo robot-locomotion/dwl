@@ -8,8 +8,8 @@ namespace simulation
 {
 
 LinearControlledSlipModel::LinearControlledSlipModel() : init_model_(false),
-		init_response_(false), initial_time_(0.), initial_length_(0.),
-		slip_omega_(0.), spring_omega_(0.), d_1_(0.), d_2_(0.)
+		init_response_(false), initial_length_(0.), slip_omega_(0.),
+		spring_omega_(0.), d_1_(0.), d_2_(0.)
 {
 
 }
@@ -79,13 +79,13 @@ void LinearControlledSlipModel::computeResponse(ReducedBodyState& state,
 	}
 
 	// Checking the preview duration
-	if (time < initial_time_)
+	if (time < initial_state_.time)
 		return; // duration it's always positive, and makes sense when
 				// is bigger than the sample time
 
 
 	// Computing the delta time w.r.t. the initial time
-	double dt = time - initial_time_;
+	double dt = time - initial_state_.time;
 	state.time = time;
 
 	// Computing the horizontal motion of the CoM according to

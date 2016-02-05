@@ -105,7 +105,6 @@ class LinearControlledSlipModel
 		bool init_response_;
 
 		/** @brief Initial state */
-		double initial_time_;
 		ReducedBodyState initial_state_;
 		double initial_length_;
 
