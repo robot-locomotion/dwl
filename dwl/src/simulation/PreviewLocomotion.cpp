@@ -74,7 +74,8 @@ void PreviewLocomotion::setForceThreshold(double force_threshold)
 
 void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 										  const PreviewState& state,
-										  const PreviewControl& control)
+										  const PreviewControl& control,
+										  bool full)
 {
 	// Clearing the trajectory
 	trajectory.clear();
@@ -136,35 +137,41 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 
 		// Computing the preview of the actual phase
 		if (preview_params.phase.type == STANCE) {
-			stancePreview(phase_traj, actual_state, preview_params);
+			stancePreview(phase_traj, actual_state, preview_params, full);
 
-			// Getting the swing shift per foot
-			rbd::BodyPosition swing_shift;
-			for (unsigned int j = 0; j < preview_params.phase.feet.size(); j++) {
-				std::string foot_name = preview_params.phase.feet[j];
-				Eigen::Vector2d foot_shift_2d =
-						(Eigen::Vector2d) control.feet_shift.find(foot_name)->second;
+			// Computing the swing trajectories for full cases
+			if (full) {
+				// Getting the swing shift per foot
+				rbd::BodyPosition swing_shift;
+				for (unsigned int j = 0; j < preview_params.phase.feet.size(); j++) {
+					std::string foot_name = preview_params.phase.feet[j];
+					Eigen::Vector2d foot_shift_2d =
+							(Eigen::Vector2d) control.feet_shift.find(foot_name)->second;
 
-				// Computing the z displacement of the foot from the height map. TODO hard coded
-//				Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
-//				Eigen::Vector2d foothold_2d = foot_shift_2d + terminal_base_pos.head<2>();
-				double z_shift = 0.;
+					// Computing the z displacement of the foot from the height map. TODO hard coded
+//					Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
+//					Eigen::Vector2d foothold_2d = foot_shift_2d + terminal_base_pos.head<2>();
+					double z_shift = 0.;
 
-				Eigen::Vector3d foot_shift(foot_shift_2d(dwl::rbd::X),
-										   foot_shift_2d(dwl::rbd::Y),
-										   z_shift);
-				swing_shift[foot_name] = foot_shift;
+					Eigen::Vector3d foot_shift(foot_shift_2d(dwl::rbd::X),
+											   foot_shift_2d(dwl::rbd::Y),
+											   z_shift);
+					swing_shift[foot_name] = foot_shift;
+				}
+
+				// Adding the swing pattern
+				SwingParams swing_params(preview_params.duration, swing_shift);
+				addSwingPattern(phase_traj, actual_state, swing_params);
 			}
-
-			// Adding the swing pattern
-			SwingParams swing_params(preview_params.duration, swing_shift);
-			addSwingPattern(phase_traj, actual_state, swing_params);
 		} else {
-			flightPreview(phase_traj, actual_state, preview_params);
+			flightPreview(phase_traj, actual_state, preview_params, full);
 
-			// Adding the swing pattern
-			SwingParams swing_params(preview_params.duration, rbd::BodyPosition()); // no foothold targets
-			addSwingPattern(phase_traj, actual_state, swing_params);
+			// Computing the swing trajectories for full cases
+			if (full) {
+				// Adding the swing pattern
+				SwingParams swing_params(preview_params.duration, rbd::BodyPosition()); // no foothold targets
+				addSwingPattern(phase_traj, actual_state, swing_params);
+			}
 		}
 
 		// Appending the actual phase trajectory
@@ -224,10 +231,11 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 
 void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 									  const PreviewState& state,
-									  const PreviewParams& params)
+									  const PreviewParams& params,
+									  bool full)
 {
 	// Checking the preview duration
-	if (params.duration < sample_time_)
+	if (full && params.duration < sample_time_)
 		return; // duration it's always positive, and makes sense when
 				// is bigger than the sample time
 
@@ -251,10 +259,19 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	PreviewState current_state;
 	current_state.support_region = state.support_region;
 
-	// Computing the preview trajectory
+	// Computing the number of samples and initial index
 	unsigned int num_samples = ceil(params.duration / sample_time_);
-	trajectory.resize(num_samples);
-	for (unsigned int k = 0; k < num_samples; k++) {
+	unsigned int idx;
+	if (full) {
+		idx = 0;
+		trajectory.resize(num_samples);
+	} else {
+		idx = num_samples - 1;
+		trajectory.resize(1);
+	}
+
+	// Computing the preview trajectory
+	for (unsigned int k = idx; k < num_samples; k++) {
 		// Computing the current time of the preview trajectory
 		double time = sample_time_ * (k + 1);
 		current_state.time = state.time + time;
@@ -276,17 +293,18 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		current_state.head_acc = params.head_acc;
 
 		// Appending the current state to the preview trajectory
-		trajectory[k] = current_state;
+		trajectory[k-idx] = current_state;
 	}
 }
 
 
 void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 						   	   	   	  const PreviewState& state,
-									  const PreviewParams& params)
+									  const PreviewParams& params,
+									  bool full)
 {
 	// Checking the preview duration
-	if (params.duration < sample_time_)
+	if (full && params.duration < sample_time_)
 		return; // duration it's always positive, and makes sense when
 				// is bigger than the sample time
 
@@ -294,10 +312,19 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 	Eigen::Vector3d gravity_vec = Eigen::Vector3d::Zero();
 	gravity_vec(rbd::Z) = -gravity_;
 
-	// Computing the preview trajectory
+	// Computing the number of samples and initial index
 	unsigned int num_samples = ceil(params.duration / sample_time_);
-	trajectory.resize(num_samples);
-	for (unsigned int k = 0; k < num_samples; k++) {
+	unsigned int idx;
+	if (full) {
+		idx = 0;
+		trajectory.resize(num_samples);
+	} else {
+		idx = num_samples - 1;
+		trajectory.resize(1);
+	}
+
+	// Computing the preview trajectory
+	for (unsigned int k = idx; k < num_samples; k++) {
 		double time = sample_time_ * (k + 1);
 
 		// Computing the current time of the preview trajectory
@@ -317,7 +344,7 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 		current_state.head_acc = 0.;
 
 		// Appending the current state to the preview trajectory
-		trajectory[k] = current_state;
+		trajectory[k-idx] = current_state;
 	}
 }
 

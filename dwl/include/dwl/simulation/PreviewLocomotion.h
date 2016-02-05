@@ -170,7 +170,8 @@ class PreviewLocomotion
 
 		void multiPhasePreview(PreviewTrajectory& trajectory,
 							   const PreviewState& state,
-							   const PreviewControl& control);
+							   const PreviewControl& control,
+							   bool full = true);
 
 		/**
 		 * @brief Computes the total energy of the multi-phase preview
@@ -192,7 +193,8 @@ class PreviewLocomotion
 		 */
 		void stancePreview(PreviewTrajectory& trajectory,
 						   const PreviewState& state,
-						   const PreviewParams& params);
+						   const PreviewParams& params,
+						   bool full = true);
 
 		/**
 		 * @brief Computes the preview of the flight-phase given the duration of the phase
@@ -204,7 +206,8 @@ class PreviewLocomotion
 		 */
 		void flightPreview(PreviewTrajectory& trajectory,
 				   	   	   const PreviewState& state,
-						   const PreviewParams& params);
+						   const PreviewParams& params,
+						   bool full = true);
 
 		/**
 		 * @brief Computes the swing trajectory of the contact
