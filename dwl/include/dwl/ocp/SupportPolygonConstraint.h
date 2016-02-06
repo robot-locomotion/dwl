@@ -33,7 +33,10 @@ struct PolygonState
 class SupportPolygonConstraint : public Constraint<PolygonState>
 {
 	public:
+		/** @brief Constructor function */
 		SupportPolygonConstraint();
+
+		/** @brief Destructor function */
 		~SupportPolygonConstraint();
 
 		/**
