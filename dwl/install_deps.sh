@@ -85,15 +85,6 @@ function install_urdfdom
 }
 
 
-function install_odeint
-{
-	# Getting Odeint 2
-	wget http://github.com/headmyshoulder/odeint-v2/tarball/master/headmyshoulder-odeint-v2-v2.4-141-g656e146.tar.gz
-	mkdir odeint && tar zxf headmyshoulder-odeint-v2-v2.4-141-g656e146.tar.gz -C odeint --strip-components 1
-	rm -rf headmyshoulder-odeint-v2-v2.4-141-g656e146.tar.gz
-}
-
-
 function install_yamlcpp
 {
 	# Getting the YAML-CPP 0.3.0
@@ -350,28 +341,6 @@ if [ -d "/usr/local/include/rbdl" ]; then
     fi
 else
 	install_rbdl
-fi
-
-
-
-##---------------------------------------------------------------##
-##--------------------- Installing Odeint -----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing Odeint ...${COLOR_RESET}"
-if [ -d "odeint" ]; then
-	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install Odeint 2? [y/N]: ${COLOR_RESET}"
-	read ANSWER_ODEINT
-	if [ "$ANSWER_ODEINT" == "Y" ] || [ "$ANSWER_ODEINT" == "y" ]; then
-		install_odeint
-    fi
-else
-	echo -e -n "${COLOR_QUES}Do you want to install Odeint 2? [y/N]: ${COLOR_RESET}"
-	read ANSWER_ODEINT
-	if [ "$ANSWER_ODEINT" == "Y" ] || [ "$ANSWER_ODEINT" == "y" ]; then
-		install_odeint
-	fi
 fi
 
 
