@@ -29,7 +29,7 @@ pkg_check_modules(RBDL rbdl REQUIRED)
 find_package(URDF REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(QPOASES)
-find_package(IPOPT)
+pkg_check_modules(IPOPT ipopt)
 pkg_check_modules(LIBCMAES libcmaes)
 find_package(octomap)
 
@@ -134,11 +134,11 @@ if (qpoases_FOUND)
 endif()
 
 # Adding Ipopt components of the project
-if(ipopt_FOUND)
+if(IPOPT_FOUND)
 	list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${IPOPT_INCLUDE_DIRS})
 	list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${IPOPT_LIBRARY_DIR})
-	list(APPEND DEPENDENCIES_LIBRARIES  ${IPOPT_LIBRARIES})
-    
+	list(APPEND DEPENDENCIES_LIBRARIES  ${IPOPT_LIBRARIES} ${IPOPT_LDFLAGS})
+
 	include_directories(${IPOPT_INCLUDE_DIRS})
 	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
 								 src/solver/IpoptWrapper.cpp
@@ -181,7 +181,7 @@ target_link_libraries(dyn_sample ${PROJECT_NAME})
 
 # Adding the test executables
 include_directories(tests)
-if(ipopt_FOUND)
+if(IPOPT_FOUND)
 	add_executable(ipopt_test  tests/IpoptDWLTest.cpp
 							   tests/model/HS071DynamicalSystem.cpp
 							   tests/model/HS071Cost.cpp)
