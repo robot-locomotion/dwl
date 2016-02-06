@@ -35,8 +35,7 @@ function install_rbdl
 	cd rbdl
 	mkdir -p build
 	cd build
-	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON ../
-	cmake -D CMAKE_INSTALL_LIBDIR:string=lib ../
+	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib ../
 	sudo make -j install
 	cd ../../
 }
@@ -86,15 +85,6 @@ function install_urdfdom
 }
 
 
-function install_odeint
-{
-	# Getting Odeint 2
-	wget http://github.com/headmyshoulder/odeint-v2/tarball/master/headmyshoulder-odeint-v2-v2.4-141-g656e146.tar.gz
-	mkdir odeint && tar zxf headmyshoulder-odeint-v2-v2.4-141-g656e146.tar.gz -C odeint --strip-components 1
-	rm -rf headmyshoulder-odeint-v2-v2.4-141-g656e146.tar.gz
-}
-
-
 function install_yamlcpp
 {
 	# Getting the YAML-CPP 0.3.0
@@ -105,6 +95,21 @@ function install_yamlcpp
 	cd build
 	cmake -D BUILD_SHARED_LIBS:bool=ON ../
 	sudo make install
+	cd ../../
+}
+
+
+function install_lapack
+{
+	# Getting the LAPACK 3.6.0
+	wget http://www.netlib.org/lapack/lapack-3.6.0.tgz
+	mkdir lapack && tar xzvf lapack-3.6.0.tgz -C lapack --strip-components 1
+	rm -rf lapack-3.6.0.tgz
+	cd lapack
+	mkdir -p build
+	cd build
+	cmake -D BUILD_SHARED_LIBS:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib ../
+	sudo make -j install
 	cd ../../
 }
 
@@ -120,17 +125,13 @@ function install_ipopt
 	rm -rf Ipopt-3.12.4.tgz
 	# Documentation for Ipopt Third Party modules:
 	# http://www.coin-or.org/Ipopt/documentation/node13.html
+
+	# Installing LAPACK and BLAS
+	if [ ! -f "/usr/local/lib/liblapack.so" ]; then
+		install_lapack
+	fi
+
 	cd ipopt/ThirdParty
-	# Getting Blas dependency
-	cd Blas
-	sed -i 's/ftp:/http:/g' get.Blas
-	./get.Blas
-	cd ..
-	# Getting Lapack dependency
-	cd Lapack
-	sed -i 's/ftp:/http:/g' get.Lapack
-	./get.Lapack
-	cd ..
 	# Getting Metis dependency
 	cd Metis
 #	sed -i 's/metis\/metis/metis\/OLD\/metis/g' get.Metis
@@ -168,8 +169,8 @@ function install_ipopt
 	mkdir -p build
 	cd build
 	# start building
-	../configure --enable-static --prefix ${SELF_PATH}/thirdparty/ipopt
-	make -j install
+	../configure --enable-static --prefix /usr/local --with-lapack="-L/usr/local/lib -llapack" --with-blas="-L/usr/local/lib -lblas"
+	sudo make -j install
 	cd ../../
 }
 
@@ -181,8 +182,14 @@ function install_qpoases
 	wget http://www.coin-or.org/download/source/qpOASES/qpOASES-3.2.0.tgz
 	tar xzfv qpOASES-3.2.0.tgz && rm qpOASES-3.2.0.tgz
 	mv qpOASES-3.2.0 qpOASES
+
+	# Installing LAPACK and BLAS
+	if [ ! -f "/usr/local/lib/liblapack.so" ]; then
+		install_lapack
+	fi
+
 	cd qpOASES
-	make -j REPLACE_LINALG=0
+	make -j REPLACE_LINALG=0 LIB_LAPACK=/usr/local/lib/liblapack.so LIB_BLAS=/usr/local/lib/libblas.so
 	cd ../
 }
 
@@ -211,7 +218,7 @@ function install_libcmaes
 	cd libcmaes
 	./autogen.sh
 	./configure --enable-gglog
-	sudo make -j install
+	sudo make -j4 install
 	cd ../
 }
 
@@ -337,28 +344,6 @@ else
 fi
 
 
-
-##---------------------------------------------------------------##
-##--------------------- Installing Odeint -----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing Odeint ...${COLOR_RESET}"
-if [ -d "odeint" ]; then
-	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install Odeint 2? [y/N]: ${COLOR_RESET}"
-	read ANSWER_ODEINT
-	if [ "$ANSWER_ODEINT" == "Y" ] || [ "$ANSWER_ODEINT" == "y" ]; then
-		install_odeint
-    fi
-else
-	echo -e -n "${COLOR_QUES}Do you want to install Odeint 2? [y/N]: ${COLOR_RESET}"
-	read ANSWER_ODEINT
-	if [ "$ANSWER_ODEINT" == "Y" ] || [ "$ANSWER_ODEINT" == "y" ]; then
-		install_odeint
-	fi
-fi
-
-
 ##---------------------------------------------------------------##
 ##-------------------- Installing YAML-CPP ----------------------##
 ##---------------------------------------------------------------##
@@ -380,7 +365,7 @@ fi
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing Ipopt ...${COLOR_RESET}"
-if [ -d "ipopt" ]; then
+if [ -d "/usr/local/include/coin" ]; then
 	# Control will enter here if $DIRECTORY exists.
 	echo -e -n "${COLOR_QUES}Do you want to re-install Ipopt 3.12.4? [y/N]: ${COLOR_RESET}"
 	read ANSWER_IPOPT
