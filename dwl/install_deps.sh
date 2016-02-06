@@ -227,7 +227,7 @@ function install_libcmaes
 	cd libcmaes
 	./autogen.sh
 	./configure --enable-gglog
-	sudo make -j install
+	sudo make -j4 install
 	cd ../
 }
 
