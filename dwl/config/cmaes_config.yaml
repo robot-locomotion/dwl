@@ -16,9 +16,9 @@ cmaes:
   #  13 -> VDBIPOPCMA
   family: 0
   # Allowed number of iteration (-1 for unlimited)
-  max_iter: 100
+  max_iter: 10000
   # Allowed number of function evaluations (-1 for unlimited) 
-  max_fevals: 1000
+  max_fevals: 50000
   # Type of elitism
   #   0 -> no elitism
   #   1 -> elitism: reinjects the best-ever seen solution
