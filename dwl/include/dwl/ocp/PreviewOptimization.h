@@ -3,6 +3,7 @@
 
 #include <dwl/model/OptimizationModel.h>
 #include <dwl/ocp/SupportPolygonConstraint.h>
+#include <dwl/ocp/PointConstraint.h>
 #include <dwl/simulation/PreviewLocomotion.h>
 
 
@@ -193,6 +194,7 @@ class PreviewOptimization : public model::OptimizationModel
 								const simulation::PreviewControl& preview_control);
 
 		ocp::SupportPolygonConstraint polygon_constraint_;
+		ocp::PointConstraint preview_constraint_;
 		simulation::PreviewLocomotion preview_;
 		simulation::PreviewState actual_state_;
 
@@ -206,7 +208,6 @@ class PreviewOptimization : public model::OptimizationModel
 		double step_time_weight_;
 		double step_dist_weight_;
 		Eigen::Vector3d acc_int_weight_;
-		double preview_model_weight_;
 
 		rbd::BodySelector feet_;
 		unsigned int num_feet_;
