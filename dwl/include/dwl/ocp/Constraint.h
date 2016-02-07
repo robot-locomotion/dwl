@@ -54,10 +54,12 @@ class Constraint
 								std::string system_file = std::string(),
 								bool info = false);
 
-		/** @brief Sets the constraint as soft constraint, i.e. inside the cost function */
+		/** @brief Sets the constraint as soft constraint, i.e. inside the
+		 * cost function */
 		void defineAsSoftConstraint();
 
-		/** @brief Sets the constraint as hard constraint, i.e. inside the cost function */
+		/** @brief Sets the constraint as hard constraint, i.e. inside the
+		 * cost function */
 		void defineAsHardConstraint();
 
 		/**
