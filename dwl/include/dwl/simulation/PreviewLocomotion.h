@@ -288,6 +288,9 @@ class PreviewLocomotion
 		/** @brief Actual Center of Mass (CoM) of the system */
 		Eigen::Vector3d actual_system_com_;
 
+		/** @ brief Stance posture position w.r.t. the CoM */
+		rbd::BodyPosition stance_posture_;
+
 		/** @brief Force threshold */
 		double force_threshold_;
 };

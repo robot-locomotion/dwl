@@ -44,6 +44,12 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 
 	// Getting the floating-base CoM
 	actual_system_com_ = system_.getFloatingBaseCoM();
+
+
+	stance_posture_["lf_foot"] << 0.36, 0.32, -0.55;
+	stance_posture_["rf_foot"] << 0.36, -0.32, -0.55;
+	stance_posture_["lh_foot"] << -0.36, 0.32, -0.55;
+	stance_posture_["rh_foot"] << -0.36, -0.32, -0.55;
 }
 
 
@@ -110,7 +116,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 					// Computing the target foothold of the contact w.r.t the world frame
 					Eigen::Vector2d foot_2d_shift = control.feet_shift.find(name)->second;
 					Eigen::Vector3d foot_shift(foot_2d_shift(0), foot_2d_shift(1), 0.);
-					Eigen::Vector3d stance_pos = last_suppport_region.find(name)->second;
+					Eigen::Vector3d stance_pos;
+					stance_pos << stance_posture_.find(name)->second.head<2>(), last_suppport_region.find(name)->second(2);
 
 					// Computing the CoM target position
 					ReducedBodyState next_reduced_state;
