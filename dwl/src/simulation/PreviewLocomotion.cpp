@@ -119,21 +119,9 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 					Eigen::Vector3d stance_pos;
 					stance_pos << stance_posture_.find(name)->second.head<2>(), last_suppport_region.find(name)->second(2);
 
-					// Computing the CoM target position
-					ReducedBodyState next_reduced_state;
-					ReducedBodyState actual_reduced_state(0.,
-														  actual_state.com_pos,
-														  actual_state.com_vel,
-														  actual_state.com_acc,
-														  actual_state.cop);
-					SlipControlParams slip_params(preview_params.duration,
-												  preview_params.cop_shift,
-												  preview_params.length_shift);
-					lc_slip_.initResponse(actual_reduced_state, slip_params);
-					lc_slip_.computeResponse(next_reduced_state,
-											 preview_params.duration);
-					Eigen::Vector3d planar_com_pos(next_reduced_state.com_pos(rbd::X),
-												   next_reduced_state.com_pos(rbd::Y),
+					// Computing the foothold target position
+					Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
+												   actual_state.com_pos(rbd::Y),
 												   0.);
 					Eigen::Vector3d next_foothold = planar_com_pos + stance_pos + foot_shift;
 
@@ -387,7 +375,8 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 					// Getting the target position of the contact w.r.t the base
 					Eigen::Vector3d target_pos;
 					Eigen::Vector3d foot_shift = (Eigen::Vector3d) swing_it->second;
-					Eigen::Vector3d stance_pos = actual_pos; // TODO read it
+					Eigen::Vector3d stance_pos;
+					stance_pos << stance_posture_.find(name)->second.head<2>(), actual_pos(rbd::Z); // TODO read it
 					target_pos = stance_pos + foot_shift;
 
 					// Initializing the foot pattern generator
