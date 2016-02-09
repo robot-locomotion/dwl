@@ -43,10 +43,10 @@ class ContactPlanning
 		/**
 		 * @brief Computes the contacts given a current pose of the robot
 		 * @param std::vector<Contact>& contact_sequence Set of contacts
-		 * @param std::vector<Pose> pose_trajectory Goal pose
+		 * @param const std::vector<Pose>& pose_trajectory Goal pose
 		 */
 		virtual bool computeContactSequence(std::vector<Contact>& contact_sequence,
-											std::vector<Pose> pose_trajectory) = 0;
+											const std::vector<Pose>& pose_trajectory) = 0;
 
 		/**
 		 * @brief Sets the allowed computation time for the contact planner
