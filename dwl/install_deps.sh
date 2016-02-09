@@ -12,14 +12,14 @@ COLOR_UNDE="\033[4m"
 
 function install_eigen
 {
-	# Getting Eigen 3.2.4
-	wget http://www.bitbucket.org/eigen/eigen/get/3.2.4.tar.bz2
-	mkdir eigen && tar jxf 3.2.4.tar.bz2 -C eigen --strip-components 1
-	rm -rf 3.2.4.tar.bz2
+	# Getting Eigen 3.2.7
+	wget http://www.bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2
+	mkdir eigen && tar jxf 3.2.7.tar.bz2 -C eigen --strip-components 1
+	rm -rf 3.2.7.tar.bz2
 	cd eigen
 	mkdir -p build
 	cd build
-	cmake ../
+	cmake -DEIGEN_INCLUDE_INSTALL_DIR=/usr/local/include/eigen3 ../
 	sudo make -j install
 	cd ../../
 }
@@ -217,7 +217,7 @@ function install_libcmaes
 	rm -rf 0.9.5.tar.gz
 	cd libcmaes
 	./autogen.sh
-	./configure --enable-gglog
+	./configure --enable-gglog --with-eigen3-include=/usr/local/include/eigen3
 	sudo make -j4 install
 	cd ../
 }
@@ -281,7 +281,7 @@ cd ${SELF_PATH}/thirdparty
 echo ""
 echo -e "${COLOR_BOLD}Installing Eigen ...${COLOR_RESET}"
 if [ -d "/usr/local/include/eigen3" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install Eigen 3.2.4? [y/N]: ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install Eigen 3.2.7? [y/N]: ${COLOR_RESET}"
 	read ANSWER_EIGEN
 	if [ "$ANSWER_EIGEN" == "Y" ] || [ "$ANSWER_EIGEN" == "y" ]; then
 		install_eigen

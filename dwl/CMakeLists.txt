@@ -17,14 +17,14 @@ else()
 	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
-endif()	
+endif()
 
 # Appending the project module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Finding dependencies
-find_package(Eigen3 REQUIRED)
 find_package(PkgConfig)
+pkg_check_modules(EIGEN3 eigen3 REQUIRED)
 pkg_check_modules(RBDL rbdl REQUIRED)
 find_package(URDF REQUIRED)
 find_package(YAMLCPP REQUIRED)
