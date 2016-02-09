@@ -54,6 +54,7 @@ void Robot::read(std::string filepath)
 				// Reading the feet of the robot
 				std::vector<std::string> feet;
 				if (yaml_reader_.read(feet, *pdescription, "feet")) {
+					number_legs_ = feet.size();
 					for (unsigned int i = 0; i < number_legs_; i++)
 						feet_[i] = feet[i];
 				} else
@@ -305,6 +306,7 @@ PatternOfLocomotionMap Robot::getPatternOfLocomotion()
 
 
 SearchAreaMap Robot::getFootstepSearchAreas(const Eigen::Vector3d& action)
+{
 	// Getting the current stance
 	Vector3dMap current_stance = getStance(action);
 
