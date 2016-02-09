@@ -38,15 +38,15 @@ class Robot
 
 		/**
 		 * @brief Sets the current pose of the robot
-		 * @param Pose Current pose
+		 * @param const Pose& Current pose
 		 */
-		void setCurrentPose(Pose pose);
+		void setCurrentPose(const Pose& pose);
 
 		/**
 		 * @brief Sets the current contacts of the robot
-		 * @param std::vector<Contact> Contact positions
+		 * @param const std::vector<Contact>& Contact positions
 		 */
-		void setCurrentContacts(std::vector<Contact> contacts);
+		void setCurrentContacts(const std::vector<Contact>& contacts);
 
 		/**
 		 * @brief Gets current pose of the robot
@@ -80,10 +80,10 @@ class Robot
 
 		/**
 		 * @brief Gets the current stance of the robot
-		 * @param Eigen::Vector3d action Action to execute
+		 * @param const Eigen::Vector3d& action Action to execute
 		 * @return The current stance of the robot
 		 */
-		Vector3dMap getStance(Eigen::Vector3d action = Eigen::Vector3d::Zero());
+		Vector3dMap getStance(const Eigen::Vector3d& action = Eigen::Vector3d::Zero());
 
 		/**
 		 * @brief Gets the nominal stance of the robot
@@ -99,17 +99,17 @@ class Robot
 
 		/**
 		 * @brief Gets the stance areas
-		 * @param Eigen::Vector3d action Action to execute
+		 * @param const Eigen::Vector3d& action Action to execute
 		 * @return The stance areas
 		 */
-		SearchAreaMap getFootstepSearchAreas(Eigen::Vector3d action = Eigen::Vector3d::Zero());
+		SearchAreaMap getFootstepSearchAreas(const Eigen::Vector3d& action = Eigen::Vector3d::Zero());
 
 		/**
 		 * @brief Gets the footstep search region given an action
-		 * @param Eigen::Vector3d action Action to execute
+		 * @param const Eigen::Vector3d& action Action to execute
 		 * @return The footstep search regions
 		 */
-		SearchAreaMap getFootstepSearchSize(Eigen::Vector3d action = Eigen::Vector3d::Zero());
+		SearchAreaMap getFootstepSearchSize(const Eigen::Vector3d& action = Eigen::Vector3d::Zero());
 
 		/**
 		 * @brief Gets the expected ground according to the nominal stance

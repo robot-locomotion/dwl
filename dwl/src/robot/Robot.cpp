@@ -183,13 +183,13 @@ void Robot::read(std::string filepath)
 }
 
 
-void Robot::setCurrentPose(Pose pose)
+void Robot::setCurrentPose(const Pose& pose)
 {
 	current_pose_ = pose;
 }
 
 
-void Robot::setCurrentContacts(std::vector<Contact> contacts)
+void Robot::setCurrentContacts(const std::vector<Contact>& contacts)
 {
 	current_contacts_ = contacts;
 
@@ -231,7 +231,7 @@ SearchAreaMap Robot::getPredefinedLegWorkspaces()
 }
 
 
-Vector3dMap Robot::getStance(Eigen::Vector3d action) //TODO Virtual method
+Vector3dMap Robot::getStance(const Eigen::Vector3d& action) //TODO Virtual method
 {
 	int lateral_pattern, displacement_pattern;
 	double frontal_action = action(0);
@@ -304,8 +304,7 @@ PatternOfLocomotionMap Robot::getPatternOfLocomotion()
 }
 
 
-SearchAreaMap Robot::getFootstepSearchAreas(Eigen::Vector3d action)
-{
+SearchAreaMap Robot::getFootstepSearchAreas(const Eigen::Vector3d& action)
 	// Getting the current stance
 	Vector3dMap current_stance = getStance(action);
 
@@ -325,7 +324,7 @@ SearchAreaMap Robot::getFootstepSearchAreas(Eigen::Vector3d action)
 }
 
 
-SearchAreaMap Robot::getFootstepSearchSize(Eigen::Vector3d action)
+SearchAreaMap Robot::getFootstepSearchSize(const Eigen::Vector3d& action)
 {
 	// Determining if the movements is forward or backward because the footstep search areas
 	// changes according the action
