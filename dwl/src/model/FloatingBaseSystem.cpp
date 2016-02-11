@@ -34,7 +34,9 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 											std::string system_file)
 {
 	// Getting the RBDL model from URDF model
-	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &rbd_model_, false);
+	RigidBodyDynamics::Model rbd;
+	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &rbd, false);
+	rbd_model_ = rbd;
 
 	// Getting information about the floating-base joints
 	urdf_model::JointID floating_joint_names;
