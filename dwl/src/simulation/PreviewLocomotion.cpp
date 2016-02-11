@@ -455,6 +455,17 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	}
 	full_state.contact_vel = preview_state.foot_vel;
 	full_state.contact_acc = preview_state.foot_acc;
+
+	// Adding infinity contact force for active feet
+	for (unsigned int f = 0; f < system_.getNumberOfEndEffectors(model::FOOT); f++) {
+		std::string name = system_.getEndEffectorNames(model::FOOT)[f];
+
+		rbd::BodyPosition::const_iterator support_it = preview_state.support_region.find(name);
+		if (support_it != preview_state.support_region.end())
+			full_state.contact_eff[name] = MAX_WRENCH;
+		else
+			full_state.contact_eff[name] = NO_WRENCH;
+	}
 }
 
 
