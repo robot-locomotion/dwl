@@ -94,8 +94,28 @@ class cmaesSOFamily : public OptimizationSolver
 		/** @brief Warm point for the initialization of the optimization */
 		Eigen::VectorXd warm_point_;
 
+		/** @brief Label that indicates if it's initialized the solver */
+		bool initialized_;
+
+		/** @brief Type of family */
+		int family_;
+
 		/** @brief Initial distribution */
 		double sigma_;
+
+		/** @brief Maximum number of iterations */
+		int max_iteration_;
+
+		/** @brief Maximum number of function evaluations */
+		int max_fevals_;
+
+		/** @brief Type of elitism */
+		int elitism_;
+
+		/** @brief Indicates if the optimization computation will use
+		 * multi-threads
+		 */
+		bool multithreading_;
 };
 
 } //@namespace solver
