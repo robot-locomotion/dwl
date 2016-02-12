@@ -15,6 +15,9 @@ cmaes:
   #  12 -> VDIPOPCMA
   #  13 -> VDBIPOPCMA
   family: 0
+  # initial step-size, i.e. estimated initial parameter error
+  # (-1 for automatically decided sigma)
+  sigma: -1
   # Allowed number of iteration (-1 for unlimited)
   max_iter: 10000
   # Allowed number of function evaluations (-1 for unlimited) 
