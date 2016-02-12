@@ -23,6 +23,17 @@ class YamlWrapper
 		~YamlWrapper();
 
 		/**
+		 * @brief Reads a boolean
+		 * @param bool& Data to read it
+		 * @param const YAML::Node& Namespace where is defined the data
+		 * @param std::string The name of the field
+		 * @return Returns true if it was read the data
+		 */
+		bool read(bool& data,
+				  const YAML::Node& node,
+				  std::string field_name);
+
+		/**
 		 * @brief Reads a integer
 		 * @param int& Data to read it
 		 * @param const YAML::Node& Namespace where is defined the data

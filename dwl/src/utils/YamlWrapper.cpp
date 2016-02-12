@@ -16,6 +16,19 @@ YamlWrapper::~YamlWrapper()
 }
 
 
+bool YamlWrapper::read(bool& data,
+					   const YAML::Node& node,
+					   std::string field_name)
+{
+	if (const YAML::Node* pnode = node.FindValue(field_name)) {
+		*pnode >> data;
+		return true;
+	}
+
+	return false;
+}
+
+
 bool YamlWrapper::read(int& data,
 					   const YAML::Node& node,
 					   std::string field_name)
