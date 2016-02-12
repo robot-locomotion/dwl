@@ -1,6 +1,9 @@
 #ifndef DWL__SOLVER__CMAESSOFAMILY__IMPL_H
 #define DWL__SOLVER__CMAESSOFAMILY__IMPL_H
 
+#include <mutex>
+std::mutex fmtx;  // protects fitness function
+
 
 namespace dwl
 {
@@ -63,8 +66,12 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 		int elitism;
 		if (yaml_reader.read(elitism, cmaes_ns, "elitism"))
 			setElitism(elitism);
+		
+		// Rading the multithreading option
+		bool multithreading;
+		if (yaml_reader.read(multithreading, cmaes_ns, "multithreads"))
+			setMultithreading(multithreading);
 	}
-
 }
 
 
@@ -139,6 +146,13 @@ void cmaesSOFamily<TScaling>::setAllowedNumberOfFunctionEvalutions(int max_feval
 
 
 template<typename TScaling>
+void cmaesSOFamily<TScaling>::setInitialDistribution(double sigma)
+{
+	sigma_ = sigma;
+}
+
+
+template<typename TScaling>
 void cmaesSOFamily<TScaling>::setElitism(int elitism)
 {
 	cmaes_params_->set_elitism(elitism);
@@ -146,9 +160,9 @@ void cmaesSOFamily<TScaling>::setElitism(int elitism)
 
 
 template<typename TScaling>
-void cmaesSOFamily<TScaling>::setInitialDistribution(double sigma)
+void cmaesSOFamily<TScaling>::setMultithreading(bool multithreading)
 {
-	sigma_ = sigma;
+	cmaes_params_->set_mt_feval(multithreading);
 }
 
 
@@ -205,7 +219,6 @@ bool cmaesSOFamily<TScaling>::init()
 	bool with_gradient = false;
 	cmaes_params_->set_gradient(with_gradient);
 
-
 	// Wrapping the fitness function
 	fitness_ = std::bind(&cmaesSOFamily<TScaling>::fitnessFunction,
 						 this, std::placeholders::_1, std::placeholders::_2);
@@ -225,7 +238,7 @@ bool cmaesSOFamily<TScaling>::compute(double allocated_time_secs)
 	libcmaes::CMASolutions cmasols =
 			libcmaes::cmaes<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
 												TScaling>>(fitness_, *cmaes_params_);
-	cmasols.print(std::cout,false,cmaes_params_->get_gp());
+	cmasols.print(std::cout, false, cmaes_params_->get_gp());
 	std::cout << std::endl << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
 
 	// Evaluation of the solution
@@ -243,6 +256,9 @@ template<typename TScaling>
 double cmaesSOFamily<TScaling>::fitnessFunction(const double* x,
 												const int& n)
 {
+	// Locking the thread for multi-threading cases
+	std::lock_guard<std::mutex> lck(fmtx);
+
 	// Eigen interfacing to raw buffers
 	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
 

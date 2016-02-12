@@ -57,6 +57,12 @@ class cmaesSOFamily : public OptimizationSolver
 		void setElitism(int elitism);
 
 		/**
+		 * @brief Sets the multi-threading option
+		 * @param bool True for enabling the multi-threading optimization
+		 */
+		void setMultithreading(bool multithreading);
+
+		/**
 		 * @brief Initialization of the NLP solver using Ipopt
 		 * @return True if was initialized
 		 */
