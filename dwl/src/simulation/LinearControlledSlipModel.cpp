@@ -118,6 +118,8 @@ void LinearControlledSlipModel::computeResponse(ReducedBodyState& state,
 			-d_1_ * pow(spring_omega_,2) * cos(spring_omega_ * dt) -
 			d_2_ * pow(spring_omega_,2) * sin(spring_omega_ * dt);
 	state.com_pos(rbd::Z) = initial_state_.com_pos(rbd::Z);//TODO for debugging
+	state.com_vel(rbd::Z) = 0.;
+	state.com_acc(rbd::Z) = 0.;
 
 	// Computing the CoP position given the linear assumption
 	state.cop = initial_state_.cop + (dt / params_.duration) * params_.cop_shift;
