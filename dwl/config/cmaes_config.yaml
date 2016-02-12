@@ -19,9 +19,9 @@ cmaes:
   # (-1 for automatically decided sigma)
   sigma: -1
   # Allowed number of iteration (-1 for unlimited)
-  max_iter: 10000
+  max_iter: 120000
   # Allowed number of function evaluations (-1 for unlimited) 
-  max_fevals: 50000
+  max_fevals: 120000
   # Type of elitism
   #   0 -> no elitism
   #   1 -> elitism: reinjects the best-ever seen solution
