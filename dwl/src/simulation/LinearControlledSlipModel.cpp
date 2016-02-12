@@ -157,6 +157,7 @@ void LinearControlledSlipModel::computeSystemEnergy(Eigen::Vector3d& com_energy,
 			(0.5 * dt + 0.25 * sin(spring_omega_ * dt) * cos(spring_omega_ * dt)) +
 			pow(d_2_,2) * pow(spring_omega_,4) * (0.5 * dt + 0.25 * sin(2 * spring_omega_ * dt)) +
 			d_1_ * d_2_ * pow(spring_omega_,4) * 0.5 * pow(sin(spring_omega_ * dt),2);
+	com_energy(rbd::Z) = 0; // TODO for debugging
 }
 
 } //@namespace simulation
