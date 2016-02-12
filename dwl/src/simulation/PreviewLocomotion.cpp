@@ -442,9 +442,9 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	rbd::linearPart(full_state.base_vel) = preview_state.com_vel;
 	rbd::linearPart(full_state.base_acc) = preview_state.com_acc;
 
-	full_state.base_pos(rbd::AZ) = preview_state.head_pos;
-	full_state.base_vel(rbd::AZ) = preview_state.head_vel;
-	full_state.base_acc(rbd::AZ) = preview_state.head_acc;
+	full_state.base_pos(rbd::AZ) = 0.;//preview_state.head_pos;//TODO for debugging
+	full_state.base_vel(rbd::AZ) = 0.;//preview_state.head_vel;
+	full_state.base_acc(rbd::AZ) = 0.;//preview_state.head_acc;
 
 	// Adding the contact positions, velocities and accelerations
 	// w.r.t the base frame
