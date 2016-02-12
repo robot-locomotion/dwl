@@ -161,6 +161,7 @@ class PreviewOptimization : public model::OptimizationModel
 		double comEnergyCost(const simulation::PreviewState& actual_state,
 							 const simulation::PreviewControl& preview_control);
 		double copStabilitySoftConstraint(const simulation::PreviewTrajectory& preview_trans,
+										  const simulation::PreviewState& actual_state,
 										  const simulation::PreviewControl& preview_control);
 		double previewModelSoftConstraint(const simulation::PreviewTrajectory& preview_trans,
 										  const simulation::PreviewControl& preview_control);
