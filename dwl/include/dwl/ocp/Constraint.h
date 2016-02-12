@@ -17,7 +17,7 @@ namespace dwl
 namespace ocp
 {
 
-enum SoftConstraintFamily {UNWEIGHTED, QUADRATIC};
+enum SoftConstraintFamily {QUADRATIC, UNWEIGHTED};
 
 /**
  * @class Constraint
