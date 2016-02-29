@@ -45,6 +45,9 @@ class cmaesSOFamily : public OptimizationSolver
 		/** @brief Sets the initial distribution */
 		void setInitialDistribution(double sigma);
 
+		/** @brief Sets the number of offsprings per each generation */
+		void setNumberOfOffsprings(int lambda);
+
 		/**
 		 * @brief Sets the elitism. These are the type of elitism:
 		 * 	0: no elitism
@@ -102,6 +105,9 @@ class cmaesSOFamily : public OptimizationSolver
 
 		/** @brief Initial distribution */
 		double sigma_;
+
+		/** @brief Number of offspring at each generation */
+		int lambda_;
 
 		/** @brief Maximum number of iterations */
 		int max_iteration_;

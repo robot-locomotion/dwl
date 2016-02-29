@@ -13,10 +13,9 @@ namespace solver
 
 template<typename TScaling>
 cmaesSOFamily<TScaling>::cmaesSOFamily() : cmaes_params_(NULL),
-		initialized_(false), family_((int) CMAES), sigma_(-1.),
+		initialized_(false), family_((int) CMAES), sigma_(-1.), lambda_(-1),
 		max_iteration_(-1), max_fevals_(-1), elitism_(0),
 		multithreading_(false)
-		
 {
 	name_ = "cmaes family";
 }
@@ -61,6 +60,10 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 		if (yaml_reader.read(sigma, cmaes_ns, "sigma"))
 			setInitialDistribution(sigma);
 
+		// Reading the number of offsprings at each generation
+		int lambda;
+		if (yaml_reader.read(lambda, cmaes_ns, "lambda"))
+			setNumberOfOffsprings(lambda);
 
 		// Reading and setting up the allowed number of iteration
 		int max_iter;
@@ -131,6 +134,15 @@ void cmaesSOFamily<TScaling>::setInitialDistribution(double sigma)
 
 
 template<typename TScaling>
+void cmaesSOFamily<TScaling>::setNumberOfOffsprings(int lambda)
+{
+	lambda_ = lambda;
+	
+	init(); // Note that this parameter is only set in the init() calls
+}
+
+
+template<typename TScaling>
 void cmaesSOFamily<TScaling>::setElitism(int elitism)
 {
 	elitism_ = elitism;
@@ -195,13 +207,10 @@ bool cmaesSOFamily<TScaling>::init()
 	libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
 						TScaling> gp(x_l, x_u, state_dim);
 
-	//int lambda = 100; // offsprings at each generation.
-	// -1 for automatically decided lambda, 0 is for random seeding of
-	// the internal generator.
 	cmaes_params_ =
 			new libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
 															TScaling>>(x0, sigma_,
-																	   -1, 0, gp);
+																	   lambda_, 0, gp);
 
 	// Setting the previous parameters values
 	initialized_ = true;
