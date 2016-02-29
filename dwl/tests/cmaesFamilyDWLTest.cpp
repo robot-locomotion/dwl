@@ -18,7 +18,8 @@ int main(int argc, char **argv)
 
 		dwl::ocp::DynamicalSystem* dynamical_system = new dwl::model::HS071DynamicalSystem();
 		dynamical_system->defineAsSoftConstraint();
-		dynamical_system->setSoftProperties(10000, 0.1, dwl::ocp::QUADRATIC);
+		dwl::ocp::SoftConstraintProperties properties(10000, 0.1, dwl::ocp::QUADRATIC);
+		dynamical_system->setSoftProperties(properties);
 		dwl::ocp::Cost* cost = new dwl::model::HS071Cost();
 
 		optimal_control.addDynamicalSystem(dynamical_system);

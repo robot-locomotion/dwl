@@ -19,6 +19,22 @@ namespace ocp
 
 enum SoftConstraintFamily {QUADRATIC, UNWEIGHTED};
 
+struct SoftConstraintProperties
+{
+	SoftConstraintProperties() : weight(0.), threshold(0.),
+			family(QUADRATIC) {}
+	SoftConstraintProperties(double _weight,
+							 double _threshold,
+							 enum SoftConstraintFamily _family = QUADRATIC) :
+								 weight(_weight),
+								 threshold(_threshold),
+								 family(_family) {}
+
+	double weight;
+	double threshold;
+	enum SoftConstraintFamily family;
+};
+
 /**
  * @class Constraint
  * @brief Abstract class for defining constraints used in an
@@ -98,13 +114,9 @@ class Constraint
 		/**
 		 * @brief Sets the weight for computing the soft-constraint, i.e.
 		 * the associated cost
-		 * @param double Weight value
-		 * @param double Threshold value for computing the associated cost
-		 * @param enum Soft-constraint family
+		 * @param const SoftConstraintProperties& Soft-constraints properties
 		 */
-		void setSoftProperties(double weight,
-							   double threshold = 0,
-							   enum SoftConstraintFamily family = QUADRATIC);
+		void setSoftProperties(const SoftConstraintProperties& properties);
 
 		/**
 		 * @brief Sets the last state that could be used for the constraint
@@ -135,16 +147,8 @@ class Constraint
 		/** @brief Label that indicates if it's implemented as soft constraint */
 		bool is_soft_;
 
-		/** @brief Describes the soft-constraint family */
-		SoftConstraintFamily soft_family_;
-
-		/** @brief Weight for computing as soft-constraint */
-		double soft_weight_;
-
-		/** @brief The threshold is used for defining when the penalty
-		 * will start
-		 */
-		double soft_threshold_;
+		/** @brief Soft-constraints properties */
+		SoftConstraintProperties soft_properties_;
 
 		/** @brief Sets the last state */
 		boost::circular_buffer<TState> state_buffer_;
