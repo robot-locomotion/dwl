@@ -235,7 +235,7 @@ bool cmaesSOFamily<TScaling>::init()
 	setAllowedNumberofIterations(max_iteration_);
 	setAllowedNumberOfFunctionEvalutions(max_fevals_);
 	setElitism(elitism_);
-	setNumberOfOffsprings(max_restarts_);
+	setNumberOfRestarts(max_restarts_);
 	setMultithreading(multithreading_);
 
 	std::string fplot = "out.dat";
