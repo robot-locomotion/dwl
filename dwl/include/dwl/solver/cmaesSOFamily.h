@@ -59,6 +59,9 @@ class cmaesSOFamily : public OptimizationSolver
 		 */
 		void setElitism(int elitism);
 
+		/** @brief Sets the maximum number of restarts */
+		void setNumberOfRestarts(int max_restarts);
+
 		/**
 		 * @brief Sets the multi-threading option
 		 * @param bool True for enabling the multi-threading optimization
@@ -117,6 +120,9 @@ class cmaesSOFamily : public OptimizationSolver
 
 		/** @brief Type of elitism */
 		int elitism_;
+
+		/** @brief Maximum number of restarts applies to IPOP and BIPOP */
+		int max_restarts_;
 
 		/** @brief Indicates if the optimization computation will use
 		 * multi-threads

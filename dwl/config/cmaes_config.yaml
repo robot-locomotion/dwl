@@ -34,5 +34,7 @@ cmaes:
   #        the final solution and reinjects the best solution until the population
   #        has better fitness, in its majority
   elitism: 0
+  # Maximum number of restarts applies to IPOP and BIPOP
+  max_restarts: 10
   # Enable or disable the multi-threading optimization
   multithreads: false
