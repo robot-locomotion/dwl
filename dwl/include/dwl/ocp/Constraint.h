@@ -162,6 +162,6 @@ class Constraint
 } //@namespace ocp
 } //@namespace dwl
 
-#include <dwl/ocp/impl/Constraint.hcc>
+#include <dwl/ocp/impl/Constraint.hpp>
 
 #endif
