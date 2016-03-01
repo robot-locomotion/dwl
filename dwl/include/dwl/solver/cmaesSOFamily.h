@@ -133,6 +133,6 @@ class cmaesSOFamily : public OptimizationSolver
 } //@namespace solver
 } //@namespace dwl
 
-#include <dwl/solver/impl/cmaesSOFamily.hcc>
+#include <dwl/solver/impl/cmaesSOFamily.hpp>
 
 #endif
