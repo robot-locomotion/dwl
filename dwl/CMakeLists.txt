@@ -202,6 +202,9 @@ if(UNIT_TEST)
 		target_link_libraries(cmaes_utest ${PROJECT_NAME})
 	endif()
 
+	add_executable(support_utest  tests/SupportPolygonConstraintTest.cpp)
+	target_link_libraries(support_utest ${PROJECT_NAME})
+
 	add_executable(yaml_utest  tests/YamlWrapperTest.cpp)
 	target_link_libraries(yaml_utest ${PROJECT_NAME})
 
