@@ -96,7 +96,7 @@ void Constraint<TState>::computeSoft(double& constraint_cost,
 				violation_vec(i) += lower_val - const_val;
 				break;
 			default:
-				violation_vec(i) += const_val - upper_val;
+				violation_vec(i) += lower_val - const_val;
 				break;
 			}
 		}
