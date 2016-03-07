@@ -102,30 +102,33 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			actual_state = trajectory.back();
 
 			// Updating the support region for this phase
-			for (unsigned int f = 0; f < system_.getNumberOfEndEffectors(model::FOOT); f++) {
-				std::string name = system_.getEndEffectorNames()[f];
+			if (preview_params.duration > sample_time_) {
+				for (unsigned int f = 0; f < system_.getNumberOfEndEffectors(model::FOOT); f++) {
+					std::string name = system_.getEndEffectorNames()[f];
 
-				// Removing the swing foot of the actual phase
-				if (preview_params.phase.isSwingFoot(name)) {
-					last_suppport_region[name] = actual_state.support_region.find(name)->second;
-					actual_state.support_region.erase(name);
-				}
+					// Removing the swing foot of the actual phase
+					if (preview_params.phase.isSwingFoot(name)) {
+						last_suppport_region[name] = actual_state.support_region.find(name)->second;
+						actual_state.support_region.erase(name);
+					}
 
-				// Adding the foothold target of the previous phase
-				if (control.params[k-1].phase.isSwingFoot(name)) {
-					// Computing the target foothold of the contact w.r.t the world frame
-					Eigen::Vector2d foot_2d_shift = control.feet_shift.find(name)->second;
-					Eigen::Vector3d foot_shift(foot_2d_shift(0), foot_2d_shift(1), 0.);
-					Eigen::Vector3d stance_pos;
-					stance_pos << stance_posture_.find(name)->second.head<2>(), last_suppport_region.find(name)->second(2);
+					// Adding the foothold target of the previous phase
+					if (control.params[k-1].phase.isSwingFoot(name) &&
+							control.params[k-1].duration > sample_time_) {
+						// Computing the target foothold of the contact w.r.t the world frame
+						Eigen::Vector2d foot_2d_shift = control.feet_shift.find(name)->second;
+						Eigen::Vector3d foot_shift(foot_2d_shift(0), foot_2d_shift(1), 0.);
+						Eigen::Vector3d stance_pos;
+						stance_pos << stance_posture_.find(name)->second.head<2>(), last_suppport_region.find(name)->second(2);
 
-					// Computing the foothold target position
-					Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
-												   actual_state.com_pos(rbd::Y),
-												   0.);
-					Eigen::Vector3d next_foothold = planar_com_pos + stance_pos + foot_shift;
+						// Computing the foothold target position
+						Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
+													   actual_state.com_pos(rbd::Y),
+													   0.);
+						Eigen::Vector3d next_foothold = planar_com_pos + stance_pos + foot_shift;
 
-					actual_state.support_region[name] = next_foothold;
+						actual_state.support_region[name] = next_foothold;
+					}
 				}
 			}
 		}
