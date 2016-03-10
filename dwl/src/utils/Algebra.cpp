@@ -59,5 +59,6 @@ Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector)
 
 	return skew_symmetric_matrix;
 }
+
 } //@namespace math
 } //@namespace dwl

@@ -22,7 +22,8 @@ namespace math
  * @param double Tolerance of the singular value decomposition
  * @return Returns the pseudo-inverse matrix
  */
-Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& matrix, double tolerance = 1E-9);
+Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& matrix,
+							  double tolerance = 1E-9);
 
 /**
  * @brief Computes the skew symmetric matrix from a 3d vector
