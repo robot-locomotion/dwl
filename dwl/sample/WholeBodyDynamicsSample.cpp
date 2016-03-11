@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 		string name = it->first;
 		dwl::rbd::Vector6d force = it->second;
 
-		cout << "active contact: " << name << " and its force is " << force.transpose() << endl;
+		cout << "active contact: " << name << " and its force is " << force.transpose() << endl << endl;
 	}
 
 
@@ -87,6 +87,7 @@ int main(int argc, char **argv)
 
 		cout << "contact force[" << name << "] = " << force.transpose() << endl;
 	}
+	cout << endl;
 
 
 	// Computing the floating-base ID
@@ -107,7 +108,7 @@ int main(int argc, char **argv)
 													  base_acc, joint_acc,
 													  sys.getEndEffectorNames());
 	std::cout << "------------------- Constrained ID --------------------" << std::endl;
-	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
+	std::cout << "Joint forces = " << joint_forces.transpose() << endl << endl;
 
 
 	// Computing the contact forces from the CoP
