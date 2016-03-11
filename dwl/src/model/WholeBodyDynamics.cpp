@@ -440,7 +440,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_for,
 	}
 
 	// Computing the normal contact forces
-	double weight = system_.getTotalMass() * system_.getGravityAcceleration();
+	double weight = system_.getTotalMass() * fabs(system_.getGravityAcceleration());
 	Eigen::VectorXd norm_for = math::pseudoInverse(contact_mat) * cop_pos * weight;
 
 	// Filling the contact forces vector
