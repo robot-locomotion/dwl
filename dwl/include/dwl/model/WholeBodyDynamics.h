@@ -202,12 +202,25 @@ class WholeBodyDynamics
 		 * @param Eigen::Vector3d& Center of pressure position
 		 * @param const rbd::BodyWrench& Contact forces
 		 * @param const rbd::BodyVector& Contact position
-		 * @param const rbd::BodySelector& Selected set of contact with the ground
+		 * @param const rbd::BodySelector& Selected set of active contact
 		 */
 		void computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 									 const rbd::BodyWrench& contact_for,
 									 const rbd::BodyVector& contact_pos,
 									 const rbd::BodySelector& ground_contacts);
+
+		/**
+		 * @brief Computes the equivalent contact forces from a center of
+		 * pressure position
+		 * @param rbd::BodyWrench& contact_for
+		 * @param const Eigen::Vector3d& cop_pos
+		 * @param const rbd::BodyVector& contact_pos
+		 * @param const rbd::BodySelector& Selected set of active contact
+		 */
+		void computeContactForces(rbd::BodyWrench& contact_for,
+								  const Eigen::Vector3d& cop_pos,
+								  const rbd::BodyVector& contact_pos,
+								  const rbd::BodySelector& ground_contacts);
 
 		/**
 		 * @brief Estimates active contacts by comparing the estimated joint

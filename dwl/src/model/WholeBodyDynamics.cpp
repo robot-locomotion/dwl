@@ -364,6 +364,62 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 }
 
 
+void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_for,
+											 const Eigen::Vector3d& cop_pos,
+											 const rbd::BodyVector& contact_pos,
+											 const rbd::BodySelector& ground_contacts)
+{
+	// Sanity check: checking if there are contact information and the size
+	if (contact_pos.size() == 0) {
+		printf(YELLOW "Warning: could not compute the CoP because there is"
+				" missing information" COLOR_RESET);
+		return;
+	}
+
+	// Computing the Center of Pressure (CoP) position
+	unsigned int idx = 0;
+	unsigned int num_contacts = ground_contacts.size();
+	Eigen::MatrixXd contact_mat = Eigen::MatrixXd::Zero(3, num_contacts);
+	for (rbd::BodySelector::const_iterator contact_iter = ground_contacts.begin();
+			contact_iter != ground_contacts.end(); contact_iter++) {
+		std::string name = *contact_iter;
+
+		// Getting the contact position
+		rbd::BodyVector::const_iterator pos_it = contact_pos.find(name);
+		Eigen::VectorXd position;
+		if (pos_it != contact_pos.end())
+			position = pos_it->second;
+		else {
+			printf(YELLOW "Warning: there is missing the contact position of"
+					" %s\n" COLOR_RESET, name.c_str());
+			return;
+		}
+
+		// Filling the contact position matrix
+		if (position.size() == 6)
+			contact_mat.col(idx) = position.segment<3>(rbd::LX);
+		else
+			contact_mat.col(idx) = position;
+
+		idx++;
+	}
+
+	// Computing the normal contact forces
+	double weight = system_.getTotalMass() * system_.getGravityAcceleration();
+	Eigen::VectorXd norm_for = math::pseudoInverse(contact_mat) * cop_pos * weight;
+
+	// Filling the contact forces vector
+	idx = 0;
+	for (rbd::BodySelector::const_iterator contact_iter = ground_contacts.begin();
+			contact_iter != ground_contacts.end(); contact_iter++) {
+		std::string name = *contact_iter;
+
+		contact_for[name] << 0, 0, 0, 0, 0, norm_for[idx];
+		idx++;
+	}
+}
+
+
 void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contacts,
 											   rbd::BodyWrench& contact_forces,
 											   const rbd::Vector6d& base_pos,
