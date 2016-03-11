@@ -404,7 +404,7 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 
 void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_for,
 											 const Eigen::Vector3d& cop_pos,
-											 const rbd::BodyVector& contact_pos,
+											 const rbd::BodyPosition& contact_pos,
 											 const rbd::BodySelector& ground_contacts)
 {
 	// Sanity check: checking if there are contact information and the size
@@ -423,7 +423,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_for,
 		std::string name = *contact_iter;
 
 		// Getting the contact position
-		rbd::BodyVector::const_iterator pos_it = contact_pos.find(name);
+		rbd::BodyPosition::const_iterator pos_it = contact_pos.find(name);
 		Eigen::VectorXd position;
 		if (pos_it != contact_pos.end())
 			position = pos_it->second;
@@ -434,10 +434,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_for,
 		}
 
 		// Filling the contact position matrix
-		if (position.size() == 6)
-			contact_mat.col(idx) = position.segment<3>(rbd::LX);
-		else
-			contact_mat.col(idx) = position;
+		contact_mat.col(idx) = position;
 
 		idx++;
 	}

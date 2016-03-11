@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 
 	// Computing the contact forces from the CoP
 	Eigen::Vector3d cop_pos(0.0196, -0.0012, 0.0215);
-	dwl::rbd::BodyVector contact_pos;
+	dwl::rbd::BodyPosition contact_pos;
 	contact_pos["lf_foot"] = Eigen::Vector3d(0.319215579664, 0.206424153349, 0.0215);
 	contact_pos["lh_foot"] = Eigen::Vector3d(-0.335953242968, 0.207404146377, 0.0215);
 	contact_pos["rf_foot"] = Eigen::Vector3d(0.31996232038, -0.207592286639, 0.0215);

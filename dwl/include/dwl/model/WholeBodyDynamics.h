@@ -214,12 +214,12 @@ class WholeBodyDynamics
 		 * pressure position
 		 * @param rbd::BodyWrench& contact_for
 		 * @param const Eigen::Vector3d& cop_pos
-		 * @param const rbd::BodyVector& contact_pos
+		 * @param const rbd::BodyPosition& contact_pos
 		 * @param const rbd::BodySelector& Selected set of active contact
 		 */
 		void computeContactForces(rbd::BodyWrench& contact_for,
 								  const Eigen::Vector3d& cop_pos,
-								  const rbd::BodyVector& contact_pos,
+								  const rbd::BodyPosition& contact_pos,
 								  const rbd::BodySelector& ground_contacts);
 
 		/**
