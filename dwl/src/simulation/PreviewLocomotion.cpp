@@ -167,7 +167,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			// Computing the swing trajectories for full cases
 			if (full) {
 				// Adding the swing pattern
-				SwingParams swing_params(preview_params.duration, rbd::BodyPosition()); // no foothold targets
+				SwingParams swing_params(preview_params.duration,
+										 rbd::BodyPosition()); // no foothold targets
 				addSwingPattern(phase_traj, actual_state, swing_params);
 			}
 		}
@@ -208,7 +209,9 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 			SlipControlParams slip_params(preview_params.duration,
 										  preview_params.cop_shift,
 										  preview_params.length_shift);
-			lc_slip_.computeSystemEnergy(phase_energy, reduced_state, slip_params);
+			lc_slip_.computeSystemEnergy(phase_energy,
+										 reduced_state,
+										 slip_params);
 			com_energy += phase_energy;
 		} else { // Flight phase
 			// TODO compute the energy for flight phases
