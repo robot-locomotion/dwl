@@ -426,6 +426,12 @@ model::FloatingBaseSystem* PreviewLocomotion::getFloatingBaseSystem()
 }
 
 
+model::WholeBodyDynamics* PreviewLocomotion::getWholeBodyDynamics()
+{
+	return &dynamics_;
+}
+
+
 double PreviewLocomotion::getSampleTime()
 {
 	return sample_time_;

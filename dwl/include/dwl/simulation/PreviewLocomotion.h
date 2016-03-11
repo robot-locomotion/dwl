@@ -232,6 +232,9 @@ class PreviewLocomotion
 		/** @brief Returns the floating-base system pointer */
 		model::FloatingBaseSystem* getFloatingBaseSystem();
 
+		/** @brief Returns the whole-body dynamics pointer */
+		model::WholeBodyDynamics* getWholeBodyDynamics();
+
 		/** @brief Returns the sample time */
 		double getSampleTime();
 
