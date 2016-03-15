@@ -217,6 +217,26 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 }
 
 
+void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
+												   const rbd::BodyPosition& op_pos,
+												   const rbd::Vector6d& base_pos_init,
+												   const Eigen::VectorXd& joint_pos_init,
+												   double step_tol,
+												   double lambda,
+												   unsigned int max_iter)
+{//TODO this routines has to compute the IK independ of the base
+	// Including the floating-base position as zero
+	dwl::rbd::BodyPosition body_pos = op_pos;
+	body_pos[system_.getFloatingBaseName()] = Eigen::Vector3d::Zero();
+
+	// Computing the inverse kinematic w.r.t the base
+	rbd::Vector6d base_pos_tmp;
+	computeInverseKinematics(base_pos_tmp, joint_pos,
+							 body_pos,
+							 base_pos_init, joint_pos_init);
+}
+
+
 void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 										  const rbd::Vector6d& base_pos,
 										  const Eigen::VectorXd& joint_pos,
