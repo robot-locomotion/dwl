@@ -40,6 +40,18 @@ void WholeBodyKinematics::modelFromURDFModel(std::string urdf_model,
 	// Printing the information of the rigid-body system
 	if (info)
 		rbd::printModelInfo(system_.getRBDModel());
+
+	// Computing the middle value for IK routines
+	joint_pos_middle_ = Eigen::VectorXd::Zero(system_.getJointDoF());
+	urdf_model::JointLimits joint_limits = system_.getJointLimits();
+	for (urdf_model::JointLimits::iterator it = joint_limits.begin();
+			it != joint_limits.end(); it++) {
+		std::string name = it->first;
+		double lower_limit = it->second.lower;
+		double upper_limit = it->second.upper;
+
+		joint_pos_middle_(system_.getJointId(name)) = (upper_limit + lower_limit) / 2;
+	}
 }
 
 
@@ -153,13 +165,26 @@ void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVector& op_pos,
 
 void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 												   Eigen::VectorXd& joint_pos,
+												   const rbd::BodyPosition& op_pos,
 												   const rbd::Vector6d& base_pos_init,
 												   const Eigen::VectorXd& joint_pos_init,
-												   const rbd::BodyPosition& op_pos,
 												   double step_tol,
 												   double lambda,
 												   unsigned int max_iter)
-{
+{//TODO this routines has to consider more general cases, i.e. 6d operational position
+	// Setting up the guess states
+	rbd::Vector6d base_pos_guess;
+	if (base_pos_init == rbd::Vector6d())
+		base_pos_guess = dwl::rbd::Vector6d::Zero();
+	else
+		base_pos_guess = base_pos_init;
+
+	Eigen::VectorXd joint_pos_guess = Eigen::VectorXd::Zero(system_.getJointDoF());
+	if (joint_pos_init.size() == 0)
+		joint_pos_guess = joint_pos_middle_;
+	else
+		joint_pos_guess = joint_pos_init;
+
 	// Setting the desired body position for RBDL
 	std::vector<unsigned int> body_id;
 	std::vector<RigidBodyDynamics::Math::Vector3d> body_point;
@@ -177,18 +202,38 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 	}
 
 	// Converting the initial base position and joint position
-	Eigen::VectorXd q_init =
-			system_.toGeneralizedJointState(base_pos_init, joint_pos_init);
+	Eigen::VectorXd q_guess =
+			system_.toGeneralizedJointState(base_pos_guess, joint_pos_guess);
 
 	// Computing the inverse kinematics
 	Eigen::VectorXd q_res;
 	RigidBodyDynamics::InverseKinematics(system_.getRBDModel(),
-										 q_init, body_id, body_point,
+										 q_guess, body_id, body_point,
 										 target_pos, q_res,
 										 step_tol, lambda, max_iter);
 
 	// Converting the base and joint positions
 	system_.fromGeneralizedJointState(base_pos, joint_pos, q_res);
+}
+
+
+void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
+												   const rbd::BodyPosition& op_pos,
+												   const rbd::Vector6d& base_pos_init,
+												   const Eigen::VectorXd& joint_pos_init,
+												   double step_tol,
+												   double lambda,
+												   unsigned int max_iter)
+{//TODO this routines has to compute the IK independ of the base
+	// Including the floating-base position as zero
+	dwl::rbd::BodyPosition body_pos = op_pos;
+	body_pos[system_.getFloatingBaseName()] = Eigen::Vector3d::Zero();
+
+	// Computing the inverse kinematic w.r.t the base
+	rbd::Vector6d base_pos_tmp;
+	computeInverseKinematics(base_pos_tmp, joint_pos,
+							 body_pos,
+							 base_pos_init, joint_pos_init);
 }
 
 
