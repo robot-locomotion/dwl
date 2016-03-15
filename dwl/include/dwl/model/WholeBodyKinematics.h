@@ -64,23 +64,26 @@ class WholeBodyKinematics
 
 		/**
 		 * @brief Computes the inverse kinematics for a predefined set of
-		 * bodies positions. This inverse kinematics algorithm uses an
-		 * operational position which consists of the desired 3d position for
-		 * the base and each body
+		 * bodies positions.
+		 * This inverse kinematics algorithm uses an operational position which
+		 * consists of the desired 3d position for the base and each body
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
+		 * @param const rbd::BodyPosition& Operational position of bodies
 		 * @param const rbd::Vector6d& Initial base position for the iteration
 		 * @param const Eigen::VectorXd& Initial joint position for the iteration
-		 * @param const rbd::BodyPosition& Operational position of bodies
 		 * @param double Step tolerance
 		 * @param double Lambda value for singularities
 		 * @param unsigned int Maximum number of iterations
 		 */
 		void computeInverseKinematics(rbd::Vector6d& base_pos,
 									  Eigen::VectorXd& joint_pos,
-									  const rbd::Vector6d& base_pos_init,
-									  const Eigen::VectorXd& joint_pos_init,
 									  const rbd::BodyPosition& op_pos,
+									  const rbd::Vector6d& base_pos_init = rbd::Vector6d(),
+									  const Eigen::VectorXd& joint_pos_init = Eigen::VectorXd(),
+									  double step_tol = 1.0e-12,
+									  double lambda = 0.01,
+									  unsigned int max_iter = 50);
 									  double step_tol = 1.0e-12,
 									  double lambda = 0.01,
 									  unsigned int max_iter = 50);
