@@ -275,6 +275,9 @@ class PreviewLocomotion
 		/** @brief Whole-body dynamics */
 		model::WholeBodyDynamics dynamics_;
 
+		/** @brief Whole-body kinematics */
+		model::WholeBodyKinematics kinematics_;
+
 		/** @brief Sample time of the preview trajectory */
 		double sample_time_;
 

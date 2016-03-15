@@ -33,8 +33,9 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	// Resetting the model of the floating-base system
 	system_.resetFromURDFModel(urdf_model, system_file);
 
-	// Initializing the dynamics from the URDF model
+	// Initializing the dynamics and kinematics from the URDF model
 	dynamics_.modelFromURDFModel(urdf_model, system_file);
+	kinematics_.modelFromURDFModel(urdf_model, system_file);
 
 	// Setting the gravity magnitude from the rigid-body dynamic model
 	gravity_ = system_.getRBDModel().gravity.norm();
@@ -457,6 +458,21 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	full_state.base_pos(rbd::AZ) = 0.;//preview_state.head_pos;//TODO for debugging
 	full_state.base_vel(rbd::AZ) = 0.;//preview_state.head_vel;
 	full_state.base_acc(rbd::AZ) = 0.;//preview_state.head_acc;
+
+
+	// Adding the joint positions, velocities and accelerations
+	dwl::rbd::BodyPosition feet_pos;
+	for (rbd::BodyVector::const_iterator it = preview_state.foot_pos.begin();
+			it != preview_state.foot_pos.end(); it++) {
+		std::string name = it->first;
+		feet_pos[name] = it->second;
+	}
+	kinematics_.computeInverseKinematics(full_state.joint_pos,
+										 feet_pos);
+	full_state.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
+	full_state.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
+	full_state.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
+
 
 	// Adding the contact positions, velocities and accelerations
 	// w.r.t the base frame
