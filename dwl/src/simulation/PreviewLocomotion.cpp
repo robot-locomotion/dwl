@@ -120,7 +120,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 						Eigen::Vector2d foot_2d_shift = control.feet_shift.find(name)->second;
 						Eigen::Vector3d foot_shift(foot_2d_shift(0), foot_2d_shift(1), 0.);
 						Eigen::Vector3d stance_pos;
-						stance_pos << stance_posture_.find(name)->second.head<2>(), last_suppport_region.find(name)->second(2);
+						stance_pos << stance_posture_.find(name)->second.head<2>(),
+									  last_suppport_region.find(name)->second(2);
 
 						// Computing the foothold target position
 						Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
