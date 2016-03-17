@@ -60,5 +60,83 @@ Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector)
 	return skew_symmetric_matrix;
 }
 
+
+void GaussianEliminationPivot(Eigen::VectorXd &x,
+							  Eigen::MatrixXd& A,
+							  Eigen::VectorXd& b)
+{
+	x = Eigen::VectorXd::Zero(A.cols());
+
+	// We can only solve quadratic systems
+	assert (A.rows() == A.cols());
+
+	unsigned int n = A.rows();
+	unsigned int pi;
+
+	// the pivots
+	size_t *pivot = new size_t[n];
+
+	// temporary result vector which contains the pivoted result
+	Eigen::VectorXd px(x);
+
+	unsigned int i,j,k;
+
+	for (i = 0; i < n; i++)
+		pivot[i] = i;
+
+	for (j = 0; j < n; j++) {
+		pi = j;
+		double pv = fabs(A(j, pivot[j]));
+
+		// find the pivot
+		for (k = j; k < n; k++) {
+			double pt = fabs(A(j, pivot[k]));
+			if (pt > pv) {
+				pv = pt;
+				pi = k;
+				unsigned int p_swap = pivot[j];
+				pivot[j] = pivot[pi];
+				pivot[pi] = p_swap;
+			}
+		}
+
+		for (i = j + 1; i < n; i++) {
+			if (fabs(A(j, pivot[j])) <= std::numeric_limits<double>::epsilon()) {
+				std::cerr << "Error: pivoting failed for matrix A = " << std::endl;
+				std::cerr << "A = " << std::endl << A << std::endl;
+				std::cerr << "b = " << b << std::endl;
+			}
+			double d = A(i,pivot[j])/A(j,pivot[j]);
+
+			b[i] -= b[j] * d;
+
+			for (k = j; k < n; k++) {
+				A(i,pivot[k]) -= A(j,pivot[k]) * d;
+			}
+		}
+	}
+
+	// warning: i is an unsigned int, therefore a for loop of the
+	// form "for (i = n - 1; i >= 0; i--)" might end up in getting an invalid
+	// value for i!
+	i = n;
+	do {
+		i--;
+
+		for (j = i + 1; j < n; j++) {
+			px[i] += A(i,pivot[j]) * px[j];
+		}
+		px[i] = (b[i] - px[i]) / A(i,pivot[i]);
+
+	} while (i > 0);
+
+	// Unswapping
+	for (i = 0; i < n; i++) {
+		x[pivot[i]] = px[i];
+	}
+
+	delete[] pivot;
+}
+
 } //@namespace math
 } //@namespace dwl

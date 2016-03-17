@@ -32,7 +32,18 @@ Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& matrix,
  */
 Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector);
 
-} //@namespace utils
+/**
+ * @brief Solve a linear system of equations (Ax = b) by applying the Gaussian
+ * elimination method
+ * @param Eigen::VectorXd& Solution of the system
+ * @param Eigen::MatrixXd& A matrix
+ * @param Eigen::VectorXd& b column-vector
+ */
+void GaussianEliminationPivot(Eigen::VectorXd& x,
+							  Eigen::MatrixXd& A,
+							  Eigen::VectorXd& b);
+
+} //@namespace math
 } //@namespace dwl
 
 #endif
