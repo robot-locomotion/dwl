@@ -224,16 +224,58 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 												   double step_tol,
 												   double lambda,
 												   unsigned int max_iter)
-{//TODO this routines has to compute the IK independ of the base
-	// Including the floating-base position as zero
-	dwl::rbd::BodyPosition body_pos = op_pos;
-	body_pos[system_.getFloatingBaseName()] = Eigen::Vector3d::Zero();
+{
+	// Setting up the guess point
+	joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
+	if (joint_pos_init.size() == 0)
+		joint_pos = joint_pos_middle_;
+	else
+		joint_pos = joint_pos_init;
 
-	// Computing the inverse kinematic w.r.t the base
-	rbd::Vector6d base_pos_tmp;
-	computeInverseKinematics(base_pos_tmp, joint_pos,
-							 body_pos,
-							 base_pos_init, joint_pos_init);
+	// Getting the end-effector names
+	rbd::BodySelector body_names;
+	std::vector<Eigen::Vector3d> target_pos;
+	for (rbd::BodyPosition::const_iterator contact_it = op_pos.begin();
+			contact_it != op_pos.end(); contact_it++) {
+		body_names.push_back(contact_it->first);
+		target_pos.push_back(contact_it->second);
+	}
+
+	// Defining the residual error
+	Eigen::VectorXd e = Eigen::VectorXd::Zero(3 * body_names.size());
+
+	// Iterating until a satisfied the desired tolerance or reach the maximum
+	// number of iterations
+	Eigen::MatrixXd full_jac, fixed_jac, JJTe_lambda2_I;
+	rbd::Vector6d base_pos = rbd::Vector6d::Zero();
+	for (unsigned int k = 0; k < max_iter; k++) {
+		// Computing the Jacobian
+		computeJacobian(full_jac, base_pos, joint_pos, body_names, rbd::Linear);
+		getFixedBaseJacobian(fixed_jac, full_jac);
+
+		// Computing the forward kinematics
+		rbd::BodyVector fk_pos;
+		computeForwardKinematics(fk_pos, base_pos, joint_pos, body_names, rbd::Linear);
+
+		// Computing the error
+		for (unsigned int f = 0; f < body_names.size(); f++) {
+			e.segment<3>(3 * f) = target_pos[f] -
+					(Eigen::Vector3d) fk_pos.find(body_names[f])->second;
+		}
+
+		// Computing the weighted fixed jacobian
+		JJTe_lambda2_I = fixed_jac * fixed_jac.transpose() +
+				lambda * lambda * Eigen::MatrixXd::Identity(e.size(), e.size());
+
+		// Solving the linear system
+		Eigen::VectorXd z;
+		math::GaussianEliminationPivot(z, JJTe_lambda2_I, e);
+
+		Eigen::VectorXd delta_theta = fixed_jac.transpose() * z; //math::pseudoInverse(fixed_jac) * e;
+		joint_pos = joint_pos + delta_theta;
+		if (delta_theta.norm() < step_tol)
+			return;
+	}
 }
 
 
