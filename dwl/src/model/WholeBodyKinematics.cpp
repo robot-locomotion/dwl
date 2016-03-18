@@ -371,8 +371,7 @@ void WholeBodyKinematics::computeFixedJacobian(Eigen::MatrixXd& jacobian,
 
 	// Computing the full jacobian
 	Eigen::MatrixXd full_jac;
-	rbd::BodySelector body_set;
-	body_set.push_back(body_name);
+	rbd::BodySelector body_set(1, body_name);
 	computeJacobian(full_jac,
 					rbd::Vector6d::Zero(), joint_pos,
 					body_set, component);
