@@ -130,14 +130,12 @@ class WholeBodyKinematics
 		 * @brief Computes the fixed jacobian, without the floating-base
 		 * component, for a certain body.
 		 * @param Eigen::MatrixXd& Fixed jacobian
-		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const std::string& A predefined set of bodies
 		 * @param enum rbd::Component There are three different important kind
 		 * of jacobian such as: linear, angular and full
 		 */
 		void computeFixedJacobian(Eigen::MatrixXd& jacobian,
-							 	  const rbd::Vector6d& base_pos,
 							 	  const Eigen::VectorXd& joint_pos,
 							 	  const std::string& body_name,
 							 	  enum rbd::Component component = rbd::Full);

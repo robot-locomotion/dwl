@@ -332,7 +332,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 
 		Eigen::MatrixXd fixed_jac;
 		kinematics_.computeFixedJacobian(fixed_jac,
-										 base_pos, joint_pos,
+										 joint_pos,
 										 body_name, rbd::Linear);
 
 		Eigen::Vector3d force =
@@ -632,7 +632,7 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 			// Computing the fixed-base jacobian
 			Eigen::MatrixXd fixed_jac;
 			kinematics_.computeFixedJacobian(fixed_jac,
-											 base_pos, joint_pos,
+											 joint_pos,
 											 contact_name, rbd::Linear);
 
 			// Computing the join acceleration from x_dd = J*q_dd + J_d*q_d
