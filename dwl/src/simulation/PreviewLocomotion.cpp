@@ -46,6 +46,9 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	// Getting the number of feet
 	num_feet_ = system_.getNumberOfEndEffectors(model::FOOT);
 
+	// Getting the feet names
+	feet_names_ = system_.getEndEffectorNames(model::FOOT);
+
 	// Getting the floating-base CoM
 	actual_system_com_ = system_.getFloatingBaseCoM();
 
@@ -108,7 +111,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			// Updating the support region for this phase
 			if (preview_params.duration > sample_time_) {
 				for (unsigned int f = 0; f < num_feet_; f++) {
-					std::string name = system_.getEndEffectorNames()[f];
+					std::string name = feet_names_[f];
 
 					// Removing the swing foot of the actual phase
 					if (preview_params.phase.isSwingFoot(name)) {
@@ -490,7 +493,7 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 	// Adding infinity contact force for active feet
 	for (unsigned int f = 0; f < num_feet_; f++) {
-		std::string name = system_.getEndEffectorNames(model::FOOT)[f];
+		std::string name = feet_names_[f];
 
 		rbd::BodyPosition::const_iterator support_it = preview_state.support_region.find(name);
 		if (support_it != preview_state.support_region.end())
@@ -533,7 +536,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	dynamics_.computeCenterOfPressure(cop_wrt_base,
 									  full_state.contact_eff,
 									  full_state.contact_pos,
-									  system_.getEndEffectorNames(model::FOOT));
+									  feet_names_);
 	preview_state.cop = base_traslation + base_rotation * cop_wrt_base;
 
 	// Getting the support region w.r.t the world frame. The support region
