@@ -4,3 +4,4 @@
 #include <dwl/utils/RigidBodyDynamics.h>
 #include <dwl/utils/EnvironmentRepresentation.h>
 #include <dwl/utils/Math.h>
+#include <dwl/utils/Algebra.h>

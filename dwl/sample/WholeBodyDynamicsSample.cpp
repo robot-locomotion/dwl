@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 		string name = it->first;
 		dwl::rbd::Vector6d force = it->second;
 
-		cout << "active contact: " << name << " and its force is " << force.transpose() << endl;
+		cout << "active contact: " << name << " and its force is " << force.transpose() << endl << endl;
 	}
 
 
@@ -87,6 +87,7 @@ int main(int argc, char **argv)
 
 		cout << "contact force[" << name << "] = " << force.transpose() << endl;
 	}
+	cout << endl;
 
 
 	// Computing the floating-base ID
@@ -107,8 +108,29 @@ int main(int argc, char **argv)
 													  base_acc, joint_acc,
 													  sys.getEndEffectorNames());
 	std::cout << "------------------- Constrained ID --------------------" << std::endl;
-	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
+	std::cout << "Joint forces = " << joint_forces.transpose() << endl << endl;
 
+
+	// Computing the contact forces from the CoP
+	Eigen::Vector3d cop_pos(0.0196, -0.0012, 0.0215);
+	dwl::rbd::BodyPosition contact_pos;
+	contact_pos["lf_foot"] = Eigen::Vector3d(0.319215579664, 0.206424153349, 0.0215);
+	contact_pos["lh_foot"] = Eigen::Vector3d(-0.335953242968, 0.207404146377, 0.0215);
+	contact_pos["rf_foot"] = Eigen::Vector3d(0.31996232038, -0.207592286639, 0.0215);
+	contact_pos["rh_foot"] = Eigen::Vector3d(-0.331894998575, -0.207236136594, 0.0215);
+	dyn.computeContactForces(contact_forces,
+							 cop_pos,
+							 contact_pos,
+							 sys.getEndEffectorNames());
+	cout << "-------------------- Contact forces from CoP -------------------" << endl;
+	for (dwl::rbd::BodyWrench::iterator it = contact_forces.begin();
+			it != contact_forces.end(); it++) {
+		string name = it->first;
+		dwl::rbd::Vector6d force = it->second;
+
+		cout << "contact force[" << name << "] = " << force.transpose() << endl;
+	}
+	cout << endl;
 
 	return 0;
 }

@@ -18,6 +18,10 @@ cmaes:
   # initial step-size, i.e. estimated initial parameter error
   # (-1 for automatically decided sigma)
   sigma: -1
+  # Number of offsprings at each generation
+  #   -1 -> for automatically decided lambda
+  #    0 -> is for random seeding of the internal generator
+  lambda: -1
   # Allowed number of iteration (-1 for unlimited)
   max_iter: 120000
   # Allowed number of function evaluations (-1 for unlimited) 
@@ -30,5 +34,7 @@ cmaes:
   #        the final solution and reinjects the best solution until the population
   #        has better fitness, in its majority
   elitism: 0
+  # Maximum number of restarts applies to IPOP and BIPOP
+  max_restarts: 10
   # Enable or disable the multi-threading optimization
   multithreads: false

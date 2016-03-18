@@ -45,6 +45,9 @@ class cmaesSOFamily : public OptimizationSolver
 		/** @brief Sets the initial distribution */
 		void setInitialDistribution(double sigma);
 
+		/** @brief Sets the number of offsprings per each generation */
+		void setNumberOfOffsprings(int lambda);
+
 		/**
 		 * @brief Sets the elitism. These are the type of elitism:
 		 * 	0: no elitism
@@ -55,6 +58,9 @@ class cmaesSOFamily : public OptimizationSolver
 		 * 	   has better fitness, in its majority
 		 */
 		void setElitism(int elitism);
+
+		/** @brief Sets the maximum number of restarts */
+		void setNumberOfRestarts(int max_restarts);
 
 		/**
 		 * @brief Sets the multi-threading option
@@ -103,6 +109,9 @@ class cmaesSOFamily : public OptimizationSolver
 		/** @brief Initial distribution */
 		double sigma_;
 
+		/** @brief Number of offspring at each generation */
+		int lambda_;
+
 		/** @brief Maximum number of iterations */
 		int max_iteration_;
 
@@ -111,6 +120,9 @@ class cmaesSOFamily : public OptimizationSolver
 
 		/** @brief Type of elitism */
 		int elitism_;
+
+		/** @brief Maximum number of restarts applies to IPOP and BIPOP */
+		int max_restarts_;
 
 		/** @brief Indicates if the optimization computation will use
 		 * multi-threads
@@ -121,6 +133,6 @@ class cmaesSOFamily : public OptimizationSolver
 } //@namespace solver
 } //@namespace dwl
 
-#include <dwl/solver/impl/cmaesSOFamily.hcc>
+#include <dwl/solver/impl/cmaesSOFamily.hpp>
 
 #endif

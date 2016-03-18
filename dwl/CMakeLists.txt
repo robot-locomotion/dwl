@@ -6,6 +6,9 @@ message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
 message("Copyright (C) 2014-2016 Carlos Mastalli - Istituto Italiano di Tecnologia.")
 message("Released under the XXX License.")
 
+# Defining the unit testing environment
+set(UNIT_TEST false CACHE BOOL "Unit testing")
+
 # Checking if the project is compiling with Catkin or CMake
 set(CATKIN_CALL "${CATKIN_DEVEL_PREFIX}")
 if(CATKIN_CALL)
@@ -182,27 +185,32 @@ target_link_libraries(dyn_sample ${PROJECT_NAME})
 
 
 # Adding the test executables
-include_directories(tests)
-if(IPOPT_FOUND)
-	add_executable(ipopt_test  tests/IpoptDWLTest.cpp
-							   tests/model/HS071DynamicalSystem.cpp
-							   tests/model/HS071Cost.cpp)
-	target_link_libraries(ipopt_test ${PROJECT_NAME})
+if(UNIT_TEST)
+	message("-- Building unit testing")
+	include_directories(tests)
+	if(IPOPT_FOUND)
+		add_executable(ipopt_utest  tests/IpoptDWLTest.cpp
+									tests/model/HS071DynamicalSystem.cpp
+									tests/model/HS071Cost.cpp)
+		target_link_libraries(ipopt_utest ${PROJECT_NAME})
+	endif()
+
+	if(LIBCMAES_FOUND)
+		add_executable(cmaes_utest  tests/cmaesFamilyDWLTest.cpp
+									tests/model/HS071DynamicalSystem.cpp
+									tests/model/HS071Cost.cpp)
+		target_link_libraries(cmaes_utest ${PROJECT_NAME})
+	endif()
+
+	add_executable(support_utest  tests/SupportPolygonConstraintTest.cpp)
+	target_link_libraries(support_utest ${PROJECT_NAME})
+
+	add_executable(yaml_utest  tests/YamlWrapperTest.cpp)
+	target_link_libraries(yaml_utest ${PROJECT_NAME})
+
+	add_executable(numdiff_utest  tests/NumDiffEigenTest.cpp)
+	target_link_libraries(numdiff_utest ${PROJECT_NAME})
 endif()
-
-if(LIBCMAES_FOUND)
-	add_executable(cmaes_test  tests/cmaesFamilyDWLTest.cpp
-							   tests/model/HS071DynamicalSystem.cpp
-							   tests/model/HS071Cost.cpp)
-	target_link_libraries(cmaes_test ${PROJECT_NAME})
-endif()
-
-add_executable(yaml_bridge  tests/YamlWrapperTest.cpp)
-target_link_libraries(yaml_bridge ${PROJECT_NAME})
-
-add_executable(numdiff  tests/NumDiffEigenTest.cpp)
-target_link_libraries(numdiff ${PROJECT_NAME})
-
 
 # Exporting the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)

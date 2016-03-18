@@ -70,6 +70,28 @@ class PreviewOptimization : public model::OptimizationModel
 		void setBounds(PreviewBounds bounds);
 
 		/**
+		 * @brief Sets the CoP stability constraint properties
+		 * @param double CoP stability margin
+		 * @param const SoftConstraintProperties& properties
+		 */
+		void setCopStabilityConstraint(double margin,
+									   const SoftConstraintProperties& properties = SoftConstraintProperties());
+
+		/**
+		 * @brief Sets the preview model constraint properties
+		 * @param double Minimum pendulum length
+		 * @param double Maximum pendulum length
+		 * @param double Maximum pitch angle
+		 * @param double Maximum roll angle
+		 * @param const SoftConstraintProperties& properties
+		 */
+		void setPreviewModelConstraint(double min_length,
+									   double max_length,
+									   double max_pitch,
+									   double max_roll,
+									   const SoftConstraintProperties& properties = SoftConstraintProperties());
+
+		/**
 		 * @brief Sets the step cost weights
 		 * @param double Step duration weight
 		 * @param double Step distance weight
@@ -86,18 +108,6 @@ class PreviewOptimization : public model::OptimizationModel
 		void setComAccelerationWeight(double x_weight,
 									  double y_weight,
 									  double z_weight);
-
-		/**
-		 * @brief Sets the CoP stability weight
-		 * @param double CoP stability weight
-		 */
-		void setCopStabilityWeight(double weight);
-
-		/**
-		 * @brief Sets the preview model weight
-		 * @param doublw Preview model weight
-		 */
-		void setPreviewModelWeight(double weight);
 
 		/**
 		 * @brief Sets the reference step properties
@@ -200,6 +210,8 @@ class PreviewOptimization : public model::OptimizationModel
 		simulation::PreviewState actual_state_;
 
 		PreviewBounds bounds_;
+
+		double support_margin_;
 
 		ReducedBodyTrajectory reduced_traj_;
 		simulation::PreviewTrajectory preview_transitions_;

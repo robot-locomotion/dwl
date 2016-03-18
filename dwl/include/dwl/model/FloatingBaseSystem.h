@@ -141,6 +141,9 @@ class FloatingBaseSystem
 		 */
 		double getBodyMass(std::string body_name);
 
+		/** @brief Gets the gravity acceleration of the rigid body system */
+		double getGravityAcceleration();
+
 		/**
 		 * @brief Gets the Center of Mass (CoM) of the floating-base system
 		 * @param const rbd::Vector6d& Base position

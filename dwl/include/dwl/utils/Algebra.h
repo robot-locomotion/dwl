@@ -22,7 +22,8 @@ namespace math
  * @param double Tolerance of the singular value decomposition
  * @return Returns the pseudo-inverse matrix
  */
-Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& matrix, double tolerance = 1E-9);
+Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& matrix,
+							  double tolerance = 1E-9);
 
 /**
  * @brief Computes the skew symmetric matrix from a 3d vector
@@ -31,7 +32,18 @@ Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& matrix, double tolerance = 
  */
 Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector);
 
-} //@namespace utils
+/**
+ * @brief Solve a linear system of equations (Ax = b) by applying the Gaussian
+ * elimination method
+ * @param Eigen::VectorXd& Solution of the system
+ * @param Eigen::MatrixXd& A matrix
+ * @param Eigen::VectorXd& b column-vector
+ */
+void GaussianEliminationPivot(Eigen::VectorXd& x,
+							  Eigen::MatrixXd& A,
+							  Eigen::VectorXd& b);
+
+} //@namespace math
 } //@namespace dwl
 
 #endif

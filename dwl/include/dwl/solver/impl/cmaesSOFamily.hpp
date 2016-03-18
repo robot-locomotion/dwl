@@ -13,10 +13,9 @@ namespace solver
 
 template<typename TScaling>
 cmaesSOFamily<TScaling>::cmaesSOFamily() : cmaes_params_(NULL),
-		initialized_(false), family_((int) CMAES), sigma_(-1.),
+		initialized_(false), family_((int) CMAES), sigma_(-1.), lambda_(-1),
 		max_iteration_(-1), max_fevals_(-1), elitism_(0),
-		multithreading_(false)
-		
+		max_restarts_(0), multithreading_(false)
 {
 	name_ = "cmaes family";
 }
@@ -61,6 +60,10 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 		if (yaml_reader.read(sigma, cmaes_ns, "sigma"))
 			setInitialDistribution(sigma);
 
+		// Reading the number of offsprings at each generation
+		int lambda;
+		if (yaml_reader.read(lambda, cmaes_ns, "lambda"))
+			setNumberOfOffsprings(lambda);
 
 		// Reading and setting up the allowed number of iteration
 		int max_iter;
@@ -77,7 +80,12 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 		if (yaml_reader.read(elitism, cmaes_ns, "elitism"))
 			setElitism(elitism);
 
-		// Rading the multithreading option
+		// Reading the multithreading option
+		int max_restarts;
+		if (yaml_reader.read(max_restarts, cmaes_ns, "max_restarts"))
+			setNumberOfRestarts(max_restarts);
+		
+		// Reading the multithreading option
 		bool multithreading;
 		if (yaml_reader.read(multithreading, cmaes_ns, "multithreads"))
 			setMultithreading(multithreading);
@@ -131,6 +139,15 @@ void cmaesSOFamily<TScaling>::setInitialDistribution(double sigma)
 
 
 template<typename TScaling>
+void cmaesSOFamily<TScaling>::setNumberOfOffsprings(int lambda)
+{
+	lambda_ = lambda;
+	
+	init(); // Note that this parameter is only set in the init() calls
+}
+
+
+template<typename TScaling>
 void cmaesSOFamily<TScaling>::setElitism(int elitism)
 {
 	elitism_ = elitism;
@@ -139,6 +156,18 @@ void cmaesSOFamily<TScaling>::setElitism(int elitism)
 	// Otherwise it will be initialized when init() is called
 	if (initialized_)
 		cmaes_params_->set_elitism(elitism_);
+}
+
+
+template<typename TScaling>
+void cmaesSOFamily<TScaling>::setNumberOfRestarts(int max_restarts)
+{
+	max_restarts_ = max_restarts;
+	
+	// Setting up if the parameters pointer was initialized
+	// Otherwise it will be initialized when init() is called
+	if (initialized_)
+		cmaes_params_->set_restarts(max_restarts_);
 }
 
 
@@ -195,13 +224,10 @@ bool cmaesSOFamily<TScaling>::init()
 	libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
 						TScaling> gp(x_l, x_u, state_dim);
 
-	//int lambda = 100; // offsprings at each generation.
-	// -1 for automatically decided lambda, 0 is for random seeding of
-	// the internal generator.
 	cmaes_params_ =
 			new libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
 															TScaling>>(x0, sigma_,
-																	   -1, 0, gp);
+																	   lambda_, 0, gp);
 
 	// Setting the previous parameters values
 	initialized_ = true;
@@ -209,6 +235,7 @@ bool cmaesSOFamily<TScaling>::init()
 	setAllowedNumberofIterations(max_iteration_);
 	setAllowedNumberOfFunctionEvalutions(max_fevals_);
 	setElitism(elitism_);
+	setNumberOfRestarts(max_restarts_);
 	setMultithreading(multithreading_);
 
 	std::string fplot = "out.dat";

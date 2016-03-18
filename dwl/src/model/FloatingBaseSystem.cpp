@@ -290,6 +290,12 @@ double FloatingBaseSystem::getBodyMass(std::string body_name)
 }
 
 
+double FloatingBaseSystem::getGravityAcceleration()
+{
+	return rbd_model_.gravity(rbd::Z);
+}
+
+
 const Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& base_pos,
 		   	   	   	   	   	   	   	   	   	   	   	    const Eigen::VectorXd& joint_pos)
 {

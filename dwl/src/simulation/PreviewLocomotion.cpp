@@ -8,7 +8,7 @@ namespace simulation
 {
 
 PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81),
-		mass_(0.), step_height_(0.1), force_threshold_(0.)
+		mass_(0.), num_feet_(0), step_height_(0.1), force_threshold_(0.)
 {
 	actual_system_com_.setZero();
 }
@@ -33,14 +33,21 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	// Resetting the model of the floating-base system
 	system_.resetFromURDFModel(urdf_model, system_file);
 
-	// Initializing the dynamics from the URDF model
+	// Initializing the dynamics and kinematics from the URDF model
 	dynamics_.modelFromURDFModel(urdf_model, system_file);
+	kinematics_.modelFromURDFModel(urdf_model, system_file);
 
 	// Setting the gravity magnitude from the rigid-body dynamic model
 	gravity_ = system_.getRBDModel().gravity.norm();
 
 	// Getting the total mass of the system
 	mass_ = system_.getTotalMass();
+
+	// Getting the number of feet
+	num_feet_ = system_.getNumberOfEndEffectors(model::FOOT);
+
+	// Getting the feet names
+	feet_names_ = system_.getEndEffectorNames(model::FOOT);
 
 	// Getting the floating-base CoM
 	actual_system_com_ = system_.getFloatingBaseCoM();
@@ -102,30 +109,34 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			actual_state = trajectory.back();
 
 			// Updating the support region for this phase
-			for (unsigned int f = 0; f < system_.getNumberOfEndEffectors(model::FOOT); f++) {
-				std::string name = system_.getEndEffectorNames()[f];
+			if (preview_params.duration > sample_time_) {
+				for (unsigned int f = 0; f < num_feet_; f++) {
+					std::string name = feet_names_[f];
 
-				// Removing the swing foot of the actual phase
-				if (preview_params.phase.isSwingFoot(name)) {
-					last_suppport_region[name] = actual_state.support_region.find(name)->second;
-					actual_state.support_region.erase(name);
-				}
+					// Removing the swing foot of the actual phase
+					if (preview_params.phase.isSwingFoot(name)) {
+						last_suppport_region[name] = actual_state.support_region.find(name)->second;
+						actual_state.support_region.erase(name);
+					}
 
-				// Adding the foothold target of the previous phase
-				if (control.params[k-1].phase.isSwingFoot(name)) {
-					// Computing the target foothold of the contact w.r.t the world frame
-					Eigen::Vector2d foot_2d_shift = control.feet_shift.find(name)->second;
-					Eigen::Vector3d foot_shift(foot_2d_shift(0), foot_2d_shift(1), 0.);
-					Eigen::Vector3d stance_pos;
-					stance_pos << stance_posture_.find(name)->second.head<2>(), last_suppport_region.find(name)->second(2);
+					// Adding the foothold target of the previous phase
+					if (control.params[k-1].phase.isSwingFoot(name) &&
+							control.params[k-1].duration > sample_time_) {
+						// Computing the target foothold of the contact w.r.t the world frame
+						Eigen::Vector2d foot_2d_shift = control.feet_shift.find(name)->second;
+						Eigen::Vector3d foot_shift(foot_2d_shift(0), foot_2d_shift(1), 0.);
+						Eigen::Vector3d stance_pos;
+						stance_pos << stance_posture_.find(name)->second.head<2>(),
+									  last_suppport_region.find(name)->second(2);
 
-					// Computing the foothold target position
-					Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
-												   actual_state.com_pos(rbd::Y),
-												   0.);
-					Eigen::Vector3d next_foothold = planar_com_pos + stance_pos + foot_shift;
+						// Computing the foothold target position
+						Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
+													   actual_state.com_pos(rbd::Y),
+													   0.);
+						Eigen::Vector3d next_foothold = planar_com_pos + stance_pos + foot_shift;
 
-					actual_state.support_region[name] = next_foothold;
+						actual_state.support_region[name] = next_foothold;
+					}
 				}
 			}
 		}
@@ -164,7 +175,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			// Computing the swing trajectories for full cases
 			if (full) {
 				// Adding the swing pattern
-				SwingParams swing_params(preview_params.duration, rbd::BodyPosition()); // no foothold targets
+				SwingParams swing_params(preview_params.duration,
+										 rbd::BodyPosition()); // no foothold targets
 				addSwingPattern(phase_traj, actual_state, swing_params);
 			}
 		}
@@ -205,7 +217,9 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 			SlipControlParams slip_params(preview_params.duration,
 										  preview_params.cop_shift,
 										  preview_params.length_shift);
-			lc_slip_.computeSystemEnergy(phase_energy, reduced_state, slip_params);
+			lc_slip_.computeSystemEnergy(phase_energy,
+										 reduced_state,
+										 slip_params);
 			com_energy += phase_energy;
 		} else { // Flight phase
 			// TODO compute the energy for flight phases
@@ -423,6 +437,12 @@ model::FloatingBaseSystem* PreviewLocomotion::getFloatingBaseSystem()
 }
 
 
+model::WholeBodyDynamics* PreviewLocomotion::getWholeBodyDynamics()
+{
+	return &dynamics_;
+}
+
+
 double PreviewLocomotion::getSampleTime()
 {
 	return sample_time_;
@@ -446,6 +466,49 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	full_state.base_vel(rbd::AZ) = 0.;//preview_state.head_vel;
 	full_state.base_acc(rbd::AZ) = 0.;//preview_state.head_acc;
 
+
+	// Adding the joint positions, velocities and accelerations
+	Eigen::MatrixXd full_jac, fixed_jac;
+	dwl::rbd::BodyPosition feet_pos;
+	Eigen::VectorXd feet_vel = Eigen::VectorXd::Zero(3 * num_feet_);
+	Eigen::VectorXd feet_acc = Eigen::VectorXd::Zero(3 * num_feet_);
+	for (unsigned int f = 0; f < num_feet_; f++) {
+		std::string name = feet_names_[f];
+
+		feet_pos[name] = preview_state.foot_pos.find(name)->second;
+		feet_vel.segment<3>(3 * f) = preview_state.foot_vel.find(name)->second;
+		feet_acc.segment<3>(3 * f) = preview_state.foot_acc.find(name)->second;
+	}
+
+	// Computing the joint positions
+	kinematics_.computeInverseKinematics(full_state.joint_pos,
+										 feet_pos);
+	// Computing the pseudo-inverse of the fixed jacobians
+	kinematics_.computeJacobian(full_jac,
+								full_state.base_pos, full_state.joint_pos,
+								feet_names_, rbd::Linear);
+	kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
+	Eigen::MatrixXd psinv_jac = math::pseudoInverse(fixed_jac);
+
+	// Computing the Jac_d*Qd
+	rbd::BodyVector jacd_qd;
+	kinematics_.computeJdotQdot(jacd_qd,
+								full_state.base_pos, full_state.joint_pos,
+								full_state.base_vel, full_state.joint_vel,
+								feet_names_, rbd::Linear);
+	Eigen::VectorXd feet_jacd_qd = Eigen::VectorXd::Zero(3 * num_feet_);
+	for (unsigned int f = 0; f < num_feet_; f++) {
+		std::string name = feet_names_[f];
+
+		feet_jacd_qd.segment<3>(3 * f) = jacd_qd.find(name)->second;
+	}
+
+	// Computing the joint velocity and acceleration
+	full_state.joint_vel = psinv_jac * feet_vel;
+	full_state.joint_acc = psinv_jac * (feet_acc - feet_jacd_qd);
+	full_state.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
+
+
 	// Adding the contact positions, velocities and accelerations
 	// w.r.t the base frame
 	for (rbd::BodyVector::const_iterator contact_it = preview_state.foot_pos.begin();
@@ -457,8 +520,8 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	full_state.contact_acc = preview_state.foot_acc;
 
 	// Adding infinity contact force for active feet
-	for (unsigned int f = 0; f < system_.getNumberOfEndEffectors(model::FOOT); f++) {
-		std::string name = system_.getEndEffectorNames(model::FOOT)[f];
+	for (unsigned int f = 0; f < num_feet_; f++) {
+		std::string name = feet_names_[f];
 
 		rbd::BodyPosition::const_iterator support_it = preview_state.support_region.find(name);
 		if (support_it != preview_state.support_region.end())
@@ -501,7 +564,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	dynamics_.computeCenterOfPressure(cop_wrt_base,
 									  full_state.contact_eff,
 									  full_state.contact_pos,
-									  system_.getEndEffectorNames(model::FOOT));
+									  feet_names_);
 	preview_state.cop = base_traslation + base_rotation * cop_wrt_base;
 
 	// Getting the support region w.r.t the world frame. The support region

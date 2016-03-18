@@ -10,7 +10,7 @@ namespace ocp
 
 template <typename TState>
 Constraint<TState>::Constraint() : constraint_dimension_(0), is_soft_(false),
-		soft_weight_(10000.), soft_threshold_(0.)
+	soft_properties_(SoftConstraintProperties(10000., 0.))
 {
 	state_buffer_.set_capacity(4);
 }
@@ -84,11 +84,11 @@ void Constraint<TState>::computeSoft(double& constraint_cost,
 	unsigned int vec_dim = constraint.size();
 	Eigen::VectorXd violation_vec = Eigen::VectorXd::Zero(vec_dim);
 	for (unsigned int i = 0; i < vec_dim; i++) {
-		double lower_val = lower_bound(i) + soft_threshold_;
-		double upper_val = upper_bound(i) - soft_threshold_;
+		double lower_val = lower_bound(i) + soft_properties_.threshold;
+		double upper_val = upper_bound(i) - soft_properties_.threshold;
 		double const_val = constraint(i);
 		if (lower_val > const_val) {
-			switch (soft_family_) {
+			switch (soft_properties_.family) {
 			case UNWEIGHTED:
 				violation_vec(i) += 1.;
 				break;
@@ -96,13 +96,13 @@ void Constraint<TState>::computeSoft(double& constraint_cost,
 				violation_vec(i) += lower_val - const_val;
 				break;
 			default:
-				violation_vec(i) += const_val - upper_val;
+				violation_vec(i) += lower_val - const_val;
 				break;
 			}
 		}
-		
+
 		if (upper_val < const_val) {
-			switch (soft_family_) {
+			switch (soft_properties_.family) {
 			case UNWEIGHTED:
 				violation_vec(i) += 1.;
 				break;
@@ -117,7 +117,7 @@ void Constraint<TState>::computeSoft(double& constraint_cost,
 	}
 
 	// Computing a weighted quadratic cost of the constraint violation
-	constraint_cost = soft_weight_ * violation_vec.norm();
+	constraint_cost = soft_properties_.weight * violation_vec.norm();
 }
 
 
@@ -129,13 +129,9 @@ bool Constraint<TState>::isSoftConstraint()
 
 
 template <typename TState>
-void Constraint<TState>::setSoftProperties(double weight,
-										   double threshold,
-										   enum SoftConstraintFamily family)
+void Constraint<TState>::setSoftProperties(const SoftConstraintProperties& properties)
 {
-	soft_weight_ = weight;
-	soft_threshold_ = threshold;
-	soft_family_ = family;
+	soft_properties_ = properties;
 }
 
 

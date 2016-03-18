@@ -40,6 +40,18 @@ void WholeBodyKinematics::modelFromURDFModel(std::string urdf_model,
 	// Printing the information of the rigid-body system
 	if (info)
 		rbd::printModelInfo(system_.getRBDModel());
+
+	// Computing the middle value for IK routines
+	joint_pos_middle_ = Eigen::VectorXd::Zero(system_.getJointDoF());
+	urdf_model::JointLimits joint_limits = system_.getJointLimits();
+	for (urdf_model::JointLimits::iterator it = joint_limits.begin();
+			it != joint_limits.end(); it++) {
+		std::string name = it->first;
+		double lower_limit = it->second.lower;
+		double upper_limit = it->second.upper;
+
+		joint_pos_middle_(system_.getJointId(name)) = (upper_limit + lower_limit) / 2;
+	}
 }
 
 
@@ -104,12 +116,14 @@ void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVector& op_pos,
 			switch (component) {
 			case rbd::Linear:
 				body_pos.segment<3>(0) =
-						CalcBodyToBaseCoordinates(system_.getRBDModel(), q, body_id,
+						CalcBodyToBaseCoordinates(system_.getRBDModel(),
+												  q, body_id,
 												  Eigen::Vector3d::Zero(), true);
 				break;
 			case rbd::Angular:
-				rotation_mtx = RigidBodyDynamics::CalcBodyWorldOrientation(system_.getRBDModel(),
-																		   q, body_id, false);
+				rotation_mtx =
+						RigidBodyDynamics::CalcBodyWorldOrientation(system_.getRBDModel(),
+																	q, body_id, false);
 				switch (type) {
 					case RollPitchYaw:
 						body_pos.segment<3>(0) = math::getRPY(rotation_mtx);
@@ -137,7 +151,8 @@ void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVector& op_pos,
 
 				// Computing the linear component
 				body_pos.segment<3>(ang_vars) =
-						CalcBodyToBaseCoordinates(system_.getRBDModel(), q, body_id,
+						CalcBodyToBaseCoordinates(system_.getRBDModel(),
+												  q, body_id,
 												  Eigen::Vector3d::Zero(), true);
 				break;
 			}
@@ -150,13 +165,26 @@ void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVector& op_pos,
 
 void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 												   Eigen::VectorXd& joint_pos,
+												   const rbd::BodyPosition& op_pos,
 												   const rbd::Vector6d& base_pos_init,
 												   const Eigen::VectorXd& joint_pos_init,
-												   const rbd::BodyPosition& op_pos,
 												   double step_tol,
 												   double lambda,
 												   unsigned int max_iter)
-{
+{//TODO this routines has to consider more general cases, i.e. 6d operational position
+	// Setting up the guess states
+	rbd::Vector6d base_pos_guess;
+	if (base_pos_init == rbd::Vector6d())
+		base_pos_guess = dwl::rbd::Vector6d::Zero();
+	else
+		base_pos_guess = base_pos_init;
+
+	Eigen::VectorXd joint_pos_guess = Eigen::VectorXd::Zero(system_.getJointDoF());
+	if (joint_pos_init.size() == 0)
+		joint_pos_guess = joint_pos_middle_;
+	else
+		joint_pos_guess = joint_pos_init;
+
 	// Setting the desired body position for RBDL
 	std::vector<unsigned int> body_id;
 	std::vector<RigidBodyDynamics::Math::Vector3d> body_point;
@@ -174,15 +202,80 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 	}
 
 	// Converting the initial base position and joint position
-	Eigen::VectorXd q_init = system_.toGeneralizedJointState(base_pos_init, joint_pos_init);
+	Eigen::VectorXd q_guess =
+			system_.toGeneralizedJointState(base_pos_guess, joint_pos_guess);
 
 	// Computing the inverse kinematics
 	Eigen::VectorXd q_res;
-	RigidBodyDynamics::InverseKinematics(system_.getRBDModel(), q_init, body_id, body_point, target_pos,
-										 q_res, step_tol, lambda, max_iter);
+	RigidBodyDynamics::InverseKinematics(system_.getRBDModel(),
+										 q_guess, body_id, body_point,
+										 target_pos, q_res,
+										 step_tol, lambda, max_iter);
 
 	// Converting the base and joint positions
 	system_.fromGeneralizedJointState(base_pos, joint_pos, q_res);
+}
+
+
+void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
+												   const rbd::BodyPosition& op_pos,
+												   const rbd::Vector6d& base_pos_init,
+												   const Eigen::VectorXd& joint_pos_init,
+												   double step_tol,
+												   double lambda,
+												   unsigned int max_iter)
+{
+	// Setting up the guess point
+	joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
+	if (joint_pos_init.size() == 0)
+		joint_pos = joint_pos_middle_;
+	else
+		joint_pos = joint_pos_init;
+
+	// Getting the end-effector names
+	rbd::BodySelector body_names;
+	std::vector<Eigen::Vector3d> target_pos;
+	for (rbd::BodyPosition::const_iterator contact_it = op_pos.begin();
+			contact_it != op_pos.end(); contact_it++) {
+		body_names.push_back(contact_it->first);
+		target_pos.push_back(contact_it->second);
+	}
+
+	// Defining the residual error
+	Eigen::VectorXd e = Eigen::VectorXd::Zero(3 * body_names.size());
+
+	// Iterating until a satisfied the desired tolerance or reach the maximum
+	// number of iterations
+	Eigen::MatrixXd full_jac, fixed_jac, JJTe_lambda2_I;
+	rbd::Vector6d base_pos = rbd::Vector6d::Zero();
+	for (unsigned int k = 0; k < max_iter; k++) {
+		// Computing the Jacobian
+		computeJacobian(full_jac, base_pos, joint_pos, body_names, rbd::Linear);
+		getFixedBaseJacobian(fixed_jac, full_jac);
+
+		// Computing the forward kinematics
+		rbd::BodyVector fk_pos;
+		computeForwardKinematics(fk_pos, base_pos, joint_pos, body_names, rbd::Linear);
+
+		// Computing the error
+		for (unsigned int f = 0; f < body_names.size(); f++) {
+			e.segment<3>(3 * f) = target_pos[f] -
+					(Eigen::Vector3d) fk_pos.find(body_names[f])->second;
+		}
+
+		// Computing the weighted fixed jacobian
+		JJTe_lambda2_I = fixed_jac * fixed_jac.transpose() +
+				lambda * lambda * Eigen::MatrixXd::Identity(e.size(), e.size());
+
+		// Solving the linear system
+		Eigen::VectorXd z;
+		math::GaussianEliminationPivot(z, JJTe_lambda2_I, e);
+
+		Eigen::VectorXd delta_theta = fixed_jac.transpose() * z; //math::pseudoInverse(fixed_jac) * e;
+		joint_pos = joint_pos + delta_theta;
+		if (delta_theta.norm() < step_tol)
+			return;
+	}
 }
 
 
@@ -231,8 +324,8 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 									  Eigen::VectorXd::Zero(system_.getSystemDoF()),
 									  jac, true);
 			if (system_.isFullyFloatingBase()) {
-				// RBDL defines floating joints as (linear, angular)^T which is not consistent with
-				// our DWL standard, i.e. (angular, linear)^T
+				// RBDL defines floating joints as (linear, angular)^T which is
+				// not consistent with our DWL standard, i.e. (angular, linear)^T
 				Eigen::MatrixXd copy_jac = jac.block<6,6>(0,0);
 				jac.block<6,3>(0,0) = copy_jac.rightCols(3);
 				jac.block<6,3>(0,3) = copy_jac.leftCols(3);
@@ -258,7 +351,6 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 
 
 void WholeBodyKinematics::computeFixedJacobian(Eigen::MatrixXd& jacobian,
-											   const rbd::Vector6d& base_pos,
 											   const Eigen::VectorXd& joint_pos,
 											   const std::string& body_name,
 											   enum rbd::Component component)
@@ -279,9 +371,10 @@ void WholeBodyKinematics::computeFixedJacobian(Eigen::MatrixXd& jacobian,
 
 	// Computing the full jacobian
 	Eigen::MatrixXd full_jac;
-	rbd::BodySelector body_set;
-	body_set.push_back(body_name);
-	computeJacobian(full_jac, base_pos, joint_pos, body_set, component);
+	rbd::BodySelector body_set(1, body_name);
+	computeJacobian(full_jac,
+					rbd::Vector6d::Zero(), joint_pos,
+					body_set, component);
 
 	// Getting the position index and number of the dof of the branch
 	unsigned int q_index, num_dof;
@@ -364,9 +457,10 @@ void WholeBodyKinematics::computeVelocity(rbd::BodyVector& op_vel,
 			Eigen::VectorXd q_dot = system_.toGeneralizedJointState(base_vel, joint_vel);
 
 			// Computing the point velocity
-			rbd::Vector6d point_vel = rbd::computePointVelocity(system_.getRBDModel(),
-																q, q_dot, body_id,
-																Eigen::Vector3d::Zero(), true);
+			rbd::Vector6d point_vel =
+					rbd::computePointVelocity(system_.getRBDModel(),
+											  q, q_dot, body_id,
+											  Eigen::Vector3d::Zero(), true);
 			switch (component) {
 			case rbd::Linear:
 				body_vel.segment<3>(0) = rbd::linearPart(point_vel);
@@ -425,10 +519,11 @@ void WholeBodyKinematics::computeAcceleration(rbd::BodyVector& op_acc,
 			Eigen::VectorXd q_ddot = system_.toGeneralizedJointState(base_acc, joint_acc);
 
 			// Computing the point acceleration
-			rbd::Vector6d point_acc = rbd::computePointAcceleration(system_.getRBDModel(),
-																	q, q_dot, q_ddot,
-																	body_id,
-																	Eigen::Vector3d::Zero(), true);
+			rbd::Vector6d point_acc =
+					rbd::computePointAcceleration(system_.getRBDModel(),
+												  q, q_dot, q_ddot,
+												  body_id,
+												  Eigen::Vector3d::Zero(), true);
 			switch (component) {
 			case rbd::Linear:
 				body_acc.segment<3>(0) = rbd::linearPart(point_acc);
@@ -456,7 +551,8 @@ void WholeBodyKinematics::computeJdotQdot(rbd::BodyVector& jacd_qd,
 										  enum rbd::Component component)
 {
 	rbd::BodyVector op_vel, op_acc;
-	computeAcceleration(op_acc, base_pos, joint_pos,
+	computeAcceleration(op_acc,
+						base_pos, joint_pos,
 						base_vel, joint_vel,
 						rbd::Vector6d::Zero(), Eigen::VectorXd::Zero(system_.getJointDoF()),
 						body_set, component);
@@ -465,14 +561,20 @@ void WholeBodyKinematics::computeJdotQdot(rbd::BodyVector& jacd_qd,
 	int num_vars = 0;
 	switch (component) {
 	case rbd::Linear:
-		computeVelocity(op_vel, base_pos, joint_pos, base_vel, joint_vel, body_set);
+		computeVelocity(op_vel,
+						base_pos, joint_pos,
+						base_vel, joint_vel,
+						body_set);
 		num_vars = 3;
 		break;
 	case rbd::Angular:
 		num_vars = 3;
 		break;
 	case rbd::Full:
-		computeVelocity(op_vel, base_pos, joint_pos, base_vel, joint_vel, body_set);
+		computeVelocity(op_vel,
+						base_pos, joint_pos,
+						base_vel, joint_vel,
+						body_set);
 		num_vars = 6;
 		break;
 	}
@@ -487,21 +589,24 @@ void WholeBodyKinematics::computeJdotQdot(rbd::BodyVector& jacd_qd,
 		if (body_id_.count(body_name) > 0) {
 			switch (component) {
 			case rbd::Linear: {
-				// Computing the point velocity and its angular and linear components
+				// Computing the point velocity and its angular and linear
+				// components
 				rbd::Vector6d point_vel = op_vel[body_name];
 				Eigen::Vector3d ang_vel, lin_vel;
 				ang_vel = rbd::angularPart(point_vel);
 				lin_vel = rbd::linearPart(point_vel);
 
 				// Computing the JdQd for current point
-				body_jacd_qd.segment<3>(0) = op_acc[body_name] + ang_vel.cross(lin_vel);
+				body_jacd_qd.segment<3>(0) =
+						op_acc[body_name] + ang_vel.cross(lin_vel);
 				break;
 			} case rbd::Angular: {
 				// Computing the JdQd for current point
 				body_jacd_qd.segment<3>(0) = op_acc[body_name];
 				break;
 			} case rbd::Full: {
-				// Computing the point velocity and its angular and linear components
+				// Computing the point velocity and its angular and linear
+				// components
 				rbd::Vector6d point_vel = op_vel[body_name];
 				Eigen::Vector3d ang_vel, lin_vel;
 				ang_vel = rbd::angularPart(point_vel);
@@ -510,7 +615,8 @@ void WholeBodyKinematics::computeJdotQdot(rbd::BodyVector& jacd_qd,
 				// Computing the JdQd for current point
 				rbd::Vector6d point_acc = op_acc[body_name];
 				body_jacd_qd.segment<3>(rbd::AX) = rbd::angularPart(point_acc);
-				body_jacd_qd.segment<3>(rbd::LX) = rbd::linearPart(point_acc) + ang_vel.cross(lin_vel);
+				body_jacd_qd.segment<3>(rbd::LX) =
+						rbd::linearPart(point_acc) + ang_vel.cross(lin_vel);
 				break;}
 			}
 
@@ -537,7 +643,8 @@ int WholeBodyKinematics::getNumberOfActiveEndEffectors(const rbd::BodySelector& 
 		if (body_id_.count(body_name) > 0) {
 			++num_body_set;
 		} else
-			printf(YELLOW "WARNING: The %s link is not an end-effector\n" COLOR_RESET, body_name.c_str());
+			printf(YELLOW "WARNING: The %s link is not an end-effector\n"
+					COLOR_RESET, body_name.c_str());
 	}
 
 	return num_body_set;
