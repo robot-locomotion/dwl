@@ -8,7 +8,7 @@ namespace simulation
 {
 
 PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81),
-		mass_(0.), step_height_(0.1), force_threshold_(0.)
+		mass_(0.), num_feet_(0) step_height_(0.1), force_threshold_(0.)
 {
 	actual_system_com_.setZero();
 }
@@ -42,6 +42,9 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 
 	// Getting the total mass of the system
 	mass_ = system_.getTotalMass();
+
+	// Getting the number of feet
+	num_feet_ = system_.getNumberOfEndEffectors(model::FOOT);
 
 	// Getting the floating-base CoM
 	actual_system_com_ = system_.getFloatingBaseCoM();
@@ -104,7 +107,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 
 			// Updating the support region for this phase
 			if (preview_params.duration > sample_time_) {
-				for (unsigned int f = 0; f < system_.getNumberOfEndEffectors(model::FOOT); f++) {
+				for (unsigned int f = 0; f < num_feet_; f++) {
 					std::string name = system_.getEndEffectorNames()[f];
 
 					// Removing the swing foot of the actual phase
@@ -486,7 +489,7 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	full_state.contact_acc = preview_state.foot_acc;
 
 	// Adding infinity contact force for active feet
-	for (unsigned int f = 0; f < system_.getNumberOfEndEffectors(model::FOOT); f++) {
+	for (unsigned int f = 0; f < num_feet_; f++) {
 		std::string name = system_.getEndEffectorNames(model::FOOT)[f];
 
 		rbd::BodyPosition::const_iterator support_it = preview_state.support_region.find(name);

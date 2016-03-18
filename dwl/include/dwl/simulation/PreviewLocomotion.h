@@ -287,6 +287,9 @@ class PreviewLocomotion
 		/** @brief Total mass of the system */
 		double mass_;
 
+		/** @brief Number of feet */
+		unsigned int num_feet_;
+
 		/** @brief SLIP model */
 		LinearControlledSlipModel lc_slip_;
 
