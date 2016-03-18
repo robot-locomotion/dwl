@@ -8,7 +8,7 @@ namespace simulation
 {
 
 PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81),
-		mass_(0.), num_feet_(0) step_height_(0.1), force_threshold_(0.)
+		mass_(0.), num_feet_(0), step_height_(0.1), force_threshold_(0.)
 {
 	actual_system_com_.setZero();
 }
