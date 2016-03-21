@@ -19,7 +19,8 @@ namespace model
 
 /**
  * @class WholeBodyDynamics
- * @brief WholeBodyDynamics class implements the dynamics methods for a floating-base robot
+ * @brief WholeBodyDynamics class implements the dynamics methods for a
+ * floating-base robot
  */
 class WholeBodyDynamics
 {

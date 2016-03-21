@@ -389,8 +389,8 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 			return;
 		}
 
-		// Accumulate the cop position as a weighted sum, where the weight is the
-		// z component of the force at each contact point
+		// Accumulate the cop position as a weighted sum, where the weight is
+		// the z component of the force at each contact point
 		double norm_for = force(rbd::LZ);
 		if (position.size() == 6)
 			cop_pos += norm_for * position.segment<3>(rbd::LX);
@@ -640,8 +640,9 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 			Eigen::VectorXd q_dd =
 					math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd[contact_name]);
 
-			Eigen::VectorXd state_feas_acc = system_.toGeneralizedJointState(base_feas_acc,
-																			 joint_feas_acc);
+			Eigen::VectorXd state_feas_acc =
+					system_.toGeneralizedJointState(base_feas_acc,
+													joint_feas_acc);
 			system_.setBranchState(state_feas_acc, q_dd, contact_name);
 			system_.fromGeneralizedJointState(base_feas_acc, joint_feas_acc, state_feas_acc);
 		}
