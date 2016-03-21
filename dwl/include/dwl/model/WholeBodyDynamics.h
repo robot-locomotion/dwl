@@ -5,8 +5,8 @@
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/utils/utils.h>
 
-#define NO_WRENCH rbd::Vector6d::Zero()
-#define MAX_WRENCH 2e19 * rbd::Vector6d::Ones()
+#define NO_WRENCH dwl::rbd::Vector6d::Zero()
+#define MAX_WRENCH 2e19 * dwl::rbd::Vector6d::Ones()
 
 
 namespace dwl
