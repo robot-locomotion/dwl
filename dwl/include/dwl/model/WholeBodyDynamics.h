@@ -7,6 +7,8 @@
 
 #define NO_WRENCH dwl::rbd::Vector6d::Zero()
 #define MAX_WRENCH 2e19 * dwl::rbd::Vector6d::Ones()
+#define INACTIVE_CONTACT NO_WRENCH
+#define ACTIVE_CONTACT MAX_WRENCH
 
 
 namespace dwl

@@ -525,9 +525,9 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 		rbd::BodyPosition::const_iterator support_it = preview_state.support_region.find(name);
 		if (support_it != preview_state.support_region.end())
-			full_state.contact_eff[name] = MAX_WRENCH;
+			full_state.contact_eff[name] = ACTIVE_CONTACT;
 		else
-			full_state.contact_eff[name] = NO_WRENCH;
+			full_state.contact_eff[name] = INACTIVE_CONTACT;
 	}
 }
 
