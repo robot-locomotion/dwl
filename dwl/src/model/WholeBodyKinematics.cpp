@@ -219,7 +219,6 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 
 void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 												   const rbd::BodyPosition& op_pos,
-												   const rbd::Vector6d& base_pos_init,
 												   const Eigen::VectorXd& joint_pos_init,
 												   double step_tol,
 												   double lambda,

@@ -92,7 +92,6 @@ class WholeBodyKinematics
 		 * consists of the desired 3d position for each body
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::BodyPosition& Operational position of bodies
-		 * @param const rbd::Vector6d& Initial base position for the iteration
 		 * @param const Eigen::VectorXd& Initial joint position for the iteration
 		 * @param double Step tolerance
 		 * @param double Lambda value for singularities
@@ -100,7 +99,6 @@ class WholeBodyKinematics
 		 */
 		void computeInverseKinematics(Eigen::VectorXd& joint_pos,
 									  const rbd::BodyPosition& op_pos,
-				  	  	  	  	  	  const rbd::Vector6d& base_pos_init = rbd::Vector6d(),
 									  const Eigen::VectorXd& joint_pos_init = Eigen::VectorXd(),
 									  double step_tol = 1.0e-12,
 									  double lambda = 0.01,

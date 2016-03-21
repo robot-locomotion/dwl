@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 
 	kin.computeInverseKinematics(joint_pos,
 								 ik_pos,
-								 base_pos_init, joint_pos_init, 1.0e-12, 0.01, 50);
+								 joint_pos_init, 1.0e-12, 0.01, 50);
 	cout << "------------------ IK ---------------------" << endl;
 	cout << "Base position = " << base_pos.transpose() << endl;
 	cout << "Joint positions = "<< joint_pos.transpose() << endl << endl;
