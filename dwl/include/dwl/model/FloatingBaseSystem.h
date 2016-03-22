@@ -73,7 +73,7 @@ class FloatingBaseSystem
 								std::string system_file = std::string());
 
 		/**
-		 * @brief Resets the system sematic description from yaml file
+		 * @brief Resets the system semantic description from yaml file
 		 * @param std::string Semantic system description filename
 		 */
 		void resetSystemDescription(std::string filename);

@@ -640,11 +640,8 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 			Eigen::VectorXd q_dd =
 					math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd[contact_name]);
 
-			Eigen::VectorXd state_feas_acc =
-					system_.toGeneralizedJointState(base_feas_acc,
-													joint_feas_acc);
-			system_.setBranchState(state_feas_acc, q_dd, contact_name);
-			system_.fromGeneralizedJointState(base_feas_acc, joint_feas_acc, state_feas_acc);
+			// Setting up the branch joint acceleration
+			system_.setBranchState(joint_feas_acc, q_dd, contact_name);
 		}
 	}
 }

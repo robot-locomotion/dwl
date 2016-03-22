@@ -606,6 +606,12 @@ void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 	unsigned int q_index, num_dof;
 	getBranch(q_index, num_dof, body_name);
 
+	// Removing the base index
+	if (isFullyFloatingBase())
+		q_index -= 6;
+	else
+		q_index -= getFloatingBaseDoF();
+
 	if (branch_state.size() != num_dof) {
 		printf(RED "FATAL: the branch state dimension is not consistent\n" COLOR_RESET);
 		exit(EXIT_FAILURE);
