@@ -76,5 +76,14 @@ int main(int argc, char **argv)
 		cout << name << "[" << id << "].effort = " << limits.effort << endl << endl;
 	}
 
+	// Setting up the branch states
+	dwl::rbd::Vector6d base_pos = dwl::rbd::Vector6d::Zero();
+	Eigen::VectorXd joint_pos = Eigen::VectorXd::Zero(sys.getJointDoF());
+	Eigen::Vector3d lf_branch_pos = Eigen::Vector3d(0.5, 0.75, 1.5);
+	sys.setBranchState(joint_pos, lf_branch_pos, "lf_foot");
+	cout << "Setting lf_foot branch position = " << lf_branch_pos.transpose() << endl;
+	cout << "Base position = " << base_pos.transpose() << endl;
+	cout << "Joint position = " << joint_pos.transpose() << endl;
+
 	return 0;
 }
