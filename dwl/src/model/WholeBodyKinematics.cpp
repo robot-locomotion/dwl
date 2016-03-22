@@ -278,6 +278,37 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 }
 
 
+void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
+											   const Eigen::VectorXd& joint_pos,
+											   const rbd::BodyVector& op_vel,
+											   const rbd::BodySelector& body_set)
+{
+	// Computing the joint velocities per every body
+	for (unsigned int f = 0; f < body_set.size(); f++) {
+		std::string body_name = body_set[f];
+
+		// Computing the joint velocity associated to the actual body
+		rbd::BodyVector::const_iterator vel_it = op_vel.find(body_name);
+		if (vel_it != op_vel.end()) {
+			Eigen::VectorXd body_vel = vel_it->second;
+
+			// Computing the body jacobians
+			Eigen::MatrixXd branch_jac;
+			computeFixedJacobian(branch_jac, joint_pos, body_name, rbd::Linear);
+
+			// Computing the branch joint velocity
+			Eigen::VectorXd branch_joint_vel =
+					math::pseudoInverse(branch_jac) * body_vel;
+
+			// Setting up the branch joint velocity
+			system_.setBranchState(joint_vel, branch_joint_vel, body_name);
+		} else
+			printf(YELLOW "Warning: the operational velocity of %s body was "
+					"not defined" COLOR_RESET, body_name.c_str());
+	}
+}
+
+
 void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 										  const rbd::Vector6d& base_pos,
 										  const Eigen::VectorXd& joint_pos,

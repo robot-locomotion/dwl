@@ -105,6 +105,19 @@ class WholeBodyKinematics
 									  unsigned int max_iter = 50);
 
 		/**
+		 * @brief Computes the joint velocity for a predefined set of bodies
+		 * velocities (q_d = J^-1 * x_d)
+		 * @param Eigen::VectorXd& Joint velocities
+		 * @param const Eigen::VectorXd& Joint positions
+		 * @param const rbd::BodyVector& Operational velocities of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
+		 */
+		void computeJointVelocity(Eigen::VectorXd& joint_vel,
+								  const Eigen::VectorXd& joint_pos,
+								  const rbd::BodyVector& op_vel,
+								  const rbd::BodySelector& body_set);
+
+		/**
 		 * @brief Computes the whole-body jacobian for a predefined set of
 		 * bodies. A whole-body jacobian is defined as end-effector (body)
 		 * jacobian with respect to the inertial frame of the robot.
