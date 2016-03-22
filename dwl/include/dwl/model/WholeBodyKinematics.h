@@ -118,6 +118,21 @@ class WholeBodyKinematics
 								  const rbd::BodySelector& body_set);
 
 		/**
+		 * @brief Computes the joint acceleration for a predefined set of
+		 * bodies (q_dd = J^-1 * [x_dd - J_d * q_d])
+		 * @param Eigen::VectorXd& Joint accelerations
+		 * @param const Eigen::VectorXd& joint positions
+		 * @param const Eigen::VectorXd& joint velocities
+		 * @param const rbd::BodyVector& Operational accelerations of bodies
+		 * @param const rbd::BodySelector& A predefined set of bodies
+		 */
+		void computeJoinAcceleration(Eigen::VectorXd& joint_acc,
+									 const Eigen::VectorXd& joint_pos,
+									 const Eigen::VectorXd& joint_vel,
+									 const rbd::BodyVector& op_acc,
+									 const rbd::BodySelector& body_set);
+
+		/**
 		 * @brief Computes the whole-body jacobian for a predefined set of
 		 * bodies. A whole-body jacobian is defined as end-effector (body)
 		 * jacobian with respect to the inertial frame of the robot.

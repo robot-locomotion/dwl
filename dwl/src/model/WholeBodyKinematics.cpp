@@ -309,6 +309,46 @@ void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
 }
 
 
+void WholeBodyKinematics::computeJoinAcceleration(Eigen::VectorXd& joint_acc,
+												  const Eigen::VectorXd& joint_pos,
+												  const Eigen::VectorXd& joint_vel,
+												  const rbd::BodyVector& op_acc,
+												  const rbd::BodySelector& body_set)
+{
+	// Computing the Jac_d*Qd
+	dwl::rbd::BodyVector jacd_qd;
+	computeJdotQdot(jacd_qd,
+					rbd::Vector6d::Zero(), joint_pos,
+					rbd::Vector6d::Zero(), joint_vel,
+					body_set, dwl::rbd::Linear);
+
+	// Computing the joint accelerations per every body
+	for (unsigned int f = 0; f < body_set.size(); f++) {
+		std::string body_name = body_set[f];
+
+		// Computing the joint acceleration associated to the actual body
+		rbd::BodyVector::const_iterator acc_it = op_acc.find(body_name);
+		if (acc_it != op_acc.end()) {
+			Eigen::VectorXd body_acc = acc_it->second;
+
+			// Computing the body jacobians
+			Eigen::MatrixXd branch_jac;
+			computeFixedJacobian(branch_jac, joint_pos, body_name, rbd::Linear);
+
+			// Computing the branch joint acceleration
+			Eigen::VectorXd branch_joint_acc =
+					math::pseudoInverse(branch_jac) * (body_acc -
+							jacd_qd.find(body_name)->second);
+
+			// Setting up the branch joint velocity
+			system_.setBranchState(joint_acc, branch_joint_acc, body_name);
+		} else
+			printf(YELLOW "Warning: the operational acceleration of %s body was "
+					"not defined" COLOR_RESET, body_name.c_str());
+	}
+}
+
+
 void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 										  const rbd::Vector6d& base_pos,
 										  const Eigen::VectorXd& joint_pos,
