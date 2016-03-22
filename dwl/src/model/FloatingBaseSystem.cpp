@@ -621,15 +621,21 @@ void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 }
 
 
-Eigen::VectorXd FloatingBaseSystem::getBranchState(Eigen::VectorXd& generalized_state,
+Eigen::VectorXd FloatingBaseSystem::getBranchState(Eigen::VectorXd& joint_state,
 												   std::string body_name)
 {
 	// Getting the branch properties
 	unsigned int q_index, num_dof;
 	getBranch(q_index, num_dof, body_name);
 
+	// Removing the base index
+	if (isFullyFloatingBase())
+		q_index -= 6;
+	else
+		q_index -= getFloatingBaseDoF();
+
 	Eigen::VectorXd branch_state(num_dof);
-	branch_state = generalized_state.segment(q_index, num_dof);
+	branch_state = joint_state.segment(q_index, num_dof);
 
 	return branch_state;
 }
