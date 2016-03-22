@@ -491,6 +491,9 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 	// Adding the joint positions, velocities and accelerations
 	dwl::rbd::BodyPosition feet_pos;
+	full_state.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
+	full_state.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
+	full_state.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
 	for (unsigned int f = 0; f < num_feet_; f++) {
 		std::string name = feet_names_[f];
 
