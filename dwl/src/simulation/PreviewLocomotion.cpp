@@ -467,48 +467,6 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	full_state.base_acc(rbd::AZ) = 0.;//preview_state.head_acc;
 
 
-	// Adding the joint positions, velocities and accelerations
-	Eigen::MatrixXd full_jac, fixed_jac;
-	dwl::rbd::BodyPosition feet_pos;
-	Eigen::VectorXd feet_vel = Eigen::VectorXd::Zero(3 * num_feet_);
-	Eigen::VectorXd feet_acc = Eigen::VectorXd::Zero(3 * num_feet_);
-	for (unsigned int f = 0; f < num_feet_; f++) {
-		std::string name = feet_names_[f];
-
-		feet_pos[name] = preview_state.foot_pos.find(name)->second;
-		feet_vel.segment<3>(3 * f) = preview_state.foot_vel.find(name)->second;
-		feet_acc.segment<3>(3 * f) = preview_state.foot_acc.find(name)->second;
-	}
-
-	// Computing the joint positions
-	kinematics_.computeInverseKinematics(full_state.joint_pos,
-										 feet_pos);
-	// Computing the pseudo-inverse of the fixed jacobians
-	kinematics_.computeJacobian(full_jac,
-								full_state.base_pos, full_state.joint_pos,
-								feet_names_, rbd::Linear);
-	kinematics_.getFixedBaseJacobian(fixed_jac, full_jac);
-	Eigen::MatrixXd psinv_jac = math::pseudoInverse(fixed_jac);
-
-	// Computing the Jac_d*Qd
-	rbd::BodyVector jacd_qd;
-	kinematics_.computeJdotQdot(jacd_qd,
-								full_state.base_pos, full_state.joint_pos,
-								full_state.base_vel, full_state.joint_vel,
-								feet_names_, rbd::Linear);
-	Eigen::VectorXd feet_jacd_qd = Eigen::VectorXd::Zero(3 * num_feet_);
-	for (unsigned int f = 0; f < num_feet_; f++) {
-		std::string name = feet_names_[f];
-
-		feet_jacd_qd.segment<3>(3 * f) = jacd_qd.find(name)->second;
-	}
-
-	// Computing the joint velocity and acceleration
-	full_state.joint_vel = psinv_jac * feet_vel;
-	full_state.joint_acc = psinv_jac * (feet_acc - feet_jacd_qd);
-	full_state.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
-
-
 	// Adding the contact positions, velocities and accelerations
 	// w.r.t the base frame
 	for (rbd::BodyVector::const_iterator contact_it = preview_state.foot_pos.begin();
@@ -529,6 +487,35 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 		else
 			full_state.contact_eff[name] = INACTIVE_CONTACT;
 	}
+
+
+	// Adding the joint positions, velocities and accelerations
+	dwl::rbd::BodyPosition feet_pos;
+	for (unsigned int f = 0; f < num_feet_; f++) {
+		std::string name = feet_names_[f];
+
+		feet_pos[name] = preview_state.foot_pos.find(name)->second;
+	}
+
+	// Computing the joint positions
+	kinematics_.computeInverseKinematics(full_state.joint_pos,
+										 feet_pos);
+
+	// Computing the joint velocities
+	kinematics_.computeJointVelocity(full_state.joint_vel,
+									 full_state.joint_pos,
+									 full_state.contact_vel,
+									 feet_names_);
+
+	// Computing the joint accelerations
+	kinematics_.computeJoinAcceleration(full_state.joint_acc,
+										full_state.joint_pos,
+										full_state.joint_vel,
+										full_state.contact_vel,
+										feet_names_);
+
+	// Setting up the desired joint efforts equals to zero
+	full_state.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
 }
 
 
