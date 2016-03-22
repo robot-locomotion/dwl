@@ -304,7 +304,7 @@ void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
 			system_.setBranchState(joint_vel, branch_joint_vel, body_name);
 		} else
 			printf(YELLOW "Warning: the operational velocity of %s body was "
-					"not defined" COLOR_RESET, body_name.c_str());
+					"not defined\n" COLOR_RESET, body_name.c_str());
 	}
 }
 
@@ -344,7 +344,7 @@ void WholeBodyKinematics::computeJoinAcceleration(Eigen::VectorXd& joint_acc,
 			system_.setBranchState(joint_acc, branch_joint_acc, body_name);
 		} else
 			printf(YELLOW "Warning: the operational acceleration of %s body was "
-					"not defined" COLOR_RESET, body_name.c_str());
+					"not defined\n" COLOR_RESET, body_name.c_str());
 	}
 }
 
