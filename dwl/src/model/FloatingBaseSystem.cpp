@@ -138,7 +138,8 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 	num_end_effectors_ = end_effectors_.size();
 
 	if (num_feet_ == 0) {
-		printf(YELLOW "Warning: setting up all the end-effectors are feet\n" COLOR_RESET);
+		printf(YELLOW "Warning: setting up all the end-effectors are feet\n"
+				COLOR_RESET);
 		num_feet_ = num_end_effectors_;
 		foot_names_ = end_effector_names_;
 		feet_ = end_effectors_;
@@ -160,7 +161,8 @@ void FloatingBaseSystem::resetSystemDescription(std::string filename)
 	for (YAML::Iterator it = doc.begin(); it != doc.end(); ++it) {
 		// Reading the robot namespace
 		it.first() >> system_name_;
-		printf("Reading the configuration parameters of the %s \n", system_name_.c_str());
+		printf("Reading the configuration parameters of the %s \n",
+				system_name_.c_str());
 
 		// Getting the system namespace
 		const YAML::Node& system_ns = *doc.FindValue(system_name_);
@@ -303,7 +305,9 @@ const Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& bas
 	Eigen::VectorXd qd = Eigen::VectorXd::Zero(num_system_joints_);
 
 	double mass;
-	RigidBodyDynamics::Utils::CalcCenterOfMass(rbd_model_, q, qd, mass, com_system_);
+	RigidBodyDynamics::Utils::CalcCenterOfMass(rbd_model_,
+											   q, qd, mass,
+											   com_system_);
 
 	return com_system_;
 }
@@ -318,7 +322,9 @@ const Eigen::Vector3d& FloatingBaseSystem::getSystemCoMRate(const rbd::Vector6d&
 	Eigen::VectorXd qd = toGeneralizedJointState(base_vel, joint_vel);
 
 	double mass;
-	RigidBodyDynamics::Utils::CalcCenterOfMass(rbd_model_, q, qd, mass, com_system_, &comd_system_);
+	RigidBodyDynamics::Utils::CalcCenterOfMass(rbd_model_,
+											   q, qd, mass,
+											   com_system_, &comd_system_);
 
 	return comd_system_;
 }
@@ -388,7 +394,8 @@ unsigned int FloatingBaseSystem::getFloatingBaseJointCoordinate(unsigned int id)
 	else if (floating_lz_.active && floating_lz_.id == id)
 		return rbd::LZ;
 	else {
-		printf(RED "ERROR: the %i id doesn't bellow to floating-base joint\n" COLOR_RESET, id);
+		printf(RED "ERROR: the %i id doesn't bellow to floating-base joint\n"
+				COLOR_RESET, id);
 		return 0;
 	}
 }
@@ -476,8 +483,9 @@ const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames(enum TypeOfEndE
 
 bool FloatingBaseSystem::isFullyFloatingBase()
 {
-	if (floating_ax_.active && floating_ay_.active && floating_az_.active
-			&& floating_lx_.active && floating_ly_.active && floating_lz_.active)
+	if (floating_ax_.active && floating_ay_.active &&
+			floating_az_.active	&& floating_lx_.active &&
+			floating_ly_.active && floating_lz_.active)
 		return true;
 	else
 		return false;
@@ -504,8 +512,9 @@ bool FloatingBaseSystem::isConstrainedFloatingBaseRobot()
 
 bool FloatingBaseSystem::hasFloatingBaseConstraints()
 {
-	if (floating_ax_.constrained || floating_ay_.constrained || floating_az_.constrained ||
-			floating_lx_.constrained || floating_ly_.constrained || floating_lz_.constrained)
+	if (floating_ax_.constrained || floating_ay_.constrained ||
+			floating_az_.constrained ||	floating_lx_.constrained ||
+			floating_ly_.constrained || floating_lz_.constrained)
 		return true;
 	else
 		return false;
@@ -518,14 +527,17 @@ Eigen::VectorXd FloatingBaseSystem::toGeneralizedJointState(const rbd::Vector6d&
 	// Getting the number of joints
 	assert(joint_state.size() == getJointDoF());
 
-	// Note that RBDL defines the floating base state as [linear states, angular states]
+	// Note that RBDL defines the floating base state as
+	// [linear states, angular states]
 	Eigen::VectorXd q;
 	if (getTypeOfDynamicSystem() == FloatingBase ||
 			getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
 		q.resize(6 + getJointDoF());
 
 		rbd::Vector6d _base_state = base_state;
-		q << rbd::linearPart(_base_state), rbd::angularPart(_base_state), joint_state;
+		q << rbd::linearPart(_base_state),
+			 rbd::angularPart(_base_state),
+			 joint_state;
 	} else if (getTypeOfDynamicSystem() == VirtualFloatingBase) {
 		unsigned int base_dof = getFloatingBaseDoF();
 		q.resize(base_dof + getJointDoF());
@@ -561,10 +573,12 @@ void FloatingBaseSystem::fromGeneralizedJointState(rbd::Vector6d& base_state,
 	// Resizing the joint state
 	joint_state.resize(getJointDoF());
 
-	// Note that RBDL defines the floating base state as [linear states, angular states]
+	// Note that RBDL defines the floating base state as
+	// [linear states, angular states]
 	if (getTypeOfDynamicSystem() == FloatingBase ||
 			getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
-		base_state << generalized_state.segment<3>(rbd::LX), generalized_state.segment<3>(rbd::AX);
+		base_state << generalized_state.segment<3>(rbd::LX),
+					  generalized_state.segment<3>(rbd::AX);
 		joint_state = generalized_state.segment(6, getJointDoF());
 	} else if (getTypeOfDynamicSystem() == VirtualFloatingBase) {
 		for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
@@ -575,7 +589,8 @@ void FloatingBaseSystem::fromGeneralizedJointState(rbd::Vector6d& base_state,
 				base_state(base_coord) = generalized_state(joint.id);
 		}
 
-		joint_state = generalized_state.segment(getFloatingBaseDoF(), getJointDoF());
+		joint_state = generalized_state.segment(getFloatingBaseDoF(),
+												getJointDoF());
 	} else {
 		base_state = rbd::Vector6d::Zero();
 		joint_state = generalized_state;
@@ -621,7 +636,8 @@ void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 	// Getting the body id
 	unsigned int body_id = rbd_model_.GetBodyId(body_name.c_str());
 
-	// Getting the base joint id. Note that the floating-base starts the kinematic-tree
+	// Getting the base joint id. Note that the floating-base starts the
+	// kinematic-tree
 	unsigned int base_id = 0;
 	if (isFullyFloatingBase()) {
 		base_id = 6;
@@ -636,8 +652,9 @@ void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 		parent_id = rbd_model_.mFixedBodies[body_id - fixed_idx].mMovableParent;
 	}
 
-	// Adding the branch state to the joint state. Two safety checking are done; checking that this
-	// branch has at least one joint, and checking the size of the new branch state
+	// Adding the branch state to the joint state. Two safety checking are done;
+	// checking that this branch has at least one joint, and checking the size
+	// of the new branch state
 	num_dof = 0;
 	if (parent_id != base_id) {
 		do {
