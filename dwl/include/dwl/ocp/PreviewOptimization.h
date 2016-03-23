@@ -5,6 +5,7 @@
 #include <dwl/ocp/SupportPolygonConstraint.h>
 #include <dwl/ocp/PointConstraint.h>
 #include <dwl/simulation/PreviewLocomotion.h>
+#include <dwl/utils/CollectData.h>
 
 
 namespace dwl
@@ -236,6 +237,9 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief Indicates it was set the bounds */
 		bool is_bound_;
+
+		/** @brief For collecting data */
+		utils::CollectData cdata_;
 };
 
 } //@namespace ocp
