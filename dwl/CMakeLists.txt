@@ -125,7 +125,8 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/utils/RigidBodyDynamics.cpp
 							 src/utils/URDF.cpp
 							 src/utils/SplineInterpolation.cpp
-							 src/utils/YamlWrapper.cpp)
+							 src/utils/YamlWrapper.cpp
+							 src/utils/CollectData.cpp)
 
 # Adding qpOASES components of the project
 if (qpoases_FOUND)
@@ -182,6 +183,9 @@ target_link_libraries(kin_sample ${PROJECT_NAME})
 
 add_executable(dyn_sample  sample/WholeBodyDynamicsSample.cpp)
 target_link_libraries(dyn_sample ${PROJECT_NAME})
+
+add_executable(cd_sample sample/CollectDataSample.cpp)
+target_link_libraries(cd_sample ${PROJECT_NAME})
 
 
 # Adding the test executables
