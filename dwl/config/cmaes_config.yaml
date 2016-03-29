@@ -17,7 +17,7 @@ cmaes:
   family: 0
   # initial step-size, i.e. estimated initial parameter error
   # (-1 for automatically decided sigma)
-  sigma: -1
+  sigma: 0.5
   # Number of offsprings at each generation
   #   -1 -> for automatically decided lambda
   #    0 -> is for random seeding of the internal generator
@@ -25,7 +25,7 @@ cmaes:
   # Allowed number of iteration (-1 for unlimited)
   max_iter: 120000
   # Allowed number of function evaluations (-1 for unlimited) 
-  max_fevals: 120000
+  max_fevals: 10000
   # Type of elitism
   #   0 -> no elitism
   #   1 -> elitism: reinjects the best-ever seen solution
