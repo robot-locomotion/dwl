@@ -22,6 +22,8 @@ cmaes:
   #   -1 -> for automatically decided lambda
   #    0 -> is for random seeding of the internal generator
   lambda: -1
+  # Threshold function convergence
+  ftolerance: 1e-12
   # Allowed number of iteration (-1 for unlimited)
   max_iter: 120000
   # Allowed number of function evaluations (-1 for unlimited) 
