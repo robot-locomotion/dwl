@@ -13,9 +13,9 @@ namespace solver
 
 template<typename TScaling>
 cmaesSOFamily<TScaling>::cmaesSOFamily() : cmaes_params_(NULL),
-		initialized_(false), family_((int) CMAES), sigma_(-1.), lambda_(-1),
-		max_iteration_(-1), max_fevals_(-1), elitism_(0),
-		max_restarts_(0), multithreading_(false)
+        initialized_(false), ftolerance_(1e-12), family_((int) CMAES),
+        sigma_(-1.), lambda_(-1), max_iteration_(-1), max_fevals_(-1),
+        elitism_(0), max_restarts_(0), multithreading_(false)
 {
 	name_ = "cmaes family";
 }
@@ -49,6 +49,11 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 
 		// Getting the cmaes namespace
 		const YAML::Node& cmaes_ns = *doc.FindValue(file_ns);
+
+        // Reading and setting up the type of ftolerance
+        double ftolerance;
+        if (yaml_reader.read(ftolerance, cmaes_ns, "ftolerance"))
+            setFtolerance(ftolerance);
 
 		// Reading and setting up the type of family
 		int family;
@@ -90,6 +95,18 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 		if (yaml_reader.read(multithreading, cmaes_ns, "multithreads"))
 			setMultithreading(multithreading);
 	}
+}
+
+
+template<typename TScaling>
+void cmaesSOFamily<TScaling>::setFtolerance(double ftolerance)
+{
+    ftolerance_ = ftolerance;
+
+    // Setting up if the parameters pointer was initialized.
+    // Otherwise it will be initialized when init() is called
+    if (initialized_)
+        cmaes_params_->set_ftolerance(ftolerance_);
 }
 
 
@@ -231,6 +248,7 @@ bool cmaesSOFamily<TScaling>::init()
 
 	// Setting the previous parameters values
 	initialized_ = true;
+    setFtolerance(ftolerance_);
 	setFamily(CMAESFamily(family_));
 	setAllowedNumberofIterations(max_iteration_);
 	setAllowedNumberOfFunctionEvalutions(max_fevals_);

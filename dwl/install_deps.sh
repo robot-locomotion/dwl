@@ -238,6 +238,21 @@ function install_octomap
 }
 
 
+function install_gnuplot
+{
+	# Installing qt5
+	sudo apt-get install qt5-default
+
+	# Getting the gnuplot 5.0.3
+	wget https://sourceforge.net/projects/gnuplot/files/gnuplot/5.0.3/gnuplot-5.0.3.tar.gz
+	mkdir gnuplot && tar zxf gnuplot-5.0.3.tar.gz -C gnuplot --strip-components 1
+	rm -rf gnuplot-5.0.3.tar.gz
+	cd gnuplot
+	./configure
+	sudo make install
+	cd ../
+}
+
 ##############################################  MAIN  ########################################################
 # Getting the path of the install_deps.sh file
 SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
@@ -439,5 +454,25 @@ else
 	read ANSWER_OCTOMAP
 	if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
 		install_octomap
+	fi
+fi
+
+
+##---------------------------------------------------------------##
+##-------------------- Installing gnuplot ----------------------##
+##---------------------------------------------------------------##
+echo ""
+echo -e "${COLOR_BOLD}Installing gnuplot ...${COLOR_RESET}"
+if [ -x "/usr/local/bin/gnuplot" ]; then
+	echo -e -n "${COLOR_QUES}Do you want to re-install gnuplot 5.0.3? [y/N]: ${COLOR_RESET}"
+	read ANSWER_GNUPLOT
+	if [ "$ANSWER_GNUPLOT" == "Y" ] || [ "$ANSWER_GNUPLOT" == "y" ]; then
+		install_gnuplot
+    fi
+else
+	echo -e -n "${COLOR_QUES}Do you want to install gnuplot 5.0.3? [y/N]: ${COLOR_RESET}"
+	read ANSWER_GNUPLOT
+	if [ "$ANSWER_GNUPLOT" == "Y" ] || [ "$ANSWER_GNUPLOT" == "y" ]; then
+		install_gnuplot
 	fi
 fi

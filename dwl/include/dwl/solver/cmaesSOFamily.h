@@ -28,10 +28,13 @@ class cmaesSOFamily : public OptimizationSolver
 		~cmaesSOFamily();
 
 		/**
-		 * @brief Set the ipopt configuration parameters from a yaml file
+         * @brief Sets the ipopt configuration parameters from a yaml file
 		 * @param std::string Filename
 		 */
 		void setFromConfigFile(std::string filename);
+
+        /** @brief Sets the function tolerance for convergent from a yaml file */
+        void setFtolerance(double ftolerance);
 
 		/** @brief Sets the desired CMA-ES family to use */
 		void setFamily(enum CMAESFamily alg);
@@ -102,6 +105,9 @@ class cmaesSOFamily : public OptimizationSolver
 
 		/** @brief Label that indicates if it's initialized the solver */
 		bool initialized_;
+
+        /** @brief Function tolerance for convergent */
+        double ftolerance_;
 
 		/** @brief Type of family */
 		int family_;
