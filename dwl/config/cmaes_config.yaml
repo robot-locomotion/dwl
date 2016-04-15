@@ -25,9 +25,9 @@ cmaes:
   # Threshold function convergence
   ftolerance: 1e-12
   # Allowed number of iteration (-1 for unlimited)
-  max_iter: 120000
+  max_iter: -1
   # Allowed number of function evaluations (-1 for unlimited) 
-  max_fevals: 10000
+  max_fevals: -1
   # Type of elitism
   #   0 -> no elitism
   #   1 -> elitism: reinjects the best-ever seen solution
