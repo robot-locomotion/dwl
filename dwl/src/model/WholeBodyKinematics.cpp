@@ -404,7 +404,7 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 			switch(component) {
 			case rbd::Linear:
 				jacobian.block(init_row, 0, num_vars, system_.getSystemDoF()) =
-						jac.block(3, 0, 6, system_.getSystemDoF());
+						jac.block(3, 0, 3, system_.getSystemDoF());
 				break;
 			case rbd::Angular:
 				jacobian.block(init_row, 0, num_vars, system_.getSystemDoF()) =
