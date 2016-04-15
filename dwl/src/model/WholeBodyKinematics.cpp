@@ -390,9 +390,17 @@ void WholeBodyKinematics::computeJacobian(Eigen::MatrixXd& jacobian,
 			Eigen::VectorXd q = system_.toGeneralizedJointState(base_pos, joint_pos);
 
 			Eigen::MatrixXd jac(Eigen::MatrixXd::Zero(6, system_.getSystemDoF()));
-			rbd::computePointJacobian(system_.getRBDModel(), q, body_id,
-									  Eigen::VectorXd::Zero(system_.getSystemDoF()),
-									  jac, true);
+			if (body_counter == 0) {
+				rbd::computePointJacobian(system_.getRBDModel(),
+										  q, body_id,
+										  Eigen::Vector3d::Zero(),
+										  jac, true);
+			} else {
+				rbd::computePointJacobian(system_.getRBDModel(),
+										  q, body_id,
+										  Eigen::Vector3d::Zero(),
+										  jac, false);
+			}
 			if (system_.isFullyFloatingBase()) {
 				// RBDL defines floating joints as (linear, angular)^T which is
 				// not consistent with our DWL standard, i.e. (angular, linear)^T
