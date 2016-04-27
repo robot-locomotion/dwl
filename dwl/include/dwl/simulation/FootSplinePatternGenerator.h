@@ -20,11 +20,15 @@ namespace simulation
 
 struct StepParameters
 {
-	StepParameters() : duration(0.), height(0.) {}
-	StepParameters(double _duration, double _height) : duration(_duration), height(_height) {}
+	StepParameters() : duration(0.), height(0.), penetration(0.) {}
+	StepParameters(double _duration,
+				   double _height,
+				   double _penetration = 0.) : duration(_duration),
+						   height(_height), penetration(_penetration) {}
 
 	double duration;
 	double height;
+	double penetration;
 };
 
 class FootSplinePatternGenerator
@@ -77,6 +81,7 @@ class FootSplinePatternGenerator
 		dwl::math::FifthOrderPolySpline foot_spliner_down_z_;
 		double initial_time_;
 		double duration_;
+		double penetration_;
 };
 
 /*
