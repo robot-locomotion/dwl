@@ -1,5 +1,6 @@
 #include <dwl/utils/YamlWrapper.h>
 
+
 using namespace std;
 
 int main(int argc, char **argv)
@@ -24,8 +25,7 @@ int main(int argc, char **argv)
 
 	// Reading and parsing the yaml document
 	YAML::Node file = YAML::LoadFile("../tests/test.yaml");
-	cout << "Reading from test namespace" << endl;// << file
-
+	cout << "Reading from test namespace" << endl;
 
 	// Reading the test variables
 	if (yaml_reader.read(idata, file["test"], "int"))
