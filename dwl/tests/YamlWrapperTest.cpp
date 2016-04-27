@@ -1,103 +1,100 @@
 #include <dwl/utils/YamlWrapper.h>
 
+using namespace std;
 
 int main(int argc, char **argv)
 {
 	// variables
-	std::vector<double> double_vec;
-	std::vector<std::string> string_vec;
+	int idata;
+	double ddata;
+	string sdata;
+	bool bdata;
+	vector<double> double_vec;
+	vector<string> string_vec;
+	Eigen::Vector2d vector_2d;
 	Eigen::Vector3d vector_3d;
 	Eigen::Quaterniond quaternion;
 	dwl::Pose pose;
-	dwl::Pose3d pose3d;
-	dwl::Action3d action3d;
+	dwl::Pose3d pose_3d;
+	dwl::Action3d action_3d;
 	dwl::SearchArea search_area;
 
 	// Yaml reader
 	dwl::YamlWrapper yaml_reader;
 
 	// Reading and parsing the yaml document
-	std::ifstream fin("../tests/test.yaml");
-	YAML::Parser parser(fin);
-	YAML::Node doc;
+	YAML::Node file = YAML::LoadFile("../tests/test.yaml");
+	cout << "Reading from test namespace" << endl;// << file
 
-	parser.GetNextDocument(doc);
-	for (YAML::Iterator it = doc.begin(); it != doc.end(); ++it) {
-		// Reading the name of the robot
-		std::string namespace_file;
-		it.first() >> namespace_file;
-		std::cout << "Reading from " << namespace_file << std::endl;
 
-		// Reading the test variables
-		if (const YAML::Node* ptest = doc.FindValue(namespace_file)) {
-			const YAML::Node& test = *ptest;
+	// Reading the test variables
+	if (yaml_reader.read(idata, file["test"], "int"))
+		cout << "int: " << idata << endl;
 
-			// Reading the double vector
-			yaml_reader.read(double_vec, test, "double_vector");
+	if (yaml_reader.read(ddata, file["test"], "double"))
+		cout << "double: " << ddata << endl;
 
-			// Reading the string vector
-			yaml_reader.read(string_vec, test, "string_vector");
+	if (yaml_reader.read(sdata, file["test"], "string"))
+		cout << "string: " << sdata << endl;
 
-			// Reading the 3d vector
-			yaml_reader.read(vector_3d, test, "vector_3d");
+	if (yaml_reader.read(bdata, file["test"], "bool"))
+		cout << "bool: " << bdata << endl;
 
-			// Reading the quaternion
-			yaml_reader.read(quaternion, test, "quaternion");
-
-			// Reading the pose
-			yaml_reader.read(pose, test, "pose");
-
-			// Reading the pose 3d
-			yaml_reader.read(pose3d, test, "pose3d");
-
-			// Reading the action 3d
-			yaml_reader.read(action3d, test, "action3d");
-
-			// Reading the search area
-			yaml_reader.read(search_area, test, "search_area");
-		}
+	if (yaml_reader.read(double_vec, file["test"], "double_vector")) {
+		cout << "double_vector: ";
+		for (size_t i = 0; i < double_vec.size(); i++)
+			cout << double_vec[i] << " ";
+		cout << endl;
 	}
 
-	// Print the read variables
-	for (unsigned int i = 0; i < double_vec.size(); i++) {
-		if (i == 0)
-			std::cout << "Double values = " << double_vec[i] << " ";
-		else if (i == double_vec.size() - 1)
-			std::cout << double_vec[i] << std::endl;
-		else
-			std::cout << double_vec[i] << " ";
+	if (yaml_reader.read(string_vec, file["test"], "string_vector")) {
+		cout << "string_vector: ";
+		for (size_t i = 0; i < string_vec.size(); i++)
+			cout << string_vec[i] << " ";
+		cout << endl;
 	}
 
-	for (unsigned int i = 0; i < string_vec.size(); i++) {
-		if (i == 0)
-			std::cout << "String values = " << string_vec[i] << " ";
-		else if (i == string_vec.size() - 1)
-			std::cout << string_vec[i] << std::endl;
-		else
-			std::cout << string_vec[i] << " ";
+	if (yaml_reader.read(vector_2d, file["test"], "vector_2d")) {
+		cout << "vector_2d: " << vector_2d.transpose() << endl;
 	}
 
-	for (unsigned int i = 0; i < 3; i++) {
-		if (i == 0)
-			std::cout << "Vector 3d values = " << vector_3d(i) << " ";
-		else if (i == 2)
-			std::cout << (double) vector_3d(i) << std::endl;
-		else
-			std::cout << (double) vector_3d(i) << " ";
+	if (yaml_reader.read(vector_3d, file["test"], "vector_3d")) {
+		cout << "vector_3d: " << vector_3d.transpose() << endl;
 	}
 
-	std::cout << "Quaternion values = " << quaternion.w() << " " << quaternion.x() << " " << quaternion.y() << " " << quaternion.z() << std::endl;
+	if (yaml_reader.read(quaternion, file["test"], "quaternion")) {
+		cout << "quaternion = " << quaternion.w() << " "
+								<< quaternion.x() << " "
+								<< quaternion.y() << " "
+								<< quaternion.z() << endl;
+	}
 
-	std::cout << "Pose.position values = " << pose.position(0) << " " << pose.position(1) << " " << pose.position(2) << std::endl;
-	std::cout << "Pose.orientation values = " << pose.orientation.w() << " " << pose.orientation.x() << " " << pose.orientation.y() << " " << pose.orientation.z() << std::endl;
+	if (yaml_reader.read(pose, file["test"], "pose")) {
+		cout << "pose.position = " << pose.position.transpose() << endl;
+		cout << "pose.orientation = " << pose.orientation.w() << " "
+									  << pose.orientation.x() << " "
+									  << pose.orientation.y() << " "
+									  << pose.orientation.z() << endl;
+	}
 
-	std::cout << "Pose3d.position values = " << pose3d.position(0) << " " << pose3d.position(1) << " " << pose3d.position(2) << std::endl;
-	std::cout << "Pose3d.orientation value = " << pose3d.orientation << std::endl;
+	if (yaml_reader.read(pose_3d, file["test"], "pose_3d")) {
+		cout << "pose_3d.position = " << pose_3d.position.transpose() << endl;
+		cout << "pose_3d.orientation = " << pose_3d.orientation << endl;
+	}
 
-	std::cout << "Action3d.pose values = " << action3d.pose.position(0) << " " << action3d.pose.position(1) << " " << action3d.pose.orientation << std::endl;
-	std::cout << "Action3d.cost value = " << action3d.cost << std::endl;
+	if (yaml_reader.read(action_3d, file["test"], "action_3d")) {
+		cout << "action_3d.pose.position = " << action_3d.pose.position.transpose() << endl;
+		cout << "action_3d.pose.orientation = " << action_3d.pose.orientation << endl;
+		cout << "action_3d.cost = " << action_3d.cost << endl;
+	}
 
-	std::cout << "Search area min = " << search_area.min_x << " " << search_area.min_y << " " << search_area.min_z << std::endl;
-	std::cout << "Search area max = " << search_area.max_x << " " << search_area.max_y << " " << search_area.max_z << std::endl;
-	std::cout << "Search area resolution = " << search_area.resolution << std::endl;
+	if (yaml_reader.read(search_area, file["test"], "search_area")) {
+		cout << "search_area.min_x = " << search_area.min_x << endl;
+		cout << "search_area.max_x = " << search_area.max_x << endl;
+		cout << "search_area.min_y = " << search_area.min_y << endl;
+		cout << "search_area.max_y = " << search_area.max_y << endl;
+		cout << "search_area.min_z = " << search_area.min_z << endl;
+		cout << "search_area.max_z = " << search_area.max_z << endl;
+		cout << "search_area.resolution = " << search_area.resolution << endl;
+	}
 }
