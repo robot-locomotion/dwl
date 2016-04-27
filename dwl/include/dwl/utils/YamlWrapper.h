@@ -31,7 +31,7 @@ class YamlWrapper
 		 */
 		bool read(bool& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a integer
@@ -42,7 +42,7 @@ class YamlWrapper
 		 */
 		bool read(int& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a double
@@ -53,7 +53,8 @@ class YamlWrapper
 		 */
 		bool read(double& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
+
 
 		/**
 		 * @brief Reads a string
@@ -64,7 +65,7 @@ class YamlWrapper
 		 */
 		bool read(std::string& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a std vector of doubles
@@ -75,7 +76,7 @@ class YamlWrapper
 		 */
 		bool read(std::vector<double>& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a std vector of string
@@ -86,7 +87,7 @@ class YamlWrapper
 		 */
 		bool read(std::vector<std::string>& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a 2d vector
@@ -97,7 +98,7 @@ class YamlWrapper
 		 */
 		bool read(Eigen::Vector2d& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a 3d vector
@@ -108,7 +109,7 @@ class YamlWrapper
 		 */
 		bool read(Eigen::Vector3d& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a quaternion
@@ -119,7 +120,7 @@ class YamlWrapper
 		 */
 		bool read(Eigen::Quaterniond& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a pose
@@ -130,7 +131,7 @@ class YamlWrapper
 		 */
 		bool read(Pose& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a 3d pose
@@ -141,7 +142,7 @@ class YamlWrapper
 		 */
 		bool read(Pose3d& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a 3d action
@@ -152,7 +153,7 @@ class YamlWrapper
 		 */
 		bool read(Action3d& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 
 		/**
 		 * @brief Reads a search area
@@ -163,7 +164,7 @@ class YamlWrapper
 		 */
 		bool read(SearchArea& data,
 				  const YAML::Node& node,
-				  std::string field_name);
+				  std::string field);
 };
 
 } //@namespace dwl
