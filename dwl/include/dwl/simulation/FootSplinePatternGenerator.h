@@ -75,12 +75,19 @@ class FootSplinePatternGenerator
 */
 
 	protected:
+		/** @brief Spliners for the different axis of the foot movement */
 		dwl::math::FifthOrderPolySpline foot_spliner_x_;
 		dwl::math::FifthOrderPolySpline foot_spliner_y_;
 		dwl::math::FifthOrderPolySpline foot_spliner_up_z_;
 		dwl::math::FifthOrderPolySpline foot_spliner_down_z_;
+
+		/** @brief Initial time of the swing trajectory */
 		double initial_time_;
+
+		/** @brief Duration of the swing trajectory */
 		double duration_;
+
+		/** @brief Percentage of penetration of the swing trajectory */
 		double penetration_;
 };
 
