@@ -82,6 +82,7 @@ function install_urdfdom
 	cd build
 	cmake ../
 	sudo make -j install
+	cd ../../
 }
 
 
