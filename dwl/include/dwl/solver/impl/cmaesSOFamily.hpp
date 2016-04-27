@@ -37,64 +37,56 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 	dwl::YamlWrapper yaml_reader;
 
 	// Parsing the configuration file
-	YAML::Parser parser(fin);
-	YAML::Node doc;
-	parser.GetNextDocument(doc);
-	for (YAML::Iterator it = doc.begin(); it != doc.end(); ++it) {
-		// Reading the cmaes namespace
-		std::string file_ns;
-		it.first() >> file_ns;
-		printf("Reading the configuration parameters from the %s namespace\n",
-				file_ns.c_str());
+	std::string cmaes_ns = "cmaes";
 
-		// Getting the cmaes namespace
-		const YAML::Node& cmaes_ns = *doc.FindValue(file_ns);
+	// Reading and setting up the type of ftolerance
+	YAML::Node file = YAML::LoadFile(filename);
+	YAML::Node cmaes_node = file[cmaes_ns];
 
-        // Reading and setting up the type of ftolerance
-        double ftolerance;
-        if (yaml_reader.read(ftolerance, cmaes_ns, "ftolerance"))
-            setFtolerance(ftolerance);
+	// Reading and setting up the type of ftolerance
+	double ftolerance;
+	if (yaml_reader.read(ftolerance, cmaes_node, "ftolerance"))
+		setFtolerance(ftolerance);
 
-		// Reading and setting up the type of family
-		int family;
-		if (yaml_reader.read(family, cmaes_ns, "family"))
-			setFamily(CMAESFamily(family));
+	// Reading and setting up the type of family
+	int family;
+	if (yaml_reader.read(family, cmaes_node, "family"))
+		setFamily(CMAESFamily(family));
 
-		// Reading the sigma value
-		double sigma;
-		if (yaml_reader.read(sigma, cmaes_ns, "sigma"))
-			setInitialDistribution(sigma);
+	// Reading the sigma value
+	double sigma;
+	if (yaml_reader.read(sigma, cmaes_node, "sigma"))
+		setInitialDistribution(sigma);
 
-		// Reading the number of offsprings at each generation
-		int lambda;
-		if (yaml_reader.read(lambda, cmaes_ns, "lambda"))
-			setNumberOfOffsprings(lambda);
+	// Reading the number of offsprings at each generation
+	int lambda;
+	if (yaml_reader.read(lambda, cmaes_node, "lambda"))
+		setNumberOfOffsprings(lambda);
 
-		// Reading and setting up the allowed number of iteration
-		int max_iter;
-		if (yaml_reader.read(max_iter, cmaes_ns, "max_iter"))
-			setAllowedNumberofIterations(max_iter);
+	// Reading and setting up the allowed number of iteration
+	int max_iter;
+	if (yaml_reader.read(max_iter, cmaes_node, "max_iter"))
+		setAllowedNumberofIterations(max_iter);
 
-		// Reading and setting up the allowed number of function evaluations
-		int max_fevals;
-		if (yaml_reader.read(max_fevals, cmaes_ns, "max_fevals"))
-			setAllowedNumberOfFunctionEvalutions(max_fevals);
+	// Reading and setting up the allowed number of function evaluations
+	int max_fevals;
+	if (yaml_reader.read(max_fevals, cmaes_node, "max_fevals"))
+		setAllowedNumberOfFunctionEvalutions(max_fevals);
 
-		// Reading and setting up the type of elitism
-		int elitism;
-		if (yaml_reader.read(elitism, cmaes_ns, "elitism"))
-			setElitism(elitism);
+	// Reading and setting up the type of elitism
+	int elitism;
+	if (yaml_reader.read(elitism, cmaes_node, "elitism"))
+		setElitism(elitism);
 
-		// Reading the multithreading option
-		int max_restarts;
-		if (yaml_reader.read(max_restarts, cmaes_ns, "max_restarts"))
-			setNumberOfRestarts(max_restarts);
-		
-		// Reading the multithreading option
-		bool multithreading;
-		if (yaml_reader.read(multithreading, cmaes_ns, "multithreads"))
-			setMultithreading(multithreading);
-	}
+	// Reading the multithreading option
+	int max_restarts;
+	if (yaml_reader.read(max_restarts, cmaes_node, "max_restarts"))
+		setNumberOfRestarts(max_restarts);
+
+	// Reading the multithreading option
+	bool multithreading;
+	if (yaml_reader.read(multithreading, cmaes_node, "multithreads"))
+		setMultithreading(multithreading);
 }
 
 
