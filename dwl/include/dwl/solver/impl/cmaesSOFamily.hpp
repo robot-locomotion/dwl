@@ -38,8 +38,7 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 
 	// Parsing the configuration file
 	std::string cmaes_ns = "cmaes";
-
-	// Reading and setting up the type of ftolerance
+	printf("Reading the configuration parameters from the %s namespace\n", cmaes_ns.c_str());
 	YAML::Node file = YAML::LoadFile(filename);
 	YAML::Node cmaes_node = file[cmaes_ns];
 
