@@ -87,14 +87,15 @@ function install_urdfdom
 
 function install_yamlcpp
 {
-	# Getting the YAML-CPP 0.3.0
-	wget https://yaml-cpp.googlecode.com/files/yaml-cpp-0.3.0.tar.gz
-	tar zxf yaml-cpp-0.3.0.tar.gz && rm -rf yaml-cpp-0.3.0.tar.gz
+	# Getting the YAML-CPP 0.5.3
+	wget https://github.com/jbeder/yaml-cpp/archive/release-0.5.3.zip
+	unzip release-0.5.3.zip && rm -rf release-0.5.3.zip
+	mv yaml-cpp-release-0.5.3 yaml-cpp
 	cd yaml-cpp
 	mkdir -p build
 	cd build
-	cmake -D BUILD_SHARED_LIBS:bool=ON ../
-	sudo make install
+	cmake -DBUILD_SHARED_LIBS=ON ../
+	sudo make -j install
 	cd ../../
 }
 
