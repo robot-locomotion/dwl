@@ -155,31 +155,24 @@ void FloatingBaseSystem::resetSystemDescription(std::string filename)
 	dwl::YamlWrapper yaml_reader;
 
 	// Parsing the configuration file
-	YAML::Parser parser(fin);
-	YAML::Node doc;
-	parser.GetNextDocument(doc);
-	for (YAML::Iterator it = doc.begin(); it != doc.end(); ++it) {
-		// Reading the robot namespace
-		it.first() >> system_name_;
-		printf("Reading the configuration parameters of the %s \n",
-				system_name_.c_str());
+	std::string robot_ns = "robot";
+	printf("Reading the robot semantic description from the %s namespace\n",
+			robot_ns.c_str());
+	YAML::Node file = YAML::LoadFile(filename);
+	YAML::Node robot_node = file[robot_ns];
 
-		// Getting the system namespace
-		const YAML::Node& system_ns = *doc.FindValue(system_name_);
+	// Reading and setting up the foot names
+	if (yaml_reader.read(foot_names_, robot_node, "feet")) {
+		// Getting the number of foot
+		num_feet_ = foot_names_.size();
 
-		// Reading and setting up the foot names
-		if (yaml_reader.read(foot_names_, system_ns, "feet")) {
-			// Getting the number of foot
-			num_feet_ = foot_names_.size();
-
-			// Adding to the feet to the end-effector lists if it doesn't exist
-			for (unsigned int i = 0; i < foot_names_.size(); i++) {
-				std::string name = foot_names_[i];
-				if (end_effectors_.count(name) == 0) {
-					unsigned int id = end_effectors_.size() + 1;
-					end_effectors_[name] = id;
-					end_effector_names_.push_back(name);
-				}
+		// Adding to the feet to the end-effector lists if it doesn't exist
+		for (unsigned int i = 0; i < foot_names_.size(); i++) {
+			std::string name = foot_names_[i];
+			if (end_effectors_.count(name) == 0) {
+				unsigned int id = end_effectors_.size() + 1;
+				end_effectors_[name] = id;
+				end_effector_names_.push_back(name);
 			}
 		}
 	}
