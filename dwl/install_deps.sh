@@ -31,7 +31,7 @@ function install_rbdl
 	wget https://bitbucket.org/rbdl/rbdl/get/default.zip
 	unzip default.zip
 	rm default.zip
-	mv rbdl-rbdl-9c0426a923a4 rbdl
+	mv rbdl-rbdl-* rbdl
 	cd rbdl
 	mkdir -p build
 	cd build
@@ -82,6 +82,7 @@ function install_urdfdom
 	cd build
 	cmake ../
 	sudo make -j install
+	cd ../../
 }
 
 

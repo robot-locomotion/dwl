@@ -40,13 +40,17 @@ struct PreviewState
 enum TypeOfPhases {STANCE, FLIGHT};
 struct PreviewPhase
 {
-	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()) {}
+	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()), step_(false) {}
 	PreviewPhase(enum TypeOfPhases _type,
 				 rbd::BodySelector _feet = rbd::BodySelector()) :
-					 type(_type), feet(_feet) {
+					 type(_type), feet(_feet), step_(false) {
 		// Setting the swing feet of this phase
 		for (unsigned int f = 0; f < feet.size(); f++)
 			swing_feet[feet[f]] = true;
+
+		// Checking if the phase makes a step
+		if (feet.size() > 0)
+			step_ = true;
 	}
 
 	bool isSwingFoot(std::string name) const {
@@ -57,9 +61,14 @@ struct PreviewPhase
 			return false;
 	}
 
+	bool doStep() const {
+		return step_;
+	}
+
 	TypeOfPhases type;
 	rbd::BodySelector feet;
 	std::map<std::string,bool> swing_feet;
+	bool step_;
 };
 
 struct PreviewParams
