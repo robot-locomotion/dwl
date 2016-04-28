@@ -11,9 +11,9 @@ int main(int argc, char **argv)
 
 	// Resetting the system from the hyq urdf file
 	std::string model_file = "../sample/hyq.urdf";
-	string system_file = "../config/system_config.yaml";
-	sys.resetFromURDFFile(model_file, system_file);
-	kin.modelFromURDFFile(model_file, system_file);
+	string robot_file = "../config/robot_config.yaml";
+	sys.resetFromURDFFile(model_file, robot_file);
+	kin.modelFromURDFFile(model_file, robot_file);
 
 
 	// The robot state
