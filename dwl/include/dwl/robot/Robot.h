@@ -32,9 +32,9 @@ class Robot
 
 		/**
 		 * @brief Reads the robot properties from a yaml file
-		 * @param std::string File path of the yaml
+		 * @param std::string File name of the yaml
 		 */
-		void read(std::string filepath);
+		void read(std::string filename);
 
 		/**
 		 * @brief Sets the current pose of the robot
@@ -67,13 +67,15 @@ class Robot
 		behavior::MotorPrimitives& getBodyMotorPrimitive();
 
 		/**
-		 * @brief Gets the predefined body workspace for evaluation of potential collisions
+		 * @brief Gets the predefined body workspace for evaluation of
+		 * potential collisions
 		 * @return The predefined body workspace
 		 */
 		SearchArea getPredefinedBodyWorkspace();
 
 		/**
-		 * @brief Gets the predefined leg workspace for evaluation of potential collisions
+		 * @brief Gets the predefined leg workspace for evaluation of
+		 * potential collisions
 		 * @return The predefined leg workspaces
 		 */
 		SearchAreaMap getPredefinedLegWorkspaces();
