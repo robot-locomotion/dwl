@@ -366,7 +366,7 @@ fi
 echo ""
 echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
 if [ -d "/usr/local/include/yaml-cpp" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.3.0? [y/N]: ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.3? [y/N]: ${COLOR_RESET}"
 	read ANSWER_YAMLCPP
 	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
 		install_yamlcpp
