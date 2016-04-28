@@ -115,10 +115,10 @@ class Robot
 
 		/**
 		 * @brief Gets the expected ground according to the nominal stance
-		 * @param int leg_id Leg id
+		 * @param int Foot id
 		 * @return The expected ground according to the nominal stance of the leg
 		 */
-		double getExpectedGround(int leg_id);
+		double getExpectedGround(int foot_id);
 
 		/** @brief Gets the number of legs of the robot */
 		double getNumberOfLegs();
@@ -155,8 +155,8 @@ class Robot
 		/** @brief Vector of the nominal stance */
 		Vector3dMap nominal_stance_;
 
-		/** @brief Leg workspaces */
-		SearchAreaMap leg_workspaces_;
+		/** @brief Foot workspaces */
+		SearchAreaMap foot_workspaces_;
 
 		/** @brief Footstep window */
 		SearchAreaMap footstep_window_;
@@ -170,20 +170,20 @@ class Robot
 		/** @brief Pattern of locomotion */
 		PatternOfLocomotionMap pattern_locomotion_;
 
-		/** @brief Number of legs */
-		double number_legs_;
+		/** @brief Number of feet */
+		double num_feet_;
 
 		/** @brief Number of end-effectors */
-		double number_end_effectors_;
+		double num_end_effectors_;
 
 		/** @brief Estimated ground from the body frame */
 		double estimated_ground_from_body_;
 
-		/** @brief The last past leg */
-		int last_past_leg_;
+		/** @brief The last past foot */
+		int last_past_foot_;
 
-		/** @brief Lateral offset between the legs */
-		double leg_lateral_offset_;
+		/** @brief Lateral offset between the feet */
+		double feet_lateral_offset_;
 
 		/** @brief Body displacement */
 		double displacement_;
