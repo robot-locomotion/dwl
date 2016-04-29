@@ -22,7 +22,7 @@ IpoptNLP::~IpoptNLP()
 void IpoptNLP::setFromConfigFile(std::string filename)
 {
 	// Yaml reader
-	dwl::YamlWrapper yaml_reader(filename);
+	YamlWrapper yaml_reader(filename);
 
 	// Parsing the configuration file
 	std::string ipopt_ns = "ipopt";
@@ -30,10 +30,10 @@ void IpoptNLP::setFromConfigFile(std::string filename)
 			ipopt_ns.c_str());
 
 	// Getting the different nodes
-	std::vector<std::string> output_ns = {ipopt_ns, "output"};
-	std::vector<std::string> output_file_ns = {ipopt_ns, "output", "output_file"};
-	std::vector<std::string> termination_ns = {ipopt_ns, "termination"};
-	std::vector<std::string> barrier_ns = {ipopt_ns, "barrier"};
+	YamlNamespace output_ns = {ipopt_ns, "output"};
+	YamlNamespace output_file_ns = {ipopt_ns, "output", "output_file"};
+	YamlNamespace termination_ns = {ipopt_ns, "termination"};
+	YamlNamespace barrier_ns = {ipopt_ns, "barrier"};
 
 	// Output parameters
 	// Reading and setting up the print level

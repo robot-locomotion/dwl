@@ -32,13 +32,21 @@ void YamlWrapper::setFile(std::string filename)
 
 bool YamlWrapper::read(bool& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
+	return read(data, field, node);
+}
+
+
+bool YamlWrapper::read(bool& data,
+					   std::string field,
+					   YAML::Node node)
+{
 	if (node[field]) {
 		data = node[field].as<bool>();
 		return true;
@@ -50,13 +58,21 @@ bool YamlWrapper::read(bool& data,
 
 bool YamlWrapper::read(int& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
+	return read(data, field, node);
+}
+
+
+bool YamlWrapper::read(int& data,
+					   std::string field,
+					   YAML::Node node)
+{
 	if (node[field]) {
 		data = node[field].as<int>();
 		return true;
@@ -68,13 +84,21 @@ bool YamlWrapper::read(int& data,
 
 bool YamlWrapper::read(double& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
+	return read(data, field, node);
+}
+
+
+bool YamlWrapper::read(double& data,
+					   std::string field,
+					   YAML::Node node)
+{
 	if (node[field]) {
 		data = node[field].as<double>();
 		return true;
@@ -88,13 +112,21 @@ bool YamlWrapper::read(double& data,
 //}
 bool YamlWrapper::read(std::string& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
+	return read(data, field, node);
+}
+
+
+bool YamlWrapper::read(std::string& data,
+					   std::string field,
+					   YAML::Node node)
+{
 	if (node[field]) {
 		data = node[field].as<std::string>();
 		return true;
@@ -106,13 +138,21 @@ bool YamlWrapper::read(std::string& data,
 
 bool YamlWrapper::read(std::vector<double>& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
+	return read(data, field, node);
+}
+
+
+bool YamlWrapper::read(std::vector<double>& data,
+					   std::string field,
+					   YAML::Node node)
+{
 	if (node[field]) {
 		data = node[field].as<std::vector<double>>();
 		return true;
@@ -122,17 +162,25 @@ bool YamlWrapper::read(std::vector<double>& data,
 }
 
 
-bool YamlWrapper::read(std::vector<std::string>& data,
+bool YamlWrapper::read(YamlNamespace& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
+	return read(data, field, node);
+}
+
+
+bool YamlWrapper::read(YamlNamespace& data,
+					   std::string field,
+					   YAML::Node node)
+{
 	if (node[field]) {
-		data = node[field].as<std::vector<std::string>>();
+		data = node[field].as<YamlNamespace>();
 		return true;
 	}
 
@@ -142,13 +190,21 @@ bool YamlWrapper::read(std::vector<std::string>& data,
 
 bool YamlWrapper::read(Eigen::Vector2d& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
+	return read(data, field, node);
+}
+
+
+bool YamlWrapper::read(Eigen::Vector2d& data,
+					   std::string field,
+					   YAML::Node node)
+{
 	if (node[field]) {
 		if (node[field].size() == 2) {
 			for (std::size_t i = 0; i < 2; i++)
@@ -163,13 +219,21 @@ bool YamlWrapper::read(Eigen::Vector2d& data,
 
 bool YamlWrapper::read(Eigen::Vector3d& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
+	return read(data, field, node);
+}
+
+
+bool YamlWrapper::read(Eigen::Vector3d& data,
+					   std::string field,
+					   YAML::Node node)
+{
 	if (node[field]) {
 		if (node[field].size() == 3) {
 			for (std::size_t i = 0; i < 3; i++)
@@ -184,13 +248,21 @@ bool YamlWrapper::read(Eigen::Vector3d& data,
 
 bool YamlWrapper::read(Eigen::Quaterniond& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
+	return read(data, field, node);
+}
+
+
+bool YamlWrapper::read(Eigen::Quaterniond& data,
+					   std::string field,
+					   YAML::Node node)
+{
 	if (node[field]) {
 		if (node[field].size() == 4) {
 			Eigen::VectorXd q = Eigen::VectorXd::Zero(4); // (w,x,y,z)^T
@@ -209,23 +281,29 @@ bool YamlWrapper::read(Eigen::Quaterniond& data,
 
 bool YamlWrapper::read(Pose& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
-	if (node[field]) {
-		// Added the tag field in the namespace
-		ns.push_back(field);
+	return read(data, field, node);
+}
 
+
+bool YamlWrapper::read(Pose& data,
+					   std::string field,
+					   YAML::Node node)
+{
+	YAML::Node local_node = node[field];
+	if (local_node) {
 		// Reading the position data
-		if (!read(data.position, "position", ns))
+		if (!read(data.position, "position", local_node))
 			data.position = Eigen::Vector3d::Zero();
 
 		// Reading the orientation data
-		if (!read(data.orientation, "orientation", ns)) {
+		if (!read(data.orientation, "orientation", local_node)) {
 			Eigen::Quaterniond default_orientation(1, 0, 0, 0);
 			data.orientation = default_orientation;
 		}
@@ -239,23 +317,29 @@ bool YamlWrapper::read(Pose& data,
 
 bool YamlWrapper::read(Pose3d& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
-	if (node[field]) {
-		// Added the tag field in the namespace
-		ns.push_back(field);
+	return read(data, field, node);
+}
 
+
+bool YamlWrapper::read(Pose3d& data,
+					   std::string field,
+					   YAML::Node node)
+{
+	YAML::Node local_node = node[field];
+	if (local_node) {
 		// Reading the position data
-		if (!read(data.position, "position", ns))
+		if (!read(data.position, "position", local_node))
 			data.position = Eigen::Vector2d::Zero();
 
 		// Reading the orientation data
-		if (!read(data.orientation, "orientation", ns)) {
+		if (!read(data.orientation, "orientation", local_node)) {
 			data.orientation = 0.;
 		}
 
@@ -268,25 +352,31 @@ bool YamlWrapper::read(Pose3d& data,
 
 bool YamlWrapper::read(Action3d& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
-	if (node[field]) {
-		// Added the tag field in the namespace
-		ns.push_back(field);
+	return read(data, field, node);
+}
 
+
+bool YamlWrapper::read(Action3d& data,
+					   std::string field,
+					   YAML::Node node)
+{
+	YAML::Node local_node = node[field];
+	if (local_node) {
 		// Reading pose data
-		if (!read(data.pose, "pose", ns)) {
+		if (!read(data.pose, "pose", local_node)) {
 			data.pose.position = Eigen::Vector2d::Zero();
 			data.pose.orientation = 0.;
 		}
 
 		// Reading the cost data
-		if (!read(data.cost, "cost", ns))
+		if (!read(data.cost, "cost", local_node))
 			data.cost = 0.;
 
 		return true;
@@ -298,34 +388,40 @@ bool YamlWrapper::read(Action3d& data,
 
 bool YamlWrapper::read(SearchArea& data,
 					   std::string field,
-					   std::vector<std::string> ns)
+					   YamlNamespace ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
 	if (!getNode(node, ns))
 		return false;
 
-	if (node[field]) {
-		// Added the tag field in the namespace
-		ns.push_back(field);
+	return read(data, field, node);
+}
 
+
+bool YamlWrapper::read(SearchArea& data,
+					   std::string field,
+					   YAML::Node node)
+{
+	YAML::Node local_node = node[field];
+	if (local_node) {
 		// Reading the vertices
-		if (!read(data.min_x, "min_x", ns))
+		if (!read(data.min_x, "min_x", local_node))
 			data.min_x = 0.;
-		if (!read(data.max_x, "max_x", ns))
+		if (!read(data.max_x, "max_x", local_node))
 			data.max_x = 0.;
 
-		if (!read(data.min_y, "min_y", ns))
+		if (!read(data.min_y, "min_y", local_node))
 			data.min_y = 0.;
-		if (!read(data.max_y, "max_y", ns))
+		if (!read(data.max_y, "max_y", local_node))
 			data.max_y = 0.;
 
-		if (!read(data.min_z, "min_z", ns))
+		if (!read(data.min_z, "min_z", local_node))
 			data.min_z = 0.;
-		if (!read(data.max_z, "max_z", ns))
+		if (!read(data.max_z, "max_z", local_node))
 			data.max_z = 0.;
 
-		if (!read(data.resolution, "resolution", ns))
+		if (!read(data.resolution, "resolution", local_node))
 			data.resolution = 0.;
 
 		return true;
@@ -336,7 +432,7 @@ bool YamlWrapper::read(SearchArea& data,
 
 
 bool YamlWrapper::getNode(YAML::Node& node,
-						  std::vector<std::string> ns)
+						  YamlNamespace ns)
 {
 	if (!is_file_) {
 		printf(YELLOW "Warning: the filename needs to be defined\n" COLOR_RESET);

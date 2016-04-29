@@ -150,15 +150,16 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 void FloatingBaseSystem::resetSystemDescription(std::string filename)
 {
 	// Yaml reader
-	dwl::YamlWrapper yaml_reader(filename);
+	YamlWrapper yaml_reader(filename);
 
 	// Parsing the configuration file
-	std::string robot_ns = "robot";
+	std::string robot = "robot";
 	printf("Reading the robot semantic description from the %s namespace\n",
-			robot_ns.c_str());
+			robot.c_str());
+	YamlNamespace robot_ns = {robot};
 
 	// Reading and setting up the foot names
-	if (yaml_reader.read(foot_names_, "feet", {robot_ns})) {
+	if (yaml_reader.read(foot_names_, "feet", robot_ns)) {
 		// Getting the number of foot
 		num_feet_ = foot_names_.size();
 
