@@ -21,54 +21,50 @@ IpoptNLP::~IpoptNLP()
 
 void IpoptNLP::setFromConfigFile(std::string filename)
 {
-	std::cout << filename << std::endl;
-	std::ifstream fin(filename.c_str());
-
 	// Yaml reader
-	dwl::YamlWrapper yaml_reader;
+	dwl::YamlWrapper yaml_reader(filename);
 
 	// Parsing the configuration file
 	std::string ipopt_ns = "ipopt";
-	printf("Reading the configuration parameters from the %s namespace\n", ipopt_ns.c_str());
-	YAML::Node file = YAML::LoadFile(filename);
-	YAML::Node ipopt_node = file[ipopt_ns];
+	printf("Reading the configuration parameters from the %s namespace\n",
+			ipopt_ns.c_str());
 
 	// Getting the different nodes
-	YAML::Node output_node = ipopt_node["output"];
-	YAML::Node output_file_node = output_node["output_file"];
-	YAML::Node termination_node = ipopt_node["termination"];
-	YAML::Node barrier_node = ipopt_node["barrier"];
+	std::vector<std::string> output_ns = {ipopt_ns, "output"};
+	std::vector<std::string> output_file_ns = {ipopt_ns, "output", "output_file"};
+	std::vector<std::string> termination_ns = {ipopt_ns, "termination"};
+	std::vector<std::string> barrier_ns = {ipopt_ns, "barrier"};
 
 	// Output parameters
 	// Reading and setting up the print level
 	int print_level;
-	if (yaml_reader.read(print_level, output_node, "print_level"))
+	if (yaml_reader.read(print_level, "print_level", output_ns))
 		app_->Options()->SetIntegerValue("print_level", print_level);
 
 	// Reading and setting up the print frequency iteration
 	int print_frequency_iter;
-	if (yaml_reader.read(print_frequency_iter, output_node, "print_frequency_iter"))
+	if (yaml_reader.read(print_frequency_iter, "print_frequency_iter", output_ns))
 		app_->Options()->SetIntegerValue("print_frequency_iter", print_frequency_iter);
 
 	// Reading and setting up the out file parameters
 	std::string option_file_name;
-	if (yaml_reader.read(option_file_name, output_file_node, "option_file_name")) {
+	if (yaml_reader.read(option_file_name, "option_file_name",output_file_ns)) {
 		app_->Options()->SetStringValue("option_file_name", option_file_name);
 
 		int file_print_level;
-		if (yaml_reader.read(file_print_level, output_file_node, "file_print_level"))
+		if (yaml_reader.read(file_print_level, "file_print_level", output_file_ns))
 			app_->Options()->SetIntegerValue("file_print_level", file_print_level);
 	}
 
 	// Termination parameters
 	// Reading and setting up the convergence tolerance
 	double tol;
-	if (yaml_reader.read(tol, termination_node, "tol"))
+	if (yaml_reader.read(tol, "tol", termination_ns))
 		app_->Options()->SetNumericValue("tol", tol);
 
 	// Reading and setting up the allowed number of iteration
 	int max_iter;
-	if (yaml_reader.read(max_iter, termination_node, "max_iter")) {
+	if (yaml_reader.read(max_iter, "max_iter",termination_ns)) {
 		if (max_iter == -1)
 			app_->Options()->SetIntegerValue("max_iter", std::numeric_limits<int>::max());
 		else
@@ -77,33 +73,33 @@ void IpoptNLP::setFromConfigFile(std::string filename)
 
 	// Reading and setting up the desired threshold for the dual infeasibility
 	double dual_inf_tol;
-	if (yaml_reader.read(dual_inf_tol, termination_node, "dual_inf_tol"))
+	if (yaml_reader.read(dual_inf_tol, "dual_inf_tol", termination_ns))
 		app_->Options()->SetNumericValue("dual_inf_tol", dual_inf_tol);
 
 	// Reading and setting up the desired threshold for the constraint violation
 	double constr_viol_tol;
-	if (yaml_reader.read(constr_viol_tol, termination_node, "constr_viol_tol"))
+	if (yaml_reader.read(constr_viol_tol, "constr_viol_tol", termination_ns))
 		app_->Options()->SetNumericValue("constr_viol_tol", constr_viol_tol);
 
 	// Reading and setting up the desired threshold for the complementarity conditions
 	double compl_inf_tol;
-	if (yaml_reader.read(compl_inf_tol, termination_node, "compl_inf_tol"))
+	if (yaml_reader.read(compl_inf_tol, "compl_inf_tol", termination_ns))
 		app_->Options()->SetNumericValue("compl_inf_tol", compl_inf_tol);
 
 	// Reading and setting up the "acceptable" convergence tolerance (relative)
 	double acceptable_tol;
-	if (yaml_reader.read(acceptable_tol, termination_node, "acceptable_tol"))
+	if (yaml_reader.read(acceptable_tol, "acceptable_tol", termination_ns))
 		app_->Options()->SetNumericValue("acceptable_tol", acceptable_tol);
 
 	// Reading and setting up the number of "acceptable" iterates before triggering termination
 	int acceptable_iter;
-	if (yaml_reader.read(acceptable_iter, termination_node, "acceptable_iter"))
+	if (yaml_reader.read(acceptable_iter, "acceptable_iter", termination_ns))
 		app_->Options()->SetIntegerValue("acceptable_iter", acceptable_iter);
 
 	// Barrier parameters
 	// Reading and setting up the out file parameters
 	std::string mu_strategy;
-	if (yaml_reader.read(mu_strategy, barrier_node, "mu_strategy"))
+	if (yaml_reader.read(mu_strategy, "mu_strategy", barrier_ns))
 		app_->Options()->SetStringValue("mu_strategy", mu_strategy);
 }
 
