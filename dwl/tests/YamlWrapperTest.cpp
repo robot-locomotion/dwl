@@ -1,4 +1,5 @@
 #include <dwl/utils/YamlWrapper.h>
+#include "yaml-cpp/yaml.h"
 
 
 using namespace std;
@@ -115,5 +116,31 @@ int main(int argc, char **argv)
 		cout << "search_area.resolution = " << search_area.resolution << endl;
 	} else
 		cout << "Couldn't read search_area tag" << endl;
+
+
+
+
+	YAML::Emitter out;
+//	out << file;
+	out << YAML::BeginMap;
+	out << YAML::Key << "my_ns";
+	out << YAML::BeginMap;
+	out << YAML::Key << "my_2ns";
+	out << YAML::Value;
+	out << YAML::Value;
+	out << YAML::BeginSeq;
+	out << "eggs";
+	out << "bread";
+	out << "milk";
+	out << YAML::EndSeq;
+	out << YAML::EndMap;
+	out << YAML::EndMap;
+
+	std::cout << "Here's the output YAML:\n" << out.c_str() << std::endl; // prints "Hello, World!"
+//	std::ofstream fout;
+//	fout.open("tmp.yaml", fstream::out | fstream::app);
+//	fout << out.c_str();
+//	fout.close();
+
 	return 0;
 }
