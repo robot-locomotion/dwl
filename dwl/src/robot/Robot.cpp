@@ -26,31 +26,27 @@ Robot::~Robot()
 void Robot::read(std::string filename)
 {
 	// TODO The id doesn't follow the urdf order
-
-	std::ifstream fin(filename.c_str());
-
 	// Yaml reader
-	dwl::YamlWrapper yaml_reader;
+	dwl::YamlWrapper yaml_reader();
+	yaml_reader_.setFile(filename);
 
 	// Parsing the configuration file
 	std::string robot_ns = "robot";
 	printf("Reading the configuration parameters from the %s namespace\n",
 			robot_ns.c_str());
-	YAML::Node file = YAML::LoadFile(filename);
-	YAML::Node robot_node = file[robot_ns];
 
 	// Getting the different nodes
-	YAML::Node description_node = robot_node["description"];
-	YAML::Node ee_description_node = description_node["end_effector_descriptions"];
-	YAML::Node properties_node = robot_node["predefined_properties"];
-	YAML::Node pattern_node = properties_node["pattern_locomotion"];
-	YAML::Node stance_node = properties_node["nominal_stance"];
-	YAML::Node footregion_node = properties_node["footstep_search_window"];
-	YAML::Node footws_node = properties_node["foot_workspace"];
+	std::vector<std::string> description_ns = {robot_ns, "description"};
+	std::vector<std::string> ee_description_ns = {robot_ns, "description", "end_effector_descriptions"};
+	std::vector<std::string> properties_ns = {robot_ns, "predefined_properties"};
+	std::vector<std::string> pattern_ns = {robot_ns, "predefined_properties", "pattern_locomotion"};
+	std::vector<std::string> stance_ns = {robot_ns, "predefined_properties", "nominal_stance"};
+	std::vector<std::string> footregion_ns = {robot_ns, "predefined_properties", "footstep_search_window"};
+	std::vector<std::string> footws_ns = {robot_ns, "predefined_properties", "foot_workspace"};
 
 	// Reading the end-effectors of the robot
 	std::vector<std::string> end_effectors;
-	if (yaml_reader_.read(end_effectors, description_node, "end_effectors")) {
+	if (yaml_reader_.read(end_effectors, "end_effectors", description_ns)) {
 		for (std::size_t i = 0; i < end_effectors.size(); i++)
 			end_effectors_[i] = end_effectors[i];
 	} else
@@ -58,7 +54,7 @@ void Robot::read(std::string filename)
 
 	// Reading the feet of the robot
 	std::vector<std::string> feet;
-	if (yaml_reader_.read(feet, description_node, "feet")) {
+	if (yaml_reader_.read(feet, "feet", description_ns)) {
 		num_feet_ = feet.size();
 		for (unsigned int i = 0; i < num_feet_; i++)
 			feet_[i] = feet[i];
@@ -72,7 +68,7 @@ void Robot::read(std::string filename)
 		std::string name = e->second;
 
 		std::vector<std::string> patchs;
-		if (yaml_reader_.read(patchs, ee_description_node, name)) {
+		if (yaml_reader_.read(patchs, name, ee_description_ns)) {
 			for (unsigned int k = 0; k < patchs.size(); k++)
 				patchs_[id] = patchs;
 		} else
@@ -88,7 +84,7 @@ void Robot::read(std::string filename)
 		// Reading the next swing leg
 		std::string next_feet_name;
 		unsigned int next_feet_id = 0;
-		if (yaml_reader_.read(next_feet_name, pattern_node, name)) {
+		if (yaml_reader_.read(next_feet_name, name, pattern_ns)) {
 			for (EndEffectorMap::iterator l = feet_.begin(); l != feet_.end(); ++l) {
 				std::string potential_leg_name = l->second;
 				if (next_feet_name == potential_leg_name) {
@@ -108,7 +104,7 @@ void Robot::read(std::string filename)
 
 		// Reading the nominal stance position for the actual foot
 		Eigen::Vector3d stance;
-		if (yaml_reader_.read(stance, stance_node, name)) {
+		if (yaml_reader_.read(stance, name, stance_ns)) {
 			unsigned int id = it->first;
 
 			stance(2) = estimated_ground_from_body_;
@@ -119,11 +115,11 @@ void Robot::read(std::string filename)
 	}
 
 	// Reading the lateral offset
-	if (!yaml_reader_.read(feet_lateral_offset_, stance_node, "lateral_offset"))
+	if (!yaml_reader_.read(feet_lateral_offset_, "lateral_offset", stance_ns))
 		printf(YELLOW "Warning: the lateral offset was not read\n" COLOR_RESET);
 
 	// Reading the frontal displacement
-	if (!yaml_reader_.read(displacement_, stance_node, "displacement"))
+	if (!yaml_reader_.read(displacement_, "displacement", stance_ns))
 		printf(YELLOW "Warning: the displacement was not read\n" COLOR_RESET);
 
 	// Reading the footstep search window
@@ -132,7 +128,7 @@ void Robot::read(std::string filename)
 
 		// Reading the search window for the actual foot
 		SearchArea search_area;
-		if (yaml_reader_.read(search_area, footregion_node, name)) {
+		if (yaml_reader_.read(search_area, name, footregion_ns)) {
 			unsigned int id = it->first;
 			footstep_window_[id] = search_area;
 		} else
@@ -146,7 +142,7 @@ void Robot::read(std::string filename)
 
 		// Reading the work window for the actual foot
 		SearchArea work_area;
-		if (yaml_reader_.read(work_area, footws_node, name)) {
+		if (yaml_reader_.read(work_area, name, footws_ns)) {
 			unsigned int id = it->first;
 			foot_workspaces_[id] = work_area;
 		} else
@@ -155,7 +151,7 @@ void Robot::read(std::string filename)
 	}
 
 	// Reading the body work window
-	if (!yaml_reader_.read(body_workspace_, properties_node, "body_workspace"))
+	if (!yaml_reader_.read(body_workspace_, "body_workspace", properties_ns))
 		printf(YELLOW "Warning: the body workspace description was not read\n" COLOR_RESET);
 }
 
