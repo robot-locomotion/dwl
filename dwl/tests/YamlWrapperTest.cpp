@@ -24,50 +24,62 @@ int main(int argc, char **argv)
 	dwl::YamlWrapper yaml_reader("../tests/test.yaml");
 
 	// Reading and parsing the yaml document
-	cout << "Reading from test namespace" << endl;
+	cout << "Reading from global_ns/variable_ns namespace" << endl;
 
 	// Reading the test variables
 	if (yaml_reader.read(idata, "int", {"global_ns", "variable_ns"}))
 		cout << "int: " << idata << endl;
+	else
+		cout << "Couldn't read int tag" << endl;
 
 	if (yaml_reader.read(ddata, "double", {"global_ns", "variable_ns"}))
 		cout << "double: " << ddata << endl;
+	else
+		cout << "Couldn't read double tag" << endl;
 
 	if (yaml_reader.read(sdata, "string", {"global_ns", "variable_ns"}))
 		cout << "string: " << sdata << endl;
-
+	else
+		cout << "Couldn't read string tag" << endl;
 
 	if (yaml_reader.read(bdata, "bool", {"global_ns", "variable_ns"}))
 		cout << "bool: " << bdata << endl;
+	else
+		cout << "Couldn't read bool tag" << endl;
 
 	if (yaml_reader.read(double_vec, "double_vector", {"global_ns", "variable_ns"})) {
 		cout << "double_vector: ";
 		for (size_t i = 0; i < double_vec.size(); i++)
 			cout << double_vec[i] << " ";
 		cout << endl;
-	}
+	} else
+		cout << "Couldn't read double_vector tag" << endl;
 
 	if (yaml_reader.read(string_vec, "string_vector", {"global_ns", "variable_ns"})) {
 		cout << "string_vector: ";
 		for (size_t i = 0; i < string_vec.size(); i++)
 			cout << string_vec[i] << " ";
 		cout << endl;
-	}
+	} else
+		cout << "Couldn't read string_vector tag" << endl;
 
 	if (yaml_reader.read(vector_2d, "vector_2d", {"global_ns", "variable_ns"})) {
 		cout << "vector_2d: " << vector_2d.transpose() << endl;
-	}
+	} else
+		cout << "Couldn't read vector_2d tag" << endl;
 
 	if (yaml_reader.read(vector_3d, "vector_3d", {"global_ns", "variable_ns"})) {
 		cout << "vector_3d: " << vector_3d.transpose() << endl;
-	}
+	} else
+		cout << "Couldn't read vector_3d tag" << endl;
 
 	if (yaml_reader.read(quaternion, "quaternion", {"global_ns", "variable_ns"})) {
 		cout << "quaternion = " << quaternion.w() << " "
 								<< quaternion.x() << " "
 								<< quaternion.y() << " "
 								<< quaternion.z() << endl;
-	}
+	} else
+		cout << "Couldn't read quaternion tag" << endl;
 
 	if (yaml_reader.read(pose, "pose", {"global_ns", "variable_ns"})) {
 		cout << "pose.position = " << pose.position.transpose() << endl;
@@ -75,18 +87,21 @@ int main(int argc, char **argv)
 									  << pose.orientation.x() << " "
 									  << pose.orientation.y() << " "
 									  << pose.orientation.z() << endl;
-	}
+	} else
+		cout << "Couldn't read pose tag" << endl;
 
 	if (yaml_reader.read(pose_3d, "pose_3d", {"global_ns", "variable_ns"})) {
 		cout << "pose_3d.position = " << pose_3d.position.transpose() << endl;
 		cout << "pose_3d.orientation = " << pose_3d.orientation << endl;
-	}
+	} else
+		cout << "Couldn't read pose_3d tag" << endl;
 
 	if (yaml_reader.read(action_3d, "action_3d", {"global_ns", "variable_ns"})) {
 		cout << "action_3d.pose.position = " << action_3d.pose.position.transpose() << endl;
 		cout << "action_3d.pose.orientation = " << action_3d.pose.orientation << endl;
 		cout << "action_3d.cost = " << action_3d.cost << endl;
-	}
+	} else
+		cout << "Couldn't read action_3d tag" << endl;
 
 	if (yaml_reader.read(search_area, "search_area", {"global_ns", "variable_ns"})) {
 		cout << "search_area.min_x = " << search_area.min_x << endl;
@@ -96,6 +111,7 @@ int main(int argc, char **argv)
 		cout << "search_area.min_z = " << search_area.min_z << endl;
 		cout << "search_area.max_z = " << search_area.max_z << endl;
 		cout << "search_area.resolution = " << search_area.resolution << endl;
-	}
+	} else
+		cout << "Couldn't read search_area tag" << endl;
 	return 0;
 }
