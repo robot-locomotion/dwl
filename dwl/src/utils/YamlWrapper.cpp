@@ -36,7 +36,7 @@ bool YamlWrapper::read(bool& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -54,7 +54,7 @@ bool YamlWrapper::read(int& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -72,7 +72,7 @@ bool YamlWrapper::read(double& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -92,7 +92,7 @@ bool YamlWrapper::read(std::string& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -110,7 +110,7 @@ bool YamlWrapper::read(std::vector<double>& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -128,7 +128,7 @@ bool YamlWrapper::read(std::vector<std::string>& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -146,7 +146,7 @@ bool YamlWrapper::read(Eigen::Vector2d& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -167,7 +167,7 @@ bool YamlWrapper::read(Eigen::Vector3d& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -188,7 +188,7 @@ bool YamlWrapper::read(Eigen::Quaterniond& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -213,7 +213,7 @@ bool YamlWrapper::read(Pose& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -243,7 +243,7 @@ bool YamlWrapper::read(Pose3d& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -272,7 +272,7 @@ bool YamlWrapper::read(Action3d& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -302,7 +302,7 @@ bool YamlWrapper::read(SearchArea& data,
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
-	if (!findNode(node, ns))
+	if (!getNode(node, ns))
 		return false;
 
 	if (node[field]) {
@@ -335,8 +335,8 @@ bool YamlWrapper::read(SearchArea& data,
 }
 
 
-bool YamlWrapper::findNode(YAML::Node& node,
-						   std::vector<std::string> ns)
+bool YamlWrapper::getNode(YAML::Node& node,
+						  std::vector<std::string> ns)
 {
 	if (!is_file_) {
 		printf(YELLOW "Warning: the filename needs to be defined\n" COLOR_RESET);

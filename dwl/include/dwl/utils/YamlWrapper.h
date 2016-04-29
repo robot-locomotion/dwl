@@ -211,15 +211,17 @@ class YamlWrapper
 		bool read(SearchArea& data,
 				  const YAML::Node& node,
 				  std::string field) {return false;};
-	private:
+
 		/**
 		 * @brief Finds the Yaml node given a sequence of namespaces
 		 * @param YAML::Node& Yaml node
 		 * @param std::vector<std::string> Namespaces
 		 */
-		bool findNode(YAML::Node& node,
-					  std::vector<std::string> ns);
+		bool getNode(YAML::Node& node,
+					 std::vector<std::string> ns = std::vector<std::string>());
 
+
+	private:
 		/** @brief File name for data reading/writing from/to a yaml */
 		std::string filename_;
 
