@@ -16,12 +16,18 @@ namespace dwl
 class YamlWrapper
 {
 	public:
-		/** @brief Constructor function */
+		/** @brief Constructor functions */
+		YamlWrapper();
 		YamlWrapper(std::string filename);
-		YamlWrapper() {};
 
 		/** @brief Destructor function */
 		~YamlWrapper();
+
+		/**
+		 * @brief Sets the filename for reading/writing
+		 * @param std::string File name
+		 */
+		void setFile(std::string filename);
 
 		/**
 		 * @brief Reads a boolean
@@ -216,6 +222,9 @@ class YamlWrapper
 
 		/** @brief File name for data reading/writing from/to a yaml */
 		std::string filename_;
+
+		/** @brief Labels that indicates that the filename was defined */
+		bool is_file_;
 };
 
 } //@namespace dwl

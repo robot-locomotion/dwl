@@ -4,7 +4,14 @@
 namespace dwl
 {
 
-YamlWrapper::YamlWrapper(std::string filename) : filename_(filename)
+YamlWrapper::YamlWrapper() : is_file_(false)
+{
+
+}
+
+
+YamlWrapper::YamlWrapper(std::string filename) : filename_(filename),
+		is_file_(true)
 {
 
 }
@@ -13,6 +20,13 @@ YamlWrapper::YamlWrapper(std::string filename) : filename_(filename)
 YamlWrapper::~YamlWrapper()
 {
 
+}
+
+
+void YamlWrapper::setFile(std::string filename)
+{
+	filename_ = filename;
+	is_file_ = true;
 }
 
 
@@ -324,6 +338,11 @@ bool YamlWrapper::read(SearchArea& data,
 bool YamlWrapper::findNode(YAML::Node& node,
 						   std::vector<std::string> ns)
 {
+	if (!is_file_) {
+		printf(YELLOW "Warning: the filename needs to be defined\n" COLOR_RESET);
+		return false;
+	}
+
 	node = YAML::LoadFile(filename_);
 	for (std::size_t i = 0; i < ns.size(); i++) {
 		std::string ns_name = ns[i];
