@@ -166,6 +166,8 @@ class PreviewOptimization : public model::OptimizationModel
 
 
 		void saveSolution(std::string filename);
+
+
 	private:
 		double stepCost(const simulation::PreviewTrajectory& preview_trans,
 						const simulation::PreviewState& actual_state,
