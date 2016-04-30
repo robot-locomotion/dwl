@@ -206,6 +206,8 @@ class PreviewOptimization : public model::OptimizationModel
 		void fromPreviewControl(Eigen::VectorXd& generalized_control,
 								const simulation::PreviewControl& preview_control);
 
+		/** @brief Optimized preview control sequence */
+		simulation::PreviewControl preview_control_;
 
 		/** @brief Constraints of the preview optimization */
 		ocp::SupportPolygonConstraint polygon_constraint_;
