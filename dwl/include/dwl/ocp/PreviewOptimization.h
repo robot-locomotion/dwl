@@ -165,6 +165,7 @@ class PreviewOptimization : public model::OptimizationModel
 		ReducedBodyTrajectory& getReducedTrajectory();
 
 
+		void saveSolution(std::string filename);
 	private:
 		double stepCost(const simulation::PreviewTrajectory& preview_trans,
 						const simulation::PreviewState& actual_state,
@@ -205,29 +206,38 @@ class PreviewOptimization : public model::OptimizationModel
 		void fromPreviewControl(Eigen::VectorXd& generalized_control,
 								const simulation::PreviewControl& preview_control);
 
+
+		/** @brief Constraints of the preview optimization */
 		ocp::SupportPolygonConstraint polygon_constraint_;
 		ocp::PointConstraint preview_constraint_;
-		simulation::PreviewLocomotion preview_;
-		simulation::PreviewState actual_state_;
-
-		PreviewBounds bounds_;
-
 		double support_margin_;
 
+		/** @brief Preview locomotion model */
+		simulation::PreviewLocomotion preview_;
+
+		/** @brief Preview schedule */
+		simulation::PreviewSchedule schedule_;
+
+		/** @brief Actual preview state */
+		simulation::PreviewState actual_state_;
+
+		/** @brief Bounds of the preview optimization */
+		PreviewBounds bounds_;
+
+		/** @brief Preview trajectory and transitions */
 		ReducedBodyTrajectory reduced_traj_;
 		simulation::PreviewTrajectory preview_transitions_;
 
+		/** @brief Weights of the cost functions */
 		double desired_step_duration_;
 		double desired_step_distance_;
 		double step_time_weight_;
 		double step_dist_weight_;
 		Eigen::Vector3d acc_int_weight_;
 
+		/** @brief Feet information */
 		rbd::BodySelector feet_;
 		unsigned int num_feet_;
-
-		/** @brief Preview schedule */
-		simulation::PreviewSchedule schedule_;
 
 		/** @brief Number of phases of the schedule */
 		unsigned int phases_;
