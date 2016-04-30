@@ -31,8 +31,8 @@ void YamlWrapper::setFile(std::string filename)
 
 
 bool YamlWrapper::read(bool& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -44,8 +44,8 @@ bool YamlWrapper::read(bool& data,
 
 
 bool YamlWrapper::read(bool& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	if (node[field]) {
 		data = node[field].as<bool>();
@@ -57,8 +57,8 @@ bool YamlWrapper::read(bool& data,
 
 
 bool YamlWrapper::read(int& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -70,8 +70,8 @@ bool YamlWrapper::read(int& data,
 
 
 bool YamlWrapper::read(int& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	if (node[field]) {
 		data = node[field].as<int>();
@@ -83,8 +83,8 @@ bool YamlWrapper::read(int& data,
 
 
 bool YamlWrapper::read(double& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -96,8 +96,8 @@ bool YamlWrapper::read(double& data,
 
 
 bool YamlWrapper::read(double& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	if (node[field]) {
 		data = node[field].as<double>();
@@ -111,8 +111,8 @@ bool YamlWrapper::read(double& data,
 //	return false;
 //}
 bool YamlWrapper::read(std::string& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -124,8 +124,8 @@ bool YamlWrapper::read(std::string& data,
 
 
 bool YamlWrapper::read(std::string& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	if (node[field]) {
 		data = node[field].as<std::string>();
@@ -137,8 +137,8 @@ bool YamlWrapper::read(std::string& data,
 
 
 bool YamlWrapper::read(std::vector<double>& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -150,8 +150,8 @@ bool YamlWrapper::read(std::vector<double>& data,
 
 
 bool YamlWrapper::read(std::vector<double>& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	if (node[field]) {
 		data = node[field].as<std::vector<double>>();
@@ -162,9 +162,9 @@ bool YamlWrapper::read(std::vector<double>& data,
 }
 
 
-bool YamlWrapper::read(YamlNamespace& data,
-					   std::string field,
-					   YamlNamespace ns)
+bool YamlWrapper::read(std::vector<std::string>& data,
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -175,12 +175,12 @@ bool YamlWrapper::read(YamlNamespace& data,
 }
 
 
-bool YamlWrapper::read(YamlNamespace& data,
-					   std::string field,
-					   YAML::Node node)
+bool YamlWrapper::read(std::vector<std::string>& data,
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	if (node[field]) {
-		data = node[field].as<YamlNamespace>();
+		data = node[field].as<std::vector<std::string>>();
 		return true;
 	}
 
@@ -189,8 +189,8 @@ bool YamlWrapper::read(YamlNamespace& data,
 
 
 bool YamlWrapper::read(Eigen::Vector2d& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -202,8 +202,8 @@ bool YamlWrapper::read(Eigen::Vector2d& data,
 
 
 bool YamlWrapper::read(Eigen::Vector2d& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	if (node[field]) {
 		if (node[field].size() == 2) {
@@ -218,8 +218,8 @@ bool YamlWrapper::read(Eigen::Vector2d& data,
 
 
 bool YamlWrapper::read(Eigen::Vector3d& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -231,8 +231,8 @@ bool YamlWrapper::read(Eigen::Vector3d& data,
 
 
 bool YamlWrapper::read(Eigen::Vector3d& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	if (node[field]) {
 		if (node[field].size() == 3) {
@@ -247,8 +247,8 @@ bool YamlWrapper::read(Eigen::Vector3d& data,
 
 
 bool YamlWrapper::read(Eigen::Quaterniond& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -260,8 +260,8 @@ bool YamlWrapper::read(Eigen::Quaterniond& data,
 
 
 bool YamlWrapper::read(Eigen::Quaterniond& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	if (node[field]) {
 		if (node[field].size() == 4) {
@@ -280,8 +280,8 @@ bool YamlWrapper::read(Eigen::Quaterniond& data,
 
 
 bool YamlWrapper::read(Pose& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -293,8 +293,8 @@ bool YamlWrapper::read(Pose& data,
 
 
 bool YamlWrapper::read(Pose& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	YAML::Node local_node = node[field];
 	if (local_node) {
@@ -316,8 +316,8 @@ bool YamlWrapper::read(Pose& data,
 
 
 bool YamlWrapper::read(Pose3d& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -329,8 +329,8 @@ bool YamlWrapper::read(Pose3d& data,
 
 
 bool YamlWrapper::read(Pose3d& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	YAML::Node local_node = node[field];
 	if (local_node) {
@@ -351,8 +351,8 @@ bool YamlWrapper::read(Pose3d& data,
 
 
 bool YamlWrapper::read(Action3d& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -364,8 +364,8 @@ bool YamlWrapper::read(Action3d& data,
 
 
 bool YamlWrapper::read(Action3d& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	YAML::Node local_node = node[field];
 	if (local_node) {
@@ -387,8 +387,8 @@ bool YamlWrapper::read(Action3d& data,
 
 
 bool YamlWrapper::read(SearchArea& data,
-					   std::string field,
-					   YamlNamespace ns)
+					   const std::string& field,
+					   const YamlNamespace& ns)
 {
 	// Finding the node of the respective namespaces
 	YAML::Node node;
@@ -400,8 +400,8 @@ bool YamlWrapper::read(SearchArea& data,
 
 
 bool YamlWrapper::read(SearchArea& data,
-					   std::string field,
-					   YAML::Node node)
+					   const std::string& field,
+					   const YAML::Node& node)
 {
 	YAML::Node local_node = node[field];
 	if (local_node) {
@@ -432,7 +432,7 @@ bool YamlWrapper::read(SearchArea& data,
 
 
 bool YamlWrapper::getNode(YAML::Node& node,
-						  YamlNamespace ns)
+						  const YamlNamespace& ns)
 {
 	if (!is_file_) {
 		printf(YELLOW "Warning: the filename needs to be defined\n" COLOR_RESET);
