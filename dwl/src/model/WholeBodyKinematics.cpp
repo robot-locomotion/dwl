@@ -172,13 +172,6 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 												   double lambda,
 												   unsigned int max_iter)
 {//TODO this routines has to consider more general cases, i.e. 6d operational position
-	// Setting up the guess states
-	rbd::Vector6d base_pos_guess;
-	if (base_pos_init == rbd::Vector6d())
-		base_pos_guess = dwl::rbd::Vector6d::Zero();
-	else
-		base_pos_guess = base_pos_init;
-
 	Eigen::VectorXd joint_pos_guess = Eigen::VectorXd::Zero(system_.getJointDoF());
 	if (joint_pos_init.size() == 0)
 		joint_pos_guess = joint_pos_middle_;
@@ -203,7 +196,7 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 
 	// Converting the initial base position and joint position
 	Eigen::VectorXd q_guess =
-			system_.toGeneralizedJointState(base_pos_guess, joint_pos_guess);
+			system_.toGeneralizedJointState(base_pos_init, joint_pos_guess);
 
 	// Computing the inverse kinematics
 	Eigen::VectorXd q_res;

@@ -79,7 +79,7 @@ class WholeBodyKinematics
 		void computeInverseKinematics(rbd::Vector6d& base_pos,
 									  Eigen::VectorXd& joint_pos,
 									  const rbd::BodyPosition& op_pos,
-									  const rbd::Vector6d& base_pos_init = rbd::Vector6d(),
+									  const rbd::Vector6d& base_pos_init = rbd::Vector6d::Zero(),
 									  const Eigen::VectorXd& joint_pos_init = Eigen::VectorXd(),
 									  double step_tol = 1.0e-12,
 									  double lambda = 0.01,
