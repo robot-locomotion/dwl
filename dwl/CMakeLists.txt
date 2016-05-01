@@ -6,6 +6,9 @@ message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
 message("Copyright (C) 2014-2016 Carlos Mastalli - Istituto Italiano di Tecnologia.")
 message("Released under the XXX License.")
 
+# Defining the dwl install prefix
+set(DWL_INSTALL_PREFIX /usr/local/dwl CACHE STRINGS "DWL Install Prefix")
+
 # Defining the unit testing environment
 set(UNIT_TEST false CACHE BOOL "Unit testing")
 
@@ -24,10 +27,11 @@ endif()
 
 # Appending the project module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(ENV{PKG_CONFIG_PATH} "${DWL_INSTALL_PREFIX}/lib/pkgconfig/:$ENV{PKG_CONFIG_PATH}")
 
 # Finding dependencies
 find_package(PkgConfig)
-pkg_check_modules(EIGEN3 eigen3 REQUIRED)
+pkg_check_modules(EIGEN3 eigen3=3.2.7 REQUIRED)
 pkg_check_modules(RBDL rbdl REQUIRED)
 find_package(URDF REQUIRED)
 find_package(YAMLCPP REQUIRED)

@@ -9,6 +9,8 @@ COLOR_WARN="\033[0;33m"
 COLOR_BOLD="\033[1m"
 COLOR_UNDE="\033[4m"
 
+DWL_INSTALL_PREFIX=/usr/local/dwl
+
 
 function install_eigen
 {
@@ -95,7 +97,7 @@ function install_yamlcpp
 	cd yaml-cpp
 	mkdir -p build
 	cd build
-	cmake -DBUILD_SHARED_LIBS=ON ../
+	cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
 	sudo make -j install
 	cd ../../
 }
@@ -366,7 +368,7 @@ fi
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
-if [ -d "/usr/local/include/yaml-cpp" ]; then
+if [ -d "$DWL_INSTALL_PREFIX/include/yaml-cpp" ]; then
 	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.3? [y/N]: ${COLOR_RESET}"
 	read ANSWER_YAMLCPP
 	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
