@@ -37,7 +37,8 @@ function install_rbdl
 	cd rbdl
 	mkdir -p build
 	cd build
-	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib ../
+	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+	make -j
 	sudo make -j install
 	cd ../../
 }
@@ -352,7 +353,7 @@ fi
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing RBDL ...${COLOR_RESET}"
-if [ -d "/usr/local/include/rbdl" ]; then
+if [ -d "$DWL_INSTALL_PREFIX/include/rbdl" ]; then
 	echo -e -n "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? [y/N]: ${COLOR_RESET}"
 	read ANSWER_RBDL
 	if [ "$ANSWER_RBDL" == "Y" ] || [ "$ANSWER_RBDL" == "y" ]; then
