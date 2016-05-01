@@ -30,9 +30,9 @@ function install_eigen
 function install_rbdl
 {
 	# Getting RBDL 2.4.0
-	wget https://bitbucket.org/rbdl/rbdl/get/default.zip
-	unzip default.zip
-	rm default.zip
+	wget https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip
+	unzip v2.4.0.zip
+	rm v2.4.0.zip
 	mv rbdl-rbdl-* rbdl
 	cd rbdl
 	mkdir -p build
