@@ -113,7 +113,7 @@ function install_lapack
 	cd lapack
 	mkdir -p build
 	cd build
-	cmake -D BUILD_SHARED_LIBS:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib ../
+	cmake -D BUILD_SHARED_LIBS:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -D CMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
 	sudo make -j install
 	cd ../../
 }
@@ -132,7 +132,7 @@ function install_ipopt
 	# http://www.coin-or.org/Ipopt/documentation/node13.html
 
 	# Installing LAPACK and BLAS
-	if [ ! -f "/usr/local/lib/liblapack.so" ]; then
+	if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
 		install_lapack
 	fi
 
@@ -174,7 +174,7 @@ function install_ipopt
 	mkdir -p build
 	cd build
 	# start building
-	../configure --enable-static --prefix /usr/local --with-lapack="-L/usr/local/lib -llapack" --with-blas="-L/usr/local/lib -lblas"
+	../configure --enable-static --prefix $DWL_INSTALL_PREFIX --with-lapack="-L$DWL_INSTALL_PREFIX/lib -llapack" --with-blas="-L$DWL_INSTALL_PREFIX/lib -lblas"
 	sudo make -j install
 	cd ../../
 }
@@ -385,7 +385,7 @@ fi
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing Ipopt ...${COLOR_RESET}"
-if [ -d "/usr/local/include/coin" ]; then
+if [ -d "$DWL_INSTALL_PREFIX/include/coin" ]; then
 	# Control will enter here if $DIRECTORY exists.
 	echo -e -n "${COLOR_QUES}Do you want to re-install Ipopt 3.12.4? [y/N]: ${COLOR_RESET}"
 	read ANSWER_IPOPT
