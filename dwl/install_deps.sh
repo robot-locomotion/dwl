@@ -21,7 +21,7 @@ function install_eigen
 	cd eigen
 	mkdir -p build
 	cd build
-	cmake -DEIGEN_INCLUDE_INSTALL_DIR=/usr/local/include/eigen3 ../
+	cmake -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DEIGEN_INCLUDE_INSTALL_DIR=$DWL_INSTALL_PREFIX/include/eigen3 -Dpkg_config_libdir=$DWL_INSTALL_PREFIX/lib/ ../
 	sudo make -j install
 	cd ../../
 }
@@ -299,7 +299,7 @@ cd ${SELF_PATH}/thirdparty
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing Eigen ...${COLOR_RESET}"
-if [ -d "/usr/local/include/eigen3" ]; then
+if [ -d "$DWL_INSTALL_PREFIX/include/eigen3" ]; then
 	echo -e -n "${COLOR_QUES}Do you want to re-install Eigen 3.2.7? [y/N]: ${COLOR_RESET}"
 	read ANSWER_EIGEN
 	if [ "$ANSWER_EIGEN" == "Y" ] || [ "$ANSWER_EIGEN" == "y" ]; then
