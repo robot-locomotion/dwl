@@ -189,12 +189,12 @@ function install_qpoases
 	mv qpOASES-3.2.0 qpOASES
 
 	# Installing LAPACK and BLAS
-	if [ ! -f "/usr/local/lib/liblapack.so" ]; then
+	if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
 		install_lapack
 	fi
 
 	cd qpOASES
-	make -j REPLACE_LINALG=0 LIB_LAPACK=/usr/local/lib/liblapack.so LIB_BLAS=/usr/local/lib/libblas.so
+	make -j REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
 	cd ../
 }
 
