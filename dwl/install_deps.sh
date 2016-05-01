@@ -427,7 +427,7 @@ fi
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing libcmaes ...${COLOR_RESET}"
-if [ -d "/usr/local/include/libcmaes" ]; then
+if [ -d "$DWL_INSTALL_PREFIX/include/libcmaes" ]; then
 	# Control will enter here if $DIRECTORY exists.
 	echo -e -n "${COLOR_QUES}Do you want to re-install libcmaes 0.9.5? [y/N]: ${COLOR_RESET}"
 	read ANSWER_LIBCMAES
