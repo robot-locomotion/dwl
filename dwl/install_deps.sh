@@ -222,7 +222,7 @@ function install_libcmaes
 	rm -rf 0.9.5.tar.gz
 	cd libcmaes
 	./autogen.sh
-	./configure --enable-gglog --with-eigen3-include=/usr/local/include/eigen3
+	./configure --enable-gglog --prefix=$DWL_INSTALL_PREFIX --with-eigen3-include=$DWL_INSTALL_PREFIX/include/eigen3
 	sudo make -j4 install
 	cd ../
 }
