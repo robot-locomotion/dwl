@@ -14,6 +14,9 @@ DWL_INSTALL_PREFIX=/usr/local/dwl
 
 function install_eigen
 {
+	# Remove old folder (sanity procedure)
+	rm -rf eigen
+
 	# Getting Eigen 3.2.7
 	wget http://www.bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2
 	mkdir eigen && tar jxf 3.2.7.tar.bz2 -C eigen --strip-components 1
@@ -29,6 +32,9 @@ function install_eigen
 
 function install_rbdl
 {
+	# Remove old folder (sanity procedure)
+	rm -rf rbdl
+
 	# Getting RBDL 2.4.0
 	wget https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip
 	unzip v2.4.0.zip
@@ -46,6 +52,9 @@ function install_rbdl
 
 function install_urdfdom_headers
 {
+	# Remove old folder (sanity procedure)
+	rm -rf urdf_headers
+
 	# Getting urdfdom_headers 0.2.3
 	wget https://github.com/ros/urdfdom_headers/archive/0.2.3.tar.gz
 	mkdir urdfdom_headers && tar zxf 0.2.3.tar.gz -C urdfdom_headers --strip-components 1
@@ -61,6 +70,9 @@ function install_urdfdom_headers
 
 function install_console_bridge
 {
+	# Remove old folder (sanity procedure)
+	rm -rf console_bridge
+
 	# Getting console_bridge 0.2.7
 	wget https://github.com/ros/console_bridge/archive/0.2.7.tar.gz
 	mkdir console_bridge && tar zxf 0.2.7.tar.gz -C console_bridge --strip-components 1
@@ -76,6 +88,9 @@ function install_console_bridge
 
 function install_urdfdom
 {
+	# Remove old folder (sanity procedure)
+	rm -rf urdfdom
+
 	# Getting console_bridge 0.2.10
 	wget https://github.com/ros/urdfdom/archive/0.2.10.tar.gz
 	mkdir urdfdom && tar zxf 0.2.10.tar.gz -C urdfdom --strip-components 1
@@ -91,6 +106,9 @@ function install_urdfdom
 
 function install_yamlcpp
 {
+	# Remove old folder (sanity procedure)
+	rm -rf yaml-cpp
+
 	# Getting the YAML-CPP 0.5.3
 	wget https://github.com/jbeder/yaml-cpp/archive/release-0.5.3.zip
 	unzip release-0.5.3.zip && rm -rf release-0.5.3.zip
@@ -106,6 +124,9 @@ function install_yamlcpp
 
 function install_lapack
 {
+	# Remove old folder (sanity procedure)
+	rm -rf lapack
+
 	# Getting the LAPACK 3.6.0
 	wget http://www.netlib.org/lapack/lapack-3.6.0.tgz
 	mkdir lapack && tar xzvf lapack-3.6.0.tgz -C lapack --strip-components 1
@@ -121,6 +142,9 @@ function install_lapack
 
 function install_ipopt
 {
+	# Remove old folder (sanity procedure)
+	rm -rf ipopt
+
 	# Installing necessary packages
 	sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
 
@@ -183,6 +207,9 @@ function install_ipopt
 
 function install_qpoases
 {
+	# Remove old folder (sanity procedure)
+	rm -rf qpOASES
+
 	# Getting the qpOASES 3.2.0
 	wget http://www.coin-or.org/download/source/qpOASES/qpOASES-3.2.0.tgz
 	tar xzfv qpOASES-3.2.0.tgz && rm qpOASES-3.2.0.tgz
@@ -201,6 +228,9 @@ function install_qpoases
 
 function install_libcmaes
 {
+	# Remove old folder (sanity procedure)
+	rm -rf libcmaes
+
 	# Installing libcmaes dependecies
 	sudo apt-get install autoconf automake libtool libgoogle-glog-dev libgflags-dev
 	
@@ -230,6 +260,9 @@ function install_libcmaes
 
 function install_octomap
 {
+	# Remove old folder (sanity procedure)
+	rm -rf octomap
+
 	# Getting Octomap 1.6.8
 	wget https://github.com/OctoMap/octomap/archive/v1.6.8.tar.gz
 	mkdir octomap && tar zxf v1.6.8.tar.gz -C octomap --strip-components 1
@@ -245,6 +278,9 @@ function install_octomap
 
 function install_gnuplot
 {
+	# Remove old folder (sanity procedure)
+	rm -rf gnuplot
+
 	# Installing qt5
 	sudo apt-get install qt5-default
 
