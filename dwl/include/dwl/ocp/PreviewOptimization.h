@@ -31,11 +31,13 @@ struct PreviewBounds
 
 /**
  * @class PreviewOptimization
- * @brief A preview optimization problem requires information of "modeling" constraint and "goals"
- * cost functions. A modeling constraints establishes the desired locomotion preview such as
- * stability constraints (i.e. CoP/ZMP inside the support region). These constraints could
- * implemented as soft or hard constraints. On the other hand, a goal cost evaluates the performance
- * of a specific behavior preview such as: stance duration, step distance or smoothing of CoM.
+ * @brief A preview optimization problem requires information of "modeling"
+ * constraint and "goals" cost functions. A modeling constraints establishes
+ * the desired locomotion preview such as stability constraints (i.e. CoP/ZMP
+ * inside the support region). These constraints could implemented as soft or
+ * hard constraints. On the other hand, a goal cost evaluates the performance
+ * of a specific behavior preview such as: stance duration, step distance or
+ * smoothing of CoM.
  */
 class PreviewOptimization : public model::OptimizationModel
 {
@@ -46,8 +48,8 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Destructor function */
 		~PreviewOptimization();
 
-		/** @brief Initializes the optimization model, i.e. the dimensions of the optimization
-		 * vectors */
+		/** @brief Initializes the optimization model, i.e. the dimensions
+		 * of the optimization vectors */
 		void init(bool only_soft_constraints);
 
 		/**
