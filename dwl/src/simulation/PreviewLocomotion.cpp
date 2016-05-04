@@ -23,7 +23,7 @@ PreviewLocomotion::~PreviewLocomotion()
 void PreviewLocomotion::resetFromURDFFile(std::string urdf_file,
 										  std::string system_file)
 {
-	resetFromURDFFile(urdf_model::fileToXml(urdf_file), system_file);
+	resetFromURDFModel(urdf_model::fileToXml(urdf_file), system_file);
 }
 
 
