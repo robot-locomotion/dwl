@@ -65,9 +65,22 @@ struct PreviewPhase
 		return step_;
 	}
 
+	void setFootShift(std::string name, Eigen::Vector2d foot_shift) {
+		feet_shift[name] = foot_shift;
+	}
+
+	Eigen::Vector2d getFootShift(std::string name) const {
+		rbd::BodyVector::const_iterator it = feet_shift.find(name);
+		if (it != feet_shift.end())
+			return it->second;
+		else
+			return Eigen::Vector2d::Zero();
+	}
+
 	TypeOfPhases type;
 	rbd::BodySelector feet;
 	std::map<std::string,bool> swing_feet;
+	rbd::BodyVector feet_shift;
 	bool step_;
 };
 
@@ -90,14 +103,10 @@ struct PreviewParams
 
 struct PreviewControl
 {
-	PreviewControl() : params(std::vector<PreviewParams>()),
-			feet_shift(rbd::BodyVector()) {}
-	PreviewControl(std::vector<PreviewParams> _params,
-				   rbd::BodyVector _feet_shift) : params(_params),
-						   feet_shift(_feet_shift) {}
+	PreviewControl() : params(std::vector<PreviewParams>()) {}
+	PreviewControl(std::vector<PreviewParams> _params) : params(_params) {}
 
 	std::vector<PreviewParams> params;
-	rbd::BodyVector feet_shift;
 };
 
 typedef std::vector<PreviewState> PreviewTrajectory;

@@ -123,8 +123,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 					if (control.params[k-1].phase.isSwingFoot(name) &&
 							control.params[k-1].duration > sample_time_) {
 						// Computing the target foothold of the contact w.r.t the world frame
-						Eigen::Vector2d foot_2d_shift = control.feet_shift.find(name)->second;
-						Eigen::Vector3d foot_shift(foot_2d_shift(0), foot_2d_shift(1), 0.);
+						Eigen::Vector2d foot_2d_shift = control.params[k-1].phase.getFootShift(name);
+						Eigen::Vector3d foot_shift(foot_2d_shift(rbd::X), foot_2d_shift(rbd::Y), 0.);
 						Eigen::Vector3d stance_pos;
 						stance_pos << stance_posture_.find(name)->second.head<2>(),
 									  last_suppport_region.find(name)->second(2);
@@ -152,7 +152,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 				for (unsigned int j = 0; j < preview_params.phase.feet.size(); j++) {
 					std::string foot_name = preview_params.phase.feet[j];
 					Eigen::Vector2d foot_shift_2d =
-							(Eigen::Vector2d) control.feet_shift.find(foot_name)->second;
+							control.params[k-1].phase.getFootShift(foot_name);
 
 					// Computing the z displacement of the foot from the height map. TODO hard coded
 //					Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
