@@ -53,6 +53,14 @@ struct PreviewPhase
 			step_ = true;
 	}
 
+	void setTypeOfPhase(TypeOfPhases _type) {
+		type = _type;
+	}
+
+	void setSwingFoot(std::string name) {
+		swing_feet[name] = true;
+	}
+
 	bool isSwingFoot(std::string name) const {
 		std::map<std::string,bool>::const_iterator it = swing_feet.find(name);
 		if (it != swing_feet.end())
@@ -67,6 +75,10 @@ struct PreviewPhase
 
 	void setFootShift(std::string name, Eigen::Vector2d foot_shift) {
 		feet_shift[name] = foot_shift;
+	}
+
+	TypeOfPhases getTypeOfPhase() {
+		return type;
 	}
 
 	Eigen::Vector2d getFootShift(std::string name) const {
