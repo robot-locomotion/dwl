@@ -61,6 +61,79 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 
 	robot_model_ = true;
 }
+
+
+void PreviewLocomotion::readPreviewControl(PreviewControl& control,
+										   std::string filename)
+{
+	// Checking that the robot model was initialized
+	if (!robot_model_) {
+		printf(RED "Error: the robot model was not initialized" COLOR_RESET);
+		return;
+	}
+
+	YamlWrapper yaml_reader(filename);
+
+	// All the preview control data have to be inside the preview_control
+	// namespace
+	YamlNamespace ns = {"preview_control"};
+
+	// Reading the preview control data
+	// Reading the number of phases
+	int num_phases;
+	if (!yaml_reader.read(num_phases, "number_phase",  ns)) {
+		printf(RED "Error: the number_phase was not found" COLOR_RESET);
+		return;
+	}
+	control.params.resize(num_phases);
+
+	// Reading the preview parameters per phase
+	for (int k = 0; k < num_phases; k++) {
+		// Getting the phase namespace
+		YamlNamespace phase_ns = {"preview_control",
+								  "phase_" + std::to_string(k)};
+
+		// Reading the preview duration
+		if (!yaml_reader.read(control.params[k].duration, "duration", phase_ns)) {
+			printf(RED "Error: the duration of phase_%i was not found"
+					COLOR_RESET, k);
+			return;
+		}
+
+		// Reading the preview CoP shift
+		if (yaml_reader.read(control.params[k].cop_shift, "cop_shift", phase_ns))
+			control.params[k].phase.setTypeOfPhase(simulation::STANCE);
+
+		// Reading the preview parameters for stance phase
+		if (control.params[k].phase.getTypeOfPhase() == simulation::STANCE) {
+			// Reading the preview pendulum length shift
+			if (!yaml_reader.read(control.params[k].length_shift, "length_shift", phase_ns)) {
+				printf(RED "Error: the length_shift of phase_%i was not found"
+						COLOR_RESET, k);
+				return;
+			}
+
+			// Reading the heading acceleration
+			if (!yaml_reader.read(control.params[k].head_acc, "head_acc", phase_ns)) {
+				printf(RED "Error: the head_acc of phase_%i was not found"
+						COLOR_RESET, k);
+				return;
+			}
+		}
+
+		// Reading the footstep shifts
+		for (unsigned int f = 0; f < feet_names_.size(); f++) {
+			std::string name = feet_names_[f];
+
+			// Setting up if there is a foot shift in this phase
+			Eigen::Vector2d foot_shift;
+			if (yaml_reader.read(foot_shift, name, phase_ns)) {
+				control.params[k].phase.feet.push_back(name);
+				control.params[k].phase.setSwingFoot(name);
+				control.params[k].phase.setFootShift(name, foot_shift);
+			}
+		}
+	}
 }
 
 

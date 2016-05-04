@@ -6,6 +6,7 @@
 #include <dwl/model/WholeBodyDynamics.h>
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/utils/DynamicLocomotion.h>
+#include <dwl/utils/YamlWrapper.h>
 
 
 namespace dwl
@@ -175,6 +176,14 @@ class PreviewLocomotion
 		 */
 		void resetFromURDFModel(std::string urdf_model,
 								std::string system_file = std::string());
+
+		/**
+		 * @brief Reads the preview control parameters from a Yaml file
+		 * @param PreviewControl& Preview control parameters
+		 * @param std::string Filename
+		 */
+		void readPreviewControl(PreviewControl& control,
+								std::string filename);
 
 		/**
 		 * @brief Sets the sample time of the preview trajectory
