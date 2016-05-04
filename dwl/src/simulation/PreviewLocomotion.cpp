@@ -7,8 +7,9 @@ namespace dwl
 namespace simulation
 {
 
-PreviewLocomotion::PreviewLocomotion() : sample_time_(0.001), gravity_(9.81),
-		mass_(0.), num_feet_(0), step_height_(0.1), force_threshold_(0.)
+PreviewLocomotion::PreviewLocomotion() : robot_model_(false),
+		sample_time_(0.001), gravity_(9.81), mass_(0.), num_feet_(0),
+		step_height_(0.1), force_threshold_(0.)
 {
 	actual_system_com_.setZero();
 }
@@ -57,6 +58,9 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	stance_posture_["rf_foot"] << 0.36, -0.32, -0.55;
 	stance_posture_["lh_foot"] << -0.36, 0.32, -0.55;
 	stance_posture_["rh_foot"] << -0.36, -0.32, -0.55;
+
+	robot_model_ = true;
+}
 }
 
 
@@ -90,6 +94,12 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 										  const PreviewControl& control,
 										  bool full)
 {
+	// Checking that the robot model was initialized
+	if (!robot_model_) {
+		printf(RED "Error: the robot model was not initialized" COLOR_RESET);
+		return;
+	}
+
 	// Clearing the trajectory
 	trajectory.clear();
 
@@ -195,6 +205,12 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 										 const PreviewState& state,
 										 const PreviewControl& control)
 {
+	// Checking that the robot model was initialized
+	if (!robot_model_) {
+		printf(RED "Error: the robot model was not initialized" COLOR_RESET);
+		return;
+	}
+
 	// Initializing the CoM energy vector
 	com_energy.setZero();
 

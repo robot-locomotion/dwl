@@ -308,6 +308,10 @@ class PreviewLocomotion
 		/** @brief Whole-body kinematics */
 		model::WholeBodyKinematics kinematics_;
 
+		/** @brief Label that indicates that the robot information from URDF
+		 * was set */
+		bool robot_model_;
+
 		/** @brief Sample time of the preview trajectory */
 		double sample_time_;
 
