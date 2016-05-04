@@ -154,8 +154,6 @@ void FloatingBaseSystem::resetSystemDescription(std::string filename)
 
 	// Parsing the configuration file
 	std::string robot = "robot";
-	printf("Reading the robot semantic description from the %s namespace\n",
-			robot.c_str());
 	YamlNamespace robot_ns = {robot};
 
 	// Reading and setting up the foot names
