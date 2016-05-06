@@ -86,6 +86,12 @@ CubicSpline::~CubicSpline()
 bool CubicSpline::getPoint(const double& current_time,
 						   Point& out)
 {
+	// Sanity check: no interpolation is required if the duration is zero
+	if (duration_ == 0.) {
+		out = start_;
+		return true;
+	}
+
     double dt = current_time - initial_time_;
     if (dt > duration_)
         dt = duration_;
@@ -157,6 +163,12 @@ FifthOrderPolySpline::~FifthOrderPolySpline()
 bool FifthOrderPolySpline::getPoint(const double& current_time,
 									Point& out)
 {
+	// Sanity check: no interpolation is required if the duration is zero
+	if (duration_ == 0.) {
+		out = start_;
+		return true;
+	}
+
     double dt = current_time - initial_time_;
     if (dt > duration_)
         dt = duration_;
@@ -236,6 +248,12 @@ LinearSpline::~LinearSpline()
 bool LinearSpline::getPoint(const double& current_time,
 							Point& out)
 {
+	// Sanity check: no interpolation is required if the duration is zero
+	if (duration_ == 0.) {
+		out = start_;
+		return true;
+	}
+
 	double dt = current_time - initial_time_;
 	if (dt > duration_)
 		dt = duration_;
