@@ -145,6 +145,17 @@ class WholeBodyDynamics
 														   const rbd::BodySelector& contacts);
 
 		/**
+		 * @brief Computes the joint space inertia matrix by using the
+		 * Composite Rigid Body Algorithm
+		 * @param Eigen::MatrixXd& Joint space inertia matrix
+		 * @param const rbd::Vector6d& Base position
+		 * @param const Eigen::VectorXd& Joint position
+		 */
+		void computeJointSpaceInertialMatrix(Eigen::MatrixXd& inertial_mat,
+											 const rbd::Vector6d& base_pos,
+											 const Eigen::VectorXd& joint_pos);
+
+		/**
 		 * @brief Computes the contact forces that generates the desired base
 		 * wrench. This desired base wrench is computed by using robot state,
 		 * i.e. position, velocity, acceleration and contacts. This function

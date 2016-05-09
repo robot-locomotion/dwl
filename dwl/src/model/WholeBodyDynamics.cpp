@@ -169,6 +169,24 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 }
 
 
+void WholeBodyDynamics::computeJointSpaceInertialMatrix(Eigen::MatrixXd& inertial_mat,
+														const rbd::Vector6d& base_pos,
+														const Eigen::VectorXd& joint_pos)
+{
+	// Setting up the size of the joint space inertia matrix
+	inertial_mat.resize(system_.getSystemDoF(), system_.getSystemDoF());
+	inertial_mat.setZero();
+
+	// Converting base and joint states to generalized joint states
+	Eigen::VectorXd q = system_.toGeneralizedJointState(base_pos, joint_pos);
+
+	// Computing the joint space inertia matrix using the Composite
+	// Rigid Body Algorithm
+	RigidBodyDynamics::CompositeRigidBodyAlgorithm(system_.getRBDModel(),
+												   q, inertial_mat, true);
+}
+
+
 void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 											 Eigen::VectorXd& joint_forces,
 											 const rbd::Vector6d& base_pos,

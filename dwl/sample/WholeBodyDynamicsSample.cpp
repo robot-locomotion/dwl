@@ -132,5 +132,12 @@ int main(int argc, char **argv)
 	}
 	cout << endl;
 
+
+	// Computing the joint space inertia matrix
+	Eigen::MatrixXd inertial_mat;
+	dyn.computeJointSpaceInertialMatrix(inertial_mat, base_pos, joint_pos);
+	cout << "------------------ Joint Space Inertial Matrix -----------------" << endl;
+	cout << inertial_mat << " = inertial matrix" << endl;
+
 	return 0;
 }
