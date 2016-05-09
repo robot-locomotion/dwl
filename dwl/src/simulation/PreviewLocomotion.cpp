@@ -68,7 +68,7 @@ void PreviewLocomotion::readPreviewControl(PreviewControl& control,
 {
 	// Checking that the robot model was initialized
 	if (!robot_model_) {
-		printf(RED "Error: the robot model was not initialized" COLOR_RESET);
+		printf(RED "Error: the robot model was not initialized\n" COLOR_RESET);
 		return;
 	}
 
@@ -82,7 +82,7 @@ void PreviewLocomotion::readPreviewControl(PreviewControl& control,
 	// Reading the number of phases
 	int num_phases;
 	if (!yaml_reader.read(num_phases, "number_phase",  ns)) {
-		printf(RED "Error: the number_phase was not found" COLOR_RESET);
+		printf(RED "Error: the number_phase was not found\n" COLOR_RESET);
 		return;
 	}
 	control.params.resize(num_phases);
@@ -95,7 +95,7 @@ void PreviewLocomotion::readPreviewControl(PreviewControl& control,
 
 		// Reading the preview duration
 		if (!yaml_reader.read(control.params[k].duration, "duration", phase_ns)) {
-			printf(RED "Error: the duration of phase_%i was not found"
+			printf(RED "Error: the duration of phase_%i was not found\n"
 					COLOR_RESET, k);
 			return;
 		}
@@ -108,14 +108,14 @@ void PreviewLocomotion::readPreviewControl(PreviewControl& control,
 		if (control.params[k].phase.getTypeOfPhase() == simulation::STANCE) {
 			// Reading the preview pendulum length shift
 			if (!yaml_reader.read(control.params[k].length_shift, "length_shift", phase_ns)) {
-				printf(RED "Error: the length_shift of phase_%i was not found"
+				printf(RED "Error: the length_shift of phase_%i was not found\n"
 						COLOR_RESET, k);
 				return;
 			}
 
 			// Reading the heading acceleration
 			if (!yaml_reader.read(control.params[k].head_acc, "head_acc", phase_ns)) {
-				printf(RED "Error: the head_acc of phase_%i was not found"
+				printf(RED "Error: the head_acc of phase_%i was not found\n"
 						COLOR_RESET, k);
 				return;
 			}
@@ -169,7 +169,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 {
 	// Checking that the robot model was initialized
 	if (!robot_model_) {
-		printf(RED "Error: the robot model was not initialized" COLOR_RESET);
+		printf(RED "Error: the robot model was not initialized\n" COLOR_RESET);
 		return;
 	}
 
@@ -286,7 +286,7 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 {
 	// Checking that the robot model was initialized
 	if (!robot_model_) {
-		printf(RED "Error: the robot model was not initialized" COLOR_RESET);
+		printf(RED "Error: the robot model was not initialized\n" COLOR_RESET);
 		return;
 	}
 
