@@ -241,7 +241,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 				for (unsigned int j = 0; j < preview_params.phase.feet.size(); j++) {
 					std::string foot_name = preview_params.phase.feet[j];
 					Eigen::Vector2d foot_shift_2d =
-							control.params[k-1].phase.getFootShift(foot_name);
+							control.params[k].phase.getFootShift(foot_name);
 
 					// Computing the z displacement of the foot from the height map. TODO hard coded
 //					Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
