@@ -59,6 +59,12 @@ class PreviewOptimization : public model::OptimizationModel
 		void setActualWholeBodyState(const WholeBodyState& state);
 
 		/**
+		 * @brief Sets the actual preview state
+		 * @param const simulation::PreviewState& Actual preview state
+		 */
+		void setActualPreviewState(const simulation::PreviewState& state);
+
+		/**
 		 * @brief Sets the initial sequence of preview control parameters
 		 * @param const simulation::PreviewControl& Initial sequence of preview
 		 * control parameters
