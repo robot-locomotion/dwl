@@ -277,6 +277,38 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		if (trajectory.size() == 0)
 			trajectory.push_back(state);
 	}
+
+	// Adding the latest state
+	unsigned int num_params = control.params.size();
+	actual_state = trajectory.back();
+	for (unsigned int f = 0; f < num_feet_; f++) {
+		std::string name = feet_names_[f];
+
+		// Adding the foothold target of the current phase
+		if (control.params[num_params-1].phase.isSwingFoot(name) &&
+				control.params[num_params-1].duration > sample_time_) {
+			// Computing the target foothold of the contact w.r.t
+			// the world frame
+			Eigen::Vector2d foot_2d_shift =
+					control.params[num_params-1].phase.getFootShift(name);
+			Eigen::Vector3d foot_shift(foot_2d_shift(rbd::X),
+									   foot_2d_shift(rbd::Y),
+									   0.);
+			Eigen::Vector3d stance_pos;
+			stance_pos << stance_posture_.find(name)->second.head<2>(),
+						  last_suppport_region.find(name)->second(rbd::Z);
+
+			// Computing the foothold target position
+			Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
+										   actual_state.com_pos(rbd::Y),
+										   0.);
+			Eigen::Vector3d next_foothold =
+					planar_com_pos + stance_pos + foot_shift;
+
+			actual_state.support_region[name] = next_foothold;
+		}
+	}
+	trajectory.push_back(actual_state);
 }
 
 
