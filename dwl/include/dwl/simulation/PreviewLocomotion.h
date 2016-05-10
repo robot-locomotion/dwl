@@ -178,12 +178,14 @@ class PreviewLocomotion
 								std::string system_file = std::string());
 
 		/**
-		 * @brief Reads the preview control parameters from a Yaml file
+		 * @brief Reads the preview sequence from a Yaml file
+		 * @param PreviewState& Preview state
 		 * @param PreviewControl& Preview control parameters
 		 * @param std::string Filename
 		 */
-		void readPreviewControl(PreviewControl& control,
-								std::string filename);
+		void readPreviewSequence(PreviewState& state,
+								 PreviewControl& control,
+								 std::string filename);
 
 		/**
 		 * @brief Sets the sample time of the preview trajectory
