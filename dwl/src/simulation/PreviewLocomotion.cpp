@@ -63,8 +63,9 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 }
 
 
-void PreviewLocomotion::readPreviewControl(PreviewControl& control,
-										   std::string filename)
+void PreviewLocomotion::readPreviewSequence(PreviewState& state,
+											PreviewControl& control,
+											std::string filename)
 {
 	// Checking that the robot model was initialized
 	if (!robot_model_) {
@@ -74,14 +75,31 @@ void PreviewLocomotion::readPreviewControl(PreviewControl& control,
 
 	YamlWrapper yaml_reader(filename);
 
-	// All the preview control data have to be inside the preview_control
-	// namespace
-	YamlNamespace ns = {"preview_control"};
+	// All the preview sequence data have to be inside the state and
+	// preview_control namespaces
+	YamlNamespace state_ns = {"preview_sequence", "state"};
+	YamlNamespace control_ns = {"preview_sequence", "preview_control"};
+
+
+	// Reading the state
+	if (!yaml_reader.read(state.com_pos, "com_pos", state_ns)) {
+		printf(RED "Error: the CoM height was not found\n" COLOR_RESET);
+		return;
+	}
+	if (!yaml_reader.read(state.com_vel, "com_vel", state_ns)) {
+		printf(RED "Error: the CoM velocity was not found\n" COLOR_RESET);
+		return;
+	}
+	if (!yaml_reader.read(state.cop, "cop", state_ns)) {
+		printf(RED "Error: the CoP was not found\n" COLOR_RESET);
+		return;
+	}
+
 
 	// Reading the preview control data
 	// Reading the number of phases
 	int num_phases;
-	if (!yaml_reader.read(num_phases, "number_phase",  ns)) {
+	if (!yaml_reader.read(num_phases, "number_phase",  control_ns)) {
 		printf(RED "Error: the number_phase was not found\n" COLOR_RESET);
 		return;
 	}
@@ -90,7 +108,7 @@ void PreviewLocomotion::readPreviewControl(PreviewControl& control,
 	// Reading the preview parameters per phase
 	for (int k = 0; k < num_phases; k++) {
 		// Getting the phase namespace
-		YamlNamespace phase_ns = {"preview_control",
+		YamlNamespace phase_ns = {"preview_sequence", "preview_control",
 								  "phase_" + std::to_string(k)};
 
 		// Reading the preview duration
