@@ -184,6 +184,19 @@ void WholeBodyDynamics::computeJointSpaceInertialMatrix(Eigen::MatrixXd& inertia
 	// Rigid Body Algorithm
 	RigidBodyDynamics::CompositeRigidBodyAlgorithm(system_.getRBDModel(),
 												   q, inertial_mat, true);
+
+	// Changing the floating-base inertia matrix component to the order
+	// [Angular, Linear]
+	if (system_.isFullyFloatingBase()) {
+		Eigen::MatrixXd base_lin_mat = inertial_mat.block<3,6>(0,0);
+		Eigen::MatrixXd base_ang_mat = inertial_mat.block<3,6>(3,0);
+
+		// Writing the new order
+		inertial_mat.block<3,6>(rbd::AX, 0) << base_ang_mat.rightCols(3),
+				base_ang_mat.leftCols(3);
+		inertial_mat.block<3,6>(rbd::LX, 0) << base_lin_mat.rightCols(3),
+				base_lin_mat.leftCols(3);
+	}
 }
 
 
