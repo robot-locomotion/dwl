@@ -334,4 +334,21 @@ class YamlWrapper
 
 } //@namespace dwl
 
+
+inline YAML::Emitter& operator<<(YAML::Emitter& out,
+								const Eigen::Vector2d& data)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq << data(0) << data(1) << YAML::EndSeq;
+    return out;
+}
+
+inline YAML::Emitter& operator<<(YAML::Emitter& out,
+								const Eigen::Vector3d& data)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq << data(0) << data(1) << data(2) << YAML::EndSeq;
+    return out;
+}
+
 #endif
