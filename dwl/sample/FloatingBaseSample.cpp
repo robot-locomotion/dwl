@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 
 	// Resetting the system from the hyq urdf file
 	string model_file = "../sample/hyq.urdf";
-	string robot_file = "../config/robot_config.yaml";
+	string robot_file = "../config/hyq.yarf";
 	sys.resetFromURDFFile(model_file, robot_file);
 
 	// Getting the total mass of the system. Note that you could also get the mass of a specific
@@ -61,6 +61,9 @@ int main(int argc, char **argv)
 	}
 	cout << endl;
 
+	// Getting the default posture
+	Eigen::VectorXd joint_pos0 = sys.getDefaultPosture();
+
 	// Getting the joint limits
 	dwl::urdf_model::JointLimits joint_limits = sys.getJointLimits();
 	dwl::urdf_model::JointID ids = sys.getJoints();
@@ -73,7 +76,8 @@ int main(int argc, char **argv)
 		cout << name << "[" << id << "].lower = " << limits.lower << endl;
 		cout << name << "[" << id << "].upper = " << limits.upper << endl;
 		cout << name << "[" << id << "].velocity = " << limits.velocity << endl;
-		cout << name << "[" << id << "].effort = " << limits.effort << endl << endl;
+		cout << name << "[" << id << "].effort = " << limits.effort << endl;
+		cout << name << "[" << id << "].pos0 = " << joint_pos0(id) << endl << endl;
 	}
 
 	// Setting up the branch states
