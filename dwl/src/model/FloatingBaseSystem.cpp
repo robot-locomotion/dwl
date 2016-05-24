@@ -131,6 +131,7 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 	}
 
 	// Resetting the system description
+	default_joint_pos_ = Eigen::VectorXd::Zero(num_joints_);
 	if (!system_file.empty())
 		resetSystemDescription(system_file);
 
@@ -155,6 +156,7 @@ void FloatingBaseSystem::resetSystemDescription(std::string filename)
 	// Parsing the configuration file
 	std::string robot = "robot";
 	YamlNamespace robot_ns = {robot};
+	YamlNamespace pose_ns = {robot, "default_pose"};
 
 	// Reading and setting up the foot names
 	if (yaml_reader.read(foot_names_, "feet", robot_ns)) {
@@ -169,6 +171,16 @@ void FloatingBaseSystem::resetSystemDescription(std::string filename)
 				end_effectors_[name] = id;
 				end_effector_names_.push_back(name);
 			}
+		}
+	}
+
+	// Reading the default posture of the robot
+	for (unsigned int j = 0; j < num_joints_; j++) {
+		std::string name = joint_names_[j];
+
+		double joint_pos = 0.;
+		if (yaml_reader.read(joint_pos, name, pose_ns)) {
+			default_joint_pos_(j) = joint_pos;
 		}
 	}
 }
@@ -399,6 +411,7 @@ unsigned int& FloatingBaseSystem::getJointId(std::string joint_name)
 {
 	return joints_.find(joint_name)->second;
 }
+
 
 const urdf_model::JointID& FloatingBaseSystem::getJoints()
 {
@@ -663,6 +676,12 @@ void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 			++num_dof;
 		} while (parent_id != base_id);
 	}
+}
+
+
+Eigen::VectorXd FloatingBaseSystem::getDefaultPosture()
+{
+	return default_joint_pos_;
 }
 
 } //@namespace model

@@ -347,6 +347,12 @@ class FloatingBaseSystem
 					   unsigned int& num_dof,
 					   std::string body_name);
 
+		/**
+		 * @brief Gets the default posture defined in the system file
+		 * @return Eigen::VectorXd Default joint position
+		 */
+		Eigen::VectorXd getDefaultPosture();
+
 
 	private:
 		/** @brief Rigid-body dynamic model */
@@ -373,6 +379,7 @@ class FloatingBaseSystem
 		urdf_model::JointID joints_;
 		urdf_model::JointLimits joint_limits_;
 		rbd::BodySelector joint_names_;
+		Eigen::VectorXd default_joint_pos_;
 
 		/** @brief System bodies */
 		std::string floating_body_name_;
