@@ -643,7 +643,7 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	for (unsigned int f = 0; f < num_feet_; f++) {
 		std::string name = feet_names_[f];
 
-		feet_pos[name] = preview_state.foot_pos.find(name)->second;
+		feet_pos[name] = preview_state.foot_pos.find(name)->second + actual_system_com_;
 	}
 
 	// Computing the joint positions
