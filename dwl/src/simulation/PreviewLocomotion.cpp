@@ -566,11 +566,13 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 
 				// Getting the CoM position of the specific time
 				Eigen::Vector3d com_pos = trajectory[k].com_pos;
+				Eigen::Vector3d com_vel = trajectory[k].com_vel;
+				Eigen::Vector3d com_acc = trajectory[k].com_acc;
 
-				// Adding the foot states w.r.t. the CoM frame
-				trajectory[k].foot_pos[name] = actual_pos - (com_pos - state.com_pos);
-				trajectory[k].foot_vel[name] = Eigen::Vector3d::Zero();
-				trajectory[k].foot_acc[name] = Eigen::Vector3d::Zero();
+				// Adding the foot states w.r.t. the CoM frame// TODO Add rotation matrix for yaw
+				trajectory[k].foot_pos[name] = actual_pos - (com_pos - state.com_pos);//b_R_w*(com_pos - state.com_pos);
+				trajectory[k].foot_vel[name] = -com_vel;//b_R_w*(com_vel)
+				trajectory[k].foot_acc[name] = -com_acc;//b_R_w*(com_acc)
 			}
 		}
 	}
