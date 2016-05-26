@@ -50,9 +50,12 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	// Getting the feet names
 	feet_names_ = system_.getEndEffectorNames(model::FOOT);
 
-	// Getting the floating-base CoM
-	actual_system_com_ = system_.getFloatingBaseCoM();
+	// Getting the default joint position
+	Eigen::VectorXd q0 = system_.getDefaultPosture();
 
+	// Getting the default position of the CoM system
+	actual_system_com_ = system_.getSystemCoM(rbd::Vector6d::Zero(),
+											  q0);
 
 	stance_posture_["lf_foot"] << 0.36, 0.32, -0.55;
 	stance_posture_["rf_foot"] << 0.36, -0.32, -0.55;
@@ -677,8 +680,6 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	preview_state.time = full_state.time;
 
 	// Computing the CoM position, velocity and acceleration
-	actual_system_com_ = system_.getSystemCoM(rbd::Vector6d::Zero(),
-											  full_state.joint_pos);
 	preview_state.com_pos = system_.getSystemCoM(full_state.base_pos,
 												 full_state.joint_pos);
 	preview_state.com_vel = system_.getSystemCoMRate(full_state.base_pos,
