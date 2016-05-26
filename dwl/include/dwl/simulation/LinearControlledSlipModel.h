@@ -27,25 +27,20 @@ struct SlipProperties
 
 struct SlipControlParams
 {
-	SlipControlParams() : duration(0.), length_shift(0.) {
+	SlipControlParams() : duration(0.) {
 		cop_shift.setZero();
 	}
 	SlipControlParams(double _duration,
-					  Eigen::Vector3d _cop_shift,
-					  double _length_shift) : duration(_duration),
-							  cop_shift(_cop_shift),
-							  length_shift(_length_shift) {}
+					  Eigen::Vector3d _cop_shift) : duration(_duration),
+							  cop_shift(_cop_shift) {}
 	SlipControlParams(double _duration,
-					  Eigen::Vector2d _cop_shift,
-					  double _length_shift) : duration(_duration),
+					  Eigen::Vector2d _cop_shift) : duration(_duration),
 							  cop_shift(Eigen::Vector3d(_cop_shift(0),
 									  	  	  	  	  	_cop_shift(1),
-														0.)),
-							  length_shift(_length_shift) {}
+														0.)) {}
 
 	double duration;
 	Eigen::Vector3d cop_shift;
-	double length_shift;
 };
 
 /**
@@ -112,17 +107,11 @@ class LinearControlledSlipModel
 
 		/** @brief Initial state */
 		ReducedBodyState initial_state_;
-		double initial_length_;
 
 		/** @brief Horizontal dynamic coefficients */
 		double slip_omega_;
 		Eigen::Vector2d beta_1_;
 		Eigen::Vector2d beta_2_;
-
-		/** @brief Vertical dynamic coefficients */
-		double spring_omega_;
-		double d_1_;
-		double d_2_;
 };
 
 } //@namespace simulation

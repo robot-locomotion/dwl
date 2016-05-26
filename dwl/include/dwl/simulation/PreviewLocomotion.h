@@ -100,16 +100,14 @@ struct PreviewPhase
 struct PreviewParams
 {
 	PreviewParams() : duration(0.), cop_shift(Eigen::Vector2d::Zero()),
-			  length_shift(0.), head_acc(0.) {}
+			head_acc(0.) {}
 	PreviewParams(double _duration,
 				  Eigen::Vector2d _cop_shift,
-				  double _length_shift,
 				  double _head_acc) : duration(_duration), cop_shift(_cop_shift),
-						  length_shift(_length_shift), head_acc(_head_acc) {}
+						  head_acc(_head_acc) {}
 
 	double duration;
 	Eigen::Vector2d cop_shift;
-	double length_shift;
 	double head_acc;
 	PreviewPhase phase;
 };

@@ -8,8 +8,7 @@ namespace simulation
 {
 
 LinearControlledSlipModel::LinearControlledSlipModel() : init_model_(false),
-		init_response_(false), initial_length_(0.), slip_omega_(0.),
-		spring_omega_(0.), d_1_(0.), d_2_(0.)
+		init_response_(false), slip_omega_(0.)
 {
 
 }
@@ -55,16 +54,6 @@ void LinearControlledSlipModel::initResponse(const ReducedBodyState& state,
 	beta_2_ = slip_hor_proj / 2 -
 			(slip_hor_disp - params_.cop_shift.head<2>()) / alpha;
 
-	// Computing the initial length of the pendulum
-	initial_length_ = (initial_state_.com_pos - initial_state_.cop).norm();
-
-	// Computing the coefficients of the spring-mass system response
-	spring_omega_ = sqrt(slip_.stiffness / slip_.mass);
-	d_1_ = initial_state_.com_pos(rbd::Z) - initial_length_ +
-			slip_.gravity /	pow(spring_omega_,2);
-	d_2_ = initial_state_.com_vel(rbd::Z) / spring_omega_ -
-			params_.length_shift / (spring_omega_ * params_.duration);
-
 	init_response_ = true;
 }
 
@@ -103,21 +92,8 @@ void LinearControlledSlipModel::computeResponse(ReducedBodyState& state,
 			beta_1_ * pow(slip_omega_,2) * exp(slip_omega_ * dt) +
 			beta_2_ * pow(slip_omega_,2) * exp(-slip_omega_ * dt);
 
-	// Computing the vertical motion of the CoM according to
-	// the spring-mass system
-	state.com_pos(rbd::Z) =
-			d_1_ * cos(spring_omega_ * dt) +
-			d_2_ * sin(spring_omega_ * dt) +
-			(params_.length_shift / params_.duration) * dt +
-			initial_length_ - slip_.gravity / pow(spring_omega_,2);
-	state.com_vel(rbd::Z) =
-			-d_1_ * spring_omega_ * sin(spring_omega_ * dt) +
-			d_2_ * spring_omega_ * cos(spring_omega_ * dt) +
-			params_.length_shift / params_.duration;
-	state.com_acc(rbd::Z) =
-			-d_1_ * pow(spring_omega_,2) * cos(spring_omega_ * dt) -
-			d_2_ * pow(spring_omega_,2) * sin(spring_omega_ * dt);
-	state.com_pos(rbd::Z) = initial_state_.com_pos(rbd::Z);//TODO for debugging
+	// There is not vertical motion of the CoM
+	state.com_pos(rbd::Z) = initial_state_.com_pos(rbd::Z);
 	state.com_vel(rbd::Z) = 0.;
 	state.com_acc(rbd::Z) = 0.;
 
@@ -147,17 +123,8 @@ void LinearControlledSlipModel::computeSystemEnergy(Eigen::Vector3d& com_energy,
 			c_2 * exp(-2 * slip_omega_ * dt) +
 			c_3 * pow(slip_omega_,4);
 
-	// Computing the CoM energy associated to the vertical
-	// dynamics
-	// z_acc^2 = (d1 * spring_omega^2)^4 * cos^2(spring_omega_ * dt)) +
-	//			 (d2 * spring_omega^2)^4 * sin^2(spring_omega_ * dt)) +
-	//			 (d1 * d2 * spring_omega^4) * cos(spring_omega_ * dt) * sin(spring_omega_ * dt)
-	com_energy(rbd::Z) =
-			pow(d_1_,2) * pow(spring_omega_,4) *
-			(0.5 * dt + 0.25 * sin(spring_omega_ * dt) * cos(spring_omega_ * dt)) +
-			pow(d_2_,2) * pow(spring_omega_,4) * (0.5 * dt + 0.25 * sin(2 * spring_omega_ * dt)) +
-			d_1_ * d_2_ * pow(spring_omega_,4) * 0.5 * pow(sin(spring_omega_ * dt),2);
-	com_energy(rbd::Z) = 0; // TODO for debugging
+	// There is not energy associated to the vertical movement
+	com_energy(rbd::Z) = 0;
 }
 
 } //@namespace simulation

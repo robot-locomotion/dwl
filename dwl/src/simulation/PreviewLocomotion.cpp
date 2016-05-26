@@ -138,13 +138,6 @@ void PreviewLocomotion::readPreviewSequence(PreviewState& state,
 
 		// Reading the preview parameters for stance phase
 		if (control.params[k].phase.getTypeOfPhase() == simulation::STANCE) {
-			// Reading the preview pendulum length shift
-			if (!yaml_reader.read(control.params[k].length_shift, "length_shift", phase_ns)) {
-				printf(RED "Error: the length_shift of phase_%i was not found\n"
-						COLOR_RESET, k);
-				return;
-			}
-
 			// Reading the heading acceleration
 			if (!yaml_reader.read(control.params[k].head_acc, "head_acc", phase_ns)) {
 				printf(RED "Error: the head_acc of phase_%i was not found\n"
@@ -374,8 +367,7 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 										   actual_state.com_acc,
 										   actual_state.cop);
 			SlipControlParams slip_params(preview_params.duration,
-										  preview_params.cop_shift,
-										  preview_params.length_shift);
+										  preview_params.cop_shift);
 			lc_slip_.computeSystemEnergy(phase_energy,
 										 reduced_state,
 										 slip_params);
@@ -414,8 +406,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 								   state.com_acc,
 								   state.cop);
 	SlipControlParams slip_params(params.duration,
-								  params.cop_shift,
-								  params.length_shift);
+								  params.cop_shift);
 	lc_slip_.initResponse(reduced_state, slip_params);
 
 	// Adding the actual support region. Note that the support region

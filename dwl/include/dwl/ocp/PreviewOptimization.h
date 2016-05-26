@@ -18,7 +18,6 @@ struct PreviewVariables
 {
 	double duration;
 	Eigen::Vector2d cop_shift;
-	double length_shift;
 	Eigen::Vector2d foothold_shift;
 	double head_acc;
 };
