@@ -57,10 +57,21 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	actual_system_com_ = system_.getSystemCoM(rbd::Vector6d::Zero(),
 											  q0);
 
-	stance_posture_["lf_foot"] << 0.36, 0.32, -0.55;
-	stance_posture_["rf_foot"] << 0.36, -0.32, -0.55;
-	stance_posture_["lh_foot"] << -0.36, 0.32, -0.55;
-	stance_posture_["rh_foot"] << -0.36, -0.32, -0.55;
+	// Computing the stance posture using the default position
+	kinematics_.computeForwardKinematics(stance_posture_,
+										 rbd::Vector6d::Zero(),
+										 q0,
+										 feet_names_,
+										 rbd::Linear);
+
+	// Converting to the CoM frame
+	for (rbd::BodyVector::iterator feet_it = stance_posture_.begin();
+			feet_it != stance_posture_.end(); feet_it++) {
+		std::string name = feet_it->first;
+		Eigen::VectorXd stance = feet_it->second;
+
+		stance_posture_[name] = stance - actual_system_com_;
+	}
 
 	robot_model_ = true;
 }

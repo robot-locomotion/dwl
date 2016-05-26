@@ -348,7 +348,7 @@ class PreviewLocomotion
 		Eigen::Vector3d actual_system_com_;
 
 		/** @ brief Stance posture position w.r.t. the CoM */
-		rbd::BodyPosition stance_posture_;
+		rbd::BodyVector stance_posture_;
 
 		/** @brief Force threshold */
 		double force_threshold_;
