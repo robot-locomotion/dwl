@@ -132,6 +132,12 @@ class PreviewOptimization : public model::OptimizationModel
 		void getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point);
 
 		/**
+		 * @brief Gets the optimized preview control
+		 * @param simulation::PreviewControl& Optimized preview control
+		 */
+		void getOptimizedPreviewControl(simulation::PreviewControl& control);
+
+		/**
 		 * @brief Evaluates the bounds of the problem
 		 * @param Eigen::Ref<Eigen::VectorXd> Full state lower bound
 		 * @param Eigen::Ref<Eigen::VectorXd> Full state upper bound
