@@ -415,20 +415,24 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	current_state.support_region = state.support_region;
 
 	// Computing the number of samples and initial index
-	unsigned int num_samples = ceil(params.duration / sample_time_);
+	unsigned int num_samples = floor(params.duration / sample_time_);
 	unsigned int idx;
 	if (full) {
 		idx = 0;
-		trajectory.resize(num_samples);
+		trajectory.resize(num_samples + 1);
 	} else {
-		idx = num_samples - 1;
+		idx = num_samples;
 		trajectory.resize(1);
 	}
 
 	// Computing the preview trajectory
-	for (unsigned int k = idx; k < num_samples; k++) {
+	double time;
+	for (unsigned int k = idx; k < num_samples + 1; k++) {
 		// Computing the current time of the preview trajectory
-		double time = sample_time_ * (k + 1);
+		if (k == num_samples)
+			time = params.duration;
+		else
+			time = sample_time_ * (k + 1);
 		current_state.time = state.time + time;
 
 		// Computing the response of the Linear Controlled SLIP
@@ -468,19 +472,25 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 	gravity_vec(rbd::Z) = -gravity_;
 
 	// Computing the number of samples and initial index
-	unsigned int num_samples = ceil(params.duration / sample_time_);
+	unsigned int num_samples = floor(params.duration / sample_time_);
 	unsigned int idx;
 	if (full) {
 		idx = 0;
 		trajectory.resize(num_samples);
 	} else {
-		idx = num_samples - 1;
+		idx = num_samples;
 		trajectory.resize(1);
 	}
 
 	// Computing the preview trajectory
-	for (unsigned int k = idx; k < num_samples; k++) {
-		double time = sample_time_ * (k + 1);
+	double time;
+	for (unsigned int k = idx; k < num_samples + 1; k++) {
+		// Computing the current time of the preview trajectory
+		if (k == num_samples)
+			time = params.duration;
+		else
+			time = sample_time_ * (k + 1);
+
 
 		// Computing the current time of the preview trajectory
 		PreviewState current_state;
@@ -514,15 +524,18 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 				// is bigger than the sample time
 
 	// Getting the number of samples of the trajectory
-	unsigned int num_samples = ceil(params.duration / sample_time_);
+	unsigned int num_samples = floor(params.duration / sample_time_);
 
 	// Generating the feet trajectories
 	feet_spline_generator_.clear();
 	Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-	for (unsigned int k = 0; k < num_samples; k++) {
-		double time = state.time + sample_time_ * (k + 1);
-		if (time > state.time + params.duration)
+	double time;
+	for (unsigned int k = 0; k < num_samples + 1; k++) {
+		// Computing the current time of the preview trajectory
+		if (k == num_samples)
 			time = state.time + params.duration;
+		else
+			time = state.time + sample_time_ * (k + 1);
 
 		// Generating the actual state for every feet
 		for (rbd::BodyVector::const_iterator foot_it = state.foot_pos.begin();
