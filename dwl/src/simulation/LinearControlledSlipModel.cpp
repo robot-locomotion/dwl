@@ -89,8 +89,8 @@ void LinearControlledSlipModel::computeResponse(ReducedBodyState& state,
 			beta_2_ * slip_omega_ * exp(-slip_omega_ * dt) +
 			params_.cop_shift.head<2>() / params_.duration;
 	state.com_acc.head<2>() =
-			beta_1_ * pow(slip_omega_,2) * exp(slip_omega_ * dt) +
-			beta_2_ * pow(slip_omega_,2) * exp(-slip_omega_ * dt);
+			beta_1_ * slip_omega_ * slip_omega_ * exp(slip_omega_ * dt) +
+			beta_2_ * slip_omega_ * slip_omega_ * exp(-slip_omega_ * dt);
 
 	// There is not vertical motion of the CoM
 	state.com_pos(rbd::Z) = initial_state_.com_pos(rbd::Z);

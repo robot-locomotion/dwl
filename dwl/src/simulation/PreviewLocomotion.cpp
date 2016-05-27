@@ -443,7 +443,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 		// Computing the heading motion according to heading kinematic equation
 		current_state.head_pos = state.head_pos + state.head_vel * time +
-				0.5 * params.head_acc * pow(time,2);
+				0.5 * params.head_acc * time * time;
 		current_state.head_vel = state.head_vel + params.head_acc * time;
 		current_state.head_acc = params.head_acc;
 
@@ -488,7 +488,7 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 
 		// Computing the CoM motion according to the projectile EoM
 		current_state.com_pos = state.com_pos + state.com_vel * time +
-				0.5 * gravity_vec * pow(time,2);
+				0.5 * gravity_vec * time * time;
 		current_state.com_vel = state.com_vel + gravity_vec * time;
 		current_state.com_acc = gravity_vec;
 
