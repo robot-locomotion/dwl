@@ -171,7 +171,10 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Returns the reduced-body trajectory */
 		ReducedBodyTrajectory& getReducedTrajectory();
 
-
+		/**
+		 * @brief Save the solution of the preview optimization
+		 * @param std::string Filename
+		 */
 		void saveSolution(std::string filename);
 
 
@@ -215,6 +218,10 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief Optimized preview control sequence */
 		simulation::PreviewControl preview_control_;
+
+		/** @brief Starting preview control sequence */
+		simulation::PreviewControl warm_control_;
+		bool warm_point_;
 
 		/** @brief Constraints of the preview optimization */
 		ocp::SupportPolygonConstraint polygon_constraint_;
