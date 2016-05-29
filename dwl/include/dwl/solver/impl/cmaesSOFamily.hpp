@@ -15,7 +15,7 @@ template<typename TScaling>
 cmaesSOFamily<TScaling>::cmaesSOFamily() : cmaes_params_(NULL),
         initialized_(false), ftolerance_(1e-12), family_((int) CMAES),
         sigma_(-1.), lambda_(-1), max_iteration_(-1), max_fevals_(-1),
-        elitism_(0), max_restarts_(0), multithreading_(false)
+        elitism_(0), max_restarts_(0), multithreading_(false), outfile_(false)
 {
 	name_ = "cmaes family";
 }
@@ -39,6 +39,7 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 	printf("Reading the configuration parameters from the %s namespace\n",
 			cmaes.c_str());
 	YamlNamespace cmaes_ns = {cmaes};
+	YamlNamespace ofile_ns = {cmaes, "output_file"};
 
 	// Reading and setting up the type of ftolerance
 	double ftolerance;
@@ -84,6 +85,17 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 	bool multithreading;
 	if (yaml_reader.read(multithreading, "multithreads", cmaes_ns))
 		setMultithreading(multithreading);
+
+	// Reading the filename
+	bool active;
+	if (yaml_reader.read(active, "activate", ofile_ns)) {
+		if (active) {
+			std::string outfile;
+			if (yaml_reader.read(outfile, "filename", ofile_ns)) {
+				setOutputFile(outfile);
+			}
+		}
+	}
 }
 
 
@@ -190,6 +202,18 @@ void cmaesSOFamily<TScaling>::setMultithreading(bool multithreading)
 
 
 template<typename TScaling>
+void cmaesSOFamily<TScaling>::setOutputFile(std::string filename)
+{
+	outfile_ = true;
+
+	// Setting up if the parameters pointer was initialized
+	// Otherwise it will be initialized when init() is called
+	if (initialized_)
+		cmaes_params_->set_fplot(filename);
+}
+
+
+template<typename TScaling>
 bool cmaesSOFamily<TScaling>::init()
 {
 	initialized_ = false;
@@ -244,9 +268,8 @@ bool cmaesSOFamily<TScaling>::init()
 	setElitism(elitism_);
 	setNumberOfRestarts(max_restarts_);
 	setMultithreading(multithreading_);
-
-	std::string fplot = "out.dat";
-	cmaes_params_->set_fplot(fplot);
+	if (outfile_)
+		cmaes_params_->set_fplot(output_file_);
 
 	bool with_gradient = false;
 	cmaes_params_->set_gradient(with_gradient);

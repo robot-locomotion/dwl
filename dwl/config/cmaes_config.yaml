@@ -39,4 +39,8 @@ cmaes:
   # Maximum number of restarts applies to IPOP and BIPOP
   max_restarts: 10
   # Enable or disable the multi-threading optimization
-  multithreads: false
+  multithreads: false  multithreads: false
+  # Generates an output file if the name is defined
+  output_file:
+    activate: false
+    filename: out.dat

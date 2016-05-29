@@ -71,6 +71,9 @@ class cmaesSOFamily : public OptimizationSolver
 		 */
 		void setMultithreading(bool multithreading);
 
+		/** @brief Sets the output file for plotting */
+		void setOutputFile(std::string filename);
+
 		/**
 		 * @brief Initialization of the NLP solver using Ipopt
 		 * @return True if was initialized
@@ -134,6 +137,10 @@ class cmaesSOFamily : public OptimizationSolver
 		 * multi-threads
 		 */
 		bool multithreading_;
+
+		/** @brief Output file for plotting */
+		std::string output_file_;
+		bool outfile_;
 };
 
 } //@namespace solver
