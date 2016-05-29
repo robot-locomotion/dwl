@@ -275,6 +275,7 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief For collecting data */
 		utils::CollectData cdata_;
+		bool collect_data_;
 };
 
 } //@namespace ocp
