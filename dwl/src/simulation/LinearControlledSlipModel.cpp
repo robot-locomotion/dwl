@@ -79,18 +79,20 @@ void LinearControlledSlipModel::computeResponse(ReducedBodyState& state,
 
 	// Computing the horizontal motion of the CoM according to
 	// the SLIP system
+	Eigen::Vector2d beta_exp_1 = beta_1_ * exp(slip_omega_ * dt);
+	Eigen::Vector2d beta_exp_2 = beta_2_ * exp(-slip_omega_ * dt);
+	Eigen::Vector2d cop_T = params_.cop_shift.head<2>() / params_.duration;
 	state.com_pos.head<2>() =
-			beta_1_ * exp(slip_omega_ * dt) +
-			beta_2_ * exp(-slip_omega_ * dt) +
-			(params_.cop_shift.head<2>() / params_.duration) * dt +
+			beta_exp_1 + beta_exp_2 +
+			cop_T * dt +
 			initial_state_.cop.head<2>();
 	state.com_vel.head<2>() =
-			beta_1_ * slip_omega_ * exp(slip_omega_ * dt) -
-			beta_2_ * slip_omega_ * exp(-slip_omega_ * dt) +
-			params_.cop_shift.head<2>() / params_.duration;
+			slip_omega_ * beta_exp_1 -
+			slip_omega_ * beta_exp_2 +
+			cop_T;
 	state.com_acc.head<2>() =
-			beta_1_ * slip_omega_ * slip_omega_ * exp(slip_omega_ * dt) +
-			beta_2_ * slip_omega_ * slip_omega_ * exp(-slip_omega_ * dt);
+			slip_omega_ * slip_omega_ * beta_exp_1 +
+			slip_omega_ * slip_omega_ * beta_exp_2;
 
 	// There is not vertical motion of the CoM
 	state.com_pos(rbd::Z) = initial_state_.com_pos(rbd::Z);
