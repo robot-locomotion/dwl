@@ -112,6 +112,12 @@ class LinearControlledSlipModel
 		double slip_omega_;
 		Eigen::Vector2d beta_1_;
 		Eigen::Vector2d beta_2_;
+		Eigen::Vector2d cop_T_;
+
+		/** @brief System energy coefficients */
+		Eigen::Vector2d c_1_;
+		Eigen::Vector2d c_2_;
+		Eigen::Vector2d c_3_;
 };
 
 } //@namespace simulation

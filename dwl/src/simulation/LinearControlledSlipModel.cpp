@@ -53,6 +53,7 @@ void LinearControlledSlipModel::initResponse(const ReducedBodyState& state,
 			(slip_hor_disp - params_.cop_shift.head<2>()) / alpha;
 	beta_2_ = slip_hor_proj / 2 -
 			(slip_hor_disp - params_.cop_shift.head<2>()) / alpha;
+	cop_T_ = params_.cop_shift.head<2>() / params_.duration;
 
 	init_response_ = true;
 }
@@ -81,15 +82,14 @@ void LinearControlledSlipModel::computeResponse(ReducedBodyState& state,
 	// the SLIP system
 	Eigen::Vector2d beta_exp_1 = beta_1_ * exp(slip_omega_ * dt);
 	Eigen::Vector2d beta_exp_2 = beta_2_ * exp(-slip_omega_ * dt);
-	Eigen::Vector2d cop_T = params_.cop_shift.head<2>() / params_.duration;
 	state.com_pos.head<2>() =
 			beta_exp_1 + beta_exp_2 +
-			cop_T * dt +
+			cop_T_ * dt +
 			initial_state_.cop.head<2>();
 	state.com_vel.head<2>() =
 			slip_omega_ * beta_exp_1 -
 			slip_omega_ * beta_exp_2 +
-			cop_T;
+			cop_T_;
 	state.com_acc.head<2>() =
 			slip_omega_ * slip_omega_ * beta_exp_1 +
 			slip_omega_ * slip_omega_ * beta_exp_2;
@@ -117,13 +117,13 @@ void LinearControlledSlipModel::computeSystemEnergy(Eigen::Vector3d& com_energy,
 	//			 (beta2 * slip_omega^2)^2 * exp(-2 * slip_omega * dt)
 	//			 beta1 * beta2 * slip_omega^4
 	double dt = params.duration;
-	Eigen::Vector2d c_1 = (beta_1_ * pow(slip_omega_,2)).array().pow(2);
-	Eigen::Vector2d c_2 = (beta_2_ * pow(slip_omega_,2)).array().pow(2);
-	Eigen::Vector2d c_3 = beta_1_.cwiseProduct(beta_2_);
+	c_1_ = (beta_1_ * pow(slip_omega_,2)).array().pow(2);
+	c_2_ = (beta_2_ * pow(slip_omega_,2)).array().pow(2);
+	c_3_ = beta_1_.cwiseProduct(beta_2_) * pow(slip_omega_,4);
 	com_energy.head<2>() =
-			c_1 * exp(2 * slip_omega_ * dt) +
-			c_2 * exp(-2 * slip_omega_ * dt) +
-			c_3 * pow(slip_omega_,4);
+			c_1_ * exp(2 * slip_omega_ * dt) +
+			c_2_ * exp(-2 * slip_omega_ * dt) +
+			c_3_;
 
 	// There is not energy associated to the vertical movement
 	com_energy(rbd::Z) = 0;
