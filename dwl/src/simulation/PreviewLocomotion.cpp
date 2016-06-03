@@ -170,8 +170,8 @@ void PreviewLocomotion::setSampleTime(double sample_time)
 
 void PreviewLocomotion::setStiffnes(double stiffnes)
 {
-	SlipProperties model(mass_, stiffnes, gravity_);
-	lc_slip_.setModelProperties(model);
+	CartTableProperties model(mass_, stiffnes, gravity_);
+	cart_table_.setModelProperties(model);
 }
 
 
@@ -366,11 +366,11 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 										   actual_state.com_vel,
 										   actual_state.com_acc,
 										   actual_state.cop);
-			SlipControlParams slip_params(preview_params.duration,
-										  preview_params.cop_shift);
-			lc_slip_.computeSystemEnergy(phase_energy,
-										 reduced_state,
-										 slip_params);
+			CartTableControlParams model_params(preview_params.duration,
+											    preview_params.cop_shift);
+			cart_table_.computeSystemEnergy(phase_energy,
+											reduced_state,
+											model_params);
 			com_energy += phase_energy;
 		} else { // Flight phase
 			// TODO compute the energy for flight phases
@@ -379,7 +379,7 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 		// Updating the actual state
 		ReducedBodyState next_reduced_state;
 		double time = actual_state.time + preview_params.duration;
-		lc_slip_.computeResponse(next_reduced_state, time);
+		cart_table_.computeResponse(next_reduced_state, time);
 		actual_state.time = next_reduced_state.time;
 		actual_state.com_pos = next_reduced_state.com_pos;
 		actual_state.com_vel = next_reduced_state.com_vel;
@@ -405,9 +405,9 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 								   state.com_vel,
 								   state.com_acc,
 								   state.cop);
-	SlipControlParams slip_params(params.duration,
-								  params.cop_shift);
-	lc_slip_.initResponse(reduced_state, slip_params);
+	CartTableControlParams model_params(params.duration,
+										params.cop_shift);
+	cart_table_.initResponse(reduced_state, model_params);
 
 	// Adding the actual support region. Note that the support region
 	// remains constant during this phase
@@ -438,8 +438,8 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		// Computing the response of the Linear Controlled SLIP
 		// dynamics
 		ReducedBodyState reduced_state;
-		lc_slip_.computeResponse(reduced_state,
-								 current_state.time);
+		cart_table_.computeResponse(reduced_state,
+									current_state.time);
 		current_state.com_pos = reduced_state.com_pos;
 		current_state.com_vel = reduced_state.com_vel;
 		current_state.com_acc = reduced_state.com_acc;

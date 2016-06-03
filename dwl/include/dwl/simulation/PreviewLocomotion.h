@@ -1,7 +1,7 @@
 #ifndef DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 #define DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 
-#include <dwl/simulation/LinearControlledSlipModel.h>
+#include <dwl/simulation/LinearControlledCartTableModel.h>
 #include <dwl/simulation/FootSplinePatternGenerator.h>
 #include <dwl/model/WholeBodyDynamics.h>
 #include <dwl/model/FloatingBaseSystem.h>
@@ -336,8 +336,8 @@ class PreviewLocomotion
 		/** @brief Feet names */
 		rbd::BodySelector feet_names_;
 
-		/** @brief SLIP model */
-		LinearControlledSlipModel lc_slip_;
+		/** @brief Cart-table model */
+		LinearControlledCartTableModel cart_table_;
 
 		/** @brief Step height for the swing generation */
 		double step_height_;
