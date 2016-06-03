@@ -210,6 +210,14 @@ class PreviewOptimization : public model::OptimizationModel
 		unsigned int getParamsDimension(const unsigned int& phase);
 
 		/**
+		 * @brief Orders the preview control given the actual state/phase
+		 * @param simulation::PreviewControl& Preview control
+		 * @param const simulation::PreviewControl& Nominal preview control (from
+		 * decision order)
+		 */
+		void orderPreviewControl(simulation::PreviewControl& control,
+								 const simulation::PreviewControl& nom_control);
+		/**
 		 * @brief Converts the generalized control vector to preview control
 		 * @param simulation::PreviewControl& Preview control
 		 * @param const Eigen::VectorXd& Generalized control vector
@@ -242,6 +250,7 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief Preview schedule */
 		simulation::PreviewSchedule schedule_;
+		std::vector<unsigned int> phase_id_;
 
 		/** @brief Actual preview state */
 		simulation::PreviewState actual_state_;
