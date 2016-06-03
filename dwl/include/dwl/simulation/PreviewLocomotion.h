@@ -192,12 +192,6 @@ class PreviewLocomotion
 		void setSampleTime(double sample_time);
 
 		/**
-		 * @brief Sets the Spring Loaded Inverted Pendulum (SLIP) model
-		 * @param const SlipProperties& SLIP model
-		 */
-		void setStiffnes(double stiffnes);
-
-		/**
 		 * @brief Sets the step height for the swing trajectory generation
 		 * @param double Step height
 		 */

@@ -73,6 +73,10 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 		stance_posture_[name] = stance - actual_system_com_;
 	}
 
+	// Setting up the cart-table model
+	CartTableProperties model(mass_, gravity_);
+	cart_table_.setModelProperties(model);
+
 	robot_model_ = true;
 }
 
@@ -165,13 +169,6 @@ void PreviewLocomotion::readPreviewSequence(PreviewState& state,
 void PreviewLocomotion::setSampleTime(double sample_time)
 {
 	sample_time_ = sample_time;
-}
-
-
-void PreviewLocomotion::setStiffnes(double stiffnes)
-{
-	CartTableProperties model(mass_, stiffnes, gravity_);
-	cart_table_.setModelProperties(model);
 }
 
 

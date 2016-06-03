@@ -14,14 +14,12 @@ namespace simulation
 
 struct CartTableProperties
 {
-	CartTableProperties() : mass(0.), stiffness(0.), gravity(9.81) {}
+	CartTableProperties() : mass(0.), gravity(9.81) {}
 	CartTableProperties(double _mass,
-						double _stiffness,
 						double _gravity = 9.81) : mass(_mass),
-								stiffness(_stiffness), gravity(_gravity) {};
+								gravity(_gravity) {};
 
 	double mass;
-	double stiffness;
 	double gravity;
 };
 
