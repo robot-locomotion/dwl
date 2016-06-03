@@ -174,6 +174,9 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Returns the preview system pointer */
 		simulation::PreviewLocomotion* getPreviewSystem();
 
+		/** @brief Returns the preview trajectory */
+		simulation::PreviewTrajectory& getPreviewTrajectory();
+
 		/** @brief Returns the reduced-body trajectory */
 		ReducedBodyTrajectory& getReducedTrajectory();
 
@@ -247,6 +250,7 @@ class PreviewOptimization : public model::OptimizationModel
 		PreviewBounds bounds_;
 
 		/** @brief Preview trajectory and transitions */
+		simulation::PreviewTrajectory preview_trajectory_;
 		ReducedBodyTrajectory reduced_traj_;
 		simulation::PreviewTrajectory preview_transitions_;
 
