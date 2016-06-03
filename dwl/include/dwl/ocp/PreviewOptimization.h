@@ -271,6 +271,9 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Number of steps in the schedule */
 		unsigned int num_steps_;
 
+		/** @brief Number of stance in the schedule */
+		unsigned int num_stances_;
+
 		/** @brief Indicates it was set the schedule */
 		bool set_schedule_;
 
