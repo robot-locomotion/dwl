@@ -203,6 +203,14 @@ class PreviewLocomotion
 		 */
 		void setForceThreshold(double force_threshold);
 
+		/**
+		 * @brief Computes the multi-phase preview trajectory
+		 * @param PreviewTrajectory& Preview trajectory
+		 * @param const PreviewState& Actual preview state
+		 * @param const PreviewControl& Preview control
+		 * @param bool True for the full trajectory, otherwise compute the
+		 * preview state transitions
+		 */
 		void multiPhasePreview(PreviewTrajectory& trajectory,
 							   const PreviewState& state,
 							   const PreviewControl& control,

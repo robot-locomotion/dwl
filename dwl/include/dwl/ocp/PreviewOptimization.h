@@ -254,9 +254,11 @@ class PreviewOptimization : public model::OptimizationModel
 		ReducedBodyTrajectory reduced_traj_;
 		simulation::PreviewTrajectory preview_transitions_;
 
-		/** @brief Weights of the cost functions */
+		/** @brief Desired states */
 		double desired_step_duration_;
 		double desired_step_distance_;
+
+		/** @brief Weights of the cost functions */
 		double step_time_weight_;
 		double step_dist_weight_;
 		Eigen::Vector3d acc_int_weight_;

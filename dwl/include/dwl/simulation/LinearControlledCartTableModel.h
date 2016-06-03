@@ -60,8 +60,7 @@ class LinearControlledCartTableModel
 
 		/**
 		 * @brief Set the model properties
-		 * Thecart-table model properties are the mass, pendulum
-		 * stiffness and gravity.
+		 * The cart-table model properties are the mass and gravity
 		 * @param CartTableProperties Cart-table model properties
 		 */
 		void setModelProperties(CartTableProperties model);

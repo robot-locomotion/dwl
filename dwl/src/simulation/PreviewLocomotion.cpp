@@ -38,7 +38,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	dynamics_.modelFromURDFModel(urdf_model, system_file);
 	kinematics_.modelFromURDFModel(urdf_model, system_file);
 
-	// Setting the gravity magnitude from the rigid-body dynamic model
+	// Getting the gravity magnitude from the rigid-body dynamic model
 	gravity_ = system_.getRBDModel().gravity.norm();
 
 	// Getting the total mass of the system
