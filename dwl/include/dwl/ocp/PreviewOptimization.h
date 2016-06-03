@@ -257,6 +257,7 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Desired states */
 		double desired_step_duration_;
 		double desired_step_distance_;
+		double desired_yaw_;
 
 		/** @brief Weights of the cost functions */
 		double step_time_weight_;
