@@ -28,8 +28,8 @@ int main(int argc, char **argv)
 		solver->setOptimizationModel(&preview_opt);
 	}
 
-	solver->init();
 	solver->setFromConfigFile("../config/cmaes_config.yaml");
+	solver->init();
 	solver->compute();
 
 	return 0;
