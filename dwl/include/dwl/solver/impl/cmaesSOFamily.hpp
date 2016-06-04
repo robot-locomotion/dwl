@@ -31,6 +31,13 @@ cmaesSOFamily<TScaling>::~cmaesSOFamily()
 template<typename TScaling>
 void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 {
+	// Checking if the solver was initialized before setting it from config file
+	bool reinit = false;
+	if (initialized_) {
+		initialized_ = false;
+		reinit = true;
+	}
+
 	// Yaml reader
 	YamlWrapper yaml_reader(filename);
 
@@ -96,6 +103,10 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 			}
 		}
 	}
+
+	// Re-initialization of the solver if it was initialized
+	if (reinit)
+		init();
 }
 
 
@@ -152,7 +163,8 @@ void cmaesSOFamily<TScaling>::setInitialDistribution(double sigma)
 {
 	sigma_ = sigma;
 
-	init(); // Note that this parameter is only set in the init() calls
+	if (initialized_)
+		init(); // Note that this parameter is only set in the init() calls
 }
 
 
@@ -161,7 +173,8 @@ void cmaesSOFamily<TScaling>::setNumberOfOffsprings(int lambda)
 {
 	lambda_ = lambda;
 	
-	init(); // Note that this parameter is only set in the init() calls
+	if (initialized_)
+		init(); // Note that this parameter is only set in the init() calls
 }
 
 
@@ -216,8 +229,6 @@ void cmaesSOFamily<TScaling>::setOutputFile(std::string filename)
 template<typename TScaling>
 bool cmaesSOFamily<TScaling>::init()
 {
-	initialized_ = false;
-	
 	// Initializing the optimization model
 	model_->init(true);
 
