@@ -301,18 +301,18 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 	}
 
 	// Adding the latest state
-	unsigned int num_params = control.params.size();
 	actual_state = trajectory.back();
+	PreviewParams end_control = control.params.back();
 	for (unsigned int f = 0; f < num_feet_; f++) {
 		std::string name = feet_names_[f];
 
 		// Adding the foothold target of the current phase
-		if (control.params[num_params-1].phase.isSwingFoot(name) &&
-				control.params[num_params-1].duration > sample_time_) {
+		if (end_control.phase.isSwingFoot(name) &&
+				end_control.duration > sample_time_) {
 			// Computing the target foothold of the contact w.r.t
 			// the world frame
 			Eigen::Vector2d foot_2d_shift =
-					control.params[num_params-1].phase.getFootShift(name);
+					end_control.phase.getFootShift(name);
 			Eigen::Vector3d foot_shift(foot_2d_shift(rbd::X),
 									   foot_2d_shift(rbd::Y),
 									   0.);
