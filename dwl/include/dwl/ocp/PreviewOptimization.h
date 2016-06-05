@@ -111,11 +111,9 @@ class PreviewOptimization : public model::OptimizationModel
 		 * @brief Sets the CoM acceleration weights
 		 * @param double Weight in the x-axis acceleration
 		 * @param double Weight in the y-axis acceleration
-		 * @param double Weight in the z-axis acceleration
 		 */
 		void setComAccelerationWeight(double x_weight,
-									  double y_weight,
-									  double z_weight);
+									  double y_weight);
 
 		/**
 		 * @brief Sets the reference step properties
