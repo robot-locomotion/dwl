@@ -179,7 +179,17 @@ class PreviewOptimization : public model::OptimizationModel
 		ReducedBodyTrajectory& getReducedTrajectory();
 
 		/**
-		 * @brief Save the solution of the preview optimization
+		 * @brief Saves a state and preview control pairs
+		 * @param simulation::PreviewState& Preview state
+		 * @param simulation::PreviewControl& Preview control sequence
+		 * @param std::string Filename
+		 */
+		void saveControl(simulation::PreviewState& state,
+						 simulation::PreviewControl& control,
+						 std::string filename);
+
+		/**
+		 * @brief Saves the solution of the preview optimization
 		 * @param std::string Filename
 		 */
 		void saveSolution(std::string filename);
