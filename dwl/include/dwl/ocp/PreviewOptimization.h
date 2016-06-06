@@ -129,11 +129,9 @@ class PreviewOptimization : public model::OptimizationModel
 		 */
 		void getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point);
 
-		/**
-		 * @brief Gets the optimized preview control
-		 * @param simulation::PreviewControl& Optimized preview control
-		 */
-		void getOptimizedPreviewControl(simulation::PreviewControl& control);
+		/** @brief Gets the optimized preview control */
+		simulation::PreviewControl& getFullPreviewControl();
+		simulation::PreviewControl& getAppliedPreviewControl();
 
 		/**
 		 * @brief Evaluates the bounds of the problem
@@ -242,7 +240,8 @@ class PreviewOptimization : public model::OptimizationModel
 								const simulation::PreviewControl& preview_control);
 
 		/** @brief Optimized preview control sequence */
-		simulation::PreviewControl preview_control_;
+		simulation::PreviewControl full_pc_;
+		simulation::PreviewControl applied_pc_;
 
 		/** @brief Starting preview control sequence */
 		simulation::PreviewControl warm_control_;
@@ -293,6 +292,9 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief Number of stance in the schedule */
 		unsigned int num_stances_;
+
+		/** @brief Number of applied control params */
+		unsigned int num_controls_;
 
 		/** @brief Indicates it was set the schedule */
 		bool set_schedule_;
