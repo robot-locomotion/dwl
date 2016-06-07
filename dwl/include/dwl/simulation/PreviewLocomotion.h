@@ -1,7 +1,7 @@
 #ifndef DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 #define DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 
-#include <dwl/simulation/LinearControlledSlipModel.h>
+#include <dwl/simulation/LinearControlledCartTableModel.h>
 #include <dwl/simulation/FootSplinePatternGenerator.h>
 #include <dwl/model/WholeBodyDynamics.h>
 #include <dwl/model/FloatingBaseSystem.h>
@@ -100,16 +100,14 @@ struct PreviewPhase
 struct PreviewParams
 {
 	PreviewParams() : duration(0.), cop_shift(Eigen::Vector2d::Zero()),
-			  length_shift(0.), head_acc(0.) {}
+			head_acc(0.) {}
 	PreviewParams(double _duration,
 				  Eigen::Vector2d _cop_shift,
-				  double _length_shift,
 				  double _head_acc) : duration(_duration), cop_shift(_cop_shift),
-						  length_shift(_length_shift), head_acc(_head_acc) {}
+						  head_acc(_head_acc) {}
 
 	double duration;
 	Eigen::Vector2d cop_shift;
-	double length_shift;
 	double head_acc;
 	PreviewPhase phase;
 };
@@ -123,7 +121,88 @@ struct PreviewControl
 };
 
 typedef std::vector<PreviewState> PreviewTrajectory;
-typedef std::vector<PreviewPhase> PreviewSchedule;
+
+struct PreviewSchedule
+{
+	PreviewSchedule() : actual_phase_(0), next_phase_(0) {}
+
+	void init(unsigned int initial_phase) {
+		actual_phase_ = initial_phase;
+	}
+
+	void init(rbd::BodyPosition& support) {
+		for (unsigned int p = 0; p < getNumberPhases(); p++) {
+			std::vector<std::string> swings = getSwingFeet(p);
+			unsigned int num_swings = getNumberOfSwingFeet(p);
+
+			bool is_phase = true;
+			if (num_swings == 0) {
+				if (support.size() == feet.size()) {
+					actual_phase_ = p;
+				}
+			} else {
+				for (unsigned int s = 0; s < num_swings; s++) {
+					std::string swing = swings[s];
+
+					if (support.find(swing) != support.end()) {
+						is_phase = false;
+						break;
+					}
+				}
+
+				if (is_phase) {
+					actual_phase_ = p;
+				}
+			}
+		}
+	}
+
+	void addPhase(PreviewPhase phase) {
+		schedule.push_back(phase);
+	}
+
+	void setFeet(rbd::BodySelector& _feet) {
+		feet = _feet;
+	}
+
+	unsigned int getIndex() {
+		// Updating the actual phase
+		actual_phase_ = next_phase_;
+
+		// Computing the next phase
+		++next_phase_;
+		if (next_phase_ == getNumberPhases())
+			next_phase_ = 0;
+
+		return actual_phase_;
+	}
+
+	PreviewPhase& getPhase(unsigned int index) {
+		return schedule[index];
+	}
+
+	TypeOfPhases getTypeOfPhase(unsigned int index) {
+		return schedule[index].type;
+	}
+
+	unsigned int getNumberOfSwingFeet(unsigned int index) {
+		return schedule[index].feet.size();
+	}
+
+	std::vector<std::string>& getSwingFeet(unsigned int index) {
+		return schedule[index].feet;
+	}
+
+	unsigned int getNumberPhases() {
+		return schedule.size();
+	}
+
+	std::vector<PreviewPhase> schedule;
+	rbd::BodySelector feet;
+	unsigned int actual_phase_;
+	unsigned int next_phase_;
+};
+
 
 struct SwingParams
 {
@@ -178,24 +257,20 @@ class PreviewLocomotion
 								std::string system_file = std::string());
 
 		/**
-		 * @brief Reads the preview control parameters from a Yaml file
+		 * @brief Reads the preview sequence from a Yaml file
+		 * @param PreviewState& Preview state
 		 * @param PreviewControl& Preview control parameters
 		 * @param std::string Filename
 		 */
-		void readPreviewControl(PreviewControl& control,
-								std::string filename);
+		void readPreviewSequence(PreviewState& state,
+								 PreviewControl& control,
+								 std::string filename);
 
 		/**
 		 * @brief Sets the sample time of the preview trajectory
 		 * @param double Sample time
 		 */
 		void setSampleTime(double sample_time);
-
-		/**
-		 * @brief Sets the Spring Loaded Inverted Pendulum (SLIP) model
-		 * @param const SlipProperties& SLIP model
-		 */
-		void setStiffnes(double stiffnes);
 
 		/**
 		 * @brief Sets the step height for the swing trajectory generation
@@ -209,6 +284,14 @@ class PreviewLocomotion
 		 */
 		void setForceThreshold(double force_threshold);
 
+		/**
+		 * @brief Computes the multi-phase preview trajectory
+		 * @param PreviewTrajectory& Preview trajectory
+		 * @param const PreviewState& Actual preview state
+		 * @param const PreviewControl& Preview control
+		 * @param bool True for the full trajectory, otherwise compute the
+		 * preview state transitions
+		 */
 		void multiPhasePreview(PreviewTrajectory& trajectory,
 							   const PreviewState& state,
 							   const PreviewControl& control,
@@ -336,8 +419,8 @@ class PreviewLocomotion
 		/** @brief Feet names */
 		rbd::BodySelector feet_names_;
 
-		/** @brief SLIP model */
-		LinearControlledSlipModel lc_slip_;
+		/** @brief Cart-table model */
+		LinearControlledCartTableModel cart_table_;
 
 		/** @brief Step height for the swing generation */
 		double step_height_;
@@ -346,7 +429,7 @@ class PreviewLocomotion
 		Eigen::Vector3d actual_system_com_;
 
 		/** @ brief Stance posture position w.r.t. the CoM */
-		rbd::BodyPosition stance_posture_;
+		rbd::BodyVector stance_posture_;
 
 		/** @brief Force threshold */
 		double force_threshold_;

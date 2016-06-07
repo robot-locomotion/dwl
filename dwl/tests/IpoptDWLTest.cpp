@@ -18,8 +18,8 @@ int main(int argc, char **argv)
 	optimal_control.addDynamicalSystem(dynamical_system);
 	optimal_control.addCost(cost);
 
-	solver->init();
 	solver->setFromConfigFile("../config/ipopt_config.yaml");
+	solver->init();
 	solver->compute();
 
 	return 0;

@@ -38,7 +38,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	dynamics_.modelFromURDFModel(urdf_model, system_file);
 	kinematics_.modelFromURDFModel(urdf_model, system_file);
 
-	// Setting the gravity magnitude from the rigid-body dynamic model
+	// Getting the gravity magnitude from the rigid-body dynamic model
 	gravity_ = system_.getRBDModel().gravity.norm();
 
 	// Getting the total mass of the system
@@ -50,39 +50,75 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	// Getting the feet names
 	feet_names_ = system_.getEndEffectorNames(model::FOOT);
 
-	// Getting the floating-base CoM
-	actual_system_com_ = system_.getFloatingBaseCoM();
+	// Getting the default joint position
+	Eigen::VectorXd q0 = system_.getDefaultPosture();
 
+	// Getting the default position of the CoM system
+	actual_system_com_ = system_.getSystemCoM(rbd::Vector6d::Zero(),
+											  q0);
 
-	stance_posture_["lf_foot"] << 0.36, 0.32, -0.55;
-	stance_posture_["rf_foot"] << 0.36, -0.32, -0.55;
-	stance_posture_["lh_foot"] << -0.36, 0.32, -0.55;
-	stance_posture_["rh_foot"] << -0.36, -0.32, -0.55;
+	// Computing the stance posture using the default position
+	kinematics_.computeForwardKinematics(stance_posture_,
+										 rbd::Vector6d::Zero(),
+										 q0,
+										 feet_names_,
+										 rbd::Linear);
+
+	// Converting to the CoM frame
+	for (rbd::BodyVector::iterator feet_it = stance_posture_.begin();
+			feet_it != stance_posture_.end(); feet_it++) {
+		std::string name = feet_it->first;
+		Eigen::VectorXd stance = feet_it->second;
+
+		stance_posture_[name] = stance - actual_system_com_;
+	}
+
+	// Setting up the cart-table model
+	CartTableProperties model(mass_, gravity_);
+	cart_table_.setModelProperties(model);
 
 	robot_model_ = true;
 }
 
 
-void PreviewLocomotion::readPreviewControl(PreviewControl& control,
-										   std::string filename)
+void PreviewLocomotion::readPreviewSequence(PreviewState& state,
+											PreviewControl& control,
+											std::string filename)
 {
 	// Checking that the robot model was initialized
 	if (!robot_model_) {
-		printf(RED "Error: the robot model was not initialized" COLOR_RESET);
+		printf(RED "Error: the robot model was not initialized\n" COLOR_RESET);
 		return;
 	}
 
 	YamlWrapper yaml_reader(filename);
 
-	// All the preview control data have to be inside the preview_control
-	// namespace
-	YamlNamespace ns = {"preview_control"};
+	// All the preview sequence data have to be inside the state and
+	// preview_control namespaces
+	YamlNamespace state_ns = {"preview_sequence", "state"};
+	YamlNamespace control_ns = {"preview_sequence", "preview_control"};
+
+
+	// Reading the state
+	if (!yaml_reader.read(state.com_pos, "com_pos", state_ns)) {
+		printf(RED "Error: the CoM height was not found\n" COLOR_RESET);
+		return;
+	}
+	if (!yaml_reader.read(state.com_vel, "com_vel", state_ns)) {
+		printf(RED "Error: the CoM velocity was not found\n" COLOR_RESET);
+		return;
+	}
+	if (!yaml_reader.read(state.cop, "cop", state_ns)) {
+		printf(RED "Error: the CoP was not found\n" COLOR_RESET);
+		return;
+	}
+
 
 	// Reading the preview control data
 	// Reading the number of phases
 	int num_phases;
-	if (!yaml_reader.read(num_phases, "number_phase",  ns)) {
-		printf(RED "Error: the number_phase was not found" COLOR_RESET);
+	if (!yaml_reader.read(num_phases, "number_phase",  control_ns)) {
+		printf(RED "Error: the number_phase was not found\n" COLOR_RESET);
 		return;
 	}
 	control.params.resize(num_phases);
@@ -90,12 +126,12 @@ void PreviewLocomotion::readPreviewControl(PreviewControl& control,
 	// Reading the preview parameters per phase
 	for (int k = 0; k < num_phases; k++) {
 		// Getting the phase namespace
-		YamlNamespace phase_ns = {"preview_control",
+		YamlNamespace phase_ns = {"preview_sequence", "preview_control",
 								  "phase_" + std::to_string(k)};
 
 		// Reading the preview duration
 		if (!yaml_reader.read(control.params[k].duration, "duration", phase_ns)) {
-			printf(RED "Error: the duration of phase_%i was not found"
+			printf(RED "Error: the duration of phase_%i was not found\n"
 					COLOR_RESET, k);
 			return;
 		}
@@ -106,16 +142,9 @@ void PreviewLocomotion::readPreviewControl(PreviewControl& control,
 
 		// Reading the preview parameters for stance phase
 		if (control.params[k].phase.getTypeOfPhase() == simulation::STANCE) {
-			// Reading the preview pendulum length shift
-			if (!yaml_reader.read(control.params[k].length_shift, "length_shift", phase_ns)) {
-				printf(RED "Error: the length_shift of phase_%i was not found"
-						COLOR_RESET, k);
-				return;
-			}
-
 			// Reading the heading acceleration
 			if (!yaml_reader.read(control.params[k].head_acc, "head_acc", phase_ns)) {
-				printf(RED "Error: the head_acc of phase_%i was not found"
+				printf(RED "Error: the head_acc of phase_%i was not found\n"
 						COLOR_RESET, k);
 				return;
 			}
@@ -143,13 +172,6 @@ void PreviewLocomotion::setSampleTime(double sample_time)
 }
 
 
-void PreviewLocomotion::setStiffnes(double stiffnes)
-{
-	SlipProperties model(mass_, stiffnes, gravity_);
-	lc_slip_.setModelProperties(model);
-}
-
-
 void PreviewLocomotion::setStepHeight(double step_height)
 {
 	step_height_ = step_height;
@@ -169,7 +191,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 {
 	// Checking that the robot model was initialized
 	if (!robot_model_) {
-		printf(RED "Error: the robot model was not initialized" COLOR_RESET);
+		printf(RED "Error: the robot model was not initialized\n" COLOR_RESET);
 		return;
 	}
 
@@ -198,25 +220,31 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 
 					// Removing the swing foot of the actual phase
 					if (preview_params.phase.isSwingFoot(name)) {
-						last_suppport_region[name] = actual_state.support_region.find(name)->second;
+						last_suppport_region[name] =
+								actual_state.support_region.find(name)->second;
 						actual_state.support_region.erase(name);
 					}
 
 					// Adding the foothold target of the previous phase
 					if (control.params[k-1].phase.isSwingFoot(name) &&
 							control.params[k-1].duration > sample_time_) {
-						// Computing the target foothold of the contact w.r.t the world frame
-						Eigen::Vector2d foot_2d_shift = control.params[k-1].phase.getFootShift(name);
-						Eigen::Vector3d foot_shift(foot_2d_shift(rbd::X), foot_2d_shift(rbd::Y), 0.);
+						// Computing the target foothold of the contact w.r.t
+						// the world frame
+						Eigen::Vector2d foot_2d_shift =
+								control.params[k-1].phase.getFootShift(name);
+						Eigen::Vector3d foot_shift(foot_2d_shift(rbd::X),
+												   foot_2d_shift(rbd::Y),
+												   0.);
 						Eigen::Vector3d stance_pos;
 						stance_pos << stance_posture_.find(name)->second.head<2>(),
-									  last_suppport_region.find(name)->second(2);
+									  last_suppport_region.find(name)->second(rbd::Z);
 
 						// Computing the foothold target position
 						Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
 													   actual_state.com_pos(rbd::Y),
 													   0.);
-						Eigen::Vector3d next_foothold = planar_com_pos + stance_pos + foot_shift;
+						Eigen::Vector3d next_foothold =
+								planar_com_pos + stance_pos + foot_shift;
 
 						actual_state.support_region[name] = next_foothold;
 					}
@@ -235,7 +263,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 				for (unsigned int j = 0; j < preview_params.phase.feet.size(); j++) {
 					std::string foot_name = preview_params.phase.feet[j];
 					Eigen::Vector2d foot_shift_2d =
-							control.params[k-1].phase.getFootShift(foot_name);
+							control.params[k].phase.getFootShift(foot_name);
 
 					// Computing the z displacement of the foot from the height map. TODO hard coded
 //					Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
@@ -271,6 +299,38 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		if (trajectory.size() == 0)
 			trajectory.push_back(state);
 	}
+
+	// Adding the latest state
+	actual_state = trajectory.back();
+	PreviewParams end_control = control.params.back();
+	for (unsigned int f = 0; f < num_feet_; f++) {
+		std::string name = feet_names_[f];
+
+		// Adding the foothold target of the current phase
+		if (end_control.phase.isSwingFoot(name) &&
+				end_control.duration > sample_time_) {
+			// Computing the target foothold of the contact w.r.t
+			// the world frame
+			Eigen::Vector2d foot_2d_shift =
+					end_control.phase.getFootShift(name);
+			Eigen::Vector3d foot_shift(foot_2d_shift(rbd::X),
+									   foot_2d_shift(rbd::Y),
+									   0.);
+			Eigen::Vector3d stance_pos;
+			stance_pos << stance_posture_.find(name)->second.head<2>(),
+						  last_suppport_region.find(name)->second(rbd::Z);
+
+			// Computing the foothold target position
+			Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
+										   actual_state.com_pos(rbd::Y),
+										   0.);
+			Eigen::Vector3d next_foothold =
+					planar_com_pos + stance_pos + foot_shift;
+
+			actual_state.support_region[name] = next_foothold;
+		}
+	}
+	trajectory.push_back(actual_state);
 }
 
 
@@ -280,7 +340,7 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 {
 	// Checking that the robot model was initialized
 	if (!robot_model_) {
-		printf(RED "Error: the robot model was not initialized" COLOR_RESET);
+		printf(RED "Error: the robot model was not initialized\n" COLOR_RESET);
 		return;
 	}
 
@@ -303,12 +363,11 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 										   actual_state.com_vel,
 										   actual_state.com_acc,
 										   actual_state.cop);
-			SlipControlParams slip_params(preview_params.duration,
-										  preview_params.cop_shift,
-										  preview_params.length_shift);
-			lc_slip_.computeSystemEnergy(phase_energy,
-										 reduced_state,
-										 slip_params);
+			CartTableControlParams model_params(preview_params.duration,
+											    preview_params.cop_shift);
+			cart_table_.computeSystemEnergy(phase_energy,
+											reduced_state,
+											model_params);
 			com_energy += phase_energy;
 		} else { // Flight phase
 			// TODO compute the energy for flight phases
@@ -317,7 +376,7 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 		// Updating the actual state
 		ReducedBodyState next_reduced_state;
 		double time = actual_state.time + preview_params.duration;
-		lc_slip_.computeResponse(next_reduced_state, time);
+		cart_table_.computeResponse(next_reduced_state, time);
 		actual_state.time = next_reduced_state.time;
 		actual_state.com_pos = next_reduced_state.com_pos;
 		actual_state.com_vel = next_reduced_state.com_vel;
@@ -343,10 +402,9 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 								   state.com_vel,
 								   state.com_acc,
 								   state.cop);
-	SlipControlParams slip_params(params.duration,
-								  params.cop_shift,
-								  params.length_shift);
-	lc_slip_.initResponse(reduced_state, slip_params);
+	CartTableControlParams model_params(params.duration,
+										params.cop_shift);
+	cart_table_.initResponse(reduced_state, model_params);
 
 	// Adding the actual support region. Note that the support region
 	// remains constant during this phase
@@ -354,27 +412,31 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 	current_state.support_region = state.support_region;
 
 	// Computing the number of samples and initial index
-	unsigned int num_samples = ceil(params.duration / sample_time_);
+	unsigned int num_samples = floor(params.duration / sample_time_);
 	unsigned int idx;
 	if (full) {
 		idx = 0;
-		trajectory.resize(num_samples);
+		trajectory.resize(num_samples + 1);
 	} else {
-		idx = num_samples - 1;
+		idx = num_samples;
 		trajectory.resize(1);
 	}
 
 	// Computing the preview trajectory
-	for (unsigned int k = idx; k < num_samples; k++) {
+	double time;
+	for (unsigned int k = idx; k < num_samples + 1; k++) {
 		// Computing the current time of the preview trajectory
-		double time = sample_time_ * (k + 1);
+		if (k == num_samples)
+			time = params.duration;
+		else
+			time = sample_time_ * (k + 1);
 		current_state.time = state.time + time;
 
 		// Computing the response of the Linear Controlled SLIP
 		// dynamics
 		ReducedBodyState reduced_state;
-		lc_slip_.computeResponse(reduced_state,
-								 current_state.time);
+		cart_table_.computeResponse(reduced_state,
+									current_state.time);
 		current_state.com_pos = reduced_state.com_pos;
 		current_state.com_vel = reduced_state.com_vel;
 		current_state.com_acc = reduced_state.com_acc;
@@ -382,7 +444,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 		// Computing the heading motion according to heading kinematic equation
 		current_state.head_pos = state.head_pos + state.head_vel * time +
-				0.5 * params.head_acc * pow(time,2);
+				0.5 * params.head_acc * time * time;
 		current_state.head_vel = state.head_vel + params.head_acc * time;
 		current_state.head_acc = params.head_acc;
 
@@ -407,19 +469,25 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 	gravity_vec(rbd::Z) = -gravity_;
 
 	// Computing the number of samples and initial index
-	unsigned int num_samples = ceil(params.duration / sample_time_);
+	unsigned int num_samples = floor(params.duration / sample_time_);
 	unsigned int idx;
 	if (full) {
 		idx = 0;
 		trajectory.resize(num_samples);
 	} else {
-		idx = num_samples - 1;
+		idx = num_samples;
 		trajectory.resize(1);
 	}
 
 	// Computing the preview trajectory
-	for (unsigned int k = idx; k < num_samples; k++) {
-		double time = sample_time_ * (k + 1);
+	double time;
+	for (unsigned int k = idx; k < num_samples + 1; k++) {
+		// Computing the current time of the preview trajectory
+		if (k == num_samples)
+			time = params.duration;
+		else
+			time = sample_time_ * (k + 1);
+
 
 		// Computing the current time of the preview trajectory
 		PreviewState current_state;
@@ -427,7 +495,7 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 
 		// Computing the CoM motion according to the projectile EoM
 		current_state.com_pos = state.com_pos + state.com_vel * time +
-				0.5 * gravity_vec * pow(time,2);
+				0.5 * gravity_vec * time * time;
 		current_state.com_vel = state.com_vel + gravity_vec * time;
 		current_state.com_acc = gravity_vec;
 
@@ -453,15 +521,18 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 				// is bigger than the sample time
 
 	// Getting the number of samples of the trajectory
-	unsigned int num_samples = ceil(params.duration / sample_time_);
+	unsigned int num_samples = floor(params.duration / sample_time_);
 
 	// Generating the feet trajectories
 	feet_spline_generator_.clear();
 	Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-	for (unsigned int k = 0; k < num_samples; k++) {
-		double time = state.time + sample_time_ * (k + 1);
-		if (time > state.time + params.duration)
+	double time;
+	for (unsigned int k = 0; k < num_samples + 1; k++) {
+		// Computing the current time of the preview trajectory
+		if (k == num_samples)
 			time = state.time + params.duration;
+		else
+			time = state.time + sample_time_ * (k + 1);
 
 		// Generating the actual state for every feet
 		for (rbd::BodyVector::const_iterator foot_it = state.foot_pos.begin();
@@ -479,7 +550,8 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 					Eigen::Vector3d target_pos;
 					Eigen::Vector3d foot_shift = (Eigen::Vector3d) swing_it->second;
 					Eigen::Vector3d stance_pos;
-					stance_pos << stance_posture_.find(name)->second.head<2>(), actual_pos(rbd::Z); // TODO read it
+					stance_pos << stance_posture_.find(name)->second.head<2>(),
+								  actual_pos(rbd::Z); // TODO read it
 					target_pos = stance_pos + foot_shift;
 
 					// Initializing the foot pattern generator
@@ -509,11 +581,13 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 
 				// Getting the CoM position of the specific time
 				Eigen::Vector3d com_pos = trajectory[k].com_pos;
+				Eigen::Vector3d com_vel = trajectory[k].com_vel;
+				Eigen::Vector3d com_acc = trajectory[k].com_acc;
 
-				// Adding the foot states w.r.t. the CoM frame
-				trajectory[k].foot_pos[name] = actual_pos - (com_pos - state.com_pos);
-				trajectory[k].foot_vel[name] = Eigen::Vector3d::Zero();
-				trajectory[k].foot_acc[name] = Eigen::Vector3d::Zero();
+				// Adding the foot states w.r.t. the CoM frame// TODO Add rotation matrix for yaw
+				trajectory[k].foot_pos[name] = actual_pos - (com_pos - state.com_pos);//b_R_w*(com_pos - state.com_pos);
+				trajectory[k].foot_vel[name] = -com_vel;//b_R_w*(com_vel)
+				trajectory[k].foot_acc[name] = -com_acc;//b_R_w*(com_acc)
 			}
 		}
 	}
@@ -586,7 +660,7 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	for (unsigned int f = 0; f < num_feet_; f++) {
 		std::string name = feet_names_[f];
 
-		feet_pos[name] = preview_state.foot_pos.find(name)->second;
+		feet_pos[name] = preview_state.foot_pos.find(name)->second + actual_system_com_;
 	}
 
 	// Computing the joint positions
@@ -618,8 +692,6 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	preview_state.time = full_state.time;
 
 	// Computing the CoM position, velocity and acceleration
-	actual_system_com_ = system_.getSystemCoM(rbd::Vector6d::Zero(),
-											  full_state.joint_pos);
 	preview_state.com_pos = system_.getSystemCoM(full_state.base_pos,
 												 full_state.joint_pos);
 	preview_state.com_vel = system_.getSystemCoMRate(full_state.base_pos,

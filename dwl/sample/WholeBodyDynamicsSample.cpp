@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 
 	// Resetting the system from the hyq urdf file
 	string model_file = "../sample/hyq.urdf";
-	string robot_file = "../config/robot_config.yaml";
+	string robot_file = "../config/hyq.yarf";
 	sys.resetFromURDFFile(model_file, robot_file);
 	dyn.modelFromURDFFile(model_file, robot_file);
 
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 							   base_pos, joint_pos,
 							   base_vel, joint_vel,
 							   base_acc, joint_acc, grf);
-	cout << "------------------ ID ---------------------" << endl;
+	cout << "--------------------------- ID --------------------------" << endl;
 	cout << "Base wrench = " << base_wrench.transpose() << endl;
 	cout << "Joint forces = " << joint_forces.transpose() << endl << endl;
 
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 							   base_acc, joint_acc,
 							   joint_forces, sys.getEndEffectorNames(), // it uses all the end-effector of the system
 							   force_threshold);
-	cout << "-------------------- Estimated active contacts -------------------" << endl;
+	cout << "--------------- Estimated active contacts ---------------" << endl;
 	for (dwl::rbd::BodyWrench::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
 		string name = it->first;
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 							 base_vel, joint_vel,
 							 base_acc, joint_acc,
 							 sys.getEndEffectorNames());
-	cout << "-------------------- Estimated contact forces -------------------" << endl;
+	cout << "--------------- Estimated contact forces ----------------" << endl;
 	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
 	for (dwl::rbd::BodyWrench::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 										   base_pos, joint_pos,
 										   base_vel, joint_vel,
 										   joint_acc, contact_forces);
-	cout << "------------------- Floating-base ID --------------------" << std::endl;
+	cout << "---------------- Floating-base ID ------------------" << std::endl;
 	cout << "Base accelerations = " << base_acc.transpose() << endl;
 	cout << "Joint forces = " << joint_forces.transpose() << endl << endl;
 
@@ -107,8 +107,8 @@ int main(int argc, char **argv)
 													  base_vel, joint_vel,
 													  base_acc, joint_acc,
 													  sys.getEndEffectorNames());
-	std::cout << "------------------- Constrained ID --------------------" << std::endl;
-	std::cout << "Joint forces = " << joint_forces.transpose() << endl << endl;
+	cout << "------------------ Constrained ID ------------------" << std::endl;
+	cout << "Joint forces = " << joint_forces.transpose() << endl << endl;
 
 
 	// Computing the contact forces from the CoP
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 							 cop_pos,
 							 contact_pos,
 							 sys.getEndEffectorNames());
-	cout << "-------------------- Contact forces from CoP -------------------" << endl;
+	cout << "----------------- Contact forces from CoP ---------------" << endl;
 	for (dwl::rbd::BodyWrench::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
 		string name = it->first;
@@ -131,6 +131,13 @@ int main(int argc, char **argv)
 		cout << "contact force[" << name << "] = " << force.transpose() << endl;
 	}
 	cout << endl;
+
+
+	// Computing the joint space inertia matrix
+	Eigen::MatrixXd inertial_mat;
+	dyn.computeJointSpaceInertialMatrix(inertial_mat, base_pos, joint_pos);
+	cout << "--------------- Joint Space Inertia Matrix --------------" << endl;
+	cout << inertial_mat << " = inertial matrix" << endl;
 
 	return 0;
 }

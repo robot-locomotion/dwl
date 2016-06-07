@@ -1,3 +1,0 @@
-robot:
-  # Names of the feet
-  feet: [lf_foot, rf_foot, lh_foot, rh_foot]

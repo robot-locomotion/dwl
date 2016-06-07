@@ -169,6 +169,37 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 }
 
 
+void WholeBodyDynamics::computeJointSpaceInertialMatrix(Eigen::MatrixXd& inertial_mat,
+														const rbd::Vector6d& base_pos,
+														const Eigen::VectorXd& joint_pos)
+{
+	// Setting up the size of the joint space inertia matrix
+	inertial_mat.resize(system_.getSystemDoF(), system_.getSystemDoF());
+	inertial_mat.setZero();
+
+	// Converting base and joint states to generalized joint states
+	Eigen::VectorXd q = system_.toGeneralizedJointState(base_pos, joint_pos);
+
+	// Computing the joint space inertia matrix using the Composite
+	// Rigid Body Algorithm
+	RigidBodyDynamics::CompositeRigidBodyAlgorithm(system_.getRBDModel(),
+												   q, inertial_mat, true);
+
+	// Changing the floating-base inertia matrix component to the order
+	// [Angular, Linear]
+	if (system_.isFullyFloatingBase()) {
+		Eigen::MatrixXd base_lin_mat = inertial_mat.block<3,6>(0,0);
+		Eigen::MatrixXd base_ang_mat = inertial_mat.block<3,6>(3,0);
+
+		// Writing the new order
+		inertial_mat.block<3,6>(rbd::AX, 0) << base_ang_mat.rightCols(3),
+				base_ang_mat.leftCols(3);
+		inertial_mat.block<3,6>(rbd::LX, 0) << base_lin_mat.rightCols(3),
+				base_lin_mat.leftCols(3);
+	}
+}
+
+
 void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 											 Eigen::VectorXd& joint_forces,
 											 const rbd::Vector6d& base_pos,

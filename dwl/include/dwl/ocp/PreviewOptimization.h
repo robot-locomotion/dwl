@@ -18,7 +18,6 @@ struct PreviewVariables
 {
 	double duration;
 	Eigen::Vector2d cop_shift;
-	double length_shift;
 	Eigen::Vector2d foothold_shift;
 	double head_acc;
 };
@@ -57,6 +56,12 @@ class PreviewOptimization : public model::OptimizationModel
 		 * @param const WholeBodyState& Actual whole-body state
 		 */
 		void setActualWholeBodyState(const WholeBodyState& state);
+
+		/**
+		 * @brief Sets the actual preview state
+		 * @param const simulation::PreviewState& Actual preview state
+		 */
+		void setActualPreviewState(const simulation::PreviewState& state);
 
 		/**
 		 * @brief Sets the initial sequence of preview control parameters
@@ -106,11 +111,9 @@ class PreviewOptimization : public model::OptimizationModel
 		 * @brief Sets the CoM acceleration weights
 		 * @param double Weight in the x-axis acceleration
 		 * @param double Weight in the y-axis acceleration
-		 * @param double Weight in the z-axis acceleration
 		 */
 		void setComAccelerationWeight(double x_weight,
-									  double y_weight,
-									  double z_weight);
+									  double y_weight);
 
 		/**
 		 * @brief Sets the reference step properties
@@ -125,6 +128,10 @@ class PreviewOptimization : public model::OptimizationModel
 		 * @param Eigen::Ref<Eigen::VectorXd> Full initial point
 		 */
 		void getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point);
+
+		/** @brief Gets the optimized preview control */
+		simulation::PreviewControl& getFullPreviewControl();
+		simulation::PreviewControl& getAppliedPreviewControl();
 
 		/**
 		 * @brief Evaluates the bounds of the problem
@@ -163,10 +170,26 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Returns the preview system pointer */
 		simulation::PreviewLocomotion* getPreviewSystem();
 
+		/** @brief Returns the preview trajectory */
+		simulation::PreviewTrajectory& getPreviewTrajectory();
+
 		/** @brief Returns the reduced-body trajectory */
 		ReducedBodyTrajectory& getReducedTrajectory();
 
+		/**
+		 * @brief Saves a state and preview control pairs
+		 * @param simulation::PreviewState& Preview state
+		 * @param simulation::PreviewControl& Preview control sequence
+		 * @param std::string Filename
+		 */
+		void saveControl(simulation::PreviewState& state,
+						 simulation::PreviewControl& control,
+						 std::string filename);
 
+		/**
+		 * @brief Saves the solution of the preview optimization
+		 * @param std::string Filename
+		 */
 		void saveSolution(std::string filename);
 
 
@@ -193,6 +216,14 @@ class PreviewOptimization : public model::OptimizationModel
 		unsigned int getParamsDimension(const unsigned int& phase);
 
 		/**
+		 * @brief Orders the preview control given the actual state/phase
+		 * @param simulation::PreviewControl& Preview control
+		 * @param const simulation::PreviewControl& Nominal preview control (from
+		 * decision order)
+		 */
+		void orderPreviewControl(simulation::PreviewControl& control,
+								 const simulation::PreviewControl& nom_control);
+		/**
 		 * @brief Converts the generalized control vector to preview control
 		 * @param simulation::PreviewControl& Preview control
 		 * @param const Eigen::VectorXd& Generalized control vector
@@ -209,7 +240,12 @@ class PreviewOptimization : public model::OptimizationModel
 								const simulation::PreviewControl& preview_control);
 
 		/** @brief Optimized preview control sequence */
-		simulation::PreviewControl preview_control_;
+		simulation::PreviewControl full_pc_;
+		simulation::PreviewControl applied_pc_;
+
+		/** @brief Starting preview control sequence */
+		simulation::PreviewControl warm_control_;
+		bool warm_point_;
 
 		/** @brief Constraints of the preview optimization */
 		ocp::SupportPolygonConstraint polygon_constraint_;
@@ -221,6 +257,7 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief Preview schedule */
 		simulation::PreviewSchedule schedule_;
+		std::vector<unsigned int> phase_id_;
 
 		/** @brief Actual preview state */
 		simulation::PreviewState actual_state_;
@@ -229,12 +266,16 @@ class PreviewOptimization : public model::OptimizationModel
 		PreviewBounds bounds_;
 
 		/** @brief Preview trajectory and transitions */
+		simulation::PreviewTrajectory preview_trajectory_;
 		ReducedBodyTrajectory reduced_traj_;
 		simulation::PreviewTrajectory preview_transitions_;
 
-		/** @brief Weights of the cost functions */
+		/** @brief Desired states */
 		double desired_step_duration_;
 		double desired_step_distance_;
+		double desired_yaw_;
+
+		/** @brief Weights of the cost functions */
 		double step_time_weight_;
 		double step_dist_weight_;
 		Eigen::Vector3d acc_int_weight_;
@@ -249,6 +290,15 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Number of steps in the schedule */
 		unsigned int num_steps_;
 
+		/** @brief Number of stance in the schedule */
+		unsigned int num_stances_;
+
+		/** @brief Number of applied control params */
+		unsigned int num_controls_;
+
+		/** @brief Indicates it was initialized the schedule */
+		bool init_schedule_;
+
 		/** @brief Indicates it was set the schedule */
 		bool set_schedule_;
 
@@ -257,6 +307,7 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief For collecting data */
 		utils::CollectData cdata_;
+		bool collect_data_;
 };
 
 } //@namespace ocp
