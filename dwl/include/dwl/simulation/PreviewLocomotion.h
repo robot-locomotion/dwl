@@ -121,7 +121,38 @@ struct PreviewControl
 };
 
 typedef std::vector<PreviewState> PreviewTrajectory;
-typedef std::vector<PreviewPhase> PreviewSchedule;
+
+struct PreviewSchedule
+{
+	PreviewSchedule() {}
+
+	void addPhase(PreviewPhase phase) {
+		schedule.push_back(phase);
+	}
+
+	PreviewPhase& getPhase(unsigned int index) {
+		return schedule[index];
+	}
+
+	TypeOfPhases getTypeOfPhase(unsigned int index) {
+		return schedule[index].type;
+	}
+
+	unsigned int getNumberOfSwingFeet(unsigned int index) {
+		return schedule[index].feet.size();
+	}
+
+	std::vector<std::string>& getSwingFeet(unsigned int index) {
+		return schedule[index].feet;
+	}
+
+	unsigned int getNumberPhases() {
+		return schedule.size();
+	}
+
+	std::vector<PreviewPhase> schedule;
+};
+
 
 struct SwingParams
 {
