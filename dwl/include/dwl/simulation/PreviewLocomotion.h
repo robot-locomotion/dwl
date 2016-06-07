@@ -124,10 +124,57 @@ typedef std::vector<PreviewState> PreviewTrajectory;
 
 struct PreviewSchedule
 {
-	PreviewSchedule() {}
+	PreviewSchedule() : actual_phase_(0), next_phase_(0) {}
+
+	void init(unsigned int initial_phase) {
+		actual_phase_ = initial_phase;
+	}
+
+	void init(rbd::BodyPosition& support) {
+		for (unsigned int p = 0; p < getNumberPhases(); p++) {
+			std::vector<std::string> swings = getSwingFeet(p);
+			unsigned int num_swings = getNumberOfSwingFeet(p);
+
+			bool is_phase = true;
+			if (num_swings == 0) {
+				if (support.size() == feet.size()) {
+					actual_phase_ = p;
+				}
+			} else {
+				for (unsigned int s = 0; s < num_swings; s++) {
+					std::string swing = swings[s];
+
+					if (support.find(swing) != support.end()) {
+						is_phase = false;
+						break;
+					}
+				}
+
+				if (is_phase) {
+					actual_phase_ = p;
+				}
+			}
+		}
+	}
 
 	void addPhase(PreviewPhase phase) {
 		schedule.push_back(phase);
+	}
+
+	void setFeet(rbd::BodySelector& _feet) {
+		feet = _feet;
+	}
+
+	unsigned int getIndex() {
+		// Updating the actual phase
+		actual_phase_ = next_phase_;
+
+		// Computing the next phase
+		++next_phase_;
+		if (next_phase_ == getNumberPhases())
+			next_phase_ = 0;
+
+		return actual_phase_;
 	}
 
 	PreviewPhase& getPhase(unsigned int index) {
@@ -151,6 +198,9 @@ struct PreviewSchedule
 	}
 
 	std::vector<PreviewPhase> schedule;
+	rbd::BodySelector feet;
+	unsigned int actual_phase_;
+	unsigned int next_phase_;
 };
 
 

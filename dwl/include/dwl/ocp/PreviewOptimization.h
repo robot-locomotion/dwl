@@ -296,6 +296,9 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Number of applied control params */
 		unsigned int num_controls_;
 
+		/** @brief Indicates it was initialized the schedule */
+		bool init_schedule_;
+
 		/** @brief Indicates it was set the schedule */
 		bool set_schedule_;
 
