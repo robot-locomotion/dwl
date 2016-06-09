@@ -7,7 +7,11 @@ namespace dwl
 namespace solver
 {
 
-IpoptNLP::IpoptNLP()
+IpoptNLP::IpoptNLP() : initialized_(false), print_level_(5),
+		print_freq_iter_(1), outfile_(false), filename_("ipopt.opt"),
+		file_print_level_(5), convergence_tol_(1e-7), max_iter_(-1),
+		dual_inf_tol_(1.), constr_viol_tol_(0.0001), compl_viol_tol_(0.0001),
+		acceptable_tol_(1e-6), acceptable_iter_(15), mu_strategy_("adaptive")
 {
 	name_ = "IpoptNLP";
 }
@@ -21,6 +25,13 @@ IpoptNLP::~IpoptNLP()
 
 void IpoptNLP::setFromConfigFile(std::string filename)
 {
+	// Checking if the solver was initialized before setting it from config file
+	bool reinit = false;
+	if (initialized_) {
+		initialized_ = false;
+		reinit = true;
+	}
+
 	// Yaml reader
 	YamlWrapper yaml_reader(filename);
 
@@ -39,68 +50,181 @@ void IpoptNLP::setFromConfigFile(std::string filename)
 	// Reading and setting up the print level
 	int print_level;
 	if (yaml_reader.read(print_level, "print_level", output_ns))
-		app_->Options()->SetIntegerValue("print_level", print_level);
+		setPrintLevel(print_level);
 
 	// Reading and setting up the print frequency iteration
 	int print_frequency_iter;
 	if (yaml_reader.read(print_frequency_iter, "print_frequency_iter", output_ns))
-		app_->Options()->SetIntegerValue("print_frequency_iter", print_frequency_iter);
+		setPrintFrequencyIteration(print_frequency_iter);
 
 	// Reading and setting up the out file parameters
 	std::string option_file_name;
-	if (yaml_reader.read(option_file_name, "option_file_name",output_file_ns)) {
-		app_->Options()->SetStringValue("option_file_name", option_file_name);
+	if (yaml_reader.read(option_file_name, "option_file_name", output_file_ns)) {
+		setFilename(option_file_name);
 
 		int file_print_level;
 		if (yaml_reader.read(file_print_level, "file_print_level", output_file_ns))
-			app_->Options()->SetIntegerValue("file_print_level", file_print_level);
+			setFilePrintLevel(file_print_level);
 	}
 
 	// Termination parameters
 	// Reading and setting up the convergence tolerance
 	double tol;
 	if (yaml_reader.read(tol, "tol", termination_ns))
-		app_->Options()->SetNumericValue("tol", tol);
+		setConvergenceTolerance(tol);
 
 	// Reading and setting up the allowed number of iteration
 	int max_iter;
-	if (yaml_reader.read(max_iter, "max_iter",termination_ns)) {
-		if (max_iter == -1)
-			app_->Options()->SetIntegerValue("max_iter", std::numeric_limits<int>::max());
-		else
-			app_->Options()->SetIntegerValue("max_iter", max_iter);
-	}
+	if (yaml_reader.read(max_iter, "max_iter", termination_ns))
+		setMaxIteration(max_iter);
 
 	// Reading and setting up the desired threshold for the dual infeasibility
 	double dual_inf_tol;
 	if (yaml_reader.read(dual_inf_tol, "dual_inf_tol", termination_ns))
-		app_->Options()->SetNumericValue("dual_inf_tol", dual_inf_tol);
+		setDualInfeasibilityTolerance(dual_inf_tol);
 
 	// Reading and setting up the desired threshold for the constraint violation
 	double constr_viol_tol;
 	if (yaml_reader.read(constr_viol_tol, "constr_viol_tol", termination_ns))
-		app_->Options()->SetNumericValue("constr_viol_tol", constr_viol_tol);
+		setConstraintViolationTolerance(constr_viol_tol);
 
 	// Reading and setting up the desired threshold for the complementarity conditions
 	double compl_inf_tol;
 	if (yaml_reader.read(compl_inf_tol, "compl_inf_tol", termination_ns))
-		app_->Options()->SetNumericValue("compl_inf_tol", compl_inf_tol);
+		setComplementaryTolerance(compl_inf_tol);
 
 	// Reading and setting up the "acceptable" convergence tolerance (relative)
 	double acceptable_tol;
 	if (yaml_reader.read(acceptable_tol, "acceptable_tol", termination_ns))
-		app_->Options()->SetNumericValue("acceptable_tol", acceptable_tol);
+		setAcceptableConvergenceTolerance(acceptable_tol);
 
 	// Reading and setting up the number of "acceptable" iterates before triggering termination
 	int acceptable_iter;
 	if (yaml_reader.read(acceptable_iter, "acceptable_iter", termination_ns))
-		app_->Options()->SetIntegerValue("acceptable_iter", acceptable_iter);
+		setAcceptableIterations(acceptable_iter);
 
 	// Barrier parameters
 	// Reading and setting up the out file parameters
 	std::string mu_strategy;
 	if (yaml_reader.read(mu_strategy, "mu_strategy", barrier_ns))
-		app_->Options()->SetStringValue("mu_strategy", mu_strategy);
+		setMuStrategy(mu_strategy);
+
+	// Re-initialization of the solver if it was initialized
+	if (reinit)
+		init();
+}
+
+
+void IpoptNLP::setPrintLevel(int print_level)
+{
+	print_level_ = print_level;
+
+	if (initialized_)
+		app_->Options()->SetIntegerValue("print_level", print_level_);
+}
+
+
+void IpoptNLP::setPrintFrequencyIteration(int print_freq_iter)
+{
+	print_freq_iter_ = print_freq_iter;
+
+	if (initialized_)
+		app_->Options()->SetIntegerValue("print_frequency_iter", print_freq_iter_);
+}
+
+
+void IpoptNLP::setFilename(std::string filename)
+{
+	outfile_ = true;
+	filename_ = filename;
+
+	if (initialized_)
+		app_->Options()->SetStringValue("option_file_name", filename_);
+}
+
+
+void IpoptNLP::setFilePrintLevel(int file_print_level)
+{
+	file_print_level_ = file_print_level;
+
+	if (initialized_)
+		app_->Options()->SetIntegerValue("file_print_level", file_print_level_);
+}
+
+
+void IpoptNLP::setConvergenceTolerance(double tolerance)
+{
+	convergence_tol_ = tolerance;
+
+	if (initialized_)
+		app_->Options()->SetNumericValue("tol", tolerance);
+}
+
+
+void IpoptNLP::setMaxIteration(int max_iter)
+{
+	max_iter_ = max_iter;
+
+	if (initialized_) {
+		if (max_iter_ == -1)
+			app_->Options()->SetIntegerValue("max_iter", std::numeric_limits<int>::max());
+		else
+			app_->Options()->SetIntegerValue("max_iter", max_iter_);
+	}
+}
+
+
+void IpoptNLP::setDualInfeasibilityTolerance(double tolerance)
+{
+	dual_inf_tol_ = tolerance;
+
+	if (initialized_)
+		app_->Options()->SetNumericValue("dual_inf_tol", dual_inf_tol_);
+}
+
+
+void IpoptNLP::setConstraintViolationTolerance(double tolerance)
+{
+	constr_viol_tol_ = tolerance;
+
+	if (initialized_)
+		app_->Options()->SetNumericValue("constr_viol_tol", constr_viol_tol_);
+}
+
+
+void IpoptNLP::setComplementaryTolerance(double tolerance)
+{
+	compl_viol_tol_ = tolerance;
+
+	if (initialized_)
+		app_->Options()->SetNumericValue("compl_inf_tol", compl_viol_tol_);
+}
+
+
+void IpoptNLP::setAcceptableConvergenceTolerance(double tolerance)
+{
+	acceptable_tol_ = tolerance;
+
+	if (initialized_)
+		app_->Options()->SetNumericValue("acceptable_tol", acceptable_tol_);
+}
+
+
+void IpoptNLP::setAcceptableIterations(int iterations)
+{
+	acceptable_iter_ = iterations;
+
+	if (initialized_)
+		app_->Options()->SetIntegerValue("acceptable_iter", acceptable_iter_);
+}
+
+
+void IpoptNLP::setMuStrategy(std::string mu_strategy)
+{
+	mu_strategy_ = mu_strategy;
+
+	if (initialized_)
+		app_->Options()->SetStringValue("mu_strategy", mu_strategy_);
 }
 
 
@@ -116,6 +240,23 @@ bool IpoptNLP::init()
 	// factory, since this allows us to compile this example with an Ipopt Windows DLL
 	app_ = IpoptApplicationFactory();
 	app_->RethrowNonIpoptException(true);
+
+	// Setting the previous parameters
+	initialized_ = true;
+	setPrintLevel(print_level_);
+	setPrintFrequencyIteration(print_freq_iter_);
+	if (outfile_) {
+		setFilename(filename_);
+		setFilePrintLevel(file_print_level_);
+	}
+	setConvergenceTolerance(convergence_tol_);
+	setMaxIteration(max_iter_);
+	setDualInfeasibilityTolerance(dual_inf_tol_);
+	setConstraintViolationTolerance(constr_viol_tol_);
+	setComplementaryTolerance(compl_viol_tol_);
+	setAcceptableConvergenceTolerance(acceptable_tol_);
+	setAcceptableIterations(acceptable_iter_);
+	setMuStrategy(mu_strategy_);
 
 	// Change some options (do not touch these)
 	app_->Options()->SetNumericValue("tol", 1e-7);
