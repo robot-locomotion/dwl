@@ -7,3 +7,4 @@ thirdparty
 .pydevproject
 .settings
 dwl/doc/documetation
+dwl-lcm-pkgs/dwl_lcmtypes/include
