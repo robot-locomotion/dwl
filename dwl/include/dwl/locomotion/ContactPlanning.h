@@ -1,7 +1,7 @@
 #ifndef DWL__LOCOMOTION__CONTACT_PLANNING__H
 #define DWL__LOCOMOTION__CONTACT_PLANNING__H
 
-#include <dwl/environment/EnvironmentInformation.h>
+#include <dwl/environment/TerrainMap.h>
 #include <dwl/environment/Feature.h>
 #include <dwl/robot/Robot.h>
 #include <dwl/utils/utils.h>
@@ -29,10 +29,10 @@ class ContactPlanning
 		/**
 		 * @brief Defines the environment information for computing a contact plan
 		 * @param robot::Robot* The robot defines all the properties of the robot
-		 * @param environment::EnvironmentInformation* Encapsulates all the information of the environment
+		 * @param environment::TerrainMap* Encapsulates all the terrain information
 		 */
 		void reset(robot::Robot* robot,
-				   environment::EnvironmentInformation* environment);
+				   environment::TerrainMap* environment);
 
 		/**
 		 * @brief Adds a feature for the contact planner
@@ -72,7 +72,7 @@ class ContactPlanning
 		std::string name_;
 
 		/** @brief Pointer to the environment information */
-		environment::EnvironmentInformation* environment_;
+		environment::TerrainMap* terrain_;
 
 		/** @brief Pointer to the robot properties information */
 		robot::Robot* robot_;

@@ -35,7 +35,7 @@ bool HierarchicalPlanning::compute(Pose current_pose)
 	// Setting the pose in the robot properties
 	robot_->setCurrentPose(current_pose);
 
-	if (environment_->isTerrainInformation()) {
+	if (terrain_->isTerrainInformation()) {
 		// Cleaning global variables
 		std::vector<Pose> empty_body_trajectory;
 		body_path_.swap(empty_body_trajectory);

@@ -1,7 +1,7 @@
 #ifndef DWL__MODEL__ADJACENCY_MODEL__H
 #define DWL__MODEL__ADJACENCY_MODEL__H
 
-#include <dwl/environment/EnvironmentInformation.h>
+#include <dwl/environment/TerrainMap.h>
 #include <dwl/environment/Feature.h>
 #include <dwl/robot/Robot.h>
 #include <dwl/utils/utils.h>
@@ -15,8 +15,8 @@ namespace model
 
 /**
  * @class AdjacencyModel
- * @brief Abstract class for building an adjacency map which necessary for making the tree
- * exploration with search-tree solver
+ * @brief Abstract class for building an adjacency map which necessary for
+ * making the tree exploration with search-tree solver
  */
 class AdjacencyModel
 {
@@ -30,14 +30,15 @@ class AdjacencyModel
 		/**
 		 * @brief Defines the settings of all components within AdjacencyModel class
 		 * @param robot::Robot* The robot defines all the properties of the robot
-		 * @param environment::EnvironmentInformation* Pointer to object that defines the environment
+		 * @param environment::TerrainMap* Pointer to object that describes the
+		 * terrain environment
 		 */
 		void reset(robot::Robot* robot,
-				   environment::EnvironmentInformation* environment);
+				   environment::TerrainMap* environment);
 
 		/**
-		 * @brief Abstract method that computes the whole adjacency map, which is required by some
-		 * algorithms such as Dijkstrap
+		 * @brief Abstract method that computes the whole adjacency map, which
+		 * is required by some algorithms such as Dijkstrap
 		 * @param AdjacencyMap& Adjacency map
 		 * @param Vertex Source vertex
 		 * @param Vertex Target vertex
@@ -55,7 +56,8 @@ class AdjacencyModel
 								   Vertex state_vertex) = 0;
 
 		/**
-		 * @brief Gets the closest start and goal vertex if it is not belong to the terrain information
+		 * @brief Gets the closest start and goal vertex if it is not belong to
+		 * the terrain information
 		 * @param Vertex& The closest vertex to the start
 		 * @param Vertex& The closest vertex to the goal
 		 * @param Vertex Start vertex
@@ -128,8 +130,8 @@ class AdjacencyModel
 		/** @brief Pointer to robot properties */
 		robot::Robot* robot_;
 
-		/** @brief Pointer of the EnvironmentInformation object which describes the environment */
-		environment::EnvironmentInformation* environment_;
+		/** @brief Pointer of the TerrainMap object which describes the terrain */
+		environment::TerrainMap* terrain_;
 
 		/** @brief Vector of pointers to the Feature class */
 		std::vector<environment::Feature*> features_;

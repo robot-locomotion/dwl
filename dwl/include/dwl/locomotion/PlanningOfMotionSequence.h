@@ -5,7 +5,7 @@
 #include <dwl/locomotion/MotionPlanning.h>
 #include <dwl/locomotion/ContactPlanning.h>
 #include <dwl/solver/SearchTreeSolver.h>
-#include <dwl/environment/EnvironmentInformation.h>
+#include <dwl/environment/TerrainMap.h>
 
 #include <dwl/utils/utils.h>
 
@@ -18,10 +18,11 @@ namespace locomotion
 
 /**
  * @class PlanningOfMotionSequence
- * @brief Abstract class for solving the planning of motion sequence problem. This abstract class
- * allow us to implement different approaches such as: decoupled and coupled approaches. For
- * instance, coupled approaches required one Solver, in contrast of decoupled approaches that
- * require the MotionPlanning and ContactPlanning classes.
+ * @brief Abstract class for solving the planning of motion sequence problem.
+ * This abstract class allow us to implement different approaches such as:
+ * decoupled and coupled approaches. For instance, coupled approaches required
+ * one Solver, in contrast of decoupled approaches that require the
+ * MotionPlanning and ContactPlanning classes.
  */
 class PlanningOfMotionSequence //TODO clean and define the final class
 {
@@ -36,23 +37,23 @@ class PlanningOfMotionSequence //TODO clean and define the final class
 		 * @brief Defines the settings required for a decoupled approach
 		 * @param Robot* The robot defines all the properties of the robot
 		 * @param SearchTreeSolver* The search tree solver that computes a motion plan
-		 * @param EnvironmentInformation* Encapsulates all the information of the environment
+		 * @param TerrainMap* Encapsulates all the terrain information
 		 */
 		void reset(robot::Robot* robot,
 				   solver::SearchTreeSolver* solver,
-				   environment::EnvironmentInformation* environment);
+				   environment::TerrainMap* environment);
 
 		/**
 		 * @brief Defines the settings required for a decoupled approach
 		 * @param Robot* The robot defines all the properties of the robot
 		 * @param BodyPlanner* A body planner could computed body paths, poses or/and trajectories
 		 * @param ContactPlanning* A contact planner computes the contact sequence
-		 * @param EnvironmentInformation* Encapsulates all the information of the environment
+		 * @param TerrainMap* Encapsulates all the terrain information
 		 */
 		void reset(robot::Robot* robot,
 				   MotionPlanning* motion_planner,
 				   ContactPlanning* contact_planner,
-				   environment::EnvironmentInformation* environment);
+				   environment::TerrainMap* environment);
 
 		/**
 		 * @brief Initializes the planner
@@ -88,18 +89,16 @@ class PlanningOfMotionSequence //TODO clean and define the final class
 		virtual bool compute(Pose robot_state) = 0;
 
 		/**
-		 * @brief Sets the reward information of the environment inside of the pointer of the
-		 * EnvironmentInformation object, which could be used for different solvers
+		 * @brief Sets the reward map
 		 * @param std::vector<Cell> Reward map of the environment
 		 */
-		void setEnvironmentInformation(std::vector<RewardCell> reward_map);
+		void setRewardMap(std::vector<RewardCell> reward_map);
 
 		/**
-		 * @brief Sets the obstacle information of the environment inside of the pointer of the
-		 * EnvironmentInformation object, which could be used for different solvers
+		 * @brief Sets the obstacle terrain map
 		 * @param std::vector<Cell> Obstacle map of the environment
 		 */
-		void setEnvironmentInformation(std::vector<Cell> obstacle_map);
+		void setObstacleMap(std::vector<Cell> obstacle_map);
 
 		/**
 		 * @brief Sets the allowed computation time for a coupled planner
@@ -149,8 +148,8 @@ class PlanningOfMotionSequence //TODO clean and define the final class
 		/** @brief Pointer to the solver algorithm */
 		solver::SearchTreeSolver* solver_;
 
-		/** @brief Pointer to the environment information */
-		environment::EnvironmentInformation* environment_;
+		/** @brief Pointer to the terrain information */
+		environment::TerrainMap* terrain_;
 
 		/** @brief Initial pose of the robot */
 		Pose initial_pose_;

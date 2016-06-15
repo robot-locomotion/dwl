@@ -2,7 +2,7 @@
 #define DWL__LOCOMOTION__MOTION_PLANNING__H
 
 #include <dwl/solver/SearchTreeSolver.h>
-#include <dwl/environment/EnvironmentInformation.h>
+#include <dwl/environment/TerrainMap.h>
 #include <dwl/utils/utils.h>
 
 
@@ -15,7 +15,7 @@ namespace locomotion
 /**
  * @class MotionPlanning
  * @brief Abstract class for implementing a motion planning. This abstract class has two methods
- * reset() that allow us to define Robot properties, EnvironmentInformation, and the Solver of the
+ * reset() that allow us to define Robot properties, TerrainMap, and the Solver of the
  * planning
  */
 class MotionPlanning
@@ -30,11 +30,10 @@ class MotionPlanning
 		/**
 		 * @brief Defines the robot and environment information
 		 * @param robot::Robot* Encapsulates all the properties of the robot
-		 * @param environment::EnvironmentInformation* Encapsulates all the information of the
-		 * environment
+		 * @param environment::TerrainMap* Encapsulates all the terrain information
 		 */
 		void reset(robot::Robot* robot,
-				   environment::EnvironmentInformation* environment);
+				   environment::TerrainMap* environment);
 
 		/**
 		 * @brief Defines the motion planning solver
@@ -65,8 +64,8 @@ class MotionPlanning
 		/** @brief Name of the motion planner */
 		std::string name_;
 
-		/** @brief Pointer to the EnvironmentInformation object */
-		environment::EnvironmentInformation* environment_;
+		/** @brief Pointer to the TerrainMap object */
+		environment::TerrainMap* terrain_;
 
 		/** @brief Pointer to the Robot object */
 		robot::Robot* robot_;

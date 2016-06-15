@@ -1,4 +1,4 @@
-#include <dwl/environment/EnvironmentInformation.h>
+#include <dwl/environment/TerrainMap.h>
 #include <dwl/environment/SpaceDiscretization.h>
 #include <dwl/environment/RewardMap.h>
 #include <dwl/environment/ObstacleMap.h>

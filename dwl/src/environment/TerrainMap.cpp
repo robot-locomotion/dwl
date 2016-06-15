@@ -1,4 +1,4 @@
-#include <dwl/environment/EnvironmentInformation.h>
+#include <dwl/environment/TerrainMap.h>
 
 
 namespace dwl
@@ -7,7 +7,7 @@ namespace dwl
 namespace environment
 {
 
-EnvironmentInformation::EnvironmentInformation() :
+TerrainMap::TerrainMap() :
 		terrain_space_discretization_(0.04, 0.04, M_PI / 200),
 		obstacle_space_discretization_(0.04, 0.04, M_PI / 200), average_terrain_cost_(0),
 		terrain_information_(false), obstacle_information_(false),
@@ -18,13 +18,13 @@ EnvironmentInformation::EnvironmentInformation() :
 }
 
 
-EnvironmentInformation::~EnvironmentInformation()
+TerrainMap::~TerrainMap()
 {
 
 }
 
 
-void EnvironmentInformation::setEnvironmentInformation(std::vector<RewardCell> reward_map)
+void TerrainMap::setRewardMap(std::vector<RewardCell> reward_map)
 {
 	// Cleaning the old information
 	CostMap empty_terrain_cost_map;
@@ -62,7 +62,7 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<RewardCell> r
 }
 
 
-void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> obstacle_map)
+void TerrainMap::setObstacleMap(std::vector<Cell> obstacle_map)
 {
 	// Cleaning the old information
 	ObstacleMap empty_terrain_obstacle_map;
@@ -87,19 +87,19 @@ void EnvironmentInformation::setEnvironmentInformation(std::vector<Cell> obstacl
 }
 
 
-void EnvironmentInformation::setTerrainResolution(double resolution, bool plane)
+void TerrainMap::setTerrainResolution(double resolution, bool plane)
 {
 	terrain_space_discretization_.setEnvironmentResolution(resolution, plane);
 }
 
 
-void EnvironmentInformation::setObstacleResolution(double resolution, bool plane)
+void TerrainMap::setObstacleResolution(double resolution, bool plane)
 {
 	obstacle_space_discretization_.setEnvironmentResolution(resolution, plane);
 }
 
 
-void EnvironmentInformation::setStateResolution(double position_resolution,
+void TerrainMap::setStateResolution(double position_resolution,
 		double angular_resolution)
 {
 	terrain_space_discretization_.setStateResolution(position_resolution, angular_resolution);
@@ -107,61 +107,61 @@ void EnvironmentInformation::setStateResolution(double position_resolution,
 }
 
 
-void EnvironmentInformation::getTerrainCostMap(CostMap& costmap)
+void TerrainMap::getTerrainCostMap(CostMap& costmap)
 {
 	costmap = terrain_cost_map_;
 }
 
 
-void EnvironmentInformation::getTerrainHeightMap(HeightMap& heightmap)
+void TerrainMap::getTerrainHeightMap(HeightMap& heightmap)
 {
 	heightmap = terrain_height_map_;
 }
 
 
-void EnvironmentInformation::getObstacleMap(ObstacleMap& obstaclemap)
+void TerrainMap::getObstacleMap(ObstacleMap& obstaclemap)
 {
 	obstaclemap = obstacle_map_;
 }
 
 
-double EnvironmentInformation::getTerrainResolution()
+double TerrainMap::getTerrainResolution()
 {
 	return terrain_resolution_;
 }
 
 
-double EnvironmentInformation::getObstacleResolution()
+double TerrainMap::getObstacleResolution()
 {
 	return obstacle_resolution_;
 }
 
 
-double EnvironmentInformation::getAverageCostOfTerrain()
+double TerrainMap::getAverageCostOfTerrain()
 {
 	return average_terrain_cost_;
 }
 
 
-SpaceDiscretization& EnvironmentInformation::getTerrainSpaceModel()
+SpaceDiscretization& TerrainMap::getTerrainSpaceModel()
 {
 	return terrain_space_discretization_;
 }
 
 
-SpaceDiscretization& EnvironmentInformation::getObstacleSpaceModel()
+SpaceDiscretization& TerrainMap::getObstacleSpaceModel()
 {
 	return obstacle_space_discretization_;
 }
 
 
-bool EnvironmentInformation::isTerrainInformation()
+bool TerrainMap::isTerrainInformation()
 {
 	return terrain_information_;
 }
 
 
-bool EnvironmentInformation::isObstacleInformation()
+bool TerrainMap::isObstacleInformation()
 {
 	return obstacle_information_;
 }

@@ -31,13 +31,13 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map,
 
 	// Getting the body orientation
 	Eigen::Vector3d initial_state;
-	environment_->getTerrainSpaceModel().vertexToState(initial_state, source);
+	terrain_->getTerrainSpaceModel().vertexToState(initial_state, source);
 	unsigned short int key_yaw;
-	environment_->getTerrainSpaceModel().stateToKey(key_yaw, (double) initial_state(2), false);
+	terrain_->getTerrainSpaceModel().stateToKey(key_yaw, (double) initial_state(2), false);
 	double yaw;
-	environment_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
+	terrain_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
 
-	if (environment_->isTerrainInformation()) {
+	if (terrain_->isTerrainInformation()) {
 		// Adding the source and target vertex if it is outside the information terrain
 		Vertex closest_source, closest_target;
 		getTheClosestStartAndGoalVertex(closest_source, closest_target, source, target);
@@ -50,7 +50,7 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map,
 
 		// Computing the adjacency map given the terrain information
 		CostMap terrain_costmap;
-		environment_->getTerrainCostMap(terrain_costmap);
+		terrain_->getTerrainCostMap(terrain_costmap);
 		for (CostMap::iterator vertex_iter = terrain_costmap.begin();
 				vertex_iter != terrain_costmap.end();
 				vertex_iter++)
@@ -59,10 +59,10 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map,
 			Eigen::Vector2d current_coord;
 
 			Vertex state_vertex;
-			environment_->getTerrainSpaceModel().vertexToCoord(current_coord, vertex);
+			terrain_->getTerrainSpaceModel().vertexToCoord(current_coord, vertex);
 			Eigen::Vector3d current_state;
 			current_state << current_coord, yaw;
-			environment_->getTerrainSpaceModel().stateToVertex(state_vertex, current_state);
+			terrain_->getTerrainSpaceModel().stateToVertex(state_vertex, current_state);
 
 			if (!isStanceAdjacency()) {
 				double terrain_cost = vertex_iter->second;
@@ -85,8 +85,8 @@ void GridBasedBodyAdjacency::computeAdjacencyMap(AdjacencyMap& adjacency_map,
 			}
 		}
 	} else
-		printf(RED "Could not computed the adjacency map because there is not terrain information \n"
-				COLOR_RESET);
+		printf(RED "Could not computed the adjacency map because there is not"
+				" terrain information \n" COLOR_RESET);
 }
 
 
@@ -94,20 +94,20 @@ void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors,
 										   Vertex state_vertex)
 {
 	Eigen::Vector3d state;
-	environment_->getTerrainSpaceModel().vertexToState(state, state_vertex);
+	terrain_->getTerrainSpaceModel().vertexToState(state, state_vertex);
 
 	std::vector<Vertex> neighbor_actions;
 	searchNeighbors(neighbor_actions, state_vertex);
-	if (environment_->isTerrainInformation()) {
+	if (terrain_->isTerrainInformation()) {
 		// Getting the terrain costmap
 		CostMap terrain_costmap;
-		environment_->getTerrainCostMap(terrain_costmap);
+		terrain_->getTerrainCostMap(terrain_costmap);
 
 		unsigned int action_size = neighbor_actions.size();
 		for (unsigned int i = 0; i < action_size; i++) {
 			// Converting the state vertex (x,y,yaw) to a terrain vertex (x,y)
 			Vertex terrain_vertex;
-			environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex,
+			terrain_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex,
 					neighbor_actions[i], XY_Y);
 
 			if (!isStanceAdjacency()) {
@@ -121,8 +121,8 @@ void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors,
 			}
 		}
 	} else
-		printf(RED "Could not computed the successors because there is not terrain information \n"
-				COLOR_RESET);
+		printf(RED "Could not computed the successors because there is not"
+				" terrain information \n" COLOR_RESET);
 }
 
 
@@ -132,24 +132,24 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 	// Getting the key of yaw
 	unsigned short int key_yaw;
 	Eigen::Vector3d state;
-	environment_->getTerrainSpaceModel().vertexToState(state, state_vertex);
-	environment_->getTerrainSpaceModel().stateToKey(key_yaw, (double) state(2), false);
+	terrain_->getTerrainSpaceModel().vertexToState(state, state_vertex);
+	terrain_->getTerrainSpaceModel().stateToKey(key_yaw, (double) state(2), false);
 
 	// Getting the key for x and y axis
 	Key terrain_key;
 	Vertex terrain_vertex;
-	environment_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, state_vertex, XY_Y);
-	environment_->getTerrainSpaceModel().vertexToKey(terrain_key, terrain_vertex, true);
+	terrain_->getTerrainSpaceModel().stateVertexToEnvironmentVertex(terrain_vertex, state_vertex, XY_Y);
+	terrain_->getTerrainSpaceModel().vertexToKey(terrain_key, terrain_vertex, true);
 
 	// Searching the closed neighbors around 3-neighboring area
 	bool is_found_neighbor_positive_x = false, is_found_neighbor_negative_x = false;
 	bool is_found_neighbor_positive_y = false, is_found_neighbor_negative_y = false;
 	bool is_found_neighbor_positive_xy = false, is_found_neighbor_negative_xy = false;
 	bool is_found_neighbor_positive_yx = false, is_found_neighbor_negative_yx = false;
-	if (environment_->isTerrainInformation()) {
+	if (terrain_->isTerrainInformation()) {
 		// Getting the terrain cost map
 		CostMap terrain_costmap;
-		environment_->getTerrainCostMap(terrain_costmap);
+		terrain_->getTerrainCostMap(terrain_costmap);
 
 		double x, y, yaw;
 
@@ -161,14 +161,14 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 			// Searching the neighbors in the positive x-axis
 			searching_key.x = terrain_key.x + r;
 			searching_key.y = terrain_key.y;
-			environment_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
+			terrain_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
 			if ((terrain_costmap.count(neighbor_vertex) > 0) && (!is_found_neighbor_positive_x)) {
 				// Getting the state vertex of the neighbor
-				environment_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
-				environment_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
+				terrain_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
+				terrain_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
+				terrain_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
 				state << x, y, yaw;
-				environment_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
+				terrain_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
 				is_found_neighbor_positive_x = true;
@@ -177,14 +177,14 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 			// Searching the neighbor in the negative x-axis
 			searching_key.x = terrain_key.x - r;
 			searching_key.y = terrain_key.y;
-			environment_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
+			terrain_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
 			if ((terrain_costmap.count(neighbor_vertex) > 0) && (!is_found_neighbor_negative_x)) {
 				// Getting the state vertex of the neighbor
-				environment_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
-				environment_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
+				terrain_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
+				terrain_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
+				terrain_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
 				state << x, y, yaw;
-				environment_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
+				terrain_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
 				is_found_neighbor_negative_x = true;
@@ -193,14 +193,14 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 			// Searching the neighbor in the positive y-axis
 			searching_key.x = terrain_key.x;
 			searching_key.y = terrain_key.y + r;
-			environment_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
+			terrain_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
 			if ((terrain_costmap.count(neighbor_vertex) > 0) && (!is_found_neighbor_positive_y)) {
 				// Getting the state vertex of the neighbor
-				environment_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
-				environment_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
+				terrain_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
+				terrain_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
+				terrain_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
 				state << x, y, yaw;
-				environment_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
+				terrain_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
 				is_found_neighbor_positive_y = true;
@@ -209,14 +209,14 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 			// Searching the neighbor in the negative y-axis
 			searching_key.x = terrain_key.x;
 			searching_key.y = terrain_key.y - r;
-			environment_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
+			terrain_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
 			if ((terrain_costmap.count(neighbor_vertex) > 0) && (!is_found_neighbor_negative_y)) {
 				// Getting the state vertex of the neighbor
-				environment_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
-				environment_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
+				terrain_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
+				terrain_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
+				terrain_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
 				state << x, y, yaw;
-				environment_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
+				terrain_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
 				is_found_neighbor_negative_y = true;
@@ -225,14 +225,14 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 			// Searching the neighbor in the positive xy-axis
 			searching_key.x = terrain_key.x + r;
 			searching_key.y = terrain_key.y + r;
-			environment_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
+			terrain_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
 			if ((terrain_costmap.count(neighbor_vertex) > 0) && (!is_found_neighbor_positive_xy)) {
 				// Getting the state vertex of the neighbor
-				environment_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
-				environment_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
+				terrain_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
+				terrain_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
+				terrain_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
 				state << x, y, yaw;
-				environment_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
+				terrain_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
 				is_found_neighbor_positive_xy = true;
@@ -241,14 +241,14 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 			// Searching the neighbor in the negative xy-axis
 			searching_key.x = terrain_key.x - r;
 			searching_key.y = terrain_key.y - r;
-			environment_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
+			terrain_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
 			if ((terrain_costmap.count(neighbor_vertex) > 0) && (!is_found_neighbor_negative_xy)) {
 				// Getting the state vertex of the neighbor
-				environment_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
-				environment_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
+				terrain_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
+				terrain_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
+				terrain_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
 				state << x, y, yaw;
-				environment_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
+				terrain_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
 				is_found_neighbor_negative_xy = true;
@@ -257,14 +257,14 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 			// Searching the neighbor in the positive yx-axis
 			searching_key.x = terrain_key.x - r;
 			searching_key.y = terrain_key.y + r;
-			environment_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
+			terrain_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
 			if ((terrain_costmap.count(neighbor_vertex) > 0) && (!is_found_neighbor_positive_yx)) {
 				// Getting the state vertex of the neighbor
-				environment_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
-				environment_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
+				terrain_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
+				terrain_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
+				terrain_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
 				state << x, y, yaw;
-				environment_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
+				terrain_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
 				is_found_neighbor_positive_yx = true;
@@ -273,22 +273,22 @@ void GridBasedBodyAdjacency::searchNeighbors(std::vector<Vertex>& neighbor_state
 			// Searching the neighbor in the negative yx-axis
 			searching_key.x = terrain_key.x + r;
 			searching_key.y = terrain_key.y - r;
-			environment_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
+			terrain_->getTerrainSpaceModel().keyToVertex(neighbor_vertex, searching_key, true);
 			if ((terrain_costmap.count(neighbor_vertex) > 0) && (!is_found_neighbor_negative_yx)) {
 				// Getting the state vertex of the neighbor
-				environment_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
-				environment_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
-				environment_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
+				terrain_->getTerrainSpaceModel().keyToState(x, searching_key.x, true);
+				terrain_->getTerrainSpaceModel().keyToState(y, searching_key.y, true);
+				terrain_->getTerrainSpaceModel().keyToState(yaw, key_yaw, false);
 				state << x, y, yaw;
-				environment_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
+				terrain_->getTerrainSpaceModel().stateToVertex(neighbor_state_vertex, state);
 
 				neighbor_states.push_back(neighbor_state_vertex);
 				is_found_neighbor_negative_yx = true;
 			}
 		}
 	} else
-		printf(RED "Could not searched the neighbors because there is not terrain information \n"
-				COLOR_RESET);
+		printf(RED "Could not searched the neighbors because there is not"
+				" terrain information \n" COLOR_RESET);
 }
 
 
@@ -297,11 +297,11 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost,
 {
 	// Converting the vertex to state (x,y,yaw)
 	Eigen::Vector3d state;
-	environment_->getTerrainSpaceModel().vertexToState(state, state_vertex);
+	terrain_->getTerrainSpaceModel().vertexToState(state, state_vertex);
 
 	// Getting the terrain cost map
 	CostMap terrain_costmap;
-	environment_->getTerrainCostMap(terrain_costmap);
+	terrain_->getTerrainCostMap(terrain_costmap);
 
 	// Computing the terrain cost
 	double terrain_cost = 0;
@@ -328,7 +328,7 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost,
 						(y - state(1)) * cos((double) state(2)) + state(1);
 
 				Vertex current_2d_vertex;
-				environment_->getTerrainSpaceModel().coordToVertex(current_2d_vertex, point_position);
+				terrain_->getTerrainSpaceModel().coordToVertex(current_2d_vertex, point_position);
 
 				// Inserts the element in an organized vertex queue, according to the maximum value
 				if (terrain_costmap.count(current_2d_vertex) > 0)
@@ -343,7 +343,7 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost,
 			number_top_reward = stance_cost_queue.size();
 
 		if (number_top_reward == 0) {
-			stance_cost += uncertainty_factor_ * environment_->getAverageCostOfTerrain();
+			stance_cost += uncertainty_factor_ * terrain_->getAverageCostOfTerrain();
 		} else {
 			for (unsigned int i = 0; i < number_top_reward; i++) {
 				stance_cost += stance_cost_queue.begin()->first;
@@ -360,7 +360,7 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost,
 
 	// Getting the height map
 	HeightMap heightmap;
-	environment_->getTerrainHeightMap(heightmap);
+	terrain_->getTerrainHeightMap(heightmap);
 
 	// Getting robot and terrain information
 	RobotAndTerrain info;
@@ -370,7 +370,7 @@ void GridBasedBodyAdjacency::computeBodyCost(double& cost,
 	info.pose.position = (Eigen::Vector2d) state.head(2);
 	info.pose.orientation = (double) state(2);
 	info.height_map = heightmap;
-	info.resolution = environment_->getTerrainResolution();
+	info.resolution = terrain_->getTerrainResolution();
 
 	// Computing the cost of the body features
 	cost = terrain_cost;

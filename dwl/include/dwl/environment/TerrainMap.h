@@ -12,29 +12,29 @@ namespace environment
 {
 
 /**
- * @class EnvironmentInformation
- * @brief Class for defining the environment information
+ * @class TerrainMap
+ * @brief Class for defining the terrain information
  */
-class EnvironmentInformation
+class TerrainMap
 {
 	public:
 		/** @brief Constructor function */
-		EnvironmentInformation();
+		TerrainMap();
 
 		/** @brief Destructor function */
-		~EnvironmentInformation();
+		~TerrainMap();
 
 		/**
 		 * @brief Sets the terrain cost-map and height-map
 		 * @param std::vector<RewardCell> Reward map
 		 */
-		void setEnvironmentInformation(std::vector<RewardCell> reward_map);
+		void setRewardMap(std::vector<RewardCell> reward_map);
 
 		/**
 		 * @brief Sets the obstacle map
 		 * @param std::vector<Cell> Obstacle map
 		 */
-		void setEnvironmentInformation(std::vector<Cell> obstacle_map);
+		void setObstacleMap(std::vector<Cell> obstacle_map);
 
 		/**
 		 * @brief Sets the terrain resolution (cost and height map) of the plane or height

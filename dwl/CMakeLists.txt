@@ -109,7 +109,7 @@ set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp
 							 src/simulation/FootSplinePatternGenerator.cpp
 							 src/behavior/MotorPrimitives.cpp
 							 src/behavior/BodyMotorPrimitives.cpp
-							 src/environment/EnvironmentInformation.cpp
+							 src/environment/TerrainMap.cpp
 							 src/environment/SpaceDiscretization.cpp
 							 src/environment/Feature.cpp
 							 src/environment/SlopeFeature.cpp

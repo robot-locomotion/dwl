@@ -14,8 +14,8 @@ namespace solver
 
 /**
  * @class SearchTreeSolver
- * @brief Abstract class for implementing different search tree solver such as Dijkstrap, A*,
- * Anytime Repairing A*, etc.
+ * @brief Abstract class for implementing different search tree solver such as
+ * Dijkstrap, A*, Anytime Repairing A*, etc.
  */
 class SearchTreeSolver
 {
@@ -35,10 +35,10 @@ class SearchTreeSolver
 		/**
 		 * @brief Defines the environment information
 		 * @param Robot* Encapsulated all the robot information
-		 * @param EnvironmentInformation* Encapsulates all the information of the environment
+		 * @param TerrainMap* Encapsulates all the terrain information
 		 */
 		void reset(robot::Robot* robot,
-				   environment::EnvironmentInformation* environment);
+				   environment::TerrainMap* environment);
 
 		/**
 		 * @brief Sets the adjacency model that is used for graph searching solvers
