@@ -9,15 +9,14 @@
 namespace dwl
 {
 
-/** @brief Defines if there is an obstacle in a certain vertex for graph-searching algorithms */
+/** @brief Defines if there is an obstacle in a certain vertex for
+ *  graph-searching algorithms */
 typedef std::map<Vertex,bool> ObstacleMap;
 
 /** @brief Defines the height map of the environment */
 typedef std::map<Vertex,double> HeightMap;
 
-/**
- * @brief Struct that defines the id (key) of a certain cell
- */
+/** @brief Struct that defines the id (key) of a certain cell */
 struct Key
 {
 	Key() : x(0), y(0), z(0) {}
@@ -29,26 +28,27 @@ struct Key
 	unsigned short int z;
 };
 
-/**
- * @brief Struct that defines the information of the cell
- */
+/** @brief Struct that defines the information of the cell */
 struct Cell
 {
 	Cell() : plane_size(0.), height_size(0.) {}
-	Cell(Key key_value, double plane, double height) : key(key_value), plane_size(plane),
+	Cell(Key key_value,
+		 double plane,
+		 double height) : key(key_value), plane_size(plane),
 			height_size(height) {}
 	Key key;
 	double plane_size;
 	double height_size;
 };
 
-/**
- * @brief Struct that defines the reward information of the cell
- */
+/** @brief Struct that defines the reward information of the cell */
 struct RewardCell
 {
 	RewardCell() : reward(0.), plane_size(0.), height_size(0.) {}
-	RewardCell(Key key_value, double reward_value, double plane, double height) : key(key_value),
+	RewardCell(Key key_value,
+			   double reward_value,
+			   double plane,
+			   double height) : key(key_value),
 			reward(reward_value), plane_size(plane), height_size(height) {}
 	Key key;
 	double reward;
@@ -58,7 +58,8 @@ struct RewardCell
 
 /**
  * @struct Terrain
- * @brief Struct to define the relevant information of the terrain for computing the reward
+ * @brief Struct to define the relevant information of the terrain for
+ * computing the reward
  */
 struct Terrain
 {
