@@ -56,6 +56,9 @@ struct RewardCell
 	double height_size;
 };
 
+/** @brief Reward cells */
+typedef std::vector<RewardCell> RewardCells;
+
 /**
  * @struct Terrain
  * @brief Struct to define the relevant information of the terrain for
