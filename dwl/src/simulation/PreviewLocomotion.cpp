@@ -606,6 +606,12 @@ model::WholeBodyDynamics* PreviewLocomotion::getWholeBodyDynamics()
 }
 
 
+environment::TerrainMap* PreviewLocomotion::getTerrainMap()
+{
+	return &terrain_;
+}
+
+
 double PreviewLocomotion::getSampleTime()
 {
 	return sample_time_;

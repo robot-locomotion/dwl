@@ -6,6 +6,7 @@
 #include <dwl/model/WholeBodyDynamics.h>
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/utils/DynamicLocomotion.h>
+#include <dwl/environment/TerrainMap.h>
 #include <dwl/utils/YamlWrapper.h>
 
 
@@ -359,6 +360,9 @@ class PreviewLocomotion
 		/** @brief Returns the whole-body dynamics pointer */
 		model::WholeBodyDynamics* getWholeBodyDynamics();
 
+		/** @brief Returns the terrain map pointer */
+		environment::TerrainMap* getTerrainMap();
+
 		/** @brief Returns the sample time */
 		double getSampleTime();
 
@@ -399,6 +403,9 @@ class PreviewLocomotion
 
 		/** @brief Whole-body kinematics */
 		model::WholeBodyKinematics kinematics_;
+
+		/** @brief Terrain map */
+		environment::TerrainMap terrain_;
 
 		/** @brief Label that indicates that the robot information from URDF
 		 * was set */
