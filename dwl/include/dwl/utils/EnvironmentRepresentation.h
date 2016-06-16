@@ -2,6 +2,7 @@
 #define DWL__ENVIRONMENT_REPRESENTATION__H
 
 #include <map>
+#include <Eigen/Dense>
 #include <dwl/utils/GraphSearching.h>
 #include <octomap/octomap.h>
 
