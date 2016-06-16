@@ -27,7 +27,7 @@ void ContactPlanning::reset(robot::Robot* robot,
 			COLOR_RESET, name_.c_str());
 	robot_ = robot;
 
-	printf(BLUE "Setting the environment information in the %s contact"
+	printf(BLUE "Setting the terrain information in the %s contact"
 			" planner \n" COLOR_RESET, name_.c_str());
 	terrain_ = terrain;
 
