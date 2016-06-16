@@ -9,8 +9,10 @@ namespace environment
 {
 
 SpaceDiscretization::SpaceDiscretization(double environment_resolution) :
-		plane_resolution_(environment_resolution), height_resolution_(environment_resolution),
-		position_resolution_(0), angular_resolution_(0), max_key_val_(32768)
+		plane_resolution_(environment_resolution),
+		height_resolution_(environment_resolution),
+		position_resolution_(0), angular_resolution_(0),
+		max_key_val_(32768)
 {
 	max_key_count_ = std::numeric_limits<unsigned short int>::max() + 1;
 	max_position_count_ = std::numeric_limits<unsigned short int>::max() + 1;
@@ -20,8 +22,11 @@ SpaceDiscretization::SpaceDiscretization(double environment_resolution) :
 
 SpaceDiscretization::SpaceDiscretization(double environment_resolution,
 										 double position_resolution) :
-		plane_resolution_(environment_resolution), height_resolution_(environment_resolution),
-		position_resolution_(position_resolution), angular_resolution_(0), max_key_val_(32768)
+		plane_resolution_(environment_resolution),
+		height_resolution_(environment_resolution),
+		position_resolution_(position_resolution),
+		angular_resolution_(0),
+		max_key_val_(32768)
 {
 	max_key_count_ = std::numeric_limits<unsigned short int>::max() + 1;
 	max_position_count_ = std::numeric_limits<unsigned short int>::max() + 1;
@@ -32,8 +37,10 @@ SpaceDiscretization::SpaceDiscretization(double environment_resolution,
 SpaceDiscretization::SpaceDiscretization(double environment_resolution,
 										 double position_resolution,
 										 double angular_resolution) :
-		plane_resolution_(environment_resolution), height_resolution_(environment_resolution),
-		position_resolution_(position_resolution), angular_resolution_(angular_resolution),
+		plane_resolution_(environment_resolution),
+		height_resolution_(environment_resolution),
+		position_resolution_(position_resolution),
+		angular_resolution_(angular_resolution),
 		max_key_val_(32768)
 {
 	max_key_count_ = std::numeric_limits<unsigned short int>::max() + 1;
@@ -71,7 +78,8 @@ bool SpaceDiscretization::coordToKeyChecked(unsigned short int& key,
 	coordToKey(scaled_coord, coordinate, plane);
 
 	// keyval within range of tree?
-	if ((scaled_coord >= 0) && (((unsigned int) scaled_coord) < (2 * max_key_val_))) {
+	if ((scaled_coord >= 0) &&
+			(((unsigned int) scaled_coord) < (2 * max_key_val_))) {
 		key = scaled_coord;
     	return true;
 	}
@@ -188,15 +196,15 @@ void SpaceDiscretization::stateToKey(unsigned short int& key,
 {
 	if (position) {
 		if (position_resolution_ == 0)
-			printf(RED "Could not get the key because it was not defined the position resolution\n"
-					COLOR_RESET);
+			printf(RED "Could not get the key because it was not defined the"
+					" position resolution\n" COLOR_RESET);
 		else
 			key = (unsigned short int) (floor(state / position_resolution_) + max_key_val_);
 	}
 	else {
 		if (angular_resolution_ == 0)
-			printf(RED "Could not get the key because it was not defined the angular resolution\n"
-					COLOR_RESET);
+			printf(RED "Could not get the key because it was not defined the "
+					"angular resolution\n" COLOR_RESET);
 		else {
 			math::normalizeAngle(state, ZeroTo2Pi);
 
@@ -213,15 +221,15 @@ void SpaceDiscretization::keyToState(double& state,
 {
 	if (position) {
 		if (position_resolution_ == 0)
-			printf(RED "Could not state of the key because it was not defined the position resolution\n"
-					COLOR_RESET);
+			printf(RED "Could not state of the key because it was not defined "
+					"the position resolution\n"	COLOR_RESET);
 		else
 			state = ((double) ((int) key - (int) max_key_val_) + 0.5) * position_resolution_;
 	}
 	else {
 		if (angular_resolution_ == 0)
-			printf(RED "Could not the state because it was not defined the angular resolution\n"
-					COLOR_RESET);
+			printf(RED "Could not the state because it was not defined the "
+					"angular resolution\n"	COLOR_RESET);
 		else {
 			unsigned short int max_key_yaw_val_ = 0;
 			state = ((double) ((int) key - (int) max_key_yaw_val_)) * angular_resolution_;
@@ -311,8 +319,9 @@ void SpaceDiscretization::stateVertexToEnvironmentVertex(Vertex& environment_ver
 			break;
 
 		default:
-			printf(RED "Could not computed the environment vertex because it is required to define a "
-					"compatible definition of state" COLOR_RESET);
+			printf(RED "Could not computed the environment vertex because it "
+					"is required to define a compatible definition of state\n"
+					COLOR_RESET);
 			break;
 	}
 }
