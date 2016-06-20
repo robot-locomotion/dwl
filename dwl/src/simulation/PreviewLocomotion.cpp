@@ -550,8 +550,7 @@ void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
 					Eigen::Vector3d target_pos;
 					Eigen::Vector3d foot_shift = (Eigen::Vector3d) swing_it->second;
 					Eigen::Vector3d stance_pos;
-					stance_pos << stance_posture_.find(name)->second.head<2>(),
-								  actual_pos(rbd::Z); // TODO read it
+					stance_pos << stance_posture_.find(name)->second.head<3>();
 					target_pos = stance_pos + foot_shift;
 
 					// Initializing the foot pattern generator
