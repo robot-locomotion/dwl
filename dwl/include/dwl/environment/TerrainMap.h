@@ -114,31 +114,27 @@ class TerrainMap
 
 	private:
 		/**
-		 *  @brief Object of the SpaceDiscretization class for defining the conversion routines for
-		 *  the terrain cost-map
-		 */
-		environment::SpaceDiscretization terrain_space_discretization_;
+		 *  @brief Object of the SpaceDiscretization class for defining the
+		 *  conversion routines for the terrain cost-map */
+		environment::SpaceDiscretization terrain_discretization_;
 
 		/**
-		 * @brief Object of the SpaceDiscretization class for defining the conversion routines for
-		 * the terrain obstacle-map
-		 */
-		environment::SpaceDiscretization obstacle_space_discretization_;
+		 * @brief Object of the SpaceDiscretization class for defining the
+		 * conversion routines for the terrain obstacle-map */
+		environment::SpaceDiscretization obstacle_discretization_;
 
-		/** @brief Gathers the terrain cost values that are mapped using the vertex id */
-		CostMap terrain_cost_map_;
+		/** @brief Gathers the terrain cost values that are mapped using the
+		 * vertex id */
+		CostMap costmap_;
 
 		/** @brief Gathers the obstacles that are mapped using the vertex id */
-		ObstacleMap obstacle_map_;
+		ObstacleMap obstaclemap_;
 
 		/** @brief Gathers the height values that are mapped using the vertex id */
-		HeightMap terrain_height_map_;
-
-		/** @brief Gathers the body cost values that are mapped using the vertex id */
-		CostMap body_cost_map_;
+		HeightMap heightmap_;
 
 		/** @brief Average terrain cost which is used for unknown areas */
-		double average_terrain_cost_;
+		double average_cost_;
 
 		/** @brief Indicates if it was defined terrain information */
 		bool terrain_information_;
