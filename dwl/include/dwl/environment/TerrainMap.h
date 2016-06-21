@@ -88,14 +88,16 @@ class TerrainMap
 		double getAverageCostOfTerrain();
 
 		/**
-		 * @brief Gets the cost discretized model of the space according the resolution of the terrain
-		 * @return The discretized space model
+		 * @brief Gets the terrain discrete model of the space according
+		 * the resolution of the terrain
+		 * @return The discrete space model
 		 */
 		SpaceDiscretization& getTerrainSpaceModel();
 
 		/**
-		 * @brief Gets the cost discretized model of the space according the resolution of the reward map
-		 * @return The discretized space model
+		 * @brief Gets the obstacle discrete model of the space according
+		 * the resolution of the reward map
+		 * @return The discrete space model
 		 */
 		SpaceDiscretization& getObstacleSpaceModel();
 
