@@ -37,25 +37,29 @@ class TerrainMap
 		void setObstacleMap(std::vector<Cell> obstacle_map);
 
 		/**
-		 * @brief Sets the terrain resolution (cost and height map) of the plane or height
+		 * @brief Sets the terrain resolution (cost and height map) of the
+		 * plane or height
 		 * @param double Resolution value
 		 * @param bool Indicates if the key represents a plane or a height
 		 */
-		void setTerrainResolution(double resolution, bool plane);
+		void setTerrainResolution(double resolution,
+								  bool plane);
 
 		/**
 		 * @brief Sets the obstacle resolution of the plane or height
 		 * @param double Resolution value
 		 * @param bool Indicates if the key represents a plane or a height
 		 */
-		void setObstacleResolution(double resolution, bool plane);
+		void setObstacleResolution(double resolution,
+								   bool plane);
 
 		/**
 		 * @brief Sets the state resolution of the plane or height
 		 * @param double Position resolution value
 		 * @param double Angular resolution value
 		 */
-		void setStateResolution(double position_resolution, double angular_resolution);
+		void setStateResolution(double position_resolution,
+								double angular_resolution);
 
 		/**
 		 * @brief Gets the terrain cost
