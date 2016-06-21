@@ -344,15 +344,20 @@ class PreviewLocomotion
 						   bool full = true);
 
 		/**
-		 * @brief Computes the swing trajectory of the contact
-		 * @param PreviewTrajectory& Preview trajectory at the predefined
-		 * sample time
+		 * @brief Initializes the swing trajectory generator
 		 * @param const PreviewState& Initial low-dimensional state
-		 * @param const SwingParams& Preview control parameters
+		 * @param const PreviewParams& Preview control parameters
 		 */
-		void addSwingPattern(PreviewTrajectory& trajectory,
-							 const PreviewState& state,
-							 const SwingParams& params);
+		void initSwing(const PreviewState& state,
+					   const PreviewParams& params);
+
+		/**
+		 * @brief Generates the swing trajectory of the contact
+		 * @param PreviewState& Desired preview state
+		 * sample time
+		 */
+		void generateSwing(PreviewState& state,
+						   double time);
 
 		/** @brief Returns the floating-base system pointer */
 		model::FloatingBaseSystem* getFloatingBaseSystem();
@@ -394,6 +399,8 @@ class PreviewLocomotion
 	private:
 		/** @brief Feet spline generator */
 		std::map<std::string,simulation::FootSplinePatternGenerator> feet_spline_generator_;
+		SwingParams swing_params_;
+		PreviewState actual_state_;
 
 		/** @brief Floating-base system information */
 		model::FloatingBaseSystem system_;

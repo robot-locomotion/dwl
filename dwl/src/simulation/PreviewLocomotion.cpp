@@ -255,41 +255,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		// Computing the preview of the actual phase
 		if (preview_params.phase.type == STANCE) {
 			stancePreview(phase_traj, actual_state, preview_params, full);
-
-			// Computing the swing trajectories for full cases
-			if (full) {
-				// Getting the swing shift per foot
-				rbd::BodyPosition swing_shift;
-				for (unsigned int j = 0; j < preview_params.phase.feet.size(); j++) {
-					std::string foot_name = preview_params.phase.feet[j];
-					Eigen::Vector2d foot_shift_2d =
-							control.params[k].phase.getFootShift(foot_name);
-
-					// Computing the z displacement of the foot from the height map. TODO hard coded
-//					Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
-//					Eigen::Vector2d foothold_2d = foot_shift_2d + terminal_base_pos.head<2>();
-					double z_shift = 0.;
-
-					Eigen::Vector3d foot_shift(foot_shift_2d(dwl::rbd::X),
-											   foot_shift_2d(dwl::rbd::Y),
-											   z_shift);
-					swing_shift[foot_name] = foot_shift;
-				}
-
-				// Adding the swing pattern
-				SwingParams swing_params(preview_params.duration, swing_shift);
-				addSwingPattern(phase_traj, actual_state, swing_params);
-			}
 		} else {
 			flightPreview(phase_traj, actual_state, preview_params, full);
-
-			// Computing the swing trajectories for full cases
-			if (full) {
-				// Adding the swing pattern
-				SwingParams swing_params(preview_params.duration,
-										 rbd::BodyPosition()); // no foothold targets
-				addSwingPattern(phase_traj, actual_state, swing_params);
-			}
 		}
 
 		// Appending the actual phase trajectory
@@ -406,21 +373,23 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 										params.cop_shift);
 	cart_table_.initResponse(reduced_state, model_params);
 
-	// Adding the actual support region. Note that the support region
-	// remains constant during this phase
-	PreviewState current_state;
-	current_state.support_region = state.support_region;
-
 	// Computing the number of samples and initial index
 	unsigned int num_samples = floor(params.duration / sample_time_);
 	unsigned int idx;
 	if (full) {
 		idx = 0;
 		trajectory.resize(num_samples + 1);
+
+		// Initialization of the swing generator
+		initSwing(state, params);
 	} else {
 		idx = num_samples;
 		trajectory.resize(1);
 	}
+
+	// Adding the actual support region. Note that the support region
+	// remains constant during this phase
+	PreviewState current_state = state;
 
 	// Computing the preview trajectory
 	double time;
@@ -448,6 +417,10 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		current_state.head_vel = state.head_vel + params.head_acc * time;
 		current_state.head_acc = params.head_acc;
 
+		// Generating the swing trajectory
+		if (full)
+			generateSwing(current_state, current_state.time);
+
 		// Appending the current state to the preview trajectory
 		trajectory[k-idx] = current_state;
 	}
@@ -474,6 +447,9 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 	if (full) {
 		idx = 0;
 		trajectory.resize(num_samples);
+
+		// Initialization of the swing generator
+		initSwing(state, params);
 	} else {
 		idx = num_samples;
 		trajectory.resize(1);
@@ -505,89 +481,109 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 		current_state.head_vel = state.head_vel;
 		current_state.head_acc = 0.;
 
+		// Generating the swing trajectory
+		if (full)
+			generateSwing(current_state, current_state.time);
+
 		// Appending the current state to the preview trajectory
 		trajectory[k-idx] = current_state;
 	}
 }
 
 
-void PreviewLocomotion::addSwingPattern(PreviewTrajectory& trajectory,
-										const PreviewState& state,
-										const SwingParams& params)
+
+void PreviewLocomotion::initSwing(const PreviewState& state,
+								  const PreviewParams& params)
 {
-	// Checking the preview duration
-	if (params.duration < sample_time_)
-		return; // duration it's always positive, and makes sense when
-				// is bigger than the sample time
+	actual_state_ = state;
 
-	// Getting the number of samples of the trajectory
-	unsigned int num_samples = floor(params.duration / sample_time_);
+	// Getting the swing shift per foot
+	rbd::BodyPosition swing_shift;
+	for (unsigned int j = 0; j < params.phase.feet.size(); j++) {
+		std::string foot_name = params.phase.feet[j];
+		Eigen::Vector2d foot_shift_2d = params.phase.getFootShift(foot_name);
 
-	// Generating the feet trajectories
+		// Computing the z displacement of the foot from the height map. TODO hard coded
+//					Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
+//					Eigen::Vector2d foothold_2d = foot_shift_2d + terminal_base_pos.head<2>();
+		double z_shift = -0.017;
+		Eigen::Vector3d foot_shift(foot_shift_2d(dwl::rbd::X),
+								   foot_shift_2d(dwl::rbd::Y),
+								   z_shift);
+		swing_shift[foot_name] = foot_shift;
+	}
+
+	// Adding the swing pattern
+	swing_params_ = SwingParams(params.duration, swing_shift);
+
+	// Generating the actual state for every feet
 	feet_spline_generator_.clear();
+	for (rbd::BodyVector::const_iterator foot_it = state.foot_pos.begin();
+			foot_it != state.foot_pos.end(); foot_it++) {
+		std::string name = foot_it->first;
+
+		// Checking the feet that swing
+		rbd::BodyPosition::const_iterator swing_it = swing_params_.feet_shift.find(name);
+		if (swing_it != swing_params_.feet_shift.end()) {
+			// Getting the actual position of the contact w.r.t the CoM frame
+			Eigen::Vector3d actual_pos = foot_it->second;
+
+			// Getting the target position of the contact w.r.t the CoM frame
+			Eigen::Vector3d target_pos;
+			Eigen::Vector3d foot_shift = (Eigen::Vector3d) swing_it->second;
+			Eigen::Vector3d stance_pos;
+			stance_pos << stance_posture_.find(name)->second.head<3>();
+			target_pos = stance_pos + foot_shift;
+
+			// Initializing the foot pattern generator
+			simulation::StepParameters step_params(params.duration,//num_samples * sample_time_,
+												   step_height_);
+			feet_spline_generator_[name].setParameters(state.time,
+													   actual_pos,
+													   target_pos,
+													   step_params);
+		}
+	}
+}
+
+
+void PreviewLocomotion::generateSwing(PreviewState& state,
+									  double time)
+{
+	// Generating the actual state for every feet
 	Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-	double time;
-	for (unsigned int k = 0; k < num_samples + 1; k++) {
-		// Computing the current time of the preview trajectory
-		if (k == num_samples)
-			time = state.time + params.duration;
-		else
-			time = state.time + sample_time_ * (k + 1);
+	for (rbd::BodyVector::const_iterator foot_it = actual_state_.foot_pos.begin();
+			foot_it != actual_state_.foot_pos.end(); foot_it++) {
+		std::string name = foot_it->first;
 
-		// Generating the actual state for every feet
-		for (rbd::BodyVector::const_iterator foot_it = state.foot_pos.begin();
-				foot_it != state.foot_pos.end(); foot_it++) {
-			std::string name = foot_it->first;
+		// Checking the feet that swing
+		rbd::BodyPosition::const_iterator swing_it = swing_params_.feet_shift.find(name);
+		if (swing_it != swing_params_.feet_shift.end()) {
+			// Generating the swing positions, velocities and accelerations
+			feet_spline_generator_[name].generateTrajectory(foot_pos,
+															foot_vel,
+															foot_acc,
+															time);
 
-			// Checking the feet that swing
-			rbd::BodyPosition::const_iterator swing_it = params.feet_shift.find(name);
-			if (swing_it != params.feet_shift.end()) {
-				if (k == 0) { // Initialization of the swing generator
-					// Getting the actual position of the contact w.r.t the CoM frame
-					Eigen::Vector3d actual_pos = foot_it->second;
+			// Adding the swing state to the trajectory
+			state.foot_pos[name] = foot_pos;
+			state.foot_vel[name] = foot_vel;
+			state.foot_acc[name] = foot_acc;
+		} else {
+			// There is not swing trajectory to generated (foot on ground).
+			// Nevertheless, we have to updated their positions w.r.t the CoM frame
+			// Getting the actual position of the contact w.r.t the CoM frame
+			Eigen::Vector3d actual_pos = foot_it->second;
 
-					// Getting the target position of the contact w.r.t the base
-					Eigen::Vector3d target_pos;
-					Eigen::Vector3d foot_shift = (Eigen::Vector3d) swing_it->second;
-					Eigen::Vector3d stance_pos;
-					stance_pos << stance_posture_.find(name)->second.head<3>();
-					target_pos = stance_pos + foot_shift;
+			// Getting the CoM position of the specific time
+			Eigen::Vector3d com_pos = state.com_pos;
+			Eigen::Vector3d com_vel = state.com_vel;
+			Eigen::Vector3d com_acc = state.com_acc;
 
-					// Initializing the foot pattern generator
-					simulation::StepParameters step_params(num_samples * sample_time_,
-														   step_height_);
-					feet_spline_generator_[name].setParameters(state.time,
-															   actual_pos,
-															   target_pos,
-															   step_params);
-				}
-
-				// Generating the swing positions, velocities and accelerations
-				feet_spline_generator_[name].generateTrajectory(foot_pos,
-																foot_vel,
-																foot_acc,
-																time);
-
-				// Adding the swing state to the trajectory
-				trajectory[k].foot_pos[name] = foot_pos;
-				trajectory[k].foot_vel[name] = foot_vel;
-				trajectory[k].foot_acc[name] = foot_acc;
-			} else {
-				// There is not swing trajectory to generated (foot on ground).
-				// Nevertheless, we have to updated their positions w.r.t the CoM frame
-				// Getting the actual position of the contact w.r.t the CoM frame
-				Eigen::Vector3d actual_pos = foot_it->second;
-
-				// Getting the CoM position of the specific time
-				Eigen::Vector3d com_pos = trajectory[k].com_pos;
-				Eigen::Vector3d com_vel = trajectory[k].com_vel;
-				Eigen::Vector3d com_acc = trajectory[k].com_acc;
-
-				// Adding the foot states w.r.t. the CoM frame// TODO Add rotation matrix for yaw
-				trajectory[k].foot_pos[name] = actual_pos - (com_pos - state.com_pos);//b_R_w*(com_pos - state.com_pos);
-				trajectory[k].foot_vel[name] = -com_vel;//b_R_w*(com_vel)
-				trajectory[k].foot_acc[name] = -com_acc;//b_R_w*(com_acc)
-			}
+			// Adding the foot states w.r.t. the CoM frame// TODO Add rotation matrix for yaw
+			state.foot_pos[name] = actual_pos - (com_pos - actual_state_.com_pos);//b_R_w*(com_pos - state.com_pos);
+			state.foot_vel[name] = -com_vel;//b_R_w*(com_vel)
+			state.foot_acc[name] = -com_acc;//b_R_w*(com_acc)
 		}
 	}
 }
