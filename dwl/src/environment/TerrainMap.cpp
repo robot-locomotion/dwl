@@ -110,6 +110,26 @@ void TerrainMap::setStateResolution(double position_resolution,
 	obstacle_discretization_.setStateResolution(position_resolution,
 												angular_resolution);
 }
+
+
+double TerrainMap::getTerrainHeight(const Vertex& vertex)
+{
+	HeightMap::iterator height_it = heightmap_.find(vertex);
+	if (height_it != heightmap_.end())
+		return height_it->second;
+	else
+		return 0.;
+}
+
+
+double TerrainMap::getTerrainHeight(const Eigen::Vector2d position)
+{
+	// Getting the vertex
+	Vertex vertex;
+	terrain_discretization_.coordToVertex(vertex, position);
+
+	// Getting the height value
+	return getTerrainHeight(vertex);
 }
 
 
