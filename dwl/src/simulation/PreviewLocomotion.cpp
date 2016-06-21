@@ -230,11 +230,11 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 							control.params[k-1].duration > sample_time_) {
 						// Computing the target foothold of the contact w.r.t
 						// the world frame
-						Eigen::Vector2d foot_2d_shift =
+						Eigen::Vector2d footshift_2d =
 								control.params[k-1].phase.getFootShift(name);
-						Eigen::Vector3d foot_shift(foot_2d_shift(rbd::X),
-												   foot_2d_shift(rbd::Y),
-												   0.);
+						Eigen::Vector3d footshift(footshift_2d(rbd::X),
+												  footshift_2d(rbd::Y),
+												  0.);
 						Eigen::Vector3d stance_pos;
 						stance_pos << stance_posture_.find(name)->second.head<2>(),
 									  last_suppport_region.find(name)->second(rbd::Z);
@@ -244,8 +244,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 													   actual_state.com_pos(rbd::Y),
 													   0.);
 						Eigen::Vector3d next_foothold =
-								planar_com_pos + stance_pos + foot_shift;
-
+								planar_com_pos + stance_pos + footshift;
 						actual_state.support_region[name] = next_foothold;
 					}
 				}
@@ -495,13 +494,13 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 void PreviewLocomotion::initSwing(const PreviewState& state,
 								  const PreviewParams& params)
 {
+	// Updating the actual state
 	actual_state_ = state;
 
 	// Getting the swing shift per foot
 	rbd::BodyPosition swing_shift;
 	for (unsigned int j = 0; j < params.phase.feet.size(); j++) {
-		std::string foot_name = params.phase.feet[j];
-		Eigen::Vector2d foot_shift_2d = params.phase.getFootShift(foot_name);
+		std::string name = params.phase.feet[j];
 
 		// Computing the z displacement of the foot from the height map. TODO hard coded
 //					Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
@@ -510,7 +509,7 @@ void PreviewLocomotion::initSwing(const PreviewState& state,
 		Eigen::Vector3d foot_shift(foot_shift_2d(dwl::rbd::X),
 								   foot_shift_2d(dwl::rbd::Y),
 								   z_shift);
-		swing_shift[foot_name] = foot_shift;
+		swing_shift[name] = footshift;
 	}
 
 	// Adding the swing pattern
