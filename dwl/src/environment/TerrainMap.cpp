@@ -112,6 +112,27 @@ void TerrainMap::setStateResolution(double position_resolution,
 }
 
 
+Weight TerrainMap::getTerrainCost(const Vertex& vertex)
+{
+	CostMap::iterator cost_it = costmap_.find(vertex);
+	if (cost_it != costmap_.end())
+		return cost_it->second;
+	else
+		return 0.;
+}
+
+
+Weight TerrainMap::getTerrainCost(const Eigen::Vector2d& position)
+{
+	// Getting the vertex
+	Vertex vertex;
+	terrain_discretization_.coordToVertex(vertex, position);
+
+	// Getting the cost value
+	return getTerrainCost(vertex);
+}
+
+
 double TerrainMap::getTerrainHeight(const Vertex& vertex)
 {
 	HeightMap::iterator height_it = heightmap_.find(vertex);

@@ -58,6 +58,20 @@ class TerrainMap
 		void setStateResolution(double position_resolution, double angular_resolution);
 
 		/**
+		 * @brief Gets the terrain cost
+		 * @param const Vertex& Vertex id
+		 * @return double Cost value
+		 */
+		Weight getTerrainCost(const Vertex& vertex);
+
+		/**
+		 * @brief Gets the terrain cost
+		 * @param const Eigen::Vector2d& Position
+		 * @return double Cost value
+		 */
+		Weight getTerrainCost(const Eigen::Vector2d& position);
+
+		/**
 		 * @brief Gets the terrain height
 		 * @param const Vertex& Vertex id
 		 * @return double Height value
