@@ -195,6 +195,9 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		return;
 	}
 
+	// Updating the actual state
+	actual_state_ = state;
+
 	// Clearing the trajectory
 	trajectory.clear();
 
@@ -309,6 +312,9 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 		printf(RED "Error: the robot model was not initialized\n" COLOR_RESET);
 		return;
 	}
+
+	// Updating the actual state
+	actual_state_ = state;
 
 	// Initializing the CoM energy vector
 	com_energy.setZero();
@@ -494,21 +500,42 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 void PreviewLocomotion::initSwing(const PreviewState& state,
 								  const PreviewParams& params)
 {
-	// Updating the actual state
-	actual_state_ = state;
+	// Updating the phase state
+	phase_state_ = state;
+
+	// Computing the terminal CoM state for getting the foothold position
+	ReducedBodyState terminal_state;
+	cart_table_.computeResponse(terminal_state,
+								state.time + params.duration);
 
 	// Getting the swing shift per foot
 	rbd::BodyPosition swing_shift;
 	for (unsigned int j = 0; j < params.phase.feet.size(); j++) {
 		std::string name = params.phase.feet[j];
+		Eigen::Vector2d footshift_2d = params.phase.getFootShift(name);
+		Eigen::Vector3d footshift_3d(footshift_2d(rbd::X),
+									 footshift_2d(rbd::Y),
+									 0.);
 
-		// Computing the z displacement of the foot from the height map. TODO hard coded
-//					Eigen::Vector3d terminal_base_pos = phase_traj.end()->com_pos - actual_system_com_;
-//					Eigen::Vector2d foothold_2d = foot_shift_2d + terminal_base_pos.head<2>();
-		double z_shift = -0.017;
-		Eigen::Vector3d foot_shift(foot_shift_2d(dwl::rbd::X),
-								   foot_shift_2d(dwl::rbd::Y),
-								   z_shift);
+		// Computing the foothold position w.r.t. the world
+		Eigen::Vector3d stance = stance_posture_.find(name)->second;
+		Eigen::Vector3d foothold =
+				terminal_state.com_pos + stance + footshift_3d;
+
+		// Computing the foot shift in z from the height map. In case of no
+		// having the terrain height map, it assumes flat terrain conditions.
+		// Note that we compensate small drift between the actual and the
+		// default postures
+		double actual_foot_z = actual_state_.foot_pos.find(name)->second(rbd::Z);
+		double footshift_z = actual_foot_z - stance(rbd::Z);
+		if (terrain_.isTerrainInformation()) {
+			Eigen::Vector2d foothold_2d = foothold.head<2>();
+			footshift_z += terrain_.getTerrainHeight(foothold_2d);
+		}
+
+		Eigen::Vector3d footshift(footshift_2d(dwl::rbd::X),
+								  footshift_2d(dwl::rbd::Y),
+								  footshift_z);
 		swing_shift[name] = footshift;
 	}
 
@@ -528,11 +555,9 @@ void PreviewLocomotion::initSwing(const PreviewState& state,
 			Eigen::Vector3d actual_pos = foot_it->second;
 
 			// Getting the target position of the contact w.r.t the CoM frame
-			Eigen::Vector3d target_pos;
-			Eigen::Vector3d foot_shift = (Eigen::Vector3d) swing_it->second;
-			Eigen::Vector3d stance_pos;
-			stance_pos << stance_posture_.find(name)->second.head<3>();
-			target_pos = stance_pos + foot_shift;
+			Eigen::Vector3d footshift = (Eigen::Vector3d) swing_it->second;
+			Eigen::Vector3d stance_pos = stance_posture_.find(name)->second.head<3>();
+			Eigen::Vector3d target_pos = stance_pos + footshift;
 
 			// Initializing the foot pattern generator
 			simulation::StepParameters step_params(params.duration,//num_samples * sample_time_,
@@ -551,8 +576,8 @@ void PreviewLocomotion::generateSwing(PreviewState& state,
 {
 	// Generating the actual state for every feet
 	Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-	for (rbd::BodyVector::const_iterator foot_it = actual_state_.foot_pos.begin();
-			foot_it != actual_state_.foot_pos.end(); foot_it++) {
+	for (rbd::BodyVector::const_iterator foot_it = phase_state_.foot_pos.begin();
+			foot_it != phase_state_.foot_pos.end(); foot_it++) {
 		std::string name = foot_it->first;
 
 		// Checking the feet that swing
@@ -580,7 +605,7 @@ void PreviewLocomotion::generateSwing(PreviewState& state,
 			Eigen::Vector3d com_acc = state.com_acc;
 
 			// Adding the foot states w.r.t. the CoM frame// TODO Add rotation matrix for yaw
-			state.foot_pos[name] = actual_pos - (com_pos - actual_state_.com_pos);//b_R_w*(com_pos - state.com_pos);
+			state.foot_pos[name] = actual_pos - (com_pos - phase_state_.com_pos);//b_R_w*(com_pos - state.com_pos);
 			state.foot_vel[name] = -com_vel;//b_R_w*(com_vel)
 			state.foot_acc[name] = -com_acc;//b_R_w*(com_acc)
 		}

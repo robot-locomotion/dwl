@@ -397,10 +397,13 @@ class PreviewLocomotion
 
 
 	private:
+		/** @brief Actual preview state */
+		PreviewState actual_state_;
+
 		/** @brief Feet spline generator */
 		std::map<std::string,simulation::FootSplinePatternGenerator> feet_spline_generator_;
 		SwingParams swing_params_;
-		PreviewState actual_state_;
+		PreviewState phase_state_;
 
 		/** @brief Floating-base system information */
 		model::FloatingBaseSystem system_;
