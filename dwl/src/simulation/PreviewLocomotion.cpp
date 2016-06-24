@@ -203,7 +203,6 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 
 	// Computing the preview for multi-phase
 	PreviewState actual_state;
-	rbd::BodyPosition last_suppport_region;
 	for (unsigned int k = 0; k < control.params.size(); k++) {
 		PreviewTrajectory phase_traj;
 
@@ -222,32 +221,28 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 					std::string name = feet_names_[f];
 
 					// Removing the swing foot of the actual phase
-					if (preview_params.phase.isSwingFoot(name)) {
-						last_suppport_region[name] =
-								actual_state.support_region.find(name)->second;
+					if (preview_params.phase.isSwingFoot(name))
 						actual_state.support_region.erase(name);
-					}
 
 					// Adding the foothold target of the previous phase
 					if (control.params[k-1].phase.isSwingFoot(name) &&
 							control.params[k-1].duration > sample_time_) {
+						Eigen::Vector3d stance =
+								stance_posture_.find(name)->second.head<3>();
+
 						// Computing the target foothold of the contact w.r.t
 						// the world frame
 						Eigen::Vector2d footshift_2d =
 								control.params[k-1].phase.getFootShift(name);
+						double actual_foot_z = actual_state_.foot_pos.find(name)->second(rbd::Z);
+						double footshift_z = actual_foot_z - stance(rbd::Z);
 						Eigen::Vector3d footshift(footshift_2d(rbd::X),
 												  footshift_2d(rbd::Y),
-												  0.);
-						Eigen::Vector3d stance_pos;
-						stance_pos << stance_posture_.find(name)->second.head<2>(),
-									  last_suppport_region.find(name)->second(rbd::Z);
+												  footshift_z);
 
 						// Computing the foothold target position
-						Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
-													   actual_state.com_pos(rbd::Y),
-													   0.);
 						Eigen::Vector3d next_foothold =
-								planar_com_pos + stance_pos + footshift;
+								actual_state.com_pos + stance + footshift;
 						actual_state.support_region[name] = next_foothold;
 					}
 				}
@@ -278,24 +273,22 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 		// Adding the foothold target of the current phase
 		if (end_control.phase.isSwingFoot(name) &&
 				end_control.duration > sample_time_) {
+			Eigen::Vector3d stance =
+					stance_posture_.find(name)->second.head<3>();
+
 			// Computing the target foothold of the contact w.r.t
 			// the world frame
-			Eigen::Vector2d foot_2d_shift =
+			Eigen::Vector2d footshift_2d =
 					end_control.phase.getFootShift(name);
-			Eigen::Vector3d foot_shift(foot_2d_shift(rbd::X),
-									   foot_2d_shift(rbd::Y),
-									   0.);
-			Eigen::Vector3d stance_pos;
-			stance_pos << stance_posture_.find(name)->second.head<2>(),
-						  last_suppport_region.find(name)->second(rbd::Z);
+			double actual_foot_z = actual_state_.foot_pos.find(name)->second(rbd::Z);
+			double footshift_z = actual_foot_z - stance(rbd::Z);
+			Eigen::Vector3d footshift(footshift_2d(rbd::X),
+									  footshift_2d(rbd::Y),
+									  footshift_z);
 
 			// Computing the foothold target position
-			Eigen::Vector3d planar_com_pos(actual_state.com_pos(rbd::X),
-										   actual_state.com_pos(rbd::Y),
-										   0.);
 			Eigen::Vector3d next_foothold =
-					planar_com_pos + stance_pos + foot_shift;
-
+					actual_state.com_pos + stance + footshift;
 			actual_state.support_region[name] = next_foothold;
 		}
 	}
@@ -321,7 +314,6 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 
 	// Computing the energy for multi-phase
 	PreviewState actual_state = state;
-	rbd::BodyPosition last_suppport_region;
 	for (unsigned int k = 0; k < control.params.size(); k++) {
 		// Getting the preview params of the actual phase
 		PreviewParams preview_params = control.params[k];
