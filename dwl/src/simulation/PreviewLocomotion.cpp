@@ -241,9 +241,16 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 												  footshift_z);
 
 						// Computing the foothold target position
-						Eigen::Vector3d next_foothold =
+						Eigen::Vector3d foothold =
 								actual_state.com_pos + stance + footshift;
-						actual_state.support_region[name] = next_foothold;
+
+						// Updating the z-component given the height map
+						if (terrain_.isTerrainInformation()) {
+							Eigen::Vector2d foothold_2d = foothold.head<2>();
+							foothold(rbd::Z) += terrain_.getTerrainHeight(foothold_2d);
+						}
+
+						actual_state.support_region[name] = foothold;
 					}
 				}
 			}
@@ -287,9 +294,16 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 									  footshift_z);
 
 			// Computing the foothold target position
-			Eigen::Vector3d next_foothold =
+			Eigen::Vector3d foothold =
 					actual_state.com_pos + stance + footshift;
-			actual_state.support_region[name] = next_foothold;
+
+			// Updating the z-component given the height map
+			if (terrain_.isTerrainInformation()) {
+				Eigen::Vector2d foothold_2d = foothold.head<2>();
+				foothold(rbd::Z) += terrain_.getTerrainHeight(foothold_2d);
+			}
+
+			actual_state.support_region[name] = foothold;
 		}
 	}
 	trajectory.push_back(actual_state);
