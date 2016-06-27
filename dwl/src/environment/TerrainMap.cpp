@@ -13,6 +13,7 @@ TerrainMap::TerrainMap() :
 		average_cost_(0), terrain_information_(false),
 		obstacle_information_(false),
 		terrain_resolution_(std::numeric_limits<double>::max()),
+		height_resolution_(std::numeric_limits<double>::max()),
 		obstacle_resolution_(std::numeric_limits<double>::max())
 {
 
@@ -39,8 +40,9 @@ void TerrainMap::setRewardMap(std::vector<RewardCell> reward_map)
 	if (reward_map.size() != 0) {
 		// Setting the resolution
 		terrain_resolution_ = reward_map[0].plane_size;
+		height_resolution_ = reward_map[0].height_size;
 		setTerrainResolution(terrain_resolution_, true);
-		setTerrainResolution(reward_map[0].height_size, false);
+		setTerrainResolution(height_resolution_, false);
 
 		for (unsigned int i = 0; i < reward_map.size(); i++) {
 			// Building a cost-map for a every 3d vertex
@@ -175,6 +177,12 @@ void TerrainMap::getObstacleMap(ObstacleMap& obstaclemap)
 double TerrainMap::getTerrainResolution()
 {
 	return terrain_resolution_;
+}
+
+
+double TerrainMap::getHeightResolution()
+{
+	return height_resolution_;
 }
 
 

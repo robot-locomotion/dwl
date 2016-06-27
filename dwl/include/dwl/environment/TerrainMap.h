@@ -110,6 +110,9 @@ class TerrainMap
 		/** @brief Gets the terrain resolution (cost and height map) */
 		double getTerrainResolution();
 
+		/** @brief Gets the height resolution */
+		double getHeightResolution();
+
 		/** @brief Gets the obstacle resolution */
 		double getObstacleResolution();
 
@@ -178,6 +181,9 @@ class TerrainMap
 
 		/** @brief Terrain resolution (cost and height map) of the environment */
 		double terrain_resolution_;
+
+		/** @brief Height map resolution of the environment */
+		double height_resolution_;
 
 		/** @brief Obstacle resolution of the environment */
 		double obstacle_resolution_;
