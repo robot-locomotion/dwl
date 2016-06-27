@@ -234,8 +234,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 						// the world frame
 						Eigen::Vector2d footshift_2d =
 								control.params[k-1].phase.getFootShift(name);
-						double actual_foot_z = actual_state_.foot_pos.find(name)->second(rbd::Z);
-						double footshift_z = actual_foot_z - stance(rbd::Z);
+						double footshift_z =
+								-(cart_table_.getPendulumHeight() + stance(rbd::Z));
 						Eigen::Vector3d footshift(footshift_2d(rbd::X),
 												  footshift_2d(rbd::Y),
 												  footshift_z);
@@ -287,8 +287,8 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 			// the world frame
 			Eigen::Vector2d footshift_2d =
 					end_control.phase.getFootShift(name);
-			double actual_foot_z = actual_state_.foot_pos.find(name)->second(rbd::Z);
-			double footshift_z = actual_foot_z - stance(rbd::Z);
+			double footshift_z =
+					-(cart_table_.getPendulumHeight() + stance(rbd::Z));
 			Eigen::Vector3d footshift(footshift_2d(rbd::X),
 									  footshift_2d(rbd::Y),
 									  footshift_z);
@@ -532,8 +532,7 @@ void PreviewLocomotion::initSwing(const PreviewState& state,
 		// having the terrain height map, it assumes flat terrain conditions.
 		// Note that we compensate small drift between the actual and the
 		// default postures
-		double actual_foot_z = actual_state_.foot_pos.find(name)->second(rbd::Z);
-		double footshift_z = actual_foot_z - stance(rbd::Z);
+		double footshift_z = -(cart_table_.getPendulumHeight() + stance(rbd::Z));
 		if (terrain_.isTerrainInformation()) {
 			Eigen::Vector2d foothold_2d = foothold.head<2>();
 			footshift_z += terrain_.getTerrainHeight(foothold_2d);
