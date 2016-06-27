@@ -116,6 +116,12 @@ class PreviewOptimization : public model::OptimizationModel
 									  double y_weight);
 
 		/**
+		 * @brief Sets the terrain cost weight
+		 * @param double Terrain weight
+		 */
+		void setTerrainWeight(double weight);
+
+		/**
 		 * @brief Sets the reference step properties
 		 * @param double Step duration
 		 * @param double Step distance
