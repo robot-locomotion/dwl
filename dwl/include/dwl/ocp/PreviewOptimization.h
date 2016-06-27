@@ -281,6 +281,7 @@ class PreviewOptimization : public model::OptimizationModel
 		double step_time_weight_;
 		double step_dist_weight_;
 		Eigen::Vector3d acc_int_weight_;
+		double terrain_weight_;
 
 		/** @brief Feet information */
 		rbd::BodySelector feet_;
