@@ -91,6 +91,10 @@ class LinearControlledCartTableModel
 								 const ReducedBodyState& initial_state,
 								 const CartTableControlParams& params);
 
+		/** @brief Gets the pendulum height */
+		double getPendulumHeight();
+
+
 	private:
 		/** @brief Cart-table model properties */
 		CartTableProperties properties_;
@@ -105,6 +109,7 @@ class LinearControlledCartTableModel
 		ReducedBodyState initial_state_;
 
 		/** @brief Horizontal dynamic coefficients */
+		double height_;
 		double omega_;
 		Eigen::Vector2d beta_1_;
 		Eigen::Vector2d beta_2_;

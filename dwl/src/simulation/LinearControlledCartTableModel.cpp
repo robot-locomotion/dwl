@@ -8,7 +8,7 @@ namespace simulation
 {
 
 LinearControlledCartTableModel::LinearControlledCartTableModel() :
-		init_model_(false),	init_response_(false), omega_(0.)
+		init_model_(false),	init_response_(false), height_(0.), omega_(0.)
 {
 
 }
@@ -43,8 +43,8 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	params_ = params;
 
 	// Computing the coefficients of the Cart-Table response
-	double height = initial_state_.com_pos(rbd::Z) - initial_state_.cop(rbd::Z);
-	omega_ = sqrt(properties_.gravity / height);
+	height_ = initial_state_.com_pos(rbd::Z) - initial_state_.cop(rbd::Z);
+	omega_ = sqrt(properties_.gravity / height_);
 	double alpha = 2 * omega_ * params_.duration;
 	Eigen::Vector2d hor_proj = (initial_state_.com_pos - initial_state_.cop).head<2>();
 	Eigen::Vector2d hor_disp = initial_state_.com_vel.head<2>() * params_.duration;
@@ -126,6 +126,12 @@ void LinearControlledCartTableModel::computeSystemEnergy(Eigen::Vector3d& com_en
 
 	// There is not energy associated to the vertical movement
 	com_energy(rbd::Z) = 0;
+}
+
+
+double LinearControlledCartTableModel::getPendulumHeight()
+{
+	return height_;
 }
 
 } //@namespace simulation
