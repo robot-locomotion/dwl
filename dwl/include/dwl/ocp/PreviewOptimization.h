@@ -204,6 +204,8 @@ class PreviewOptimization : public model::OptimizationModel
 										  const simulation::PreviewControl& preview_control);
 		double previewModelSoftConstraint(const simulation::PreviewTrajectory& preview_trans,
 										  const simulation::PreviewControl& preview_control);
+		double terrainCost(const simulation::PreviewTrajectory& preview_trans,
+						   const simulation::PreviewControl& preview_control);
 
 		/** @brief Returns the control dimension of the preview schedule */
 		unsigned int getControlDimension();
