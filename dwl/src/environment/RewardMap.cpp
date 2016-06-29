@@ -90,10 +90,13 @@ void RewardMap::compute(octomap::OcTree* octomap,
 		for (double y = boundary_min(1); y <= boundary_max(1); y += resolution) {
 			for (double x = boundary_min(0); x <= boundary_max(0); x += resolution) {
 				// Computing the rotated coordinate of the point inside the search area
-				double xr = (x - robot_state(0)) * cos(yaw) - (y - robot_state(1)) * sin(yaw) + robot_state(0);
-				double yr = (x - robot_state(0)) * sin(yaw) + (y - robot_state(1)) * cos(yaw) + robot_state(1);
+				double xr = (x - robot_state(0)) * cos(yaw) -
+							(y - robot_state(1)) * sin(yaw) + robot_state(0);
+				double yr = (x - robot_state(0)) * sin(yaw) +
+							(y - robot_state(1)) * cos(yaw) + robot_state(1);
 
-				// Checking if the cell belongs to dimensions of the map, and also getting the key of this cell
+				// Checking if the cell belongs to dimensions of the map,
+				// and also getting the key of this cell
 				double z = search_areas_[n].max_z + robot_state(2);
 				octomap::OcTreeKey init_key;
 				if (!octomap->coordToKeyChecked(xr, yr, z, depth_, init_key)) {
@@ -143,7 +146,8 @@ void RewardMap::compute(octomap::OcTree* octomap,
 								}
 
 								if (new_status)
-									addCellToTerrainHeightMap(vertex_id, (double) cell_position(2));
+									addCellToTerrainHeightMap(vertex_id,
+															 (double) cell_position(2));
 							}
 							break;
 						}
@@ -286,8 +290,8 @@ void RewardMap::computeRewards(octomap::OcTree* octomap,
 		addCellToRewardMap(cell);
 	}
 	else {
-		printf(YELLOW "Could not computed the reward of the features because it is necessary to "
-				"add at least one\n" COLOR_RESET);
+		printf(YELLOW "Could not computed the reward of the features because it"
+				" is necessary to add at least one\n" COLOR_RESET);
 	}
 }
 
