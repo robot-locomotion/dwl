@@ -109,10 +109,10 @@ function install_yamlcpp
 	# Remove old folder (sanity procedure)
 	rm -rf yaml-cpp
 
-	# Getting the YAML-CPP 0.5.3
-	wget https://github.com/jbeder/yaml-cpp/archive/release-0.5.3.zip
-	unzip release-0.5.3.zip && rm -rf release-0.5.3.zip
-	mv yaml-cpp-release-0.5.3 yaml-cpp
+	# Getting the YAML-CPP 0.5.1
+	wget https://github.com/jbeder/yaml-cpp/archive/release-0.5.1.zip
+	unzip release-0.5.1.zip && rm -rf release-0.5.1.zip
+	mv yaml-cpp-release-0.5.1 yaml-cpp
 	cd yaml-cpp
 	mkdir -p build
 	cd build
@@ -406,7 +406,7 @@ fi
 echo ""
 echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
 if [ -d "$DWL_INSTALL_PREFIX/include/yaml-cpp" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.3? [y/N]: ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.1? [y/N]: ${COLOR_RESET}"
 	read ANSWER_YAMLCPP
 	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
 		install_yamlcpp
