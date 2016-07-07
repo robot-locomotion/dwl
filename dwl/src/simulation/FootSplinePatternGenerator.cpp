@@ -30,7 +30,15 @@ void FootSplinePatternGenerator::setParameters(const double& initial_time,
 	duration_ = params.duration;
 
 	// Computing the appex of the swing movement
-	double target_appex = target_pos(rbd::Z) + params.height;
+	Eigen::Vector3d step_delta = target_pos - initial_pos;
+	double height_dist = fabs((double) step_delta(rbd::Z));
+	double step2d_dist = fabs(step_delta.head<2>().norm());
+	double step_theta = atan(height_dist / step2d_dist);
+	double target_appex;
+	if (target_pos(rbd::Z) >= initial_pos(rbd::Z))
+		target_appex = target_pos(rbd::Z) + params.height * cos(step_theta);
+	else
+		target_appex = initial_pos(rbd::Z) + params.height * cos(step_theta);
 
 	// Setting the spline boundaries
 	foot_spliner_x_.setBoundary(initial_time,
@@ -48,8 +56,8 @@ void FootSplinePatternGenerator::setParameters(const double& initial_time,
 	foot_spliner_down_z_.setBoundary(initial_time + params.duration / 2,
 									 params.duration / 2,
 									 target_appex,
-									 (double) target_appex -
-									 (1 + penetration_) * params.height);
+									 (double) target_pos(rbd::Z) -
+									 penetration_ * params.height);
 }
 
 
