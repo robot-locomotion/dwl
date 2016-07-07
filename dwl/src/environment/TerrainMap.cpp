@@ -10,7 +10,7 @@ namespace environment
 TerrainMap::TerrainMap() :
 		terrain_discretization_(0.04, 0.04, M_PI / 200),
 		obstacle_discretization_(0.04, 0.04, M_PI / 200),
-		average_cost_(0), terrain_information_(false),
+		average_cost_(0.), max_cost_(0.), terrain_information_(false),
 		obstacle_information_(false),
 		terrain_resolution_(std::numeric_limits<double>::max()),
 		height_resolution_(std::numeric_limits<double>::max()),
@@ -47,7 +47,12 @@ void TerrainMap::setRewardMap(std::vector<RewardCell> reward_map)
 		for (unsigned int i = 0; i < reward_map.size(); i++) {
 			// Building a cost-map for a every 3d vertex
 			terrain_discretization_.keyToVertex(vertex_2d, reward_map[i].key, true);
-			costmap_[vertex_2d] = -reward_map[i].reward;
+			double cost_value = -reward_map[i].reward;
+			costmap_[vertex_2d] = cost_value;
+
+			// Setting up the maximum cost value
+			if (cost_value > max_cost_)
+				max_cost_ = cost_value;
 
 			// Building a height map (3d vertex) according to certain 2d position (2d vertex)
 			double height;
@@ -120,7 +125,7 @@ Weight TerrainMap::getTerrainCost(const Vertex& vertex)
 	if (cost_it != costmap_.end())
 		return cost_it->second;
 	else
-		return 0.;
+		return max_cost_; // pass the maximum cost for unknown cases
 }
 
 

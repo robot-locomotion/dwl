@@ -173,6 +173,9 @@ class TerrainMap
 		/** @brief Average terrain cost which is used for unknown areas */
 		double average_cost_;
 
+		/** @brief Maximum cost value */
+		double max_cost_;
+
 		/** @brief Indicates if it was defined terrain information */
 		bool terrain_information_;
 
