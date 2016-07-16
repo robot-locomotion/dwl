@@ -30,8 +30,8 @@ The algorithms are built primarily in C/C++. The library uses a number of the lo
 DWL has the following required dependencies:
 * [Boost](http://www.boost.org) (version 1.5.4 or higher)
 * [CMake](http://www.cmake.org) (version 2.8.3 or higher)
-* [Eigen](http://eigen.tuxfamily.org) (version 3.2.4 or higher)
-* [Yaml-cpp](https://code.google.com/p/yaml-cpp/) (version 0.2.7 or higher)
+* [Eigen](http://eigen.tuxfamily.org) (version 3.2.7 or higher)
+* [Yaml-cpp](https://code.google.com/p/yaml-cpp/) (version 0.5.1 or higher)
 * [RBDL](http://rbdl.bitbucket.org/) (version 2.4.0 or higher)
 * [urdfdom_header](https://github.com/ros/urdfdom_headers) (version 0.2.3 or higher)
 * [console_bridge](https://github.com/ros/console_bridge) (version 0.2.7 or higher)
