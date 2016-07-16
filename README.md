@@ -72,6 +72,6 @@ Installation
 
 Publications
 ===============================================
-* C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, Hierarchical Planning of Dynamic Movements without Scheduled Contact Sequences, IEEE International Conference on Robotics and Automation (ICRA), 2016
-* C. Mastalli, A. Winkler, I. Havoutis, D. G. Caldwell, C. Semini, On-line and On-board Planning and Perception for Quadrupedal Locomotion, IEEE International Conference on Technologies for Practical Robot Applications (TEPRA), 2015
-* A. Winkler, C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, Planning and Execution of Dynamic Whole-Body Locomotion for a Hydraulic Quadruped on Challenging Terrain, IEEE International Conference on Robotics and Automation (ICRA), 2015
+* C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, [Hierarchical Planning of Dynamic Movements without Scheduled Contact Sequences](http://iit.it/images/stories/advanced-robotics/hyq_files/publications/icra16mastalli.pdf), IEEE International Conference on Robotics and Automation (ICRA), 2016
+* C. Mastalli, A. Winkler, I. Havoutis, D. G. Caldwell, C. Semini, [On-line and On-board Planning and Perception for Quadrupedal Locomotion](http://iit.it/images/stories/advanced-robotics/hyq_files/publications/mastalli15tepra.pdf), IEEE International Conference on Technologies for Practical Robot Applications (TEPRA), 2015
+* A. Winkler, C. Mastalli, I. Havoutis, M. Focchi, D. G. Caldwell, C. Semini, [Planning and Execution of Dynamic Whole-Body Locomotion for a Hydraulic Quadruped on Challenging Terrain](http://iit.it/images/stories/advanced-robotics/hyq_files/publications/winkler15icra.pdf), IEEE International Conference on Robotics and Automation (ICRA), 2015
