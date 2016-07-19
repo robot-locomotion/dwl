@@ -20,24 +20,42 @@ class WholeBodyState
 		/** @brief Destructor function */
 		~WholeBodyState();
 
+		// Base state getter functions
+		/** @brief Gets the base position in the world frame */
+		Eigen::Vector3d getPosition_W();
 
-//		const Eigen::Vector3d& getPosition_W() const;
-//        const Eigen::Vector3d& getRPY_W() const;
-//        const Eigen::Vector3d& getRotationRate_B() const;
-//        const Eigen::Quaterniond& getOrientation_W() const;
-//        const Eigen::Quaterniond getOrientation_H() const;
-//
-//		const Eigen::Vector3d getVelocity_W() const;
-//		const Eigen::Vector3d& getVelocity_B() const;
-//        const Eigen::Vector3d getVelocity_H() const;
-//
-//        const Eigen::Vector3d& getAcceleration_B() const;
-//        const Eigen::Vector3d& getRotAcceleration_B() const;
+		/** @brief Gets the base orientation in the world frame */
+		Eigen::Quaterniond getOrientation_W();
 
+		/** @brief Gets the base RPY angles in the world frame */
+		Eigen::Vector3d getRPY_W();
 
+		/** @brief Gets the base orientation in the horizontal frame */
+		Eigen::Quaterniond getOrientation_H();
 
+		/** @brief Gets the base velocity in the world frame */
+		Eigen::Vector3d getVelocity_W();
 
+		/** @brief Gets the base velocity in the base frame */
+		Eigen::Vector3d getVelocity_B();
 
+		/** @brief Gets the base velocity in the horizontal frame */
+		Eigen::Vector3d getVelocity_H();
+
+		/** @brief Gets the base rotation rate in the base frame */
+		Eigen::Vector3d getRotationRate_B();
+
+		/** @brief Gets the base acceleration in the world frame */
+		Eigen::Vector3d getAcceleration_W();
+
+		/** @brief Gets the base acceleration in the base frame */
+		Eigen::Vector3d getAcceleration_B();
+
+		/** @brief Gets the base acceleration in the horizontal frame */
+		Eigen::Vector3d getAcceleration_H();
+
+		/** @brief Gets the base rotation acceleration in the base frame */
+		Eigen::Vector3d getRotAcceleration_B();
 
         /* setters */
 //        void setPosition_W(const Eigen::Vector3d& pos);
@@ -95,11 +113,6 @@ class WholeBodyState
 //        void setOrientation_W(const Eigen::Quaterniond& orient);
 
 
-
-
-
-
-
 		/**
 		 * @brief Sets the number of joints
 		 * @param unsigned int Number of joints
@@ -128,6 +141,17 @@ class WholeBodyState
 		rbd::BodyVector contact_vel;
 		rbd::BodyVector contact_acc;
 		rbd::BodyWrench contact_eff;
+
+	private:
+		Eigen::Matrix3d inline getRotBaseToHF() {
+			Eigen::Matrix3d R;
+			Eigen::Vector3d rpy_W = getRPY_W();
+
+			R <<  cos(rpy_W(1)),  sin(rpy_W(0))*sin(rpy_W(1)),  cos(rpy_W(0))*sin(rpy_W(1)),
+					         0.,                cos(rpy_W(0)),               -sin(rpy_W(0)),
+				 -sin(rpy_W(1)),  sin(rpy_W(0))*cos(rpy_W(1)),  cos(rpy_W(0))*cos(rpy_W(1));
+			return R;
+		}
 };
 
 /** @brief Defines a whole-body trajectory */
