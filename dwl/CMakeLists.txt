@@ -66,7 +66,8 @@ include_directories(${RBDL_INCLUDE_DIRS})
 include_directories(${YAMLCPP_INCLUDE_DIRS})
 
 # Setting the project sources
-set(${PROJECT_NAME}_SOURCES  src/locomotion/PlanningOfMotionSequence.cpp 
+set(${PROJECT_NAME}_SOURCES  src/WholeBodyState.cpp
+                             src/locomotion/PlanningOfMotionSequence.cpp 
 							 src/locomotion/HierarchicalPlanning.cpp
 							 src/locomotion/MotionPlanning.cpp
 							 src/locomotion/SearchBasedBodyMotionPlanning.cpp

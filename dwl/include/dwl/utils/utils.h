@@ -1,3 +1,4 @@
+#include <dwl/WholeBodyState.h>
 #include <dwl/utils/macros.h>
 #include <dwl/utils/DynamicLocomotion.h>
 #include <dwl/utils/GraphSearching.h>
