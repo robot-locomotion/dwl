@@ -11,6 +11,34 @@
 namespace dwl
 {
 
+/**
+ * @brief The WholeBodyState class
+ * This class incorporate the whole-body state of the robot, including:
+ * <ul>
+ *    <li>time, in seconds</li>
+ *    <li>Base position, expressed in a fixed-world frame of reference</li>
+ *    <li>Base velocity, expressed in the base frame</li>
+ *    <li>Base acceleration, expressed in the base frame</li>
+ *    <li>Base orientation, expressed in a fixed-world frame of reference</li>
+ *    <li>Base rotation rate, expressed in the base frame</li>
+ *    <li>Joint positions, expressed with the urdf order</li>
+ *    <li>Joint velocities, expressed with the urdf order</li>
+ *    <li>Joint accelerations, expressed with the urdf order</li>
+ *    <li>Joint efforts, expressed with the urdf order</li>
+ *    <li>Contact positions, expressed in the base frame</li>
+ *    <li>Contact velocites, expressed in the base frame</li>
+ *    <li>Contact accelerations, expressed in the base frame</li>
+ *    <li>Contact efforts, expressed in the base frame</li>
+ * </ul>
+ *
+ * The class provides getter and setter methods for all these states.
+ * When useful, it provides alternatives to set or get the desired physical
+ * quantity in one of the following frames of reference: W (fixed-world frame),
+ * B (base frame) and H (horizontal frame). Every getter/setter methods have one
+ * of these three letters at the end of the signature, to clearly state what is
+ * the reference frame adopted. Also convenient methods to set or get RPY angles
+ * are provided. Both Eigen and base types are available for setter methods
+ */
 class WholeBodyState
 {
 	public:
