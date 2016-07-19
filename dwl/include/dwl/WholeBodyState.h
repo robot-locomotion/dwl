@@ -129,6 +129,26 @@ class WholeBodyState
 		const rbd::BodyWrench& getContactEffort_B() const;
 		const rbd::Vector6d& getContactEffort_B(std::string name) const;
 
+		// Contact state setter functions
+		/** @brief Sets the contact positions in the base frame */
+		void setContactPosition_B(const rbd::BodyVector& pos);
+		void setContactPosition_B(std::string name,
+								 const Eigen::VectorXd& pos);
+
+		/** @brief Sets the contact velocities in the base frame */
+		void setContactVelocity_B(const rbd::BodyVector& vel);
+		void setContactVelocity_B(std::string name,
+								  const Eigen::VectorXd& vel);
+
+		/** @brief Sets the contact accelerations in the base frame */
+		void setContactAcceleration_B(const rbd::BodyVector& acc);
+		void setContactAcceleration_B(std::string name,
+									  const Eigen::VectorXd& acc);
+
+		/** @brief Sets the contact efforts in the base frame */
+		void setContactEffort_B(const rbd::BodyWrench& eff);
+		void setContactEffort_B(std::string name,
+							    const rbd::Vector6d& eff);
 
 //	private:
 		double time;

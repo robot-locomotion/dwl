@@ -286,4 +286,57 @@ const rbd::Vector6d& WholeBodyState::getContactEffort_B(std::string name) const
 	return contact_eff.find(name)->second;
 }
 
+
+
+void WholeBodyState::setContactPosition_B(const rbd::BodyVector& pos)
+{
+	contact_pos = pos;
+}
+
+
+void WholeBodyState::setContactPosition_B(std::string name,
+										  const Eigen::VectorXd& pos)
+{
+	contact_pos[name] = pos;
+}
+
+
+void WholeBodyState::setContactVelocity_B(const rbd::BodyVector& vel)
+{
+	contact_vel = vel;
+}
+
+
+void WholeBodyState::setContactVelocity_B(std::string name,
+										  const Eigen::VectorXd& vel)
+{
+	contact_vel[name] = vel;
+}
+
+
+void WholeBodyState::setContactAcceleration_B(const rbd::BodyVector& acc)
+{
+	contact_acc = acc;
+}
+
+
+void WholeBodyState::setContactAcceleration_B(std::string name,
+											  const Eigen::VectorXd& acc)
+{
+	contact_acc[name] = acc;
+}
+
+
+void WholeBodyState::setContactEffort_B(const rbd::BodyWrench& eff)
+{
+	contact_eff = eff;
+}
+
+
+void WholeBodyState::setContactEffort_B(std::string name,
+									    const rbd::Vector6d& eff)
+{
+	contact_eff[name] = eff;
+}
+
 } //@namespace dwl
