@@ -76,9 +76,34 @@ class WholeBodyState
 		void setRotAcceleration_B(const Eigen::Vector3d& rate); //TODO review
 
 
+		// Joint state getter functions
+		/** @brief Gets the joint position */
+		const Eigen::VectorXd& getJointPosition() const;
+
+		/** @brief Gets the joint velocity */
+		const Eigen::VectorXd& getJointVelocity() const;
+
+		/** @brief Gets the joint acceleration */
+		const Eigen::VectorXd& getJointAcceleration() const;
+
+		/** @brief Gets the joint effort */
+		const Eigen::VectorXd& getJointEffort() const;
 
 		/** @brief Gets the number of joints */
 		const unsigned int getJointDof() const;
+
+		// Joint state setter functions
+		/** @brief Sets the joint position */
+		void setJointPosition(const Eigen::VectorXd& joint_pos);
+
+		/** @brief Sets the joint velocity */
+		void setJointVelocity(const Eigen::VectorXd& joint_vel);
+
+		/** @brief Sets the joint acceleration */
+		void setJointAcceleration(const Eigen::VectorXd& joint_acc);
+
+		/** @brief Sets the joint effort */
+		void setJointEffort(const Eigen::VectorXd& joint_eff);
 
 		/**
 		 * @brief Sets the number of joints

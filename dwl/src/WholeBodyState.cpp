@@ -183,12 +183,58 @@ void WholeBodyState::setJointDoF(unsigned int num_joints)
 }
 
 
+const Eigen::VectorXd& WholeBodyState::getJointPosition() const
+{
+	return joint_pos;
+}
 
 
+const Eigen::VectorXd& WholeBodyState::getJointVelocity() const
+{
+	return joint_vel;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getJointAcceleration() const
+{
+	return joint_acc;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getJointEffort() const
+{
+	return joint_eff;
+}
 
 
 const unsigned int WholeBodyState::getJointDof() const
 {
 	return num_joints_;
 }
+
+
+
+void WholeBodyState::setJointPosition(const Eigen::VectorXd& pos)
+{
+	joint_pos = pos;
+}
+
+
+void WholeBodyState::setJointVelocity(const Eigen::VectorXd& vel)
+{
+	joint_vel = vel;
+}
+
+
+void WholeBodyState::setJointAcceleration(const Eigen::VectorXd& acc)
+{
+	joint_acc = acc;
+}
+
+
+void WholeBodyState::setJointEffort(const Eigen::VectorXd& eff)
+{
+	joint_eff = eff;
+}
+
 } //@namespace dwl
