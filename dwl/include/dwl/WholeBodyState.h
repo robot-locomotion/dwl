@@ -112,6 +112,23 @@ class WholeBodyState
 		void setJointDoF(unsigned int num_joints);
 
 
+		// Contact state getter functions
+		/** @brief Gets the contact positions */
+		const rbd::BodyVector& getContactPosition() const;
+		const Eigen::VectorXd& getContactPosition(std::string name) const;
+
+		/** @brief Gets the contact velocities */
+		const rbd::BodyVector& getContactVelocity() const;
+		const Eigen::VectorXd& getContactVelocity(std::string name) const;
+
+		/** @brief Gets the contact accelerations */
+		const rbd::BodyVector& getContactAcceleration() const;
+		const Eigen::VectorXd& getContactAcceleration(std::string name) const;
+
+		/** @brief Gets the contact efforts */
+		const rbd::BodyWrench& getContactEffort() const;
+		const rbd::Vector6d& getContactEffort(std::string name) const;
+
 
 //	private:
 		double time;
@@ -128,6 +145,7 @@ class WholeBodyState
 		rbd::BodyVector contact_vel;
 		rbd::BodyVector contact_acc;
 		rbd::BodyWrench contact_eff;
+
 
 	private:
 		Eigen::Matrix3d inline getRotBaseToHF() {
