@@ -239,49 +239,49 @@ void WholeBodyState::setJointEffort(const Eigen::VectorXd& eff)
 
 
 
-const rbd::BodyVector& WholeBodyState::getContactPosition() const
+const rbd::BodyVector& WholeBodyState::getContactPosition_B() const
 {
 	return contact_pos;
 }
 
 
-const Eigen::VectorXd& WholeBodyState::getContactPosition(std::string name) const
+const Eigen::VectorXd& WholeBodyState::getContactPosition_B(std::string name) const
 {
 	return contact_pos.find(name)->second;
 }
 
 
-const rbd::BodyVector& WholeBodyState::getContactVelocity() const
+const rbd::BodyVector& WholeBodyState::getContactVelocity_B() const
 {
 	return contact_vel;
 }
 
 
-const Eigen::VectorXd& WholeBodyState::getContactVelocity(std::string name) const
+const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(std::string name) const
 {
 	return contact_vel.find(name)->second;
 }
 
 
-const rbd::BodyVector& WholeBodyState::getContactAcceleration() const
+const rbd::BodyVector& WholeBodyState::getContactAcceleration_B() const
 {
 	return contact_acc;
 }
 
 
-const Eigen::VectorXd& WholeBodyState::getContactAcceleration(std::string name) const
+const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(std::string name) const
 {
 	return contact_acc.find(name)->second;
 }
 
 
-const rbd::BodyWrench& WholeBodyState::getContactEffort() const
+const rbd::BodyWrench& WholeBodyState::getContactEffort_B() const
 {
 	return contact_eff;
 }
 
 
-const rbd::Vector6d& WholeBodyState::getContactEffort(std::string name) const
+const rbd::Vector6d& WholeBodyState::getContactEffort_B(std::string name) const
 {
 	return contact_eff.find(name)->second;
 }

@@ -113,21 +113,21 @@ class WholeBodyState
 
 
 		// Contact state getter functions
-		/** @brief Gets the contact positions */
-		const rbd::BodyVector& getContactPosition() const;
-		const Eigen::VectorXd& getContactPosition(std::string name) const;
+		/** @brief Gets the contact positions in the base frame */
+		const rbd::BodyVector& getContactPosition_B() const;
+		const Eigen::VectorXd& getContactPosition_B(std::string name) const;
 
-		/** @brief Gets the contact velocities */
-		const rbd::BodyVector& getContactVelocity() const;
-		const Eigen::VectorXd& getContactVelocity(std::string name) const;
+		/** @brief Gets the contact velocities in the base frame */
+		const rbd::BodyVector& getContactVelocity_B() const;
+		const Eigen::VectorXd& getContactVelocity_B(std::string name) const;
 
-		/** @brief Gets the contact accelerations */
-		const rbd::BodyVector& getContactAcceleration() const;
-		const Eigen::VectorXd& getContactAcceleration(std::string name) const;
+		/** @brief Gets the contact accelerations in the base frame */
+		const rbd::BodyVector& getContactAcceleration_B() const;
+		const Eigen::VectorXd& getContactAcceleration_B(std::string name) const;
 
-		/** @brief Gets the contact efforts */
-		const rbd::BodyWrench& getContactEffort() const;
-		const rbd::Vector6d& getContactEffort(std::string name) const;
+		/** @brief Gets the contact efforts in the base frame */
+		const rbd::BodyWrench& getContactEffort_B() const;
+		const rbd::Vector6d& getContactEffort_B(std::string name) const;
 
 
 //	private:
