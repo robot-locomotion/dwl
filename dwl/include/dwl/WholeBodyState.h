@@ -57,6 +57,10 @@ class WholeBodyState
 		/** @brief Gets the base rotation acceleration in the base frame */
 		Eigen::Vector3d getRotAcceleration_B();
 
+		/** @brief Gets the number of joints */
+		const unsigned int getJointDof() const;
+
+
         /* setters */
 //        void setPosition_W(const Eigen::Vector3d& pos);
 //        void setPosition_W(const double& x,
@@ -119,11 +123,6 @@ class WholeBodyState
 		 */
 		void setJointDoF(unsigned int num_joints);
 
-		/**
-		 * @brief Gets the number of joints
-		 * @return const unsigned int Number of joints
-		 */
-		const unsigned int getJointDof() const;
 
 
 //	private:

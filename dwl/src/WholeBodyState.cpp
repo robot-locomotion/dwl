@@ -104,6 +104,10 @@ Eigen::Vector3d WholeBodyState::getRotAcceleration_B()
 }
 
 
+const unsigned int WholeBodyState::getJointDof() const
+{
+	return joint_pos.size();
+}
 
 
 void WholeBodyState::setJointDoF(unsigned int num_joints)
@@ -116,10 +120,7 @@ void WholeBodyState::setJointDoF(unsigned int num_joints)
 
 
 
-const unsigned int WholeBodyState::getJointDof() const
-{
-	return joint_pos.size();
-}
+
 
 
 } //@namespace dwl
