@@ -94,16 +94,16 @@ class WholeBodyState
 
 		// Joint state setter functions
 		/** @brief Sets the joint positions */
-		void setJointPosition(const Eigen::VectorXd& joint_pos);
+		void setJointPosition(const Eigen::VectorXd& pos);
 
 		/** @brief Sets the joint velocities */
-		void setJointVelocity(const Eigen::VectorXd& joint_vel);
+		void setJointVelocity(const Eigen::VectorXd& vel);
 
 		/** @brief Sets the joint accelerations */
-		void setJointAcceleration(const Eigen::VectorXd& joint_acc);
+		void setJointAcceleration(const Eigen::VectorXd& acc);
 
 		/** @brief Sets the joint efforts */
-		void setJointEffort(const Eigen::VectorXd& joint_eff);
+		void setJointEffort(const Eigen::VectorXd& eff);
 
 		/**
 		 * @brief Sets the number of joints
