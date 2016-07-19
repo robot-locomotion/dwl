@@ -61,60 +61,24 @@ class WholeBodyState
 		const unsigned int getJointDof() const;
 
 
-        /* setters */
-//        void setPosition_W(const Eigen::Vector3d& pos);
-//        void setPosition_W(const double& x,
-//                           const double& y,
-//                           const double& z);
-//
-//        void setVelocity_W(const Eigen::Vector3d& vel);
-//        void setVelocity_W(const double& x,
-//                              const double& y,
-//                              const double& z);
-//
-//        void setVelocity_B(const Eigen::Vector3d& vel);
-//        void setVelocity_B(const double& x,
-//                           const double& y,
-//                           const double& z);
-//
-//        void setVelocity_H(const Eigen::Vector3d& vel);
-//        void setVelocity_H(const double& x,
-//                           const double& y,
-//                           const double& z);
-//
-//        void setAcceleration_W(const Eigen::Vector3d& acc);
-//        void setAcceleration_W(const double& x,
-//                               const double& y,
-//                               const double& z);
-//
+		// Base state setter functions
+		void setPosition_W(const Eigen::Vector3d& pos);
+		void setOrientation_W(const Eigen::Quaterniond& orient);
+		void setRPY_W(const Eigen::Vector3d& rpy);
+
+		void setVelocity_W(const Eigen::Vector3d& vel); //TODO review
+//		void setVelocity_B(const Eigen::Vector3d& vel);
+//		void setVelocity_H(const Eigen::Vector3d& vel);
+		void setRotationRate_W(const Eigen::Vector3d& rate); //TODO review
+		void setRotationRate_B(const Eigen::Vector3d& rate); //TODO review
+
+		void setAcceleration_W(const Eigen::Vector3d& acc); //TODO review
 //        void setAcceleration_I(const Eigen::Vector3d& acc,
 //                               const Eigen::Affine3d& bTi);
-//
-//        void setAcceleration_I(const double& x,
-//                               const double& y,
-//                               const double& z,
-//                               const Eigen::Affine3d& bTi);
-//
-//        void setAcceleration_B(const Eigen::Vector3d& acc);
-//        void setAcceleration_B(const double& x,
-//                               const double& y,
-//                               const double& z);
-//
-//        void setRotationRate_W(const Eigen::Vector3d& rate);
-//
-//        void setRotAcceleration_W(const Eigen::Vector3d& rotacc);
-//
-//        void setRotationRate_B(const Eigen::Vector3d& rate);
-//        void setRotationRate_B(const double& x,
-//                               const double& y,
-//                               const double& z);
-//
-//        void setRotAcceleration_B(const Eigen::Vector3d& rate);
-//        void setRotAcceleration_B(const double& x,
-//                                  const double& y,
-//                                  const double& z);
-//
-//        void setOrientation_W(const Eigen::Quaterniond& orient);
+//		void setAcceleration_B(const Eigen::Vector3d& acc); //TODO review
+		void setRotAcceleration_W(const Eigen::Vector3d& rotacc); //TODO review
+		void setRotAcceleration_B(const Eigen::Vector3d& rate); //TODO review
+
 
 
 		/**

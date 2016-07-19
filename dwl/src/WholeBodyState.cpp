@@ -96,7 +96,6 @@ Eigen::Vector3d WholeBodyState::getAcceleration_H()
 }
 
 
-
 Eigen::Vector3d WholeBodyState::getRotAcceleration_B()
 {// TODO think if we should used the world as standard
 //	return (Eigen::Affine3d(getOrientation_W())).inverse() * rotacc_W; transform from W to B
@@ -107,6 +106,76 @@ Eigen::Vector3d WholeBodyState::getRotAcceleration_B()
 const unsigned int WholeBodyState::getJointDof() const
 {
 	return joint_pos.size();
+}
+
+
+void WholeBodyState::setPosition_W(const Eigen::Vector3d& pos)
+{
+	rbd::linearPart(base_pos) = pos;
+}
+
+
+void WholeBodyState::setOrientation_W(const Eigen::Quaterniond& orient)
+{
+	rbd::angularPart(base_pos) = math::getRPY(orient);
+}
+
+
+void WholeBodyState::setRPY_W(const Eigen::Vector3d& rpy)
+{
+	rbd::angularPart(base_pos) = rpy;
+}
+
+
+void WholeBodyState::setVelocity_W(const Eigen::Vector3d& vel)
+{
+	rbd::linearPart(base_vel) = vel;
+}
+
+
+//void WholeBodyState::setVelocity_B(const Eigen::Vector3d& vel)
+//{
+//	rbd::linearPart(base_vel) = Eigen::Affine3d(getOrientation_W()) * vel; ?
+//}
+
+
+void WholeBodyState::setRotationRate_W(const Eigen::Vector3d& rate)
+{// TODO think if we should used the world as standard
+//	rbd::angularPart(base_vel) = rate;
+	rbd::angularPart(base_vel) = (Eigen::Affine3d(getOrientation_W())).inverse() * rate;
+}
+
+
+void WholeBodyState::setRotationRate_B(const Eigen::Vector3d& rate)
+{// TODO think if we should used the world as standard
+//	rbd::angularPart(base_vel) = Eigen::Affine3d(getOrientation_W()) * rate; ?
+	rbd::angularPart(base_vel) = rate;
+}
+
+
+void WholeBodyState::setAcceleration_W(const Eigen::Vector3d& acc)
+{
+	rbd::linearPart(base_acc) = acc;
+}
+
+
+//void WholeBodyState::setAcceleration_B(const Eigen::Vector3d& acc)
+//{
+//	rbd::angularPart(base_acc) = Eigen::Affine3d(getOrientation_W()) * acc; ?
+//}
+
+
+void WholeBodyState::setRotAcceleration_W(const Eigen::Vector3d& rotacc)
+{// TODO think if we should used the world as standard
+//	rbd::angularPart(base_acc) = Eigen::Affine3d(getOrientation_W()) * rotacc; ?
+	rbd::angularPart(base_acc) = rotacc;
+}
+
+
+void WholeBodyState::setRotAcceleration_B(const Eigen::Vector3d& rotacc)
+{// TODO think if we should used the world as standard
+//	rbd::angularPart(base_acc) = Eigen::Affine3d(getOrientation_W()) * rotacc; ?
+	rbd::angularPart(base_acc) = rotacc;
 }
 
 
