@@ -57,10 +57,6 @@ class WholeBodyState
 		/** @brief Gets the base rotation acceleration in the base frame */
 		Eigen::Vector3d getRotAcceleration_B();
 
-		/** @brief Gets the number of joints */
-		const unsigned int getJointDof() const;
-
-
 		// Base state setter functions
 		void setPosition_W(const Eigen::Vector3d& pos);
 		void setOrientation_W(const Eigen::Quaterniond& orient);
@@ -80,6 +76,9 @@ class WholeBodyState
 		void setRotAcceleration_B(const Eigen::Vector3d& rate); //TODO review
 
 
+
+		/** @brief Gets the number of joints */
+		const unsigned int getJointDof() const;
 
 		/**
 		 * @brief Sets the number of joints
@@ -115,6 +114,9 @@ class WholeBodyState
 				 -sin(rpy_W(1)),  sin(rpy_W(0))*cos(rpy_W(1)),  cos(rpy_W(0))*cos(rpy_W(1));
 			return R;
 		}
+
+		/** @brief Number of joints */
+		unsigned int num_joints_;
 };
 
 /** @brief Defines a whole-body trajectory */

@@ -5,18 +5,18 @@ namespace dwl
 {
 
 WholeBodyState::WholeBodyState(unsigned int num_joints) :
-		time(0.), duration(0.)
+		time(0.), duration(0.), num_joints_(num_joints)
 {
 	base_pos.setZero();
 	base_vel.setZero();
 	base_acc.setZero();
 	base_eff.setZero();
 
-	if (num_joints != 0) {
-		joint_pos.setZero(num_joints);
-		joint_vel.setZero(num_joints);
-		joint_acc.setZero(num_joints);
-		joint_eff.setZero(num_joints);
+	if (num_joints_ != 0) {
+		joint_pos.setZero(num_joints_);
+		joint_vel.setZero(num_joints_);
+		joint_acc.setZero(num_joints_);
+		joint_eff.setZero(num_joints_);
 	}
 }
 
@@ -103,12 +103,6 @@ Eigen::Vector3d WholeBodyState::getRotAcceleration_B()
 }
 
 
-const unsigned int WholeBodyState::getJointDof() const
-{
-	return joint_pos.size();
-}
-
-
 void WholeBodyState::setPosition_W(const Eigen::Vector3d& pos)
 {
 	rbd::linearPart(base_pos) = pos;
@@ -181,10 +175,11 @@ void WholeBodyState::setRotAcceleration_B(const Eigen::Vector3d& rotacc)
 
 void WholeBodyState::setJointDoF(unsigned int num_joints)
 {
-	joint_pos.setZero(num_joints);
-	joint_vel.setZero(num_joints);
-	joint_acc.setZero(num_joints);
-	joint_eff.setZero(num_joints);
+	num_joints_ = num_joints;
+	joint_pos.setZero(num_joints_);
+	joint_vel.setZero(num_joints_);
+	joint_acc.setZero(num_joints_);
+	joint_eff.setZero(num_joints_);
 }
 
 
@@ -192,4 +187,8 @@ void WholeBodyState::setJointDoF(unsigned int num_joints)
 
 
 
+const unsigned int WholeBodyState::getJointDof() const
+{
+	return num_joints_;
+}
 } //@namespace dwl
