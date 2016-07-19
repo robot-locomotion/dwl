@@ -77,13 +77,13 @@ class WholeBodyState
 
 
 		// Joint state getter functions
-		/** @brief Gets the joint position */
+		/** @brief Gets the joint positions */
 		const Eigen::VectorXd& getJointPosition() const;
 
-		/** @brief Gets the joint velocity */
+		/** @brief Gets the joint velocities */
 		const Eigen::VectorXd& getJointVelocity() const;
 
-		/** @brief Gets the joint acceleration */
+		/** @brief Gets the joint accelerations */
 		const Eigen::VectorXd& getJointAcceleration() const;
 
 		/** @brief Gets the joint effort */
@@ -93,16 +93,16 @@ class WholeBodyState
 		const unsigned int getJointDof() const;
 
 		// Joint state setter functions
-		/** @brief Sets the joint position */
+		/** @brief Sets the joint positions */
 		void setJointPosition(const Eigen::VectorXd& joint_pos);
 
-		/** @brief Sets the joint velocity */
+		/** @brief Sets the joint velocities */
 		void setJointVelocity(const Eigen::VectorXd& joint_vel);
 
-		/** @brief Sets the joint acceleration */
+		/** @brief Sets the joint accelerations */
 		void setJointAcceleration(const Eigen::VectorXd& joint_acc);
 
-		/** @brief Sets the joint effort */
+		/** @brief Sets the joint efforts */
 		void setJointEffort(const Eigen::VectorXd& joint_eff);
 
 		/**
