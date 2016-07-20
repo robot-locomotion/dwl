@@ -157,6 +157,15 @@ class WholeBodyState
 		const rbd::BodyWrench& getContactEffort_B() const;
 		const rbd::Vector6d& getContactEffort_B(std::string name) const;
 
+		/**
+		 * @brief Gets the contact condition (active or inactive)
+		 * @param std::string Name of contact link
+		 * @param double Force threshold for detecting contact condition
+		 * @return bool True for active contacts, false for inactive ones
+		 */
+		bool getContactCondition(std::string name,
+								 double force_threshold) const;
+
 		// Contact state setter functions
 		/** @brief Sets the contact positions in the base frame */
 		void setContactPosition_B(const rbd::BodyVector& pos);
@@ -177,6 +186,14 @@ class WholeBodyState
 		void setContactEffort_B(const rbd::BodyWrench& eff);
 		void setContactEffort_B(std::string name,
 							    const rbd::Vector6d& eff);
+
+		/**
+		 * @brief Sets the contact condition (active or inactive)
+		 * @param std::string Name of the contact link
+		 * @bool True for active conditions, and false for inactive
+		 */
+		void setContactCondition(std::string name,
+								 bool condition);
 
 //	private:
 		double time;

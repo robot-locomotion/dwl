@@ -287,6 +287,15 @@ const rbd::Vector6d& WholeBodyState::getContactEffort_B(std::string name) const
 }
 
 
+bool WholeBodyState::getContactCondition(std::string name,
+										 double force_threshold) const
+{
+	if (contact_eff.find(name)->second.norm() > force_threshold)
+		return true;
+	else
+		return false;
+}
+
 
 void WholeBodyState::setContactPosition_B(const rbd::BodyVector& pos)
 {
@@ -337,6 +346,16 @@ void WholeBodyState::setContactEffort_B(std::string name,
 									    const rbd::Vector6d& eff)
 {
 	contact_eff[name] = eff;
+}
+
+
+void WholeBodyState::setContactCondition(std::string name,
+										 bool condition)
+{
+	if (condition)
+		contact_eff[name] = std::numeric_limits<double>::max() * rbd::Vector6d::Ones();
+	else
+		contact_eff[name] = rbd::Vector6d::Zero();
 }
 
 } //@namespace dwl
