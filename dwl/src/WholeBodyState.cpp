@@ -1,4 +1,8 @@
 #include <dwl/WholeBodyState.h>
+// Michele 
+// accB = getOrientation_W().inverse().toRotationMatrix()*accW
+// accW = getOrientation_W().toRotationMatrix()*accB
+// accH = common::rpyToRot(Vector3d(0, 0, yaw)) * accW
 
 
 namespace dwl
@@ -29,7 +33,7 @@ WholeBodyState::~WholeBodyState()
 
 Eigen::Vector3d WholeBodyState::getPosition_W() const
 {
-    return base_pos.segment<3>(rbd::LX);
+	return base_pos.segment<3>(rbd::LX);
 }
 
 
@@ -41,19 +45,19 @@ Eigen::Quaterniond WholeBodyState::getOrientation_W() const
 
 Eigen::Vector3d WholeBodyState::getRPY_W() const
 {
-    return base_pos.segment<3>(rbd::AX);
+	return base_pos.segment<3>(rbd::AX);
 }
 
 
 Eigen::Quaterniond WholeBodyState::getOrientation_H() const
 {
-	return Eigen::Quaterniond(getRotBaseToHF());
+	return Eigen::Quaterniond(getRotWorldToHF());
 }
 
 
 Eigen::Vector3d WholeBodyState::getRPY_H() const
 {
-    return Eigen::Vector3d(0., 0., base_pos(rbd::AZ));
+	return Eigen::Vector3d(0., 0., base_pos(rbd::AZ));
 }
 
 
@@ -65,21 +69,31 @@ Eigen::Vector3d WholeBodyState::getVelocity_W() const
 
 Eigen::Vector3d WholeBodyState::getVelocity_B() const
 {
-    return (Eigen::Affine3d(getOrientation_W())).inverse() * getVelocity_W();
+	return getOrientation_W().inverse().toRotationMatrix() * getVelocity_W();
 }
 
 
 Eigen::Vector3d WholeBodyState::getVelocity_H() const
 {
-    // put back the velocity in the base frame into the horizontal frame
-    return getRotBaseToHF() * getVelocity_B();
+	return getRotWorldToHF() * getVelocity_W();
+}
+
+
+Eigen::Vector3d WholeBodyState::getRotationRate_W() const
+{
+	return base_vel.segment<3>(rbd::AX);
 }
 
 
 Eigen::Vector3d WholeBodyState::getRotationRate_B() const
-{// TODO think if we should used the world as standard
-	//	return (Eigen::Affine3d(getOrientation_W())).inverse() * rotvel_W; transform from W to B
-    return base_vel.segment<3>(rbd::AX);
+{
+	return getOrientation_W().inverse().toRotationMatrix() * getRotationRate_W();
+}
+
+
+Eigen::Vector3d WholeBodyState::getRotationRate_H() const
+{
+	return getRotWorldToHF() * getRotationRate_W();
 }
 
 
@@ -91,21 +105,31 @@ Eigen::Vector3d WholeBodyState::getAcceleration_W() const
 
 Eigen::Vector3d WholeBodyState::getAcceleration_B() const
 {
-	return (Eigen::Affine3d(getOrientation_W())).inverse() * getAcceleration_W();
+	return getOrientation_W().inverse().toRotationMatrix() * getAcceleration_W();
 }
 
 
 Eigen::Vector3d WholeBodyState::getAcceleration_H() const
 {
-    // put back the acceleration in the base frame into the horizontal frame
-    return getRotBaseToHF() * getAcceleration_B();
+	return getRotWorldToHF() * getAcceleration_W();
+}
+
+
+Eigen::Vector3d WholeBodyState::getRotAcceleration_W() const
+{
+	return base_acc.segment<3>(rbd::AX);
 }
 
 
 Eigen::Vector3d WholeBodyState::getRotAcceleration_B() const
-{// TODO think if we should used the world as standard
-//	return (Eigen::Affine3d(getOrientation_W())).inverse() * rotacc_W; transform from W to B
-	return base_acc.segment<3>(rbd::AX);
+{
+	return getOrientation_W().inverse().toRotationMatrix() * getRotAcceleration_W();
+}
+
+
+Eigen::Vector3d WholeBodyState::getRotAcceleration_H() const
+{
+	return getRotWorldToHF() * getRotAcceleration_W();
 }
 
 
@@ -127,63 +151,75 @@ void WholeBodyState::setRPY_W(const Eigen::Vector3d& rpy)
 }
 
 
-void WholeBodyState::setVelocity_W(const Eigen::Vector3d& vel)
+void WholeBodyState::setVelocity_W(const Eigen::Vector3d& vel_W)
 {
-	rbd::linearPart(base_vel) = vel;
+	rbd::linearPart(base_vel) = vel_W;
 }
 
 
-//void WholeBodyState::setVelocity_B(const Eigen::Vector3d& vel)
-//{
-//	rbd::linearPart(base_vel) = Eigen::Affine3d(getOrientation_W()) * vel; ?
-//}
-
-
-// Michele accB = getOrientation_W().inverse().toRotationMatrix()*accW
-// accW = getOrientation_W().toRotationMatrix()*accB
-
-
-
-void WholeBodyState::setRotationRate_W(const Eigen::Vector3d& rate)
-{// TODO think if we should used the world as standard
-//	rbd::angularPart(base_vel) = rate;
-	rbd::angularPart(base_vel) = (Eigen::Affine3d(getOrientation_W())).inverse() * rate;
-}
-
-
-void WholeBodyState::setRotationRate_B(const Eigen::Vector3d& rate)
-{// TODO think if we should used the world as standard
-//	rbd::angularPart(base_vel) = Eigen::Affine3d(getOrientation_W()) * rate; ?
-	rbd::angularPart(base_vel) = rate;
-}
-
-
-void WholeBodyState::setAcceleration_W(const Eigen::Vector3d& acc)
+void WholeBodyState::setVelocity_B(const Eigen::Vector3d& vel_B)
 {
-	rbd::linearPart(base_acc) = acc;
-}
-
-// Michele
-// accH = common::rpyToRot(Vector3d(0, 0, yaw)) * accW
-
-
-//void WholeBodyState::setAcceleration_B(const Eigen::Vector3d& acc)
-//{
-//	rbd::angularPart(base_acc) = Eigen::Affine3d(getOrientation_W()) * acc; ?
-//}
-
-
-void WholeBodyState::setRotAcceleration_W(const Eigen::Vector3d& rotacc)
-{// TODO think if we should used the world as standard
-//	rbd::angularPart(base_acc) = Eigen::Affine3d(getOrientation_W()) * rotacc; ?
-	rbd::angularPart(base_acc) = rotacc;
+	rbd::linearPart(base_vel) = getOrientation_W().toRotationMatrix() * vel_B;
 }
 
 
-void WholeBodyState::setRotAcceleration_B(const Eigen::Vector3d& rotacc)
-{// TODO think if we should used the world as standard
-//	rbd::angularPart(base_acc) = Eigen::Affine3d(getOrientation_W()) * rotacc; ?
-	rbd::angularPart(base_acc) = rotacc;
+void WholeBodyState::setVelocity_H(const Eigen::Vector3d& vel_H)
+{
+	rbd::linearPart(base_vel) = getRotWorldToHF().inverse() * vel_H;
+}
+
+
+void WholeBodyState::setRotationRate_W(const Eigen::Vector3d& rate_W)
+{
+	rbd::angularPart(base_vel) = rate_W;
+}
+
+
+void WholeBodyState::setRotationRate_B(const Eigen::Vector3d& rate_B)
+{
+	rbd::angularPart(base_vel) = getOrientation_W().toRotationMatrix() * rate_B;
+}
+
+
+void WholeBodyState::setRotationRate_H(const Eigen::Vector3d& rate_H)
+{
+	rbd::angularPart(base_vel) = getRotWorldToHF().inverse() * rate_H;
+}
+
+
+void WholeBodyState::setAcceleration_W(const Eigen::Vector3d& acc_W)
+{
+	rbd::linearPart(base_acc) = acc_W;
+}
+
+
+void WholeBodyState::setAcceleration_B(const Eigen::Vector3d& acc_B)
+{
+	rbd::linearPart(base_acc) = getOrientation_W().toRotationMatrix() * acc_B;
+}
+
+
+void WholeBodyState::setAcceleration_H(const Eigen::Vector3d& acc_H)
+{
+	rbd::linearPart(base_acc) = getRotWorldToHF().inverse() * acc_H;
+}
+
+
+void WholeBodyState::setRotAcceleration_W(const Eigen::Vector3d& rotacc_W)
+{
+	rbd::angularPart(base_acc) = rotacc_W;
+}
+
+
+void WholeBodyState::setRotAcceleration_B(const Eigen::Vector3d& rotacc_B)
+{
+	rbd::angularPart(base_acc) = getOrientation_W().toRotationMatrix() * rotacc_B;
+}
+
+
+void WholeBodyState::setRotAcceleration_H(const Eigen::Vector3d& rotacc_H)
+{
+	rbd::angularPart(base_acc) = getRotWorldToHF().inverse() * rotacc_H;
 }
 
 
@@ -267,7 +303,6 @@ const unsigned int WholeBodyState::getJointDof() const
 }
 
 
-
 void WholeBodyState::setJointPosition(const Eigen::VectorXd& pos)
 {
 	joint_pos = pos;
@@ -334,7 +369,6 @@ void WholeBodyState::setJointEffort(const Eigen::VectorXd& eff)
 {
 	joint_eff = eff;
 }
-
 
 
 const rbd::BodyVector& WholeBodyState::getContactPosition_B() const
