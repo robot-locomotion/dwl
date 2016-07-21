@@ -650,10 +650,9 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 	// From the preview model we do not know the joint states, so we neglect
 	// the joint-related components of the CoM
-	rbd::linearPart(full_state.base_pos) =
-			preview_state.com_pos - actual_system_com_;
-	rbd::linearPart(full_state.base_vel) = preview_state.com_vel;
-	rbd::linearPart(full_state.base_acc) = preview_state.com_acc;
+	full_state.setPosition_W(preview_state.com_pos - actual_system_com_);
+	full_state.setVelocity_W(preview_state.com_vel);
+	full_state.setAcceleration_W(preview_state.com_acc);
 
 	full_state.base_pos(rbd::AZ) = 0.;//preview_state.head_pos;//TODO for debugging
 	full_state.base_vel(rbd::AZ) = 0.;//preview_state.head_vel;
@@ -676,9 +675,9 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 		rbd::BodyPosition::const_iterator support_it = preview_state.support_region.find(name);
 		if (support_it != preview_state.support_region.end())
-			full_state.contact_eff[name] = ACTIVE_CONTACT;
+			full_state.setContactCondition(name, true);
 		else
-			full_state.contact_eff[name] = INACTIVE_CONTACT;
+			full_state.setContactCondition(name, false);
 	}
 
 
@@ -736,8 +735,8 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	preview_state.head_acc = full_state.base_acc(rbd::AZ);
 
 	// Getting the world to base transformation
-	Eigen::Vector3d base_traslation = full_state.base_pos.segment<3>(rbd::LX);
-	Eigen::Vector3d base_rpy = full_state.base_pos.segment<3>(rbd::AX);
+	Eigen::Vector3d base_traslation = full_state.getPosition_W();
+	Eigen::Vector3d base_rpy = full_state.getRPY_W();
 	Eigen::Matrix3d base_rotation = math::getRotationMatrix(base_rpy);
 
 	// Computing the CoP in the world frame
@@ -759,7 +758,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 		std::string name = active_contacts[i];
 
 		preview_state.support_region[name] = base_traslation +
-				full_state.contact_pos.find(name)->second;
+				full_state.getContactPosition_B(name);
 	}
 
 	// Adding the contact positions, velocities and accelerations
