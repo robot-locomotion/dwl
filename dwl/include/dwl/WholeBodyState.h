@@ -112,15 +112,19 @@ class WholeBodyState
 		// Joint state getter functions
 		/** @brief Gets the joint positions */
 		const Eigen::VectorXd& getJointPosition() const;
+		const double& getJointPosition(unsigned int index) const;
 
 		/** @brief Gets the joint velocities */
 		const Eigen::VectorXd& getJointVelocity() const;
+		const double& getJointVelocity(unsigned int index) const;
 
 		/** @brief Gets the joint accelerations */
 		const Eigen::VectorXd& getJointAcceleration() const;
+		const double& getJointAcceleration(unsigned int index) const;
 
 		/** @brief Gets the joint effort */
 		const Eigen::VectorXd& getJointEffort() const;
+		const double& getJointEffort(unsigned int index) const;
 
 		/** @brief Gets the number of joints */
 		const unsigned int getJointDof() const;
@@ -128,15 +132,23 @@ class WholeBodyState
 		// Joint state setter functions
 		/** @brief Sets the joint positions */
 		void setJointPosition(const Eigen::VectorXd& pos);
+		void setJointPosition(double pos,
+							  unsigned int index);
 
 		/** @brief Sets the joint velocities */
 		void setJointVelocity(const Eigen::VectorXd& vel);
+		void setJointVelocity(double vel,
+							  unsigned int index);
 
 		/** @brief Sets the joint accelerations */
 		void setJointAcceleration(const Eigen::VectorXd& acc);
+		void setJointAcceleration(double acc,
+								  unsigned int index);
 
 		/** @brief Sets the joint efforts */
 		void setJointEffort(const Eigen::VectorXd& eff);
+		void setJointEffort(double eff,
+							unsigned int index);
 
 		/**
 		 * @brief Sets the number of joints
