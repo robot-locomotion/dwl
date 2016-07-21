@@ -27,76 +27,76 @@ WholeBodyState::~WholeBodyState()
 }
 
 
-Eigen::Vector3d WholeBodyState::getPosition_W()
+Eigen::Vector3d WholeBodyState::getPosition_W() const
 {
     return base_pos.segment<3>(rbd::LX);
 }
 
 
-Eigen::Quaterniond WholeBodyState::getOrientation_W()
+Eigen::Quaterniond WholeBodyState::getOrientation_W() const
 {
 	return math::getQuaternion(getRPY_W());
 }
 
 
-Eigen::Vector3d WholeBodyState::getRPY_W()
+Eigen::Vector3d WholeBodyState::getRPY_W() const
 {
     return base_pos.segment<3>(rbd::AX);
 }
 
 
-Eigen::Quaterniond WholeBodyState::getOrientation_H()
+Eigen::Quaterniond WholeBodyState::getOrientation_H() const
 {
 	return Eigen::Quaterniond(getRotBaseToHF());
 }
 
 
-Eigen::Vector3d WholeBodyState::getVelocity_W()
+Eigen::Vector3d WholeBodyState::getVelocity_W() const
 {
 	return base_vel.segment<3>(rbd::LX);
 }
 
 
-Eigen::Vector3d WholeBodyState::getVelocity_B()
+Eigen::Vector3d WholeBodyState::getVelocity_B() const
 {
     return (Eigen::Affine3d(getOrientation_W())).inverse() * getVelocity_W();
 }
 
 
-Eigen::Vector3d WholeBodyState::getVelocity_H()
+Eigen::Vector3d WholeBodyState::getVelocity_H() const
 {
     // put back the velocity in the base frame into the horizontal frame
     return getRotBaseToHF() * getVelocity_B();
 }
 
 
-Eigen::Vector3d WholeBodyState::getRotationRate_B()
+Eigen::Vector3d WholeBodyState::getRotationRate_B() const
 {// TODO think if we should used the world as standard
 	//	return (Eigen::Affine3d(getOrientation_W())).inverse() * rotvel_W; transform from W to B
     return base_vel.segment<3>(rbd::AX);
 }
 
 
-Eigen::Vector3d WholeBodyState::getAcceleration_W()
+Eigen::Vector3d WholeBodyState::getAcceleration_W() const
 {
 	return base_acc.segment<3>(rbd::LX);
 }
 
 
-Eigen::Vector3d WholeBodyState::getAcceleration_B()
+Eigen::Vector3d WholeBodyState::getAcceleration_B() const
 {
 	return (Eigen::Affine3d(getOrientation_W())).inverse() * getAcceleration_W();
 }
 
 
-Eigen::Vector3d WholeBodyState::getAcceleration_H()
+Eigen::Vector3d WholeBodyState::getAcceleration_H() const
 {
     // put back the acceleration in the base frame into the horizontal frame
     return getRotBaseToHF() * getAcceleration_B();
 }
 
 
-Eigen::Vector3d WholeBodyState::getRotAcceleration_B()
+Eigen::Vector3d WholeBodyState::getRotAcceleration_B() const
 {// TODO think if we should used the world as standard
 //	return (Eigen::Affine3d(getOrientation_W())).inverse() * rotacc_W; transform from W to B
 	return base_acc.segment<3>(rbd::AX);
