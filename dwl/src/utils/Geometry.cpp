@@ -54,10 +54,14 @@ void inRadiiTriangle(double& inradii,
 void computePlaneParameters(Eigen::Vector3d& normal,
 							const std::vector<Eigen::Vector3f>& points)
 {
-	if (points.size() <= 3)
+	unsigned int num_points = points.size();
+	if (num_points < 3) {
 		printf(YELLOW "Warning: could not computed the plane parameter"
-				" with less of 4 points\n" COLOR_RESET);
-	else {
+				" with less of 3 points\n" COLOR_RESET);
+	} else if (num_points == 3) {
+		// Computing the normal as (P2-P1)x(P3-P1),
+		normal = (points[1] - points[0]).cross(points[2] - points[0]).cast<double>();
+	} else {
 		Eigen::Matrix3d covariance;
 		Eigen::Vector3d mean;
 		double curvature;
