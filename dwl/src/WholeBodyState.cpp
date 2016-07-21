@@ -51,6 +51,12 @@ Eigen::Quaterniond WholeBodyState::getOrientation_H() const
 }
 
 
+Eigen::Vector3d WholeBodyState::getRPY_H() const
+{
+    return Eigen::Vector3d(0., 0., base_pos(rbd::AZ));
+}
+
+
 Eigen::Vector3d WholeBodyState::getVelocity_W() const
 {
 	return base_vel.segment<3>(rbd::LX);

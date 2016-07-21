@@ -66,6 +66,9 @@ class WholeBodyState
 		/** @brief Gets the base orientation in the horizontal frame */
 		Eigen::Quaterniond getOrientation_H() const;
 
+		/** @brief Gets the base RPY angles in the horizontal frame */
+		Eigen::Vector3d getRPY_H() const;
+
 		/** @brief Gets the base velocity in the world frame */
 		Eigen::Vector3d getVelocity_W() const;
 
