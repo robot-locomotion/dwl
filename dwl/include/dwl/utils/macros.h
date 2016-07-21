@@ -8,3 +8,7 @@
 #define MAGENTA "\x1b[35m"
 #define CYAN    "\x1b[36m"
 #define COLOR_RESET   "\x1b[0m"
+#define PRINT_SCALAR(x) std::cout << #x " = " << x << "\n" << std::endl
+#define PRINT_VECTOR(x) std::cout << #x " = ";\
+	for (int i = 0; i < x.size(); i++) {std::cout << x[i] << " ";}\
+	std::cout << std::endl;
