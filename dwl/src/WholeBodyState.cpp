@@ -353,9 +353,9 @@ void WholeBodyState::setContactCondition(std::string name,
 										 bool condition)
 {
 	if (condition)
-		contact_eff[name] = std::numeric_limits<double>::max() * rbd::Vector6d::Ones();
+		contact_eff[name] = ACTIVE_CONTACT;
 	else
-		contact_eff[name] = rbd::Vector6d::Zero();
+		contact_eff[name] = INACTIVE_CONTACT;
 }
 
 } //@namespace dwl
