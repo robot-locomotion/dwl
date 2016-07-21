@@ -197,6 +197,8 @@ target_link_libraries(cd_sample ${PROJECT_NAME})
 if(UNIT_TEST)
 	message("-- Building unit testing")
 	include_directories(tests)
+    add_executable(ws_utest  tests/WholeBodyStateUTest.cpp)
+	target_link_libraries(ws_utest ${PROJECT_NAME})
 	if(IPOPT_FOUND)
 		add_executable(ipopt_utest  tests/IpoptDWLTest.cpp
 									tests/model/HS071DynamicalSystem.cpp
