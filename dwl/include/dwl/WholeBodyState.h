@@ -55,40 +55,40 @@ class WholeBodyState
 
 		// Base state getter functions
 		/** @brief Gets the base position in the world frame */
-		Eigen::Vector3d getPosition_W();
+		Eigen::Vector3d getPosition_W() const;
 
 		/** @brief Gets the base orientation in the world frame */
-		Eigen::Quaterniond getOrientation_W();
+		Eigen::Quaterniond getOrientation_W() const;
 
 		/** @brief Gets the base RPY angles in the world frame */
-		Eigen::Vector3d getRPY_W();
+		Eigen::Vector3d getRPY_W() const;
 
 		/** @brief Gets the base orientation in the horizontal frame */
-		Eigen::Quaterniond getOrientation_H();
+		Eigen::Quaterniond getOrientation_H() const;
 
 		/** @brief Gets the base velocity in the world frame */
-		Eigen::Vector3d getVelocity_W();
+		Eigen::Vector3d getVelocity_W() const;
 
 		/** @brief Gets the base velocity in the base frame */
-		Eigen::Vector3d getVelocity_B();
+		Eigen::Vector3d getVelocity_B() const;
 
 		/** @brief Gets the base velocity in the horizontal frame */
-		Eigen::Vector3d getVelocity_H();
+		Eigen::Vector3d getVelocity_H() const;
 
 		/** @brief Gets the base rotation rate in the base frame */
-		Eigen::Vector3d getRotationRate_B();
+		Eigen::Vector3d getRotationRate_B() const;
 
 		/** @brief Gets the base acceleration in the world frame */
-		Eigen::Vector3d getAcceleration_W();
+		Eigen::Vector3d getAcceleration_W() const;
 
 		/** @brief Gets the base acceleration in the base frame */
-		Eigen::Vector3d getAcceleration_B();
+		Eigen::Vector3d getAcceleration_B() const;
 
 		/** @brief Gets the base acceleration in the horizontal frame */
-		Eigen::Vector3d getAcceleration_H();
+		Eigen::Vector3d getAcceleration_H() const;
 
 		/** @brief Gets the base rotation acceleration in the base frame */
-		Eigen::Vector3d getRotAcceleration_B();
+		Eigen::Vector3d getRotAcceleration_B() const;
 
 		// Base state setter functions
 		void setPosition_W(const Eigen::Vector3d& pos);
