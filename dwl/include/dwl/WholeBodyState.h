@@ -230,7 +230,7 @@ class WholeBodyState
 
 
 	private:
-		Eigen::Matrix3d inline getRotBaseToHF() {
+		Eigen::Matrix3d inline getRotBaseToHF() const {
 			Eigen::Matrix3d R;
 			Eigen::Vector3d rpy_W = getRPY_W();
 
