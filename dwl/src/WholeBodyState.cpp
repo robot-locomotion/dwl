@@ -133,6 +133,11 @@ void WholeBodyState::setVelocity_W(const Eigen::Vector3d& vel)
 //}
 
 
+// Michele accB = getOrientation_W().inverse().toRotationMatrix()*accW
+// accW = getOrientation_W().toRotationMatrix()*accB
+
+
+
 void WholeBodyState::setRotationRate_W(const Eigen::Vector3d& rate)
 {// TODO think if we should used the world as standard
 //	rbd::angularPart(base_vel) = rate;
@@ -151,6 +156,9 @@ void WholeBodyState::setAcceleration_W(const Eigen::Vector3d& acc)
 {
 	rbd::linearPart(base_acc) = acc;
 }
+
+// Michele
+// accH = common::rpyToRot(Vector3d(0, 0, yaw)) * accW
 
 
 //void WholeBodyState::setAcceleration_B(const Eigen::Vector3d& acc)
