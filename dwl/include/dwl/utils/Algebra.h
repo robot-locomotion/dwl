@@ -1,7 +1,7 @@
 #ifndef DWL__MATH__ALGEBRA__H
 #define DWL__MATH__ALGEBRA__H
 
-#include <dwl/utils/macros.h>
+#include <dwl/utils/Macros.h>
 #include <Eigen/Dense>
 #include <vector>
 

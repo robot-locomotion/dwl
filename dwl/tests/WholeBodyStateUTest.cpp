@@ -1,5 +1,4 @@
 #include <dwl/WholeBodyState.h>
-#include <dwl/utils/macros.h>
 
 #define BOOST_TEST_MODULE DWL_TESTS
 #include <boost/test/included/unit_test.hpp>
