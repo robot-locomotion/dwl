@@ -757,12 +757,12 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	Eigen::Matrix3d base_rotation = math::getRotationMatrix(base_rpy);
 
 	// Computing the CoP in the world frame
-	Eigen::Vector3d cop_wrt_base;
-	dynamics_.computeCenterOfPressure(cop_wrt_base,
+	Eigen::Vector3d cop_B;
+	dynamics_.computeCenterOfPressure(cop_B,
 									  full_state.contact_eff,
 									  full_state.contact_pos,
 									  feet_names_);
-	preview_state.cop = base_traslation + base_rotation * cop_wrt_base;
+	preview_state.cop = base_traslation + base_rotation * cop_B;
 
 	// Getting the support region w.r.t the world frame. The support region
 	// is defined by the active contacts
