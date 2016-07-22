@@ -650,9 +650,9 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 	// From the preview model we do not know the joint states, so we neglect
 	// the joint-related components of the CoM
-	full_state.setPosition_W(preview_state.com_pos - actual_system_com_);
-	full_state.setVelocity_W(preview_state.com_vel);
-	full_state.setAcceleration_W(preview_state.com_acc);
+	full_state.setBasePosition_W(preview_state.com_pos - actual_system_com_);
+	full_state.setBaseVelocity_W(preview_state.com_vel);
+	full_state.setBaseAcceleration_W(preview_state.com_acc);
 
 	full_state.base_pos(rbd::AZ) = 0.;//preview_state.head_pos;//TODO for debugging
 	full_state.base_vel(rbd::AZ) = 0.;//preview_state.head_vel;
@@ -735,8 +735,8 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	preview_state.head_acc = full_state.base_acc(rbd::AZ);
 
 	// Getting the world to base transformation
-	Eigen::Vector3d base_traslation = full_state.getPosition_W();
-	Eigen::Vector3d base_rpy = full_state.getRPY_W();
+	Eigen::Vector3d base_traslation = full_state.getBasePosition_W();
+	Eigen::Vector3d base_rpy = full_state.getBaseRPY_W();
 	Eigen::Matrix3d base_rotation = math::getRotationMatrix(base_rpy);
 
 	// Computing the CoP in the world frame

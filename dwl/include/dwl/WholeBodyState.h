@@ -75,103 +75,101 @@ class WholeBodyState
 
 		// Base state getter functions
 		/** @brief Gets the base position in the world frame */
-		Eigen::Vector3d getPosition_W() const;
+		Eigen::Vector3d getBasePosition_W() const;
 
 		/** @brief Gets the base orientation in the world frame */
-		Eigen::Quaterniond getOrientation_W() const;
+		Eigen::Quaterniond getBaseOrientation_W() const;
 
 		/** @brief Gets the base RPY angles in the world frame */
-		Eigen::Vector3d getRPY_W() const;
+		Eigen::Vector3d getBaseRPY_W() const;
 
 		/** @brief Gets the base orientation in the horizontal frame */
-		Eigen::Quaterniond getOrientation_H() const;
+		Eigen::Quaterniond getBaseOrientation_H() const;
 
 		/** @brief Gets the base RPY angles in the horizontal frame */
-		Eigen::Vector3d getRPY_H() const;
+		Eigen::Vector3d getBaseRPY_H() const;
 
 		/** @brief Gets the base velocity in the world frame */
-		Eigen::Vector3d getVelocity_W() const;
+		Eigen::Vector3d getBaseVelocity_W() const;
 
 		/** @brief Gets the base velocity in the base frame */
-		Eigen::Vector3d getVelocity_B() const;
+		Eigen::Vector3d getBaseVelocity_B() const;
 
 		/** @brief Gets the base velocity in the horizontal frame */
-		Eigen::Vector3d getVelocity_H() const;
+		Eigen::Vector3d getBaseVelocity_H() const;
 
 		/** @brief Gets the base rotation rate in the world frame */
-		Eigen::Vector3d getRotationRate_W() const;
+		Eigen::Vector3d getBaseRotationRate_W() const;
 
 		/** @brief Gets the base rotation rate in the base frame */
-		Eigen::Vector3d getRotationRate_B() const;
+		Eigen::Vector3d getBaseRotationRate_B() const;
 
 		/** @brief Gets the base rotation rate in the horizontal frame */
-		Eigen::Vector3d getRotationRate_H() const;
+		Eigen::Vector3d getBaseRotationRate_H() const;
 
 		/** @brief Gets the base acceleration in the world frame */
-		Eigen::Vector3d getAcceleration_W() const;
+		Eigen::Vector3d getBaseAcceleration_W() const;
 
 		/** @brief Gets the base acceleration in the base frame */
-		Eigen::Vector3d getAcceleration_B() const;
+		Eigen::Vector3d getBaseAcceleration_B() const;
 
 		/** @brief Gets the base acceleration in the horizontal frame */
-		Eigen::Vector3d getAcceleration_H() const;
+		Eigen::Vector3d getBaseAcceleration_H() const;
 
 		/** @brief Gets the base rotation acceleration in the world frame */
-		Eigen::Vector3d getRotAcceleration_W() const;
+		Eigen::Vector3d getBaseRotAcceleration_W() const;
 
 		/** @brief Gets the base rotation acceleration in the base frame */
-		Eigen::Vector3d getRotAcceleration_B() const;
+		Eigen::Vector3d getBaseRotAcceleration_B() const;
 
 		/** @brief Gets the base rotation acceleration in the horizontal frame */
-		Eigen::Vector3d getRotAcceleration_H() const;
+		Eigen::Vector3d getBaseRotAcceleration_H() const;
 
 		// Base state setter functions
 		/** @brief Sets the base position in the world frame */
-		void setPosition_W(const Eigen::Vector3d& pos_W);
+		void setBasePosition_W(const Eigen::Vector3d& pos_W);
 
 		/** @brief Sets the base orientation in the world frame */
-		void setOrientation_W(const Eigen::Quaterniond& orient_W);
+		void setBaseOrientation_W(const Eigen::Quaterniond& orient_W);
 
 		/** @brief Sets the base RPY angles in the world frame */
-		void setRPY_W(const Eigen::Vector3d& rpy_W);
+		void setBaseRPY_W(const Eigen::Vector3d& rpy_W);
 
 		/** @brief Sets the base velocity in the world frame */
-		void setVelocity_W(const Eigen::Vector3d& vel_W);
+		void setBaseVelocity_W(const Eigen::Vector3d& vel_W);
 
 		/** @brief Sets the base velocity in the base frame */
-		void setVelocity_B(const Eigen::Vector3d& vel_B);
+		void setBaseVelocity_B(const Eigen::Vector3d& vel_B);
 
 		/** @brief Sets the base velocity in the horizontal frame */
-		void setVelocity_H(const Eigen::Vector3d& vel_H);
+		void setBaseVelocity_H(const Eigen::Vector3d& vel_H);
 
 		/** @brief Sets the base rotation rate in the world frame */
-		void setRotationRate_W(const Eigen::Vector3d& rate_W);
+		void setBaseRotationRate_W(const Eigen::Vector3d& rate_W);
 
 		/** @brief Sets the base rotation rate in the base frame */
-		void setRotationRate_B(const Eigen::Vector3d& rate_B);
+		void setBaseRotationRate_B(const Eigen::Vector3d& rate_B);
 
 		/** @brief Sets the base rotation rate in the horizontal frame */
-		void setRotationRate_H(const Eigen::Vector3d& rate_H);
+		void setBaseRotationRate_H(const Eigen::Vector3d& rate_H);
 
 		/** @brief Sets the base acceleration in the world frame */
-		void setAcceleration_W(const Eigen::Vector3d& acc_W);
+		void setBaseAcceleration_W(const Eigen::Vector3d& acc_W);
 
 		/** @brief Sets the base acceleration in the base frame */
-		void setAcceleration_B(const Eigen::Vector3d& acc_B);
+		void setBaseAcceleration_B(const Eigen::Vector3d& acc_B);
 
 		/** @brief Sets the base acceleration in the horizontal frame */
-		void setAcceleration_H(const Eigen::Vector3d& acc_H);
-//		void setAcceleration_I(const Eigen::Vector3d& acc,
-//							   const Eigen::Affine3d& bTi);
+		void setBaseAcceleration_H(const Eigen::Vector3d& acc_H);
 
 		/** @brief Sets the base rotation acceleration in the world frame */
-		void setRotAcceleration_W(const Eigen::Vector3d& rotacc_W);
+		void setBaseRotAcceleration_W(const Eigen::Vector3d& rotacc_W);
 
 		/** @brief Sets the base rotation acceleration in the base frame */
-		void setRotAcceleration_B(const Eigen::Vector3d& rotacc_B);
+		void setBaseRotAcceleration_B(const Eigen::Vector3d& rotacc_B);
 
 		/** @brief Sets the base rotation acceleration in the horizontal frame */
-		void setRotAcceleration_H(const Eigen::Vector3d& rotacc_H);
+		void setBaseRotAcceleration_H(const Eigen::Vector3d& rotacc_H);
 
 
 		// Joint state getter functions
@@ -295,13 +293,15 @@ class WholeBodyState
 
 
 	private:
+		/** @brief Computes the rotation matrix from world to horizontal frame */
 		Eigen::Matrix3d inline getRotWorldToHF() const {
-			return math::getRotationMatrix(getRPY_H());
+			return math::getRotationMatrix(getBaseRPY_H());
 		}
 
+		/** @brief Computes the rotation matrix from world to horizontal frame */
 		Eigen::Matrix3d inline getRotBaseToHF() const {
 			Eigen::Matrix3d R;
-			Eigen::Vector3d rpy_W = getRPY_W();
+			Eigen::Vector3d rpy_W = getBaseRPY_W();
 
 			R <<  cos(rpy_W(1)),  sin(rpy_W(0))*sin(rpy_W(1)),  cos(rpy_W(0))*sin(rpy_W(1)),
 					         0.,                cos(rpy_W(0)),               -sin(rpy_W(0)),

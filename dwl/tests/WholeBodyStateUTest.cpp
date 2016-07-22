@@ -14,15 +14,16 @@ int main(int argc, char **argv)
 
 
 	dwl::WholeBodyState ws(fbs.getJointDoF());
-	ws.setPosition_W(Eigen::Vector3d(0.2, 0.1, 0.56));
-	ws.setRPY_W(Eigen::Vector3d(0., 0., 0.5));
+	ws.setBasePosition_W(Eigen::Vector3d(0.2, 0.1, 0.56));
+	ws.setBaseRPY_W(Eigen::Vector3d(0., 0., 0.5));
 
 
-	PRINT_VECTOR(ws.getPosition_W());
-	PRINT_VECTOR(ws.getRPY_W());
-	PRINT_VECTOR(ws.getOrientation_W().coeffs());
-	PRINT_VECTOR(ws.getOrientation_H().coeffs());
-	PRINT_VECTOR(ws.getOrientation_H().coeffs());
+
+	PRINT_VECTOR(ws.getBasePosition_W());
+	PRINT_VECTOR(ws.getBaseRPY_W());
+	PRINT_VECTOR(ws.getBaseOrientation_W().coeffs());
+	PRINT_VECTOR(ws.getBaseOrientation_H().coeffs());
+	PRINT_VECTOR(ws.getBaseOrientation_H().coeffs());
 
 	ws.setJointPosition(0.3, 2);
 	ws.setJointVelocity(1., 5);
