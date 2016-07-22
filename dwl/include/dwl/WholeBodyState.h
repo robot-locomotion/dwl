@@ -275,7 +275,8 @@ class WholeBodyState
 		void setContactCondition(std::string name,
 								 bool condition);
 
-//	private:
+		/** @brief Internal whole-body state variables expressed with the
+		 * above mentioned convention */
 		double time;
 		double duration;
 		rbd::Vector6d base_pos;
