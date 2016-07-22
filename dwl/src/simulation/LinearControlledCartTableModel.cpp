@@ -54,6 +54,20 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 			(hor_disp - params_.cop_shift.head<2>()) / alpha;
 	cop_T_ = params_.cop_shift.head<2>() / params_.duration;
 
+
+	// Getting the support vertices
+	std::vector<Eigen::Vector3f> vertices;
+	vertices.resize(initial_state_.support_region.size());
+	unsigned int v_idx = 0;
+	for (rbd::BodyPosition::const_iterator v = initial_state_.support_region.begin();
+			v != initial_state_.support_region.end(); v++) {
+		vertices[v_idx] = v->second.cast<float>();
+		++v_idx;
+	}
+
+	// Computing the normal vector of the support region
+	math::computePlaneParameters(support_normal_, vertices);
+
 	init_response_ = true;
 }
 
@@ -77,6 +91,10 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 	double dt = time - initial_state_.time;
 	state.time = time;
 
+	// Computing the CoP position given the linear assumption
+	Eigen::Vector3d delta_cop = (dt / params_.duration) * params_.cop_shift;
+	state.cop = initial_state_.cop + delta_cop;
+
 	// Computing the horizontal motion of the CoM according to
 	// the cart-table system
 	Eigen::Vector2d beta_exp_1 = beta_1_ * exp(omega_ * dt);
@@ -93,13 +111,22 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 			omega_ * omega_ * beta_exp_1 +
 			omega_ * omega_ * beta_exp_2;
 
-	// There is not vertical motion of the CoM
-	state.com_pos(rbd::Z) = initial_state_.com_pos(rbd::Z);
-	state.com_vel(rbd::Z) = 0.;
-	state.com_acc(rbd::Z) = 0.;
 
-	// Computing the CoP position given the linear assumption
-	state.cop = initial_state_.cop + (dt / params_.duration) * params_.cop_shift;
+	// Computing the Z-component of the CoP
+	// From the plane equation (i.e.  n * p = 0), we derive the following
+	// equation that allows us to compute the delta in z
+	Eigen::Vector2d normal_2d = support_normal_.head<2>();
+	double normal_z = support_normal_(rbd::Z);
+	double delta_posz = -(normal_2d.dot(delta_cop.head<2>())) / normal_z;
+
+	Eigen::Vector2d cop_vel = Eigen::Vector2d::Ones() / params_.duration;
+
+	// There is not vertical motion of the CoM. Note that we derive the above
+	// mentioned equation in order to get the velocity and acceleration components
+	state.com_pos(rbd::Z) = initial_state_.com_pos(rbd::Z) + delta_posz;
+	state.com_vel(rbd::Z) = -(normal_2d.dot(cop_vel)) / normal_z;
+	state.com_acc(rbd::Z) = 0.;
+	state.cop(rbd::Z) = initial_state_.cop(rbd::Z) + delta_posz;
 }
 
 

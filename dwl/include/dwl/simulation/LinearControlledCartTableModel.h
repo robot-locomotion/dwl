@@ -114,6 +114,7 @@ class LinearControlledCartTableModel
 		Eigen::Vector2d beta_1_;
 		Eigen::Vector2d beta_2_;
 		Eigen::Vector2d cop_T_;
+		Eigen::Vector3d support_normal_;
 
 		/** @brief System energy coefficients */
 		Eigen::Vector2d c_1_;
