@@ -23,17 +23,17 @@ namespace dwl
  * This class incorporate the whole-body state of the robot, including:
  * <ul>
  *    <li>time, in seconds</li>
- *    <li>Base position, expressed in a fixed-world frame of reference</li>
- *    <li>Base velocity, expressed in the fixed-world frame</li>
- *    <li>Base acceleration, expressed in the fixed-world frame</li>
- *    <li>Base orientation, expressed in a fixed-world frame of reference</li>
- *    <li>Base rotation rate, expressed in the fixed-world frame</li>
+ *    <li>Base position, expressed in the world frame of reference</li>
+ *    <li>Base velocity, expressed in the world frame</li>
+ *    <li>Base acceleration, expressed in the world frame</li>
+ *    <li>Base orientation, expressed in a world frame of reference</li>
+ *    <li>Base rotation rate, expressed in the world frame</li>
  *    <li>Joint positions, expressed with the urdf order</li>
  *    <li>Joint velocities, expressed with the urdf order</li>
  *    <li>Joint accelerations, expressed with the urdf order</li>
  *    <li>Joint efforts, expressed with the urdf order</li>
  *    <li>Contact positions, expressed in the base frame</li>
- *    <li>Contact velocites, expressed in the base frame</li>
+ *    <li>Contact velocities, expressed in the base frame</li>
  *    <li>Contact accelerations, expressed in the base frame</li>
  *    <li>Contact efforts, expressed in the base frame</li>
  * </ul>
@@ -44,7 +44,25 @@ namespace dwl
  * B (base frame) and H (horizontal frame). Every getter/setter methods have one
  * of these three letters at the end of the signature, to clearly state what is
  * the reference frame adopted. Also convenient methods to set or get RPY angles
- * are provided. Both Eigen and base types are available for setter methods
+ * are provided. Both Eigen and base types are available for setter methods.
+ * You could also interact with the states without using the getter and setter
+ * functions. Note that the states are:
+ * <ul>
+ *   <li>time</li>
+ * 	 <li>base_pos [roll, pitch, yaw, x, y, z]</li>
+ * 	 <li>base_vel [rate_x, rate_y, rate_z, x, y, z]</li>
+ * 	 <li>base_acc [rotacc_x, rotacc_y, rotacc_y, x, y, z]</li>
+ * 	 <li>joint_pos</li>
+ * 	 <li>joint_vel</li>
+ * 	 <li>joint_acc</li>
+ * 	 <li>joint_eff</li>
+ * 	 <li>contact_pos</li>
+ * 	 <li>contact_vel</li>
+ * 	 <li>contact_acc</li>
+ * 	 <li>contact_eff</li>
+ * 	 Note that these quantities have to be expressed in the above mentioned
+ * 	 frames and orders.
+ * </ul>
  */
 class WholeBodyState
 {
