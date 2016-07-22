@@ -422,7 +422,12 @@ const rbd::Vector6d& WholeBodyState::getContactEffort_B(std::string name) const
 bool WholeBodyState::getContactCondition(std::string name,
 										 double force_threshold) const
 {
-	if (contact_eff.find(name)->second.norm() > force_threshold)
+	// Returns inactive in case that the contact wrench is not defined
+	rbd::BodyWrench::const_iterator it = contact_eff.find(name);
+	if (it == contact_eff.end())
+		return false;
+
+	if (it->second.norm() > force_threshold)
 		return true;
 	else
 		return false;
