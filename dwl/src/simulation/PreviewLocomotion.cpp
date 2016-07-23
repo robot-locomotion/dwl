@@ -449,10 +449,10 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 		current_state.cop = reduced_state.cop;
 
 		// Computing the heading motion according to heading kinematic equation
-		current_state.head_pos = state.head_pos + state.head_vel * time +
-				0.5 * params.head_acc * time * time;
-		current_state.head_vel = state.head_vel + params.head_acc * time;
-		current_state.head_acc = params.head_acc;
+//		current_state.head_pos = state.head_pos + state.head_vel * time +
+//				0.5 * params.head_acc * time * time;
+//		current_state.head_vel = state.head_vel + params.head_acc * time;
+//		current_state.head_acc = params.head_acc; TODO think about it
 
 		// Generating the swing trajectory
 		if (full)
@@ -514,9 +514,9 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 
 		// Computing the heading motion by assuming that there isn't
 		// change in the angular momentum
-		current_state.head_pos = state.head_pos + state.head_vel * time;
-		current_state.head_vel = state.head_vel;
-		current_state.head_acc = 0.;
+//		current_state.head_pos = state.head_pos + state.head_vel * time;
+//		current_state.head_vel = state.head_vel;
+//		current_state.head_acc = 0.; TODO  think about it
 
 		// Generating the swing trajectory
 		if (full)
