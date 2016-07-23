@@ -17,20 +17,23 @@ namespace simulation
 
 struct PreviewState
 {
-	PreviewState() : time(0.), head_pos(0.), head_vel(0.), head_acc(0.) {
+	PreviewState() : time(0.) {
 		com_pos.setZero();
+		angular_pos.setZero();
 		com_vel.setZero();
+		angular_vel.setZero();
 		com_acc.setZero();
+		angular_acc.setZero();
 		cop.setZero();
 	}
 
 	double time;
 	Eigen::Vector3d com_pos;
+	Eigen::Vector3d angular_pos;
 	Eigen::Vector3d com_vel;
+	Eigen::Vector3d angular_vel;
 	Eigen::Vector3d com_acc;
-	double head_pos;
-	double head_vel;
-	double head_acc;
+	Eigen::Vector3d angular_acc;
 	Eigen::Vector3d cop;
 	rbd::BodyPosition support_region;
 	rbd::BodyVector foot_pos;

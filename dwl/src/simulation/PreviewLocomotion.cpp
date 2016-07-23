@@ -683,9 +683,9 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	full_state.setBaseVelocity_W(preview_state.com_vel);
 	full_state.setBaseAcceleration_W(preview_state.com_acc);
 
-	full_state.base_pos(rbd::AZ) = 0.;//preview_state.head_pos;//TODO for debugging
-	full_state.base_vel(rbd::AZ) = 0.;//preview_state.head_vel;
-	full_state.base_acc(rbd::AZ) = 0.;//preview_state.head_acc;
+	full_state.setBaseRPY_W(preview_state.angular_pos);
+	full_state.setBaseRotationRate_W(preview_state.angular_vel);
+	full_state.setBaseRotAcceleration_W(preview_state.angular_acc);
 
 
 	// Adding the contact positions, velocities and accelerations
@@ -759,9 +759,9 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	// Neglecting the joint accelerations components
 	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX);
 
-	preview_state.head_pos = full_state.base_pos(rbd::AZ);
-	preview_state.head_vel = full_state.base_vel(rbd::AZ);
-	preview_state.head_acc = full_state.base_acc(rbd::AZ);
+	preview_state.angular_pos = full_state.getBaseRPY_W();
+	preview_state.angular_vel = full_state.getBaseRotationRate_W();
+	preview_state.angular_acc = full_state.getBaseRotAcceleration_W();
 
 	// Getting the world to base transformation
 	Eigen::Vector3d base_traslation = full_state.getBasePosition_W();
