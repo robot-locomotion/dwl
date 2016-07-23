@@ -5,7 +5,6 @@
 #include <dwl/simulation/FootSplinePatternGenerator.h>
 #include <dwl/model/WholeBodyDynamics.h>
 #include <dwl/model/FloatingBaseSystem.h>
-#include <dwl/utils/DynamicLocomotion.h>
 #include <dwl/environment/TerrainMap.h>
 #include <dwl/utils/YamlWrapper.h>
 

@@ -1,7 +1,7 @@
 #ifndef DWL__SIMULATION__LINEAR_CONTROLLED_SLIP_MODEL__H
 #define DWL__SIMULATION__LINEAR_CONTROLLED_SLIP_MODEL__H
 
-#include <dwl/utils/DynamicLocomotion.h>
+#include <dwl/ReducedBodyState.h>
 #include <dwl/utils/RigidBodyDynamics.h>
 #include <dwl/utils/Macros.h>
 

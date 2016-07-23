@@ -1,4 +1,5 @@
 #include <dwl/WholeBodyState.h>
+#include <dwl/ReducedBodyState.h>
 #include <dwl/utils/Macros.h>
 #include <dwl/utils/DynamicLocomotion.h>
 #include <dwl/utils/GraphSearching.h>

@@ -348,10 +348,16 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 		// Computing the CoM energy of this phase
 		if (preview_params.phase.type == STANCE) {
 			Eigen::Vector3d phase_energy;
+			Eigen::Vector3d rpy_tmp = Eigen::Vector3d::Zero();//TODO read from preview state
+			Eigen::Vector3d angvel_tmp = Eigen::Vector3d::Zero();
+			Eigen::Vector3d angacc_tmp = Eigen::Vector3d::Zero();
 			ReducedBodyState reduced_state(actual_state.time,
 										   actual_state.com_pos,
+					   	   	   	   	   	   rpy_tmp,
 										   actual_state.com_vel,
+										   angvel_tmp,
 										   actual_state.com_acc,
+										   angacc_tmp,
 										   actual_state.cop,
 										   actual_state.support_region);
 			CartTableControlParams model_params(preview_params.duration,
@@ -388,10 +394,16 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 				// is bigger than the sample time
 
 	// Initialization of the Linear Controlled SLIP model
+	Eigen::Vector3d rpy_tmp = Eigen::Vector3d::Zero();//TODO read from preview state
+	Eigen::Vector3d angvel_tmp = Eigen::Vector3d::Zero();
+	Eigen::Vector3d angacc_tmp = Eigen::Vector3d::Zero();
 	ReducedBodyState reduced_state(state.time,
 								   state.com_pos,
+								   rpy_tmp,
 								   state.com_vel,
+								   angvel_tmp,
 								   state.com_acc,
+								   angacc_tmp,
 								   state.cop,
 								   state.support_region);
 	CartTableControlParams model_params(params.duration,
