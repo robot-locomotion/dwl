@@ -81,7 +81,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 }
 
 
-void PreviewLocomotion::readPreviewSequence(PreviewState& state,
+void PreviewLocomotion::readPreviewSequence(ReducedBodyState& state,
 											PreviewControl& control,
 											std::string filename)
 {
@@ -184,8 +184,8 @@ void PreviewLocomotion::setForceThreshold(double force_threshold)
 }
 
 
-void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
-										  const PreviewState& state,
+void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
+										  const ReducedBodyState& state,
 										  const PreviewControl& control,
 										  bool full)
 {
@@ -202,9 +202,9 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 	trajectory.clear();
 
 	// Computing the preview for multi-phase
-	PreviewState actual_state;
+	ReducedBodyState actual_state;
 	for (unsigned int k = 0; k < control.params.size(); k++) {
-		PreviewTrajectory phase_traj;
+		ReducedBodyTrajectory phase_traj;
 
 		// Getting the preview params of the actual phase
 		PreviewParams preview_params = control.params[k];
@@ -323,7 +323,7 @@ void PreviewLocomotion::multiPhasePreview(PreviewTrajectory& trajectory,
 
 
 void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
-										 const PreviewState& state,
+										 const ReducedBodyState& state,
 										 const PreviewControl& control)
 {
 	// Checking that the robot model was initialized
@@ -339,7 +339,7 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 	com_energy.setZero();
 
 	// Computing the energy for multi-phase
-	PreviewState actual_state = state;
+	ReducedBodyState actual_state = state;
 	for (unsigned int k = 0; k < control.params.size(); k++) {
 		// Getting the preview params of the actual phase
 		PreviewParams preview_params = control.params[k];
@@ -348,22 +348,10 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 		// Computing the CoM energy of this phase
 		if (preview_params.phase.type == STANCE) {
 			Eigen::Vector3d phase_energy;
-			Eigen::Vector3d rpy_tmp = Eigen::Vector3d::Zero();//TODO read from preview state
-			Eigen::Vector3d angvel_tmp = Eigen::Vector3d::Zero();
-			Eigen::Vector3d angacc_tmp = Eigen::Vector3d::Zero();
-			ReducedBodyState reduced_state(actual_state.time,
-										   actual_state.com_pos,
-					   	   	   	   	   	   rpy_tmp,
-										   actual_state.com_vel,
-										   angvel_tmp,
-										   actual_state.com_acc,
-										   angacc_tmp,
-										   actual_state.cop,
-										   actual_state.support_region);
 			CartTableControlParams model_params(preview_params.duration,
 											    preview_params.cop_shift);
 			cart_table_.computeSystemEnergy(phase_energy,
-											reduced_state,
+											actual_state,
 											model_params);
 			com_energy += phase_energy;
 		} else { // Flight phase
@@ -371,20 +359,16 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 		}
 
 		// Updating the actual state
-		ReducedBodyState next_reduced_state;
+		ReducedBodyState next_state;
 		double time = actual_state.time + preview_params.duration;
-		cart_table_.computeResponse(next_reduced_state, time);
-		actual_state.time = next_reduced_state.time;
-		actual_state.com_pos = next_reduced_state.com_pos;
-		actual_state.com_vel = next_reduced_state.com_vel;
-		actual_state.com_acc = next_reduced_state.com_acc;
-		actual_state.cop = next_reduced_state.cop;
+		cart_table_.computeResponse(next_state, time);
+		actual_state = next_state;
 	}
 }
 
 
-void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
-									  const PreviewState& state,
+void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
+									  const ReducedBodyState& state,
 									  const PreviewParams& params,
 									  bool full)
 {
@@ -394,21 +378,9 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 				// is bigger than the sample time
 
 	// Initialization of the Linear Controlled SLIP model
-	Eigen::Vector3d rpy_tmp = Eigen::Vector3d::Zero();//TODO read from preview state
-	Eigen::Vector3d angvel_tmp = Eigen::Vector3d::Zero();
-	Eigen::Vector3d angacc_tmp = Eigen::Vector3d::Zero();
-	ReducedBodyState reduced_state(state.time,
-								   state.com_pos,
-								   rpy_tmp,
-								   state.com_vel,
-								   angvel_tmp,
-								   state.com_acc,
-								   angacc_tmp,
-								   state.cop,
-								   state.support_region);
 	CartTableControlParams model_params(params.duration,
 										params.cop_shift);
-	cart_table_.initResponse(reduced_state, model_params);
+	cart_table_.initResponse(state, model_params);
 
 	// Computing the number of samples and initial index
 	unsigned int num_samples = floor(params.duration / sample_time_);
@@ -426,7 +398,7 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 
 	// Adding the actual support region. Note that the support region
 	// remains constant during this phase
-	PreviewState current_state = state;
+	ReducedBodyState current_state = state;
 
 	// Computing the preview trajectory
 	double time;
@@ -464,8 +436,8 @@ void PreviewLocomotion::stancePreview(PreviewTrajectory& trajectory,
 }
 
 
-void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
-						   	   	   	  const PreviewState& state,
+void PreviewLocomotion::flightPreview(ReducedBodyTrajectory& trajectory,
+						   	   	   	  const ReducedBodyState& state,
 									  const PreviewParams& params,
 									  bool full)
 {
@@ -503,7 +475,7 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 
 
 		// Computing the current time of the preview trajectory
-		PreviewState current_state;
+		ReducedBodyState current_state;
 		current_state.time = state.time + time;
 
 		// Computing the CoM motion according to the projectile EoM
@@ -529,7 +501,7 @@ void PreviewLocomotion::flightPreview(PreviewTrajectory& trajectory,
 
 
 
-void PreviewLocomotion::initSwing(const PreviewState& state,
+void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 								  const PreviewParams& params)
 {
 	// Updating the phase state
@@ -605,7 +577,7 @@ void PreviewLocomotion::initSwing(const PreviewState& state,
 }
 
 
-void PreviewLocomotion::generateSwing(PreviewState& state,
+void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 									  double time)
 {
 	// Generating the actual state for every feet
@@ -672,38 +644,38 @@ double PreviewLocomotion::getSampleTime()
 
 
 void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
-										 const PreviewState& preview_state)
+										 const ReducedBodyState& reduced_state)
 {
 	// Adding the time
-	full_state.time = preview_state.time;
+	full_state.time = reduced_state.time;
 
 	// From the preview model we do not know the joint states, so we neglect
 	// the joint-related components of the CoM
-	full_state.setBasePosition_W(preview_state.com_pos - actual_system_com_);
-	full_state.setBaseVelocity_W(preview_state.com_vel);
-	full_state.setBaseAcceleration_W(preview_state.com_acc);
+	full_state.setBasePosition_W(reduced_state.com_pos - actual_system_com_);
+	full_state.setBaseVelocity_W(reduced_state.com_vel);
+	full_state.setBaseAcceleration_W(reduced_state.com_acc);
 
-	full_state.setBaseRPY_W(preview_state.angular_pos);
-	full_state.setBaseRotationRate_W(preview_state.angular_vel);
-	full_state.setBaseRotAcceleration_W(preview_state.angular_acc);
+	full_state.setBaseRPY_W(reduced_state.angular_pos);
+	full_state.setBaseRotationRate_W(reduced_state.angular_vel);
+	full_state.setBaseRotAcceleration_W(reduced_state.angular_acc);
 
 
 	// Adding the contact positions, velocities and accelerations
 	// w.r.t the base frame
-	for (rbd::BodyVector::const_iterator contact_it = preview_state.foot_pos.begin();
-			contact_it != preview_state.foot_pos.end(); contact_it++) {
+	for (rbd::BodyVector::const_iterator contact_it = reduced_state.foot_pos.begin();
+			contact_it != reduced_state.foot_pos.end(); contact_it++) {
 		std::string name = contact_it->first;
 		full_state.contact_pos[name] = contact_it->second + actual_system_com_;
 	}
-	full_state.contact_vel = preview_state.foot_vel;
-	full_state.contact_acc = preview_state.foot_acc;
+	full_state.contact_vel = reduced_state.foot_vel;
+	full_state.contact_acc = reduced_state.foot_acc;
 
 	// Adding infinity contact force for active feet
 	for (unsigned int f = 0; f < num_feet_; f++) {
 		std::string name = feet_names_[f];
 
-		rbd::BodyPosition::const_iterator support_it = preview_state.support_region.find(name);
-		if (support_it != preview_state.support_region.end())
+		rbd::BodyPosition::const_iterator support_it = reduced_state.support_region.find(name);
+		if (support_it != reduced_state.support_region.end())
 			full_state.setContactCondition(name, true);
 		else
 			full_state.setContactCondition(name, false);
@@ -718,7 +690,7 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	for (unsigned int f = 0; f < num_feet_; f++) {
 		std::string name = feet_names_[f];
 
-		feet_pos[name] = preview_state.foot_pos.find(name)->second + actual_system_com_;
+		feet_pos[name] = reduced_state.foot_pos.find(name)->second + actual_system_com_;
 	}
 
 	// Computing the joint positions
@@ -743,25 +715,25 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 }
 
 
-void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
+void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 										   const WholeBodyState& full_state)
 {
 	// Adding the actual time
-	preview_state.time = full_state.time;
+	reduced_state.time = full_state.time;
 
 	// Computing the CoM position, velocity and acceleration
-	preview_state.com_pos = system_.getSystemCoM(full_state.base_pos,
+	// Neglecting the joint accelerations components
+	reduced_state.com_pos = system_.getSystemCoM(full_state.base_pos,
 												 full_state.joint_pos);
-	preview_state.com_vel = system_.getSystemCoMRate(full_state.base_pos,
+	reduced_state.com_vel = system_.getSystemCoMRate(full_state.base_pos,
 													 full_state.joint_pos,
 													 full_state.base_vel,
 													 full_state.joint_vel);
-	// Neglecting the joint accelerations components
-	preview_state.com_acc = full_state.base_acc.segment<3>(rbd::LX);
+	reduced_state.com_acc = full_state.getBaseAcceleration_W();
 
-	preview_state.angular_pos = full_state.getBaseRPY_W();
-	preview_state.angular_vel = full_state.getBaseRotationRate_W();
-	preview_state.angular_acc = full_state.getBaseRotAcceleration_W();
+	reduced_state.angular_pos = full_state.getBaseRPY_W();
+	reduced_state.angular_vel = full_state.getBaseRotationRate_W();
+	reduced_state.angular_acc = full_state.getBaseRotAcceleration_W();
 
 	// Getting the world to base transformation
 	Eigen::Vector3d base_traslation = full_state.getBasePosition_W();
@@ -774,7 +746,7 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 									  full_state.contact_eff,
 									  full_state.contact_pos,
 									  feet_names_);
-	preview_state.cop = base_traslation + base_rotation * cop_B;
+	reduced_state.cop = base_traslation + base_rotation * cop_B;
 
 	// Getting the support region w.r.t the world frame. The support region
 	// is defined by the active contacts
@@ -782,11 +754,11 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	dynamics_.getActiveContacts(active_contacts,
 								full_state.contact_eff,
 								force_threshold_);
-	preview_state.support_region.clear();
+	reduced_state.support_region.clear();
 	for (unsigned int i = 0; i < active_contacts.size(); i++) {
 		std::string name = active_contacts[i];
 
-		preview_state.support_region[name] = base_traslation +
+		reduced_state.support_region[name] = base_traslation +
 				base_rotation * full_state.getContactPosition_B(name);
 	}
 
@@ -795,18 +767,18 @@ void PreviewLocomotion::fromWholeBodyState(PreviewState& preview_state,
 	for (rbd::BodyVector::const_iterator contact_it = full_state.contact_pos.begin();
 			contact_it != full_state.contact_pos.end(); contact_it++) {
 		std::string name = contact_it->first;
-		preview_state.foot_pos[name] = contact_it->second - actual_system_com_;
+		reduced_state.foot_pos[name] = contact_it->second - actual_system_com_;
 	}
-	preview_state.foot_vel = full_state.contact_vel;
-	preview_state.foot_acc = full_state.contact_acc;
+	reduced_state.foot_vel = full_state.contact_vel;
+	reduced_state.foot_acc = full_state.contact_acc;
 }
 
 
 void PreviewLocomotion::toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
-											  const PreviewTrajectory& preview_traj)
+											  const ReducedBodyTrajectory& reduced_traj)
 {
-	// Getting the number of points defined in the preview trajectory
-	unsigned int traj_size = preview_traj.size();
+	// Getting the number of points defined in the reduced-body trajectory
+	unsigned int traj_size = reduced_traj.size();
 
 	// Resizing the full trajectory vector
 	full_traj.clear();
@@ -815,7 +787,7 @@ void PreviewLocomotion::toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
 	// Getting the full trajectory
 	dwl::WholeBodyState full_state;
 	for (unsigned int k = 0; k < traj_size; k++) {
-		toWholeBodyState(full_state, preview_traj[k]);
+		toWholeBodyState(full_state, reduced_traj[k]);
 
 		full_traj[k] = full_state;
 	}

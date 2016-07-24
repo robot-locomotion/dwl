@@ -16,16 +16,6 @@ class ReducedBodyState
 {
 	public:
 		ReducedBodyState();
-		ReducedBodyState(double _time,
-						 Eigen::Vector3d _com_pos,
-						 Eigen::Vector3d _ang_pos,
-						 Eigen::Vector3d _com_vel,
-						 Eigen::Vector3d _ang_vel,
-						 Eigen::Vector3d _com_acc,
-						 Eigen::Vector3d _ang_acc,
-						 Eigen::Vector3d _cop,
-						 rbd::BodyPosition _support);
-
 		~ReducedBodyState();
 
 
@@ -38,6 +28,9 @@ class ReducedBodyState
 		Eigen::Vector3d angular_acc;
 		Eigen::Vector3d cop;
 		rbd::BodyPosition support_region;
+		rbd::BodyVector foot_pos;
+		rbd::BodyVector foot_vel;
+		rbd::BodyVector foot_acc;
 };
 
 /** @brief Defines a reduced-body trajectory */

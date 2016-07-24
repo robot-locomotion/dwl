@@ -15,32 +15,6 @@ namespace dwl
 namespace simulation
 {
 
-struct PreviewState
-{
-	PreviewState() : time(0.) {
-		com_pos.setZero();
-		angular_pos.setZero();
-		com_vel.setZero();
-		angular_vel.setZero();
-		com_acc.setZero();
-		angular_acc.setZero();
-		cop.setZero();
-	}
-
-	double time;
-	Eigen::Vector3d com_pos;
-	Eigen::Vector3d angular_pos;
-	Eigen::Vector3d com_vel;
-	Eigen::Vector3d angular_vel;
-	Eigen::Vector3d com_acc;
-	Eigen::Vector3d angular_acc;
-	Eigen::Vector3d cop;
-	rbd::BodyPosition support_region;
-	rbd::BodyVector foot_pos;
-	rbd::BodyVector foot_vel;
-	rbd::BodyVector foot_acc;
-};
-
 enum TypeOfPhases {STANCE, FLIGHT};
 struct PreviewPhase
 {
@@ -122,8 +96,6 @@ struct PreviewControl
 
 	std::vector<PreviewParams> params;
 };
-
-typedef std::vector<PreviewState> PreviewTrajectory;
 
 struct PreviewSchedule
 {
@@ -261,11 +233,11 @@ class PreviewLocomotion
 
 		/**
 		 * @brief Reads the preview sequence from a Yaml file
-		 * @param PreviewState& Preview state
+		 * @param ReducedBodyState& Reduced-body state
 		 * @param PreviewControl& Preview control parameters
 		 * @param std::string Filename
 		 */
-		void readPreviewSequence(PreviewState& state,
+		void readPreviewSequence(ReducedBodyState& state,
 								 PreviewControl& control,
 								 std::string filename);
 
@@ -289,25 +261,25 @@ class PreviewLocomotion
 
 		/**
 		 * @brief Computes the multi-phase preview trajectory
-		 * @param PreviewTrajectory& Preview trajectory
-		 * @param const PreviewState& Actual preview state
+		 * @param ReducedBodyTrajectory& Reduced-body trajectory
+		 * @param const ReducedBodyState& Actual reduced-body state
 		 * @param const PreviewControl& Preview control
 		 * @param bool True for the full trajectory, otherwise compute the
 		 * preview state transitions
 		 */
-		void multiPhasePreview(PreviewTrajectory& trajectory,
-							   const PreviewState& state,
+		void multiPhasePreview(ReducedBodyTrajectory& trajectory,
+							   const ReducedBodyState& state,
 							   const PreviewControl& control,
 							   bool full = true);
 
 		/**
 		 * @brief Computes the total energy of the multi-phase preview
 		 * @param Eigen::Vector3d& CoM energy
-		 * @param const PreviewState& Initial state
+		 * @param const ReducedBodyState& Initial state
 		 * @param const PreviewControl& Preview schedule control
 		 */
 		void multiPhaseEnergy(Eigen::Vector3d& com_energy,
-							  const PreviewState& state,
+							  const ReducedBodyState& state,
 							  const PreviewControl& control);
 
 		/**
@@ -316,15 +288,15 @@ class PreviewLocomotion
 		 * Inverted Pendulum (SLIP) model, and by assuming that the
 		 * Center of Pressure (CoP) and the pendulum length are linearly
 		 * controlled
-		 * @param PreviewTrajectory& Preview trajectory at the predefined
+		 * @param ReducedTrajectory& Reduced-body trajectory at the predefined
 		 * sample time
-		 * @param const PreviewState& Initial low-dimensional state
+		 * @param const ReducedBodyState& Initial low-dimensional state
 		 * @param const PreviewParams& Preview control parameters
 		 * @param bool Label that indicates full preview or just the
 		 * terminal state
 		 */
-		void stancePreview(PreviewTrajectory& trajectory,
-						   const PreviewState& state,
+		void stancePreview(ReducedBodyTrajectory& trajectory,
+						   const ReducedBodyState& state,
 						   const PreviewParams& params,
 						   bool full = true);
 
@@ -333,32 +305,32 @@ class PreviewLocomotion
 		 * The preview is computed according the projectile Equation
 		 * of Motion (EoM), and assuming the non-changes in the
 		 * angular momentum
-		 * @param PreviewTrajectory& Preview trajectory at the predefined
+		 * @param ReducedBodyTrajectory& Reduced-body trajectory at the predefined
 		 * sample time
-		 * @param const PreviewState& Initial low-dimensional state
+		 * @param const ReducedBodyState& Initial low-dimensional state
 		 * @param const PreviewParams& Preview control parameters
 		 * @param bool Label that indicates full preview or just the
 		 * terminal state
 		 */
-		void flightPreview(PreviewTrajectory& trajectory,
-				   	   	   const PreviewState& state,
+		void flightPreview(ReducedBodyTrajectory& trajectory,
+				   	   	   const ReducedBodyState& state,
 						   const PreviewParams& params,
 						   bool full = true);
 
 		/**
 		 * @brief Initializes the swing trajectory generator
-		 * @param const PreviewState& Initial low-dimensional state
+		 * @param const ReducedBodyState& Initial low-dimensional state
 		 * @param const PreviewParams& Preview control parameters
 		 */
-		void initSwing(const PreviewState& state,
+		void initSwing(const ReducedBodyState& state,
 					   const PreviewParams& params);
 
 		/**
 		 * @brief Generates the swing trajectory of the contact
-		 * @param PreviewState& Desired preview state
+		 * @param ReducedBodyState& Desired preview state
 		 * sample time
 		 */
-		void generateSwing(PreviewState& state,
+		void generateSwing(ReducedBodyState& state,
 						   double time);
 
 		/** @brief Returns the floating-base system pointer */
@@ -374,38 +346,38 @@ class PreviewLocomotion
 		double getSampleTime();
 
 		/**
-		 * @brief Converts the preview state vector to whole-body state
+		 * @brief Converts the reduced-body state to whole-body one
 		 * @param WholeBodyState& Whole-body state
-		 * @param const PreviewStated& Preview state vector
+		 * @param const ReducedBodyStated& Reduced-body state
 		 */
 		void toWholeBodyState(WholeBodyState& full_state,
-							  const PreviewState& preview_state);
+							  const ReducedBodyState& reduced_state);
 
 		/**
-		 * @brief Converts the whole-body state to preview state vector
-		 * @param PreviewStated& Preview state vector
+		 * @brief Converts the whole-body state to reduced-body state one
+		 * @param ReducedBodyStated& Reduced-body state
 		 * @param const WholeBodyState& Whole-body state
 		 */
-		void fromWholeBodyState(PreviewState& preview_state,
+		void fromWholeBodyState(ReducedBodyState& reduced_state,
 								const WholeBodyState& full_state);
 
 		/**
-		 * @brief Converts a preview trajectory to a whole-body trajectory
+		 * @brief Converts a reduced-body trajectory to a whole-body one
 		 * @param WholeBodyTrajectory& Whole-body trajectory
-		 * @param const PreviewTrajectory& Preview trajectory
+		 * @param const ReducedBodyTrajectory& Reduced-body trajectory
 		 */
 		void toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
-								   const PreviewTrajectory& preview_traj);
+								   const ReducedBodyTrajectory& reduced_traj);
 
 
 	private:
-		/** @brief Actual preview state */
-		PreviewState actual_state_;
+		/** @brief Actual reduced-body state */
+		ReducedBodyState actual_state_;
 
 		/** @brief Feet spline generator */
 		std::map<std::string,simulation::FootSplinePatternGenerator> feet_spline_generator_;
 		SwingParams swing_params_;
-		PreviewState phase_state_;
+		ReducedBodyState phase_state_;
 
 		/** @brief Floating-base system information */
 		model::FloatingBaseSystem system_;

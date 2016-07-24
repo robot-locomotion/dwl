@@ -127,6 +127,7 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 	state.com_vel(rbd::Z) = -(normal_2d.dot(cop_vel)) / normal_z;
 	state.com_acc(rbd::Z) = 0.;
 	state.cop(rbd::Z) = initial_state_.cop(rbd::Z) + delta_posz;
+	state.support_region = initial_state_.support_region;
 }
 
 

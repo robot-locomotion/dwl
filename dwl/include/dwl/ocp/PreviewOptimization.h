@@ -58,10 +58,10 @@ class PreviewOptimization : public model::OptimizationModel
 		void setActualWholeBodyState(const WholeBodyState& state);
 
 		/**
-		 * @brief Sets the actual preview state
-		 * @param const simulation::PreviewState& Actual preview state
+		 * @brief Sets the actual reduced-body state
+		 * @param const ReducedBodyState& Actual reduced-body state
 		 */
-		void setActualPreviewState(const simulation::PreviewState& state);
+		void setActualReducedBodyState(const ReducedBodyState& state);
 
 		/**
 		 * @brief Sets the initial sequence of preview control parameters
@@ -176,19 +176,19 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Returns the preview system pointer */
 		simulation::PreviewLocomotion* getPreviewSystem();
 
-		/** @brief Returns the preview trajectory */
-		simulation::PreviewTrajectory& getPreviewTrajectory();
-
 		/** @brief Returns the reduced-body trajectory */
-		ReducedBodyTrajectory& getReducedTrajectory();
+		ReducedBodyTrajectory& getReducedBodyTrajectory();
+
+		/** @brief Returns the reduced-body sequence */
+		ReducedBodyTrajectory& getReducedBodySequence();
 
 		/**
 		 * @brief Saves a state and preview control pairs
-		 * @param simulation::PreviewState& Preview state
+		 * @param simulation::ReducedBodyState& Reduced-body state
 		 * @param simulation::PreviewControl& Preview control sequence
 		 * @param std::string Filename
 		 */
-		void saveControl(simulation::PreviewState& state,
+		void saveControl(ReducedBodyState& state,
 						 simulation::PreviewControl& control,
 						 std::string filename);
 
@@ -200,17 +200,17 @@ class PreviewOptimization : public model::OptimizationModel
 
 
 	private:
-		double stepCost(const simulation::PreviewTrajectory& preview_trans,
-						const simulation::PreviewState& actual_state,
+		double stepCost(const ReducedBodyTrajectory& phase_trans,
+						const ReducedBodyState& actual_state,
 						const simulation::PreviewControl& preview_control);
-		double comEnergyCost(const simulation::PreviewState& actual_state,
+		double comEnergyCost(const ReducedBodyState& actual_state,
 							 const simulation::PreviewControl& preview_control);
-		double copStabilitySoftConstraint(const simulation::PreviewTrajectory& preview_trans,
-										  const simulation::PreviewState& actual_state,
+		double copStabilitySoftConstraint(const ReducedBodyTrajectory& phase_trans,
+										  const ReducedBodyState& actual_state,
 										  const simulation::PreviewControl& preview_control);
-		double previewModelSoftConstraint(const simulation::PreviewTrajectory& preview_trans,
+		double previewModelSoftConstraint(const ReducedBodyTrajectory& phase_trans,
 										  const simulation::PreviewControl& preview_control);
-		double terrainCost(const simulation::PreviewTrajectory& preview_trans,
+		double terrainCost(const ReducedBodyTrajectory& phase_trans,
 						   const simulation::PreviewControl& preview_control);
 
 		/** @brief Returns the control dimension of the preview schedule */
@@ -267,16 +267,16 @@ class PreviewOptimization : public model::OptimizationModel
 		simulation::PreviewSchedule schedule_;
 		std::vector<unsigned int> phase_id_;
 
-		/** @brief Actual preview state */
-		simulation::PreviewState actual_state_;
+		/** @brief Actual reduced-body state */
+		ReducedBodyState actual_state_;
 
 		/** @brief Bounds of the preview optimization */
 		PreviewBounds bounds_;
 
-		/** @brief Preview trajectory and transitions */
-		simulation::PreviewTrajectory preview_trajectory_;
-		ReducedBodyTrajectory reduced_traj_;
-		simulation::PreviewTrajectory preview_transitions_;
+		/** @brief Reduced-body trajectory and transitions */
+		ReducedBodyTrajectory reduced_trajectory_;
+		ReducedBodyTrajectory reduced_sequence_;
+		ReducedBodyTrajectory phase_transitions_;
 
 		/** @brief Desired states */
 		double desired_step_duration_;
