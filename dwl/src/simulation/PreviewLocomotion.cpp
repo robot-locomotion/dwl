@@ -228,32 +228,37 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 					if (control.params[k-1].phase.isSwingFoot(name) &&
 							control.params[k-1].duration > sample_time_) {
 						Eigen::Vector3d stance =
-								stance_posture_.find(name)->second.head<3>();
+								stance_posture_.find(name)->second;
 
 						// Getting the footshift control parameter
 						Eigen::Vector2d footshift_2d =
 								control.params[k-1].phase.getFootShift(name);
-
-						// Computing the footshift in z from the height map. In case of no
-						// having the terrain height map, it assumes flat terrain conditions.
-						// Note that we compensate small drift between the actual and the
-						// default postures, and the displacement of the CoM in z
-						// Computing the terminal CoM state for getting the foothold position
-						double comz_shift =
-								actual_state.com_pos(rbd::Z) - actual_state_.com_pos(rbd::Z);
-						double footshift_z = -(cart_table_.getPendulumHeight() + stance(rbd::Z));
 						Eigen::Vector3d footshift(footshift_2d(rbd::X),
 												  footshift_2d(rbd::Y),
-												  footshift_z - comz_shift);
+												  0.);
 
 						// Computing the foothold position w.r.t. the world
 						Eigen::Vector3d foothold =
 								actual_state.com_pos + stance + footshift;
 
-						// Adding the terrain height given the terrain height-map
+						// Computing the footshift in z from the height map. In
+						// case of no having the terrain height map, it assumes
+						// flat terrain conditions. Note that, for those cases,
+						// we compensate small drift between the actual and the
+						// default postures, and the displacement of the CoM in z
 						if (terrain_.isTerrainInformation()) {
+							// Adding the terrain height given the terrain
+							// height-map
 							Eigen::Vector2d foothold_2d = foothold.head<2>();
-							foothold(rbd::Z) += terrain_.getTerrainHeight(foothold_2d);
+							foothold(rbd::Z) = terrain_.getTerrainHeight(foothold_2d);
+						} else {
+							double comz_shift =
+									actual_state.com_pos(rbd::Z) -
+									actual_state_.com_pos(rbd::Z);
+							double footshift_z =
+									-(cart_table_.getPendulumHeight() +
+											stance(rbd::Z));
+							foothold(rbd::Z) = footshift_z - comz_shift;
 						}
 
 						actual_state.support_region[name] = foothold;
@@ -292,27 +297,28 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 			// Getting the footshift control parameter
 			Eigen::Vector2d footshift_2d =
 					end_control.phase.getFootShift(name);
-
-			// Computing the footshift in z from the height map. In case of no
-			// having the terrain height map, it assumes flat terrain conditions.
-			// Note that we compensate small drift between the actual and the
-			// default postures, and the displacement of the CoM in z
-			// Computing the terminal CoM state for getting the foothold position
-			double comz_shift =
-					actual_state.com_pos(rbd::Z) - actual_state_.com_pos(rbd::Z);
-			double footshift_z = -(cart_table_.getPendulumHeight() + stance(rbd::Z));
 			Eigen::Vector3d footshift(footshift_2d(rbd::X),
 									  footshift_2d(rbd::Y),
-									  footshift_z - comz_shift);
+									  0.);
 
 			// Computing the foothold position w.r.t. the world
 			Eigen::Vector3d foothold =
 					actual_state.com_pos + stance + footshift;
 
-			// Adding the terrain height given the terrain height-map
+			// Computing the footshift in z from the height map. In case of no
+			// having the terrain height map, it assumes flat terrain conditions.
+			// Note that, in those cases, we compensate small drift between the
+			// actual and the default postures, and the displacement of the CoM
+			// in z
 			if (terrain_.isTerrainInformation()) {
+				// Adding the terrain height given the terrain height-map
 				Eigen::Vector2d foothold_2d = foothold.head<2>();
-				foothold(rbd::Z) += terrain_.getTerrainHeight(foothold_2d);
+				foothold(rbd::Z) = terrain_.getTerrainHeight(foothold_2d);
+			} else {
+				double comz_shift =
+						actual_state.com_pos(rbd::Z) - actual_state_.com_pos(rbd::Z);
+				double footshift_z = -(cart_table_.getPendulumHeight() + stance(rbd::Z));
+				foothold(rbd::Z) = footshift_z - comz_shift;
 			}
 
 			actual_state.support_region[name] = foothold;
@@ -513,26 +519,28 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 
 		// Getting the footshift control parameter
 		Eigen::Vector2d footshift_2d = params.phase.getFootShift(name);
-
-		// Computing the footshift in z from the height map. In case of no
-		// having the terrain height map, it assumes flat terrain conditions.
-		// Note that we compensate small drift between the actual and the
-		// default postures, and the displacement of the CoM in z
-		double comz_shift =
-				terminal_state.com_pos(rbd::Z) - actual_state_.com_pos(rbd::Z);
-		double footshift_z = -(cart_table_.getPendulumHeight() + stance(rbd::Z));
 		Eigen::Vector3d footshift(footshift_2d(rbd::X),
 								  footshift_2d(rbd::Y),
-								  footshift_z - comz_shift);
+								  0.);
 
 		// Computing the foothold position w.r.t. the world
 		Eigen::Vector3d foothold =
 				terminal_state.com_pos + stance + footshift;
 
-		// Adding the terrain height given the terrain height-map
+		// Computing the footshift in z from the height map. In case of no
+		// having the terrain height map, it assumes flat terrain conditions.
+		// Note that, for those cases, we compensate small drift between the
+		// actual and the default postures, and the displacement of the CoM in z
 		if (terrain_.isTerrainInformation()) {
+			// Adding the terrain height given the terrain height-map
 			Eigen::Vector2d foothold_2d = foothold.head<2>();
-			footshift(rbd::Z) += terrain_.getTerrainHeight(foothold_2d);
+			footshift(rbd::Z) = terrain_.getTerrainHeight(foothold_2d) -
+					(terminal_state.com_pos(rbd::Z) + stance(rbd::Z));
+		} else {
+			double comz_shift =
+					terminal_state.com_pos(rbd::Z) - actual_state_.com_pos(rbd::Z);
+			double footshift_z = -(cart_table_.getPendulumHeight() + stance(rbd::Z));
+			footshift(rbd::Z) = footshift_z - comz_shift;
 		}
 
 		swing_shift[name] = footshift;
