@@ -144,7 +144,7 @@ double TerrainMap::getTerrainHeight(const Vertex& vertex)
 {
 	HeightMap::iterator height_it = heightmap_.find(vertex);
 	if (height_it != heightmap_.end())
-		return height_it->second - height_resolution_ / 2;
+		return height_it->second + height_resolution_ / 2;
 	else
 		return 0.;
 }
