@@ -359,10 +359,8 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 		}
 
 		// Updating the actual state
-		ReducedBodyState next_state;
 		double time = actual_state.time + preview_params.duration;
-		cart_table_.computeResponse(next_state, time);
-		actual_state = next_state;
+		cart_table_.computeResponse(actual_state, time);
 	}
 }
 
@@ -412,13 +410,8 @@ void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 
 		// Computing the response of the Linear Controlled SLIP
 		// dynamics
-		ReducedBodyState reduced_state;
-		cart_table_.computeResponse(reduced_state,
+		cart_table_.computeResponse(current_state,
 									current_state.time);
-		current_state.com_pos = reduced_state.com_pos;
-		current_state.com_vel = reduced_state.com_vel;
-		current_state.com_acc = reduced_state.com_acc;
-		current_state.cop = reduced_state.cop;
 
 		// Computing the heading motion according to heading kinematic equation
 //		current_state.head_pos = state.head_pos + state.head_vel * time +
