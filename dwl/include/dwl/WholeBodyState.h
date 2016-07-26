@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-#include <dwl/utils/Orientation.h>
+#include <dwl/utils/FrameTF.h>
 #include <dwl/utils/RigidBodyDynamics.h>
 
 
@@ -294,25 +294,11 @@ class WholeBodyState
 
 
 	private:
-		/** @brief Computes the rotation matrix from world to horizontal frame */
-		Eigen::Matrix3d inline getRotWorldToHF() const {
-			return math::getRotationMatrix(getBaseRPY_H());
-		}
-
-		/** @brief Computes the rotation matrix from world to horizontal frame */
-		Eigen::Matrix3d inline getRotBaseToHF() const {
-			Eigen::Matrix3d R;
-			Eigen::Vector3d rpy_W = getBaseRPY_W();
-
-			R <<  cos(rpy_W(1)),  sin(rpy_W(0))*sin(rpy_W(1)),  cos(rpy_W(0))*sin(rpy_W(1)),
-					         0.,                cos(rpy_W(0)),               -sin(rpy_W(0)),
-				 -sin(rpy_W(1)),  sin(rpy_W(0))*cos(rpy_W(1)),  cos(rpy_W(0))*cos(rpy_W(1));
-
-			return R;
-		}
-
 		/** @brief Number of joints */
 		unsigned int num_joints_;
+
+		/** @brief Frame transformations */
+		math::FrameTF frame_tf_;
 };
 
 /** @brief Defines a whole-body trajectory */

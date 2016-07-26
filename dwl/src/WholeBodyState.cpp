@@ -51,7 +51,7 @@ Eigen::Vector3d WholeBodyState::getBaseRPY_W() const
 
 Eigen::Quaterniond WholeBodyState::getBaseOrientation_H() const
 {
-	return Eigen::Quaterniond(getRotWorldToHF());
+	return Eigen::Quaterniond(math::getRotationMatrix(getBaseRPY_H()));
 }
 
 
@@ -69,13 +69,15 @@ Eigen::Vector3d WholeBodyState::getBaseVelocity_W() const
 
 Eigen::Vector3d WholeBodyState::getBaseVelocity_B() const
 {
-	return getBaseOrientation_W().inverse().toRotationMatrix() * getBaseVelocity_W();
+	return frame_tf_.fromWorldToBaseFrame(getBaseVelocity_W(),
+										  getBaseOrientation_W());
 }
 
 
 Eigen::Vector3d WholeBodyState::getBaseVelocity_H() const
 {
-	return getRotWorldToHF() * getBaseVelocity_W();
+	return frame_tf_.fromWorldToHorizontalFrame(getBaseVelocity_W(),
+												getBaseRPY_W());
 }
 
 
@@ -87,13 +89,15 @@ Eigen::Vector3d WholeBodyState::getBaseRotationRate_W() const
 
 Eigen::Vector3d WholeBodyState::getBaseRotationRate_B() const
 {
-	return getBaseOrientation_W().inverse().toRotationMatrix() * getBaseRotationRate_W();
+	return frame_tf_.fromWorldToBaseFrame(getBaseRotationRate_W(),
+										  getBaseOrientation_W());
 }
 
 
 Eigen::Vector3d WholeBodyState::getBaseRotationRate_H() const
 {
-	return getRotWorldToHF() * getBaseRotationRate_W();
+	return frame_tf_.fromWorldToHorizontalFrame(getBaseRotationRate_W(),
+												getBaseRPY_W());
 }
 
 
@@ -105,13 +109,15 @@ Eigen::Vector3d WholeBodyState::getBaseAcceleration_W() const
 
 Eigen::Vector3d WholeBodyState::getBaseAcceleration_B() const
 {
-	return getBaseOrientation_W().inverse().toRotationMatrix() * getBaseAcceleration_W();
+	return frame_tf_.fromWorldToBaseFrame(getBaseAcceleration_W(),
+										  getBaseOrientation_W());
 }
 
 
 Eigen::Vector3d WholeBodyState::getBaseAcceleration_H() const
 {
-	return getRotWorldToHF() * getBaseAcceleration_W();
+	return frame_tf_.fromWorldToHorizontalFrame(getBaseAcceleration_W(),
+												getBaseRPY_W());
 }
 
 
@@ -123,13 +129,15 @@ Eigen::Vector3d WholeBodyState::getBaseRotAcceleration_W() const
 
 Eigen::Vector3d WholeBodyState::getBaseRotAcceleration_B() const
 {
-	return getBaseOrientation_W().inverse().toRotationMatrix() * getBaseRotAcceleration_W();
+	return frame_tf_.fromWorldToBaseFrame(getBaseRotAcceleration_W(),
+										  getBaseOrientation_W());
 }
 
 
 Eigen::Vector3d WholeBodyState::getBaseRotAcceleration_H() const
 {
-	return getRotWorldToHF() * getBaseRotAcceleration_W();
+	return frame_tf_.fromWorldToHorizontalFrame(getBaseRotAcceleration_W(),
+												getBaseRPY_W());
 }
 
 
@@ -159,13 +167,15 @@ void WholeBodyState::setBaseVelocity_W(const Eigen::Vector3d& vel_W)
 
 void WholeBodyState::setBaseVelocity_B(const Eigen::Vector3d& vel_B)
 {
-	rbd::linearPart(base_vel) = getBaseOrientation_W().toRotationMatrix() * vel_B;
+	rbd::linearPart(base_vel) =
+			frame_tf_.fromBaseToWorldFrame(vel_B, getBaseOrientation_W());
 }
 
 
 void WholeBodyState::setBaseVelocity_H(const Eigen::Vector3d& vel_H)
 {
-	rbd::linearPart(base_vel) = getRotWorldToHF().inverse() * vel_H;
+	rbd::linearPart(base_vel) =
+			frame_tf_.fromHorizontalToWorldFrame(vel_H, getBaseRPY_W());
 }
 
 
@@ -177,13 +187,15 @@ void WholeBodyState::setBaseRotationRate_W(const Eigen::Vector3d& rate_W)
 
 void WholeBodyState::setBaseRotationRate_B(const Eigen::Vector3d& rate_B)
 {
-	rbd::angularPart(base_vel) = getBaseOrientation_W().toRotationMatrix() * rate_B;
+	rbd::angularPart(base_vel) =
+			frame_tf_.fromBaseToWorldFrame(rate_B, getBaseOrientation_W());
 }
 
 
 void WholeBodyState::setBaseRotationRate_H(const Eigen::Vector3d& rate_H)
 {
-	rbd::angularPart(base_vel) = getRotWorldToHF().inverse() * rate_H;
+	rbd::angularPart(base_vel) =
+			frame_tf_.fromHorizontalToWorldFrame(rate_H, getBaseRPY_W());
 }
 
 
@@ -195,13 +207,15 @@ void WholeBodyState::setBaseAcceleration_W(const Eigen::Vector3d& acc_W)
 
 void WholeBodyState::setBaseAcceleration_B(const Eigen::Vector3d& acc_B)
 {
-	rbd::linearPart(base_acc) = getBaseOrientation_W().toRotationMatrix() * acc_B;
+	rbd::linearPart(base_acc) =
+			frame_tf_.fromBaseToWorldFrame(acc_B, getBaseOrientation_W());
 }
 
 
 void WholeBodyState::setBaseAcceleration_H(const Eigen::Vector3d& acc_H)
 {
-	rbd::linearPart(base_acc) = getRotWorldToHF().inverse() * acc_H;
+	rbd::linearPart(base_acc) =
+			frame_tf_.fromHorizontalToWorldFrame(acc_H, getBaseRPY_W());
 }
 
 
@@ -213,13 +227,15 @@ void WholeBodyState::setBaseRotAcceleration_W(const Eigen::Vector3d& rotacc_W)
 
 void WholeBodyState::setBaseRotAcceleration_B(const Eigen::Vector3d& rotacc_B)
 {
-	rbd::angularPart(base_acc) = getBaseOrientation_W().toRotationMatrix() * rotacc_B;
+	rbd::angularPart(base_acc) =
+			frame_tf_.fromBaseToWorldFrame(rotacc_B, getBaseOrientation_W());
 }
 
 
 void WholeBodyState::setBaseRotAcceleration_H(const Eigen::Vector3d& rotacc_H)
 {
-	rbd::angularPart(base_acc) = getRotWorldToHF().inverse() * rotacc_H;
+	rbd::angularPart(base_acc) =
+			frame_tf_.fromHorizontalToWorldFrame(rotacc_H, getBaseRPY_W());
 }
 
 
