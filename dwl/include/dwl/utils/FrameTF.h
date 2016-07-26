@@ -10,6 +10,11 @@ namespace dwl
 namespace math
 {
 
+/**
+ * @class the FrameTF class
+ * This class provides an user friendly interface for transforming different
+ * frame: world, base and horizontal frames.
+ */
 class FrameTF
 {
 	public:
