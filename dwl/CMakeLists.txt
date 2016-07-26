@@ -128,6 +128,7 @@ set(${PROJECT_NAME}_SOURCES  src/WholeBodyState.cpp
 							 src/utils/Geometry.cpp
 							 src/utils/Algebra.cpp
 							 src/utils/Orientation.cpp
+							 src/utils/FrameTF.cpp
 							 src/utils/RigidBodyDynamics.cpp
 							 src/utils/URDF.cpp
 							 src/utils/SplineInterpolation.cpp
