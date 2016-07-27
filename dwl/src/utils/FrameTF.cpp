@@ -90,5 +90,19 @@ Eigen::Vector3d FrameTF::fromHorizontalToWorldFrame(const Eigen::Vector3d& vec_H
 	return getRotWorldToHF(rpy).inverse() * vec_H;
 }
 
+
+Eigen::Vector3d FrameTF::mapHorizontalToWorldFrame(const Eigen::Vector3d vec_H,
+												   const Eigen::Vector3d& rpy) const
+{
+	return fromWorldToHorizontalFrame(vec_H, rpy);
+}
+
+
+Eigen::Vector3d FrameTF::mapHorizontalToWorldFrame(const Eigen::Vector3d vec_H,
+												   const Eigen::Quaterniond& q) const
+{
+	return fromWorldToHorizontalFrame(vec_H, q);
+}
+
 } //@namespace math
 } //@namespace dwl
