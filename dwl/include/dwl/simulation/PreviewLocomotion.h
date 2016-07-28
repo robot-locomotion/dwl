@@ -375,7 +375,7 @@ class PreviewLocomotion
 		ReducedBodyState actual_state_;
 
 		/** @brief Feet spline generator */
-		std::map<std::string,simulation::FootSplinePatternGenerator> feet_spline_generator_;
+		FootSplinerMap feet_spline_generator_;
 		SwingParams swing_params_;
 		ReducedBodyState phase_state_;
 
