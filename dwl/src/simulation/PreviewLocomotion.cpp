@@ -238,9 +238,9 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 												  0.);
 
 						// Computing the foothold position w.r.t. the world
-						Eigen::Vector3d foothold =
-								actual_state.com_pos + stance + footshift;
-
+						Eigen::Vector3d foothold = actual_state.com_pos +
+								frame_tf_.fromBaseToWorldFrame(stance + footshift,
+															   actual_state.getRPY_W());
 						// Computing the footshift in z from the height map. In
 						// case of no having the terrain height map, it assumes
 						// flat terrain conditions. Note that, for those cases,
@@ -302,9 +302,9 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 									  0.);
 
 			// Computing the foothold position w.r.t. the world
-			Eigen::Vector3d foothold =
-					actual_state.com_pos + stance + footshift;
-
+			Eigen::Vector3d foothold = actual_state.com_pos +
+					frame_tf_.fromBaseToWorldFrame(stance + footshift,
+												   actual_state.getRPY_W());
 			// Computing the footshift in z from the height map. In case of no
 			// having the terrain height map, it assumes flat terrain conditions.
 			// Note that, in those cases, we compensate small drift between the
@@ -524,8 +524,9 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 								  0.);
 
 		// Computing the foothold position w.r.t. the world
-		Eigen::Vector3d foothold =
-				terminal_state.com_pos + stance + footshift;
+		Eigen::Vector3d foothold = terminal_state.com_pos +
+				frame_tf_.fromBaseToWorldFrame(stance + footshift,
+											   terminal_state.getRPY_W());
 
 		// Computing the footshift in z from the height map. In case of no
 		// having the terrain height map, it assumes flat terrain conditions.
@@ -611,10 +612,14 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 			Eigen::Vector3d com_vel = state.com_vel;
 			Eigen::Vector3d com_acc = state.com_acc;
 
-			// Adding the foot states w.r.t. the CoM frame// TODO Add rotation matrix for yaw
-			state.foot_pos[name] = actual_pos - (com_pos - phase_state_.com_pos);//b_R_w*(com_pos - state.com_pos);
-			state.foot_vel[name] = -com_vel;//b_R_w*(com_vel)
-			state.foot_acc[name] = -com_acc;//b_R_w*(com_acc)
+			// Adding the foot states w.r.t. the CoM frame
+			Eigen::Vector3d com_disp = com_pos - phase_state_.com_pos;
+			state.foot_pos[name] = actual_pos -
+					frame_tf_.fromWorldToBaseFrame(com_disp, state.getRPY_W());
+			state.foot_vel[name] =
+					frame_tf_.fromWorldToBaseFrame(-com_vel, state.getRPY_W());
+			state.foot_acc[name] =
+					frame_tf_.fromWorldToBaseFrame(-com_acc, state.getRPY_W());
 		}
 	}
 }
