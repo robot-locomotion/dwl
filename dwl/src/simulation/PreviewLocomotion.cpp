@@ -657,7 +657,10 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 	// From the preview model we do not know the joint states, so we neglect
 	// the joint-related components of the CoM
-	full_state.setBasePosition_W(reduced_state.com_pos - actual_system_com_);
+	Eigen::Vector3d actual_system_com_W =
+			frame_tf_.fromBaseToWorldFrame(actual_system_com_,
+										   reduced_state.getRPY_W());
+	full_state.setBasePosition_W(reduced_state.com_pos - actual_system_com_W);
 	full_state.setBaseVelocity_W(reduced_state.com_vel);
 	full_state.setBaseAcceleration_W(reduced_state.com_acc);
 
@@ -725,10 +728,15 @@ void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 	// Adding the actual time
 	reduced_state.time = full_state.time;
 
+	// Getting the world to base transformation
+	Eigen::Vector3d base_traslation = full_state.getBasePosition_W();
+	Eigen::Vector3d base_rpy = full_state.getBaseRPY_W();
+	Eigen::Matrix3d base_rotation = math::getRotationMatrix(base_rpy);
+
 	// Computing the CoM position, velocity and acceleration
 	// Neglecting the joint accelerations components
-	reduced_state.com_pos = system_.getSystemCoM(full_state.base_pos,
-												 full_state.joint_pos);
+	reduced_state.com_pos =
+			full_state.getBasePosition_W() + base_rotation * actual_system_com_;
 	reduced_state.com_vel = system_.getSystemCoMRate(full_state.base_pos,
 													 full_state.joint_pos,
 													 full_state.base_vel,
@@ -738,11 +746,6 @@ void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 	reduced_state.angular_pos = full_state.getBaseRPY_W();
 	reduced_state.angular_vel = full_state.getBaseRotationRate_W();
 	reduced_state.angular_acc = full_state.getBaseRotAcceleration_W();
-
-	// Getting the world to base transformation
-	Eigen::Vector3d base_traslation = full_state.getBasePosition_W();
-	Eigen::Vector3d base_rpy = full_state.getBaseRPY_W();
-	Eigen::Matrix3d base_rotation = math::getRotationMatrix(base_rpy);
 
 	// Computing the CoP in the world frame
 	Eigen::Vector3d cop_B;
@@ -771,7 +774,8 @@ void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 	for (rbd::BodyVector::const_iterator contact_it = full_state.contact_pos.begin();
 			contact_it != full_state.contact_pos.end(); contact_it++) {
 		std::string name = contact_it->first;
-		reduced_state.foot_pos[name] = contact_it->second - actual_system_com_;
+		reduced_state.foot_pos[name] =
+				contact_it->second - base_rotation * actual_system_com_;
 	}
 	reduced_state.foot_vel = full_state.contact_vel;
 	reduced_state.foot_acc = full_state.contact_acc;
