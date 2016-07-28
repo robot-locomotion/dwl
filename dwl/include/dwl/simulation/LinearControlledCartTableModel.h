@@ -69,9 +69,10 @@ class LinearControlledCartTableModel
 		 * @brief Initializes the parameters for the computing the response
 		 * @param const ReducedBodyState& Initial reduced state
 		 * @param const CartTableControlParams Cart-table control parameters
+		 * describe in the horizontal frame
 		 */
 		void initResponse(const ReducedBodyState& state,
-						  const CartTableControlParams& params);
+						  const CartTableControlParams& params_H);
 
 		/**
 		 * @brief Computes the response of LC-SLIP model
@@ -85,11 +86,12 @@ class LinearControlledCartTableModel
 		 * @brief Computes the energy associated to the CoM
 		 * @param Eigen::Vector3d& CoM energy
 		 * @param const ReducedBodyState& Initial reduced state
-		 * @param const CartTableControlParams& Control parameters
+		 * @param const CartTableControlParams& Control parameters describe in
+		 * the horizontal frame
 		 */
 		void computeSystemEnergy(Eigen::Vector3d& com_energy,
 								 const ReducedBodyState& initial_state,
-								 const CartTableControlParams& params);
+								 const CartTableControlParams& params_H);
 
 		/** @brief Gets the pendulum height */
 		double getPendulumHeight();
@@ -99,8 +101,11 @@ class LinearControlledCartTableModel
 		/** @brief Cart-table model properties */
 		CartTableProperties properties_;
 
-		/** @brief Cart-table control parameters */
-		CartTableControlParams params_;
+		/** @brief Cart-table control parameters defines in the world frame */
+		CartTableControlParams params_W_;
+
+		/** @brief Frame transformations */
+		math::FrameTF frame_tf_;
 
 		bool init_model_;
 		bool init_response_;
