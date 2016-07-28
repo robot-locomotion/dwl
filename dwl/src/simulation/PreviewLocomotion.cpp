@@ -57,19 +57,19 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	com_pos_B_ = system_.getSystemCoM(rbd::Vector6d::Zero(), q0);
 
 	// Computing the stance posture using the default position
-	kinematics_.computeForwardKinematics(stance_posture_,
+	kinematics_.computeForwardKinematics(stance_posture_C_,
 										 rbd::Vector6d::Zero(),
 										 q0,
 										 feet_names_,
 										 rbd::Linear);
 
 	// Converting to the CoM frame
-	for (rbd::BodyVector::iterator feet_it = stance_posture_.begin();
-			feet_it != stance_posture_.end(); feet_it++) {
+	for (rbd::BodyVector::iterator feet_it = stance_posture_C_.begin();
+			feet_it != stance_posture_C_.end(); feet_it++) {
 		std::string name = feet_it->first;
 		Eigen::VectorXd stance = feet_it->second;
 
-		stance_posture_[name] = stance - com_pos_B_;
+		stance_posture_C_[name] = stance - com_pos_B_;
 	}
 
 	// Setting up the cart-table model
@@ -227,7 +227,7 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 					if (control.params[k-1].phase.isSwingFoot(name) &&
 							control.params[k-1].duration > sample_time_) {
 						Eigen::Vector3d stance =
-								stance_posture_.find(name)->second;
+								stance_posture_C_.find(name)->second;
 
 						// Getting the footshift control parameter
 						Eigen::Vector2d footshift_2d =
@@ -291,7 +291,7 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 		if (end_control.phase.isSwingFoot(name) &&
 				end_control.duration > sample_time_) {
 			Eigen::Vector3d stance =
-					stance_posture_.find(name)->second.head<3>();
+					stance_posture_C_.find(name)->second.head<3>();
 
 			// Getting the footshift control parameter
 			Eigen::Vector2d footshift_2d =
@@ -514,7 +514,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 	rbd::BodyPosition swing_shift;
 	for (unsigned int j = 0; j < params.phase.feet.size(); j++) {
 		std::string name = params.phase.feet[j];
-		Eigen::Vector3d stance = stance_posture_.find(name)->second;
+		Eigen::Vector3d stance = stance_posture_C_.find(name)->second;
 
 		// Getting the footshift control parameter
 		Eigen::Vector2d footshift_2d = params.phase.getFootShift(name);
@@ -563,7 +563,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 
 			// Getting the target position of the contact w.r.t the CoM frame
 			Eigen::Vector3d footshift = (Eigen::Vector3d) swing_it->second;
-			Eigen::Vector3d stance_pos = stance_posture_.find(name)->second.head<3>();
+			Eigen::Vector3d stance_pos = stance_posture_C_.find(name)->second.head<3>();
 			Eigen::Vector3d target_pos = stance_pos + footshift;
 
 			// Initializing the foot pattern generator
