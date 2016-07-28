@@ -668,10 +668,14 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 	// Adding the contact positions, velocities and accelerations
 	// w.r.t the base frame
+	dwl::rbd::BodyPosition feet_pos;
 	for (rbd::BodyVector::const_iterator contact_it = reduced_state.foot_pos.begin();
 			contact_it != reduced_state.foot_pos.end(); contact_it++) {
 		std::string name = contact_it->first;
-		full_state.contact_pos[name] = contact_it->second + actual_system_com_;
+		Eigen::Vector3d foot_pos = contact_it->second + actual_system_com_W;
+
+		full_state.contact_pos[name] = foot_pos;
+		feet_pos[name] = foot_pos; // for IK computation
 	}
 	full_state.contact_vel = reduced_state.foot_vel;
 	full_state.contact_acc = reduced_state.foot_acc;
@@ -689,15 +693,9 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 
 	// Adding the joint positions, velocities and accelerations
-	dwl::rbd::BodyPosition feet_pos;
 	full_state.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
 	full_state.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
 	full_state.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
-	for (unsigned int f = 0; f < num_feet_; f++) {
-		std::string name = feet_names_[f];
-
-		feet_pos[name] = reduced_state.foot_pos.find(name)->second + actual_system_com_;
-	}
 
 	// Computing the joint positions
 	kinematics_.computeInverseKinematics(full_state.joint_pos,
