@@ -114,7 +114,6 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 			omega_ * omega_ * beta_exp_1 +
 			omega_ * omega_ * beta_exp_2;
 
-
 	// Computing the Z-component of the CoP
 	// From the plane equation (i.e.  n * p = 0), we derive the following
 	// equation that allows us to compute the delta in z
@@ -131,6 +130,11 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 	state.com_acc(rbd::Z) = 0.;
 	state.cop(rbd::Z) = initial_state_.cop(rbd::Z) + delta_posz;
 	state.support_region = initial_state_.support_region;
+
+	// Keeping the same orientation
+	state.angular_pos = initial_state_.angular_pos;
+	state.angular_vel = initial_state_.angular_vel;
+	state.angular_acc = initial_state_.angular_acc;
 }
 
 
