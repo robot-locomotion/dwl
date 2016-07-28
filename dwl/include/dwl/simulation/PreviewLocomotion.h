@@ -391,6 +391,9 @@ class PreviewLocomotion
 		/** @brief Terrain map */
 		environment::TerrainMap terrain_;
 
+		/** @brief Frame transformations */
+		math::FrameTF frame_tf_;
+
 		/** @brief Label that indicates that the robot information from URDF
 		 * was set */
 		bool robot_model_;
