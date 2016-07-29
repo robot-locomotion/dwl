@@ -423,13 +423,13 @@ const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(std::string name
 }
 
 
-const rbd::BodyWrench& WholeBodyState::getContactEffort_B() const
+const rbd::BodyWrench& WholeBodyState::getContactWrench_B() const
 {
 	return contact_eff;
 }
 
 
-const rbd::Vector6d& WholeBodyState::getContactEffort_B(std::string name) const
+const rbd::Vector6d& WholeBodyState::getContactWrench_B(std::string name) const
 {
 	return contact_eff.find(name)->second;
 }
@@ -489,13 +489,13 @@ void WholeBodyState::setContactAcceleration_B(std::string name,
 }
 
 
-void WholeBodyState::setContactEffort_B(const rbd::BodyWrench& eff)
+void WholeBodyState::setContactWrench_B(const rbd::BodyWrench& eff)
 {
 	contact_eff = eff;
 }
 
 
-void WholeBodyState::setContactEffort_B(std::string name,
+void WholeBodyState::setContactWrench_B(std::string name,
 									    const rbd::Vector6d& eff)
 {
 	contact_eff[name] = eff;
