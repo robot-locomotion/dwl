@@ -28,20 +28,6 @@ Eigen::Vector3d ReducedBodyState::getCoMPosition_W() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getCoMPosition_B() const
-{
-	return frame_tf_.fromWorldToBaseFrame(getCoMPosition_W(),
-										  getOrientation_W());
-}
-
-
-Eigen::Vector3d ReducedBodyState::getCoMPosition_H() const
-{
-	return frame_tf_.fromWorldToHorizontalFrame(getCoMPosition_W(),
-												getRPY_W());
-}
-
-
 Eigen::Quaterniond ReducedBodyState::getOrientation_W() const
 {
 	return math::getQuaternion(getRPY_W());

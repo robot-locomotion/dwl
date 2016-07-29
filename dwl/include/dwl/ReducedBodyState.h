@@ -68,12 +68,6 @@ class ReducedBodyState
 		/** @brief Gets the CoM position in the world frame */
 		Eigen::Vector3d getCoMPosition_W() const;
 
-		/** @brief Gets the CoM position in the base frame */
-		Eigen::Vector3d getCoMPosition_B() const;
-
-		/** @brief Gets the CoM position in the horizontal frame */
-		Eigen::Vector3d getCoMPosition_H() const;
-
 		/** @brief Gets the base orientation in the world frame */
 		Eigen::Quaterniond getOrientation_W() const;
 
