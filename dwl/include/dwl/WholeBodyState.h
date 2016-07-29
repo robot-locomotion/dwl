@@ -245,6 +245,7 @@ class WholeBodyState
 		 */
 		bool getContactCondition(std::string name,
 								 double force_threshold) const;
+		bool getContactCondition(std::string name) const;
 
 		// Contact state setter functions
 		/** @brief Sets the contact positions in the base frame */

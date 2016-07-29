@@ -450,6 +450,20 @@ bool WholeBodyState::getContactCondition(std::string name,
 }
 
 
+bool WholeBodyState::getContactCondition(std::string name) const
+{
+	// Returns inactive in case that the contact wrench is not defined
+	rbd::BodyWrench::const_iterator it = contact_eff.find(name);
+	if (it == contact_eff.end())
+		return false;
+
+	if (it->second == ACTIVE_CONTACT)
+		return true;
+	else
+		return false;
+}
+
+
 void WholeBodyState::setContactPosition_B(const rbd::BodyVector& pos)
 {
 	contact_pos = pos;
