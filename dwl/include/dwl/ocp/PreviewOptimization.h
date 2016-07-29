@@ -280,12 +280,12 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief Desired states */
 		double desired_step_duration_;
-		double desired_step_distance_;
-		double desired_yaw_;
+		double desired_step_length_B_;
+		double desired_yaw_B_;
 
 		/** @brief Weights of the cost functions */
-		double step_time_weight_;
-		double step_dist_weight_;
+		double step_duration_weight_;
+		double step_length_weight_;
 		Eigen::Vector3d acc_int_weight_;
 		double terrain_weight_;
 
