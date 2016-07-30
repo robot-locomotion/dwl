@@ -91,7 +91,48 @@ Eigen::Vector3d FrameTF::fromHorizontalToWorldFrame(const Eigen::Vector3d& vec_H
 }
 
 
-Eigen::Vector3d FrameTF::mapHorizontalToWorldFrame(const Eigen::Vector3d vec_H,
+Eigen::Vector3d FrameTF::mapWorldToBaseFrame(const Eigen::Vector3d& vec_W,
+											 const Eigen::Vector3d& rpy) const
+{
+	return fromBaseToWorldFrame(vec_W, rpy);
+}
+
+
+Eigen::Vector3d FrameTF::mapWorldToBaseFrame(const Eigen::Vector3d& vec_W,
+											 const Eigen::Quaterniond& q) const
+{
+	return fromBaseToWorldFrame(vec_W, q);
+}
+
+
+Eigen::Vector3d FrameTF::mapBaseToWorldFrame(const Eigen::Vector3d& vec_B,
+											 const Eigen::Vector3d& rpy) const
+{
+	return fromWorldToBaseFrame(vec_B, rpy);
+}
+
+
+Eigen::Vector3d FrameTF::mapBaseToWorldFrame(const Eigen::Vector3d& vec_B,
+											 const Eigen::Quaterniond& q) const
+{
+	return fromWorldToBaseFrame(vec_B, q);
+}
+
+
+Eigen::Vector3d FrameTF::mapWorldToHorizontalFrame(const Eigen::Vector3d& vec_W,
+												   const Eigen::Vector3d& rpy) const
+{
+	return fromHorizontalToWorldFrame(vec_W, rpy);
+}
+
+
+Eigen::Vector3d FrameTF::mapWorldToHorizontalFrame(const Eigen::Vector3d& vec_W,
+												   const Eigen::Quaterniond& q) const
+{
+	return fromHorizontalToWorldFrame(vec_W, q);
+}
+
+
 Eigen::Vector3d FrameTF::mapHorizontalToWorldFrame(const Eigen::Vector3d& vec_H,
 												   const Eigen::Vector3d& rpy) const
 {

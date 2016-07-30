@@ -67,6 +67,27 @@ class FrameTF
 												  const Eigen::Quaterniond& q) const;
 
 
+		/** @brief Maps the defined vector in the world frame into a base
+		 * frame given the orientation of the body: RPY angles or quaternion */
+		Eigen::Vector3d mapWorldToBaseFrame(const Eigen::Vector3d& vec_W,
+											const Eigen::Vector3d& rpy) const;
+		Eigen::Vector3d mapWorldToBaseFrame(const Eigen::Vector3d& vec_W,
+											const Eigen::Quaterniond& q) const;
+
+		/** @brief Maps the defined vector in the base frame into a world
+		 * frame given the orientation of the body: RPY angles or quaternion */
+		Eigen::Vector3d mapBaseToWorldFrame(const Eigen::Vector3d& vec_B,
+											const Eigen::Vector3d& rpy) const;
+		Eigen::Vector3d mapBaseToWorldFrame(const Eigen::Vector3d& vec_B,
+											const Eigen::Quaterniond& q) const;
+
+		/** @brief Maps the defined vector in the world frame into a horizontal
+		 * frame given the orientation of the body: RPY angles or quaternion */
+		Eigen::Vector3d mapWorldToHorizontalFrame(const Eigen::Vector3d& vec_W,
+												  const Eigen::Vector3d& rpy) const;
+		Eigen::Vector3d mapWorldToHorizontalFrame(const Eigen::Vector3d& vec_W,
+												  const Eigen::Quaterniond& q) const;
+
 		/** @brief Maps the defined vector in the horizontal frame into a world
 		 * frame given the orientation of the body: RPY angles or quaternion */
 		Eigen::Vector3d mapHorizontalToWorldFrame(const Eigen::Vector3d& vec_H,
