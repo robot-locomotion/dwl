@@ -107,6 +107,10 @@ class LinearControlledCartTableModel
 		/** @brief Frame transformations */
 		math::FrameTF frame_tf_;
 
+		/** @brief Cubic splines for trunk orientation modulation */
+		math::CubicSpline roll_spline_;
+		math::CubicSpline pitch_spline_;
+
 		bool init_model_;
 		bool init_response_;
 
@@ -120,6 +124,7 @@ class LinearControlledCartTableModel
 		Eigen::Vector2d beta_2_;
 		Eigen::Vector2d cop_T_;
 		Eigen::Vector3d support_normal_;
+		Eigen::Vector3d support_rpy_;
 
 		/** @brief System energy coefficients */
 		Eigen::Vector2d c_1_;
