@@ -537,10 +537,14 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 			footshift(rbd::Z) = terrain_.getTerrainHeight(foothold_2d) -
 					(terminal_state.com_pos(rbd::Z) + stance(rbd::Z));
 		} else {
-			double comz_shift =
-					terminal_state.com_pos(rbd::Z) - actual_state_.com_pos(rbd::Z);
-			double footshift_z = -(cart_table_.getPendulumHeight() + stance(rbd::Z));
-			footshift(rbd::Z) = footshift_z - comz_shift;
+			// Computing the nominal CoM height that considers terrain elevations
+			Eigen::Vector3d height(0., 0., cart_table_.getPendulumHeight());
+			Eigen::Vector3d nominal_com_pos =
+					height + (terminal_state.com_pos - actual_state_.com_pos);
+			double nominal_com_height =
+					frame_tf_.fromWorldToBaseFrame(nominal_com_pos,
+												  terminal_state.getRPY_W())(rbd::Z);
+			footshift(rbd::Z) = -(nominal_com_height + stance(rbd::Z));
 		}
 
 		swing_shift[name] = footshift;
