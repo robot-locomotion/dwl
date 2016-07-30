@@ -146,5 +146,33 @@ Eigen::Vector3d FrameTF::mapHorizontalToWorldFrame(const Eigen::Vector3d& vec_H,
 	return fromWorldToHorizontalFrame(vec_H, q);
 }
 
+
+Eigen::Vector3d FrameTF::mapBaseToHorizontalFrame(const Eigen::Vector3d& vec_B,
+												  const Eigen::Vector3d& rpy) const
+{
+	return fromHorizontalToBaseFrame(vec_B, rpy);
+}
+
+
+Eigen::Vector3d FrameTF::mapBaseToHorizontalFrame(const Eigen::Vector3d& vec_B,
+												  const Eigen::Quaterniond& q) const
+{
+	return fromHorizontalToBaseFrame(vec_B, q);
+}
+
+
+Eigen::Vector3d FrameTF::mapHorizontalBaseFrame(const Eigen::Vector3d& vec_H,
+												const Eigen::Vector3d& rpy) const
+{
+	return fromBaseToHorizontalFrame(vec_H, rpy);
+}
+
+
+Eigen::Vector3d FrameTF::mapHorizontalBaseFrame(const Eigen::Vector3d& vec_H,
+												const Eigen::Quaterniond& rpy) const
+{
+	return fromBaseToHorizontalFrame(vec_H, rpy);
+}
+
 } //@namespace math
 } //@namespace dwl
