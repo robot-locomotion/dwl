@@ -80,7 +80,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 }
 
 
-void PreviewLocomotion::readPreviewSequence(ReducedBodyState& state,
+void PreviewLocomotion::readPreviewSequence(PreviewState& state,
 											PreviewControl& control,
 											std::string filename)
 {
@@ -99,16 +99,16 @@ void PreviewLocomotion::readPreviewSequence(ReducedBodyState& state,
 
 
 	// Reading the state
-	if (!yaml_reader.read(state.com_pos, "com_pos", state_ns)) {
+	if (!yaml_reader.read(state.height, "height", state_ns)) {
 		printf(RED "Error: the CoM height was not found\n" COLOR_RESET);
+		return;
+	}
+	if (!yaml_reader.read(state.com_pos, "com_pos", state_ns)) {
+		printf(RED "Error: the CoM position was not found\n" COLOR_RESET);
 		return;
 	}
 	if (!yaml_reader.read(state.com_vel, "com_vel", state_ns)) {
 		printf(RED "Error: the CoM velocity was not found\n" COLOR_RESET);
-		return;
-	}
-	if (!yaml_reader.read(state.cop, "cop", state_ns)) {
-		printf(RED "Error: the CoP was not found\n" COLOR_RESET);
 		return;
 	}
 

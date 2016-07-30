@@ -191,6 +191,14 @@ struct SwingParams
 };
 
 
+struct PreviewState
+{
+	double height;
+	Eigen::Vector2d com_pos;
+	Eigen::Vector2d com_vel;
+};
+
+
 /**
  * @class PreviewLocomotion
  * @brief Describes a preview locomotion
@@ -233,11 +241,11 @@ class PreviewLocomotion
 
 		/**
 		 * @brief Reads the preview sequence from a Yaml file
-		 * @param ReducedBodyState& Reduced-body state
+		 * @param PreviewState& Preview state
 		 * @param PreviewControl& Preview control parameters
 		 * @param std::string Filename
 		 */
-		void readPreviewSequence(ReducedBodyState& state,
+		void readPreviewSequence(PreviewState& state,
 								 PreviewControl& control,
 								 std::string filename);
 
