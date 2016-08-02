@@ -104,10 +104,10 @@ class FrameTF
 
 		/** @brief Maps the defined vector in the horizontal frame into the base
 		 * frame given the orientation of the body: RPY angles or quaternion */
-		Eigen::Vector3d mapHorizontalBaseFrame(const Eigen::Vector3d& vec_H,
-											   const Eigen::Vector3d& rpy) const;
-		Eigen::Vector3d mapHorizontalBaseFrame(const Eigen::Vector3d& vec_H,
-											   const Eigen::Quaterniond& rpy) const;
+		Eigen::Vector3d mapHorizontalToBaseFrame(const Eigen::Vector3d& vec_H,
+												 const Eigen::Vector3d& rpy) const;
+		Eigen::Vector3d mapHorizontalToBaseFrame(const Eigen::Vector3d& vec_H,
+												 const Eigen::Quaterniond& rpy) const;
 
 
 	private:

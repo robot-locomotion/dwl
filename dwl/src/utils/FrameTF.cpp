@@ -176,15 +176,15 @@ Eigen::Vector3d FrameTF::mapBaseToHorizontalFrame(const Eigen::Vector3d& vec_B,
 }
 
 
-Eigen::Vector3d FrameTF::mapHorizontalBaseFrame(const Eigen::Vector3d& vec_H,
-												const Eigen::Vector3d& rpy) const
+Eigen::Vector3d FrameTF::mapHorizontalToBaseFrame(const Eigen::Vector3d& vec_H,
+												  const Eigen::Vector3d& rpy) const
 {
 	return fromBaseToHorizontalFrame(vec_H, rpy);
 }
 
 
-Eigen::Vector3d FrameTF::mapHorizontalBaseFrame(const Eigen::Vector3d& vec_H,
-												const Eigen::Quaterniond& rpy) const
+Eigen::Vector3d FrameTF::mapHorizontalToBaseFrame(const Eigen::Vector3d& vec_H,
+												  const Eigen::Quaterniond& rpy) const
 {
 	return fromBaseToHorizontalFrame(vec_H, rpy);
 }
