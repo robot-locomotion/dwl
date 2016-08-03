@@ -476,7 +476,7 @@ void PreviewLocomotion::flightPreview(ReducedBodyTrajectory& trajectory,
 		ReducedBodyState current_state;
 		current_state.time = state.time + time;
 
-		// Computing the CoM motion according to the projectile EoM
+		// Computing the CoM motion according to the projectile EoM //TODO these are in the H frame
 		current_state.com_pos = state.com_pos + state.com_vel * time +
 				0.5 * gravity_vec * time * time;
 		current_state.com_vel = state.com_vel + gravity_vec * time;
@@ -595,7 +595,7 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 									  double time)
 {
 	// Generating the actual state for every feet
-	Eigen::Vector3d foot_pos, foot_vel, foot_acc;
+	Eigen::Vector3d foot_pos_B, foot_vel_B, foot_acc_B;
 	for (rbd::BodyVector3d::const_iterator foot_it = phase_state_.foot_pos.begin();
 			foot_it != phase_state_.foot_pos.end(); foot_it++) {
 		std::string name = foot_it->first;
@@ -604,15 +604,16 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 		rbd::BodyVector3d::const_iterator swing_it = swing_params_.feet_shift.find(name);
 		if (swing_it != swing_params_.feet_shift.end()) {
 			// Generating the swing positions, velocities and accelerations
-			feet_spline_generator_[name].generateTrajectory(foot_pos,
-															foot_vel,
-															foot_acc,
+			// expressed in the CoM frame
+			feet_spline_generator_[name].generateTrajectory(foot_pos_B,
+															foot_vel_B,
+															foot_acc_B,
 															time);
 
 			// Adding the swing state to the trajectory
-			state.foot_pos[name] = foot_pos;
-			state.foot_vel[name] = foot_vel;
-			state.foot_acc[name] = foot_acc;
+			state.setFootPosition_B(name, foot_pos_B);
+			state.setFootVelocity_B(name, foot_vel_B);
+			state.setFootAcceleration_B(name, foot_acc_B);
 		} else {
 			// There is not swing trajectory to generated (foot on ground).
 			// Nevertheless, we have to updated their positions w.r.t the CoM frame
