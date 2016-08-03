@@ -54,13 +54,13 @@ int main(int argc, char **argv)
 
 
 	// Computing FK
-	dwl::rbd::BodyVector contact_pos;
+	dwl::rbd::BodyVectorXd contact_pos;
 	kin.computeForwardKinematics(contact_pos,
 								 base_pos, joint_pos,
 								 sys.getEndEffectorNames(), // it uses all the end-effector of the system
 								 dwl::rbd::Linear, dwl::RollPitchYaw);
 	cout << "------------------- FK --------------------" << endl;
-	for (dwl::rbd::BodyVector::iterator it = contact_pos.begin();
+	for (dwl::rbd::BodyVectorXd::iterator it = contact_pos.begin();
 			it != contact_pos.end(); it++) {
 		string name = it->first;
 		Eigen::VectorXd position = it->second;
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
 
 	// Computing IK
-	dwl::rbd::BodyPosition ik_pos;
+	dwl::rbd::BodyVector3d ik_pos;
 	ik_pos[sys.getFloatingBaseName()] = Eigen::Vector3d::Zero();
 	ik_pos["lf_foot"] = contact_pos["lf_foot"].tail(3);
 	ik_pos["rf_foot"] = contact_pos["rf_foot"].tail(3);
@@ -96,13 +96,13 @@ int main(int argc, char **argv)
 
 
 	// Computing the contact velocities
-	dwl::rbd::BodyVector contact_vel;
+	dwl::rbd::BodyVectorXd contact_vel;
 	kin.computeVelocity(contact_vel,
 						base_pos, joint_pos,
 						base_vel, joint_vel,
 						sys.getEndEffectorNames(), dwl::rbd::Full);
 	cout << "------------------- Contact velocities --------------------" << endl;
-	for (dwl::rbd::BodyVector::iterator it = contact_vel.begin();
+	for (dwl::rbd::BodyVectorXd::iterator it = contact_vel.begin();
 			it != contact_vel.end(); it++) {
 		string name = it->first;
 		Eigen::VectorXd velocity = it->second;
@@ -112,14 +112,14 @@ int main(int argc, char **argv)
 
 
 	// Computing the contact accelerations
-	dwl::rbd::BodyVector contact_acc;
+	dwl::rbd::BodyVectorXd contact_acc;
 	kin.computeAcceleration(contact_acc,
 							base_pos, joint_pos,
 							base_vel, joint_vel,
 							base_acc, joint_acc,
 							sys.getEndEffectorNames(), dwl::rbd::Full);
 	cout << "------------------- Contact accelerations --------------------" << endl;
-	for (dwl::rbd::BodyVector::iterator it = contact_acc.begin();
+	for (dwl::rbd::BodyVectorXd::iterator it = contact_acc.begin();
 			it != contact_acc.end(); it++) {
 		string name = it->first;
 		Eigen::VectorXd acceleration = it->second;
@@ -129,13 +129,13 @@ int main(int argc, char **argv)
 
 
 	// Computing the contact Jacd*Qd
-	dwl::rbd::BodyVector contact_jacd_qd;
+	dwl::rbd::BodyVectorXd contact_jacd_qd;
 	kin.computeJdotQdot(contact_jacd_qd,
 						base_pos, joint_pos,
 						base_vel, joint_vel,
 						sys.getEndEffectorNames(), dwl::rbd::Full);
 	cout << "------------------- Contact Jdot*Qdot --------------------" << endl;
-	for (dwl::rbd::BodyVector::iterator it = contact_jacd_qd.begin();
+	for (dwl::rbd::BodyVectorXd::iterator it = contact_jacd_qd.begin();
 			it != contact_jacd_qd.end(); it++) {
 		string name = it->first;
 		Eigen::VectorXd jacd_qd = it->second;

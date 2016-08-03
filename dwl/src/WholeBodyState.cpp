@@ -387,7 +387,7 @@ void WholeBodyState::setJointEffort(const Eigen::VectorXd& eff)
 }
 
 
-const rbd::BodyVector& WholeBodyState::getContactPosition_B() const
+const rbd::BodyVectorXd& WholeBodyState::getContactPosition_B() const
 {
 	return contact_pos;
 }
@@ -399,7 +399,7 @@ const Eigen::VectorXd& WholeBodyState::getContactPosition_B(std::string name) co
 }
 
 
-const rbd::BodyVector& WholeBodyState::getContactVelocity_B() const
+const rbd::BodyVectorXd& WholeBodyState::getContactVelocity_B() const
 {
 	return contact_vel;
 }
@@ -411,7 +411,7 @@ const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(std::string name) co
 }
 
 
-const rbd::BodyVector& WholeBodyState::getContactAcceleration_B() const
+const rbd::BodyVectorXd& WholeBodyState::getContactAcceleration_B() const
 {
 	return contact_acc;
 }
@@ -423,7 +423,7 @@ const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(std::string name
 }
 
 
-const rbd::BodyWrench& WholeBodyState::getContactWrench_B() const
+const rbd::BodyVector6d& WholeBodyState::getContactWrench_B() const
 {
 	return contact_eff;
 }
@@ -439,7 +439,7 @@ bool WholeBodyState::getContactCondition(std::string name,
 										 double force_threshold) const
 {
 	// Returns inactive in case that the contact wrench is not defined
-	rbd::BodyWrench::const_iterator it = contact_eff.find(name);
+	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
 	if (it == contact_eff.end())
 		return false;
 
@@ -453,7 +453,7 @@ bool WholeBodyState::getContactCondition(std::string name,
 bool WholeBodyState::getContactCondition(std::string name) const
 {
 	// Returns inactive in case that the contact wrench is not defined
-	rbd::BodyWrench::const_iterator it = contact_eff.find(name);
+	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
 	if (it == contact_eff.end())
 		return false;
 
@@ -464,7 +464,7 @@ bool WholeBodyState::getContactCondition(std::string name) const
 }
 
 
-void WholeBodyState::setContactPosition_B(const rbd::BodyVector& pos)
+void WholeBodyState::setContactPosition_B(const rbd::BodyVectorXd& pos)
 {
 	contact_pos = pos;
 }
@@ -477,7 +477,7 @@ void WholeBodyState::setContactPosition_B(std::string name,
 }
 
 
-void WholeBodyState::setContactVelocity_B(const rbd::BodyVector& vel)
+void WholeBodyState::setContactVelocity_B(const rbd::BodyVectorXd& vel)
 {
 	contact_vel = vel;
 }
@@ -490,7 +490,7 @@ void WholeBodyState::setContactVelocity_B(std::string name,
 }
 
 
-void WholeBodyState::setContactAcceleration_B(const rbd::BodyVector& acc)
+void WholeBodyState::setContactAcceleration_B(const rbd::BodyVectorXd& acc)
 {
 	contact_acc = acc;
 }
@@ -503,7 +503,7 @@ void WholeBodyState::setContactAcceleration_B(std::string name,
 }
 
 
-void WholeBodyState::setContactWrench_B(const rbd::BodyWrench& eff)
+void WholeBodyState::setContactWrench_B(const rbd::BodyVector6d& eff)
 {
 	contact_eff = eff;
 }

@@ -450,8 +450,8 @@ WholeBodyTrajectory& OptimalControl::evaluateSolution(const Eigen::Ref<const Eig
 			std::string name = contact_it->first;
 
 			// Defining the contact iterators
-			dwl::rbd::BodyVector::const_iterator pos_it, vel_it, acc_it;
-			dwl::rbd::BodyWrench::const_iterator eff_it;
+			dwl::rbd::BodyVectorXd::const_iterator pos_it, vel_it, acc_it;
+			dwl::rbd::BodyVector6d::const_iterator eff_it;
 
 			// Filling the desired contact state
 			pos_it = system_state.contact_pos.find(name);

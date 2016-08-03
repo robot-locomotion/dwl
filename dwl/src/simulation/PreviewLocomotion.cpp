@@ -64,7 +64,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 										 rbd::Linear);
 
 	// Converting to the CoM frame
-	for (rbd::BodyVector::iterator feet_it = stance_posture_C_.begin();
+	for (rbd::BodyVectorXd::iterator feet_it = stance_posture_C_.begin();
 			feet_it != stance_posture_C_.end(); feet_it++) {
 		std::string name = feet_it->first;
 		Eigen::VectorXd stance = feet_it->second;
@@ -511,7 +511,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 								state.time + params.duration);
 
 	// Getting the swing shift per foot
-	rbd::BodyPosition swing_shift;
+	rbd::BodyVector3d swing_shift;
 	for (unsigned int j = 0; j < params.phase.feet.size(); j++) {
 		std::string name = params.phase.feet[j];
 		Eigen::Vector3d stance = stance_posture_C_.find(name)->second;
@@ -555,12 +555,12 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 
 	// Generating the actual state for every feet
 	feet_spline_generator_.clear();
-	for (rbd::BodyVector::const_iterator foot_it = state.foot_pos.begin();
+	for (rbd::BodyVector3d::const_iterator foot_it = state.foot_pos.begin();
 			foot_it != state.foot_pos.end(); foot_it++) {
 		std::string name = foot_it->first;
 
 		// Checking the feet that swing
-		rbd::BodyPosition::const_iterator swing_it = swing_params_.feet_shift.find(name);
+		rbd::BodyVector3d::const_iterator swing_it = swing_params_.feet_shift.find(name);
 		if (swing_it != swing_params_.feet_shift.end()) {
 			// Getting the actual position of the contact w.r.t the CoM frame
 			Eigen::Vector3d actual_pos = foot_it->second;
@@ -587,12 +587,12 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 {
 	// Generating the actual state for every feet
 	Eigen::Vector3d foot_pos, foot_vel, foot_acc;
-	for (rbd::BodyVector::const_iterator foot_it = phase_state_.foot_pos.begin();
+	for (rbd::BodyVector3d::const_iterator foot_it = phase_state_.foot_pos.begin();
 			foot_it != phase_state_.foot_pos.end(); foot_it++) {
 		std::string name = foot_it->first;
 
 		// Checking the feet that swing
-		rbd::BodyPosition::const_iterator swing_it = swing_params_.feet_shift.find(name);
+		rbd::BodyVector3d::const_iterator swing_it = swing_params_.feet_shift.find(name);
 		if (swing_it != swing_params_.feet_shift.end()) {
 			// Generating the swing positions, velocities and accelerations
 			feet_spline_generator_[name].generateTrajectory(foot_pos,
@@ -672,25 +672,33 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	full_state.setBaseRotAcceleration_W(reduced_state.angular_acc);
 
 
-	// Adding the contact positions, velocities and accelerations
+	// Adding the contact positions, velocities, accelerations and condition
 	// w.r.t the base frame
-	dwl::rbd::BodyPosition feet_pos;
-	for (rbd::BodyVector::const_iterator contact_it = reduced_state.foot_pos.begin();
-			contact_it != reduced_state.foot_pos.end(); contact_it++) {
-		std::string name = contact_it->first;
-		Eigen::Vector3d foot_pos = contact_it->second + com_pos_W;
-
-		full_state.contact_pos[name] = foot_pos;
-		feet_pos[name] = foot_pos; // for IK computation
-	}
-	full_state.contact_vel = reduced_state.foot_vel;
-	full_state.contact_acc = reduced_state.foot_acc;
-
-	// Adding infinity contact force for active feet
+	dwl::rbd::BodyVector3d feet_pos;
 	for (unsigned int f = 0; f < num_feet_; f++) {
 		std::string name = feet_names_[f];
 
-		rbd::BodyPosition::const_iterator support_it = reduced_state.support_region.find(name);
+		// Setting up the contact position
+		rbd::BodyVector3d::const_iterator foot_pos_it = reduced_state.foot_pos.find(name);
+		if (foot_pos_it != reduced_state.foot_pos.end()) {
+			Eigen::Vector3d foot_pos = foot_pos_it->second + com_pos_B_;// com_pos_W;
+			full_state.contact_pos[name] = foot_pos;
+			feet_pos[name] = foot_pos; // for IK computation
+		}
+
+		// Setting up the contact velocity
+		rbd::BodyVector3d::const_iterator foot_vel_it = reduced_state.foot_vel.find(name);
+		if (foot_vel_it != reduced_state.foot_vel.end())
+			full_state.contact_vel[name] = foot_vel_it->second;
+
+		// Setting up the contact acceleration
+		rbd::BodyVector3d::const_iterator foot_acc_it = reduced_state.foot_acc.find(name);
+		if (foot_acc_it != reduced_state.foot_acc.end())
+			full_state.contact_acc[name] = foot_acc_it->second;
+
+
+		// Setting up the contact condition
+		rbd::BodyVector3d::const_iterator support_it = reduced_state.support_region.find(name);
 		if (support_it != reduced_state.support_region.end())
 			full_state.setContactCondition(name, true);
 		else
@@ -774,14 +782,24 @@ void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 
 	// Adding the contact positions, velocities and accelerations
 	// w.r.t the CoM frame
-	for (rbd::BodyVector::const_iterator contact_it = full_state.contact_pos.begin();
-			contact_it != full_state.contact_pos.end(); contact_it++) {
-		std::string name = contact_it->first;
-		reduced_state.foot_pos[name] =
-				contact_it->second - base_rotation * com_pos_B_;
+	for (unsigned int f = 0; f < num_feet_; f++) {
+		std::string name = feet_names_[f];
+
+		// Setting up the contact position
+		rbd::BodyVectorXd::const_iterator contact_pos_it = full_state.contact_pos.find(name);
+		if (contact_pos_it != full_state.contact_pos.end())
+			reduced_state.foot_pos[name] = contact_pos_it->second - com_pos_B_;//base_rotation * com_pos_B_;
+
+		// Setting up the contact velocity
+		rbd::BodyVectorXd::const_iterator contact_vel_it = full_state.contact_vel.find(name);
+		if (contact_vel_it != full_state.contact_vel.end())
+			reduced_state.foot_vel[name] = contact_vel_it->second;
+
+		// Setting up the contact acceleration
+		rbd::BodyVectorXd::const_iterator contact_acc_it = full_state.contact_acc.find(name);
+		if (contact_acc_it != full_state.contact_acc.end())
+			reduced_state.foot_acc[name] = contact_acc_it->second;
 	}
-	reduced_state.foot_vel = full_state.contact_vel;
-	reduced_state.foot_acc = full_state.contact_acc;
 }
 
 

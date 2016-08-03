@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 
 
 	// Computing the ID
-	dwl::rbd::BodyWrench grf;
+	dwl::rbd::BodyVector6d grf;
 	grf["lf_foot"] << 0, 0, 0, 0, 0, 190.778;
 	grf["rf_foot"] << 0, 0, 0, 0, 0, 190.778;
 	grf["lh_foot"] << 0, 0, 0, 0, 0, 190.778;
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 	// Estimating active contacts
 	double force_threshold = 0.;
 	dwl::rbd::BodySelector active_contacts;
-	dwl::rbd::BodyWrench contact_forces;
+	dwl::rbd::BodyVector6d contact_forces;
 	dyn.estimateActiveContacts(active_contacts, contact_forces,
 							   base_pos, joint_pos,
 							   base_vel, joint_vel,
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 							   joint_forces, sys.getEndEffectorNames(), // it uses all the end-effector of the system
 							   force_threshold);
 	cout << "--------------- Estimated active contacts ---------------" << endl;
-	for (dwl::rbd::BodyWrench::iterator it = contact_forces.begin();
+	for (dwl::rbd::BodyVector6d::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
 		string name = it->first;
 		dwl::rbd::Vector6d force = it->second;
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 							 sys.getEndEffectorNames());
 	cout << "--------------- Estimated contact forces ----------------" << endl;
 	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
-	for (dwl::rbd::BodyWrench::iterator it = contact_forces.begin();
+	for (dwl::rbd::BodyVector6d::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
 		string name = it->first;
 		dwl::rbd::Vector6d force = it->second;
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 
 	// Computing the contact forces from the CoP
 	Eigen::Vector3d cop_pos(0.0196, -0.0012, 0.0215);
-	dwl::rbd::BodyPosition contact_pos;
+	dwl::rbd::BodyVector3d contact_pos;
 	contact_pos["lf_foot"] = Eigen::Vector3d(0.319215579664, 0.206424153349, 0.0215);
 	contact_pos["lh_foot"] = Eigen::Vector3d(-0.335953242968, 0.207404146377, 0.0215);
 	contact_pos["rf_foot"] = Eigen::Vector3d(0.31996232038, -0.207592286639, 0.0215);
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 							 contact_pos,
 							 sys.getEndEffectorNames());
 	cout << "----------------- Contact forces from CoP ---------------" << endl;
-	for (dwl::rbd::BodyWrench::iterator it = contact_forces.begin();
+	for (dwl::rbd::BodyVector6d::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
 		string name = it->first;
 		dwl::rbd::Vector6d force = it->second;

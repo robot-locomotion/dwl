@@ -60,7 +60,7 @@ struct PreviewPhase
 	}
 
 	Eigen::Vector2d getFootShift(std::string name) const {
-		rbd::BodyVector::const_iterator it = feet_shift.find(name);
+		rbd::BodyVectorXd::const_iterator it = feet_shift.find(name);
 		if (it != feet_shift.end())
 			return it->second;
 		else
@@ -70,7 +70,7 @@ struct PreviewPhase
 	TypeOfPhases type;
 	rbd::BodySelector feet;
 	std::map<std::string,bool> swing_feet;
-	rbd::BodyVector feet_shift;
+	rbd::BodyVectorXd feet_shift;
 	bool step_;
 };
 
@@ -105,7 +105,7 @@ struct PreviewSchedule
 		actual_phase_ = initial_phase;
 	}
 
-	void init(rbd::BodyPosition& support) {
+	void init(rbd::BodyVector3d& support) {
 		for (unsigned int p = 0; p < getNumberPhases(); p++) {
 			std::vector<std::string> swings = getSwingFeet(p);
 			unsigned int num_swings = getNumberOfSwingFeet(p);
@@ -181,13 +181,13 @@ struct PreviewSchedule
 
 struct SwingParams
 {
-	SwingParams() : duration(0.), feet_shift(rbd::BodyPosition()) {}
+	SwingParams() : duration(0.), feet_shift(rbd::BodyVector3d()) {}
 	SwingParams(double _duration,
-				rbd::BodyPosition _feet_shift) : duration(_duration),
+				rbd::BodyVector3d _feet_shift) : duration(_duration),
 						feet_shift(_feet_shift) {}
 
 	double duration;
-	rbd::BodyPosition feet_shift;
+	rbd::BodyVector3d feet_shift;
 };
 
 
@@ -432,7 +432,7 @@ class PreviewLocomotion
 		Eigen::Vector3d com_pos_B_;
 
 		/** @ brief Stance posture position w.r.t. the CoM */
-		rbd::BodyVector stance_posture_C_;
+		rbd::BodyVectorXd stance_posture_C_;
 
 		/** @brief Force threshold */
 		double force_threshold_;

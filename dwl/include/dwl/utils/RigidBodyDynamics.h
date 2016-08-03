@@ -21,9 +21,9 @@ typedef Eigen::Block<Eigen::Matrix4d,3,1> TranslationPart;
 typedef Eigen::Block<Eigen::Matrix4d,3,3> RotationPart;
 typedef std::vector<std::string> BodySelector;
 typedef std::map<std::string,unsigned int> BodyID;
-typedef std::map<std::string,Eigen::Vector3d> BodyPosition;
-typedef std::map<std::string,Eigen::VectorXd> BodyVector;
-typedef std::map<std::string,Vector6d> BodyWrench;
+typedef std::map<std::string,Eigen::Vector3d> BodyVector3d;
+typedef std::map<std::string,Eigen::VectorXd> BodyVectorXd;
+typedef std::map<std::string,Vector6d> BodyVector6d;
 
 /**
  * @brief Vector coordinates

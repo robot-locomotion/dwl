@@ -55,7 +55,7 @@ class WholeBodyKinematics
 		 * kind of jacobian such as: linear, angular and full
 		 * @param enum TypeOfOrientation Desired type of orientation
 		 */
-		void computeForwardKinematics(rbd::BodyVector& op_pos,
+		void computeForwardKinematics(rbd::BodyVectorXd& op_pos,
 									  const rbd::Vector6d& base_pos,
 									  const Eigen::VectorXd& joint_pos,
 									  const rbd::BodySelector& body_set,
@@ -78,7 +78,7 @@ class WholeBodyKinematics
 		 */
 		void computeInverseKinematics(rbd::Vector6d& base_pos,
 									  Eigen::VectorXd& joint_pos,
-									  const rbd::BodyPosition& op_pos,
+									  const rbd::BodyVector3d& op_pos,
 									  const rbd::Vector6d& base_pos_init = rbd::Vector6d::Zero(),
 									  const Eigen::VectorXd& joint_pos_init = Eigen::VectorXd(),
 									  double step_tol = 1.0e-12,
@@ -98,7 +98,7 @@ class WholeBodyKinematics
 		 * @param unsigned int Maximum number of iterations
 		 */
 		void computeInverseKinematics(Eigen::VectorXd& joint_pos,
-									  const rbd::BodyPosition& op_pos,
+									  const rbd::BodyVector3d& op_pos,
 									  const Eigen::VectorXd& joint_pos_init = Eigen::VectorXd(),
 									  double step_tol = 1.0e-12,
 									  double lambda = 0.01,
@@ -114,7 +114,7 @@ class WholeBodyKinematics
 		 */
 		void computeJointVelocity(Eigen::VectorXd& joint_vel,
 								  const Eigen::VectorXd& joint_pos,
-								  const rbd::BodyVector& op_vel,
+								  const rbd::BodyVectorXd& op_vel,
 								  const rbd::BodySelector& body_set);
 
 		/**
@@ -129,7 +129,7 @@ class WholeBodyKinematics
 		void computeJoinAcceleration(Eigen::VectorXd& joint_acc,
 									 const Eigen::VectorXd& joint_pos,
 									 const Eigen::VectorXd& joint_vel,
-									 const rbd::BodyVector& op_acc,
+									 const rbd::BodyVectorXd& op_acc,
 									 const rbd::BodySelector& body_set);
 
 		/**
@@ -200,7 +200,7 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind
 		 * of jacobian such as: linear, angular and full
 		 */
-		void computeVelocity(rbd::BodyVector& op_vel,
+		void computeVelocity(rbd::BodyVectorXd& op_vel,
 							 const rbd::Vector6d& base_pos,
 							 const Eigen::VectorXd& joint_pos,
 							 const rbd::Vector6d& base_vel,
@@ -222,7 +222,7 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind
 		 * of jacobian such as: linear, angular and full
 		 */
-		void computeAcceleration(rbd::BodyVector& op_acc,
+		void computeAcceleration(rbd::BodyVectorXd& op_acc,
 								 const rbd::Vector6d& base_pos,
 								 const Eigen::VectorXd& joint_pos,
 								 const rbd::Vector6d& base_vel,
@@ -246,7 +246,7 @@ class WholeBodyKinematics
 		 * @param enum rbd::Component There are three different important kind
 		 * of jacobian such as: linear, angular and full
 		 */
-		void computeJdotQdot(rbd::BodyVector& jacd_qd,
+		void computeJdotQdot(rbd::BodyVectorXd& jacd_qd,
 							 const rbd::Vector6d& base_pos,
 							 const Eigen::VectorXd& joint_pos,
 							 const rbd::Vector6d& base_vel,

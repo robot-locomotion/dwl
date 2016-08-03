@@ -222,19 +222,19 @@ class WholeBodyState
 
 		// Contact state getter functions
 		/** @brief Gets the contact positions in the base frame */
-		const rbd::BodyVector& getContactPosition_B() const;
+		const rbd::BodyVectorXd& getContactPosition_B() const;
 		const Eigen::VectorXd& getContactPosition_B(std::string name) const;
 
 		/** @brief Gets the contact velocities in the base frame */
-		const rbd::BodyVector& getContactVelocity_B() const;
+		const rbd::BodyVectorXd& getContactVelocity_B() const;
 		const Eigen::VectorXd& getContactVelocity_B(std::string name) const;
 
 		/** @brief Gets the contact accelerations in the base frame */
-		const rbd::BodyVector& getContactAcceleration_B() const;
+		const rbd::BodyVectorXd& getContactAcceleration_B() const;
 		const Eigen::VectorXd& getContactAcceleration_B(std::string name) const;
 
 		/** @brief Gets the contact wrenches in the base frame */
-		const rbd::BodyWrench& getContactWrench_B() const;
+		const rbd::BodyVector6d& getContactWrench_B() const;
 		const rbd::Vector6d& getContactWrench_B(std::string name) const;
 
 		/**
@@ -249,22 +249,22 @@ class WholeBodyState
 
 		// Contact state setter functions
 		/** @brief Sets the contact positions in the base frame */
-		void setContactPosition_B(const rbd::BodyVector& pos);
+		void setContactPosition_B(const rbd::BodyVectorXd& pos);
 		void setContactPosition_B(std::string name,
 								 const Eigen::VectorXd& pos);
 
 		/** @brief Sets the contact velocities in the base frame */
-		void setContactVelocity_B(const rbd::BodyVector& vel);
+		void setContactVelocity_B(const rbd::BodyVectorXd& vel);
 		void setContactVelocity_B(std::string name,
 								  const Eigen::VectorXd& vel);
 
 		/** @brief Sets the contact accelerations in the base frame */
-		void setContactAcceleration_B(const rbd::BodyVector& acc);
+		void setContactAcceleration_B(const rbd::BodyVectorXd& acc);
 		void setContactAcceleration_B(std::string name,
 									  const Eigen::VectorXd& acc);
 
 		/** @brief Sets the contact wrenches in the base frame */
-		void setContactWrench_B(const rbd::BodyWrench& eff);
+		void setContactWrench_B(const rbd::BodyVector6d& eff);
 		void setContactWrench_B(std::string name,
 							    const rbd::Vector6d& eff);
 
@@ -288,10 +288,10 @@ class WholeBodyState
 		Eigen::VectorXd joint_vel;
 		Eigen::VectorXd joint_acc;
 		Eigen::VectorXd joint_eff;
-		rbd::BodyVector contact_pos;
-		rbd::BodyVector contact_vel;
-		rbd::BodyVector contact_acc;
-		rbd::BodyWrench contact_eff;
+		rbd::BodyVectorXd contact_pos;
+		rbd::BodyVectorXd contact_vel;
+		rbd::BodyVectorXd contact_acc;
+		rbd::BodyVector6d contact_eff;
 
 
 	private:

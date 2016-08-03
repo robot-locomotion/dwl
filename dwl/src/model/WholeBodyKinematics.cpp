@@ -55,7 +55,7 @@ void WholeBodyKinematics::modelFromURDFModel(std::string urdf_model,
 }
 
 
-void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVector& op_pos,
+void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVectorXd& op_pos,
 												   const rbd::Vector6d& base_pos,
 												   const Eigen::VectorXd& joint_pos,
 												   const rbd::BodySelector& body_set,
@@ -165,7 +165,7 @@ void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVector& op_pos,
 
 void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 												   Eigen::VectorXd& joint_pos,
-												   const rbd::BodyPosition& op_pos,
+												   const rbd::BodyVector3d& op_pos,
 												   const rbd::Vector6d& base_pos_init,
 												   const Eigen::VectorXd& joint_pos_init,
 												   double step_tol,
@@ -182,7 +182,7 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 	std::vector<unsigned int> body_id;
 	std::vector<RigidBodyDynamics::Math::Vector3d> body_point;
 	std::vector<RigidBodyDynamics::Math::Vector3d> target_pos;
-	for (rbd::BodyPosition::const_iterator body_iter = op_pos.begin();
+	for (rbd::BodyVector3d::const_iterator body_iter = op_pos.begin();
 			body_iter != op_pos.end();
 			body_iter++)
 	{
@@ -211,7 +211,7 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 
 
 void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
-												   const rbd::BodyPosition& op_pos,
+												   const rbd::BodyVector3d& op_pos,
 												   const Eigen::VectorXd& joint_pos_init,
 												   double step_tol,
 												   double lambda,
@@ -227,7 +227,7 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 	// Getting the end-effector names
 	rbd::BodySelector body_names;
 	std::vector<Eigen::Vector3d> target_pos;
-	for (rbd::BodyPosition::const_iterator contact_it = op_pos.begin();
+	for (rbd::BodyVector3d::const_iterator contact_it = op_pos.begin();
 			contact_it != op_pos.end(); contact_it++) {
 		body_names.push_back(contact_it->first);
 		target_pos.push_back(contact_it->second);
@@ -246,7 +246,7 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 		getFixedBaseJacobian(fixed_jac, full_jac);
 
 		// Computing the forward kinematics
-		rbd::BodyVector fk_pos;
+		rbd::BodyVectorXd fk_pos;
 		computeForwardKinematics(fk_pos, base_pos, joint_pos, body_names, rbd::Linear);
 
 		// Computing the error
@@ -273,7 +273,7 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 
 void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
 											   const Eigen::VectorXd& joint_pos,
-											   const rbd::BodyVector& op_vel,
+											   const rbd::BodyVectorXd& op_vel,
 											   const rbd::BodySelector& body_set)
 {
 	// Computing the joint velocities per every body
@@ -281,7 +281,7 @@ void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
 		std::string body_name = body_set[f];
 
 		// Computing the joint velocity associated to the actual body
-		rbd::BodyVector::const_iterator vel_it = op_vel.find(body_name);
+		rbd::BodyVectorXd::const_iterator vel_it = op_vel.find(body_name);
 		if (vel_it != op_vel.end()) {
 			Eigen::VectorXd body_vel = vel_it->second;
 
@@ -305,11 +305,11 @@ void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
 void WholeBodyKinematics::computeJoinAcceleration(Eigen::VectorXd& joint_acc,
 												  const Eigen::VectorXd& joint_pos,
 												  const Eigen::VectorXd& joint_vel,
-												  const rbd::BodyVector& op_acc,
+												  const rbd::BodyVectorXd& op_acc,
 												  const rbd::BodySelector& body_set)
 {
 	// Computing the Jac_d*Qd
-	dwl::rbd::BodyVector jacd_qd;
+	dwl::rbd::BodyVectorXd jacd_qd;
 	computeJdotQdot(jacd_qd,
 					rbd::Vector6d::Zero(), joint_pos,
 					rbd::Vector6d::Zero(), joint_vel,
@@ -320,7 +320,7 @@ void WholeBodyKinematics::computeJoinAcceleration(Eigen::VectorXd& joint_acc,
 		std::string body_name = body_set[f];
 
 		// Computing the joint acceleration associated to the actual body
-		rbd::BodyVector::const_iterator acc_it = op_acc.find(body_name);
+		rbd::BodyVectorXd::const_iterator acc_it = op_acc.find(body_name);
 		if (acc_it != op_acc.end()) {
 			Eigen::VectorXd body_acc = acc_it->second;
 
@@ -491,7 +491,7 @@ void WholeBodyKinematics::getFixedBaseJacobian(Eigen::MatrixXd& jacobian,
 }
 
 
-void WholeBodyKinematics::computeVelocity(rbd::BodyVector& op_vel,
+void WholeBodyKinematics::computeVelocity(rbd::BodyVectorXd& op_vel,
 										  const rbd::Vector6d& base_pos,
 										  const Eigen::VectorXd& joint_pos,
 										  const rbd::Vector6d& base_vel,
@@ -550,7 +550,7 @@ void WholeBodyKinematics::computeVelocity(rbd::BodyVector& op_vel,
 }
 
 
-void WholeBodyKinematics::computeAcceleration(rbd::BodyVector& op_acc,
+void WholeBodyKinematics::computeAcceleration(rbd::BodyVectorXd& op_acc,
 											  const rbd::Vector6d& base_pos,
 											  const Eigen::VectorXd& joint_pos,
 											  const rbd::Vector6d& base_vel,
@@ -613,7 +613,7 @@ void WholeBodyKinematics::computeAcceleration(rbd::BodyVector& op_acc,
 }
 
 
-void WholeBodyKinematics::computeJdotQdot(rbd::BodyVector& jacd_qd,
+void WholeBodyKinematics::computeJdotQdot(rbd::BodyVectorXd& jacd_qd,
 										  const rbd::Vector6d& base_pos,
 										  const Eigen::VectorXd& joint_pos,
 										  const rbd::Vector6d& base_vel,
@@ -621,7 +621,7 @@ void WholeBodyKinematics::computeJdotQdot(rbd::BodyVector& jacd_qd,
 										  const rbd::BodySelector& body_set,
 										  enum rbd::Component component)
 {
-	rbd::BodyVector op_vel, op_acc;
+	rbd::BodyVectorXd op_vel, op_acc;
 	computeAcceleration(op_acc,
 						base_pos, joint_pos,
 						base_vel, joint_vel,
