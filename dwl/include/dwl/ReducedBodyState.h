@@ -12,6 +12,8 @@
 namespace dwl
 {
 
+typedef rbd::BodyVector3d::const_iterator FootIterator;
+
 /**
  * @brief The ReducedBodyState class
  * This class incorporate the reduced-body state of the robot, including:
@@ -60,8 +62,6 @@ namespace dwl
  */
 class ReducedBodyState
 {
-	typedef rbd::BodyVector3d::const_iterator FootIterator;
-
 	public:
 		/** @brief Constructor function */
 		ReducedBodyState();
