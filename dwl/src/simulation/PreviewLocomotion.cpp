@@ -511,47 +511,56 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 								state.time + params.duration);
 
 	// Getting the swing shift per foot
-	rbd::BodyVector3d swing_shift;
+	rbd::BodyVector3d swing_shift_B;
 	for (unsigned int j = 0; j < params.phase.feet.size(); j++) {
 		std::string name = params.phase.feet[j];
-		Eigen::Vector3d stance = stance_posture_C_.find(name)->second;
+		Eigen::Vector3d stance_B = stance_posture_C_.find(name)->second;
+		Eigen::Vector3d stance_H =
+				frame_tf_.fromBaseToHorizontalFrame(stance_B, state.getRPY_W());
 
 		// Getting the footshift control parameter
 		Eigen::Vector2d footshift_2d = params.phase.getFootShift(name);
-		Eigen::Vector3d footshift(footshift_2d(rbd::X),
-								  footshift_2d(rbd::Y),
-								  0.);
+		Eigen::Vector3d footshift_H(footshift_2d(rbd::X),
+									footshift_2d(rbd::Y),
+									0.);
 
 		// Computing the foothold position w.r.t. the world
 		Eigen::Vector3d foothold = terminal_state.com_pos +
-				frame_tf_.fromBaseToWorldFrame(stance + footshift,
-											   terminal_state.getRPY_W());
+				frame_tf_.fromHorizontalToWorldFrame(stance_H + footshift_H,
+													 terminal_state.getRPY_W());
 
 		// Computing the footshift in z from the height map. In case of no
 		// having the terrain height map, it assumes flat terrain conditions.
 		// Note that, for those cases, we compensate small drift between the
 		// actual and the default postures, and the displacement of the CoM in z
 		if (terrain_.isTerrainInformation()) {
+			// Getting the terminal CoM position in the horizontal fram
+			Eigen::Vector3d terminal_com_pos_H =
+					frame_tf_.fromWorldToHorizontalFrame(terminal_state.getCoMPosition_W(),
+														 terminal_state.getRPY_W());
+
 			// Adding the terrain height given the terrain height-map
 			Eigen::Vector2d foothold_2d = foothold.head<2>();
-			footshift(rbd::Z) = terrain_.getTerrainHeight(foothold_2d) -
-					(terminal_state.com_pos(rbd::Z) + stance(rbd::Z));
+			footshift_H(rbd::Z) = terrain_.getTerrainHeight(foothold_2d) -
+					(terminal_com_pos_H(rbd::Z) + stance_H(rbd::Z));
 		} else {
 			// Computing the nominal CoM height that considers terrain elevations
 			Eigen::Vector3d height(0., 0., cart_table_.getPendulumHeight());
 			Eigen::Vector3d nominal_com_pos =
 					height + (terminal_state.com_pos - actual_state_.com_pos);
 			double nominal_com_height =
-					frame_tf_.fromWorldToBaseFrame(nominal_com_pos,
-												  terminal_state.getRPY_W())(rbd::Z);
-			footshift(rbd::Z) = -(nominal_com_height + stance(rbd::Z));
+					frame_tf_.fromWorldToHorizontalFrame(nominal_com_pos,
+														 terminal_state.getRPY_W())(rbd::Z);
+			footshift_H(rbd::Z) = -(nominal_com_height + stance_H(rbd::Z));
 		}
 
-		swing_shift[name] = footshift;
+		swing_shift_B[name] =
+				frame_tf_.fromHorizontalToBaseFrame(footshift_H,
+													terminal_state.getRPY_W());
 	}
 
-	// Adding the swing pattern
-	swing_params_ = SwingParams(params.duration, swing_shift);
+	// Adding the swing pattern expressed in the CoM frame
+	swing_params_ = SwingParams(params.duration, swing_shift_B);
 
 	// Generating the actual state for every feet
 	feet_spline_generator_.clear();
@@ -563,19 +572,19 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 		rbd::BodyVector3d::const_iterator swing_it = swing_params_.feet_shift.find(name);
 		if (swing_it != swing_params_.feet_shift.end()) {
 			// Getting the actual position of the contact w.r.t the CoM frame
-			Eigen::Vector3d actual_pos = foot_it->second;
+			Eigen::Vector3d actual_pos_B = state.getFootPosition_B(foot_it);
 
 			// Getting the target position of the contact w.r.t the CoM frame
-			Eigen::Vector3d footshift = (Eigen::Vector3d) swing_it->second;
-			Eigen::Vector3d stance_pos = stance_posture_C_.find(name)->second.head<3>();
-			Eigen::Vector3d target_pos = stance_pos + footshift;
+			Eigen::Vector3d footshift_B = (Eigen::Vector3d) swing_it->second;
+			Eigen::Vector3d stance_pos_B = stance_posture_C_.find(name)->second.head<3>();
+			Eigen::Vector3d target_pos_B = stance_pos_B + footshift_B;
 
 			// Initializing the foot pattern generator
 			simulation::StepParameters step_params(params.duration,//num_samples * sample_time_,
 												   step_height_);
 			feet_spline_generator_[name].setParameters(state.time,
-													   actual_pos,
-													   target_pos,
+													   actual_pos_B,
+													   target_pos_B,
 													   step_params);
 		}
 	}
