@@ -607,8 +607,9 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 		} else {
 			// There is not swing trajectory to generated (foot on ground).
 			// Nevertheless, we have to updated their positions w.r.t the CoM frame
-			// Getting the actual position of the contact w.r.t the CoM frame
-			Eigen::Vector3d actual_pos = foot_it->second;
+			// Getting the actual position of the foot expressed in the horizontal
+			// frame
+			Eigen::Vector3d actual_pos_H = phase_state_.getFootPosition_H(foot_it);
 
 			// Getting the CoM position of the specific time
 			Eigen::Vector3d com_pos = state.com_pos;
@@ -616,13 +617,10 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 			Eigen::Vector3d com_acc = state.com_acc;
 
 			// Adding the foot states w.r.t. the CoM frame
-			Eigen::Vector3d com_disp = com_pos - phase_state_.com_pos;
-			state.foot_pos[name] = actual_pos -
-					frame_tf_.fromWorldToBaseFrame(com_disp, state.getRPY_W());
-			state.foot_vel[name] =
-					frame_tf_.fromWorldToBaseFrame(-com_vel, state.getRPY_W());
-			state.foot_acc[name] =
-					frame_tf_.fromWorldToBaseFrame(-com_acc, state.getRPY_W());
+			Eigen::Vector3d com_disp_W = com_pos - phase_state_.com_pos;
+			state.setFootPosition_H(name, actual_pos_H - com_disp_W);
+			state.setFootVelocity_H(name, -com_vel);
+			state.setFootAcceleration_H(name, -com_acc);
 		}
 	}
 }
@@ -679,23 +677,15 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 		std::string name = feet_names_[f];
 
 		// Setting up the contact position
-		rbd::BodyVector3d::const_iterator foot_pos_it = reduced_state.foot_pos.find(name);
-		if (foot_pos_it != reduced_state.foot_pos.end()) {
-			Eigen::Vector3d foot_pos = foot_pos_it->second + com_pos_B_;// com_pos_W;
-			full_state.contact_pos[name] = foot_pos;
-			feet_pos[name] = foot_pos; // for IK computation
-		}
+		Eigen::Vector3d foot_pos = reduced_state.getFootPosition_B(name) + com_pos_B_;
+		full_state.contact_pos[name] = foot_pos;
+		feet_pos[name] = foot_pos; // for IK computation
 
 		// Setting up the contact velocity
-		rbd::BodyVector3d::const_iterator foot_vel_it = reduced_state.foot_vel.find(name);
-		if (foot_vel_it != reduced_state.foot_vel.end())
-			full_state.contact_vel[name] = foot_vel_it->second;
+		full_state.contact_vel[name] = reduced_state.getFootVelocity_B(name);
 
 		// Setting up the contact acceleration
-		rbd::BodyVector3d::const_iterator foot_acc_it = reduced_state.foot_acc.find(name);
-		if (foot_acc_it != reduced_state.foot_acc.end())
-			full_state.contact_acc[name] = foot_acc_it->second;
-
+		full_state.contact_acc[name] = reduced_state.getFootAcceleration_B(name);
 
 		// Setting up the contact condition
 		rbd::BodyVector3d::const_iterator support_it = reduced_state.support_region.find(name);
@@ -786,19 +776,20 @@ void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 		std::string name = feet_names_[f];
 
 		// Setting up the contact position
-		rbd::BodyVectorXd::const_iterator contact_pos_it = full_state.contact_pos.find(name);
-		if (contact_pos_it != full_state.contact_pos.end())
-			reduced_state.foot_pos[name] = contact_pos_it->second - com_pos_B_;//base_rotation * com_pos_B_;
+		rbd::BodyVectorXd::const_iterator cpos_it = full_state.contact_pos.find(name);
+		if (cpos_it != full_state.contact_pos.end())
+			reduced_state.setFootPosition_B(name,
+											cpos_it->second - com_pos_B_);
 
 		// Setting up the contact velocity
-		rbd::BodyVectorXd::const_iterator contact_vel_it = full_state.contact_vel.find(name);
-		if (contact_vel_it != full_state.contact_vel.end())
-			reduced_state.foot_vel[name] = contact_vel_it->second;
+		rbd::BodyVectorXd::const_iterator cvel_it = full_state.contact_vel.find(name);
+		if (cvel_it != full_state.contact_vel.end())
+			reduced_state.setFootVelocity_B(name, cvel_it->second);
 
 		// Setting up the contact acceleration
-		rbd::BodyVectorXd::const_iterator contact_acc_it = full_state.contact_acc.find(name);
-		if (contact_acc_it != full_state.contact_acc.end())
-			reduced_state.foot_acc[name] = contact_acc_it->second;
+		rbd::BodyVectorXd::const_iterator cacc_it = full_state.contact_acc.find(name);
+		if (cacc_it != full_state.contact_acc.end())
+			reduced_state.setFootAcceleration_B(name, cacc_it->second);
 	}
 }
 
