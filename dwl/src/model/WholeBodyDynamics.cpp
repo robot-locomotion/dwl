@@ -54,7 +54,7 @@ void WholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 											   const Eigen::VectorXd& joint_vel,
 											   const rbd::Vector6d& base_acc,
 											   const Eigen::VectorXd& joint_acc,
-											   const rbd::BodyWrench& ext_force)
+											   const rbd::BodyVector6d& ext_force)
 {
 	// Setting the size of the joint forces vector
 	joint_forces.resize(system_.getJointDoF());
@@ -85,7 +85,7 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 														   const rbd::Vector6d& base_vel,
 														   const Eigen::VectorXd& joint_vel,
 														   const Eigen::VectorXd& joint_acc,
-														   const rbd::BodyWrench& ext_force)
+														   const rbd::BodyVector6d& ext_force)
 {//TODO test floating-base ID, and develops the virtual floating-base ID (general hybrid dynamics?)
 	// Setting the size of the joint forces vector
 	joint_forces.resize(system_.getJointDoF());
@@ -148,7 +148,7 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 	// physical constraints or virtual floating-base. Note that with a virtual
 	// floating-base we can describe a n-dimensional floating-base, which n
 	// less than 6
-	rbd::BodyWrench contact_forces;
+	rbd::BodyVector6d contact_forces;
 	rbd::Vector6d base_feas_acc = base_acc;
 	Eigen::VectorXd joint_feas_acc = joint_acc;
 	computeContactForces(contact_forces, joint_forces,
@@ -200,7 +200,7 @@ void WholeBodyDynamics::computeJointSpaceInertialMatrix(Eigen::MatrixXd& inertia
 }
 
 
-void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
+void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 											 Eigen::VectorXd& joint_forces,
 											 const rbd::Vector6d& base_pos,
 											 const Eigen::VectorXd& joint_pos,
@@ -329,7 +329,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 }
 
 
-void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
+void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 											 const rbd::Vector6d& base_pos,
 											 const Eigen::VectorXd& joint_pos,
 											 const rbd::Vector6d& base_vel,
@@ -374,8 +374,8 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_forces,
 
 
 void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
-												const rbd::BodyWrench& contact_for,
-												const rbd::BodyVector& contact_pos,
+												const rbd::BodyVector6d& contact_for,
+												const rbd::BodyVectorXd& contact_pos,
 												const rbd::BodySelector& ground_contacts)
 {
 	// TODO: Compute the CoM position for case when the normal surface is different to z
@@ -398,7 +398,7 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 
 		// Getting the ground reaction forces
 		rbd::Vector6d force;
-		rbd::BodyWrench::const_iterator for_it = contact_for.find(name);
+		rbd::BodyVector6d::const_iterator for_it = contact_for.find(name);
 		if (for_it != contact_for.end())
 			force = for_it->second;
 		else {
@@ -408,7 +408,7 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 		}
 
 		// Getting the contact position
-		rbd::BodyVector::const_iterator pos_it = contact_pos.find(name);
+		rbd::BodyVectorXd::const_iterator pos_it = contact_pos.find(name);
 		Eigen::VectorXd position;
 		if (pos_it != contact_pos.end())
 			position = pos_it->second;
@@ -431,9 +431,9 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 }
 
 
-void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_for,
+void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_for,
 											 const Eigen::Vector3d& cop_pos,
-											 const rbd::BodyPosition& contact_pos,
+											 const rbd::BodyVector3d& contact_pos,
 											 const rbd::BodySelector& ground_contacts)
 {
 	// Sanity check: checking if there are contact information and the size
@@ -452,7 +452,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_for,
 		std::string name = *contact_iter;
 
 		// Getting the contact position
-		rbd::BodyPosition::const_iterator pos_it = contact_pos.find(name);
+		rbd::BodyVector3d::const_iterator pos_it = contact_pos.find(name);
 		Eigen::VectorXd position;
 		if (pos_it != contact_pos.end())
 			position = pos_it->second;
@@ -485,7 +485,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyWrench& contact_for,
 
 
 void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contacts,
-											   rbd::BodyWrench& contact_forces,
+											   rbd::BodyVector6d& contact_forces,
 											   const rbd::Vector6d& base_pos,
 											   const Eigen::VectorXd& joint_pos,
 											   const rbd::Vector6d& base_vel,
@@ -522,7 +522,7 @@ void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contact
 											   double force_threshold)
 {
 	// Computing the contact forces in predefined set of end-effector
-	rbd::BodyWrench contact_forces;
+	rbd::BodyVector6d contact_forces;
 	estimateActiveContacts(active_contacts,
 						   contact_forces,
 						   base_pos, joint_pos,
@@ -540,11 +540,11 @@ FloatingBaseSystem& WholeBodyDynamics::getFloatingBaseSystem()
 
 
 void WholeBodyDynamics::getActiveContacts(rbd::BodySelector& active_contacts,
-										  const rbd::BodyWrench& contact_forces,
+										  const rbd::BodyVector6d& contact_forces,
 										  double force_threshold)
 {
 	// Detecting active end-effector by using a force threshold
-	for (rbd::BodyWrench::const_iterator endeffector_it = contact_forces.begin();
+	for (rbd::BodyVector6d::const_iterator endeffector_it = contact_forces.begin();
 			endeffector_it != contact_forces.end(); endeffector_it++) {
 		std::string endeffector_name = endeffector_it->first;
 		dwl::rbd::Vector6d contact_wrench = endeffector_it->second;
@@ -556,7 +556,7 @@ void WholeBodyDynamics::getActiveContacts(rbd::BodySelector& active_contacts,
 
 
 void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynamics::Math::SpatialVector>& fext,
-													 const rbd::BodyWrench& ext_force,
+													 const rbd::BodyVector6d& ext_force,
 													 const Eigen::VectorXd& q)
 {
 	// Computing the applied external spatial forces for every body
@@ -633,7 +633,7 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 
 	// Computing contact linear positions and the J_d*q_d component, which
 	// are used for computing the joint accelerations
-	rbd::BodyVector op_pos, jacd_qd;
+	rbd::BodyVectorXd op_pos, jacd_qd;
 	kinematics_.computeForwardKinematics(op_pos,
 										 base_pos, joint_pos,
 										 contacts, rbd::Linear);

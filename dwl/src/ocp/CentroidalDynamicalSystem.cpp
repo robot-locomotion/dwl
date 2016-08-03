@@ -53,7 +53,7 @@ void CentroidalDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& cons
 	// TODO right now, there is only the linear momentum (HyL don't have angular momentum). I need
 	// to implement it, and move it to WholeBodyDynamics class
 	Eigen::Vector3d estimated_com_acc = Eigen::Vector3d::Zero();
-	for (rbd::BodyWrench::const_iterator contact_it = state.contact_eff.begin();
+	for (rbd::BodyVector6d::const_iterator contact_it = state.contact_eff.begin();
 			contact_it != state.contact_eff.end(); contact_it++) {
 		estimated_com_acc += contact_it->second.segment<3>(rbd::LX) / total_mass_;
 		estimated_com_acc += system_.getRBDModel().gravity;
@@ -64,7 +64,7 @@ void CentroidalDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& cons
 
 
 	// Computing the contact position
-	rbd::BodyVector contact_pos;
+	rbd::BodyVectorXd contact_pos;
 	kinematics_.computeForwardKinematics(contact_pos,
 										 state.base_pos, state.joint_pos,
 										 end_effector_names_, rbd::Linear);

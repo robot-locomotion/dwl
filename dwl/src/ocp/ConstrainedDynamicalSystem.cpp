@@ -56,13 +56,13 @@ void ConstrainedDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& con
 	// This constrained inverse dynamic algorithm could generate joint forces in cases where the
 	// ground (or environment) is pulling or pushing the end-effector, which an unreal situation.
 	// So, it's required to impose a velocity kinematic constraint in the active end-effectors
-	rbd::BodyVector endeffectors_vel;
+	rbd::BodyVectorXd endeffectors_vel;
 	kinematics_.computeVelocity(endeffectors_vel,
 								state.base_pos, state.joint_pos,
 								state.base_vel, state.joint_vel,
 								active_endeffectors_, rbd::Linear);
 
-	for (rbd::BodyVector::iterator endeffector_it = endeffectors_vel.begin();
+	for (rbd::BodyVectorXd::iterator endeffector_it = endeffectors_vel.begin();
 			endeffector_it != endeffectors_vel.end(); endeffector_it++) {
 		// Getting the end-effector index
 		std::string name = endeffector_it->first;

@@ -62,7 +62,7 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	std::vector<Eigen::Vector3f> vertices;
 	vertices.resize(initial_state_.support_region.size());
 	unsigned int v_idx = 0;
-	for (rbd::BodyPosition::const_iterator v = initial_state_.support_region.begin();
+	for (rbd::BodyVector3d::const_iterator v = initial_state_.support_region.begin();
 			v != initial_state_.support_region.end(); v++) {
 		vertices[v_idx] = v->second.cast<float>();
 		++v_idx;
@@ -70,6 +70,18 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 
 	// Computing the normal vector of the support region
 	math::computePlaneParameters(support_normal_, vertices);
+
+	// Initializyng the splinners of the roll and pitch angles
+	Eigen::Vector3d ref_dir = Eigen::Vector3d::UnitZ();
+	Eigen::Quaterniond support_orientation;
+	support_orientation.setFromTwoVectors(ref_dir, support_normal_);
+	support_rpy_ = math::getRPY(support_orientation);
+	roll_spline_.setBoundary(0., params_W_.duration,
+							 (double) initial_state_.getRPY_W()(0),
+							 (double) support_rpy_(0));
+	pitch_spline_.setBoundary(0., params_W_.duration,
+							 (double) initial_state_.getRPY_W()(1),
+							 (double) support_rpy_(1));
 
 	init_response_ = true;
 }
@@ -131,10 +143,18 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 	state.cop(rbd::Z) = initial_state_.cop(rbd::Z) + delta_posz;
 	state.support_region = initial_state_.support_region;
 
-	// Keeping the same orientation
-	state.angular_pos = initial_state_.angular_pos;
-	state.angular_vel = initial_state_.angular_vel;
-	state.angular_acc = initial_state_.angular_acc;
+	// Splinning the roll and pitch angle in order to have the base frame
+	// parallel with the support frame
+	// TODO this is an experimental feature that new to be tested
+	math::Spline::Point roll, pitch, yaw;
+	roll_spline_.getPoint(dt, roll);
+	pitch_spline_.getPoint(dt, pitch);
+	yaw.x = initial_state_.angular_pos(2);
+	yaw.xd = initial_state_.angular_vel(2);
+	yaw.xdd = initial_state_.angular_acc(2);
+	state.angular_pos = Eigen::Vector3d(roll.x, pitch.x, yaw.x);
+	state.angular_vel = Eigen::Vector3d(roll.xd, pitch.xd, yaw.xd);
+	state.angular_acc = Eigen::Vector3d(roll.xdd, pitch.xdd, yaw.xdd);
 }
 
 

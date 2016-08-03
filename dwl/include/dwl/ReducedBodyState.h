@@ -171,10 +171,10 @@ class ReducedBodyState
 		Eigen::Vector3d com_acc;
 		Eigen::Vector3d angular_acc;
 		Eigen::Vector3d cop;
-		rbd::BodyPosition support_region;
-		rbd::BodyVector foot_pos;
-		rbd::BodyVector foot_vel;
-		rbd::BodyVector foot_acc;
+		rbd::BodyVector3d support_region;
+		rbd::BodyVector3d foot_pos;
+		rbd::BodyVector3d foot_vel;
+		rbd::BodyVector3d foot_acc;
 
 
 	private:

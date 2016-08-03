@@ -77,7 +77,7 @@ class WholeBodyDynamics
 									const Eigen::VectorXd& joint_vel,
 									const rbd::Vector6d& base_acc,
 									const Eigen::VectorXd& joint_acc,
-									const rbd::BodyWrench& ext_force = rbd::BodyWrench());
+									const rbd::BodyVector6d& ext_force = rbd::BodyVector6d());
 
 		/**
 		 * @brief Computes the whole-body inverse dynamics using the Recursive
@@ -107,7 +107,7 @@ class WholeBodyDynamics
 												const rbd::Vector6d& base_vel,
 												const Eigen::VectorXd& joint_vel,
 												const Eigen::VectorXd& joint_acc,
-												const rbd::BodyWrench& ext_force = rbd::BodyWrench());
+												const rbd::BodyVector6d& ext_force = rbd::BodyVector6d());
 
 		/**
 		 * @brief Computes the constrained whole-body inverse dynamics using
@@ -169,7 +169,7 @@ class WholeBodyDynamics
 		 * @param const rbd::BodySelector& Bodies that are constrained to be
 		 * in contact
 		 */
-		void computeContactForces(rbd::BodyWrench& contact_forces,
+		void computeContactForces(rbd::BodyVector6d& contact_forces,
 								  Eigen::VectorXd& joint_forces,
 								  const rbd::Vector6d& base_pos,
 								  const Eigen::VectorXd& joint_pos,
@@ -195,7 +195,7 @@ class WholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint forces
 		 * @param const rbd::BodySelector& Selected set of end-effectors (bodies)
 		 */
-		void computeContactForces(rbd::BodyWrench& contact_forces,
+		void computeContactForces(rbd::BodyVector6d& contact_forces,
 								  const rbd::Vector6d& base_pos,
 								  const Eigen::VectorXd& joint_pos,
 								  const rbd::Vector6d& base_vel,
@@ -214,8 +214,8 @@ class WholeBodyDynamics
 		 * @param const rbd::BodySelector& Selected set of active contact
 		 */
 		void computeCenterOfPressure(Eigen::Vector3d& cop_pos,
-									 const rbd::BodyWrench& contact_for,
-									 const rbd::BodyVector& contact_pos,
+									 const rbd::BodyVector6d& contact_for,
+									 const rbd::BodyVectorXd& contact_pos,
 									 const rbd::BodySelector& ground_contacts);
 
 		/**
@@ -226,9 +226,9 @@ class WholeBodyDynamics
 		 * @param const rbd::BodyPosition& contact_pos
 		 * @param const rbd::BodySelector& Selected set of active contact
 		 */
-		void computeContactForces(rbd::BodyWrench& contact_for,
+		void computeContactForces(rbd::BodyVector6d& contact_for,
 								  const Eigen::Vector3d& cop_pos,
-								  const rbd::BodyPosition& contact_pos,
+								  const rbd::BodyVector3d& contact_pos,
 								  const rbd::BodySelector& ground_contacts);
 
 		/**
@@ -248,7 +248,7 @@ class WholeBodyDynamics
 		 * @param double Force threshold
 		 */
 		void estimateActiveContacts(rbd::BodySelector& active_contacts,
-									rbd::BodyWrench& contact_forces,
+									rbd::BodyVector6d& contact_forces,
 									const rbd::Vector6d& base_pos,
 									const Eigen::VectorXd& joint_pos,
 									const rbd::Vector6d& base_vel,
@@ -295,7 +295,7 @@ class WholeBodyDynamics
 		 * @param double Force threshold
 		 */
 		void getActiveContacts(rbd::BodySelector& active_contacs,
-							   const rbd::BodyWrench& contact_forces,
+							   const rbd::BodyVector6d& contact_forces,
 							   double force_threshold);
 
 
@@ -308,7 +308,7 @@ class WholeBodyDynamics
 		 * @param const Eigen::VectorXd& Generalized joint position
 		 */
 		void convertAppliedExternalForces(std::vector<RigidBodyDynamics::Math::SpatialVector>& f_ext,
-										  const rbd::BodyWrench& ext_force,
+										  const rbd::BodyVector6d& ext_force,
 										  const Eigen::VectorXd& generalized_joint_pos);
 
 		/**
