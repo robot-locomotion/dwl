@@ -11,7 +11,7 @@ PreviewLocomotion::PreviewLocomotion() : robot_model_(false),
 		sample_time_(0.001), gravity_(9.81), mass_(0.), num_feet_(0),
 		step_height_(0.1), force_threshold_(0.)
 {
-	actual_system_com_.setZero();
+	com_pos_B_.setZero();
 }
 
 
@@ -53,24 +53,23 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	// Getting the default joint position
 	Eigen::VectorXd q0 = system_.getDefaultPosture();
 
-	// Getting the default position of the CoM system
-	actual_system_com_ = system_.getSystemCoM(rbd::Vector6d::Zero(),
-											  q0);
+	// Getting the default position of the CoM system w.r.t. the base frame
+	com_pos_B_ = system_.getSystemCoM(rbd::Vector6d::Zero(), q0);
 
 	// Computing the stance posture using the default position
-	kinematics_.computeForwardKinematics(stance_posture_,
+	kinematics_.computeForwardKinematics(stance_posture_C_,
 										 rbd::Vector6d::Zero(),
 										 q0,
 										 feet_names_,
 										 rbd::Linear);
 
 	// Converting to the CoM frame
-	for (rbd::BodyVector::iterator feet_it = stance_posture_.begin();
-			feet_it != stance_posture_.end(); feet_it++) {
+	for (rbd::BodyVector::iterator feet_it = stance_posture_C_.begin();
+			feet_it != stance_posture_C_.end(); feet_it++) {
 		std::string name = feet_it->first;
 		Eigen::VectorXd stance = feet_it->second;
 
-		stance_posture_[name] = stance - actual_system_com_;
+		stance_posture_C_[name] = stance - com_pos_B_;
 	}
 
 	// Setting up the cart-table model
@@ -228,7 +227,7 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 					if (control.params[k-1].phase.isSwingFoot(name) &&
 							control.params[k-1].duration > sample_time_) {
 						Eigen::Vector3d stance =
-								stance_posture_.find(name)->second;
+								stance_posture_C_.find(name)->second;
 
 						// Getting the footshift control parameter
 						Eigen::Vector2d footshift_2d =
@@ -238,9 +237,9 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 												  0.);
 
 						// Computing the foothold position w.r.t. the world
-						Eigen::Vector3d foothold =
-								actual_state.com_pos + stance + footshift;
-
+						Eigen::Vector3d foothold = actual_state.com_pos +
+								frame_tf_.fromBaseToWorldFrame(stance + footshift,
+															   actual_state.getRPY_W());
 						// Computing the footshift in z from the height map. In
 						// case of no having the terrain height map, it assumes
 						// flat terrain conditions. Note that, for those cases,
@@ -292,7 +291,7 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 		if (end_control.phase.isSwingFoot(name) &&
 				end_control.duration > sample_time_) {
 			Eigen::Vector3d stance =
-					stance_posture_.find(name)->second.head<3>();
+					stance_posture_C_.find(name)->second.head<3>();
 
 			// Getting the footshift control parameter
 			Eigen::Vector2d footshift_2d =
@@ -302,9 +301,9 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 									  0.);
 
 			// Computing the foothold position w.r.t. the world
-			Eigen::Vector3d foothold =
-					actual_state.com_pos + stance + footshift;
-
+			Eigen::Vector3d foothold = actual_state.com_pos +
+					frame_tf_.fromBaseToWorldFrame(stance + footshift,
+												   actual_state.getRPY_W());
 			// Computing the footshift in z from the height map. In case of no
 			// having the terrain height map, it assumes flat terrain conditions.
 			// Note that, in those cases, we compensate small drift between the
@@ -515,7 +514,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 	rbd::BodyPosition swing_shift;
 	for (unsigned int j = 0; j < params.phase.feet.size(); j++) {
 		std::string name = params.phase.feet[j];
-		Eigen::Vector3d stance = stance_posture_.find(name)->second;
+		Eigen::Vector3d stance = stance_posture_C_.find(name)->second;
 
 		// Getting the footshift control parameter
 		Eigen::Vector2d footshift_2d = params.phase.getFootShift(name);
@@ -524,8 +523,9 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 								  0.);
 
 		// Computing the foothold position w.r.t. the world
-		Eigen::Vector3d foothold =
-				terminal_state.com_pos + stance + footshift;
+		Eigen::Vector3d foothold = terminal_state.com_pos +
+				frame_tf_.fromBaseToWorldFrame(stance + footshift,
+											   terminal_state.getRPY_W());
 
 		// Computing the footshift in z from the height map. In case of no
 		// having the terrain height map, it assumes flat terrain conditions.
@@ -563,7 +563,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 
 			// Getting the target position of the contact w.r.t the CoM frame
 			Eigen::Vector3d footshift = (Eigen::Vector3d) swing_it->second;
-			Eigen::Vector3d stance_pos = stance_posture_.find(name)->second.head<3>();
+			Eigen::Vector3d stance_pos = stance_posture_C_.find(name)->second.head<3>();
 			Eigen::Vector3d target_pos = stance_pos + footshift;
 
 			// Initializing the foot pattern generator
@@ -611,10 +611,14 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 			Eigen::Vector3d com_vel = state.com_vel;
 			Eigen::Vector3d com_acc = state.com_acc;
 
-			// Adding the foot states w.r.t. the CoM frame// TODO Add rotation matrix for yaw
-			state.foot_pos[name] = actual_pos - (com_pos - phase_state_.com_pos);//b_R_w*(com_pos - state.com_pos);
-			state.foot_vel[name] = -com_vel;//b_R_w*(com_vel)
-			state.foot_acc[name] = -com_acc;//b_R_w*(com_acc)
+			// Adding the foot states w.r.t. the CoM frame
+			Eigen::Vector3d com_disp = com_pos - phase_state_.com_pos;
+			state.foot_pos[name] = actual_pos -
+					frame_tf_.fromWorldToBaseFrame(com_disp, state.getRPY_W());
+			state.foot_vel[name] =
+					frame_tf_.fromWorldToBaseFrame(-com_vel, state.getRPY_W());
+			state.foot_acc[name] =
+					frame_tf_.fromWorldToBaseFrame(-com_acc, state.getRPY_W());
 		}
 	}
 }
@@ -652,7 +656,10 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 	// From the preview model we do not know the joint states, so we neglect
 	// the joint-related components of the CoM
-	full_state.setBasePosition_W(reduced_state.com_pos - actual_system_com_);
+	Eigen::Vector3d com_pos_W =
+			frame_tf_.fromBaseToWorldFrame(com_pos_B_,
+										   reduced_state.getRPY_W());
+	full_state.setBasePosition_W(reduced_state.com_pos - com_pos_W);
 	full_state.setBaseVelocity_W(reduced_state.com_vel);
 	full_state.setBaseAcceleration_W(reduced_state.com_acc);
 
@@ -663,10 +670,14 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 	// Adding the contact positions, velocities and accelerations
 	// w.r.t the base frame
+	dwl::rbd::BodyPosition feet_pos;
 	for (rbd::BodyVector::const_iterator contact_it = reduced_state.foot_pos.begin();
 			contact_it != reduced_state.foot_pos.end(); contact_it++) {
 		std::string name = contact_it->first;
-		full_state.contact_pos[name] = contact_it->second + actual_system_com_;
+		Eigen::Vector3d foot_pos = contact_it->second + com_pos_W;
+
+		full_state.contact_pos[name] = foot_pos;
+		feet_pos[name] = foot_pos; // for IK computation
 	}
 	full_state.contact_vel = reduced_state.foot_vel;
 	full_state.contact_acc = reduced_state.foot_acc;
@@ -684,15 +695,9 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 
 
 	// Adding the joint positions, velocities and accelerations
-	dwl::rbd::BodyPosition feet_pos;
 	full_state.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
 	full_state.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
 	full_state.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
-	for (unsigned int f = 0; f < num_feet_; f++) {
-		std::string name = feet_names_[f];
-
-		feet_pos[name] = reduced_state.foot_pos.find(name)->second + actual_system_com_;
-	}
 
 	// Computing the joint positions
 	kinematics_.computeInverseKinematics(full_state.joint_pos,
@@ -722,10 +727,15 @@ void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 	// Adding the actual time
 	reduced_state.time = full_state.time;
 
+	// Getting the world to base transformation
+	Eigen::Vector3d base_traslation = full_state.getBasePosition_W();
+	Eigen::Vector3d base_rpy = full_state.getBaseRPY_W();
+	Eigen::Matrix3d base_rotation = math::getRotationMatrix(base_rpy);
+
 	// Computing the CoM position, velocity and acceleration
 	// Neglecting the joint accelerations components
-	reduced_state.com_pos = system_.getSystemCoM(full_state.base_pos,
-												 full_state.joint_pos);
+	reduced_state.com_pos =
+			full_state.getBasePosition_W() + base_rotation * com_pos_B_;
 	reduced_state.com_vel = system_.getSystemCoMRate(full_state.base_pos,
 													 full_state.joint_pos,
 													 full_state.base_vel,
@@ -735,11 +745,6 @@ void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 	reduced_state.angular_pos = full_state.getBaseRPY_W();
 	reduced_state.angular_vel = full_state.getBaseRotationRate_W();
 	reduced_state.angular_acc = full_state.getBaseRotAcceleration_W();
-
-	// Getting the world to base transformation
-	Eigen::Vector3d base_traslation = full_state.getBasePosition_W();
-	Eigen::Vector3d base_rpy = full_state.getBaseRPY_W();
-	Eigen::Matrix3d base_rotation = math::getRotationMatrix(base_rpy);
 
 	// Computing the CoP in the world frame
 	Eigen::Vector3d cop_B;
@@ -768,7 +773,8 @@ void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 	for (rbd::BodyVector::const_iterator contact_it = full_state.contact_pos.begin();
 			contact_it != full_state.contact_pos.end(); contact_it++) {
 		std::string name = contact_it->first;
-		reduced_state.foot_pos[name] = contact_it->second - actual_system_com_;
+		reduced_state.foot_pos[name] =
+				contact_it->second - base_rotation * com_pos_B_;
 	}
 	reduced_state.foot_vel = full_state.contact_vel;
 	reduced_state.foot_acc = full_state.contact_acc;

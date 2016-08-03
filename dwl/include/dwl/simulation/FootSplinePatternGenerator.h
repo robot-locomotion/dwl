@@ -5,12 +5,6 @@
 #include <dwl/utils/RigidBodyDynamics.h>
 #include <Eigen/Dense>
 
-//#include <Eigen/SVD>
-//#include "spliner.h"
-//#include "spliner3D.h"
-//#include "commons.h"
-//#include <iostream>
-
 
 namespace dwl
 {
@@ -90,6 +84,8 @@ class FootSplinePatternGenerator
 		/** @brief Percentage of penetration of the swing trajectory */
 		double penetration_;
 };
+
+typedef std::map<std::string, FootSplinePatternGenerator> FootSplinerMap;
 
 /*
 

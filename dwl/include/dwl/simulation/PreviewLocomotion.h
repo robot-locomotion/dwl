@@ -375,7 +375,7 @@ class PreviewLocomotion
 		ReducedBodyState actual_state_;
 
 		/** @brief Feet spline generator */
-		std::map<std::string,simulation::FootSplinePatternGenerator> feet_spline_generator_;
+		FootSplinerMap feet_spline_generator_;
 		SwingParams swing_params_;
 		ReducedBodyState phase_state_;
 
@@ -390,6 +390,9 @@ class PreviewLocomotion
 
 		/** @brief Terrain map */
 		environment::TerrainMap terrain_;
+
+		/** @brief Frame transformations */
+		math::FrameTF frame_tf_;
 
 		/** @brief Label that indicates that the robot information from URDF
 		 * was set */
@@ -416,11 +419,12 @@ class PreviewLocomotion
 		/** @brief Step height for the swing generation */
 		double step_height_;
 
-		/** @brief Actual Center of Mass (CoM) of the system */
-		Eigen::Vector3d actual_system_com_;
+		/** @brief Center of Mass (CoM) position of the system w.r.t. the base
+		 * frame */
+		Eigen::Vector3d com_pos_B_;
 
 		/** @ brief Stance posture position w.r.t. the CoM */
-		rbd::BodyVector stance_posture_;
+		rbd::BodyVector stance_posture_C_;
 
 		/** @brief Force threshold */
 		double force_threshold_;

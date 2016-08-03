@@ -28,7 +28,7 @@ void LinearControlledCartTableModel::setModelProperties(CartTableProperties mode
 
 
 void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
-											 	  const CartTableControlParams& params)
+											 	  const CartTableControlParams& params_H)
 {
 	if (!init_model_) {
 		printf(YELLOW "Warning: could not initialized the initResponse because"
@@ -39,20 +39,23 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	// Saving the initial state
 	initial_state_ = state;
 
-	// Saving the SLIP control params
-	params_ = params;
+	// Saving the SLIP control params in the world frame
+	params_W_.duration = params_H.duration;
+	params_W_.cop_shift =
+			frame_tf_.mapHorizontalToWorldFrame(params_H.cop_shift,
+												initial_state_.getRPY_W());
 
 	// Computing the coefficients of the Cart-Table response
 	height_ = initial_state_.com_pos(rbd::Z) - initial_state_.cop(rbd::Z);
 	omega_ = sqrt(properties_.gravity / height_);
-	double alpha = 2 * omega_ * params_.duration;
+	double alpha = 2 * omega_ * params_W_.duration;
 	Eigen::Vector2d hor_proj = (initial_state_.com_pos - initial_state_.cop).head<2>();
-	Eigen::Vector2d hor_disp = initial_state_.com_vel.head<2>() * params_.duration;
+	Eigen::Vector2d hor_disp = initial_state_.com_vel.head<2>() * params_W_.duration;
 	beta_1_ = hor_proj / 2 +
-			(hor_disp - params_.cop_shift.head<2>()) / alpha;
+			(hor_disp - params_W_.cop_shift.head<2>()) / alpha;
 	beta_2_ = hor_proj / 2 -
-			(hor_disp - params_.cop_shift.head<2>()) / alpha;
-	cop_T_ = params_.cop_shift.head<2>() / params_.duration;
+			(hor_disp - params_W_.cop_shift.head<2>()) / alpha;
+	cop_T_ = params_W_.cop_shift.head<2>() / params_W_.duration;
 
 
 	// Getting the support vertices
@@ -92,7 +95,7 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 	state.time = time;
 
 	// Computing the CoP position given the linear assumption
-	Eigen::Vector3d delta_cop = (dt / params_.duration) * params_.cop_shift;
+	Eigen::Vector3d delta_cop = (dt / params_W_.duration) * params_W_.cop_shift;
 	state.cop = initial_state_.cop + delta_cop;
 
 	// Computing the horizontal motion of the CoM according to
@@ -111,7 +114,6 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 			omega_ * omega_ * beta_exp_1 +
 			omega_ * omega_ * beta_exp_2;
 
-
 	// Computing the Z-component of the CoP
 	// From the plane equation (i.e.  n * p = 0), we derive the following
 	// equation that allows us to compute the delta in z
@@ -119,7 +121,7 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 	double normal_z = support_normal_(rbd::Z);
 	double delta_posz = -(normal_2d.dot(delta_cop.head<2>())) / normal_z;
 
-	Eigen::Vector2d cop_vel = Eigen::Vector2d::Ones() / params_.duration;
+	Eigen::Vector2d cop_vel = Eigen::Vector2d::Ones() / params_W_.duration;
 
 	// There is not vertical motion of the CoM. Note that we derive the above
 	// mentioned equation in order to get the velocity and acceleration components
@@ -128,22 +130,27 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 	state.com_acc(rbd::Z) = 0.;
 	state.cop(rbd::Z) = initial_state_.cop(rbd::Z) + delta_posz;
 	state.support_region = initial_state_.support_region;
+
+	// Keeping the same orientation
+	state.angular_pos = initial_state_.angular_pos;
+	state.angular_vel = initial_state_.angular_vel;
+	state.angular_acc = initial_state_.angular_acc;
 }
 
 
 void LinearControlledCartTableModel::computeSystemEnergy(Eigen::Vector3d& com_energy,
 														 const ReducedBodyState& initial_state,
-														 const CartTableControlParams& params)
+														 const CartTableControlParams& params_H)
 {
 	// Initialization the coefficient of the cart-table model
-	initResponse(initial_state, params);
+	initResponse(initial_state, params_H);
 
 	// Computing the CoM energy associated to the horizontal
 	// dynamics
 	// x_acc^2 = (beta1 * omega^2)^2 * exp(2 * omega * dt)
 	//			 (beta2 * omega^2)^2 * exp(-2 * omega * dt)
 	//			 beta1 * beta2 * slip_omega^4
-	double dt = params.duration;
+	double dt = params_H.duration;
 	c_1_ = (beta_1_ * pow(omega_,2)).array().pow(2);
 	c_2_ = (beta_2_ * pow(omega_,2)).array().pow(2);
 	c_3_ = beta_1_.cwiseProduct(beta_2_) * pow(omega_,4);
