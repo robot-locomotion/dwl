@@ -253,10 +253,13 @@ class ReducedBodyState
 		void setFootVelocity_H(const rbd::BodyVector3d& vel_H);
 
 		/** @brief Sets the foot acceleration expressed in the world frame */
-		void setFootAcceleration_W(FootIterator it);
+		void setFootAcceleration_W(FootIterator vel_it,
+				   	   	   	   	   FootIterator acc_it);
 		void setFootAcceleration_W(std::string name,
+								   const Eigen::Vector3d& vel_W,
 								   const Eigen::Vector3d& acc_W);
-		void setFootAcceleration_W(const rbd::BodyVector3d& acc_W);
+		void setFootAcceleration_W(const rbd::BodyVector3d& vel_W,
+								   const rbd::BodyVector3d& acc_W);
 
 		/** @brief Sets the foot acceleration expressed in the base frame */
 		void setFootAcceleration_B(FootIterator it);
@@ -265,10 +268,13 @@ class ReducedBodyState
 		void setFootAcceleration_B(const rbd::BodyVector3d& acc_B);
 
 		/** @brief Sets the foot acceleration expressed in the horizontal frame */
-		void setFootAcceleration_H(FootIterator it);
+		void setFootAcceleration_H(FootIterator vel_it,
+				   	   	   	   	   FootIterator acc_it);
 		void setFootAcceleration_H(std::string name,
+								   const Eigen::Vector3d& vel_H,
 								   const Eigen::Vector3d& acc_H);
-		void setFootAcceleration_H(const rbd::BodyVector3d& acc_H);
+		void setFootAcceleration_H(const rbd::BodyVector3d& vel_H,
+								   const rbd::BodyVector3d& acc_H);
 
 
 		double time;
@@ -294,6 +300,17 @@ class ReducedBodyState
 		 */
 		Eigen::Vector3d computeRelativeFootVelocity_W(std::string name,
 													  const Eigen::Vector3d& vel_W);
+
+		/**
+		 * @brief Computes the relative foot acceleration w.r.t. the base expressed
+		 * in the world frame
+		 * @param std::string Name of the foot
+		 * @param const Eigen::Vector3d& Foot velocity expressed in the world frame
+		 * @param const Eigen::Vector3d& Foot acceleration expressed in the world frame
+		 */
+		Eigen::Vector3d computeRelativeFootAcceleration_W(std::string name,
+														  const Eigen::Vector3d& vel_W,
+														  const Eigen::Vector3d& acc_W);
 
 		/** @brief Frame transformations */
 		math::FrameTF frame_tf_;
