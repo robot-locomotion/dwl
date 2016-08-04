@@ -102,32 +102,32 @@ BOOST_AUTO_TEST_CASE(base_angular) // specify a test case for base angular state
 	// Testing the base angular velocity
 	ws.setBaseRPY_W(Eigen::Vector3d(0., 0., 0.));
 	old_base_state = Eigen::Vector3d(0.5, 0.7, 0.);
-	ws.setBaseRotationRate_W(old_base_state);
-	new_base_state = ws.getBaseRotationRate_W();
+	ws.setBaseAngularVelocity_W(old_base_state);
+	new_base_state = ws.getBaseAngularVelocity_W();
 	for (unsigned int i = 0; i < 2; i++)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
-	new_base_state = ws.getBaseRotationRate_B();
+	new_base_state = ws.getBaseAngularVelocity_B();
 	for (unsigned int i = 0; i < 2; i++)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
-	new_base_state = ws.getBaseRotationRate_H();
+	new_base_state = ws.getBaseAngularVelocity_H();
 	for (unsigned int i = 0; i < 2; i++)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
 
 	// Testing the base acceleration
 	old_base_state = Eigen::Vector3d(0.8, 0.9, -9.8);
-	ws.setBaseRotAcceleration_W(old_base_state);
-	new_base_state = ws.getBaseRotAcceleration_W();
+	ws.setBaseAngularAcceleration_W(old_base_state);
+	new_base_state = ws.getBaseAngularAcceleration_W();
 	for (unsigned int i = 0; i < 2; i++)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
-	new_base_state = ws.getBaseRotAcceleration_B();
+	new_base_state = ws.getBaseAngularAcceleration_B();
 	for (unsigned int i = 0; i < 2; i++)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
-	new_base_state = ws.getBaseRotAcceleration_H();
+	new_base_state = ws.getBaseAngularAcceleration_H();
 	for (unsigned int i = 0; i < 2; i++)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 }
