@@ -88,14 +88,14 @@ class ReducedBodyState
 		/** @brief Gets the CoM velocity in the horizontal frame */
 		Eigen::Vector3d getCoMVelocity_H() const;
 
-		/** @brief Gets the base rotation rate in the world frame */
-		Eigen::Vector3d getRotationRate_W() const;
+		/** @brief Gets the base angular velocity in the world frame */
+		Eigen::Vector3d getAngularVelocity_W() const;
 
-		/** @brief Gets the base rotation rate in the base frame */
-		Eigen::Vector3d getRotationRate_B() const;
+		/** @brief Gets the base angular velocity in the base frame */
+		Eigen::Vector3d getAngularVelocity_B() const;
 
-		/** @brief Gets the base rotation rate in the horizontal frame */
-		Eigen::Vector3d getRotationRate_H() const;
+		/** @brief Gets the base angular velocity in the horizontal frame */
+		Eigen::Vector3d getAngularVelocity_H() const;
 
 		/** @brief Gets the CoM acceleration in the world frame */
 		Eigen::Vector3d getCoMAcceleration_W() const;
@@ -106,14 +106,14 @@ class ReducedBodyState
 		/** @brief Gets the CoM acceleration in the horizontal frame */
 		Eigen::Vector3d getCoMAcceleration_H() const;
 
-		/** @brief Gets the base rotation acceleration in the world frame */
-		Eigen::Vector3d getRotAcceleration_W() const;
+		/** @brief Gets the base angular acceleration in the world frame */
+		Eigen::Vector3d getAngularAcceleration_W() const;
 
-		/** @brief Gets the base rotation acceleration in the base frame */
-		Eigen::Vector3d getRotAcceleration_B() const;
+		/** @brief Gets the base angular acceleration in the base frame */
+		Eigen::Vector3d getAngularAcceleration_B() const;
 
-		/** @brief Gets the base rotation acceleration in the horizontal frame */
-		Eigen::Vector3d getRotAcceleration_H() const;
+		/** @brief Gets the base angular acceleration in the horizontal frame */
+		Eigen::Vector3d getAngularAcceleration_H() const;
 
 		// Foot state getter functions
 		/** @brief Gets the foot position expressed in the world frame */
@@ -187,14 +187,14 @@ class ReducedBodyState
 		/** @brief Sets the CoM velocity in the horizontal frame */
 		void setCoMVelocity_H(const Eigen::Vector3d& vel_H);
 
-		/** @brief Sets the base rotation rate in the world frame */
-		void setRotationRate_W(const Eigen::Vector3d& rate_W);
+		/** @brief Sets the base angular velocity in the world frame */
+		void setAngularVelocity_W(const Eigen::Vector3d& rate_W);
 
-		/** @brief Sets the base rotation rate in the base frame */
-		void setRotationRate_B(const Eigen::Vector3d& rate_B);
+		/** @brief Sets the base angular velocity in the base frame */
+		void setAngularVelocity_B(const Eigen::Vector3d& rate_B);
 
-		/** @brief Sets the base rotation rate in the horizontal frame */
-		void setRotationRate_H(const Eigen::Vector3d& rate_H);
+		/** @brief Sets the base angular velocity in the horizontal frame */
+		void setAngularVelocity_H(const Eigen::Vector3d& rate_H);
 
 		/** @brief Sets the CoM acceleration in the world frame */
 		void setCoMAcceleration_W(const Eigen::Vector3d& acc_W);
@@ -205,14 +205,14 @@ class ReducedBodyState
 		/** @brief Sets the CoM acceleration in the horizontal frame */
 		void setCoMAcceleration_H(const Eigen::Vector3d& acc_H);
 
-		/** @brief Sets the base rotation acceleration in the world frame */
-		void setRotAcceleration_W(const Eigen::Vector3d& rotacc_W);
+		/** @brief Sets the base angular acceleration in the world frame */
+		void setAngularAcceleration_W(const Eigen::Vector3d& rotacc_W);
 
-		/** @brief Sets the base rotation acceleration in the base frame */
-		void setRotAcceleration_B(const Eigen::Vector3d& rotacc_B);
+		/** @brief Sets the base angular acceleration in the base frame */
+		void setAngularAcceleration_B(const Eigen::Vector3d& rotacc_B);
 
-		/** @brief Sets the base rotation acceleration in the horizontal frame */
-		void setRotAcceleration_H(const Eigen::Vector3d& rotacc_H);
+		/** @brief Sets the base angular acceleration in the horizontal frame */
+		void setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
 
 
 		// Foot state setter functions

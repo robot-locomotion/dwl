@@ -60,22 +60,22 @@ Eigen::Vector3d ReducedBodyState::getCoMVelocity_H() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotationRate_W() const
+Eigen::Vector3d ReducedBodyState::getAngularVelocity_W() const
 {
 	return angular_vel;
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotationRate_B() const
+Eigen::Vector3d ReducedBodyState::getAngularVelocity_B() const
 {
-	return frame_tf_.fromWorldToBaseFrame(getRotationRate_W(),
+	return frame_tf_.fromWorldToBaseFrame(getAngularVelocity_W(),
 										  getOrientation_W());
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotationRate_H() const
+Eigen::Vector3d ReducedBodyState::getAngularVelocity_H() const
 {
-	return frame_tf_.fromWorldToHorizontalFrame(getRotationRate_W(),
+	return frame_tf_.fromWorldToHorizontalFrame(getAngularVelocity_W(),
 												getRPY_W());
 }
 
@@ -100,22 +100,22 @@ Eigen::Vector3d ReducedBodyState::getCoMAcceleration_H() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotAcceleration_W() const
+Eigen::Vector3d ReducedBodyState::getAngularAcceleration_W() const
 {
 	return angular_acc;
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotAcceleration_B() const
+Eigen::Vector3d ReducedBodyState::getAngularAcceleration_B() const
 {
-	return frame_tf_.fromWorldToBaseFrame(getRotAcceleration_W(),
+	return frame_tf_.fromWorldToBaseFrame(getAngularAcceleration_W(),
 										  getOrientation_W());
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotAcceleration_H() const
+Eigen::Vector3d ReducedBodyState::getAngularAcceleration_H() const
 {
-	return frame_tf_.fromWorldToHorizontalFrame(getRotAcceleration_W(),
+	return frame_tf_.fromWorldToHorizontalFrame(getAngularAcceleration_W(),
 												getRPY_W());
 }
 
@@ -381,19 +381,19 @@ void ReducedBodyState::setCoMVelocity_H(const Eigen::Vector3d& vel_H)
 }
 
 
-void ReducedBodyState::setRotationRate_W(const Eigen::Vector3d& rate_W)
+void ReducedBodyState::setAngularVelocity_W(const Eigen::Vector3d& rate_W)
 {
 	angular_vel = rate_W;
 }
 
 
-void ReducedBodyState::setRotationRate_B(const Eigen::Vector3d& rate_B)
+void ReducedBodyState::setAngularVelocity_B(const Eigen::Vector3d& rate_B)
 {
 	angular_vel = frame_tf_.fromBaseToWorldFrame(rate_B, getOrientation_W());
 }
 
 
-void ReducedBodyState::setRotationRate_H(const Eigen::Vector3d& rate_H)
+void ReducedBodyState::setAngularVelocity_H(const Eigen::Vector3d& rate_H)
 {
 	angular_vel = frame_tf_.fromHorizontalToWorldFrame(rate_H, getRPY_W());
 }
@@ -417,19 +417,19 @@ void ReducedBodyState::setCoMAcceleration_H(const Eigen::Vector3d& acc_H)
 }
 
 
-void ReducedBodyState::setRotAcceleration_W(const Eigen::Vector3d& rotacc_W)
+void ReducedBodyState::setAngularAcceleration_W(const Eigen::Vector3d& rotacc_W)
 {
 	angular_acc = rotacc_W;
 }
 
 
-void ReducedBodyState::setRotAcceleration_B(const Eigen::Vector3d& rotacc_B)
+void ReducedBodyState::setAngularAcceleration_B(const Eigen::Vector3d& rotacc_B)
 {
 	angular_acc = frame_tf_.fromBaseToWorldFrame(rotacc_B, getOrientation_W());
 }
 
 
-void ReducedBodyState::setRotAcceleration_H(const Eigen::Vector3d& rotacc_H)
+void ReducedBodyState::setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H)
 {
 	angular_acc = frame_tf_.fromHorizontalToWorldFrame(rotacc_H, getRPY_W());
 }

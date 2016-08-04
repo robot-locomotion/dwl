@@ -676,8 +676,8 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 	full_state.setBaseAcceleration_W(reduced_state.com_acc);
 
 	full_state.setBaseRPY_W(reduced_state.angular_pos);
-	full_state.setBaseRotationRate_W(reduced_state.angular_vel);
-	full_state.setBaseRotAcceleration_W(reduced_state.angular_acc);
+	full_state.setBaseAngularVelocity_W(reduced_state.angular_vel);
+	full_state.setBaseAngularAcceleration_W(reduced_state.angular_acc);
 
 
 	// Adding the contact positions, velocities, accelerations and condition
@@ -755,8 +755,8 @@ void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 	reduced_state.com_acc = full_state.getBaseAcceleration_W();
 
 	reduced_state.angular_pos = full_state.getBaseRPY_W();
-	reduced_state.angular_vel = full_state.getBaseRotationRate_W();
-	reduced_state.angular_acc = full_state.getBaseRotAcceleration_W();
+	reduced_state.angular_vel = full_state.getBaseAngularVelocity_W();
+	reduced_state.angular_acc = full_state.getBaseAngularAcceleration_W();
 
 	// Computing the CoP in the world frame
 	Eigen::Vector3d cop_B;

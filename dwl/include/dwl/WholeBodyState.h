@@ -98,14 +98,14 @@ class WholeBodyState
 		/** @brief Gets the base velocity in the horizontal frame */
 		Eigen::Vector3d getBaseVelocity_H() const;
 
-		/** @brief Gets the base rotation rate in the world frame */
-		Eigen::Vector3d getBaseRotationRate_W() const;
+		/** @brief Gets the base angular velocity in the world frame */
+		Eigen::Vector3d getBaseAngularVelocity_W() const;
 
-		/** @brief Gets the base rotation rate in the base frame */
-		Eigen::Vector3d getBaseRotationRate_B() const;
+		/** @brief Gets the base angular velocity in the base frame */
+		Eigen::Vector3d getBaseAngularVelocity_B() const;
 
-		/** @brief Gets the base rotation rate in the horizontal frame */
-		Eigen::Vector3d getBaseRotationRate_H() const;
+		/** @brief Gets the base angular velocity in the horizontal frame */
+		Eigen::Vector3d getBaseAngularVelocity_H() const;
 
 		/** @brief Gets the base acceleration in the world frame */
 		Eigen::Vector3d getBaseAcceleration_W() const;
@@ -116,14 +116,14 @@ class WholeBodyState
 		/** @brief Gets the base acceleration in the horizontal frame */
 		Eigen::Vector3d getBaseAcceleration_H() const;
 
-		/** @brief Gets the base rotation acceleration in the world frame */
-		Eigen::Vector3d getBaseRotAcceleration_W() const;
+		/** @brief Gets the base angular acceleration in the world frame */
+		Eigen::Vector3d getBaseAngularAcceleration_W() const;
 
-		/** @brief Gets the base rotation acceleration in the base frame */
-		Eigen::Vector3d getBaseRotAcceleration_B() const;
+		/** @brief Gets the base angular acceleration in the base frame */
+		Eigen::Vector3d getBaseAngularAcceleration_B() const;
 
-		/** @brief Gets the base rotation acceleration in the horizontal frame */
-		Eigen::Vector3d getBaseRotAcceleration_H() const;
+		/** @brief Gets the base angular acceleration in the horizontal frame */
+		Eigen::Vector3d getBaseAngularAcceleration_H() const;
 
 		// Base state setter functions
 		/** @brief Sets the base position in the world frame */
@@ -144,14 +144,14 @@ class WholeBodyState
 		/** @brief Sets the base velocity in the horizontal frame */
 		void setBaseVelocity_H(const Eigen::Vector3d& vel_H);
 
-		/** @brief Sets the base rotation rate in the world frame */
-		void setBaseRotationRate_W(const Eigen::Vector3d& rate_W);
+		/** @brief Sets the base angular velocity in the world frame */
+		void setBaseAngularVelocity_W(const Eigen::Vector3d& rate_W);
 
-		/** @brief Sets the base rotation rate in the base frame */
-		void setBaseRotationRate_B(const Eigen::Vector3d& rate_B);
+		/** @brief Sets the base angular velocity in the base frame */
+		void setBaseAngularVelocity_B(const Eigen::Vector3d& rate_B);
 
-		/** @brief Sets the base rotation rate in the horizontal frame */
-		void setBaseRotationRate_H(const Eigen::Vector3d& rate_H);
+		/** @brief Sets the base angular velocity in the horizontal frame */
+		void setBaseAngularVelocity_H(const Eigen::Vector3d& rate_H);
 
 		/** @brief Sets the base acceleration in the world frame */
 		void setBaseAcceleration_W(const Eigen::Vector3d& acc_W);
@@ -162,14 +162,14 @@ class WholeBodyState
 		/** @brief Sets the base acceleration in the horizontal frame */
 		void setBaseAcceleration_H(const Eigen::Vector3d& acc_H);
 
-		/** @brief Sets the base rotation acceleration in the world frame */
-		void setBaseRotAcceleration_W(const Eigen::Vector3d& rotacc_W);
+		/** @brief Sets the base angular acceleration in the world frame */
+		void setBaseAngularAcceleration_W(const Eigen::Vector3d& rotacc_W);
 
-		/** @brief Sets the base rotation acceleration in the base frame */
-		void setBaseRotAcceleration_B(const Eigen::Vector3d& rotacc_B);
+		/** @brief Sets the base angular acceleration in the base frame */
+		void setBaseAngularAcceleration_B(const Eigen::Vector3d& rotacc_B);
 
-		/** @brief Sets the base rotation acceleration in the horizontal frame */
-		void setBaseRotAcceleration_H(const Eigen::Vector3d& rotacc_H);
+		/** @brief Sets the base angular acceleration in the horizontal frame */
+		void setBaseAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
 
 
 		// Joint state getter functions
