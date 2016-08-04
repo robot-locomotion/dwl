@@ -286,6 +286,15 @@ class ReducedBodyState
 
 
 	private:
+		/**
+		 * @brief Computes the relative foot velocity w.r.t. the base expressed
+		 * in the world frame
+		 * @param std::string Name of the foot
+		 * @param const Eigen::Vector3d& Foot velocity expressed in the world frame
+		 */
+		Eigen::Vector3d computeRelativeFootVelocity_W(std::string name,
+													  const Eigen::Vector3d& vel_W);
+
 		/** @brief Frame transformations */
 		math::FrameTF frame_tf_;
 };
