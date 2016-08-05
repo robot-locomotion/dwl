@@ -69,19 +69,21 @@ Eigen::Matrix3d getRotationMatrix(const Eigen::Vector3d& rpy)
 
 double getRoll(const Eigen::Vector3d& rpy)
 {
-	return rpy[0];
+	return rpy(0);
 }
 
 
 double getPitch(const Eigen::Vector3d& rpy)
 {
-	return rpy[1];
+	return rpy(1);
 }
 
 
 double getYaw(const Eigen::Vector3d& rpy)
 {
-	return rpy[2];
+	return rpy(2);
+}
+
 
 Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy)
 {
