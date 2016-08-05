@@ -76,12 +76,51 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	Eigen::Quaterniond support_orientation;
 	support_orientation.setFromTwoVectors(ref_dir, support_normal_);
 	support_rpy_ = math::getRPY(support_orientation);
-	roll_spline_.setBoundary(0., params_W_.duration,
-							 (double) initial_state_.getRPY_W()(0),
-							 (double) support_rpy_(0));
-	pitch_spline_.setBoundary(0., params_W_.duration,
-							 (double) initial_state_.getRPY_W()(1),
-							 (double) support_rpy_(1));
+
+	// Computing the require roll and pitch velocities
+	double roll_delta = support_rpy_(0) - initial_state_.getRPY_W()(0);
+	double pitch_delta = support_rpy_(1) - initial_state_.getRPY_W()(1);
+	double roll_vel = roll_delta / params_W_.duration;
+	double pitch_vel = pitch_delta / params_W_.duration;
+
+	// Saturating the maximum roll and pitch displacement in case that we
+	// reach maximum velocity
+	double max_roll_vel = 0.2;
+	double max_pitch_vel = 0.2;
+	if (fabs(roll_vel) > max_roll_vel) {
+		double final_roll;
+		if (roll_vel >= 0)
+			final_roll =
+					initial_state_.getRPY_W()(0) + max_roll_vel * params_W_.duration;
+		else
+			final_roll =
+					initial_state_.getRPY_W()(0) - max_roll_vel * params_W_.duration;
+		roll_spline_.setBoundary(0., params_W_.duration,
+								 (double) initial_state_.getRPY_W()(0),
+								 final_roll);
+	} else {
+		roll_spline_.setBoundary(0., params_W_.duration,
+								 (double) initial_state_.getRPY_W()(0),
+								 (double) support_rpy_(0));
+	}
+
+	if (fabs(pitch_vel) > max_pitch_vel) {
+		double final_pitch;
+		if (pitch_vel >= 0)
+			final_pitch =
+					initial_state_.getRPY_W()(1) + max_pitch_vel * params_W_.duration;
+		else
+			final_pitch =
+					initial_state_.getRPY_W()(1) - max_pitch_vel * params_W_.duration;
+
+		pitch_spline_.setBoundary(0., params_W_.duration,
+								 (double) initial_state_.getRPY_W()(1),
+								 final_pitch);
+	} else {
+		pitch_spline_.setBoundary(0., params_W_.duration,
+								 (double) initial_state_.getRPY_W()(1),
+								 (double) support_rpy_(1));
+	}
 
 	init_response_ = true;
 }
