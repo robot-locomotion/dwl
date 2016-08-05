@@ -102,7 +102,7 @@ Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy)
 }
 
 
-Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx)
+Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx)
 {
 	// Getting the rpy vector
 	Eigen::Vector3d rpy = getRPY(rotation_mtx);
@@ -112,7 +112,7 @@ Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx)
 }
 
 
-Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion)
+Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion)
 {
 	// Getting the rpy vector
 	Eigen::Vector3d rpy = getRPY(quaternion);

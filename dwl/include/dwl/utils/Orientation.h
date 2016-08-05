@@ -82,21 +82,21 @@ double getYaw(const Eigen::Vector3d& rpy);
  * @param const Eigen::Vector3d& Roll, pitch and yaw vector
  * @return Eigen::Matrix3d Euler angle rates matrix
  */
-Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy);
+Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy);
 
 /**
  * @brief Gets the Euler angles rates matrix from rotation matrix
  * @param const Eigen::Matrix3d& Rotation matrix
  * @return Eigen::Matrix3d Euler angle rates matrix
  */
-Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx);
+Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx);
 
 /**
  * @brief Gets the Euler angles rates matrix from quaternion
  * @param const Eigen::Quaterniond& Quaternion
  * @return Eigen::Matrix3d Euler angle rates matrix
  */
-Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion);
+Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion);
 
 }
 }
