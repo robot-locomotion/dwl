@@ -45,7 +45,7 @@ Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& A, double tolerance)
 }
 
 
-Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector)
+Eigen::Matrix3d skewSymmetricMatrixFromVector(Eigen::Vector3d vector)
 {
 	Eigen::Matrix3d skew_symmetric_matrix;
 	skew_symmetric_matrix.setZero();

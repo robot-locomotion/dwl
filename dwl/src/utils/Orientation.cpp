@@ -69,19 +69,56 @@ Eigen::Matrix3d getRotationMatrix(const Eigen::Vector3d& rpy)
 
 double getRoll(const Eigen::Vector3d& rpy)
 {
-	return rpy[0];
+	return rpy(0);
 }
 
 
 double getPitch(const Eigen::Vector3d& rpy)
 {
-	return rpy[1];
+	return rpy(1);
 }
 
 
 double getYaw(const Eigen::Vector3d& rpy)
 {
-	return rpy[2];
+	return rpy(2);
+}
+
+
+Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy)
+{
+	double pitch = getPitch(rpy);
+	double yaw = getYaw(rpy);
+
+	// Computing the inverse of the Euler angle rates (EAR) matrix
+	// Note that the EAR matrix is computed using the following equation:
+	// E_ijk(φ,θ,ψ) := [R_k(ψ)^T R_j(θ)^T e_i, R_k(ψ)^T e_j, e_k]
+	Eigen::Matrix3d InverseEAR;
+	InverseEAR << cos(pitch) * cos(yaw), -sin(yaw), 0.,
+				  cos(pitch) * sin(yaw),  cos(yaw), 0.,
+							-sin(pitch), 		0., 1.;
+
+	return InverseEAR;
+}
+
+
+Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx)
+{
+	// Getting the rpy vector
+	Eigen::Vector3d rpy = getRPY(rotation_mtx);
+
+	// Getting the inverse of the Euler angle rates matrix
+	return getInverseEulerAnglesRatesMatrix(rpy);
+}
+
+
+Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion)
+{
+	// Getting the rpy vector
+	Eigen::Vector3d rpy = getRPY(quaternion);
+
+	// Getting the inverse of the Euler angle rates matrix
+	return getInverseEulerAnglesRatesMatrix(rpy);
 }
 
 }

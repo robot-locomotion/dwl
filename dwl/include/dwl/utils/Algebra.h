@@ -30,7 +30,7 @@ Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& matrix,
  * @param Eigen::Vector3d 3d vector
  * @return Returns the skew symmetric matrix
  */
-Eigen::Matrix3d skewSymmentricMatrixFrom3DVector(Eigen::Vector3d vector);
+Eigen::Matrix3d skewSymmetricMatrixFromVector(Eigen::Vector3d vector);
 
 /**
  * @brief Solve a linear system of equations (Ax = b) by applying the Gaussian
