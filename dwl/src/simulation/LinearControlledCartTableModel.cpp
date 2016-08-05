@@ -71,7 +71,7 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	// Computing the normal vector of the support region
 	math::computePlaneParameters(support_normal_, vertices);
 
-	// Initializyng the splinners of the roll and pitch angles
+	// Initializing the splinners of the roll and pitch angles
 	Eigen::Vector3d ref_dir = Eigen::Vector3d::UnitZ();
 	Eigen::Quaterniond support_orientation;
 	support_orientation.setFromTwoVectors(ref_dir, support_normal_);

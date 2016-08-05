@@ -628,7 +628,9 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 
 			// Adding the foot states w.r.t. the CoM frame
 			Eigen::Vector3d com_disp_W = com_pos - phase_state_.com_pos;
-			state.setFootPosition_H(name, actual_pos_H - com_disp_W);
+			Eigen::Vector3d com_disp_H =
+					frame_tf_.mapWorldToHorizontalFrame(com_disp_W, state.getRPY_W());
+			state.setFootPosition_H(name, actual_pos_H - com_disp_H);
 			state.setFootVelocity_H(name, -com_vel);
 			state.setFootAcceleration_H(name, -com_vel, -com_acc);
 		}
