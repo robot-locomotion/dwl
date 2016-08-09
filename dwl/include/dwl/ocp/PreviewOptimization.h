@@ -184,12 +184,12 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/**
 		 * @brief Saves a state and preview control pairs
-		 * @param simulation::ReducedBodyState& Reduced-body state
-		 * @param simulation::PreviewControl& Preview control sequence
+		 * @param const ReducedBodyState& Reduced-body state
+		 * @param const simulation::PreviewControl& Preview control sequence
 		 * @param std::string Filename
 		 */
-		void saveControl(ReducedBodyState& state,
-						 simulation::PreviewControl& control,
+		void saveControl(const ReducedBodyState& state,
+						 const simulation::PreviewControl& control,
 						 std::string filename);
 
 		/**
