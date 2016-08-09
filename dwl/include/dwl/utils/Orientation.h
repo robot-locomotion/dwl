@@ -27,30 +27,31 @@ Eigen::Vector3d getRPY(const Eigen::Matrix3d& rotation_mtx);
 Eigen::Vector3d getRPY(const Eigen::Quaterniond& quaternion);
 
 /**
- * @brief Gets the quaternion, i.e. the scalar (w) and vector (x,y,z) components from
- * rotation matrix
+ * @brief Gets the quaternion, i.e. the scalar (w) and vector (x,y,z)
+ * components from rotation matrix
  * @param const Eigen::Matrix3d& Rotation matrix
  * @return Eigen::Quaterniond Quaternion
  */
 Eigen::Quaterniond getQuaternion(const Eigen::Matrix3d& rotation_mtx);
 
 /**
- * @brief Gets the quaternion, i.e. the scalar (w) and vector (x,y,z) components from
- * roll, pitch and yaw angles
+ * @brief Gets the quaternion, i.e. the scalar (w) and vector (x,y,z)
+ * components from roll, pitch and yaw angles
  * @param const Eigen::Matrix3d& Roll, pitch and yaw angles
  * @return Eigen::Quaterniond Quaternion
  */
 Eigen::Quaterniond getQuaternion(const Eigen::Vector3d& rpy);
 
 /**
- * @brief Gets the rotation matrix from quaternion
+ * @brief Gets the rotation matrix from local to world frame given a quaternion
  * @param const Eigen::Quaterniond& Quaternion
  * @return Eigen::Matrix3d Rotation matrix
  */
 Eigen::Matrix3d getRotationMatrix(const Eigen::Quaterniond& quaternion);
 
 /**
- * @brief Gets the rotation matrix from the roll, pitch and yaw angles
+ * @brief Gets the rotation matrix from local to world frame given
+ * the roll, pitch and yaw angles
  * @param const Eigen::Quaterniond& Quaternion
  * @return Eigen::Matrix3d Rotation matrix
  */
