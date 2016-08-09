@@ -118,6 +118,12 @@ class ReducedBodyState
 		/** @brief Gets the base angular acceleration in the horizontal frame */
 		Eigen::Vector3d getAngularAcceleration_H() const;
 
+
+		// CoP state getter functions
+		/** @brief Gets the CoP position */
+		Eigen::Vector3d getCoPPosition_W() const;
+
+
 		// Foot state getter functions
 		/** @brief Gets the foot position expressed in the world frame */
 		Eigen::Vector3d getFootPosition_W(FootIterator it) const;
@@ -220,6 +226,10 @@ class ReducedBodyState
 		/** @brief Sets the base angular acceleration in the horizontal frame */
 		void setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
 
+
+		// CoP state setter functions
+		/** @brief Sets the CoP position */
+		void setCoPPosition_W(const Eigen::Vector3d& cop_W);
 
 		// Foot state setter functions
 		/** @brief Sets the foot position expressed in the world frame */

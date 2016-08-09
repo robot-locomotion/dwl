@@ -126,6 +126,12 @@ Eigen::Vector3d ReducedBodyState::getAngularAcceleration_H() const
 }
 
 
+Eigen::Vector3d ReducedBodyState::getCoPPosition_W() const
+{
+	return cop;
+}
+
+
 Eigen::Vector3d ReducedBodyState::getFootPosition_W(FootIterator it) const
 {
 	return frame_tf_.fromBaseToWorldFrame(it->second, getRPY_W());
@@ -444,6 +450,12 @@ void ReducedBodyState::setAngularAcceleration_B(const Eigen::Vector3d& rotacc_B)
 void ReducedBodyState::setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H)
 {
 	angular_acc = frame_tf_.fromHorizontalToWorldFrame(rotacc_H, getRPY_W());
+}
+
+
+void ReducedBodyState::setCoPPosition_W(const Eigen::Vector3d& cop_W)
+{
+	cop = cop_W;
 }
 
 
