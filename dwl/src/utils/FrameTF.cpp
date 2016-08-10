@@ -64,7 +64,7 @@ Eigen::Vector3d FrameTF::fromBaseToWorldFrame(const Eigen::Vector3d& vec_B,
 Eigen::Vector3d FrameTF::fromBaseToHorizontalFrame(const Eigen::Vector3d& vec_B,
 												   const Eigen::Vector3d& rpy) const
 {
-	return getRotBaseToHF(rpy) * vec_B;
+	return getRotBaseToHorizontal(rpy) * vec_B;
 }
 
 
@@ -72,7 +72,7 @@ Eigen::Vector3d FrameTF::fromBaseToHorizontalFrame(const Eigen::Vector3d& vec_B,
 												   const Eigen::Quaterniond& q) const
 {
 	Eigen::Vector3d rpy = math::getRPY(q);
-	return getRotBaseToHF(rpy) * vec_B;
+	return getRotBaseToHorizontal(rpy) * vec_B;
 }
 
 
@@ -94,7 +94,7 @@ Eigen::Vector3d FrameTF::fromHorizontalToWorldFrame(const Eigen::Vector3d& vec_H
 Eigen::Vector3d FrameTF::fromHorizontalToBaseFrame(const Eigen::Vector3d& vec_H,
 												   const Eigen::Vector3d& rpy) const
 {
-	return getRotBaseToHF(rpy).inverse() * vec_H;
+	return getRotBaseToHorizontal(rpy).inverse() * vec_H;
 }
 
 
@@ -102,7 +102,7 @@ Eigen::Vector3d FrameTF::fromHorizontalToBaseFrame(const Eigen::Vector3d& vec_H,
 												   const Eigen::Quaterniond& q) const
 {
 	Eigen::Vector3d rpy = math::getRPY(q);
-	return getRotBaseToHF(rpy).inverse() * vec_H;
+	return getRotBaseToHorizontal(rpy).inverse() * vec_H;
 }
 
 
