@@ -42,9 +42,8 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	// Saving the SLIP control params in the world frame
 	params_W_.duration = params_H.duration;
 	params_W_.cop_shift =
-			frame_tf_.mapHorizontalToWorldFrame(params_H.cop_shift,
-												initial_state_.getRPY_W());
-
+			frame_tf_.fromHorizontalToWorldFrame(params_H.cop_shift,
+												 initial_state_.getRPY_W());
 	// Computing the coefficients of the Cart-Table response
 	height_ = initial_state_.com_pos(rbd::Z) - initial_state_.cop(rbd::Z);
 	omega_ = sqrt(properties_.gravity / height_);
