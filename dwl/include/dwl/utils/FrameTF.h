@@ -112,7 +112,7 @@ class FrameTF
 
 	private:
 		/** @brief Computes the rotation matrix from world to horizontal frame */
-		Eigen::Matrix3d inline getRotWorldToHF(const Eigen::Vector3d& rpy) const {
+		Eigen::Matrix3d inline getRotHorizontalToWorld(const Eigen::Vector3d& rpy) const {
 			// Note that the roll and pitch components are zero w.r.t. the
 			// world frame
 			Eigen::Vector3d rpy_H(0., 0., rpy(2));
