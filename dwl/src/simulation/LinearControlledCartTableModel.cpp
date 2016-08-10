@@ -44,6 +44,7 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	params_W_.cop_shift =
 			frame_tf_.fromHorizontalToWorldFrame(params_H.cop_shift,
 												 initial_state_.getRPY_W());
+
 	// Computing the coefficients of the Cart-Table response
 	height_ = initial_state_.getCoMPosition_W()(rbd::Z) -
 			  initial_state_.getCoPPosition_W()(rbd::Z);
