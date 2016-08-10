@@ -45,11 +45,14 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 			frame_tf_.fromHorizontalToWorldFrame(params_H.cop_shift,
 												 initial_state_.getRPY_W());
 	// Computing the coefficients of the Cart-Table response
-	height_ = initial_state_.com_pos(rbd::Z) - initial_state_.cop(rbd::Z);
+	height_ = initial_state_.getCoMPosition_W()(rbd::Z) -
+			  initial_state_.getCoPPosition_W()(rbd::Z);
 	omega_ = sqrt(properties_.gravity / height_);
 	double alpha = 2 * omega_ * params_W_.duration;
-	Eigen::Vector2d hor_proj = (initial_state_.com_pos - initial_state_.cop).head<2>();
-	Eigen::Vector2d hor_disp = initial_state_.com_vel.head<2>() * params_W_.duration;
+	Eigen::Vector2d hor_proj =
+			(initial_state_.getCoMPosition_W() - initial_state_.getCoPPosition_W()).head<2>();
+	Eigen::Vector2d hor_disp =
+			initial_state_.getCoMVelocity_W().head<2>() * params_W_.duration;
 	beta_1_ = hor_proj / 2 +
 			(hor_disp - params_W_.cop_shift.head<2>()) / alpha;
 	beta_2_ = hor_proj / 2 -
@@ -169,7 +172,7 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 
 	// Computing the CoP position given the linear assumption
 	Eigen::Vector3d delta_cop = (dt / params_W_.duration) * params_W_.cop_shift;
-	state.cop = initial_state_.cop + delta_cop;
+	state.setCoPPosition_W(initial_state_.getCoPPosition_W() + delta_cop);
 
 	// Computing the horizontal motion of the CoM according to
 	// the cart-table system
