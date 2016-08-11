@@ -191,6 +191,15 @@ struct SwingParams
 };
 
 
+struct StepCommand
+{
+	StepCommand() : duration(0.), length(0.) {}
+	StepCommand(const double& _duration,
+				const double& _length) : duration(_duration), length(_length) {}
+
+	double duration;
+	double length;
+};
 struct PreviewState
 {
 	double height;

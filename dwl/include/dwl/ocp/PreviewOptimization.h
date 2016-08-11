@@ -126,7 +126,7 @@ class PreviewOptimization : public model::OptimizationModel
 		 * @param double Step duration
 		 * @param double Step distance
 		 */
-		void setDesiredStep(double duration,
+		void setStepCommand(double duration,
 							double distance);
 
 		/**
@@ -279,8 +279,7 @@ class PreviewOptimization : public model::OptimizationModel
 		ReducedBodyTrajectory phase_transitions_;
 
 		/** @brief Desired states */
-		double desired_step_duration_;
-		double desired_step_length_B_;
+		simulation::StepCommand actual_command_;
 		double desired_yaw_B_;
 
 		/** @brief Weights of the cost functions */
