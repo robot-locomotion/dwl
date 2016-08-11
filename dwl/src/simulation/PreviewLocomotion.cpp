@@ -80,8 +80,35 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 }
 
 
+void PreviewLocomotion::readPreviewSequence(PreviewData& data,
 											std::string filename)
 {
+	YamlWrapper yaml_reader(filename);
+	YamlNamespace datapoint_ns = {"preview_sequence"};
+
+	// Reading the number of datapoint
+	int num_datapoint;
+	if (!yaml_reader.read(num_datapoint, "number_datapoint", datapoint_ns)) {
+		printf(RED "Error: the number of datapoint was not found\n" COLOR_RESET);
+		return;
+	}
+
+	// Reading the preview sequence
+	data.resize(num_datapoint);
+	for (int k = 0; k < num_datapoint; k++) {
+		YamlNamespace data_ns = {"preview_sequence",
+								 "datapoint_" + std::to_string(k)};
+
+		// Reading the actual preview data point
+		readPreviewSequence(data[k].command,
+							data[k].state,
+							data[k].control,
+							filename,
+							data_ns);
+	}
+}
+
+
 void PreviewLocomotion::readPreviewSequence(StepCommand& command,
 											PreviewState& state,
 											PreviewControl& control,

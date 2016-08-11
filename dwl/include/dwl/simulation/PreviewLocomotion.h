@@ -298,8 +298,18 @@ class PreviewLocomotion
 		void resetFromURDFModel(std::string urdf_model,
 								std::string system_file = std::string());
 
+
 		/**
-		 * @brief Reads the preview sequence from a Yaml file
+		 * @brief Reads the entire preview sequence from a Yaml file
+		 * @param PreviewData& Preview data
+		 * @param std::string Filename
+		 */
+		void readPreviewSequence(PreviewData& data,
+								 std::string filename);
+
+		/**
+		 * @brief Reads the preview sequence from a Yaml file defined in
+		 * specific namespace
 		 * @param StepCommand& Step command
 		 * @param PreviewState& Preview state
 		 * @param PreviewControl& Preview control parameters
