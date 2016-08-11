@@ -80,9 +80,13 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 }
 
 
-void PreviewLocomotion::readPreviewSequence(PreviewState& state,
-											PreviewControl& control,
 											std::string filename)
+{
+void PreviewLocomotion::readPreviewSequence(StepCommand& command,
+											PreviewState& state,
+											PreviewControl& control,
+											std::string filename,
+											 YamlNamespace seq_ns)
 {
 	// Checking that the robot model was initialized
 	if (!robot_model_) {
@@ -94,8 +98,22 @@ void PreviewLocomotion::readPreviewSequence(PreviewState& state,
 
 	// All the preview sequence data have to be inside the state and
 	// preview_control namespaces
-	YamlNamespace state_ns = {"preview_sequence", "state"};
-	YamlNamespace control_ns = {"preview_sequence", "preview_control"};
+	YamlNamespace command_ns = seq_ns;
+	YamlNamespace state_ns = seq_ns;
+	YamlNamespace control_ns = seq_ns;
+	command_ns.push_back("command");
+	state_ns.push_back("state");
+	control_ns.push_back("preview_control");
+
+	// Reading the command
+	if (!yaml_reader.read(command.duration, "step_duration", command_ns)) {
+		printf(RED "Error: the step duration was not found\n" COLOR_RESET);
+		return;
+	}
+	if (!yaml_reader.read(command.length, "step_length", command_ns)) {
+		printf(RED "Error: the step length was not found\n" COLOR_RESET);
+		return;
+	}
 
 
 	// Reading the state
@@ -111,7 +129,14 @@ void PreviewLocomotion::readPreviewSequence(PreviewState& state,
 		printf(RED "Error: the CoM velocity was not found\n" COLOR_RESET);
 		return;
 	}
-
+	std::vector<std::string> support;
+	if (!yaml_reader.read(support, "support", state_ns)) {
+		printf(RED "Error: the support was not found\n" COLOR_RESET);
+		return;
+	}
+	state.support.clear();
+	for (unsigned int f = 0; f < support.size(); f++)
+		state.support[support[f]] = true;
 
 	// Reading the preview control data
 	// Reading the number of phases
@@ -125,8 +150,8 @@ void PreviewLocomotion::readPreviewSequence(PreviewState& state,
 	// Reading the preview parameters per phase
 	for (int k = 0; k < num_phases; k++) {
 		// Getting the phase namespace
-		YamlNamespace phase_ns = {"preview_sequence", "preview_control",
-								  "phase_" + std::to_string(k)};
+		YamlNamespace phase_ns = control_ns;
+		phase_ns.push_back("phase_" + std::to_string(k));
 
 		// Reading the preview duration
 		if (!yaml_reader.read(control.params[k].duration, "duration", phase_ns)) {

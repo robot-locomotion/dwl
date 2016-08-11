@@ -21,6 +21,7 @@ struct PreviewPhase
 	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()), step_(false) {}
 	PreviewPhase(enum TypeOfPhases _type,
 				 rbd::BodySelector _feet = rbd::BodySelector()) :
+	PreviewPhase(const enum TypeOfPhases& _type,
 					 type(_type), feet(_feet), step_(false) {
 		// Setting the swing feet of this phase
 		for (unsigned int f = 0; f < feet.size(); f++)
@@ -200,13 +201,62 @@ struct StepCommand
 	double duration;
 	double length;
 };
+
+typedef std::map<std::string,bool> Support;
+typedef Support::const_iterator SupportIterator;
+
 struct PreviewState
 {
+	PreviewState() : height(0.), support(Support()) {
+		com_pos.setZero();
+		com_vel.setZero();
+	}
+
+	PreviewState(const double& _height,
+				 const Eigen::Vector2d& _com_pos,
+				 const Eigen::Vector2d& _com_vel,
+				 const Support& _support) : height(_height),
+						 com_pos(_com_pos), com_vel(_com_vel),
+						 support(_support) {}
+
+	PreviewState(const ReducedBodyState& state) {
+		// Frame transformer
+		math::FrameTF tf;
+
+		Eigen::Vector3d com_disp_W = state.com_pos - state.cop;
+		Eigen::Vector3d com_disp_H =
+				tf.fromWorldToHorizontalFrame(com_disp_W, state.getRPY_W());
+
+		height = com_disp_H(rbd::Z);
+		com_pos = (Eigen::Vector2d) com_disp_H.head<2>();
+		com_vel = (Eigen::Vector2d) state.getCoMVelocity_H().head<2>();
+		for (rbd::BodyVector3d::const_iterator it = state.support_region.begin();
+				it != state.support_region.end(); it++)
+			support[it->first] = true;
+	}
+
 	double height;
 	Eigen::Vector2d com_pos;
 	Eigen::Vector2d com_vel;
+	Support support;
 };
 
+
+struct PreviewSets
+{
+	PreviewSets() : command(StepCommand()),
+			state(PreviewState()), control(PreviewControl()){};
+	PreviewSets(const StepCommand& _command,
+				const PreviewState& _state,
+				const PreviewControl& _control) :
+					command(_command), state(_state), control(_control) {}
+
+	StepCommand command;
+	PreviewState state;
+	PreviewControl control;
+};
+
+typedef std::vector<PreviewSets> PreviewData;
 
 /**
  * @class PreviewLocomotion
@@ -250,13 +300,17 @@ class PreviewLocomotion
 
 		/**
 		 * @brief Reads the preview sequence from a Yaml file
+		 * @param StepCommand& Step command
 		 * @param PreviewState& Preview state
 		 * @param PreviewControl& Preview control parameters
 		 * @param std::string Filename
+		 * @param YamlNamespace Yaml namspace where is defined the preview sequence
 		 */
-		void readPreviewSequence(PreviewState& state,
+		void readPreviewSequence(StepCommand& command,
+								 PreviewState& state,
 								 PreviewControl& control,
-								 std::string filename);
+								 std::string filename,
+								 YamlNamespace seq_ns);
 
 		/**
 		 * @brief Sets the sample time of the preview trajectory
