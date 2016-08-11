@@ -105,6 +105,34 @@ Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation
  */
 Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion);
 
+
+/**
+ * @brief Gets the Euler angles rates matrix from RPY vector
+ * This matrix maps the euler rates (in ZYX convention) and omega vector
+ * where omega is expressed in base coordinates
+ * @param const Eigen::Vector3d& Roll, pitch and yaw vector
+ * @return Eigen::Matrix3d Euler angle rates matrix
+ */
+Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy);
+
+/**
+ * @brief Gets the Euler angles rates matrix from rotation matrix
+ * This matrix maps the euler rates (in ZYX convention) and omega vector
+ * where omega is expressed in base coordinates
+ * @param const Eigen::Vector3d& Roll, pitch and yaw vector
+ * @return Eigen::Matrix3d Euler angle rates matrix
+ */
+Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx);
+
+/**
+ * @brief Gets the Euler angles rates matrix from quaternion
+ * This matrix maps the euler rates (in ZYX convention) and omega vector
+ * where omega is expressed in base coordinates
+ * @param const Eigen::Vector3d& Roll, pitch and yaw vector
+ * @return Eigen::Matrix3d Euler angle rates matrix
+ */
+Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion);
+
 }
 }
 
