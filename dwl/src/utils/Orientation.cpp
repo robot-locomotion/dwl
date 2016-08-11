@@ -121,5 +121,40 @@ Eigen::Matrix3d getInverseEulerAnglesRatesMatrix(const Eigen::Quaterniond& quate
 	return getInverseEulerAnglesRatesMatrix(rpy);
 }
 
+
+Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy)
+{
+	Eigen::Matrix3d EAR;
+	double roll = getRoll(rpy);
+	double pitch = getPitch(rpy);
+	double yaw = getYaw(rpy);
+
+	EAR <<  1,          0,         	  -sin(pitch),
+			0,  cos(roll), cos(pitch) * sin(roll),
+			0, -sin(roll), cos(pitch) * cos(roll);
+
+	return EAR;
+}
+
+
+Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx)
+{
+	// Getting the rpy vector
+	Eigen::Vector3d rpy = getRPY(rotation_mtx);
+
+	// Getting the Euler angle rates matrix
+	return getEulerAnglesRatesMatrix(rpy);
+}
+
+
+Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion)
+{
+	// Getting the rpy vector
+	Eigen::Vector3d rpy = getRPY(quaternion);
+
+	// Getting the Euler angle rates matrix
+	return getEulerAnglesRatesMatrix(rpy);
+}
+
 }
 }
