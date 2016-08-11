@@ -516,7 +516,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 		std::string name = params.phase.feet[j];
 		Eigen::Vector3d stance_B = stance_posture_C_.find(name)->second;
 		Eigen::Vector3d stance_H =
-				frame_tf_.fromBaseToHorizontalFrame(stance_B, state.getRPY_W());
+				frame_tf_.fromBaseToHorizontalFrame(stance_B, terminal_state.getRPY_W());
 
 		// Getting the footshift control parameter
 		Eigen::Vector2d footshift_2d = params.phase.getFootShift(name);
@@ -534,7 +534,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 		// Note that, for those cases, we compensate small drift between the
 		// actual and the default postures, and the displacement of the CoM in z
 		if (terrain_.isTerrainInformation()) {
-			// Getting the terminal CoM position in the horizontal fram
+			// Getting the terminal CoM position in the horizontal frame
 			Eigen::Vector3d terminal_com_pos_H =
 					frame_tf_.fromWorldToHorizontalFrame(terminal_state.getCoMPosition_W(),
 														 terminal_state.getRPY_W());
