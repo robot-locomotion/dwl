@@ -139,6 +139,9 @@ class PreviewOptimization : public model::OptimizationModel
 		simulation::PreviewControl& getFullPreviewControl();
 		simulation::PreviewControl& getAppliedPreviewControl();
 
+		/** @brief Returns the applied step command */
+		simulation::StepCommand& getStepCommand();
+
 		/**
 		 * @brief Evaluates the bounds of the problem
 		 * @param Eigen::Ref<Eigen::VectorXd> Full state lower bound
