@@ -74,6 +74,9 @@ class cmaesSOFamily : public OptimizationSolver
 		/** @brief Sets the output file for plotting */
 		void setOutputFile(std::string filename);
 
+		/** @brief Sets if we desired to print in the terminal the solution */
+		void setPrintOption(bool print);
+
 		/**
 		 * @brief Initialization of the NLP solver using Ipopt
 		 * @return True if was initialized
@@ -108,6 +111,9 @@ class cmaesSOFamily : public OptimizationSolver
 
 		/** @brief Label that indicates if it's initialized the solver */
 		bool initialized_;
+
+		/** @brief Prints the solution **/
+		bool print_;
 
         /** @brief Function tolerance for convergent */
         double ftolerance_;
