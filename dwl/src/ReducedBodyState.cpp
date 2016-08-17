@@ -80,7 +80,7 @@ Eigen::Vector3d ReducedBodyState::getAngularVelocity_H() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getEulerRate() const
+Eigen::Vector3d ReducedBodyState::getRPYVelocity() const
 {
 	return math::getInverseEulerAnglesRatesMatrix(getRPY_W()).inverse() * angular_vel;
 }
@@ -411,9 +411,9 @@ void ReducedBodyState::setAngularVelocity_H(const Eigen::Vector3d& rate_H)
 }
 
 
-void ReducedBodyState::setEulerRate(const Eigen::Vector3d& euler_rate)
+void ReducedBodyState::setRPYVelocity(const Eigen::Vector3d& rpy_rate)
 {
-	angular_vel = math::getInverseEulerAnglesRatesMatrix(getRPY_W()) * euler_rate;
+	angular_vel = math::getInverseEulerAnglesRatesMatrix(getRPY_W()) * rpy_rate;
 }
 
 
