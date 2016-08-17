@@ -71,7 +71,7 @@ class ReducedBodyState
 
 		// CoM state getter functions
 		/** @brief Gets the CoM position in the world frame */
-		Eigen::Vector3d getCoMPosition_W() const;
+		const Eigen::Vector3d& getCoMPosition_W() const;
 
 		/** @brief Gets the base orientation in the world frame */
 		Eigen::Quaterniond getOrientation_W() const;
@@ -117,6 +117,9 @@ class ReducedBodyState
 
 		/** @brief Gets the base angular acceleration in the horizontal frame */
 		Eigen::Vector3d getAngularAcceleration_H() const;
+
+		/** @brief Gets the base RPY acceleration */
+		Eigen::Vector3d getRPYAcceleration() const;
 
 
 		// CoP state getter functions
@@ -225,6 +228,10 @@ class ReducedBodyState
 
 		/** @brief Sets the base angular acceleration in the horizontal frame */
 		void setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
+
+		/** @brief Sets the base RPY acceleration */
+		void setRPYAcceleration(const Eigen::Vector3d& rpy,
+								const Eigen::Vector3d& rpy_rate);
 
 
 		// CoP state setter functions
