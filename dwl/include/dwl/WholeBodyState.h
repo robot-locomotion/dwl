@@ -297,21 +297,67 @@ class WholeBodyState
 								 double force_threshold) const;
 		bool getContactCondition(std::string name) const;
 
-		// Contact state setter functions
+		// Contact state setter functions		
+		/** @brief Sets the contact position expressed in the world frame */
+		void setContactPosition_W(ContactIterator it);
+		void setContactPosition_W(std::string name,
+								  const Eigen::VectorXd& pos_W);
+		void setContactPosition_W(const rbd::BodyVectorXd& pos_W);
+		
+		
 		/** @brief Sets the contact positions in the base frame */
-		void setContactPosition_B(const rbd::BodyVectorXd& pos);
+		void setContactPosition_B(ContactIterator it);
 		void setContactPosition_B(std::string name,
-								 const Eigen::VectorXd& pos);
+								  const Eigen::VectorXd& pos_B);
+		void setContactPosition_B(const rbd::BodyVectorXd& pos_B);
+		
+		/** @brief Sets the contact position expressed in the horizontal frame */
+		void setContactPosition_H(ContactIterator it);
+		void setContactPosition_H(std::string name,
+							   const Eigen::VectorXd& pos_H);
+		void setContactPosition_H(const rbd::BodyVectorXd& pos_H);
+		
+		/** @brief Sets the contact velocity expressed in the world frame */
+		void setContactVelocity_W(ContactIterator it);
+		void setContactVelocity_W(std::string name,
+								  const Eigen::VectorXd& vel_W);
+		void setContactVelocity_W(const rbd::BodyVectorXd& vel_W);
 
-		/** @brief Sets the contact velocities in the base frame */
-		void setContactVelocity_B(const rbd::BodyVectorXd& vel);
+		/** @brief Sets the contact velocity expressed in the base frame */
+		void setContactVelocity_B(ContactIterator it);
 		void setContactVelocity_B(std::string name,
-								  const Eigen::VectorXd& vel);
+								  const Eigen::VectorXd& vel_B);
+		void setContactVelocity_B(const rbd::BodyVectorXd& vel_B);
 
-		/** @brief Sets the contact accelerations in the base frame */
-		void setContactAcceleration_B(const rbd::BodyVectorXd& acc);
+		/** @brief Sets the contact velocity expressed in the horizontal frame */
+		void setContactVelocity_H(ContactIterator it);
+		void setContactVelocity_H(std::string name,
+								  const Eigen::VectorXd& vel_H);
+		void setContactVelocity_H(const rbd::BodyVectorXd& vel_H);
+		
+		/** @brief Sets the contact acceleration expressed in the world frame */
+		void setContactAcceleration_W(ContactIterator vel_it,
+									  ContactIterator acc_it);
+		void setContactAcceleration_W(std::string name,
+									  const Eigen::VectorXd& vel_W,
+									  const Eigen::VectorXd& acc_W);
+		void setContactAcceleration_W(const rbd::BodyVectorXd& vel_W,
+									  const rbd::BodyVectorXd& acc_W);
+
+		/** @brief Sets the contact acceleration expressed in the base frame */
+		void setContactAcceleration_B(ContactIterator it);
 		void setContactAcceleration_B(std::string name,
-									  const Eigen::VectorXd& acc);
+									  const Eigen::VectorXd& acc_B);
+		void setContactAcceleration_B(const rbd::BodyVectorXd& acc_B);
+
+		/** @brief Sets the contact acceleration expressed in the horizontal frame */
+		void setContactAcceleration_H(ContactIterator vel_it,
+									  ContactIterator acc_it);
+		void setContactAcceleration_H(std::string name,
+									  const Eigen::VectorXd& vel_H,
+									  const Eigen::VectorXd& acc_H);
+		void setContactAcceleration_H(const rbd::BodyVectorXd& vel_H,
+									  const rbd::BodyVectorXd& acc_H);
 
 		/** @brief Sets the contact wrenches in the base frame */
 		void setContactWrench_B(const rbd::BodyVector6d& eff);
@@ -345,6 +391,26 @@ class WholeBodyState
 
 
 	private:
+		/**
+		 * @brief Computes the relative contact velocity w.r.t. the base expressed
+		 * in the world frame
+		 * @param std::string Name of the contact
+		 * @param const Eigen::Vector3d& Contact velocity expressed in the world frame
+		 */
+		Eigen::Vector3d computeRelativeContactVelocity_W(std::string name,
+														 const Eigen::Vector3d& vel_W);
+
+		/**
+		 * @brief Computes the relative contact acceleration w.r.t. the base expressed
+		 * in the world frame
+		 * @param std::string Name of the contact
+		 * @param const Eigen::Vector3d& Contact velocity expressed in the world frame
+		 * @param const Eigen::Vector3d& Contact acceleration expressed in the world frame
+		 */
+		Eigen::Vector3d computeRelativeContactAcceleration_W(std::string name,
+															 const Eigen::Vector3d& vel_W,
+															 const Eigen::Vector3d& acc_W);
+		
 		/** @brief Number of joints */
 		unsigned int num_joints_;
 

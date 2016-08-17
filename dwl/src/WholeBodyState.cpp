@@ -680,42 +680,227 @@ bool WholeBodyState::getContactCondition(std::string name) const
 }
 
 
-void WholeBodyState::setContactPosition_B(const rbd::BodyVectorXd& pos)
+void WholeBodyState::setContactPosition_W(ContactIterator it)
 {
-	contact_pos = pos;
+	setContactPosition_W(it->first, it->second);
+}
+
+
+void WholeBodyState::setContactPosition_W(std::string name,
+										  const Eigen::VectorXd& pos_W)
+{
+	contact_pos[name] =
+			frame_tf_.fromWorldToBaseFrame(pos_W - getBasePosition_W(),
+										   getBaseRPY_W());
+}
+
+
+void WholeBodyState::setContactPosition_W(const rbd::BodyVectorXd& pos_W)
+{
+	for (ContactIterator contact_it = pos_W.begin();
+			contact_it != pos_W.end(); contact_it++)
+		setContactPosition_W(contact_it);
+}
+
+
+void WholeBodyState::setContactPosition_B(ContactIterator it)
+{
+	setContactPosition_B(it->first, it->second);
 }
 
 
 void WholeBodyState::setContactPosition_B(std::string name,
-										  const Eigen::VectorXd& pos)
+										  const Eigen::VectorXd& pos_B)
 {
-	contact_pos[name] = pos;
+	contact_pos[name] = pos_B;
 }
 
 
-void WholeBodyState::setContactVelocity_B(const rbd::BodyVectorXd& vel)
+void WholeBodyState::setContactPosition_B(const rbd::BodyVectorXd& pos_B)
 {
-	contact_vel = vel;
+	contact_pos = pos_B;
+}
+
+
+void WholeBodyState::setContactPosition_H(ContactIterator it)
+{
+	setContactPosition_H(it->first, it->second);
+}
+
+
+void WholeBodyState::setContactPosition_H(std::string name,
+										  const Eigen::VectorXd& pos_H)
+{
+	contact_pos[name] =
+			frame_tf_.fromHorizontalToBaseFrame(pos_H, getBaseRPY_W());
+}
+
+
+void WholeBodyState::setContactPosition_H(const rbd::BodyVectorXd& pos_H)
+{
+	for (ContactIterator contact_it = pos_H.begin();
+			contact_it != pos_H.end(); contact_it++)
+		setContactPosition_H(contact_it);
+}
+
+
+void WholeBodyState::setContactVelocity_W(ContactIterator it)
+{
+	setContactVelocity_W(it->first, it->second);
+}
+
+
+void WholeBodyState::setContactVelocity_W(std::string name,
+										  const Eigen::VectorXd& vel_W)
+{
+	// Computing the contact velocity relatives base expressed in the world frame
+	Eigen::Vector3d vel_fb_W = computeRelativeContactVelocity_W(name, vel_W);
+
+	// Transforming the contact velocity in the base frame
+	contact_vel[name] = frame_tf_.fromWorldToBaseFrame(vel_fb_W, getBaseRPY_W());
+}
+
+
+void WholeBodyState::setContactVelocity_W(const rbd::BodyVectorXd& vel_W)
+{
+	for (ContactIterator contact_it = vel_W.begin();
+			contact_it != vel_W.end(); contact_it++)
+		setContactVelocity_W(contact_it);
+}
+
+
+void WholeBodyState::setContactVelocity_B(ContactIterator it)
+{
+	setContactVelocity_B(it->first, it->second);
 }
 
 
 void WholeBodyState::setContactVelocity_B(std::string name,
-										  const Eigen::VectorXd& vel)
+										  const Eigen::VectorXd& vel_B)
 {
-	contact_vel[name] = vel;
+	contact_vel[name] = vel_B;
 }
 
 
-void WholeBodyState::setContactAcceleration_B(const rbd::BodyVectorXd& acc)
+void WholeBodyState::setContactVelocity_B(const rbd::BodyVectorXd& vel_B)
 {
-	contact_acc = acc;
+	contact_vel = vel_B;
+}
+
+
+void WholeBodyState::setContactVelocity_H(ContactIterator it)
+{
+	setContactVelocity_H(it->first, it->second);
+}
+
+
+void WholeBodyState::setContactVelocity_H(std::string name,
+										  const Eigen::VectorXd& vel_H)
+{
+	// Computing the contact velocity expressed in the world frame
+	Eigen::Vector3d vel_W =
+			frame_tf_.fromHorizontalToWorldFrame(vel_H, getBaseRPY_W());
+
+	// Computing the contact velocity relatives base expressed in the world frame
+	Eigen::Vector3d vel_fb_W = computeRelativeContactVelocity_W(name, vel_W);
+
+	// Transforming the contact velocity in the base frame
+	contact_vel[name] =
+			frame_tf_.fromHorizontalToBaseFrame(vel_fb_W, getBaseRPY_W());
+}
+
+
+void WholeBodyState::setContactVelocity_H(const rbd::BodyVectorXd& vel_H)
+{
+	for (ContactIterator contact_it = vel_H.begin();
+			contact_it != vel_H.end(); contact_it++)
+		setContactVelocity_H(contact_it);
+}
+
+
+void WholeBodyState::setContactAcceleration_W(ContactIterator vel_it,
+											  ContactIterator acc_it)
+{
+	setContactAcceleration_W(vel_it->first, vel_it->second, acc_it->second);
+}
+
+
+void WholeBodyState::setContactAcceleration_W(std::string name,
+											  const Eigen::VectorXd& vel_W,
+											  const Eigen::VectorXd& acc_W)
+{
+	// Computing the contact acceleration relatives base expressed in the world frame
+	Eigen::Vector3d acc_fb_W = computeRelativeContactAcceleration_W(name, vel_W, acc_W);
+
+	// Transforming the contact acceleration in the base frame
+	contact_acc[name] = frame_tf_.fromWorldToBaseFrame(acc_fb_W, getBaseRPY_W());
+}
+
+
+void WholeBodyState::setContactAcceleration_W(const rbd::BodyVectorXd& vel_W,
+											  const rbd::BodyVectorXd& acc_W)
+{
+	for (ContactIterator acc_it = acc_W.begin();
+			acc_it != acc_W.end(); acc_it++) {
+		ContactIterator vel_it = vel_W.find(acc_it->first);
+		setContactAcceleration_W(vel_it, acc_it);
+	}
+}
+
+
+void WholeBodyState::setContactAcceleration_B(ContactIterator it)
+{
+	setContactAcceleration_B(it->first, it->second);
 }
 
 
 void WholeBodyState::setContactAcceleration_B(std::string name,
-											  const Eigen::VectorXd& acc)
+											  const Eigen::VectorXd& acc_B)
 {
-	contact_acc[name] = acc;
+	contact_acc[name] = acc_B;
+}
+
+
+void WholeBodyState::setContactAcceleration_B(const rbd::BodyVectorXd& acc_B)
+{
+	contact_acc = acc_B;
+}
+
+
+void WholeBodyState::setContactAcceleration_H(ContactIterator vel_it,
+											  ContactIterator acc_it)
+{
+	setContactAcceleration_H(vel_it->first, vel_it->second, acc_it->second);
+}
+
+
+void WholeBodyState::setContactAcceleration_H(std::string name,
+											  const Eigen::VectorXd& vel_H,
+											  const Eigen::VectorXd& acc_H)
+{
+	// Computing the contact velocity and acceleration expressed in the world frame
+	Eigen::Vector3d vel_W =
+			frame_tf_.fromHorizontalToWorldFrame(vel_H, getBaseRPY_W());
+	Eigen::Vector3d acc_W =
+			frame_tf_.fromHorizontalToWorldFrame(acc_H, getBaseRPY_W());
+
+	// Computing the contact acceleration relatives base expressed in the world frame
+	Eigen::Vector3d acc_fb_W = computeRelativeContactAcceleration_W(name, vel_W, acc_W);
+
+	// Transforming the contact acceleration in the base frame
+	contact_acc[name] =
+			frame_tf_.fromHorizontalToBaseFrame(acc_fb_W, getBaseRPY_W());
+}
+
+
+void WholeBodyState::setContactAcceleration_H(const rbd::BodyVectorXd& vel_H,
+											  const rbd::BodyVectorXd& acc_H)
+{
+	for (ContactIterator acc_it = acc_H.begin();
+			acc_it != acc_H.end(); acc_it++) {
+		ContactIterator vel_it = vel_H.find(acc_it->first);
+		setContactAcceleration_H(vel_it, acc_it);
+	}
 }
 
 
@@ -739,6 +924,37 @@ void WholeBodyState::setContactCondition(std::string name,
 		contact_eff[name] = ACTIVE_CONTACT;
 	else
 		contact_eff[name] = INACTIVE_CONTACT;
+}
+
+
+Eigen::Vector3d WholeBodyState::computeRelativeContactVelocity_W(std::string name,
+																 const Eigen::Vector3d& vel_W)
+{
+	// Computing the contact velocity relatives to the base, which is expressed in
+	// the world frame. Here we use the equation:
+	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega_base x X^W_foot/base
+	return vel_W - getBaseVelocity_W() -
+			getBaseAngularVelocity_W().cross((Eigen::Vector3d)getContactPosition_W(name));
+}
+
+
+Eigen::Vector3d WholeBodyState::computeRelativeContactAcceleration_W(std::string name,
+																	 const Eigen::Vector3d& vel_W,
+																	 const Eigen::Vector3d& acc_W)
+{
+	// Computing the skew symmetric matrixes
+	Eigen::Matrix3d C_omega =
+			math::skewSymmetricMatrixFromVector(getBaseAngularVelocity_W());
+	Eigen::Matrix3d C_omega_dot =
+			math::skewSymmetricMatrixFromVector(getBaseAngularAcceleration_W());
+
+	// Computing the contact acceleration relatives to the base, which is expressed
+	// in the world frame. Here we use the equation:
+	// Xdd^W_foot = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_foot/base
+	// + 2 C(w^W) Xd^W_foot/base
+	return acc_W - getBaseAcceleration_W() -
+			(C_omega_dot + C_omega * C_omega) * getContactPosition_W(name) -
+			2 * C_omega * computeRelativeContactVelocity_W(name, vel_W);
 }
 
 } //@namespace dwl
