@@ -4,15 +4,17 @@
 namespace dwl
 {
 
-ReducedBodyState::ReducedBodyState() : time(0.)
+ReducedBodyState::ReducedBodyState() : time(0.),
+		com_pos(Eigen::Vector3d::Zero()),
+		angular_pos(Eigen::Vector3d::Zero()),
+		com_vel(Eigen::Vector3d::Zero()),
+		angular_vel(Eigen::Vector3d::Zero()),
+		com_acc(Eigen::Vector3d::Zero()),
+		angular_acc(Eigen::Vector3d::Zero()),
+		cop(Eigen::Vector3d::Zero())
+
 {
-	com_pos.setZero();
-	angular_pos.setZero();
-	com_vel.setZero();
-	angular_vel.setZero();
-	com_acc.setZero();
-	angular_acc.setZero();
-	cop.setZero();
+
 }
 
 
@@ -22,7 +24,7 @@ ReducedBodyState::~ReducedBodyState()
 }
 
 
-Eigen::Vector3d ReducedBodyState::getCoMPosition_W() const
+const Eigen::Vector3d& ReducedBodyState::getCoMPosition_W() const
 {
 	return com_pos;
 }
@@ -34,13 +36,13 @@ Eigen::Quaterniond ReducedBodyState::getOrientation_W() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRPY_W() const
+const Eigen::Vector3d& ReducedBodyState::getRPY_W() const
 {
 	return angular_pos;
 }
 
 
-Eigen::Vector3d ReducedBodyState::getCoMVelocity_W() const
+const Eigen::Vector3d& ReducedBodyState::getCoMVelocity_W() const
 {
 	return com_vel;
 }
@@ -60,27 +62,35 @@ Eigen::Vector3d ReducedBodyState::getCoMVelocity_H() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotationRate_W() const
+const Eigen::Vector3d& ReducedBodyState::getAngularVelocity_W() const
 {
 	return angular_vel;
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotationRate_B() const
+Eigen::Vector3d ReducedBodyState::getAngularVelocity_B() const
 {
-	return frame_tf_.fromWorldToBaseFrame(getRotationRate_W(),
+	return frame_tf_.fromWorldToBaseFrame(getAngularVelocity_W(),
 										  getOrientation_W());
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotationRate_H() const
+Eigen::Vector3d ReducedBodyState::getAngularVelocity_H() const
 {
-	return frame_tf_.fromWorldToHorizontalFrame(getRotationRate_W(),
+	return frame_tf_.fromWorldToHorizontalFrame(getAngularVelocity_W(),
 												getRPY_W());
 }
 
 
-Eigen::Vector3d ReducedBodyState::getCoMAcceleration_W() const
+Eigen::Vector3d ReducedBodyState::getRPYVelocity() const
+{
+	Eigen::Matrix3d EAR =
+			math::getInverseEulerAnglesRatesMatrix(getRPY_W()).transpose();
+	return EAR * getAngularVelocity_W();
+}
+
+
+const Eigen::Vector3d& ReducedBodyState::getCoMAcceleration_W() const
 {
 	return com_acc;
 }
@@ -100,23 +110,253 @@ Eigen::Vector3d ReducedBodyState::getCoMAcceleration_H() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotAcceleration_W() const
+const Eigen::Vector3d& ReducedBodyState::getAngularAcceleration_W() const
 {
 	return angular_acc;
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotAcceleration_B() const
+Eigen::Vector3d ReducedBodyState::getAngularAcceleration_B() const
 {
-	return frame_tf_.fromWorldToBaseFrame(getRotAcceleration_W(),
+	return frame_tf_.fromWorldToBaseFrame(getAngularAcceleration_W(),
 										  getOrientation_W());
 }
 
 
-Eigen::Vector3d ReducedBodyState::getRotAcceleration_H() const
+Eigen::Vector3d ReducedBodyState::getAngularAcceleration_H() const
 {
-	return frame_tf_.fromWorldToHorizontalFrame(getRotAcceleration_W(),
+	return frame_tf_.fromWorldToHorizontalFrame(getAngularAcceleration_W(),
 												getRPY_W());
+}
+
+
+Eigen::Vector3d ReducedBodyState::getRPYAcceleration() const
+{
+	// rpy_ddot = EAR^-1 * (omega_dot - EAR_dot * rpy_dot)
+	Eigen::Matrix3d EAR =
+			math::getInverseEulerAnglesRatesMatrix(getRPY_W()).transpose();
+	Eigen::Matrix3d EARinv_dot =
+			math::getInverseEulerAnglesRatesMatrix_dot(getRPY_W(), getRPYVelocity());
+	return EAR * (getAngularAcceleration_W() - EARinv_dot * getRPYVelocity());
+}
+
+
+const Eigen::Vector3d& ReducedBodyState::getCoPPosition_W() const
+{
+	return cop;
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootPosition_W(FootIterator it) const
+{
+	return frame_tf_.fromBaseToWorldFrame(it->second, getRPY_W());
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootPosition_W(std::string name) const
+{
+	FootIterator foot_it = getFootPosition_B().find(name);
+	return getFootPosition_W(foot_it);
+}
+
+
+rbd::BodyVector3d ReducedBodyState::getFootPosition_W() const
+{
+	rbd::BodyVector3d foot_pos_W;
+	for (FootIterator foot_it = getFootPosition_B().begin();
+			foot_it != getFootPosition_B().end(); foot_it++) {
+		std::string name = foot_it->first;
+		foot_pos_W[name] = getFootPosition_W(foot_it);
+	}
+
+	return foot_pos_W;
+}
+
+
+const Eigen::Vector3d& ReducedBodyState::getFootPosition_B(FootIterator it) const
+{
+	return it->second;
+}
+
+
+const Eigen::Vector3d& ReducedBodyState::getFootPosition_B(std::string name) const
+{
+	FootIterator foot_it = foot_pos.find(name);
+	return getFootPosition_B(foot_it);
+}
+
+
+const rbd::BodyVector3d& ReducedBodyState::getFootPosition_B() const
+{
+	return foot_pos;
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootPosition_H(FootIterator it) const
+{
+	return frame_tf_.fromBaseToHorizontalFrame(it->second, getRPY_W());
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootPosition_H(std::string name) const
+{
+	FootIterator foot_it = getFootPosition_B().find(name);
+	return getFootPosition_H(foot_it);
+}
+
+
+rbd::BodyVector3d ReducedBodyState::getFootPosition_H() const
+{
+	rbd::BodyVector3d foot_pos_H;
+	for (FootIterator foot_it = getFootPosition_B().begin();
+			foot_it != getFootPosition_B().end(); foot_it++) {
+		std::string name = foot_it->first;
+		foot_pos_H[name] = getFootPosition_H(foot_it);
+	}
+
+	return foot_pos_H;
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootVelocity_W(FootIterator it) const
+{
+	return frame_tf_.fromBaseToWorldFrame(it->second, getRPY_W());
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootVelocity_W(std::string name) const
+{
+	FootIterator foot_it = getFootVelocity_B().find(name);
+	return getFootVelocity_W(foot_it);
+}
+
+
+rbd::BodyVector3d ReducedBodyState::getFootVelocity_W() const
+{
+	rbd::BodyVector3d foot_vel_W;
+	for (FootIterator foot_it = getFootVelocity_B().begin();
+			foot_it != getFootVelocity_B().end(); foot_it++) {
+		std::string name = foot_it->first;
+		foot_vel_W[name] = getFootVelocity_W(foot_it);
+	}
+
+	return foot_vel_W;
+}
+
+
+const Eigen::Vector3d& ReducedBodyState::getFootVelocity_B(FootIterator it) const
+{
+	return it->second;
+}
+
+
+const Eigen::Vector3d& ReducedBodyState::getFootVelocity_B(std::string name) const
+{
+	FootIterator foot_it = getFootVelocity_B().find(name);
+	return getFootVelocity_B(foot_it);
+}
+
+
+const rbd::BodyVector3d& ReducedBodyState::getFootVelocity_B() const
+{
+	return foot_vel;
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootVelocity_H(FootIterator it) const
+{
+	return frame_tf_.fromBaseToHorizontalFrame(it->second, getRPY_W());
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootVelocity_H(std::string name) const
+{
+	FootIterator foot_it = getFootVelocity_B().find(name);
+	return getFootVelocity_H(foot_it);
+}
+
+
+rbd::BodyVector3d ReducedBodyState::getFootVelocity_H() const
+{
+	rbd::BodyVector3d foot_vel_H;
+	for (FootIterator foot_it = getFootVelocity_B().begin();
+			foot_it != getFootVelocity_B().end(); foot_it++) {
+		std::string name = foot_it->first;
+		foot_vel_H[name] = getFootVelocity_H(foot_it);
+	}
+
+	return foot_vel_H;
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootAcceleration_W(FootIterator it) const
+{
+	return frame_tf_.fromBaseToWorldFrame(it->second, getRPY_W());
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootAcceleration_W(std::string name) const
+{
+	FootIterator foot_it = getFootAcceleration_B().find(name);
+	return getFootAcceleration_W(foot_it);
+}
+
+
+rbd::BodyVector3d ReducedBodyState::getFootAcceleration_W() const
+{
+	rbd::BodyVector3d foot_acc_W;
+	for (FootIterator foot_it = getFootAcceleration_B().begin();
+			foot_it != getFootAcceleration_B().end(); foot_it++) {
+		std::string name = foot_it->first;
+		foot_acc_W[name] = getFootAcceleration_W(foot_it);
+	}
+
+	return foot_acc_W;
+}
+
+
+const Eigen::Vector3d& ReducedBodyState::getFootAcceleration_B(FootIterator it) const
+{
+	return it->second;
+}
+
+
+const Eigen::Vector3d& ReducedBodyState::getFootAcceleration_B(std::string name) const
+{
+	FootIterator foot_it = getFootAcceleration_B().find(name);
+	return getFootAcceleration_B(foot_it);
+}
+
+
+const rbd::BodyVector3d& ReducedBodyState::getFootAcceleration_B() const
+{
+	return foot_acc;
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootAcceleration_H(FootIterator it) const
+{
+	return frame_tf_.fromBaseToHorizontalFrame(it->second, getRPY_W());
+}
+
+
+Eigen::Vector3d ReducedBodyState::getFootAcceleration_H(std::string name) const
+{
+	FootIterator foot_it = getFootAcceleration_B().find(name);
+	return getFootAcceleration_H(foot_it);
+}
+
+
+rbd::BodyVector3d ReducedBodyState::getFootAcceleration_H() const
+{
+	rbd::BodyVector3d foot_acc_H;
+	for (FootIterator foot_it = getFootAcceleration_B().begin();
+			foot_it != getFootAcceleration_B().end(); foot_it++) {
+		std::string name = foot_it->first;
+		foot_acc_H[name] = getFootAcceleration_H(foot_it);
+	}
+
+	return foot_acc_H;
 }
 
 
@@ -168,21 +408,27 @@ void ReducedBodyState::setCoMVelocity_H(const Eigen::Vector3d& vel_H)
 }
 
 
-void ReducedBodyState::setRotationRate_W(const Eigen::Vector3d& rate_W)
+void ReducedBodyState::setAngularVelocity_W(const Eigen::Vector3d& rate_W)
 {
 	angular_vel = rate_W;
 }
 
 
-void ReducedBodyState::setRotationRate_B(const Eigen::Vector3d& rate_B)
+void ReducedBodyState::setAngularVelocity_B(const Eigen::Vector3d& rate_B)
 {
 	angular_vel = frame_tf_.fromBaseToWorldFrame(rate_B, getOrientation_W());
 }
 
 
-void ReducedBodyState::setRotationRate_H(const Eigen::Vector3d& rate_H)
+void ReducedBodyState::setAngularVelocity_H(const Eigen::Vector3d& rate_H)
 {
 	angular_vel = frame_tf_.fromHorizontalToWorldFrame(rate_H, getRPY_W());
+}
+
+
+void ReducedBodyState::setRPYVelocity(const Eigen::Vector3d& rpy_rate)
+{
+	angular_vel = math::getInverseEulerAnglesRatesMatrix(getRPY_W()) * rpy_rate;
 }
 
 
@@ -204,21 +450,292 @@ void ReducedBodyState::setCoMAcceleration_H(const Eigen::Vector3d& acc_H)
 }
 
 
-void ReducedBodyState::setRotAcceleration_W(const Eigen::Vector3d& rotacc_W)
+void ReducedBodyState::setAngularAcceleration_W(const Eigen::Vector3d& rotacc_W)
 {
 	angular_acc = rotacc_W;
 }
 
 
-void ReducedBodyState::setRotAcceleration_B(const Eigen::Vector3d& rotacc_B)
+void ReducedBodyState::setAngularAcceleration_B(const Eigen::Vector3d& rotacc_B)
 {
 	angular_acc = frame_tf_.fromBaseToWorldFrame(rotacc_B, getOrientation_W());
 }
 
 
-void ReducedBodyState::setRotAcceleration_H(const Eigen::Vector3d& rotacc_H)
+void ReducedBodyState::setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H)
 {
 	angular_acc = frame_tf_.fromHorizontalToWorldFrame(rotacc_H, getRPY_W());
+}
+
+
+void ReducedBodyState::setRPYAcceleration(const Eigen::Vector3d& rpy_rate,
+											const Eigen::Vector3d& rpy_acc)
+{
+	// omega_dot = EAR * rpy_ddot + EAR_dot * rpy_dot
+	angular_acc =
+			math::getInverseEulerAnglesRatesMatrix(getRPY_W()) * rpy_acc +
+			math::getInverseEulerAnglesRatesMatrix_dot(getRPY_W(), rpy_rate) * rpy_rate;
+}
+
+
+void ReducedBodyState::setCoPPosition_W(const Eigen::Vector3d& cop_W)
+{
+	cop = cop_W;
+}
+
+
+void ReducedBodyState::setFootPosition_W(FootIterator it)
+{
+	setFootPosition_W(it->first, it->second);
+}
+
+
+void ReducedBodyState::setFootPosition_W(std::string name,
+										 const Eigen::Vector3d& pos_W)
+{
+	foot_pos[name] =
+			frame_tf_.fromWorldToBaseFrame(pos_W - getCoMPosition_W(),
+										   getRPY_W());
+}
+
+
+void ReducedBodyState::setFootPosition_W(const rbd::BodyVector3d& pos_W)
+{
+	for (FootIterator foot_it = pos_W.begin();
+			foot_it != pos_W.end(); foot_it++)
+		setFootPosition_W(foot_it);
+}
+
+
+void ReducedBodyState::setFootPosition_B(FootIterator it)
+{
+	setFootPosition_B(it->first, it->second);
+}
+
+
+void ReducedBodyState::setFootPosition_B(std::string name,
+										 const Eigen::Vector3d& pos_B)
+{
+	foot_pos[name] = pos_B;
+}
+
+
+void ReducedBodyState::setFootPosition_B(const rbd::BodyVector3d& pos_B)
+{
+	foot_pos = pos_B;
+}
+
+
+void ReducedBodyState::setFootPosition_H(FootIterator it)
+{
+	setFootPosition_H(it->first, it->second);
+}
+
+
+void ReducedBodyState::setFootPosition_H(std::string name,
+										 const Eigen::Vector3d& pos_H)
+{
+	foot_pos[name] =
+			frame_tf_.fromHorizontalToBaseFrame(pos_H, getRPY_W());
+}
+
+
+void ReducedBodyState::setFootPosition_H(const rbd::BodyVector3d& pos_H)
+{
+	for (FootIterator foot_it = pos_H.begin();
+			foot_it != pos_H.end(); foot_it++)
+		setFootPosition_H(foot_it);
+}
+
+
+void ReducedBodyState::setFootVelocity_W(FootIterator it)
+{
+	setFootVelocity_W(it->first, it->second);
+}
+
+
+void ReducedBodyState::setFootVelocity_W(std::string name,
+										 const Eigen::Vector3d& vel_W)
+{
+	// Computing the foot velocity relatives base expressed in the world frame
+	Eigen::Vector3d vel_fb_W = computeRelativeFootVelocity_W(name, vel_W);
+
+	// Transforming the foot velocity in the base frame
+	foot_vel[name] = frame_tf_.fromWorldToBaseFrame(vel_fb_W, getRPY_W());
+}
+
+
+void ReducedBodyState::setFootVelocity_W(const rbd::BodyVector3d& vel_W)
+{
+	for (FootIterator foot_it = vel_W.begin();
+			foot_it != vel_W.end(); foot_it++)
+		setFootVelocity_W(foot_it);
+}
+
+
+void ReducedBodyState::setFootVelocity_B(FootIterator it)
+{
+	setFootVelocity_B(it->first, it->second);
+}
+
+
+void ReducedBodyState::setFootVelocity_B(std::string name,
+										 const Eigen::Vector3d& vel_B)
+{
+	foot_vel[name] = vel_B;
+}
+
+
+void ReducedBodyState::setFootVelocity_B(const rbd::BodyVector3d& vel_B)
+{
+	foot_vel = vel_B;
+}
+
+
+void ReducedBodyState::setFootVelocity_H(FootIterator it)
+{
+	setFootVelocity_H(it->first, it->second);
+}
+
+
+void ReducedBodyState::setFootVelocity_H(std::string name,
+										 const Eigen::Vector3d& vel_H)
+{
+	// Computing the foot velocity expressed in the world frame
+	Eigen::Vector3d vel_W =
+			frame_tf_.fromHorizontalToWorldFrame(vel_H, getRPY_W());
+
+	// Computing the foot velocity relatives base expressed in the world frame
+	Eigen::Vector3d vel_fb_W = computeRelativeFootVelocity_W(name, vel_W);
+
+	// Transforming the foot velocity in the base frame
+	foot_vel[name] =
+			frame_tf_.fromHorizontalToBaseFrame(vel_fb_W, getRPY_W());
+}
+
+
+void ReducedBodyState::setFootVelocity_H(const rbd::BodyVector3d& vel_H)
+{
+	for (FootIterator foot_it = vel_H.begin();
+			foot_it != vel_H.end(); foot_it++)
+		setFootVelocity_H(foot_it);
+}
+
+
+void ReducedBodyState::setFootAcceleration_W(FootIterator vel_it,
+											 FootIterator acc_it)
+{
+	setFootAcceleration_W(vel_it->first, vel_it->second, acc_it->second);
+}
+
+
+void ReducedBodyState::setFootAcceleration_W(std::string name,
+											 const Eigen::Vector3d& vel_W,
+											 const Eigen::Vector3d& acc_W)
+{
+	// Computing the foot acceleration relatives base expressed in the world frame
+	Eigen::Vector3d acc_fb_W = computeRelativeFootAcceleration_W(name, vel_W, acc_W);
+
+	// Transforming the foot acceleration in the base frame
+	foot_acc[name] = frame_tf_.fromWorldToBaseFrame(acc_fb_W, getRPY_W());
+}
+
+
+void ReducedBodyState::setFootAcceleration_W(const rbd::BodyVector3d& vel_W,
+											 const rbd::BodyVector3d& acc_W)
+{
+	for (FootIterator acc_it = acc_W.begin();
+			acc_it != acc_W.end(); acc_it++) {
+		FootIterator vel_it = vel_W.find(acc_it->first);
+		setFootAcceleration_W(vel_it, acc_it);
+	}
+}
+
+
+void ReducedBodyState::setFootAcceleration_B(FootIterator it)
+{
+	setFootAcceleration_B(it->first, it->second);
+}
+
+
+void ReducedBodyState::setFootAcceleration_B(std::string name,
+											 const Eigen::Vector3d& acc_B)
+{
+	foot_acc[name] = acc_B;
+}
+
+
+void ReducedBodyState::setFootAcceleration_B(const rbd::BodyVector3d& acc_B)
+{
+	foot_acc = acc_B;
+}
+
+
+void ReducedBodyState::setFootAcceleration_H(FootIterator vel_it,
+		 	 	 	 	 	 	 	 	 	 FootIterator acc_it)
+{
+	setFootAcceleration_H(vel_it->first, vel_it->second, acc_it->second);
+}
+
+
+void ReducedBodyState::setFootAcceleration_H(std::string name,
+											 const Eigen::Vector3d& vel_H,
+											 const Eigen::Vector3d& acc_H)
+{
+	// Computing the foot velocity and acceleration expressed in the world frame
+	Eigen::Vector3d vel_W =
+			frame_tf_.fromHorizontalToWorldFrame(vel_H, getRPY_W());
+	Eigen::Vector3d acc_W =
+			frame_tf_.fromHorizontalToWorldFrame(acc_H, getRPY_W());
+
+	// Computing the foot acceleration relatives base expressed in the world frame
+	Eigen::Vector3d acc_fb_W = computeRelativeFootAcceleration_W(name, vel_W, acc_W);
+
+	// Transforming the foot acceleration in the base frame
+	foot_acc[name] =
+			frame_tf_.fromHorizontalToBaseFrame(acc_fb_W, getRPY_W());
+}
+
+
+void ReducedBodyState::setFootAcceleration_H(const rbd::BodyVector3d& vel_H,
+											 const rbd::BodyVector3d& acc_H)
+{
+	for (FootIterator acc_it = acc_H.begin();
+			acc_it != acc_H.end(); acc_it++) {
+		FootIterator vel_it = vel_H.find(acc_it->first);
+		setFootAcceleration_H(vel_it, acc_it);
+	}
+}
+
+
+Eigen::Vector3d ReducedBodyState::computeRelativeFootVelocity_W(std::string name,
+																const Eigen::Vector3d& vel_W)
+{
+	// Computing the foot velocity relatives to the base, which is expressed in
+	// the world frame. Here we use the equation:
+	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega_base x X^W_foot/base
+	return vel_W - getCoMVelocity_W() -
+			getAngularVelocity_W().cross(getFootPosition_W(name));
+}
+
+
+Eigen::Vector3d ReducedBodyState::computeRelativeFootAcceleration_W(std::string name,
+																	const Eigen::Vector3d& vel_W,
+																	const Eigen::Vector3d& acc_W)
+{
+	// Computing the skew symmetric matrixes
+	Eigen::Matrix3d C_omega =
+			math::skewSymmetricMatrixFromVector(getAngularVelocity_W());
+	Eigen::Matrix3d C_omega_dot =
+			math::skewSymmetricMatrixFromVector(getAngularAcceleration_W());
+
+	// Computing the foot acceleration relatives to the base, which is expressed
+	// in the world frame. Here we use the equation:
+	// Xdd^W_foot = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_foot/base
+	// + 2 C(w^W) Xd^W_foot/base
+	return acc_W - getCoMAcceleration_W() -
+			(C_omega_dot + C_omega * C_omega) * getFootPosition_W(name) -
+			2 * C_omega * computeRelativeFootVelocity_W(name, vel_W);
 }
 
 } //@namespace dwl

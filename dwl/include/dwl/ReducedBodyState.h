@@ -60,22 +60,27 @@ namespace dwl
  */
 class ReducedBodyState
 {
+	typedef rbd::BodyVector3d::const_iterator FootIterator;
+
 	public:
+		/** @brief Constructor function */
 		ReducedBodyState();
+
+		/** @brief Destructor function */
 		~ReducedBodyState();
 
 		// CoM state getter functions
 		/** @brief Gets the CoM position in the world frame */
-		Eigen::Vector3d getCoMPosition_W() const;
+		const Eigen::Vector3d& getCoMPosition_W() const;
 
 		/** @brief Gets the base orientation in the world frame */
 		Eigen::Quaterniond getOrientation_W() const;
 
 		/** @brief Gets the base RPY angles in the world frame */
-		Eigen::Vector3d getRPY_W() const;
+		const Eigen::Vector3d& getRPY_W() const;
 
 		/** @brief Gets the CoM velocity in the world frame */
-		Eigen::Vector3d getCoMVelocity_W() const;
+		const Eigen::Vector3d& getCoMVelocity_W() const;
 
 		/** @brief Gets the CoM velocity in the base frame */
 		Eigen::Vector3d getCoMVelocity_B() const;
@@ -83,17 +88,20 @@ class ReducedBodyState
 		/** @brief Gets the CoM velocity in the horizontal frame */
 		Eigen::Vector3d getCoMVelocity_H() const;
 
-		/** @brief Gets the base rotation rate in the world frame */
-		Eigen::Vector3d getRotationRate_W() const;
+		/** @brief Gets the base angular velocity in the world frame */
+		const Eigen::Vector3d& getAngularVelocity_W() const;
 
-		/** @brief Gets the base rotation rate in the base frame */
-		Eigen::Vector3d getRotationRate_B() const;
+		/** @brief Gets the base angular velocity in the base frame */
+		Eigen::Vector3d getAngularVelocity_B() const;
 
-		/** @brief Gets the base rotation rate in the horizontal frame */
-		Eigen::Vector3d getRotationRate_H() const;
+		/** @brief Gets the base angular velocity in the horizontal frame */
+		Eigen::Vector3d getAngularVelocity_H() const;
+
+		/** @brief Gets the base RPY velocity */
+		Eigen::Vector3d getRPYVelocity() const;
 
 		/** @brief Gets the CoM acceleration in the world frame */
-		Eigen::Vector3d getCoMAcceleration_W() const;
+		const Eigen::Vector3d& getCoMAcceleration_W() const;
 
 		/** @brief Gets the CoM acceleration in the base frame */
 		Eigen::Vector3d getCoMAcceleration_B() const;
@@ -101,14 +109,70 @@ class ReducedBodyState
 		/** @brief Gets the CoM acceleration in the horizontal frame */
 		Eigen::Vector3d getCoMAcceleration_H() const;
 
-		/** @brief Gets the base rotation acceleration in the world frame */
-		Eigen::Vector3d getRotAcceleration_W() const;
+		/** @brief Gets the base angular acceleration in the world frame */
+		const Eigen::Vector3d& getAngularAcceleration_W() const;
 
-		/** @brief Gets the base rotation acceleration in the base frame */
-		Eigen::Vector3d getRotAcceleration_B() const;
+		/** @brief Gets the base angular acceleration in the base frame */
+		Eigen::Vector3d getAngularAcceleration_B() const;
 
-		/** @brief Gets the base rotation acceleration in the horizontal frame */
-		Eigen::Vector3d getRotAcceleration_H() const;
+		/** @brief Gets the base angular acceleration in the horizontal frame */
+		Eigen::Vector3d getAngularAcceleration_H() const;
+
+		/** @brief Gets the base RPY acceleration */
+		Eigen::Vector3d getRPYAcceleration() const;
+
+
+		// CoP state getter functions
+		/** @brief Gets the CoP position */
+		const Eigen::Vector3d& getCoPPosition_W() const;
+
+
+		// Foot state getter functions
+		/** @brief Gets the foot position expressed in the world frame */
+		Eigen::Vector3d getFootPosition_W(FootIterator it) const;
+		Eigen::Vector3d getFootPosition_W(std::string name) const;
+		rbd::BodyVector3d getFootPosition_W() const;
+
+		/** @brief Gets the foot position expressed in the base frame */
+		const Eigen::Vector3d& getFootPosition_B(FootIterator it) const;
+		const Eigen::Vector3d& getFootPosition_B(std::string name) const;
+		const rbd::BodyVector3d& getFootPosition_B() const;
+
+		/** @brief Gets the foot position expressed in the horizontal frame */
+		Eigen::Vector3d getFootPosition_H(FootIterator it) const;
+		Eigen::Vector3d getFootPosition_H(std::string name) const;
+		rbd::BodyVector3d getFootPosition_H() const;
+
+		/** @brief Gets the foot velocity expressed in the world frame */
+		Eigen::Vector3d getFootVelocity_W(FootIterator it) const;
+		Eigen::Vector3d getFootVelocity_W(std::string name) const;
+		rbd::BodyVector3d getFootVelocity_W() const;
+
+		/** @brief Gets the foot velocity expressed in the base frame */
+		const Eigen::Vector3d& getFootVelocity_B(FootIterator it) const;
+		const Eigen::Vector3d& getFootVelocity_B(std::string name) const;
+		const rbd::BodyVector3d& getFootVelocity_B() const;
+
+		/** @brief Gets the foot velocity expressed in the horizontal frame */
+		Eigen::Vector3d getFootVelocity_H(FootIterator it) const;
+		Eigen::Vector3d getFootVelocity_H(std::string name) const;
+		rbd::BodyVector3d getFootVelocity_H() const;
+
+		/** @brief Gets the foot acceleration expressed in the world frame */
+		Eigen::Vector3d getFootAcceleration_W(FootIterator it) const;
+		Eigen::Vector3d getFootAcceleration_W(std::string name) const;
+		rbd::BodyVector3d getFootAcceleration_W() const;
+
+		/** @brief Gets the foot acceleration expressed in the base frame */
+		const Eigen::Vector3d& getFootAcceleration_B(FootIterator it) const;
+		const Eigen::Vector3d& getFootAcceleration_B(std::string name) const;
+		const rbd::BodyVector3d& getFootAcceleration_B() const;
+
+		/** @brief Gets the foot acceleration expressed in the horizontal frame */
+		Eigen::Vector3d getFootAcceleration_H(FootIterator it) const;
+		Eigen::Vector3d getFootAcceleration_H(std::string name) const;
+		rbd::BodyVector3d getFootAcceleration_H() const;
+
 
 		// Base state setter functions
 		/** @brief Sets the CoM position in the world frame */
@@ -135,14 +199,17 @@ class ReducedBodyState
 		/** @brief Sets the CoM velocity in the horizontal frame */
 		void setCoMVelocity_H(const Eigen::Vector3d& vel_H);
 
-		/** @brief Sets the base rotation rate in the world frame */
-		void setRotationRate_W(const Eigen::Vector3d& rate_W);
+		/** @brief Sets the base angular velocity in the world frame */
+		void setAngularVelocity_W(const Eigen::Vector3d& rate_W);
 
-		/** @brief Sets the base rotation rate in the base frame */
-		void setRotationRate_B(const Eigen::Vector3d& rate_B);
+		/** @brief Sets the base angular velocity in the base frame */
+		void setAngularVelocity_B(const Eigen::Vector3d& rate_B);
 
-		/** @brief Sets the base rotation rate in the horizontal frame */
-		void setRotationRate_H(const Eigen::Vector3d& rate_H);
+		/** @brief Sets the base angular velocity in the horizontal frame */
+		void setAngularVelocity_H(const Eigen::Vector3d& rate_H);
+
+		/** @brief Sets the base RPY velocity */
+		void setRPYVelocity(const Eigen::Vector3d& rpy_rate);
 
 		/** @brief Sets the CoM acceleration in the world frame */
 		void setCoMAcceleration_W(const Eigen::Vector3d& acc_W);
@@ -153,14 +220,84 @@ class ReducedBodyState
 		/** @brief Sets the CoM acceleration in the horizontal frame */
 		void setCoMAcceleration_H(const Eigen::Vector3d& acc_H);
 
-		/** @brief Sets the base rotation acceleration in the world frame */
-		void setRotAcceleration_W(const Eigen::Vector3d& rotacc_W);
+		/** @brief Sets the base angular acceleration in the world frame */
+		void setAngularAcceleration_W(const Eigen::Vector3d& rotacc_W);
 
-		/** @brief Sets the base rotation acceleration in the base frame */
-		void setRotAcceleration_B(const Eigen::Vector3d& rotacc_B);
+		/** @brief Sets the base angular acceleration in the base frame */
+		void setAngularAcceleration_B(const Eigen::Vector3d& rotacc_B);
 
-		/** @brief Sets the base rotation acceleration in the horizontal frame */
-		void setRotAcceleration_H(const Eigen::Vector3d& rotacc_H);
+		/** @brief Sets the base angular acceleration in the horizontal frame */
+		void setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
+
+		/** @brief Sets the base RPY acceleration */
+		void setRPYAcceleration(const Eigen::Vector3d& rpy,
+								const Eigen::Vector3d& rpy_rate);
+
+
+		// CoP state setter functions
+		/** @brief Sets the CoP position */
+		void setCoPPosition_W(const Eigen::Vector3d& cop_W);
+
+		// Foot state setter functions
+		/** @brief Sets the foot position expressed in the world frame */
+		void setFootPosition_W(FootIterator it);
+		void setFootPosition_W(std::string name,
+							   const Eigen::Vector3d& pos_W);
+		void setFootPosition_W(const rbd::BodyVector3d& pos_W);
+
+		/** @brief Sets the foot position expressed in the base frame */
+		void setFootPosition_B(FootIterator it);
+		void setFootPosition_B(std::string name,
+							   const Eigen::Vector3d& pos_B);
+		void setFootPosition_B(const rbd::BodyVector3d& pos_B);
+
+		/** @brief Sets the foot position expressed in the horizontal frame */
+		void setFootPosition_H(FootIterator it);
+		void setFootPosition_H(std::string name,
+							   const Eigen::Vector3d& pos_H);
+		void setFootPosition_H(const rbd::BodyVector3d& pos_H);
+
+		/** @brief Sets the foot velocity expressed in the world frame */
+		void setFootVelocity_W(FootIterator it);
+		void setFootVelocity_W(std::string name,
+							   const Eigen::Vector3d& vel_W);
+		void setFootVelocity_W(const rbd::BodyVector3d& vel_W);
+
+		/** @brief Sets the foot velocity expressed in the base frame */
+		void setFootVelocity_B(FootIterator it);
+		void setFootVelocity_B(std::string name,
+							   const Eigen::Vector3d& vel_B);
+		void setFootVelocity_B(const rbd::BodyVector3d& vel_B);
+
+		/** @brief Sets the foot velocity expressed in the horizontal frame */
+		void setFootVelocity_H(FootIterator it);
+		void setFootVelocity_H(std::string name,
+							   const Eigen::Vector3d& vel_H);
+		void setFootVelocity_H(const rbd::BodyVector3d& vel_H);
+
+		/** @brief Sets the foot acceleration expressed in the world frame */
+		void setFootAcceleration_W(FootIterator vel_it,
+				   	   	   	   	   FootIterator acc_it);
+		void setFootAcceleration_W(std::string name,
+								   const Eigen::Vector3d& vel_W,
+								   const Eigen::Vector3d& acc_W);
+		void setFootAcceleration_W(const rbd::BodyVector3d& vel_W,
+								   const rbd::BodyVector3d& acc_W);
+
+		/** @brief Sets the foot acceleration expressed in the base frame */
+		void setFootAcceleration_B(FootIterator it);
+		void setFootAcceleration_B(std::string name,
+								   const Eigen::Vector3d& acc_B);
+		void setFootAcceleration_B(const rbd::BodyVector3d& acc_B);
+
+		/** @brief Sets the foot acceleration expressed in the horizontal frame */
+		void setFootAcceleration_H(FootIterator vel_it,
+				   	   	   	   	   FootIterator acc_it);
+		void setFootAcceleration_H(std::string name,
+								   const Eigen::Vector3d& vel_H,
+								   const Eigen::Vector3d& acc_H);
+		void setFootAcceleration_H(const rbd::BodyVector3d& vel_H,
+								   const rbd::BodyVector3d& acc_H);
 
 
 		double time;
@@ -178,6 +315,26 @@ class ReducedBodyState
 
 
 	private:
+		/**
+		 * @brief Computes the relative foot velocity w.r.t. the base expressed
+		 * in the world frame
+		 * @param std::string Name of the foot
+		 * @param const Eigen::Vector3d& Foot velocity expressed in the world frame
+		 */
+		Eigen::Vector3d computeRelativeFootVelocity_W(std::string name,
+													  const Eigen::Vector3d& vel_W);
+
+		/**
+		 * @brief Computes the relative foot acceleration w.r.t. the base expressed
+		 * in the world frame
+		 * @param std::string Name of the foot
+		 * @param const Eigen::Vector3d& Foot velocity expressed in the world frame
+		 * @param const Eigen::Vector3d& Foot acceleration expressed in the world frame
+		 */
+		Eigen::Vector3d computeRelativeFootAcceleration_W(std::string name,
+														  const Eigen::Vector3d& vel_W,
+														  const Eigen::Vector3d& acc_W);
+
 		/** @brief Frame transformations */
 		math::FrameTF frame_tf_;
 };
