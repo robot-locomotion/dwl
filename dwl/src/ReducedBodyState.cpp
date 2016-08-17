@@ -4,15 +4,17 @@
 namespace dwl
 {
 
-ReducedBodyState::ReducedBodyState() : time(0.)
+ReducedBodyState::ReducedBodyState() : time(0.),
+		com_pos(Eigen::Vector3d::Zero()),
+		angular_pos(Eigen::Vector3d::Zero()),
+		com_vel(Eigen::Vector3d::Zero()),
+		angular_vel(Eigen::Vector3d::Zero()),
+		com_acc(Eigen::Vector3d::Zero()),
+		angular_acc(Eigen::Vector3d::Zero()),
+		cop(Eigen::Vector3d::Zero())
+
 {
-	com_pos.setZero();
-	angular_pos.setZero();
-	com_vel.setZero();
-	angular_vel.setZero();
-	com_acc.setZero();
-	angular_acc.setZero();
-	cop.setZero();
+
 }
 
 
