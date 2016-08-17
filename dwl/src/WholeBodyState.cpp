@@ -426,15 +426,113 @@ void WholeBodyState::setJointEffort(const Eigen::VectorXd& eff)
 }
 
 
+Eigen::VectorXd WholeBodyState::getContactPosition_W(ContactIterator it) const
+{
+	return frame_tf_.fromBaseToWorldFrame(it->second, getBaseRPY_W());
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactPosition_W(std::string name) const
+{
+	ContactIterator contact_it = getContactPosition_B().find(name);
+	return getContactPosition_W(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactPosition_W() const
+{
+	rbd::BodyVectorXd contact_pos_W;
+	for (ContactIterator contact_it = getContactPosition_B().begin();
+			contact_it != getContactPosition_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_pos_W[name] = getContactPosition_W(contact_it);
+	}
+
+	return contact_pos_W;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactPosition_B(ContactIterator it) const
+{
+	return it->second;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactPosition_B(std::string name) const
+{
+	ContactIterator contact_it = getContactPosition_B().find(name);
+	return getContactPosition_B(contact_it);
+}
+
+
 const rbd::BodyVectorXd& WholeBodyState::getContactPosition_B() const
 {
 	return contact_pos;
 }
 
 
-const Eigen::VectorXd& WholeBodyState::getContactPosition_B(std::string name) const
+Eigen::VectorXd WholeBodyState::getContactPosition_H(ContactIterator it) const
 {
-	return contact_pos.find(name)->second;
+	return frame_tf_.fromBaseToHorizontalFrame(it->second, getBaseRPY_W());
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactPosition_H(std::string name) const
+{
+	ContactIterator contact_it = getContactPosition_B().find(name);
+	return getContactPosition_H(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactPosition_H() const
+{
+	rbd::BodyVectorXd contact_pos_H;
+	for (ContactIterator contact_it = getContactPosition_B().begin();
+			contact_it != getContactPosition_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_pos_H[name] = getContactPosition_H(contact_it);
+	}
+
+	return contact_pos_H;
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactVelocity_W(ContactIterator it) const
+{
+	return frame_tf_.fromBaseToWorldFrame(it->second, getBaseRPY_W());
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactVelocity_W(std::string name) const
+{
+	ContactIterator contact_it = getContactVelocity_B().find(name);
+	return getContactVelocity_W(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactVelocity_W() const
+{
+	rbd::BodyVectorXd contact_vel_W;
+	for (ContactIterator contact_it = getContactVelocity_B().begin();
+			contact_it != getContactVelocity_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_vel_W[name] = getContactVelocity_W(contact_it);
+	}
+
+	return contact_vel_W;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(ContactIterator it) const
+{
+	return it->second;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(std::string name) const
+{
+	ContactIterator contact_it = contact_vel.find(name);
+	return getContactVelocity_B(contact_it);
 }
 
 
@@ -444,9 +542,68 @@ const rbd::BodyVectorXd& WholeBodyState::getContactVelocity_B() const
 }
 
 
-const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(std::string name) const
+Eigen::VectorXd WholeBodyState::getContactVelocity_H(ContactIterator it) const
 {
-	return contact_vel.find(name)->second;
+	return frame_tf_.fromBaseToHorizontalFrame(it->second, getBaseRPY_W());
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactVelocity_H(std::string name) const
+{
+	ContactIterator contact_it = getContactVelocity_B().find(name);
+	return getContactVelocity_H(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactVelocity_H() const
+{
+	rbd::BodyVectorXd contact_vel_H;
+	for (ContactIterator contact_it = getContactVelocity_B().begin();
+			contact_it != getContactVelocity_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_vel_H[name] = getContactVelocity_H(contact_it);
+	}
+
+	return contact_vel_H;
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactAcceleration_W(ContactIterator it) const
+{
+	return frame_tf_.fromBaseToWorldFrame(it->second, getBaseRPY_W());
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactAcceleration_W(std::string name) const
+{
+	ContactIterator contact_it = getContactAcceleration_B().find(name);
+	return getContactAcceleration_W(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactAcceleration_W() const
+{
+	rbd::BodyVectorXd contact_acc_W;
+	for (ContactIterator contact_it = getContactAcceleration_B().begin();
+			contact_it != getContactAcceleration_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_acc_W[name] = getContactAcceleration_W(contact_it);
+	}
+
+	return contact_acc_W;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(ContactIterator it) const
+{
+	return it->second;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(std::string name) const
+{
+	ContactIterator contact_it = getContactAcceleration_B().find(name);
+	return getContactAcceleration_B(contact_it);
 }
 
 
@@ -456,9 +613,29 @@ const rbd::BodyVectorXd& WholeBodyState::getContactAcceleration_B() const
 }
 
 
-const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(std::string name) const
+Eigen::VectorXd WholeBodyState::getContactAcceleration_H(ContactIterator it) const
 {
-	return contact_acc.find(name)->second;
+	return frame_tf_.fromBaseToHorizontalFrame(it->second, getBaseRPY_W());
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactAcceleration_H(std::string name) const
+{
+	ContactIterator contact_it = getContactAcceleration_B().find(name);
+	return getContactAcceleration_H(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactAcceleration_H() const
+{
+	rbd::BodyVectorXd contact_acc_H;
+	for (ContactIterator contact_it = getContactAcceleration_B().begin();
+			contact_it != getContactAcceleration_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_acc_H[name] = getContactAcceleration_H(contact_it);
+	}
+
+	return contact_acc_H;
 }
 
 

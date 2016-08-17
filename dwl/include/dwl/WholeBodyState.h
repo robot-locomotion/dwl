@@ -66,6 +66,8 @@ namespace dwl
  */
 class WholeBodyState
 {
+	typedef rbd::BodyVectorXd::const_iterator ContactIterator;
+
 	public:
 		/** @brief Constructor function */
 		WholeBodyState(unsigned int num_joints = 0);
@@ -235,17 +237,51 @@ class WholeBodyState
 
 
 		// Contact state getter functions
-		/** @brief Gets the contact positions in the base frame */
-		const rbd::BodyVectorXd& getContactPosition_B() const;
+		/** @brief Gets the contact position expressed in the world frame */
+		Eigen::VectorXd getContactPosition_W(ContactIterator it) const;
+		Eigen::VectorXd getContactPosition_W(std::string name) const;
+		rbd::BodyVectorXd getContactPosition_W() const;
+
+		/** @brief Gets the contact position in the base frame */
+		const Eigen::VectorXd& getContactPosition_B(ContactIterator it) const;
 		const Eigen::VectorXd& getContactPosition_B(std::string name) const;
+		const rbd::BodyVectorXd& getContactPosition_B() const;
+
+		/** @brief Gets the contact position expressed in the horizontal frame */
+		Eigen::VectorXd getContactPosition_H(ContactIterator it) const;
+		Eigen::VectorXd getContactPosition_H(std::string name) const;
+		rbd::BodyVectorXd getContactPosition_H() const;
+
+		/** @brief Gets the contact velocity expressed in the world frame */
+		Eigen::VectorXd getContactVelocity_W(ContactIterator it) const;
+		Eigen::VectorXd getContactVelocity_W(std::string name) const;
+		rbd::BodyVectorXd getContactVelocity_W() const;
 
 		/** @brief Gets the contact velocities in the base frame */
-		const rbd::BodyVectorXd& getContactVelocity_B() const;
+		const Eigen::VectorXd& getContactVelocity_B(ContactIterator it) const;
 		const Eigen::VectorXd& getContactVelocity_B(std::string name) const;
+		const rbd::BodyVectorXd& getContactVelocity_B() const;
+
+		/** @brief Gets the contact velocity expressed in the horizontal frame */
+		Eigen::VectorXd getContactVelocity_H(ContactIterator it) const;
+		Eigen::VectorXd getContactVelocity_H(std::string name) const;
+		rbd::BodyVectorXd getContactVelocity_H() const;
+
+		/** @brief Gets the contact acceleration expressed in the world frame */
+		Eigen::VectorXd getContactAcceleration_W(ContactIterator it) const;
+		Eigen::VectorXd getContactAcceleration_W(std::string name) const;
+		rbd::BodyVectorXd getContactAcceleration_W() const;
 
 		/** @brief Gets the contact accelerations in the base frame */
-		const rbd::BodyVectorXd& getContactAcceleration_B() const;
+		const Eigen::VectorXd& getContactAcceleration_B(ContactIterator it) const;
 		const Eigen::VectorXd& getContactAcceleration_B(std::string name) const;
+		const rbd::BodyVectorXd& getContactAcceleration_B() const;
+
+		/** @brief Gets the contact acceleration expressed in the horizontal frame */
+		Eigen::VectorXd getContactAcceleration_H(ContactIterator it) const;
+		Eigen::VectorXd getContactAcceleration_H(std::string name) const;
+		rbd::BodyVectorXd getContactAcceleration_H() const;
+
 
 		/** @brief Gets the contact wrenches in the base frame */
 		const rbd::BodyVector6d& getContactWrench_B() const;
