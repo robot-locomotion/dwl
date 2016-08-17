@@ -36,14 +36,18 @@ Eigen::Vector3d FrameTF::fromWorldToBaseFrame(const Eigen::Vector3d& vec_W,
 Eigen::Vector3d FrameTF::fromWorldToHorizontalFrame(const Eigen::Vector3d& vec_W,
 													const Eigen::Vector3d& rpy) const
 {
-	return getRotWorldToHF(rpy) * vec_W;
+	// Note that the rotation matrix is an orthogonal matrix, that is the
+	// inverse can computed as transpose. This improve the computation time
+	return getRotHorizontalToWorld(rpy).transpose() * vec_W;
 }
 
 
 Eigen::Vector3d FrameTF::fromWorldToHorizontalFrame(const Eigen::Vector3d& vec_W,
 													const Eigen::Quaterniond& q) const
 {
-	return getRotWorldToHF(math::getRPY(q)) * vec_W;
+	// Note that the rotation matrix is an orthogonal matrix, that is the
+	// inverse can computed as transpose. This improve the computation time
+	return getRotHorizontalToWorld(math::getRPY(q)).transpose() * vec_W;
 }
 
 
@@ -64,7 +68,7 @@ Eigen::Vector3d FrameTF::fromBaseToWorldFrame(const Eigen::Vector3d& vec_B,
 Eigen::Vector3d FrameTF::fromBaseToHorizontalFrame(const Eigen::Vector3d& vec_B,
 												   const Eigen::Vector3d& rpy) const
 {
-	return getRotBaseToHF(rpy) * vec_B;
+	return getRotBaseToHorizontal(rpy) * vec_B;
 }
 
 
@@ -72,14 +76,14 @@ Eigen::Vector3d FrameTF::fromBaseToHorizontalFrame(const Eigen::Vector3d& vec_B,
 												   const Eigen::Quaterniond& q) const
 {
 	Eigen::Vector3d rpy = math::getRPY(q);
-	return getRotBaseToHF(rpy) * vec_B;
+	return getRotBaseToHorizontal(rpy) * vec_B;
 }
 
 
 Eigen::Vector3d FrameTF::fromHorizontalToWorldFrame(const Eigen::Vector3d& vec_H,
 													const Eigen::Vector3d& rpy) const
 {
-	return getRotWorldToHF(rpy).inverse() * vec_H;
+	return getRotHorizontalToWorld(rpy) * vec_H;
 }
 
 
@@ -87,22 +91,26 @@ Eigen::Vector3d FrameTF::fromHorizontalToWorldFrame(const Eigen::Vector3d& vec_H
 													const Eigen::Quaterniond& q) const
 {
 	Eigen::Vector3d rpy = math::getRPY(q);
-	return getRotWorldToHF(rpy).inverse() * vec_H;
+	return getRotHorizontalToWorld(rpy) * vec_H;
 }
 
 
 Eigen::Vector3d FrameTF::fromHorizontalToBaseFrame(const Eigen::Vector3d& vec_H,
 												   const Eigen::Vector3d& rpy) const
 {
-	return getRotBaseToHF(rpy).inverse() * vec_H;
+	// Note that the rotation matrix is an orthogonal matrix, that is the
+	// inverse can computed as transpose. This improve the computation time
+	return getRotBaseToHorizontal(rpy).transpose() * vec_H;
 }
 
 
 Eigen::Vector3d FrameTF::fromHorizontalToBaseFrame(const Eigen::Vector3d& vec_H,
 												   const Eigen::Quaterniond& q) const
 {
+	// Note that the rotation matrix is an orthogonal matrix, that is the
+	// inverse can computed as transpose. This improve the computation time
 	Eigen::Vector3d rpy = math::getRPY(q);
-	return getRotBaseToHF(rpy).inverse() * vec_H;
+	return getRotBaseToHorizontal(rpy).transpose() * vec_H;
 }
 
 

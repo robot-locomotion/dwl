@@ -89,7 +89,7 @@ Vector6d convertPointVelocityToSpatialVelocity(Vector6d& velocity,
 	rbd::Vector6d spatial_velocity;
 	spatial_velocity.segment<3>(rbd::AX) = angularPart(velocity);
 	spatial_velocity.segment<3>(rbd::LX) = linearPart(velocity) +
-	math::skewSymmentricMatrixFrom3DVector(point) * angularPart(velocity);
+	math::skewSymmetricMatrixFromVector(point) * angularPart(velocity);
 
 	return spatial_velocity;
 }
@@ -100,7 +100,7 @@ Vector6d convertPointForceToSpatialForce(Vector6d& force,
 {
 	rbd::Vector6d spatial_force;
 	spatial_force.segment<3>(rbd::AX) = angularPart(force) +
-			math::skewSymmentricMatrixFrom3DVector(point) * linearPart(force);
+			math::skewSymmetricMatrixFromVector(point) * linearPart(force);
 	spatial_force.segment<3>(rbd::LX) = linearPart(force);
 
 	return spatial_force;
