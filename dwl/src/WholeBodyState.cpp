@@ -101,6 +101,14 @@ Eigen::Vector3d WholeBodyState::getBaseAngularVelocity_H() const
 }
 
 
+Eigen::Vector3d WholeBodyState::getBaseRPYVelocity() const
+{
+	Eigen::Matrix3d EAR =
+			math::getInverseEulerAnglesRatesMatrix(getBaseRPY_W()).transpose();
+	return EAR * getBaseAngularVelocity_W();
+}
+
+
 Eigen::Vector3d WholeBodyState::getBaseAcceleration_W() const
 {
 	return base_acc.segment<3>(rbd::LX);
@@ -138,6 +146,19 @@ Eigen::Vector3d WholeBodyState::getBaseAngularAcceleration_H() const
 {
 	return frame_tf_.fromWorldToHorizontalFrame(getBaseAngularAcceleration_W(),
 												getBaseRPY_W());
+}
+
+
+Eigen::Vector3d WholeBodyState::getBaseRPYAcceleration() const
+{
+	// rpy_ddot = EAR^-1 * (omega_dot - EAR_dot * rpy_dot)
+	Eigen::Vector3d rpy = getBaseRPY_W();
+	Eigen::Vector3d rpy_d = getBaseRPYVelocity();
+	Eigen::Matrix3d EAR =
+			math::getInverseEulerAnglesRatesMatrix(rpy).transpose();
+	Eigen::Matrix3d EARinv_dot =
+			math::getInverseEulerAnglesRatesMatrix_dot(rpy, rpy_d);
+	return EAR * (getBaseAngularAcceleration_W() - EARinv_dot * rpy_d);
 }
 
 
@@ -199,6 +220,13 @@ void WholeBodyState::setBaseAngularVelocity_H(const Eigen::Vector3d& rate_H)
 }
 
 
+void WholeBodyState::setBaseRPYVelocity(const Eigen::Vector3d& rpy_rate)
+{
+	rbd::angularPart(base_vel) =
+			math::getInverseEulerAnglesRatesMatrix(getBaseRPY_W()) * rpy_rate;
+}
+
+
 void WholeBodyState::setBaseAcceleration_W(const Eigen::Vector3d& acc_W)
 {
 	rbd::linearPart(base_acc) = acc_W;
@@ -236,6 +264,17 @@ void WholeBodyState::setBaseAngularAcceleration_H(const Eigen::Vector3d& rotacc_
 {
 	rbd::angularPart(base_acc) =
 			frame_tf_.fromHorizontalToWorldFrame(rotacc_H, getBaseRPY_W());
+}
+
+
+void WholeBodyState::setBaseRPYAcceleration(const Eigen::Vector3d& rpy_rate,
+											const Eigen::Vector3d& rpy_acc)
+{
+	// omega_dot = EAR * rpy_ddot + EAR_dot * rpy_dot
+	Eigen::Vector3d rpy = getBaseRPY_W();
+	rbd::angularPart(base_acc) =
+			math::getInverseEulerAnglesRatesMatrix(rpy) * rpy_acc +
+			math::getInverseEulerAnglesRatesMatrix_dot(rpy, rpy_rate) * rpy_rate;
 }
 
 

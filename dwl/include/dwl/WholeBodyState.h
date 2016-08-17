@@ -107,6 +107,9 @@ class WholeBodyState
 		/** @brief Gets the base angular velocity in the horizontal frame */
 		Eigen::Vector3d getBaseAngularVelocity_H() const;
 
+		/** @brief Gets the base RPY velocity */
+		Eigen::Vector3d getBaseRPYVelocity() const;
+
 		/** @brief Gets the base acceleration in the world frame */
 		Eigen::Vector3d getBaseAcceleration_W() const;
 
@@ -124,6 +127,10 @@ class WholeBodyState
 
 		/** @brief Gets the base angular acceleration in the horizontal frame */
 		Eigen::Vector3d getBaseAngularAcceleration_H() const;
+
+		/** @brief Gets the base RPY acceleration */
+		Eigen::Vector3d getBaseRPYAcceleration() const;
+
 
 		// Base state setter functions
 		/** @brief Sets the base position in the world frame */
@@ -153,6 +160,9 @@ class WholeBodyState
 		/** @brief Sets the base angular velocity in the horizontal frame */
 		void setBaseAngularVelocity_H(const Eigen::Vector3d& rate_H);
 
+		/** @brief Sets the base RPY velocity */
+		void setBaseRPYVelocity(const Eigen::Vector3d& rpy_rate);
+
 		/** @brief Sets the base acceleration in the world frame */
 		void setBaseAcceleration_W(const Eigen::Vector3d& acc_W);
 
@@ -170,6 +180,10 @@ class WholeBodyState
 
 		/** @brief Sets the base angular acceleration in the horizontal frame */
 		void setBaseAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
+
+		/** @brief Sets the base RPY acceleration */
+		void setBaseRPYAcceleration(const Eigen::Vector3d& rpy,
+									const Eigen::Vector3d& rpy_rate);
 
 
 		// Joint state getter functions
