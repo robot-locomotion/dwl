@@ -210,16 +210,18 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 
 	// Splinning the roll and pitch angle in order to have the base frame
 	// parallel with the support frame
-	// TODO this is an experimental feature that new to be tested
 	math::Spline::Point roll, pitch, yaw;
 	roll_spline_.getPoint(dt, roll);
 	pitch_spline_.getPoint(dt, pitch);
 	yaw.x = initial_state_.angular_pos(2);
 	yaw.xd = initial_state_.angular_vel(2);
 	yaw.xdd = initial_state_.angular_acc(2);
-	state.angular_pos = Eigen::Vector3d(roll.x, pitch.x, yaw.x);
-	state.angular_vel = Eigen::Vector3d(roll.xd, pitch.xd, yaw.xd);
-	state.angular_acc = Eigen::Vector3d(roll.xdd, pitch.xdd, yaw.xdd);
+	Eigen::Vector3d rpy(roll.x, pitch.x, yaw.x);
+	Eigen::Vector3d rpy_vel(roll.x, pitch.x, yaw.x);
+	Eigen::Vector3d rpy_acc(roll.xdd, pitch.xdd, yaw.xdd);
+	state.setRPY_W(rpy);
+	state.setRPYVelocity(rpy_vel);
+	state.setRPYAcceleration(rpy_vel, rpy_acc);
 }
 
 
