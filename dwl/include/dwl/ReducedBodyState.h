@@ -97,8 +97,8 @@ class ReducedBodyState
 		/** @brief Gets the base angular velocity in the horizontal frame */
 		Eigen::Vector3d getAngularVelocity_H() const;
 
-		/** @brief Gets the base Euler rate */
-		Eigen::Vector3d getEulerRate() const;
+		/** @brief Gets the base RPY velocity */
+		Eigen::Vector3d getRPYVelocity() const;
 
 		/** @brief Gets the CoM acceleration in the world frame */
 		Eigen::Vector3d getCoMAcceleration_W() const;
@@ -205,8 +205,8 @@ class ReducedBodyState
 		/** @brief Sets the base angular velocity in the horizontal frame */
 		void setAngularVelocity_H(const Eigen::Vector3d& rate_H);
 
-		/** @brief Sets the base Euler rate */
-		void setEulerRate(const Eigen::Vector3d& euler_rate);
+		/** @brief Sets the base RPY velocity */
+		void setRPYVelocity(const Eigen::Vector3d& rpy_rate);
 
 		/** @brief Sets the CoM acceleration in the world frame */
 		void setCoMAcceleration_W(const Eigen::Vector3d& acc_W);
