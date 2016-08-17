@@ -82,7 +82,7 @@ Eigen::Vector3d ReducedBodyState::getAngularVelocity_H() const
 
 Eigen::Vector3d ReducedBodyState::getRPYVelocity() const
 {
-	return math::getInverseEulerAnglesRatesMatrix(getRPY_W()).inverse() * angular_vel;
+	return math::getInverseEulerAnglesRatesMatrix(getRPY_W()).transpose() * angular_vel;
 }
 
 
@@ -123,6 +123,17 @@ Eigen::Vector3d ReducedBodyState::getAngularAcceleration_H() const
 {
 	return frame_tf_.fromWorldToHorizontalFrame(getAngularAcceleration_W(),
 												getRPY_W());
+}
+
+
+Eigen::Vector3d ReducedBodyState::getRPYAcceleration() const
+{
+	// rpy_ddot = EAR^-1 * (omega_dot - EAR_dot * rpy_dot)
+	Eigen::Matrix3d EAR =
+			math::getInverseEulerAnglesRatesMatrix(getRPY_W()).transpose();
+	Eigen::Matrix3d EARinv_dot =
+			math::getInverseEulerAnglesRatesMatrix_dot(getRPY_W(), getRPYVelocity());
+	return EAR * (getAngularAcceleration_W() - EARinv_dot * getRPYVelocity());
 }
 
 
@@ -450,6 +461,16 @@ void ReducedBodyState::setAngularAcceleration_B(const Eigen::Vector3d& rotacc_B)
 void ReducedBodyState::setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H)
 {
 	angular_acc = frame_tf_.fromHorizontalToWorldFrame(rotacc_H, getRPY_W());
+}
+
+
+void ReducedBodyState::setRPYAcceleration(const Eigen::Vector3d& rpy_rate,
+											const Eigen::Vector3d& rpy_acc)
+{
+	// omega_dot = EAR * rpy_ddot + EAR_dot * rpy_dot
+	angular_acc =
+			math::getInverseEulerAnglesRatesMatrix(getRPY_W()) * rpy_acc +
+			math::getInverseEulerAnglesRatesMatrix_dot(getRPY_W(), rpy_rate) * rpy_rate;
 }
 
 
