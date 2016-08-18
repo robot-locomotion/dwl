@@ -127,7 +127,6 @@ Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy)
 	Eigen::Matrix3d EAR;
 	double roll = getRoll(rpy);
 	double pitch = getPitch(rpy);
-	double yaw = getYaw(rpy);
 
 	EAR <<  1.,         0.,            -sin(pitch),
 			0.,  cos(roll), cos(pitch) * sin(roll),
