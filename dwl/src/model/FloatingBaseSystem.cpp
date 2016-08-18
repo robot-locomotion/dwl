@@ -145,6 +145,18 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 		foot_names_ = end_effector_names_;
 		feet_ = end_effectors_;
 	}
+
+	// Resizyng the state vectors
+	if (getTypeOfDynamicSystem() == FloatingBase ||
+			getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
+		full_state_.resize(6 + getJointDoF());
+	} else if (getTypeOfDynamicSystem() == VirtualFloatingBase) {
+		unsigned int base_dof = getFloatingBaseDoF();
+		full_state_.resize(base_dof + getJointDoF());
+	} else {
+		full_state_.resize(getJointDoF());
+	}
+	joint_state_.resize(getJointDoF());
 }
 
 
@@ -285,21 +297,21 @@ double FloatingBaseSystem::getTotalMass()
 }
 
 
-double FloatingBaseSystem::getBodyMass(std::string body_name)
+const double& FloatingBaseSystem::getBodyMass(std::string body_name) const
 {
 	unsigned int body_id = rbd_model_.GetBodyId(body_name.c_str());
 	return rbd_model_.mBodies[body_id].mMass;
 }
 
 
-double FloatingBaseSystem::getGravityAcceleration()
+const double& FloatingBaseSystem::getGravityAcceleration() const
 {
 	return rbd_model_.gravity(rbd::Z);
 }
 
 
-const Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& base_pos,
-		   	   	   	   	   	   	   	   	   	   	   	    const Eigen::VectorXd& joint_pos)
+Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& base_pos,
+												  const Eigen::VectorXd& joint_pos)
 {
 	Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
 	Eigen::VectorXd qd = Eigen::VectorXd::Zero(num_system_joints_);
@@ -313,10 +325,10 @@ const Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& bas
 }
 
 
-const Eigen::Vector3d& FloatingBaseSystem::getSystemCoMRate(const rbd::Vector6d& base_pos,
-		   	   	   	   	   	   	   	   	   	   	   	    	const Eigen::VectorXd& joint_pos,
-															const rbd::Vector6d& base_vel,
-															const Eigen::VectorXd& joint_vel)
+Eigen::Vector3d& FloatingBaseSystem::getSystemCoMRate(const rbd::Vector6d& base_pos,
+													  const Eigen::VectorXd& joint_pos,
+													  const rbd::Vector6d& base_vel,
+													  const Eigen::VectorXd& joint_vel)
 {
 	Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
 	Eigen::VectorXd qd = toGeneralizedJointState(base_vel, joint_vel);
@@ -350,19 +362,19 @@ const unsigned int& FloatingBaseSystem::getSystemDoF()
 }
 
 
-const unsigned int& FloatingBaseSystem::getFloatingBaseDoF()
+const unsigned int& FloatingBaseSystem::getFloatingBaseDoF() const
 {
 	return num_floating_joints_;
 }
 
 
-const unsigned int& FloatingBaseSystem::getJointDoF()
+const unsigned int& FloatingBaseSystem::getJointDoF() const
 {
 	return num_joints_;
 }
 
 
-const FloatingBaseJoint& FloatingBaseSystem::getFloatingBaseJoint(rbd::Coords6d joint)
+const FloatingBaseJoint& FloatingBaseSystem::getFloatingBaseJoint(rbd::Coords6d joint) const
 {
 	if (joint == rbd::AX)
 		return floating_ax_;
@@ -407,7 +419,7 @@ const std::string& FloatingBaseSystem::getFloatingBaseName()
 }
 
 
-unsigned int& FloatingBaseSystem::getJointId(std::string joint_name)
+const unsigned int& FloatingBaseSystem::getJointId(std::string joint_name) const
 {
 	return joints_.find(joint_name)->second;
 }
@@ -443,7 +455,7 @@ std::string FloatingBaseSystem::getFloatingBaseBody()
 }
 
 
-enum TypeOfSystem FloatingBaseSystem::getTypeOfDynamicSystem()
+const enum TypeOfSystem& FloatingBaseSystem::getTypeOfDynamicSystem() const
 {
 	return type_of_system_;
 }
@@ -522,26 +534,22 @@ bool FloatingBaseSystem::hasFloatingBaseConstraints()
 }
 
 
-Eigen::VectorXd FloatingBaseSystem::toGeneralizedJointState(const rbd::Vector6d& base_state,
-															const Eigen::VectorXd& joint_state)
+Eigen::VectorXd& FloatingBaseSystem::toGeneralizedJointState(const rbd::Vector6d& base_state,
+															 const Eigen::VectorXd& joint_state)
 {
 	// Getting the number of joints
 	assert(joint_state.size() == getJointDoF());
 
 	// Note that RBDL defines the floating base state as
 	// [linear states, angular states]
-	Eigen::VectorXd q;
 	if (getTypeOfDynamicSystem() == FloatingBase ||
 			getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
-		q.resize(6 + getJointDoF());
-
 		rbd::Vector6d _base_state = base_state;
-		q << rbd::linearPart(_base_state),
-			 rbd::angularPart(_base_state),
-			 joint_state;
+		full_state_ << rbd::linearPart(_base_state),
+					   rbd::angularPart(_base_state),
+					   joint_state;
 	} else if (getTypeOfDynamicSystem() == VirtualFloatingBase) {
 		unsigned int base_dof = getFloatingBaseDoF();
-		q.resize(base_dof + getJointDoF());
 
 		Eigen::VectorXd virtual_base(base_dof);
 		if (floating_ax_.active)
@@ -557,13 +565,12 @@ Eigen::VectorXd FloatingBaseSystem::toGeneralizedJointState(const rbd::Vector6d&
 		if (floating_lz_.active)
 			virtual_base(floating_lz_.id) = base_state(rbd::LZ);
 
-		q << virtual_base, joint_state;
+		full_state_ << virtual_base, joint_state;
 	} else {
-		q.resize(getJointDoF());
-		q = joint_state;
+		full_state_ = joint_state;
 	}
 
-	return q;
+	return full_state_;
 }
 
 
