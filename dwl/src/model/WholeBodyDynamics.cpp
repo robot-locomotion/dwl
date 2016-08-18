@@ -533,9 +533,15 @@ void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contact
 }
 
 
-FloatingBaseSystem& WholeBodyDynamics::getFloatingBaseSystem()
+const FloatingBaseSystem& WholeBodyDynamics::getFloatingBaseSystem()
 {
 	return system_;
+}
+
+
+const WholeBodyKinematics& WholeBodyDynamics::getWholeBodyKinematics()
+{
+	return kinematics_;
 }
 
 
