@@ -19,8 +19,8 @@ enum TypeOfPhases {STANCE, FLIGHT};
 struct PreviewPhase
 {
 	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()), step_(false) {}
-	PreviewPhase(enum TypeOfPhases _type,
-				 rbd::BodySelector _feet = rbd::BodySelector()) :
+	PreviewPhase(const enum TypeOfPhases& _type,
+				 const rbd::BodySelector& _feet = rbd::BodySelector()) :
 					 type(_type), feet(_feet), step_(false) {
 		// Setting the swing feet of this phase
 		for (unsigned int f = 0; f < feet.size(); f++)
@@ -31,15 +31,15 @@ struct PreviewPhase
 			step_ = true;
 	}
 
-	void setTypeOfPhase(TypeOfPhases _type) {
+	void setTypeOfPhase(const TypeOfPhases& _type) {
 		type = _type;
 	}
 
-	void setSwingFoot(std::string name) {
+	void setSwingFoot(const std::string& name) {
 		swing_feet[name] = true;
 	}
 
-	bool isSwingFoot(std::string name) const {
+	bool isSwingFoot(const std::string& name) const {
 		std::map<std::string,bool>::const_iterator it = swing_feet.find(name);
 		if (it != swing_feet.end())
 			return it->second;
@@ -51,7 +51,8 @@ struct PreviewPhase
 		return step_;
 	}
 
-	void setFootShift(std::string name, Eigen::Vector2d foot_shift) {
+	void setFootShift(const std::string& name,
+					  const Eigen::Vector2d& foot_shift) {
 		feet_shift[name] = foot_shift;
 	}
 
@@ -59,7 +60,7 @@ struct PreviewPhase
 		return type;
 	}
 
-	Eigen::Vector2d getFootShift(std::string name) const {
+	Eigen::Vector2d getFootShift(const std::string& name) const {
 		rbd::BodyVectorXd::const_iterator it = feet_shift.find(name);
 		if (it != feet_shift.end())
 			return it->second;
@@ -78,9 +79,9 @@ struct PreviewParams
 {
 	PreviewParams() : duration(0.), cop_shift(Eigen::Vector2d::Zero()),
 			head_acc(0.) {}
-	PreviewParams(double _duration,
-				  Eigen::Vector2d _cop_shift,
-				  double _head_acc) : duration(_duration), cop_shift(_cop_shift),
+	PreviewParams(const double& _duration,
+				  const Eigen::Vector2d& _cop_shift,
+				  const double& _head_acc) : duration(_duration), cop_shift(_cop_shift),
 						  head_acc(_head_acc) {}
 
 	double duration;
@@ -92,7 +93,7 @@ struct PreviewParams
 struct PreviewControl
 {
 	PreviewControl() : params(std::vector<PreviewParams>()) {}
-	PreviewControl(std::vector<PreviewParams> _params) : params(_params) {}
+	PreviewControl(const std::vector<PreviewParams>& _params) : params(_params) {}
 
 	std::vector<PreviewParams> params;
 };
@@ -101,11 +102,11 @@ struct PreviewSchedule
 {
 	PreviewSchedule() : actual_phase_(0), next_phase_(0) {}
 
-	void init(unsigned int initial_phase) {
+	void init(const unsigned int& initial_phase) {
 		actual_phase_ = initial_phase;
 	}
 
-	void init(rbd::BodyVector3d& support) {
+	void init(const rbd::BodyVector3d& support) {
 		for (unsigned int p = 0; p < getNumberPhases(); p++) {
 			std::vector<std::string> swings = getSwingFeet(p);
 			unsigned int num_swings = getNumberOfSwingFeet(p);
@@ -132,11 +133,11 @@ struct PreviewSchedule
 		}
 	}
 
-	void addPhase(PreviewPhase phase) {
+	void addPhase(const PreviewPhase& phase) {
 		schedule.push_back(phase);
 	}
 
-	void setFeet(rbd::BodySelector& _feet) {
+	void setFeet(const rbd::BodySelector& _feet) {
 		feet = _feet;
 	}
 
@@ -152,19 +153,19 @@ struct PreviewSchedule
 		return actual_phase_;
 	}
 
-	PreviewPhase& getPhase(unsigned int index) {
+	PreviewPhase& getPhase(const unsigned int& index) {
 		return schedule[index];
 	}
 
-	TypeOfPhases getTypeOfPhase(unsigned int index) {
+	TypeOfPhases getTypeOfPhase(const unsigned int& index) {
 		return schedule[index].type;
 	}
 
-	unsigned int getNumberOfSwingFeet(unsigned int index) {
+	unsigned int getNumberOfSwingFeet(const unsigned int& index) {
 		return schedule[index].feet.size();
 	}
 
-	std::vector<std::string>& getSwingFeet(unsigned int index) {
+	std::vector<std::string>& getSwingFeet(const unsigned int& index) {
 		return schedule[index].feet;
 	}
 
@@ -182,8 +183,8 @@ struct PreviewSchedule
 struct SwingParams
 {
 	SwingParams() : duration(0.), feet_shift(rbd::BodyVector3d()) {}
-	SwingParams(double _duration,
-				rbd::BodyVector3d _feet_shift) : duration(_duration),
+	SwingParams(const double& _duration,
+				const rbd::BodyVector3d& _feet_shift) : duration(_duration),
 						feet_shift(_feet_shift) {}
 
 	double duration;
@@ -191,13 +192,71 @@ struct SwingParams
 };
 
 
+struct StepCommand
+{
+	StepCommand() : duration(0.), length(0.) {}
+	StepCommand(const double& _duration,
+				const double& _length) : duration(_duration), length(_length) {}
+
+	double duration;
+	double length;
+};
+
+typedef std::map<std::string,bool> Support;
+typedef Support::const_iterator SupportIterator;
+
 struct PreviewState
 {
+	PreviewState() : height(0.), support(Support()) {
+		com_pos.setZero();
+		com_vel.setZero();
+	}
+
+	PreviewState(const double& _height,
+				 const Eigen::Vector2d& _com_pos,
+				 const Eigen::Vector2d& _com_vel,
+				 const Support& _support) : height(_height),
+						 com_pos(_com_pos), com_vel(_com_vel),
+						 support(_support) {}
+
+	PreviewState(const ReducedBodyState& state) {
+		// Frame transformer
+		math::FrameTF tf;
+
+		Eigen::Vector3d com_disp_W = state.com_pos - state.cop;
+		Eigen::Vector3d com_disp_H =
+				tf.fromWorldToHorizontalFrame(com_disp_W, state.getRPY_W());
+
+		height = com_disp_H(rbd::Z);
+		com_pos = (Eigen::Vector2d) com_disp_H.head<2>();
+		com_vel = (Eigen::Vector2d) state.getCoMVelocity_H().head<2>();
+		for (rbd::BodyVector3d::const_iterator it = state.support_region.begin();
+				it != state.support_region.end(); it++)
+			support[it->first] = true;
+	}
+
 	double height;
 	Eigen::Vector2d com_pos;
 	Eigen::Vector2d com_vel;
+	Support support;
 };
 
+
+struct PreviewSets
+{
+	PreviewSets() : command(StepCommand()),
+			state(PreviewState()), control(PreviewControl()){};
+	PreviewSets(const StepCommand& _command,
+				const PreviewState& _state,
+				const PreviewControl& _control) :
+					command(_command), state(_state), control(_control) {}
+
+	StepCommand command;
+	PreviewState state;
+	PreviewControl control;
+};
+
+typedef std::vector<PreviewSets> PreviewData;
 
 /**
  * @class PreviewLocomotion
@@ -239,15 +298,29 @@ class PreviewLocomotion
 		void resetFromURDFModel(std::string urdf_model,
 								std::string system_file = std::string());
 
+
 		/**
-		 * @brief Reads the preview sequence from a Yaml file
+		 * @brief Reads the entire preview sequence from a Yaml file
+		 * @param PreviewData& Preview data
+		 * @param std::string Filename
+		 */
+		void readPreviewSequence(PreviewData& data,
+								 std::string filename);
+
+		/**
+		 * @brief Reads the preview sequence from a Yaml file defined in
+		 * specific namespace
+		 * @param StepCommand& Step command
 		 * @param PreviewState& Preview state
 		 * @param PreviewControl& Preview control parameters
 		 * @param std::string Filename
+		 * @param YamlNamespace Yaml namspace where is defined the preview sequence
 		 */
-		void readPreviewSequence(PreviewState& state,
+		void readPreviewSequence(StepCommand& command,
+								 PreviewState& state,
 								 PreviewControl& control,
-								 std::string filename);
+								 std::string filename,
+								 YamlNamespace seq_ns);
 
 		/**
 		 * @brief Sets the sample time of the preview trajectory

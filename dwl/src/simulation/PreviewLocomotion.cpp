@@ -80,9 +80,40 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 }
 
 
-void PreviewLocomotion::readPreviewSequence(PreviewState& state,
-											PreviewControl& control,
+void PreviewLocomotion::readPreviewSequence(PreviewData& data,
 											std::string filename)
+{
+	YamlWrapper yaml_reader(filename);
+	YamlNamespace datapoint_ns = {"preview_sequence"};
+
+	// Reading the number of datapoint
+	int num_datapoint;
+	if (!yaml_reader.read(num_datapoint, "number_datapoint", datapoint_ns)) {
+		printf(RED "Error: the number of datapoint was not found\n" COLOR_RESET);
+		return;
+	}
+
+	// Reading the preview sequence
+	data.resize(num_datapoint);
+	for (int k = 0; k < num_datapoint; k++) {
+		YamlNamespace data_ns = {"preview_sequence",
+								 "datapoint_" + std::to_string(k)};
+
+		// Reading the actual preview data point
+		readPreviewSequence(data[k].command,
+							data[k].state,
+							data[k].control,
+							filename,
+							data_ns);
+	}
+}
+
+
+void PreviewLocomotion::readPreviewSequence(StepCommand& command,
+											PreviewState& state,
+											PreviewControl& control,
+											std::string filename,
+											 YamlNamespace seq_ns)
 {
 	// Checking that the robot model was initialized
 	if (!robot_model_) {
@@ -94,8 +125,22 @@ void PreviewLocomotion::readPreviewSequence(PreviewState& state,
 
 	// All the preview sequence data have to be inside the state and
 	// preview_control namespaces
-	YamlNamespace state_ns = {"preview_sequence", "state"};
-	YamlNamespace control_ns = {"preview_sequence", "preview_control"};
+	YamlNamespace command_ns = seq_ns;
+	YamlNamespace state_ns = seq_ns;
+	YamlNamespace control_ns = seq_ns;
+	command_ns.push_back("command");
+	state_ns.push_back("state");
+	control_ns.push_back("preview_control");
+
+	// Reading the command
+	if (!yaml_reader.read(command.duration, "step_duration", command_ns)) {
+		printf(RED "Error: the step duration was not found\n" COLOR_RESET);
+		return;
+	}
+	if (!yaml_reader.read(command.length, "step_length", command_ns)) {
+		printf(RED "Error: the step length was not found\n" COLOR_RESET);
+		return;
+	}
 
 
 	// Reading the state
@@ -111,7 +156,14 @@ void PreviewLocomotion::readPreviewSequence(PreviewState& state,
 		printf(RED "Error: the CoM velocity was not found\n" COLOR_RESET);
 		return;
 	}
-
+	std::vector<std::string> support;
+	if (!yaml_reader.read(support, "support", state_ns)) {
+		printf(RED "Error: the support was not found\n" COLOR_RESET);
+		return;
+	}
+	state.support.clear();
+	for (unsigned int f = 0; f < support.size(); f++)
+		state.support[support[f]] = true;
 
 	// Reading the preview control data
 	// Reading the number of phases
@@ -125,8 +177,8 @@ void PreviewLocomotion::readPreviewSequence(PreviewState& state,
 	// Reading the preview parameters per phase
 	for (int k = 0; k < num_phases; k++) {
 		// Getting the phase namespace
-		YamlNamespace phase_ns = {"preview_sequence", "preview_control",
-								  "phase_" + std::to_string(k)};
+		YamlNamespace phase_ns = control_ns;
+		phase_ns.push_back("phase_" + std::to_string(k));
 
 		// Reading the preview duration
 		if (!yaml_reader.read(control.params[k].duration, "duration", phase_ns)) {
@@ -476,7 +528,7 @@ void PreviewLocomotion::flightPreview(ReducedBodyTrajectory& trajectory,
 		ReducedBodyState current_state;
 		current_state.time = state.time + time;
 
-		// Computing the CoM motion according to the projectile EoM
+		// Computing the CoM motion according to the projectile EoM //TODO these are in the H frame
 		current_state.com_pos = state.com_pos + state.com_vel * time +
 				0.5 * gravity_vec * time * time;
 		current_state.com_vel = state.com_vel + gravity_vec * time;
@@ -511,47 +563,56 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 								state.time + params.duration);
 
 	// Getting the swing shift per foot
-	rbd::BodyVector3d swing_shift;
+	rbd::BodyVector3d swing_shift_B;
 	for (unsigned int j = 0; j < params.phase.feet.size(); j++) {
 		std::string name = params.phase.feet[j];
-		Eigen::Vector3d stance = stance_posture_C_.find(name)->second;
+		Eigen::Vector3d stance_B = stance_posture_C_.find(name)->second;
+		Eigen::Vector3d stance_H =
+				frame_tf_.fromBaseToHorizontalFrame(stance_B, terminal_state.getRPY_W());
 
 		// Getting the footshift control parameter
 		Eigen::Vector2d footshift_2d = params.phase.getFootShift(name);
-		Eigen::Vector3d footshift(footshift_2d(rbd::X),
-								  footshift_2d(rbd::Y),
-								  0.);
+		Eigen::Vector3d footshift_H(footshift_2d(rbd::X),
+									footshift_2d(rbd::Y),
+									0.);
 
 		// Computing the foothold position w.r.t. the world
 		Eigen::Vector3d foothold = terminal_state.com_pos +
-				frame_tf_.fromBaseToWorldFrame(stance + footshift,
-											   terminal_state.getRPY_W());
+				frame_tf_.fromHorizontalToWorldFrame(stance_H + footshift_H,
+													 terminal_state.getRPY_W());
 
 		// Computing the footshift in z from the height map. In case of no
 		// having the terrain height map, it assumes flat terrain conditions.
 		// Note that, for those cases, we compensate small drift between the
 		// actual and the default postures, and the displacement of the CoM in z
 		if (terrain_.isTerrainInformation()) {
+			// Getting the terminal CoM position in the horizontal frame
+			Eigen::Vector3d terminal_com_pos_H =
+					frame_tf_.fromWorldToHorizontalFrame(terminal_state.getCoMPosition_W(),
+														 terminal_state.getRPY_W());
+
 			// Adding the terrain height given the terrain height-map
 			Eigen::Vector2d foothold_2d = foothold.head<2>();
-			footshift(rbd::Z) = terrain_.getTerrainHeight(foothold_2d) -
-					(terminal_state.com_pos(rbd::Z) + stance(rbd::Z));
+			footshift_H(rbd::Z) = terrain_.getTerrainHeight(foothold_2d) -
+					(terminal_com_pos_H(rbd::Z) + stance_H(rbd::Z));
 		} else {
 			// Computing the nominal CoM height that considers terrain elevations
 			Eigen::Vector3d height(0., 0., cart_table_.getPendulumHeight());
 			Eigen::Vector3d nominal_com_pos =
 					height + (terminal_state.com_pos - actual_state_.com_pos);
 			double nominal_com_height =
-					frame_tf_.fromWorldToBaseFrame(nominal_com_pos,
-												  terminal_state.getRPY_W())(rbd::Z);
-			footshift(rbd::Z) = -(nominal_com_height + stance(rbd::Z));
+					frame_tf_.fromWorldToHorizontalFrame(nominal_com_pos,
+														 terminal_state.getRPY_W())(rbd::Z);
+			footshift_H(rbd::Z) = -(nominal_com_height + stance_H(rbd::Z));
 		}
 
-		swing_shift[name] = footshift;
+		swing_shift_B[name] =
+				frame_tf_.fromHorizontalToBaseFrame(footshift_H,
+													terminal_state.getRPY_W());
 	}
 
-	// Adding the swing pattern
-	swing_params_ = SwingParams(params.duration, swing_shift);
+	// Adding the swing pattern expressed in the CoM frame
+	swing_params_ = SwingParams(params.duration, swing_shift_B);
 
 	// Generating the actual state for every feet
 	feet_spline_generator_.clear();
@@ -563,19 +624,19 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 		rbd::BodyVector3d::const_iterator swing_it = swing_params_.feet_shift.find(name);
 		if (swing_it != swing_params_.feet_shift.end()) {
 			// Getting the actual position of the contact w.r.t the CoM frame
-			Eigen::Vector3d actual_pos = foot_it->second;
+			Eigen::Vector3d actual_pos_B = state.getFootPosition_B(foot_it);
 
 			// Getting the target position of the contact w.r.t the CoM frame
-			Eigen::Vector3d footshift = (Eigen::Vector3d) swing_it->second;
-			Eigen::Vector3d stance_pos = stance_posture_C_.find(name)->second.head<3>();
-			Eigen::Vector3d target_pos = stance_pos + footshift;
+			Eigen::Vector3d footshift_B = (Eigen::Vector3d) swing_it->second;
+			Eigen::Vector3d stance_pos_B = stance_posture_C_.find(name)->second.head<3>();
+			Eigen::Vector3d target_pos_B = stance_pos_B + footshift_B;
 
 			// Initializing the foot pattern generator
 			simulation::StepParameters step_params(params.duration,//num_samples * sample_time_,
 												   step_height_);
 			feet_spline_generator_[name].setParameters(state.time,
-													   actual_pos,
-													   target_pos,
+													   actual_pos_B,
+													   target_pos_B,
 													   step_params);
 		}
 	}
@@ -586,7 +647,7 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 									  double time)
 {
 	// Generating the actual state for every feet
-	Eigen::Vector3d foot_pos, foot_vel, foot_acc;
+	Eigen::Vector3d foot_pos_B, foot_vel_B, foot_acc_B;
 	for (rbd::BodyVector3d::const_iterator foot_it = phase_state_.foot_pos.begin();
 			foot_it != phase_state_.foot_pos.end(); foot_it++) {
 		std::string name = foot_it->first;
@@ -595,20 +656,22 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 		rbd::BodyVector3d::const_iterator swing_it = swing_params_.feet_shift.find(name);
 		if (swing_it != swing_params_.feet_shift.end()) {
 			// Generating the swing positions, velocities and accelerations
-			feet_spline_generator_[name].generateTrajectory(foot_pos,
-															foot_vel,
-															foot_acc,
+			// expressed in the CoM frame
+			feet_spline_generator_[name].generateTrajectory(foot_pos_B,
+															foot_vel_B,
+															foot_acc_B,
 															time);
 
 			// Adding the swing state to the trajectory
-			state.foot_pos[name] = foot_pos;
-			state.foot_vel[name] = foot_vel;
-			state.foot_acc[name] = foot_acc;
+			state.setFootPosition_B(name, foot_pos_B);
+			state.setFootVelocity_B(name, foot_vel_B);
+			state.setFootAcceleration_B(name, foot_acc_B);
 		} else {
 			// There is not swing trajectory to generated (foot on ground).
 			// Nevertheless, we have to updated their positions w.r.t the CoM frame
-			// Getting the actual position of the contact w.r.t the CoM frame
-			Eigen::Vector3d actual_pos = foot_it->second;
+			// Getting the actual position of the foot expressed in the horizontal
+			// frame
+			Eigen::Vector3d actual_pos_H = phase_state_.getFootPosition_H(foot_it);
 
 			// Getting the CoM position of the specific time
 			Eigen::Vector3d com_pos = state.com_pos;
@@ -616,13 +679,12 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 			Eigen::Vector3d com_acc = state.com_acc;
 
 			// Adding the foot states w.r.t. the CoM frame
-			Eigen::Vector3d com_disp = com_pos - phase_state_.com_pos;
-			state.foot_pos[name] = actual_pos -
-					frame_tf_.fromWorldToBaseFrame(com_disp, state.getRPY_W());
-			state.foot_vel[name] =
-					frame_tf_.fromWorldToBaseFrame(-com_vel, state.getRPY_W());
-			state.foot_acc[name] =
-					frame_tf_.fromWorldToBaseFrame(-com_acc, state.getRPY_W());
+			Eigen::Vector3d com_disp_W = com_pos - phase_state_.com_pos;
+			Eigen::Vector3d com_disp_H =
+					frame_tf_.fromWorldToHorizontalFrame(com_disp_W, state.getRPY_W());
+			state.setFootPosition_H(name, actual_pos_H - com_disp_H);
+			state.setFootVelocity_H(name, -com_vel);
+			state.setFootAcceleration_H(name, -com_vel, -com_acc);
 		}
 	}
 }
@@ -679,23 +741,15 @@ void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 		std::string name = feet_names_[f];
 
 		// Setting up the contact position
-		rbd::BodyVector3d::const_iterator foot_pos_it = reduced_state.foot_pos.find(name);
-		if (foot_pos_it != reduced_state.foot_pos.end()) {
-			Eigen::Vector3d foot_pos = foot_pos_it->second + com_pos_B_;// com_pos_W;
-			full_state.contact_pos[name] = foot_pos;
-			feet_pos[name] = foot_pos; // for IK computation
-		}
+		Eigen::Vector3d foot_pos = reduced_state.getFootPosition_B(name) + com_pos_B_;
+		full_state.contact_pos[name] = foot_pos;
+		feet_pos[name] = foot_pos; // for IK computation
 
 		// Setting up the contact velocity
-		rbd::BodyVector3d::const_iterator foot_vel_it = reduced_state.foot_vel.find(name);
-		if (foot_vel_it != reduced_state.foot_vel.end())
-			full_state.contact_vel[name] = foot_vel_it->second;
+		full_state.contact_vel[name] = reduced_state.getFootVelocity_B(name);
 
 		// Setting up the contact acceleration
-		rbd::BodyVector3d::const_iterator foot_acc_it = reduced_state.foot_acc.find(name);
-		if (foot_acc_it != reduced_state.foot_acc.end())
-			full_state.contact_acc[name] = foot_acc_it->second;
-
+		full_state.contact_acc[name] = reduced_state.getFootAcceleration_B(name);
 
 		// Setting up the contact condition
 		rbd::BodyVector3d::const_iterator support_it = reduced_state.support_region.find(name);
@@ -786,19 +840,20 @@ void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 		std::string name = feet_names_[f];
 
 		// Setting up the contact position
-		rbd::BodyVectorXd::const_iterator contact_pos_it = full_state.contact_pos.find(name);
-		if (contact_pos_it != full_state.contact_pos.end())
-			reduced_state.foot_pos[name] = contact_pos_it->second - com_pos_B_;//base_rotation * com_pos_B_;
+		rbd::BodyVectorXd::const_iterator cpos_it = full_state.contact_pos.find(name);
+		if (cpos_it != full_state.contact_pos.end())
+			reduced_state.setFootPosition_B(name,
+											cpos_it->second - com_pos_B_);
 
 		// Setting up the contact velocity
-		rbd::BodyVectorXd::const_iterator contact_vel_it = full_state.contact_vel.find(name);
-		if (contact_vel_it != full_state.contact_vel.end())
-			reduced_state.foot_vel[name] = contact_vel_it->second;
+		rbd::BodyVectorXd::const_iterator cvel_it = full_state.contact_vel.find(name);
+		if (cvel_it != full_state.contact_vel.end())
+			reduced_state.setFootVelocity_B(name, cvel_it->second);
 
 		// Setting up the contact acceleration
-		rbd::BodyVectorXd::const_iterator contact_acc_it = full_state.contact_acc.find(name);
-		if (contact_acc_it != full_state.contact_acc.end())
-			reduced_state.foot_acc[name] = contact_acc_it->second;
+		rbd::BodyVectorXd::const_iterator cacc_it = full_state.contact_acc.find(name);
+		if (cacc_it != full_state.contact_acc.end())
+			reduced_state.setFootAcceleration_B(name, cacc_it->second);
 	}
 }
 

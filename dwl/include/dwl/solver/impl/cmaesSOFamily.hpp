@@ -13,9 +13,10 @@ namespace solver
 
 template<typename TScaling>
 cmaesSOFamily<TScaling>::cmaesSOFamily() : cmaes_params_(NULL),
-        initialized_(false), ftolerance_(1e-12), family_((int) CMAES),
-        sigma_(-1.), lambda_(-1), max_iteration_(-1), max_fevals_(-1),
-        elitism_(0), max_restarts_(0), multithreading_(false), outfile_(false)
+        initialized_(false), print_(false), ftolerance_(1e-12),
+		family_((int) CMAES), sigma_(-1.), lambda_(-1), max_iteration_(-1),
+		max_fevals_(-1), elitism_(0), max_restarts_(0), multithreading_(false),
+		outfile_(false)
 {
 	name_ = "cmaes family";
 }
@@ -102,6 +103,12 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 				setOutputFile(outfile);
 			}
 		}
+	}
+
+	// Reading the print option
+	bool print;
+	if (yaml_reader.read(print, "print", ofile_ns)) {
+		setPrintOption(print);
 	}
 
 	// Re-initialization of the solver if it was initialized
@@ -227,6 +234,13 @@ void cmaesSOFamily<TScaling>::setOutputFile(std::string filename)
 
 
 template<typename TScaling>
+void cmaesSOFamily<TScaling>::setPrintOption(bool print)
+{
+	print_ = print;
+}
+
+
+template<typename TScaling>
 bool cmaesSOFamily<TScaling>::init()
 {
 	// Initializing the optimization model
@@ -304,8 +318,14 @@ bool cmaesSOFamily<TScaling>::compute(double allocated_time_secs)
 	libcmaes::CMASolutions cmasols =
 			libcmaes::cmaes<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
 												TScaling>>(fitness_, *cmaes_params_);
-	cmasols.print(std::cout, false, cmaes_params_->get_gp());
-	std::cout << std::endl << "optimization took " << cmasols.elapsed_time() / 1000.0 << " seconds\n";
+
+	// Prints the solution in the terminal
+	if (print_) {
+		cmasols.print(std::cout, false, cmaes_params_->get_gp());
+		std::cout << std::endl;
+		std::cout << "Optimization took ";
+		std::cout << cmasols.elapsed_time() / 1000.0 << " seconds\n" << std::endl;
+	}
 
 	// Evaluation of the solution
 	Eigen::VectorXd solution =
@@ -313,8 +333,6 @@ bool cmaesSOFamily<TScaling>::compute(double allocated_time_secs)
 	locomotion_trajectory_ = model_->evaluateSolution(solution);
 
 	return cmasols.run_status();
-
-	return true;
 }
 
 

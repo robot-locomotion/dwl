@@ -44,3 +44,4 @@ cmaes:
   output_file:
     activate: false
     filename: out.dat
+    print: false

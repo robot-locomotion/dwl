@@ -126,7 +126,7 @@ class PreviewOptimization : public model::OptimizationModel
 		 * @param double Step duration
 		 * @param double Step distance
 		 */
-		void setDesiredStep(double duration,
+		void setStepCommand(double duration,
 							double distance);
 
 		/**
@@ -138,6 +138,9 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief Gets the optimized preview control */
 		simulation::PreviewControl& getFullPreviewControl();
 		simulation::PreviewControl& getAppliedPreviewControl();
+
+		/** @brief Returns the applied step command */
+		simulation::StepCommand& getStepCommand();
 
 		/**
 		 * @brief Evaluates the bounds of the problem
@@ -184,12 +187,10 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/**
 		 * @brief Saves a state and preview control pairs
-		 * @param simulation::ReducedBodyState& Reduced-body state
-		 * @param simulation::PreviewControl& Preview control sequence
+		 * @param const PreviewData& Preview data
 		 * @param std::string Filename
 		 */
-		void saveControl(ReducedBodyState& state,
-						 simulation::PreviewControl& control,
+		void saveControl(const simulation::PreviewData& data,
 						 std::string filename);
 
 		/**
@@ -279,8 +280,7 @@ class PreviewOptimization : public model::OptimizationModel
 		ReducedBodyTrajectory phase_transitions_;
 
 		/** @brief Desired states */
-		double desired_step_duration_;
-		double desired_step_length_B_;
+		simulation::StepCommand actual_command_;
 		double desired_yaw_B_;
 
 		/** @brief Weights of the cost functions */

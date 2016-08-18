@@ -42,15 +42,18 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	// Saving the SLIP control params in the world frame
 	params_W_.duration = params_H.duration;
 	params_W_.cop_shift =
-			frame_tf_.mapHorizontalToWorldFrame(params_H.cop_shift,
-												initial_state_.getRPY_W());
+			frame_tf_.fromHorizontalToWorldFrame(params_H.cop_shift,
+												 initial_state_.getRPY_W());
 
 	// Computing the coefficients of the Cart-Table response
-	height_ = initial_state_.com_pos(rbd::Z) - initial_state_.cop(rbd::Z);
+	height_ = initial_state_.getCoMPosition_W()(rbd::Z) -
+			  initial_state_.getCoPPosition_W()(rbd::Z);
 	omega_ = sqrt(properties_.gravity / height_);
 	double alpha = 2 * omega_ * params_W_.duration;
-	Eigen::Vector2d hor_proj = (initial_state_.com_pos - initial_state_.cop).head<2>();
-	Eigen::Vector2d hor_disp = initial_state_.com_vel.head<2>() * params_W_.duration;
+	Eigen::Vector2d hor_proj =
+			(initial_state_.getCoMPosition_W() - initial_state_.getCoPPosition_W()).head<2>();
+	Eigen::Vector2d hor_disp =
+			initial_state_.getCoMVelocity_W().head<2>() * params_W_.duration;
 	beta_1_ = hor_proj / 2 +
 			(hor_disp - params_W_.cop_shift.head<2>()) / alpha;
 	beta_2_ = hor_proj / 2 -
@@ -71,17 +74,79 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	// Computing the normal vector of the support region
 	math::computePlaneParameters(support_normal_, vertices);
 
-	// Initializyng the splinners of the roll and pitch angles
+	// Getting the RPY angle of the next support region
 	Eigen::Vector3d ref_dir = Eigen::Vector3d::UnitZ();
 	Eigen::Quaterniond support_orientation;
 	support_orientation.setFromTwoVectors(ref_dir, support_normal_);
 	support_rpy_ = math::getRPY(support_orientation);
+
+	// Computing the require roll and pitch velocities
+	double roll_delta = support_rpy_(0) - initial_state_.getRPY_W()(0);
+	double pitch_delta = support_rpy_(1) - initial_state_.getRPY_W()(1);
+	double roll_vel = roll_delta / params_W_.duration;
+	double pitch_vel = pitch_delta / params_W_.duration;
+
+	// Saturating the maximum roll and pitch displacement in case that we
+	// reach maximum velocity
+	double max_roll_vel = 0.2;
+	double max_pitch_vel = 0.2;
+	math::Spline::Point start_roll(initial_state_.getRPY_W()(0),
+								   initial_state_.getAngularVelocity_W()(0),
+								   initial_state_.getAngularAcceleration_W()(0));
+	math::Spline::Point end_roll;
+	if (fabs(roll_vel) > max_roll_vel) {
+		double final_roll;
+		if (roll_vel >= 0) {
+			final_roll =
+					initial_state_.getRPY_W()(0) + max_roll_vel * params_W_.duration;
+			end_roll = math::Spline::Point(final_roll,
+										   max_roll_vel,
+										   max_roll_vel / params_W_.duration);
+		} else {
+			final_roll =
+					initial_state_.getRPY_W()(0) - max_roll_vel * params_W_.duration;
+			end_roll = math::Spline::Point(final_roll,
+										   -max_roll_vel,
+										   -max_roll_vel / params_W_.duration);
+		}
+	} else {
+		end_roll = math::Spline::Point(support_rpy_(0),
+									   roll_vel,
+									   roll_vel / params_W_.duration);
+	}
+
+	math::Spline::Point start_pitch(initial_state_.getRPY_W()(1),
+									initial_state_.getAngularVelocity_W()(1),
+									initial_state_.getAngularAcceleration_W()(1));
+	math::Spline::Point end_pitch;
+	if (fabs(pitch_vel) > max_pitch_vel) {
+		double final_pitch;
+		if (pitch_vel >= 0) {
+			final_pitch =
+					initial_state_.getRPY_W()(1) + max_pitch_vel * params_W_.duration;
+			end_pitch = math::Spline::Point(final_pitch,
+											max_pitch_vel,
+											max_pitch_vel / params_W_.duration);
+		} else {
+			final_pitch =
+					initial_state_.getRPY_W()(1) - max_pitch_vel * params_W_.duration;
+			end_pitch = math::Spline::Point(final_pitch,
+											-max_pitch_vel,
+											-max_pitch_vel / params_W_.duration);
+		}
+	} else {
+		end_pitch = math::Spline::Point(support_rpy_(1),
+										pitch_vel,
+										pitch_vel / params_W_.duration);
+	}
+
+	// Initializing the splines
 	roll_spline_.setBoundary(0., params_W_.duration,
-							 (double) initial_state_.getRPY_W()(0),
-							 (double) support_rpy_(0));
+							 start_roll,
+							 end_roll);
 	pitch_spline_.setBoundary(0., params_W_.duration,
-							 (double) initial_state_.getRPY_W()(1),
-							 (double) support_rpy_(1));
+							 start_pitch,
+							 end_pitch);
 
 	init_response_ = true;
 }
@@ -108,7 +173,7 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 
 	// Computing the CoP position given the linear assumption
 	Eigen::Vector3d delta_cop = (dt / params_W_.duration) * params_W_.cop_shift;
-	state.cop = initial_state_.cop + delta_cop;
+	state.setCoPPosition_W(initial_state_.getCoPPosition_W() + delta_cop);
 
 	// Computing the horizontal motion of the CoM according to
 	// the cart-table system
@@ -145,16 +210,18 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 
 	// Splinning the roll and pitch angle in order to have the base frame
 	// parallel with the support frame
-	// TODO this is an experimental feature that new to be tested
 	math::Spline::Point roll, pitch, yaw;
 	roll_spline_.getPoint(dt, roll);
 	pitch_spline_.getPoint(dt, pitch);
 	yaw.x = initial_state_.angular_pos(2);
 	yaw.xd = initial_state_.angular_vel(2);
 	yaw.xdd = initial_state_.angular_acc(2);
-	state.angular_pos = Eigen::Vector3d(roll.x, pitch.x, yaw.x);
-	state.angular_vel = Eigen::Vector3d(roll.xd, pitch.xd, yaw.xd);
-	state.angular_acc = Eigen::Vector3d(roll.xdd, pitch.xdd, yaw.xdd);
+	Eigen::Vector3d rpy(roll.x, pitch.x, yaw.x);
+	Eigen::Vector3d rpy_vel(roll.x, pitch.x, yaw.x);
+	Eigen::Vector3d rpy_acc(roll.xdd, pitch.xdd, yaw.xdd);
+	state.setRPY_W(rpy);
+	state.setRPYVelocity(rpy_vel);
+	state.setRPYAcceleration(rpy_vel, rpy_acc);
 }
 
 
