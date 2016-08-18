@@ -286,10 +286,10 @@ class WholeBodyDynamics
 									double force_threshold);
 
 		/** @brief Gets the floating-base system information */
-		const FloatingBaseSystem& getFloatingBaseSystem();
+		const FloatingBaseSystem& getFloatingBaseSystem() const;
 
 		/** @brief Gets the whole-body kinematics */
-		const WholeBodyKinematics& getWholeBodyKinematics();
+		const WholeBodyKinematics& getWholeBodyKinematics() const;
 
 		/**
 		 * @brief Detects the active contacts

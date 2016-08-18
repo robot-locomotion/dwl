@@ -255,7 +255,7 @@ class WholeBodyKinematics
 							 enum rbd::Component component = rbd::Full);
 
 		/** @brief Gets the floating-base system information */
-		FloatingBaseSystem& getFloatingBaseSystem();
+		const FloatingBaseSystem& getFloatingBaseSystem() const;
 
 		/**
 		 * @brief Gets the number of active end-effectors

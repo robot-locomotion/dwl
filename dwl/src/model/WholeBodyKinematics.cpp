@@ -697,7 +697,7 @@ void WholeBodyKinematics::computeJdotQdot(rbd::BodyVectorXd& jacd_qd,
 }
 
 
-FloatingBaseSystem& WholeBodyKinematics::getFloatingBaseSystem()
+const FloatingBaseSystem& WholeBodyKinematics::getFloatingBaseSystem() const
 {
 	return system_;
 }
