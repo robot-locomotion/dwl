@@ -1,0 +1,92 @@
+#ifndef DWL__ROBOT_STATES__H
+#define DWL__ROBOT_STATES__H
+
+#include <dwl/WholeBodyState.h>
+#include <dwl/ReducedBodyState.h>
+#include <dwl/model/WholeBodyKinematics.h>
+#include <dwl/model/WholeBodyDynamics.h>
+#include <dwl/utils/FrameTF.h>
+
+
+namespace dwl
+{
+
+class RobotStates
+{
+	public:
+		/** @brief Constructor function */
+		RobotStates();
+
+		/** @brief Destructor function */
+		~RobotStates();
+
+		/** @brief Resets the robot dynamics
+		 * @param const model::WholeBodyDynamics& Whole-body dynamics
+		 **/
+		void reset(const model::WholeBodyDynamics& dynamics);
+
+		/** @brief Set the force threshold for getting active contacts */
+		void setForceThreshold(double force_threshold);
+
+		/**
+		 * @brief Converts the reduced-body state to whole-body one
+		 * @param const ReducedBodyStated& Reduced-body state
+		 * @return const WholeBodyState& Whole-body state
+		 */
+		const WholeBodyState& getWholeBodyState(const ReducedBodyState& state);
+
+		/**
+		 * @brief Converts the whole-body state to reduced-body state one
+		 * @param const WholeBodyState& Whole-body state
+		 * @return const ReducedBodyStated& Reduced-body state
+		 */
+		const ReducedBodyState& getReducedBodyState(const WholeBodyState& state);
+
+		/**
+		 * @brief Converts a reduced-body trajectory to a whole-body one
+		 * @param const ReducedBodyTrajectory& Reduced-body trajectory
+		 * @return const WholeBodyTrajectory& Whole-body trajectory
+		 */
+		const WholeBodyTrajectory& getWholeBodyTrajectory(const ReducedBodyTrajectory& trajectory);
+		const ReducedBodyTrajectory& getReducedBodyTrajectory(const WholeBodyTrajectory& trajectory);
+
+
+	private:
+		/** @brief Whole-body state */
+		WholeBodyState ws_;
+
+		/** @brief Reduced-body state */
+		ReducedBodyState rs_;
+
+		/** @brief Whole-body trajectory */
+		WholeBodyTrajectory wt_;
+
+		/** @brief Reduced-body trajectory */
+		ReducedBodyTrajectory rt_;
+
+		/** @brief Floating-base system */
+		model::FloatingBaseSystem fbs_;
+
+		/** @brief Whole-body kinematics */
+		model::WholeBodyKinematics wkin_;
+
+		/** @brief Whole-body dynamics */
+		model::WholeBodyDynamics wdyn_;
+
+		/** @brief Frame transformer */
+		math::FrameTF frame_tf_;
+
+		/** @brief Robot properties */
+		Eigen::Vector3d com_pos_B_;
+		unsigned int num_joints_;
+		unsigned int num_feet_;
+		rbd::BodySelector feet_;
+
+		/** @brief Force threshold */
+		double force_threshold_;
+};
+
+} //@namespace
+
+
+#endif
