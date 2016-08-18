@@ -46,17 +46,18 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 	ws_.time = state.time;
 
 	// From the preview model we do not know the joint states, so we neglect
-	// the joint-related components of the CoM
+	// the joint-related components of the CoM. Therefore, we transform the
+	// CoM states assuming that CoM is fixed-point in the base
 	Eigen::Vector3d com_pos_W =
 			frame_tf_.fromBaseToWorldFrame(com_pos_B_,
 										   state.getRPY_W());
-	ws_.setBasePosition_W(state.com_pos - com_pos_W);
-	ws_.setBaseVelocity_W(state.com_vel);
-	ws_.setBaseAcceleration_W(state.com_acc);
+	ws_.setBasePosition_W(state.getCoMPosition_W() - com_pos_W);
+	ws_.setBaseVelocity_W(computeBaseVelocity_W(state, com_pos_W));
+	ws_.setBaseAcceleration_W(computeBaseAcceleration_W(state, com_pos_W));
 
-	ws_.setBaseRPY_W(state.angular_pos);
-	ws_.setBaseAngularVelocity_W(state.angular_vel);
-	ws_.setBaseAngularAcceleration_W(state.angular_acc);
+	ws_.setBaseRPY_W(state.getRPY_W());
+	ws_.setBaseAngularVelocity_W(state.getAngularVelocity_W());
+	ws_.setBaseAngularAcceleration_W(state.getAngularAcceleration_W());
 
 
 	// Adding the contact positions, velocities, accelerations and condition
@@ -68,7 +69,7 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 		// Setting up the contact position
 		rbd::BodyVector3d::const_iterator foot_pos_it = state.foot_pos.find(name);
 		if (foot_pos_it != state.foot_pos.end()) {
-			Eigen::Vector3d foot_pos = foot_pos_it->second + com_pos_B_;// com_pos_W;
+			Eigen::Vector3d foot_pos = foot_pos_it->second + com_pos_B_;
 			ws_.contact_pos[name] = foot_pos;
 			feet_pos[name] = foot_pos; // for IK computation
 		}
@@ -176,7 +177,7 @@ const ReducedBodyState& RobotStates::getReducedBodyState(const WholeBodyState& s
 		// Setting up the contact position
 		rbd::BodyVectorXd::const_iterator contact_pos_it = state.contact_pos.find(name);
 		if (contact_pos_it != state.contact_pos.end())
-			rs_.foot_pos[name] = contact_pos_it->second - com_pos_B_;//base_rotation * com_pos_B_;
+			rs_.foot_pos[name] = contact_pos_it->second - com_pos_B_;
 
 		// Setting up the contact velocity
 		rbd::BodyVectorXd::const_iterator contact_vel_it = state.contact_vel.find(name);
@@ -228,5 +229,30 @@ const ReducedBodyTrajectory& RobotStates::getReducedBodyTrajectory(const WholeBo
 	return rt_;
 }
 
+
+Eigen::Vector3d RobotStates::computeBaseVelocity_W(const ReducedBodyState& state,
+												   const Eigen::Vector3d& com_pos_W)
+{
+	// Computing the base velocity using the equation:
+	// Xd^W_com = Xd^W_base + omega_base x X^W_com/base
+	return state.getCoMVelocity_W() - state.getAngularVelocity_W().cross(com_pos_W);
+}
+
+
+Eigen::Vector3d RobotStates::computeBaseAcceleration_W(const ReducedBodyState& state,
+													   const Eigen::Vector3d& com_pos_W)
+{
+	// Computing the skew symmetric matrixes
+	Eigen::Matrix3d C_omega =
+			math::skewSymmetricMatrixFromVector(state.getAngularVelocity_W());
+	Eigen::Matrix3d C_omega_dot =
+			math::skewSymmetricMatrixFromVector(state.getAngularAcceleration_W());
+
+	// Computing the base acceleration relatives to the CoM, which is expressed
+	// in the world frame. Here we use the equation:
+	// Xdd^W_com = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_com/base
+	return state.getCoMAcceleration_W() -
+			(C_omega_dot + C_omega * C_omega) * com_pos_W;
+}
 
 } //@namespace dwl
