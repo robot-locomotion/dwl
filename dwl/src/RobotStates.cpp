@@ -67,23 +67,17 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 		std::string name = feet_[f];
 
 		// Setting up the contact position
-		rbd::BodyVector3d::const_iterator foot_pos_it = state.foot_pos.find(name);
-		if (foot_pos_it != state.foot_pos.end()) {
-			Eigen::Vector3d foot_pos = foot_pos_it->second + com_pos_B_;
-			ws_.contact_pos[name] = foot_pos;
-			feet_pos[name] = foot_pos; // for IK computation
-		}
+		Eigen::Vector3d contact_pos_B =	state.getFootPosition_B(name) + com_pos_B_;
+		ws_.setContactPosition_B(name, contact_pos_B);
+		feet_pos[name] = contact_pos_B; // for IK computation
 
 		// Setting up the contact velocity
-		rbd::BodyVector3d::const_iterator foot_vel_it = state.foot_vel.find(name);
-		if (foot_vel_it != state.foot_vel.end())
-			ws_.contact_vel[name] = foot_vel_it->second;
+		Eigen::Vector3d contact_vel_W = state.getFootVelocity_W(name);
+		ws_.setContactVelocity_W(name, contact_vel_W);
 
 		// Setting up the contact acceleration
-		rbd::BodyVector3d::const_iterator foot_acc_it = state.foot_acc.find(name);
-		if (foot_acc_it != state.foot_acc.end())
-			ws_.contact_acc[name] = foot_acc_it->second;
-
+		Eigen::Vector3d contact_acc_W = state.getFootAcceleration_W(name);
+		ws_.setContactAcceleration_W(name, contact_vel_W, contact_acc_W);
 
 		// Setting up the contact condition
 		rbd::BodyVector3d::const_iterator support_it = state.support_region.find(name);
@@ -100,7 +94,7 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 
 	// Computing the joint positions
 	wkin_.computeInverseKinematics(ws_.joint_pos,
-								  feet_pos);
+								   feet_pos);
 
 	// Computing the joint velocities
 	wkin_.computeJointVelocity(ws_.joint_vel,
@@ -130,22 +124,20 @@ const ReducedBodyState& RobotStates::getReducedBodyState(const WholeBodyState& s
 
 	// Getting the world to base transformation
 	Eigen::Vector3d base_traslation = state.getBasePosition_W();
-	Eigen::Vector3d base_rpy = state.getBaseRPY_W();
-	Eigen::Matrix3d base_rotation = math::getRotationMatrix(base_rpy);
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(state.getBaseRPY_W());
 
 	// Computing the CoM position, velocity and acceleration
 	// Neglecting the joint accelerations components
-	rs_.com_pos =
-			state.getBasePosition_W() + base_rotation * com_pos_B_;
-	rs_.com_vel = fbs_.getSystemCoMRate(state.base_pos,
-										state.joint_pos,
-										state.base_vel,
-										state.joint_vel);
-	rs_.com_acc = state.getBaseAcceleration_W();
+	rs_.setCoMPosition_W(state.getBasePosition_W() + W_rot_B * com_pos_B_);
+	rs_.setCoMVelocity_W(fbs_.getSystemCoMRate(state.base_pos,
+											   state.joint_pos,
+											   state.base_vel,
+											   state.joint_vel));
+	rs_.setCoMAcceleration_W(state.getBaseAcceleration_W());
 
-	rs_.angular_pos = state.getBaseRPY_W();
-	rs_.angular_vel = state.getBaseAngularVelocity_W();
-	rs_.angular_acc = state.getBaseAngularAcceleration_W();
+	rs_.setRPY_W(state.getBaseRPY_W());
+	rs_.setAngularVelocity_W(state.getBaseAngularVelocity_W());
+	rs_.setAngularAcceleration_W(state.getBaseAngularAcceleration_W());
 
 	// Computing the CoP in the world frame
 	Eigen::Vector3d cop_B;
@@ -153,7 +145,7 @@ const ReducedBodyState& RobotStates::getReducedBodyState(const WholeBodyState& s
 								  state.contact_eff,
 								  state.contact_pos,
 								  feet_);
-	rs_.cop = base_traslation + base_rotation * cop_B;
+	rs_.setCoPPosition_W(base_traslation + W_rot_B * cop_B);
 
 	// Getting the support region w.r.t the world frame. The support region
 	// is defined by the active contacts
@@ -166,7 +158,7 @@ const ReducedBodyState& RobotStates::getReducedBodyState(const WholeBodyState& s
 		std::string name = active_contacts[i];
 
 		rs_.support_region[name] = base_traslation +
-				base_rotation * state.getContactPosition_B(name);
+				W_rot_B * state.getContactPosition_B(name);
 	}
 
 	// Adding the contact positions, velocities and accelerations
@@ -175,21 +167,15 @@ const ReducedBodyState& RobotStates::getReducedBodyState(const WholeBodyState& s
 		std::string name = feet_[f];
 
 		// Setting up the contact position
-		rbd::BodyVectorXd::const_iterator contact_pos_it = state.contact_pos.find(name);
-		if (contact_pos_it != state.contact_pos.end())
-			rs_.foot_pos[name] = contact_pos_it->second - com_pos_B_;
+		rs_.setFootPosition_B(name, state.getContactPosition_B(name) - com_pos_B_);
 
 		// Setting up the contact velocity
-		rbd::BodyVectorXd::const_iterator contact_vel_it = state.contact_vel.find(name);
-		if (contact_vel_it != state.contact_vel.end())
-			rs_.foot_vel[name] = contact_vel_it->second;
+		Eigen::Vector3d vel_contact_W = state.getContactVelocity_W(name);
+		rs_.setFootVelocity_W(name, vel_contact_W);
 
 		// Setting up the contact acceleration
-		rbd::BodyVectorXd::const_iterator contact_acc_it = state.contact_acc.find(name);
-		if (contact_acc_it != state.contact_acc.end())
-			rs_.foot_acc[name] = contact_acc_it->second;
+		rs_.setFootAcceleration_W(name, vel_contact_W, state.getContactAcceleration_W(name));
 	}
-
 
 	return rs_;
 }
