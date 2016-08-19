@@ -191,16 +191,6 @@ void PreviewLocomotion::readPreviewSequence(StepCommand& command,
 		if (yaml_reader.read(control.params[k].cop_shift, "cop_shift", phase_ns))
 			control.params[k].phase.setTypeOfPhase(simulation::STANCE);
 
-		// Reading the preview parameters for stance phase
-		if (control.params[k].phase.getTypeOfPhase() == simulation::STANCE) {
-			// Reading the heading acceleration
-			if (!yaml_reader.read(control.params[k].head_acc, "head_acc", phase_ns)) {
-				printf(RED "Error: the head_acc of phase_%i was not found\n"
-						COLOR_RESET, k);
-				return;
-			}
-		}
-
 		// Reading the footstep shifts
 		for (unsigned int f = 0; f < feet_names_.size(); f++) {
 			std::string name = feet_names_[f];
@@ -470,12 +460,6 @@ void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 		cart_table_.computeResponse(current_state,
 									current_state.time);
 
-		// Computing the heading motion according to heading kinematic equation
-//		current_state.head_pos = state.head_pos + state.head_vel * time +
-//				0.5 * params.head_acc * time * time;
-//		current_state.head_vel = state.head_vel + params.head_acc * time;
-//		current_state.head_acc = params.head_acc; TODO think about it
-
 		// Generating the swing trajectory
 		if (full)
 			generateSwing(current_state, current_state.time);
@@ -533,12 +517,6 @@ void PreviewLocomotion::flightPreview(ReducedBodyTrajectory& trajectory,
 				0.5 * gravity_vec * time * time;
 		current_state.com_vel = state.com_vel + gravity_vec * time;
 		current_state.com_acc = gravity_vec;
-
-		// Computing the heading motion by assuming that there isn't
-		// change in the angular momentum
-//		current_state.head_pos = state.head_pos + state.head_vel * time;
-//		current_state.head_vel = state.head_vel;
-//		current_state.head_acc = 0.; TODO  think about it
 
 		// Generating the swing trajectory
 		if (full)
