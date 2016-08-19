@@ -31,12 +31,21 @@ class FrameTF
 		Eigen::Vector3d fromWorldToBaseFrame(const Eigen::Vector3d& vec_W,
 											 const Eigen::Quaterniond& q) const;
 
+		/** @brief Gets the world-to-base rotation matrix */
+		Eigen::Matrix3d getWorldToBaseRotation(const Eigen::Vector3d& rpy) const;
+		Eigen::Matrix3d getWorldToBaseRotation(const Eigen::Quaterniond& q) const;
+
 		/** @brief Transforms the defined vector in the world into the horizontal
 		 * frame given the orientation of the body: RPY angles or quaternion */
 		Eigen::Vector3d fromWorldToHorizontalFrame(const Eigen::Vector3d& vec_W,
 												   const Eigen::Vector3d& rpy) const;
 		Eigen::Vector3d fromWorldToHorizontalFrame(const Eigen::Vector3d& vec_W,
 												   const Eigen::Quaterniond& q) const;
+
+		/** @brief Gets the world-to-horizontal rotation matrix */
+		Eigen::Matrix3d getWorldToHorizontalRotation(const Eigen::Vector3d& rpy) const;
+		Eigen::Matrix3d getWorldToHorizontalRotation(const Eigen::Quaterniond& q) const;
+
 
 		/** @brief Transforms the defined vector in the base into the world
 		 * frame given the orientation of the body: RPY angles or quaternion */
@@ -45,12 +54,20 @@ class FrameTF
 		Eigen::Vector3d fromBaseToWorldFrame(const Eigen::Vector3d& vec_B,
 											 const Eigen::Quaterniond& q) const;
 
+		/** @brief Gets the base-to-world rotation matrix */
+		Eigen::Matrix3d getBaseToWorldRotation(const Eigen::Vector3d& rpy) const;
+		Eigen::Matrix3d getBaseToWorldRotation(const Eigen::Quaterniond& q) const;
+
 		/** @brief Transforms the defined vector in the base into the horizontal
 		 * frame given the orientation of the body: RPY angles or quaternion */
 		Eigen::Vector3d fromBaseToHorizontalFrame(const Eigen::Vector3d& vec_B,
 												  const Eigen::Vector3d& rpy) const;
 		Eigen::Vector3d fromBaseToHorizontalFrame(const Eigen::Vector3d& vec_B,
 												  const Eigen::Quaterniond& q) const;
+
+		/** @brief Gets the base-to-horizontal rotation matrix */
+		Eigen::Matrix3d getBaseToHorizontalRotation(const Eigen::Vector3d& rpy) const;
+		Eigen::Matrix3d getBaseToHorizontalRotation(const Eigen::Quaterniond& q) const;
 
 		/** @brief Transforms the defined vector in the horizontal into the world
 		 * frame given the orientation of the body: RPY angles or quaternion */
@@ -59,12 +76,20 @@ class FrameTF
 		Eigen::Vector3d fromHorizontalToWorldFrame(const Eigen::Vector3d& vec_H,
 												   const Eigen::Quaterniond& q) const;
 
+		/** @brief Gets the horizontal-to-world rotation matrix */
+		Eigen::Matrix3d getHorizontalToWorldRotation(const Eigen::Vector3d& rpy) const;
+		Eigen::Matrix3d getHorizontalToWorldRotation(const Eigen::Quaterniond& q) const;
+
 		/** @brief Transforms the defined vector in the horizontal into the base
 		 * frame given the orientation of the body: RPY angles or quaternion */
 		Eigen::Vector3d fromHorizontalToBaseFrame(const Eigen::Vector3d& vec_H,
 												  const Eigen::Vector3d& rpy) const;
 		Eigen::Vector3d fromHorizontalToBaseFrame(const Eigen::Vector3d& vec_H,
 												  const Eigen::Quaterniond& q) const;
+
+		/** @brief Gets the horizontal-to-base rotation matrix */
+		Eigen::Matrix3d getHorizontalToBaseRotation(const Eigen::Vector3d& rpy) const;
+		Eigen::Matrix3d getHorizontalToBaseRotation(const Eigen::Quaterniond& q) const;
 
 
 		/** @brief Maps the defined vector in the world frame into the base
