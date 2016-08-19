@@ -1,8 +1,4 @@
 #include <dwl/WholeBodyState.h>
-// Michele 
-// accB = getOrientation_W().inverse().toRotationMatrix()*accW
-// accW = getOrientation_W().toRotationMatrix()*accB
-// accH = common::rpyToRot(Vector3d(0, 0, yaw)) * accW
 
 
 namespace dwl

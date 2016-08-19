@@ -137,21 +137,21 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the body mass
-		 * @return double The mass of the body
+		 * @return const double& The mass of the body
 		 */
-		double getBodyMass(std::string body_name);
+		const double& getBodyMass(std::string body_name) const;
 
 		/** @brief Gets the gravity acceleration of the rigid body system */
-		double getGravityAcceleration();
+		const double& getGravityAcceleration() const;
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of the floating-base system
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
-		 * @return double The CoM of the floating-base system
+		 * @return Eigen::Vector3d& The CoM of the floating-base system
 		 */
-		const Eigen::Vector3d& getSystemCoM(const rbd::Vector6d& base_pos,
-				   	   	   	   	   	   	    const Eigen::VectorXd& joint_pos);
+		Eigen::Vector3d& getSystemCoM(const rbd::Vector6d& base_pos,
+									  const Eigen::VectorXd& joint_pos);
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) rate of the floating-base system
@@ -159,12 +159,12 @@ class FloatingBaseSystem
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::Vector6d& Base velocity
 		 * @param const Eigen::VectorXd& Joint velocity
-		 * @return double The CoM rate of the floating-base system
+		 * @return Eigen::Vector3d& The CoM rate of the floating-base system
 		 */
-		const Eigen::Vector3d& getSystemCoMRate(const rbd::Vector6d& base_pos,
-												const Eigen::VectorXd& joint_pos,
-												const rbd::Vector6d& base_vel,
-												const Eigen::VectorXd& joint_vel);
+		Eigen::Vector3d& getSystemCoMRate(const rbd::Vector6d& base_pos,
+										  const Eigen::VectorXd& joint_pos,
+										  const rbd::Vector6d& base_vel,
+										  const Eigen::VectorXd& joint_vel);
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of floating-base
@@ -189,20 +189,20 @@ class FloatingBaseSystem
 		 * @brief Gets the floating-base DoF
 		 * @return const unsigned int& Number of floating-base DoF
 		 */
-		const unsigned int& getFloatingBaseDoF();
+		const unsigned int& getFloatingBaseDoF() const;
 
 		/**
 		 * @brief Gets the actuated joint DoF
 		 * @return const unsigned int& Number of joint DoF
 		 */
-		const unsigned int& getJointDoF();
+		const unsigned int& getJointDoF() const;
 
 		/**
 		 * @brief Gets the floating-base joint
 		 * @param rbd::Coords6d Floating-base joint coordinate
 		 * return const FloatingBaseJoint& Floating-base joint information
 		 */
-		const FloatingBaseJoint& getFloatingBaseJoint(rbd::Coords6d joint);
+		const FloatingBaseJoint& getFloatingBaseJoint(rbd::Coords6d joint) const;
 
 		/**
 		 * @brief Gets the floating-base joint coordinate given an Id
@@ -222,7 +222,7 @@ class FloatingBaseSystem
 		 * @param std::string Joint name
 		 * @return Returns the joint id
 		 */
-		unsigned int& getJointId(std::string joint_name);
+		const unsigned int& getJointId(std::string joint_name) const;
 
 		/**
 		 * @brief Gets actuated joint information
@@ -258,7 +258,7 @@ class FloatingBaseSystem
 		 * @brief Gets the type of floating-base system
 		 * @return enum TypeOfSystem Type of floating-base system
 		 */
-		enum TypeOfSystem getTypeOfDynamicSystem();
+		const enum TypeOfSystem& getTypeOfDynamicSystem() const;
 
 		/**
 		 * @brief Gets the number of end-effectors
@@ -303,10 +303,10 @@ class FloatingBaseSystem
 		 * @brief Converts the base and joint states to a generalized joint state
 		 * @param const Vector6d& Base state
 		 * @param const Eigen::VectorXd& Joint state
-		 * @return Eigen::VectorXd Generalized joint state
+		 * @return Eigen::VectorXd& Generalized joint state
 		 */
-		Eigen::VectorXd toGeneralizedJointState(const rbd::Vector6d& base_state,
-												const Eigen::VectorXd& joint_state);
+		Eigen::VectorXd& toGeneralizedJointState(const rbd::Vector6d& base_state,
+												 const Eigen::VectorXd& joint_state);
 
 		/**
 		 * @brief Converts the generalized joint state to base and joint states
@@ -380,6 +380,9 @@ class FloatingBaseSystem
 		urdf_model::JointLimits joint_limits_;
 		rbd::BodySelector joint_names_;
 		Eigen::VectorXd default_joint_pos_;
+		Eigen::VectorXd full_state_;
+		rbd::Vector6d base_state_;
+		Eigen::VectorXd joint_state_;
 
 		/** @brief System bodies */
 		std::string floating_body_name_;
