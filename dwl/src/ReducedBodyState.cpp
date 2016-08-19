@@ -625,9 +625,11 @@ void ReducedBodyState::setFootVelocity_H(FootIterator it)
 void ReducedBodyState::setFootVelocity_H(const std::string& name,
 										 const Eigen::Vector3d& vel_H)
 {
-	// Computing the foot velocity expressed in the world frame
-	Eigen::Vector3d vel_W =
-			frame_tf_.fromHorizontalToWorldFrame(vel_H, getRPY_W());
+	// Computing the foot velocity expressed in the world frame.
+	// Here we use the equation:
+	// Xd^W_foot = Xd^W_hor + Xd^W_foot/hor + omega_hor x X^W_foot/hor
+	Eigen::Vector3d vel_W = getCoMVelocity_H() + vel_H +
+			getAngularVelocity_H().cross(getFootPosition_H(name));
 
 	// Computing the foot velocity relatives base expressed in the world frame
 	Eigen::Vector3d vel_fb_W = computeRelativeFootVelocity_W(name, vel_W);
