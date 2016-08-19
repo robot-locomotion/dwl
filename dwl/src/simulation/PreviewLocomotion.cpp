@@ -9,9 +9,9 @@ namespace simulation
 
 PreviewLocomotion::PreviewLocomotion() : robot_model_(false),
 		sample_time_(0.001), gravity_(9.81), mass_(0.), num_feet_(0),
-		step_height_(0.1), force_threshold_(0.)
+		step_height_(0.1)
 {
-	com_pos_B_.setZero();
+
 }
 
 
@@ -31,37 +31,38 @@ void PreviewLocomotion::resetFromURDFFile(std::string urdf_file,
 void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 										   std::string system_file)
 {
-	// Resetting the model of the floating-base system
-	system_.resetFromURDFModel(urdf_model, system_file);
+	// Initializing the dynamics, kinematics and system from the URDF model
+	wdyn_.modelFromURDFModel(urdf_model, system_file);
+	wkin_ = wdyn_.getWholeBodyKinematics();
+	fbs_ = wdyn_.getFloatingBaseSystem();
 
-	// Initializing the dynamics and kinematics from the URDF model
-	dynamics_.modelFromURDFModel(urdf_model, system_file);
-	kinematics_.modelFromURDFModel(urdf_model, system_file);
+	// Resetting the states converter
+	state_tf_.reset(wdyn_);
 
 	// Getting the gravity magnitude from the rigid-body dynamic model
-	gravity_ = system_.getRBDModel().gravity.norm();
+	gravity_ = fbs_.getRBDModel().gravity.norm();
 
 	// Getting the total mass of the system
-	mass_ = system_.getTotalMass();
+	mass_ = fbs_.getTotalMass();
 
 	// Getting the number of feet
-	num_feet_ = system_.getNumberOfEndEffectors(model::FOOT);
+	num_feet_ = fbs_.getNumberOfEndEffectors(model::FOOT);
 
 	// Getting the feet names
-	feet_names_ = system_.getEndEffectorNames(model::FOOT);
+	feet_names_ = fbs_.getEndEffectorNames(model::FOOT);
 
 	// Getting the default joint position
-	Eigen::VectorXd q0 = system_.getDefaultPosture();
+	Eigen::VectorXd q0 = fbs_.getDefaultPosture();
 
 	// Getting the default position of the CoM system w.r.t. the base frame
-	com_pos_B_ = system_.getSystemCoM(rbd::Vector6d::Zero(), q0);
+	Eigen::Vector3d com_pos_B = fbs_.getSystemCoM(rbd::Vector6d::Zero(), q0);
 
 	// Computing the stance posture using the default position
-	kinematics_.computeForwardKinematics(stance_posture_C_,
-										 rbd::Vector6d::Zero(),
-										 q0,
-										 feet_names_,
-										 rbd::Linear);
+	wkin_.computeForwardKinematics(stance_posture_C_,
+								   rbd::Vector6d::Zero(),
+								   q0,
+								   feet_names_,
+								   rbd::Linear);
 
 	// Converting to the CoM frame
 	for (rbd::BodyVectorXd::iterator feet_it = stance_posture_C_.begin();
@@ -69,7 +70,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 		std::string name = feet_it->first;
 		Eigen::VectorXd stance = feet_it->second;
 
-		stance_posture_C_[name] = stance - com_pos_B_;
+		stance_posture_C_[name] = stance - com_pos_B;
 	}
 
 	// Setting up the cart-table model
@@ -221,7 +222,7 @@ void PreviewLocomotion::setStepHeight(double step_height)
 
 void PreviewLocomotion::setForceThreshold(double force_threshold)
 {
-	force_threshold_ = force_threshold;
+	state_tf_.setForceThreshold(force_threshold);
 }
 
 
@@ -670,13 +671,13 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 
 model::FloatingBaseSystem* PreviewLocomotion::getFloatingBaseSystem()
 {
-	return &system_;
+	return &fbs_;
 }
 
 
 model::WholeBodyDynamics* PreviewLocomotion::getWholeBodyDynamics()
 {
-	return &dynamics_;
+	return &wdyn_;
 }
 
 
@@ -695,164 +696,21 @@ double PreviewLocomotion::getSampleTime()
 void PreviewLocomotion::toWholeBodyState(WholeBodyState& full_state,
 										 const ReducedBodyState& reduced_state)
 {
-	// Adding the time
-	full_state.time = reduced_state.time;
-
-	// From the preview model we do not know the joint states, so we neglect
-	// the joint-related components of the CoM
-	Eigen::Vector3d com_pos_W =
-			frame_tf_.fromBaseToWorldFrame(com_pos_B_,
-										   reduced_state.getRPY_W());
-	full_state.setBasePosition_W(reduced_state.com_pos - com_pos_W);
-	full_state.setBaseVelocity_W(reduced_state.com_vel);
-	full_state.setBaseAcceleration_W(reduced_state.com_acc);
-
-	full_state.setBaseRPY_W(reduced_state.angular_pos);
-	full_state.setBaseAngularVelocity_W(reduced_state.angular_vel);
-	full_state.setBaseAngularAcceleration_W(reduced_state.angular_acc);
-
-
-	// Adding the contact positions, velocities, accelerations and condition
-	// w.r.t the base frame
-	dwl::rbd::BodyVector3d feet_pos;
-	for (unsigned int f = 0; f < num_feet_; f++) {
-		std::string name = feet_names_[f];
-
-		// Setting up the contact position
-		Eigen::Vector3d foot_pos = reduced_state.getFootPosition_B(name) + com_pos_B_;
-		full_state.contact_pos[name] = foot_pos;
-		feet_pos[name] = foot_pos; // for IK computation
-
-		// Setting up the contact velocity
-		full_state.contact_vel[name] = reduced_state.getFootVelocity_B(name);
-
-		// Setting up the contact acceleration
-		full_state.contact_acc[name] = reduced_state.getFootAcceleration_B(name);
-
-		// Setting up the contact condition
-		rbd::BodyVector3d::const_iterator support_it = reduced_state.support_region.find(name);
-		if (support_it != reduced_state.support_region.end())
-			full_state.setContactCondition(name, true);
-		else
-			full_state.setContactCondition(name, false);
-	}
-
-
-	// Adding the joint positions, velocities and accelerations
-	full_state.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
-	full_state.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
-	full_state.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
-
-	// Computing the joint positions
-	kinematics_.computeInverseKinematics(full_state.joint_pos,
-										 feet_pos);
-
-	// Computing the joint velocities
-	kinematics_.computeJointVelocity(full_state.joint_vel,
-									 full_state.joint_pos,
-									 full_state.contact_vel,
-									 feet_names_);
-
-	// Computing the joint accelerations
-	kinematics_.computeJoinAcceleration(full_state.joint_acc,
-										full_state.joint_pos,
-										full_state.joint_vel,
-										full_state.contact_vel,
-										feet_names_);
-
-	// Setting up the desired joint efforts equals to zero
-	full_state.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
+	full_state = state_tf_.getWholeBodyState(reduced_state);
 }
 
 
 void PreviewLocomotion::fromWholeBodyState(ReducedBodyState& reduced_state,
 										   const WholeBodyState& full_state)
 {
-	// Adding the actual time
-	reduced_state.time = full_state.time;
-
-	// Getting the world to base transformation
-	Eigen::Vector3d base_traslation = full_state.getBasePosition_W();
-	Eigen::Vector3d base_rpy = full_state.getBaseRPY_W();
-	Eigen::Matrix3d base_rotation = math::getRotationMatrix(base_rpy);
-
-	// Computing the CoM position, velocity and acceleration
-	// Neglecting the joint accelerations components
-	reduced_state.com_pos =
-			full_state.getBasePosition_W() + base_rotation * com_pos_B_;
-	reduced_state.com_vel = system_.getSystemCoMRate(full_state.base_pos,
-													 full_state.joint_pos,
-													 full_state.base_vel,
-													 full_state.joint_vel);
-	reduced_state.com_acc = full_state.getBaseAcceleration_W();
-
-	reduced_state.angular_pos = full_state.getBaseRPY_W();
-	reduced_state.angular_vel = full_state.getBaseAngularVelocity_W();
-	reduced_state.angular_acc = full_state.getBaseAngularAcceleration_W();
-
-	// Computing the CoP in the world frame
-	Eigen::Vector3d cop_B;
-	dynamics_.computeCenterOfPressure(cop_B,
-									  full_state.contact_eff,
-									  full_state.contact_pos,
-									  feet_names_);
-	reduced_state.cop = base_traslation + base_rotation * cop_B;
-
-	// Getting the support region w.r.t the world frame. The support region
-	// is defined by the active contacts
-	rbd::BodySelector active_contacts;
-	dynamics_.getActiveContacts(active_contacts,
-								full_state.contact_eff,
-								force_threshold_);
-	reduced_state.support_region.clear();
-	for (unsigned int i = 0; i < active_contacts.size(); i++) {
-		std::string name = active_contacts[i];
-
-		reduced_state.support_region[name] = base_traslation +
-				base_rotation * full_state.getContactPosition_B(name);
-	}
-
-	// Adding the contact positions, velocities and accelerations
-	// w.r.t the CoM frame
-	for (unsigned int f = 0; f < num_feet_; f++) {
-		std::string name = feet_names_[f];
-
-		// Setting up the contact position
-		rbd::BodyVectorXd::const_iterator cpos_it = full_state.contact_pos.find(name);
-		if (cpos_it != full_state.contact_pos.end())
-			reduced_state.setFootPosition_B(name,
-											cpos_it->second - com_pos_B_);
-
-		// Setting up the contact velocity
-		rbd::BodyVectorXd::const_iterator cvel_it = full_state.contact_vel.find(name);
-		if (cvel_it != full_state.contact_vel.end())
-			reduced_state.setFootVelocity_B(name, cvel_it->second);
-
-		// Setting up the contact acceleration
-		rbd::BodyVectorXd::const_iterator cacc_it = full_state.contact_acc.find(name);
-		if (cacc_it != full_state.contact_acc.end())
-			reduced_state.setFootAcceleration_B(name, cacc_it->second);
-	}
+	reduced_state = state_tf_.getReducedBodyState(full_state);
 }
 
 
 void PreviewLocomotion::toWholeBodyTrajectory(WholeBodyTrajectory& full_traj,
 											  const ReducedBodyTrajectory& reduced_traj)
 {
-	// Getting the number of points defined in the reduced-body trajectory
-	unsigned int traj_size = reduced_traj.size();
-
-	// Resizing the full trajectory vector
-	full_traj.clear();
-	full_traj.resize(traj_size);
-
-	// Getting the full trajectory
-	dwl::WholeBodyState full_state;
-	for (unsigned int k = 0; k < traj_size; k++) {
-		toWholeBodyState(full_state, reduced_traj[k]);
-
-		full_traj[k] = full_state;
-	}
+	full_traj = state_tf_.getWholeBodyTrajectory(reduced_traj);
 }
 
 } //@namespace simulation

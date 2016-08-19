@@ -130,47 +130,47 @@ class ReducedBodyState
 		// Foot state getter functions
 		/** @brief Gets the foot position expressed in the world frame */
 		Eigen::Vector3d getFootPosition_W(FootIterator it) const;
-		Eigen::Vector3d getFootPosition_W(std::string name) const;
+		Eigen::Vector3d getFootPosition_W(const std::string& name) const;
 		rbd::BodyVector3d getFootPosition_W() const;
 
 		/** @brief Gets the foot position expressed in the base frame */
 		const Eigen::Vector3d& getFootPosition_B(FootIterator it) const;
-		const Eigen::Vector3d& getFootPosition_B(std::string name) const;
+		const Eigen::Vector3d& getFootPosition_B(const std::string& name) const;
 		const rbd::BodyVector3d& getFootPosition_B() const;
 
 		/** @brief Gets the foot position expressed in the horizontal frame */
 		Eigen::Vector3d getFootPosition_H(FootIterator it) const;
-		Eigen::Vector3d getFootPosition_H(std::string name) const;
+		Eigen::Vector3d getFootPosition_H(const std::string& name) const;
 		rbd::BodyVector3d getFootPosition_H() const;
 
 		/** @brief Gets the foot velocity expressed in the world frame */
 		Eigen::Vector3d getFootVelocity_W(FootIterator it) const;
-		Eigen::Vector3d getFootVelocity_W(std::string name) const;
+		Eigen::Vector3d getFootVelocity_W(const std::string& name) const;
 		rbd::BodyVector3d getFootVelocity_W() const;
 
 		/** @brief Gets the foot velocity expressed in the base frame */
 		const Eigen::Vector3d& getFootVelocity_B(FootIterator it) const;
-		const Eigen::Vector3d& getFootVelocity_B(std::string name) const;
+		const Eigen::Vector3d& getFootVelocity_B(const std::string& name) const;
 		const rbd::BodyVector3d& getFootVelocity_B() const;
 
 		/** @brief Gets the foot velocity expressed in the horizontal frame */
 		Eigen::Vector3d getFootVelocity_H(FootIterator it) const;
-		Eigen::Vector3d getFootVelocity_H(std::string name) const;
+		Eigen::Vector3d getFootVelocity_H(const std::string& name) const;
 		rbd::BodyVector3d getFootVelocity_H() const;
 
 		/** @brief Gets the foot acceleration expressed in the world frame */
 		Eigen::Vector3d getFootAcceleration_W(FootIterator it) const;
-		Eigen::Vector3d getFootAcceleration_W(std::string name) const;
+		Eigen::Vector3d getFootAcceleration_W(const std::string& name) const;
 		rbd::BodyVector3d getFootAcceleration_W() const;
 
 		/** @brief Gets the foot acceleration expressed in the base frame */
 		const Eigen::Vector3d& getFootAcceleration_B(FootIterator it) const;
-		const Eigen::Vector3d& getFootAcceleration_B(std::string name) const;
+		const Eigen::Vector3d& getFootAcceleration_B(const std::string& name) const;
 		const rbd::BodyVector3d& getFootAcceleration_B() const;
 
 		/** @brief Gets the foot acceleration expressed in the horizontal frame */
 		Eigen::Vector3d getFootAcceleration_H(FootIterator it) const;
-		Eigen::Vector3d getFootAcceleration_H(std::string name) const;
+		Eigen::Vector3d getFootAcceleration_H(const std::string& name) const;
 		rbd::BodyVector3d getFootAcceleration_H() const;
 
 
@@ -241,44 +241,44 @@ class ReducedBodyState
 		// Foot state setter functions
 		/** @brief Sets the foot position expressed in the world frame */
 		void setFootPosition_W(FootIterator it);
-		void setFootPosition_W(std::string name,
+		void setFootPosition_W(const std::string& name,
 							   const Eigen::Vector3d& pos_W);
 		void setFootPosition_W(const rbd::BodyVector3d& pos_W);
 
 		/** @brief Sets the foot position expressed in the base frame */
 		void setFootPosition_B(FootIterator it);
-		void setFootPosition_B(std::string name,
+		void setFootPosition_B(const std::string& name,
 							   const Eigen::Vector3d& pos_B);
 		void setFootPosition_B(const rbd::BodyVector3d& pos_B);
 
 		/** @brief Sets the foot position expressed in the horizontal frame */
 		void setFootPosition_H(FootIterator it);
-		void setFootPosition_H(std::string name,
+		void setFootPosition_H(const std::string& name,
 							   const Eigen::Vector3d& pos_H);
 		void setFootPosition_H(const rbd::BodyVector3d& pos_H);
 
 		/** @brief Sets the foot velocity expressed in the world frame */
 		void setFootVelocity_W(FootIterator it);
-		void setFootVelocity_W(std::string name,
+		void setFootVelocity_W(const std::string& name,
 							   const Eigen::Vector3d& vel_W);
 		void setFootVelocity_W(const rbd::BodyVector3d& vel_W);
 
 		/** @brief Sets the foot velocity expressed in the base frame */
 		void setFootVelocity_B(FootIterator it);
-		void setFootVelocity_B(std::string name,
+		void setFootVelocity_B(const std::string& name,
 							   const Eigen::Vector3d& vel_B);
 		void setFootVelocity_B(const rbd::BodyVector3d& vel_B);
 
 		/** @brief Sets the foot velocity expressed in the horizontal frame */
 		void setFootVelocity_H(FootIterator it);
-		void setFootVelocity_H(std::string name,
+		void setFootVelocity_H(const std::string& name,
 							   const Eigen::Vector3d& vel_H);
 		void setFootVelocity_H(const rbd::BodyVector3d& vel_H);
 
 		/** @brief Sets the foot acceleration expressed in the world frame */
 		void setFootAcceleration_W(FootIterator vel_it,
 				   	   	   	   	   FootIterator acc_it);
-		void setFootAcceleration_W(std::string name,
+		void setFootAcceleration_W(const std::string& name,
 								   const Eigen::Vector3d& vel_W,
 								   const Eigen::Vector3d& acc_W);
 		void setFootAcceleration_W(const rbd::BodyVector3d& vel_W,
@@ -286,14 +286,14 @@ class ReducedBodyState
 
 		/** @brief Sets the foot acceleration expressed in the base frame */
 		void setFootAcceleration_B(FootIterator it);
-		void setFootAcceleration_B(std::string name,
+		void setFootAcceleration_B(const std::string& name,
 								   const Eigen::Vector3d& acc_B);
 		void setFootAcceleration_B(const rbd::BodyVector3d& acc_B);
 
 		/** @brief Sets the foot acceleration expressed in the horizontal frame */
 		void setFootAcceleration_H(FootIterator vel_it,
 				   	   	   	   	   FootIterator acc_it);
-		void setFootAcceleration_H(std::string name,
+		void setFootAcceleration_H(const std::string& name,
 								   const Eigen::Vector3d& vel_H,
 								   const Eigen::Vector3d& acc_H);
 		void setFootAcceleration_H(const rbd::BodyVector3d& vel_H,

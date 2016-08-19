@@ -1,6 +1,7 @@
 #ifndef DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 #define DWL__SIMULATION__PREVIEW_LOCOMOTION__H
 
+#include <dwl/RobotStates.h>
 #include <dwl/simulation/LinearControlledCartTableModel.h>
 #include <dwl/simulation/FootSplinePatternGenerator.h>
 #include <dwl/model/WholeBodyDynamics.h>
@@ -458,13 +459,16 @@ class PreviewLocomotion
 		ReducedBodyState phase_state_;
 
 		/** @brief Floating-base system information */
-		model::FloatingBaseSystem system_;
+		model::FloatingBaseSystem fbs_;
 
 		/** @brief Whole-body dynamics */
-		model::WholeBodyDynamics dynamics_;
+		model::WholeBodyDynamics wdyn_;
 
 		/** @brief Whole-body kinematics */
-		model::WholeBodyKinematics kinematics_;
+		model::WholeBodyKinematics wkin_;
+
+		/** @brief Robot state converter */
+		RobotStates state_tf_;
 
 		/** @brief Terrain map */
 		environment::TerrainMap terrain_;
@@ -497,15 +501,8 @@ class PreviewLocomotion
 		/** @brief Step height for the swing generation */
 		double step_height_;
 
-		/** @brief Center of Mass (CoM) position of the system w.r.t. the base
-		 * frame */
-		Eigen::Vector3d com_pos_B_;
-
 		/** @ brief Stance posture position w.r.t. the CoM */
 		rbd::BodyVectorXd stance_posture_C_;
-
-		/** @brief Force threshold */
-		double force_threshold_;
 };
 
 } //@namespace simulation
