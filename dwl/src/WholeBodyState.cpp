@@ -274,7 +274,7 @@ void WholeBodyState::setBaseRPYAcceleration(const Eigen::Vector3d& rpy_rate,
 }
 
 
-void WholeBodyState::setJointDoF(unsigned int num_joints)
+void WholeBodyState::setJointDoF(const unsigned int& num_joints)
 {
 	num_joints_ = num_joints;
 	joint_pos.setZero(num_joints_);
@@ -290,7 +290,7 @@ const Eigen::VectorXd& WholeBodyState::getJointPosition() const
 }
 
 
-const double& WholeBodyState::getJointPosition(unsigned int index) const
+const double& WholeBodyState::getJointPosition(const unsigned int& index) const
 {
 	if (index >= num_joints_)
 		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
@@ -306,7 +306,7 @@ const Eigen::VectorXd& WholeBodyState::getJointVelocity() const
 }
 
 
-const double& WholeBodyState::getJointVelocity(unsigned int index) const
+const double& WholeBodyState::getJointVelocity(const unsigned int& index) const
 {
 	if (index >= num_joints_)
 		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
@@ -322,7 +322,7 @@ const Eigen::VectorXd& WholeBodyState::getJointAcceleration() const
 }
 
 
-const double& WholeBodyState::getJointAcceleration(unsigned int index) const
+const double& WholeBodyState::getJointAcceleration(const unsigned int& index) const
 {
 	if (index >= num_joints_)
 		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
@@ -332,7 +332,7 @@ const double& WholeBodyState::getJointAcceleration(unsigned int index) const
 }
 
 
-const double& WholeBodyState::getJointEffort(unsigned int index) const
+const double& WholeBodyState::getJointEffort(const unsigned int& index) const
 {
 	if (index >= num_joints_)
 		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
@@ -360,8 +360,8 @@ void WholeBodyState::setJointPosition(const Eigen::VectorXd& pos)
 }
 
 
-void WholeBodyState::setJointPosition(double pos,
-									  unsigned int index)
+void WholeBodyState::setJointPosition(const double& pos,
+									  const unsigned int& index)
 {
 	if (index >= num_joints_)
 		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
@@ -377,8 +377,8 @@ void WholeBodyState::setJointVelocity(const Eigen::VectorXd& vel)
 }
 
 
-void WholeBodyState::setJointVelocity(double vel,
-									  unsigned int index)
+void WholeBodyState::setJointVelocity(const double& vel,
+									  const unsigned int& index)
 {
 	if (index >= num_joints_)
 		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
@@ -394,8 +394,8 @@ void WholeBodyState::setJointAcceleration(const Eigen::VectorXd& acc)
 }
 
 
-void WholeBodyState::setJointAcceleration(double acc,
-										  unsigned int index)
+void WholeBodyState::setJointAcceleration(const double& acc,
+										  const unsigned int& index)
 {
 	if (index >= num_joints_)
 		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
@@ -405,8 +405,8 @@ void WholeBodyState::setJointAcceleration(double acc,
 }
 
 
-void WholeBodyState::setJointEffort(double eff,
-									unsigned int index)
+void WholeBodyState::setJointEffort(const double& eff,
+									const unsigned int& index)
 {
 	if (index >= num_joints_)
 		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
@@ -428,7 +428,7 @@ Eigen::VectorXd WholeBodyState::getContactPosition_W(ContactIterator it) const
 }
 
 
-Eigen::VectorXd WholeBodyState::getContactPosition_W(std::string name) const
+Eigen::VectorXd WholeBodyState::getContactPosition_W(const std::string& name) const
 {
 	ContactIterator contact_it = getContactPosition_B().find(name);
 	return getContactPosition_W(contact_it);
@@ -454,7 +454,7 @@ const Eigen::VectorXd& WholeBodyState::getContactPosition_B(ContactIterator it) 
 }
 
 
-const Eigen::VectorXd& WholeBodyState::getContactPosition_B(std::string name) const
+const Eigen::VectorXd& WholeBodyState::getContactPosition_B(const std::string& name) const
 {
 	ContactIterator contact_it = getContactPosition_B().find(name);
 	return getContactPosition_B(contact_it);
@@ -473,7 +473,7 @@ Eigen::VectorXd WholeBodyState::getContactPosition_H(ContactIterator it) const
 }
 
 
-Eigen::VectorXd WholeBodyState::getContactPosition_H(std::string name) const
+Eigen::VectorXd WholeBodyState::getContactPosition_H(const std::string& name) const
 {
 	ContactIterator contact_it = getContactPosition_B().find(name);
 	return getContactPosition_H(contact_it);
@@ -499,7 +499,7 @@ Eigen::VectorXd WholeBodyState::getContactVelocity_W(ContactIterator it) const
 }
 
 
-Eigen::VectorXd WholeBodyState::getContactVelocity_W(std::string name) const
+Eigen::VectorXd WholeBodyState::getContactVelocity_W(const std::string& name) const
 {
 	ContactIterator contact_it = getContactVelocity_B().find(name);
 	return getContactVelocity_W(contact_it);
@@ -525,7 +525,7 @@ const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(ContactIterator it) 
 }
 
 
-const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(std::string name) const
+const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(const std::string& name) const
 {
 	ContactIterator contact_it = contact_vel.find(name);
 	return getContactVelocity_B(contact_it);
@@ -544,7 +544,7 @@ Eigen::VectorXd WholeBodyState::getContactVelocity_H(ContactIterator it) const
 }
 
 
-Eigen::VectorXd WholeBodyState::getContactVelocity_H(std::string name) const
+Eigen::VectorXd WholeBodyState::getContactVelocity_H(const std::string& name) const
 {
 	ContactIterator contact_it = getContactVelocity_B().find(name);
 	return getContactVelocity_H(contact_it);
@@ -570,7 +570,7 @@ Eigen::VectorXd WholeBodyState::getContactAcceleration_W(ContactIterator it) con
 }
 
 
-Eigen::VectorXd WholeBodyState::getContactAcceleration_W(std::string name) const
+Eigen::VectorXd WholeBodyState::getContactAcceleration_W(const std::string& name) const
 {
 	ContactIterator contact_it = getContactAcceleration_B().find(name);
 	return getContactAcceleration_W(contact_it);
@@ -596,7 +596,7 @@ const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(ContactIterator 
 }
 
 
-const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(std::string name) const
+const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(const std::string& name) const
 {
 	ContactIterator contact_it = getContactAcceleration_B().find(name);
 	return getContactAcceleration_B(contact_it);
@@ -615,7 +615,7 @@ Eigen::VectorXd WholeBodyState::getContactAcceleration_H(ContactIterator it) con
 }
 
 
-Eigen::VectorXd WholeBodyState::getContactAcceleration_H(std::string name) const
+Eigen::VectorXd WholeBodyState::getContactAcceleration_H(const std::string& name) const
 {
 	ContactIterator contact_it = getContactAcceleration_B().find(name);
 	return getContactAcceleration_H(contact_it);
@@ -641,14 +641,14 @@ const rbd::BodyVector6d& WholeBodyState::getContactWrench_B() const
 }
 
 
-const rbd::Vector6d& WholeBodyState::getContactWrench_B(std::string name) const
+const rbd::Vector6d& WholeBodyState::getContactWrench_B(const std::string& name) const
 {
 	return contact_eff.find(name)->second;
 }
 
 
-bool WholeBodyState::getContactCondition(std::string name,
-										 double force_threshold) const
+bool WholeBodyState::getContactCondition(const std::string& name,
+										 const double& force_threshold) const
 {
 	// Returns inactive in case that the contact wrench is not defined
 	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
@@ -662,7 +662,7 @@ bool WholeBodyState::getContactCondition(std::string name,
 }
 
 
-bool WholeBodyState::getContactCondition(std::string name) const
+bool WholeBodyState::getContactCondition(const std::string& name) const
 {
 	// Returns inactive in case that the contact wrench is not defined
 	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
@@ -682,7 +682,7 @@ void WholeBodyState::setContactPosition_W(ContactIterator it)
 }
 
 
-void WholeBodyState::setContactPosition_W(std::string name,
+void WholeBodyState::setContactPosition_W(const std::string& name,
 										  const Eigen::VectorXd& pos_W)
 {
 	contact_pos[name] =
@@ -705,7 +705,7 @@ void WholeBodyState::setContactPosition_B(ContactIterator it)
 }
 
 
-void WholeBodyState::setContactPosition_B(std::string name,
+void WholeBodyState::setContactPosition_B(const std::string& name,
 										  const Eigen::VectorXd& pos_B)
 {
 	contact_pos[name] = pos_B;
@@ -724,7 +724,7 @@ void WholeBodyState::setContactPosition_H(ContactIterator it)
 }
 
 
-void WholeBodyState::setContactPosition_H(std::string name,
+void WholeBodyState::setContactPosition_H(const std::string& name,
 										  const Eigen::VectorXd& pos_H)
 {
 	contact_pos[name] =
@@ -746,7 +746,7 @@ void WholeBodyState::setContactVelocity_W(ContactIterator it)
 }
 
 
-void WholeBodyState::setContactVelocity_W(std::string name,
+void WholeBodyState::setContactVelocity_W(const std::string& name,
 										  const Eigen::VectorXd& vel_W)
 {
 	// Computing the contact velocity relatives base expressed in the world frame
@@ -771,7 +771,7 @@ void WholeBodyState::setContactVelocity_B(ContactIterator it)
 }
 
 
-void WholeBodyState::setContactVelocity_B(std::string name,
+void WholeBodyState::setContactVelocity_B(const std::string& name,
 										  const Eigen::VectorXd& vel_B)
 {
 	contact_vel[name] = vel_B;
@@ -790,7 +790,7 @@ void WholeBodyState::setContactVelocity_H(ContactIterator it)
 }
 
 
-void WholeBodyState::setContactVelocity_H(std::string name,
+void WholeBodyState::setContactVelocity_H(const std::string& name,
 										  const Eigen::VectorXd& vel_H)
 {
 	// Computing the contact velocity expressed in the world frame
@@ -821,7 +821,7 @@ void WholeBodyState::setContactAcceleration_W(ContactIterator vel_it,
 }
 
 
-void WholeBodyState::setContactAcceleration_W(std::string name,
+void WholeBodyState::setContactAcceleration_W(const std::string& name,
 											  const Eigen::VectorXd& vel_W,
 											  const Eigen::VectorXd& acc_W)
 {
@@ -850,7 +850,7 @@ void WholeBodyState::setContactAcceleration_B(ContactIterator it)
 }
 
 
-void WholeBodyState::setContactAcceleration_B(std::string name,
+void WholeBodyState::setContactAcceleration_B(const std::string& name,
 											  const Eigen::VectorXd& acc_B)
 {
 	contact_acc[name] = acc_B;
@@ -870,7 +870,7 @@ void WholeBodyState::setContactAcceleration_H(ContactIterator vel_it,
 }
 
 
-void WholeBodyState::setContactAcceleration_H(std::string name,
+void WholeBodyState::setContactAcceleration_H(const std::string& name,
 											  const Eigen::VectorXd& vel_H,
 											  const Eigen::VectorXd& acc_H)
 {
@@ -906,15 +906,15 @@ void WholeBodyState::setContactWrench_B(const rbd::BodyVector6d& eff)
 }
 
 
-void WholeBodyState::setContactWrench_B(std::string name,
+void WholeBodyState::setContactWrench_B(const std::string& name,
 									    const rbd::Vector6d& eff)
 {
 	contact_eff[name] = eff;
 }
 
 
-void WholeBodyState::setContactCondition(std::string name,
-										 bool condition)
+void WholeBodyState::setContactCondition(const std::string& name,
+										 const bool& condition)
 {
 	if (condition)
 		contact_eff[name] = ACTIVE_CONTACT;
@@ -923,7 +923,7 @@ void WholeBodyState::setContactCondition(std::string name,
 }
 
 
-Eigen::Vector3d WholeBodyState::computeRelativeContactVelocity_W(std::string name,
+Eigen::Vector3d WholeBodyState::computeRelativeContactVelocity_W(const std::string& name,
 																 const Eigen::Vector3d& vel_W)
 {
 	// Computing the contact velocity relatives to the base, which is expressed in
@@ -934,7 +934,7 @@ Eigen::Vector3d WholeBodyState::computeRelativeContactVelocity_W(std::string nam
 }
 
 
-Eigen::Vector3d WholeBodyState::computeRelativeContactAcceleration_W(std::string name,
+Eigen::Vector3d WholeBodyState::computeRelativeContactAcceleration_W(const std::string& name,
 																	 const Eigen::Vector3d& vel_W,
 																	 const Eigen::Vector3d& acc_W)
 {

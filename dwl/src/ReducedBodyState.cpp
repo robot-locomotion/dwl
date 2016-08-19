@@ -153,7 +153,7 @@ Eigen::Vector3d ReducedBodyState::getFootPosition_W(FootIterator it) const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootPosition_W(std::string name) const
+Eigen::Vector3d ReducedBodyState::getFootPosition_W(const std::string& name) const
 {
 	FootIterator foot_it = getFootPosition_B().find(name);
 	return getFootPosition_W(foot_it);
@@ -179,7 +179,7 @@ const Eigen::Vector3d& ReducedBodyState::getFootPosition_B(FootIterator it) cons
 }
 
 
-const Eigen::Vector3d& ReducedBodyState::getFootPosition_B(std::string name) const
+const Eigen::Vector3d& ReducedBodyState::getFootPosition_B(const std::string& name) const
 {
 	FootIterator foot_it = foot_pos.find(name);
 	return getFootPosition_B(foot_it);
@@ -198,7 +198,7 @@ Eigen::Vector3d ReducedBodyState::getFootPosition_H(FootIterator it) const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootPosition_H(std::string name) const
+Eigen::Vector3d ReducedBodyState::getFootPosition_H(const std::string& name) const
 {
 	FootIterator foot_it = getFootPosition_B().find(name);
 	return getFootPosition_H(foot_it);
@@ -218,13 +218,13 @@ rbd::BodyVector3d ReducedBodyState::getFootPosition_H() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootVelocity_W(FootIterator it) const
+Eigen::Vector3d ReducedBodyState::getFootVelocity_W(FootIterator vel_it) const
 {
 	return frame_tf_.fromBaseToWorldFrame(it->second, getRPY_W());
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootVelocity_W(std::string name) const
+Eigen::Vector3d ReducedBodyState::getFootVelocity_W(const std::string& name) const
 {
 	FootIterator foot_it = getFootVelocity_B().find(name);
 	return getFootVelocity_W(foot_it);
@@ -250,7 +250,7 @@ const Eigen::Vector3d& ReducedBodyState::getFootVelocity_B(FootIterator it) cons
 }
 
 
-const Eigen::Vector3d& ReducedBodyState::getFootVelocity_B(std::string name) const
+const Eigen::Vector3d& ReducedBodyState::getFootVelocity_B(const std::string& name) const
 {
 	FootIterator foot_it = getFootVelocity_B().find(name);
 	return getFootVelocity_B(foot_it);
@@ -269,7 +269,7 @@ Eigen::Vector3d ReducedBodyState::getFootVelocity_H(FootIterator it) const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootVelocity_H(std::string name) const
+Eigen::Vector3d ReducedBodyState::getFootVelocity_H(const std::string& name) const
 {
 	FootIterator foot_it = getFootVelocity_B().find(name);
 	return getFootVelocity_H(foot_it);
@@ -289,13 +289,15 @@ rbd::BodyVector3d ReducedBodyState::getFootVelocity_H() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootAcceleration_W(FootIterator it) const
+Eigen::Vector3d ReducedBodyState::getFootAcceleration_W(FootIterator acc_it) const
 {
 	return frame_tf_.fromBaseToWorldFrame(it->second, getRPY_W());
+	// Xdd^W_foot = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_foot/base
+	// + 2 C(w^W) Xd^W_foot/base
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootAcceleration_W(std::string name) const
+Eigen::Vector3d ReducedBodyState::getFootAcceleration_W(const std::string& name) const
 {
 	FootIterator foot_it = getFootAcceleration_B().find(name);
 	return getFootAcceleration_W(foot_it);
@@ -321,7 +323,7 @@ const Eigen::Vector3d& ReducedBodyState::getFootAcceleration_B(FootIterator it) 
 }
 
 
-const Eigen::Vector3d& ReducedBodyState::getFootAcceleration_B(std::string name) const
+const Eigen::Vector3d& ReducedBodyState::getFootAcceleration_B(const std::string& name) const
 {
 	FootIterator foot_it = getFootAcceleration_B().find(name);
 	return getFootAcceleration_B(foot_it);
@@ -340,7 +342,7 @@ Eigen::Vector3d ReducedBodyState::getFootAcceleration_H(FootIterator it) const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootAcceleration_H(std::string name) const
+Eigen::Vector3d ReducedBodyState::getFootAcceleration_H(const std::string& name) const
 {
 	FootIterator foot_it = getFootAcceleration_B().find(name);
 	return getFootAcceleration_H(foot_it);
@@ -490,7 +492,7 @@ void ReducedBodyState::setFootPosition_W(FootIterator it)
 }
 
 
-void ReducedBodyState::setFootPosition_W(std::string name,
+void ReducedBodyState::setFootPosition_W(const std::string& name,
 										 const Eigen::Vector3d& pos_W)
 {
 	foot_pos[name] =
@@ -513,7 +515,7 @@ void ReducedBodyState::setFootPosition_B(FootIterator it)
 }
 
 
-void ReducedBodyState::setFootPosition_B(std::string name,
+void ReducedBodyState::setFootPosition_B(const std::string& name,
 										 const Eigen::Vector3d& pos_B)
 {
 	foot_pos[name] = pos_B;
@@ -532,7 +534,7 @@ void ReducedBodyState::setFootPosition_H(FootIterator it)
 }
 
 
-void ReducedBodyState::setFootPosition_H(std::string name,
+void ReducedBodyState::setFootPosition_H(const std::string& name,
 										 const Eigen::Vector3d& pos_H)
 {
 	foot_pos[name] =
@@ -554,7 +556,7 @@ void ReducedBodyState::setFootVelocity_W(FootIterator it)
 }
 
 
-void ReducedBodyState::setFootVelocity_W(std::string name,
+void ReducedBodyState::setFootVelocity_W(const std::string& name,
 										 const Eigen::Vector3d& vel_W)
 {
 	// Computing the foot velocity relatives base expressed in the world frame
@@ -579,7 +581,7 @@ void ReducedBodyState::setFootVelocity_B(FootIterator it)
 }
 
 
-void ReducedBodyState::setFootVelocity_B(std::string name,
+void ReducedBodyState::setFootVelocity_B(const std::string& name,
 										 const Eigen::Vector3d& vel_B)
 {
 	foot_vel[name] = vel_B;
@@ -598,7 +600,7 @@ void ReducedBodyState::setFootVelocity_H(FootIterator it)
 }
 
 
-void ReducedBodyState::setFootVelocity_H(std::string name,
+void ReducedBodyState::setFootVelocity_H(const std::string& name,
 										 const Eigen::Vector3d& vel_H)
 {
 	// Computing the foot velocity expressed in the world frame
@@ -629,7 +631,7 @@ void ReducedBodyState::setFootAcceleration_W(FootIterator vel_it,
 }
 
 
-void ReducedBodyState::setFootAcceleration_W(std::string name,
+void ReducedBodyState::setFootAcceleration_W(const std::string& name,
 											 const Eigen::Vector3d& vel_W,
 											 const Eigen::Vector3d& acc_W)
 {
@@ -658,7 +660,7 @@ void ReducedBodyState::setFootAcceleration_B(FootIterator it)
 }
 
 
-void ReducedBodyState::setFootAcceleration_B(std::string name,
+void ReducedBodyState::setFootAcceleration_B(const std::string& name,
 											 const Eigen::Vector3d& acc_B)
 {
 	foot_acc[name] = acc_B;
@@ -678,7 +680,7 @@ void ReducedBodyState::setFootAcceleration_H(FootIterator vel_it,
 }
 
 
-void ReducedBodyState::setFootAcceleration_H(std::string name,
+void ReducedBodyState::setFootAcceleration_H(const std::string& name,
 											 const Eigen::Vector3d& vel_H,
 											 const Eigen::Vector3d& acc_H)
 {
@@ -732,7 +734,7 @@ Eigen::Vector3d ReducedBodyState::computeRelativeFootAcceleration_W(std::string 
 	// Computing the foot acceleration relatives to the base, which is expressed
 	// in the world frame. Here we use the equation:
 	// Xdd^W_foot = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_foot/base
-	// + 2 C(w^W) Xd^W_foot/base
+	// + 2 C(w^W) Xd^W_foot/base + Xdd^W_foot/base
 	return acc_W - getCoMAcceleration_W() -
 			(C_omega_dot + C_omega * C_omega) * getFootPosition_W(name) -
 			2 * C_omega * computeRelativeFootVelocity_W(name, vel_W);
