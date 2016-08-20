@@ -170,11 +170,10 @@ const ReducedBodyState& RobotStates::getReducedBodyState(const WholeBodyState& s
 		rs_.setFootPosition_B(name, state.getContactPosition_B(name) - com_pos_B_);
 
 		// Setting up the contact velocity
-		Eigen::Vector3d vel_contact_W = state.getContactVelocity_W(name);
-		rs_.setFootVelocity_W(name, vel_contact_W);
+		rs_.setFootVelocity_W(name, state.getContactVelocity_W(name));
 
 		// Setting up the contact acceleration
-		rs_.setFootAcceleration_W(name, vel_contact_W, state.getContactAcceleration_W(name));
+		rs_.setFootAcceleration_W(name, state.getContactAcceleration_W(name));
 	}
 
 	return rs_;

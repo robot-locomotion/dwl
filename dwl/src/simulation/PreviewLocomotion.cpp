@@ -663,7 +663,7 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 					frame_tf_.fromWorldToHorizontalFrame(com_disp_W, state.getRPY_W());
 			state.setFootPosition_H(name, actual_pos_H - com_disp_H);
 			state.setFootVelocity_H(name, -com_vel);
-			state.setFootAcceleration_H(name, -com_vel, -com_acc);
+			state.setFootAcceleration_H(name, -com_acc);
 		}
 	}
 }
