@@ -223,10 +223,9 @@ Eigen::Vector3d ReducedBodyState::getFootVelocity_W(FootIterator vel_it) const
 	// Computing the foot velocity expressed in the world frame.
 	// Here we use the equation:
 	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega_base x X^W_foot/base
-	Eigen::Vector3d pos_fb_W =
-			frame_tf_.fromBaseToWorldFrame(getFootPosition_B(vel_it->first), getRPY_W());
-	Eigen::Vector3d vel_fb_W =
-			frame_tf_.fromBaseToWorldFrame(getFootVelocity_B(vel_it), getRPY_W());
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getFootPosition_B(vel_it->first);
+	Eigen::Vector3d vel_fb_W = W_rot_B * getFootVelocity_B(vel_it);
 
 	return getCoMVelocity_W() + vel_fb_W + getAngularVelocity_W().cross(pos_fb_W);
 }
@@ -326,10 +325,9 @@ Eigen::Vector3d ReducedBodyState::getFootAcceleration_W(FootIterator acc_it) con
 	// Xdd^W_foot = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_foot/base
 	// + 2 C(w^W) Xd^W_foot/base
 	std::string name = acc_it->first;
-	Eigen::Vector3d pos_fb_W =
-			frame_tf_.fromBaseToWorldFrame(getFootPosition_B(name), getRPY_W());
-	Eigen::Vector3d vel_fb_W =
-			frame_tf_.fromBaseToWorldFrame(getFootVelocity_B(name), getRPY_W());
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getFootPosition_B(name);
+	Eigen::Vector3d vel_fb_W = W_rot_B * getFootVelocity_B(name);
 	return getCoMAcceleration_W() +
 			(C_omega_dot + C_omega * C_omega) * pos_fb_W + 2 * C_omega * vel_fb_W;
 }
@@ -631,8 +629,13 @@ void ReducedBodyState::setFootVelocity_W(FootIterator it)
 void ReducedBodyState::setFootVelocity_W(const std::string& name,
 										 const Eigen::Vector3d& vel_W)
 {
-	// Computing the foot velocity relatives base expressed in the world frame
-	Eigen::Vector3d vel_fb_W = computeRelativeFootVelocity_W(name, vel_W);
+	// Computing the foot velocity relatives to the base, which is expressed in
+	// the world frame. Here we use the equation:
+	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega_base x X^W_foot/base
+	Eigen::Vector3d pos_fb_W =
+			frame_tf_.fromBaseToWorldFrame(getFootPosition_B(name), getRPY_W());
+	Eigen::Vector3d vel_fb_W = vel_W - getCoMVelocity_W() -
+			getAngularVelocity_W().cross(pos_fb_W);
 
 	// Transforming the foot velocity in the base frame
 	foot_vel[name] = frame_tf_.fromWorldToBaseFrame(vel_fb_W, getRPY_W());
@@ -677,16 +680,23 @@ void ReducedBodyState::setFootVelocity_H(const std::string& name,
 {
 	// Computing the foot velocity expressed in the world frame.
 	// Here we use the equation:
-	// Xd^W_foot = Xd^W_hor + Xd^W_foot/hor + omega_hor x X^W_foot/hor
-	Eigen::Vector3d vel_W = getCoMVelocity_H() + vel_H +
-			getAngularVelocity_H().cross(getFootPosition_H(name));
+	// Xd^W_foot = Xd^W_hor + Xd^W_foot/hor + omega^W_hor x X^W_foot/hor
+	Eigen::Matrix3d W_rot_H = frame_tf_.getHorizontalToWorldRotation(getRPY_W());
+	Eigen::Vector3d pos_fh_W = W_rot_H * getFootPosition_H(name);
+	Eigen::Vector3d vel_fh_W = W_rot_H * vel_H;
+	Eigen::Vector3d omega_h_W(0., 0., getAngularVelocity_W()(rbd::Z));
+	Eigen::Vector3d vel_W = getCoMVelocity_W() + vel_fh_W +	omega_h_W.cross(pos_fh_W);
 
-	// Computing the foot velocity relatives base expressed in the world frame
-	Eigen::Vector3d vel_fb_W = computeRelativeFootVelocity_W(name, vel_W);
+	// Computing the foot velocity relatives to the base, which is expressed in
+	// the world frame. Here we use the equation:
+	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega^W_base x X^W_foot/base
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getFootPosition_B(name);
+	Eigen::Vector3d vel_fb_W = vel_W - getCoMVelocity_W() -
+			getAngularVelocity_W().cross(pos_fb_W);
 
 	// Transforming the foot velocity in the base frame
-	foot_vel[name] =
-			frame_tf_.fromHorizontalToBaseFrame(vel_fb_W, getRPY_W());
+	foot_vel[name] = W_rot_B.transpose() * vel_fb_W;
 }
 
 
@@ -698,32 +708,43 @@ void ReducedBodyState::setFootVelocity_H(const rbd::BodyVector3d& vel_H)
 }
 
 
-void ReducedBodyState::setFootAcceleration_W(FootIterator vel_it,
-											 FootIterator acc_it)
+void ReducedBodyState::setFootAcceleration_W(FootIterator it)
 {
-	setFootAcceleration_W(vel_it->first, vel_it->second, acc_it->second);
+	setFootAcceleration_W(it->first, it->second);
 }
 
 
 void ReducedBodyState::setFootAcceleration_W(const std::string& name,
-											 const Eigen::Vector3d& vel_W,
 											 const Eigen::Vector3d& acc_W)
 {
-	// Computing the foot acceleration relatives base expressed in the world frame
-	Eigen::Vector3d acc_fb_W = computeRelativeFootAcceleration_W(name, vel_W, acc_W);
+	// Computing the skew symmetric matrixes
+	Eigen::Matrix3d C_omega =
+			math::skewSymmetricMatrixFromVector(getAngularVelocity_W());
+	Eigen::Matrix3d C_omega_dot =
+			math::skewSymmetricMatrixFromVector(getAngularAcceleration_W());
+
+	// Computing the foot acceleration relatives to the base, which is expressed
+	// in the world frame. Here we use the equation:
+	// Xdd^W_foot = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_foot/base
+	// + 2 C(w^W) Xd^W_foot/base + Xdd^W_foot/base
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getFootPosition_B(name);
+	Eigen::Vector3d vel_fb_W = W_rot_B * getFootVelocity_B(name);
+	Eigen::Vector3d acc_fb_W = acc_W - getCoMAcceleration_W() -
+			(C_omega_dot + C_omega * C_omega) * pos_fb_W -
+			2 * C_omega * vel_fb_W;
+
 
 	// Transforming the foot acceleration in the base frame
-	foot_acc[name] = frame_tf_.fromWorldToBaseFrame(acc_fb_W, getRPY_W());
+	foot_acc[name] = W_rot_B.transpose() * acc_fb_W;
 }
 
 
-void ReducedBodyState::setFootAcceleration_W(const rbd::BodyVector3d& vel_W,
-											 const rbd::BodyVector3d& acc_W)
+void ReducedBodyState::setFootAcceleration_W(const rbd::BodyVector3d& acc_W)
 {
 	for (FootIterator acc_it = acc_W.begin();
 			acc_it != acc_W.end(); acc_it++) {
-		FootIterator vel_it = vel_W.find(acc_it->first);
-		setFootAcceleration_W(vel_it, acc_it);
+		setFootAcceleration_W(acc_it);
 	}
 }
 
@@ -747,86 +768,69 @@ void ReducedBodyState::setFootAcceleration_B(const rbd::BodyVector3d& acc_B)
 }
 
 
-void ReducedBodyState::setFootAcceleration_H(FootIterator vel_it,
-		 	 	 	 	 	 	 	 	 	 FootIterator acc_it)
+void ReducedBodyState::setFootAcceleration_H(FootIterator it)
 {
-	setFootAcceleration_H(vel_it->first, vel_it->second, acc_it->second);
+	setFootAcceleration_H(it->first, it->second);
 }
 
 
 void ReducedBodyState::setFootAcceleration_H(const std::string& name,
-											 const Eigen::Vector3d& vel_H,
 											 const Eigen::Vector3d& acc_H)
 {
 	// Computing the skew symmetric matrixes
-	Eigen::Matrix3d C_omega =
-			math::skewSymmetricMatrixFromVector(getAngularVelocity_H());
-	Eigen::Matrix3d C_omega_dot =
-			math::skewSymmetricMatrixFromVector(getAngularAcceleration_H());
+	Eigen::Matrix3d C_omega_b =
+			math::skewSymmetricMatrixFromVector(getAngularVelocity_W());
+	Eigen::Matrix3d C_omegad_b =
+			math::skewSymmetricMatrixFromVector(getAngularAcceleration_W());
+	Eigen::Vector3d omega_h(0., 0., getAngularVelocity_W()(rbd::Z));
+	Eigen::Vector3d omegad_h(0., 0., getAngularAcceleration_W()(rbd::Z));
+	Eigen::Matrix3d C_omega_h =
+			math::skewSymmetricMatrixFromVector(omega_h);
+	Eigen::Matrix3d C_omegad_h =
+			math::skewSymmetricMatrixFromVector(omegad_h);
 
 	// Computing the foot velocity expressed in the world frame.
 	// Here we use the equation:
-	// Xd^W_foot = Xd^W_hor + Xd^W_foot/hor + omega_hor x X^W_foot/hor
-	Eigen::Vector3d vel_W = getCoMVelocity_H() + vel_H +
-			C_omega * getFootPosition_H(name);
+	// Xd^W_foot = Xd^W_hor + Xd^W_foot/hor + omega^W_hor x X^W_foot/hor
+	Eigen::Matrix3d W_rot_H = frame_tf_.getHorizontalToWorldRotation(getRPY_W());
+	Eigen::Vector3d pos_fh_W = W_rot_H * getFootPosition_H(name);
+	Eigen::Vector3d vel_fh_W = W_rot_H * getFootVelocity_H(name);
+	Eigen::Vector3d vel_W =	getCoMVelocity_W() + vel_fh_W + C_omega_h * pos_fh_W;
 
 	// Computing the foot acceleration expressed in the world frame.
 	// Here we use the equation:
 	// Xdd^W_foot = Xdd^W_hor + [C(wd^W_hor) + C(w^W_hor) * C(w^W_hor)] X^W_foot/hor
 	// + 2 C(w^W_hor) Xd^W_foot/hor + Xdd^W_foot/hor
+	Eigen::Vector3d acc_fh_W = W_rot_H * acc_H;
 	Eigen::Vector3d acc_W =
-			getCoMAcceleration_H() +
-			(C_omega_dot + C_omega * C_omega) * getFootPosition_H(name) +
-			2 * C_omega * vel_H + acc_H;
-
-	// Computing the foot acceleration relatives base expressed in the world frame
-	Eigen::Vector3d acc_fb_W = computeRelativeFootAcceleration_W(name, vel_W, acc_W);
-
-	// Transforming the foot acceleration in the base frame
-	foot_acc[name] =
-			frame_tf_.fromHorizontalToBaseFrame(acc_fb_W, getRPY_W());
-}
-
-
-void ReducedBodyState::setFootAcceleration_H(const rbd::BodyVector3d& vel_H,
-											 const rbd::BodyVector3d& acc_H)
-{
-	for (FootIterator acc_it = acc_H.begin();
-			acc_it != acc_H.end(); acc_it++) {
-		FootIterator vel_it = vel_H.find(acc_it->first);
-		setFootAcceleration_H(vel_it, acc_it);
-	}
-}
-
-
-Eigen::Vector3d ReducedBodyState::computeRelativeFootVelocity_W(std::string name,
-																const Eigen::Vector3d& vel_W)
-{
-	// Computing the foot velocity relatives to the base, which is expressed in
-	// the world frame. Here we use the equation:
-	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega_base x X^W_foot/base
-	return vel_W - getCoMVelocity_W() -
-			getAngularVelocity_W().cross(getFootPosition_W(name));
-}
-
-
-Eigen::Vector3d ReducedBodyState::computeRelativeFootAcceleration_W(std::string name,
-																	const Eigen::Vector3d& vel_W,
-																	const Eigen::Vector3d& acc_W)
-{
-	// Computing the skew symmetric matrixes
-	Eigen::Matrix3d C_omega =
-			math::skewSymmetricMatrixFromVector(getAngularVelocity_W());
-	Eigen::Matrix3d C_omega_dot =
-			math::skewSymmetricMatrixFromVector(getAngularAcceleration_W());
+			getCoMAcceleration_W() +
+			(C_omegad_h + C_omega_h * C_omega_h) * pos_fh_W +
+			2 * C_omega_h * vel_fh_W + acc_fh_W;
 
 	// Computing the foot acceleration relatives to the base, which is expressed
 	// in the world frame. Here we use the equation:
 	// Xdd^W_foot = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_foot/base
 	// + 2 C(w^W) Xd^W_foot/base + Xdd^W_foot/base
-	return acc_W - getCoMAcceleration_W() -
-			(C_omega_dot + C_omega * C_omega) * getFootPosition_W(name) -
-			2 * C_omega * computeRelativeFootVelocity_W(name, vel_W);
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getFootPosition_B(name);
+	Eigen::Vector3d vel_fb_W = W_rot_B * getFootVelocity_B(name);
+	Eigen::Vector3d acc_fb_W =
+			acc_W - getCoMAcceleration_W() -
+			(C_omegad_b + C_omega_b * C_omega_b) * pos_fb_W -
+			2 * C_omega_b * vel_fb_W;
+
+
+	// Transforming the foot acceleration in the base frame
+	foot_acc[name] = W_rot_B.transpose() * acc_fb_W;
+}
+
+
+void ReducedBodyState::setFootAcceleration_H(const rbd::BodyVector3d& acc_H)
+{
+	for (FootIterator acc_it = acc_H.begin();
+			acc_it != acc_H.end(); acc_it++) {
+		setFootAcceleration_H(acc_it);
+	}
 }
 
 } //@namespace dwl
