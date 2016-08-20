@@ -220,8 +220,8 @@ rbd::BodyVector3d ReducedBodyState::getFootPosition_H() const
 
 Eigen::Vector3d ReducedBodyState::getFootVelocity_W(FootIterator vel_it) const
 {
-	// Computing the foot velocity relatives to the base, which is expressed in
-	// the world frame. Here we use the equation:
+	// Computing the foot velocity expressed in the world frame.
+	// Here we use the equation:
 	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega_base x X^W_foot/base
 	Eigen::Vector3d pos_fb_W =
 			frame_tf_.fromBaseToWorldFrame(getFootPosition_B(vel_it->first), getRPY_W());
