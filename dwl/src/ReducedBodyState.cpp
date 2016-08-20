@@ -271,24 +271,24 @@ const rbd::BodyVector3d& ReducedBodyState::getFootVelocity_B() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootVelocity_H(FootIterator it) const
+Eigen::Vector3d ReducedBodyState::getFootVelocity_H(FootIterator vel_it) const
 {
 	// Computing the foot velocity expressed in the world frame.
 	// Here we use the equation:
-	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega_hor x X^W_foot/base
-	std::string name = it->first;
+	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega^W_base x X^W_foot/base
+	std::string name = vel_it->first;
 	Eigen::Vector3d pos_fb_W = 
 				frame_tf_.fromBaseToWorldFrame(getFootPosition_B(name), getRPY_W());
 	Eigen::Vector3d vel_fb_W = 
-				frame_tf_.fromBaseToWorldFrame(getFootVelocity_B(it), getRPY_W());
-	Eigen::Vector3d vel_W = getCoMVelocity_B() + vel_fb_W +
-			getAngularVelocity_B().cross(pos_fb_W);
+				frame_tf_.fromBaseToWorldFrame(getFootVelocity_B(vel_it), getRPY_W());
+	Eigen::Vector3d vel_W = getCoMVelocity_W() + vel_fb_W +
+			getAngularVelocity_W().cross(pos_fb_W);
 
 	// Computing the foot velocity relatives to the horizontal, which is
 	// expressed in the world frame. Here we use the equation:
-	// Xd^W_foot = Xd^W_hor + Xd^W_foot/hor + omega_hor x X^W_foot/hor
-	return vel_W - getCoMVelocity_H() -
-			getAngularVelocity_H().cross(getFootPosition_H(name));
+	// Xd^W_foot = Xd^W_hor + Xd^W_foot/hor + omega^W_hor x X^W_foot/hor
+	Eigen::Vector3d omega_hor_W(0., 0., getAngularVelocity_W()(rbd::Z));
+	return vel_W - getCoMVelocity_H() - omega_hor_W.cross(getFootPosition_H(name));
 }
 
 
