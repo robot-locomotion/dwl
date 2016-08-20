@@ -85,7 +85,7 @@ Eigen::Vector3d ReducedBodyState::getAngularVelocity_H() const
 Eigen::Vector3d ReducedBodyState::getRPYVelocity() const
 {
 	Eigen::Matrix3d EAR =
-			math::getInverseEulerAnglesRatesMatrix(getRPY_W()).transpose();
+			math::getInverseEulerAnglesRatesMatrix(getRPY_W()).inverse();
 	return EAR * getAngularVelocity_W();
 }
 
@@ -134,7 +134,7 @@ Eigen::Vector3d ReducedBodyState::getRPYAcceleration() const
 {
 	// rpy_ddot = EAR^-1 * (omega_dot - EAR_dot * rpy_dot)
 	Eigen::Matrix3d EAR =
-			math::getInverseEulerAnglesRatesMatrix(getRPY_W()).transpose();
+			math::getInverseEulerAnglesRatesMatrix(getRPY_W()).inverse();
 	Eigen::Matrix3d EARinv_dot =
 			math::getInverseEulerAnglesRatesMatrix_dot(getRPY_W(), getRPYVelocity());
 	return EAR * (getAngularAcceleration_W() - EARinv_dot * getRPYVelocity());
