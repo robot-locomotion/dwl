@@ -148,8 +148,10 @@ const Eigen::Vector3d& ReducedBodyState::getCoPPosition_W() const
 }
 
 
+Eigen::Vector3d ReducedBodyState::getFootPosition_W(FootIterator pos_it) const
 {
-	return frame_tf_.fromBaseToWorldFrame(it->second, getRPY_W());
+	return getCoMPosition_W() +
+			frame_tf_.fromBaseToWorldFrame(pos_it->second, getRPY_W());
 }
 
 
@@ -173,9 +175,9 @@ rbd::BodyVector3d ReducedBodyState::getFootPosition_W() const
 }
 
 
-const Eigen::Vector3d& ReducedBodyState::getFootPosition_B(FootIterator it) const
+const Eigen::Vector3d& ReducedBodyState::getFootPosition_B(FootIterator pos_it) const
 {
-	return it->second;
+	return pos_it->second;
 }
 
 
@@ -192,10 +194,10 @@ const rbd::BodyVector3d& ReducedBodyState::getFootPosition_B() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootPosition_H(FootIterator it) const
+Eigen::Vector3d ReducedBodyState::getFootPosition_H(FootIterator pos_it) const
 {
-	return frame_tf_.fromBaseToHorizontalFrame(it->second, getRPY_W());
 	// Note that the horizontal and base frame have the same origin
+	return frame_tf_.fromBaseToHorizontalFrame(pos_it->second, getRPY_W());
 }
 
 
@@ -252,9 +254,9 @@ rbd::BodyVector3d ReducedBodyState::getFootVelocity_W() const
 }
 
 
-const Eigen::Vector3d& ReducedBodyState::getFootVelocity_B(FootIterator it) const
+const Eigen::Vector3d& ReducedBodyState::getFootVelocity_B(FootIterator vel_it) const
 {
-	return it->second;
+	return vel_it->second;
 }
 
 
@@ -354,9 +356,9 @@ rbd::BodyVector3d ReducedBodyState::getFootAcceleration_W() const
 }
 
 
-const Eigen::Vector3d& ReducedBodyState::getFootAcceleration_B(FootIterator it) const
+const Eigen::Vector3d& ReducedBodyState::getFootAcceleration_B(FootIterator acc_it) const
 {
-	return it->second;
+	return acc_it->second;
 }
 
 
@@ -373,9 +375,9 @@ const rbd::BodyVector3d& ReducedBodyState::getFootAcceleration_B() const
 }
 
 
-Eigen::Vector3d ReducedBodyState::getFootAcceleration_H(FootIterator it) const
+Eigen::Vector3d ReducedBodyState::getFootAcceleration_H(FootIterator acc_it) const
 {
-	std::string name = it->first;
+	std::string name = acc_it->first;
 
 	// Computing the skew symmetric matrixes
 	Eigen::Matrix3d C_omega_b =
