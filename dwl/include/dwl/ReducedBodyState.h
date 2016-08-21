@@ -22,9 +22,9 @@ typedef rbd::BodyVector3d::const_iterator FootIterator;
  *    <li>CoM position, expressed in the world frame of reference</li>
  *    <li>CoM velocity, expressed in the world frame</li>
  *    <li>CoM acceleration, expressed in the world frame</li>
- *    <li>Base orientation, expressed in a world frame of reference</li>
- *    <li>Base rotation rate, expressed in the world frame</li>
- *    <li>Base rotation acceleration, expressed in the world frame</li>
+ *    <li>CoM orientation, expressed in a world frame of reference</li>
+ *    <li>CoM rotation rate, expressed in the world frame</li>
+ *    <li>CoM rotation acceleration, expressed in the world frame</li>
  *    <li>CoP positions, expressed with the world order</li>
  *    <li>Support polygon region, expressed with the world order</li>
  *    <li>Foot positions, expressed in the base frame</li>
@@ -35,27 +35,25 @@ typedef rbd::BodyVector3d::const_iterator FootIterator;
  * The class provides getter and setter methods for all these states.
  * When useful, it provides alternatives to set or get the desired physical
  * quantity in one of the following frames of reference: W (fixed-world frame),
- * B (base frame) and H (horizontal frame). Every getter/setter methods have one
- * of these three letters at the end of the signature, to clearly state what is
- * the reference frame adopted. Also convenient methods to set or get RPY angles
- * are provided. Both Eigen and base types are available for setter methods.
- * You could also interact with the states without using the getter and setter
- * functions. Note that the states are:
+ * B (base or CoM frame) and H (horizontal frame). Every getter/setter methods
+ * have one of these three letters at the end of the signature, to clearly state
+ * what is the reference frame adopted. Also convenient methods to set or get
+ * RPY angles are provided. Both Eigen and base types are available for setter
+ * methods. You could also interact with the states without using the getter and
+ * setter functions. Note that the states are:
  * <ul>
- *   <li>time</li>
- * 	 <li>com_pos [pos_x, pos_y, pos_z]</li>
- * 	 <li>com_vel [vel_x, vel_y, vel_z]</li>
- * 	 <li>com_acc [acc_x, acc_y, acc_z]</li>
- * 	 <li>angular_pos [roll, pitch, yaw]</li>
- * 	 <li>angular_vel [rate_x, rate_y, rate_z]</li>
- * 	 <li>angular_acc [rotacc_x, rotacc_y, rotacc_y]</li>
- * 	 <li>cop [pos_x, pos_y, pos_z]</li>
+ *   <li>time expressed in seconds</li>
+ * 	 <li>com_pos [pos_x, pos_y, pos_z] expressed in the world frame</li>
+ * 	 <li>com_vel [vel_x, vel_y, vel_z] expressed in the world frame</li>
+ * 	 <li>com_acc [acc_x, acc_y, acc_z] expressed in the world frame</li>
+ * 	 <li>angular_pos [roll, pitch, yaw] expressed in the world frame</li>
+ * 	 <li>angular_vel [rate_x, rate_y, rate_z] expressed in the world frame</li>
+ * 	 <li>angular_acc [rotacc_x, rotacc_y, rotacc_y] expressed in the world frame</li>
+ * 	 <li>cop [pos_x, pos_y, pos_z] expressed in the world frame</li>
  * 	 <li>support_region</li>
- * 	 <li>joint_acc</li>
- * 	 <li>joint_eff</li>
- * 	 <li>foot_pos</li>
- * 	 <li>foot_vel</li>
- * 	 <li>foot_acc</li>
+ * 	 <li>foot_pos w.r.t. the CoM frame and expressed in the base frame</li>
+ * 	 <li>foot_vel w.r.t. the CoM frame and expressed in the base frame</li>
+ * 	 <li>foot_acc w.r.t. the CoM frame and expressed in the base frame</li>
  * 	 Note that these quantities have to be expressed in the above mentioned
  * 	 frames and orders.
  * </ul>
@@ -70,224 +68,225 @@ class ReducedBodyState
 		~ReducedBodyState();
 
 		// CoM state getter functions
-		/** @brief Gets the CoM position in the world frame */
+		/** @brief Gets the CoM position expressed in the world frame */
 		const Eigen::Vector3d& getCoMPosition_W() const;
 
-		/** @brief Gets the base orientation in the world frame */
+		/** @brief Gets the CoM orientation expressed in the world frame */
 		Eigen::Quaterniond getOrientation_W() const;
 
-		/** @brief Gets the base RPY angles in the world frame */
+		/** @brief Gets the CoM RPY angles expressed in the world frame */
 		const Eigen::Vector3d& getRPY_W() const;
 
-		/** @brief Gets the CoM velocity in the world frame */
+		/** @brief Gets the CoM velocity expressed in the world frame */
 		const Eigen::Vector3d& getCoMVelocity_W() const;
 
-		/** @brief Gets the CoM velocity in the base frame */
+		/** @brief Gets the CoM velocity expressed in the base frame */
 		Eigen::Vector3d getCoMVelocity_B() const;
 
-		/** @brief Gets the CoM velocity in the horizontal frame */
+		/** @brief Gets the CoM velocity expressed in the horizontal frame */
 		Eigen::Vector3d getCoMVelocity_H() const;
 
-		/** @brief Gets the base angular velocity in the world frame */
+		/** @brief Gets the CoM angular velocity expressed in the world frame */
 		const Eigen::Vector3d& getAngularVelocity_W() const;
 
-		/** @brief Gets the base angular velocity in the base frame */
+		/** @brief Gets the CoM angular velocity expressed in the base frame */
 		Eigen::Vector3d getAngularVelocity_B() const;
 
-		/** @brief Gets the base angular velocity in the horizontal frame */
+		/** @brief Gets the CoM angular velocity expressed in the horizontal frame */
 		Eigen::Vector3d getAngularVelocity_H() const;
 
-		/** @brief Gets the base RPY velocity */
+		/** @brief Gets the CoM RPY velocity */
 		Eigen::Vector3d getRPYVelocity() const;
 
-		/** @brief Gets the CoM acceleration in the world frame */
+		/** @brief Gets the CoM acceleration expressed in the world frame */
 		const Eigen::Vector3d& getCoMAcceleration_W() const;
 
-		/** @brief Gets the CoM acceleration in the base frame */
+		/** @brief Gets the CoM acceleration expressed in the base frame */
 		Eigen::Vector3d getCoMAcceleration_B() const;
 
-		/** @brief Gets the CoM acceleration in the horizontal frame */
+		/** @brief Gets the CoM acceleration expressed in the horizontal frame */
 		Eigen::Vector3d getCoMAcceleration_H() const;
 
-		/** @brief Gets the base angular acceleration in the world frame */
+		/** @brief Gets the CoM angular acceleration in the world frame */
 		const Eigen::Vector3d& getAngularAcceleration_W() const;
 
-		/** @brief Gets the base angular acceleration in the base frame */
+		/** @brief Gets the CoM angular acceleration in the base frame */
 		Eigen::Vector3d getAngularAcceleration_B() const;
 
-		/** @brief Gets the base angular acceleration in the horizontal frame */
+		/** @brief Gets the CoM angular acceleration in the horizontal frame */
 		Eigen::Vector3d getAngularAcceleration_H() const;
 
-		/** @brief Gets the base RPY acceleration */
+		/** @brief Gets the CoM RPY acceleration */
 		Eigen::Vector3d getRPYAcceleration() const;
 
 
 		// CoP state getter functions
-		/** @brief Gets the CoP position */
+		/** @brief Gets the CoP position expressed in the world frame*/
 		const Eigen::Vector3d& getCoPPosition_W() const;
 
 
 		// Foot state getter functions
-		/** @brief Gets the foot position expressed in the world frame */
+		/** @brief Gets the foot position w.r.t. the world frame */
 		Eigen::Vector3d getFootPosition_W(FootIterator it) const;
 		Eigen::Vector3d getFootPosition_W(const std::string& name) const;
 		rbd::BodyVector3d getFootPosition_W() const;
 
-		/** @brief Gets the foot position expressed in the base frame */
+		/** @brief Gets the foot position w.r.t. the base frame */
 		const Eigen::Vector3d& getFootPosition_B(FootIterator it) const;
 		const Eigen::Vector3d& getFootPosition_B(const std::string& name) const;
 		const rbd::BodyVector3d& getFootPosition_B() const;
 
-		/** @brief Gets the foot position expressed in the horizontal frame */
+		/** @brief Gets the foot position w.r.t. the horizontal frame */
 		Eigen::Vector3d getFootPosition_H(FootIterator it) const;
 		Eigen::Vector3d getFootPosition_H(const std::string& name) const;
 		rbd::BodyVector3d getFootPosition_H() const;
 
-		/** @brief Gets the foot velocity expressed in the world frame */
+		/** @brief Gets the foot velocity w.r.t. the world frame */
 		Eigen::Vector3d getFootVelocity_W(FootIterator it) const;
 		Eigen::Vector3d getFootVelocity_W(const std::string& name) const;
 		rbd::BodyVector3d getFootVelocity_W() const;
 
-		/** @brief Gets the foot velocity expressed in the base frame */
+		/** @brief Gets the foot velocity w.r.t. the base frame */
 		const Eigen::Vector3d& getFootVelocity_B(FootIterator it) const;
 		const Eigen::Vector3d& getFootVelocity_B(const std::string& name) const;
 		const rbd::BodyVector3d& getFootVelocity_B() const;
 
-		/** @brief Gets the foot velocity expressed in the horizontal frame */
+		/** @brief Gets the foot velocity w.r.t. the horizontal frame */
 		Eigen::Vector3d getFootVelocity_H(FootIterator it) const;
 		Eigen::Vector3d getFootVelocity_H(const std::string& name) const;
 		rbd::BodyVector3d getFootVelocity_H() const;
 
-		/** @brief Gets the foot acceleration expressed in the world frame */
+		/** @brief Gets the foot acceleration w.r.t. the world frame */
 		Eigen::Vector3d getFootAcceleration_W(FootIterator it) const;
 		Eigen::Vector3d getFootAcceleration_W(const std::string& name) const;
 		rbd::BodyVector3d getFootAcceleration_W() const;
 
-		/** @brief Gets the foot acceleration expressed in the base frame */
+		/** @brief Gets the foot acceleration w.r.t. the base frame */
 		const Eigen::Vector3d& getFootAcceleration_B(FootIterator it) const;
 		const Eigen::Vector3d& getFootAcceleration_B(const std::string& name) const;
 		const rbd::BodyVector3d& getFootAcceleration_B() const;
 
-		/** @brief Gets the foot acceleration expressed in the horizontal frame */
+		/** @brief Gets the foot acceleration w.r.t. the horizontal frame */
 		Eigen::Vector3d getFootAcceleration_H(FootIterator it) const;
 		Eigen::Vector3d getFootAcceleration_H(const std::string& name) const;
 		rbd::BodyVector3d getFootAcceleration_H() const;
 
 
-		// Base state setter functions
-		/** @brief Sets the CoM position in the world frame */
+		// CoM state setter functions
+		/** @brief Sets the CoM position expressed in the world frame */
 		void setCoMPosition_W(const Eigen::Vector3d& pos_W);
 
-		/** @brief Sets the CoM position in the base frame */
+		/** @brief Sets the CoM position expressed in the base frame */
 		void setCoMPosition_B(const Eigen::Vector3d& pos_B);
 
-		/** @brief Sets the CoM position in the horizontal frame */
+		/** @brief Sets the CoM position expressed in the horizontal frame */
 		void setCoMPosition_H(const Eigen::Vector3d& pos_H);
 
-		/** @brief Sets the base orientation in the world frame */
+		/** @brief Sets the CoM orientation expressed in the world frame */
 		void setOrientation_W(const Eigen::Quaterniond& orient_W);
 
-		/** @brief Sets the base RPY angles in the world frame */
+		/** @brief Sets the CoM RPY angles expressed in the world frame */
 		void setRPY_W(const Eigen::Vector3d& rpy_W);
 
-		/** @brief Sets the CoM velocity in the world frame */
+		/** @brief Sets the CoM velocity expressed in the world frame */
 		void setCoMVelocity_W(const Eigen::Vector3d& vel_W);
 
-		/** @brief Sets the CoM velocity in the base frame */
+		/** @brief Sets the CoM velocity expressed in the base frame */
 		void setCoMVelocity_B(const Eigen::Vector3d& vel_B);
 
-		/** @brief Sets the CoM velocity in the horizontal frame */
+		/** @brief Sets the CoM velocity expressed in the horizontal frame */
 		void setCoMVelocity_H(const Eigen::Vector3d& vel_H);
 
-		/** @brief Sets the base angular velocity in the world frame */
+		/** @brief Sets the CoM angular velocity expressed in the world frame */
 		void setAngularVelocity_W(const Eigen::Vector3d& rate_W);
 
-		/** @brief Sets the base angular velocity in the base frame */
+		/** @brief Sets the CoM angular velocity expressed in the base frame */
 		void setAngularVelocity_B(const Eigen::Vector3d& rate_B);
 
-		/** @brief Sets the base angular velocity in the horizontal frame */
+		/** @brief Sets the CoM angular velocity expressed in the horizontal frame */
 		void setAngularVelocity_H(const Eigen::Vector3d& rate_H);
 
-		/** @brief Sets the base RPY velocity */
+		/** @brief Sets the CoM RPY velocity */
 		void setRPYVelocity(const Eigen::Vector3d& rpy_rate);
 
-		/** @brief Sets the CoM acceleration in the world frame */
+		/** @brief Sets the CoM acceleration expressed in the world frame */
 		void setCoMAcceleration_W(const Eigen::Vector3d& acc_W);
 
-		/** @brief Sets the CoM acceleration in the base frame */
+		/** @brief Sets the CoM acceleration expressed in the base frame */
 		void setCoMAcceleration_B(const Eigen::Vector3d& acc_B);
 
-		/** @brief Sets the CoM acceleration in the horizontal frame */
+		/** @brief Sets the CoM acceleration expressed in the horizontal frame */
 		void setCoMAcceleration_H(const Eigen::Vector3d& acc_H);
 
-		/** @brief Sets the base angular acceleration in the world frame */
+		/** @brief Sets the CoM angular acceleration expressed in the world frame */
 		void setAngularAcceleration_W(const Eigen::Vector3d& rotacc_W);
 
-		/** @brief Sets the base angular acceleration in the base frame */
+		/** @brief Sets the CoM angular acceleration expressed in the base frame */
 		void setAngularAcceleration_B(const Eigen::Vector3d& rotacc_B);
 
-		/** @brief Sets the base angular acceleration in the horizontal frame */
+		/** @brief Sets the CoM angular acceleration expressed in the horizontal frame */
 		void setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
 
-		/** @brief Sets the base RPY acceleration */
+		/** @brief Sets the CoM RPY acceleration */
 		void setRPYAcceleration(const Eigen::Vector3d& rpy,
 								const Eigen::Vector3d& rpy_rate);
 
 
 		// CoP state setter functions
-		/** @brief Sets the CoP position */
+		/** @brief Sets the CoP position expressed in the world frame*/
 		void setCoPPosition_W(const Eigen::Vector3d& cop_W);
 
+
 		// Foot state setter functions
-		/** @brief Sets the foot position expressed in the world frame */
+		/** @brief Sets the foot position w.r.t. the world frame */
 		void setFootPosition_W(FootIterator it);
 		void setFootPosition_W(const std::string& name,
 							   const Eigen::Vector3d& pos_W);
 		void setFootPosition_W(const rbd::BodyVector3d& pos_W);
 
-		/** @brief Sets the foot position expressed in the base frame */
+		/** @brief Sets the foot position w.r.t. the base frame */
 		void setFootPosition_B(FootIterator it);
 		void setFootPosition_B(const std::string& name,
 							   const Eigen::Vector3d& pos_B);
 		void setFootPosition_B(const rbd::BodyVector3d& pos_B);
 
-		/** @brief Sets the foot position expressed in the horizontal frame */
+		/** @brief Sets the foot position w.r.t. the horizontal frame */
 		void setFootPosition_H(FootIterator it);
 		void setFootPosition_H(const std::string& name,
 							   const Eigen::Vector3d& pos_H);
 		void setFootPosition_H(const rbd::BodyVector3d& pos_H);
 
-		/** @brief Sets the foot velocity expressed in the world frame */
+		/** @brief Sets the foot velocity w.r.t. the world frame */
 		void setFootVelocity_W(FootIterator it);
 		void setFootVelocity_W(const std::string& name,
 							   const Eigen::Vector3d& vel_W);
 		void setFootVelocity_W(const rbd::BodyVector3d& vel_W);
 
-		/** @brief Sets the foot velocity expressed in the base frame */
+		/** @brief Sets the foot velocity w.r.t. the base frame */
 		void setFootVelocity_B(FootIterator it);
 		void setFootVelocity_B(const std::string& name,
 							   const Eigen::Vector3d& vel_B);
 		void setFootVelocity_B(const rbd::BodyVector3d& vel_B);
 
-		/** @brief Sets the foot velocity expressed in the horizontal frame */
+		/** @brief Sets the foot velocity w.r.t. the horizontal frame */
 		void setFootVelocity_H(FootIterator it);
 		void setFootVelocity_H(const std::string& name,
 							   const Eigen::Vector3d& vel_H);
 		void setFootVelocity_H(const rbd::BodyVector3d& vel_H);
 
-		/** @brief Sets the foot acceleration expressed in the world frame */
+		/** @brief Sets the foot acceleration w.r.t. the world frame */
 		void setFootAcceleration_W(FootIterator it);
 		void setFootAcceleration_W(const std::string& name,
 								   const Eigen::Vector3d& acc_W);
 		void setFootAcceleration_W(const rbd::BodyVector3d& acc_W);
 
-		/** @brief Sets the foot acceleration expressed in the base frame */
+		/** @brief Sets the foot acceleration w.r.t. the base frame */
 		void setFootAcceleration_B(FootIterator it);
 		void setFootAcceleration_B(const std::string& name,
 								   const Eigen::Vector3d& acc_B);
 		void setFootAcceleration_B(const rbd::BodyVector3d& acc_B);
 
-		/** @brief Sets the foot acceleration expressed in the horizontal frame */
+		/** @brief Sets the foot acceleration w.r.t. the horizontal frame */
 		void setFootAcceleration_H(FootIterator it);
 		void setFootAcceleration_H(const std::string& name,
 								   const Eigen::Vector3d& acc_H);
