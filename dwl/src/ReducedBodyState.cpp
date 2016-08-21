@@ -543,13 +543,13 @@ void ReducedBodyState::setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H)
 }
 
 
-void ReducedBodyState::setRPYAcceleration(const Eigen::Vector3d& rpy_rate,
-											const Eigen::Vector3d& rpy_acc)
+void ReducedBodyState::setRPYAcceleration(const Eigen::Vector3d& rpy_acc)
 {
 	// omega_ddot = EAR * rpy_ddot + EAR_dot * rpy_dot
+	Eigen::Vector3d rpy_vel = getRPYVelocity();
 	angular_acc =
 			math::getInverseEulerAnglesRatesMatrix(getRPY_W()) * rpy_acc +
-			math::getInverseEulerAnglesRatesMatrix_dot(getRPY_W(), rpy_rate) * rpy_rate;
+			math::getInverseEulerAnglesRatesMatrix_dot(getRPY_W(), rpy_vel) * rpy_vel;
 }
 
 

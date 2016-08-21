@@ -228,8 +228,7 @@ class ReducedBodyState
 		void setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
 
 		/** @brief Sets the CoM RPY acceleration */
-		void setRPYAcceleration(const Eigen::Vector3d& rpy,
-								const Eigen::Vector3d& rpy_rate);
+		void setRPYAcceleration(const Eigen::Vector3d& rpy_rate);
 
 
 		// CoP state setter functions
