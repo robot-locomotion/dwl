@@ -636,13 +636,13 @@ void ReducedBodyState::setFootVelocity_W(const std::string& name,
 	// Computing the foot velocity w.r.t. the base but expressed in the world
 	// frame. Here we use the equation:
 	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega_base x X^W_foot/base
-	Eigen::Vector3d pos_fb_W =
-			frame_tf_.fromBaseToWorldFrame(getFootPosition_B(name), getRPY_W());
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getFootPosition_B(name);
 	Eigen::Vector3d vel_fb_W = vel_W - getCoMVelocity_W() -
 			getAngularVelocity_W().cross(pos_fb_W);
 
-	foot_vel[name] = frame_tf_.fromWorldToBaseFrame(vel_fb_W, getRPY_W());
 	// Expressing the foot velocity in the base frame
+	foot_vel[name] = W_rot_B.transpose() * vel_fb_W;
 }
 
 
