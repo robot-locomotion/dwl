@@ -88,8 +88,8 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 
 	// Saturating the maximum roll and pitch displacement in case that we
 	// reach maximum velocity
-	double max_roll_vel = 0.2;
-	double max_pitch_vel = 0.2;
+	double max_roll_vel = 0.1;
+	double max_pitch_vel = 0.1;
 	math::Spline::Point start_roll(initial_state_.getRPY_W()(0),
 								   initial_state_.getAngularVelocity_W()(0),
 								   initial_state_.getAngularAcceleration_W()(0));
