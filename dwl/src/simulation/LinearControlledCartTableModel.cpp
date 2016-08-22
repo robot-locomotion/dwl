@@ -221,7 +221,7 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 	Eigen::Vector3d rpy_acc(roll.xdd, pitch.xdd, yaw.xdd);
 	state.setRPY_W(rpy);
 	state.setRPYVelocity(rpy_vel);
-	state.setRPYAcceleration(rpy_vel, rpy_acc);
+	state.setRPYAcceleration(rpy_acc);
 }
 
 
