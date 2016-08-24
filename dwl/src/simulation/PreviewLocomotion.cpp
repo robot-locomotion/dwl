@@ -64,14 +64,14 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 								   feet_names_,
 								   rbd::Linear);
 
-	// Converting to the CoM frame
-	for (rbd::BodyVectorXd::iterator feet_it = stance_posture_C_.begin();
-			feet_it != stance_posture_C_.end(); feet_it++) {
-		std::string name = feet_it->first;
-		Eigen::VectorXd stance = feet_it->second;
-
-		stance_posture_C_[name] = stance - com_pos_B;
-	}
+	// Converting to the CoM frame //TODO remove for testing
+//	for (rbd::BodyVectorXd::iterator feet_it = stance_posture_C_.begin();
+//			feet_it != stance_posture_C_.end(); feet_it++) {
+//		std::string name = feet_it->first;
+//		Eigen::VectorXd stance = feet_it->second;
+//
+//		stance_posture_C_[name] = stance - com_pos_B;
+//	}
 
 	// Setting up the cart-table model
 	CartTableProperties model(mass_, gravity_);
