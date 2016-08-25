@@ -176,12 +176,6 @@ class ReducedBodyState
 		/** @brief Sets the CoM position expressed in the world frame */
 		void setCoMPosition_W(const Eigen::Vector3d& pos_W);
 
-		/** @brief Sets the CoM position expressed in the base frame */
-		void setCoMPosition_B(const Eigen::Vector3d& pos_B);
-
-		/** @brief Sets the CoM position expressed in the horizontal frame */
-		void setCoMPosition_H(const Eigen::Vector3d& pos_H);
-
 		/** @brief Sets the CoM orientation expressed in the world frame */
 		void setOrientation_W(const Eigen::Quaterniond& orient_W);
 

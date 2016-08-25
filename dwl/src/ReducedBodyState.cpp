@@ -441,18 +441,6 @@ void ReducedBodyState::setCoMPosition_W(const Eigen::Vector3d& pos_W)
 }
 
 
-void ReducedBodyState::setCoMPosition_B(const Eigen::Vector3d& pos_B)
-{
-	com_pos = frame_tf_.fromBaseToWorldFrame(pos_B, getOrientation_W());
-}
-
-
-void ReducedBodyState::setCoMPosition_H(const Eigen::Vector3d& pos_H)
-{
-	com_pos = frame_tf_.fromHorizontalToWorldFrame(pos_H, getRPY_W());
-}
-
-
 void ReducedBodyState::setOrientation_W(const Eigen::Quaterniond& orient_W)
 {
 	angular_pos = math::getRPY(orient_W);
