@@ -107,13 +107,13 @@ class ReducedBodyState
 		/** @brief Gets the CoM acceleration expressed in the horizontal frame */
 		Eigen::Vector3d getCoMAcceleration_H() const;
 
-		/** @brief Gets the CoM angular acceleration in the world frame */
+		/** @brief Gets the CoM angular acceleration expressed in the world frame */
 		const Eigen::Vector3d& getAngularAcceleration_W() const;
 
-		/** @brief Gets the CoM angular acceleration in the base frame */
+		/** @brief Gets the CoM angular acceleration expressed in the base frame */
 		Eigen::Vector3d getAngularAcceleration_B() const;
 
-		/** @brief Gets the CoM angular acceleration in the horizontal frame */
+		/** @brief Gets the CoM angular acceleration expressed in the horizontal frame */
 		Eigen::Vector3d getAngularAcceleration_H() const;
 
 		/** @brief Gets the CoM RPY acceleration */
