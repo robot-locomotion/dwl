@@ -72,12 +72,10 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 		feet_pos[name] = contact_pos_B; // for IK computation
 
 		// Setting up the contact velocity
-		Eigen::Vector3d contact_vel_W = state.getFootVelocity_W(name);
-		ws_.setContactVelocity_W(name, contact_vel_W);
+		ws_.setContactVelocity_W(name, state.getFootVelocity_W(name));
 
 		// Setting up the contact acceleration
-		Eigen::Vector3d contact_acc_W = state.getFootAcceleration_W(name);
-		ws_.setContactAcceleration_W(name, contact_vel_W, contact_acc_W);
+		ws_.setContactAcceleration_W(name, state.getFootAcceleration_W(name));
 
 		// Setting up the contact condition
 		rbd::BodyVector3d::const_iterator support_it = state.support_region.find(name);

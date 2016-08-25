@@ -76,13 +76,13 @@ class WholeBodyState
 		~WholeBodyState();
 
 		// Base state getter functions
-		/** @brief Gets the base position in the world frame */
+		/** @brief Gets the base position expressed in the world frame */
 		Eigen::Vector3d getBasePosition_W() const;
 
-		/** @brief Gets the base orientation in the world frame */
+		/** @brief Gets the base orientation expressed in the world frame */
 		Eigen::Quaterniond getBaseOrientation_W() const;
 
-		/** @brief Gets the base RPY angles in the world frame */
+		/** @brief Gets the base RPY angles expressed in the world frame */
 		Eigen::Vector3d getBaseRPY_W() const;
 
 		/** @brief Gets the base orientation in the horizontal frame */
@@ -91,101 +91,47 @@ class WholeBodyState
 		/** @brief Gets the base RPY angles in the horizontal frame */
 		Eigen::Vector3d getBaseRPY_H() const;
 
-		/** @brief Gets the base velocity in the world frame */
+		/** @brief Gets the base velocity expressed in the world frame */
 		Eigen::Vector3d getBaseVelocity_W() const;
 
-		/** @brief Gets the base velocity in the base frame */
+		/** @brief Gets the base velocity expressed in the base frame */
 		Eigen::Vector3d getBaseVelocity_B() const;
 
-		/** @brief Gets the base velocity in the horizontal frame */
+		/** @brief Gets the base velocity expressed in the horizontal frame */
 		Eigen::Vector3d getBaseVelocity_H() const;
 
-		/** @brief Gets the base angular velocity in the world frame */
+		/** @brief Gets the base angular velocity expressed in the world frame */
 		Eigen::Vector3d getBaseAngularVelocity_W() const;
 
-		/** @brief Gets the base angular velocity in the base frame */
+		/** @brief Gets the base angular velocity expressed in the base frame */
 		Eigen::Vector3d getBaseAngularVelocity_B() const;
 
-		/** @brief Gets the base angular velocity in the horizontal frame */
+		/** @brief Gets the base angular velocity expressed in the horizontal frame */
 		Eigen::Vector3d getBaseAngularVelocity_H() const;
 
 		/** @brief Gets the base RPY velocity */
 		Eigen::Vector3d getBaseRPYVelocity() const;
 
-		/** @brief Gets the base acceleration in the world frame */
+		/** @brief Gets the base acceleration expressed in the world frame */
 		Eigen::Vector3d getBaseAcceleration_W() const;
 
-		/** @brief Gets the base acceleration in the base frame */
+		/** @brief Gets the base acceleration expressed in the base frame */
 		Eigen::Vector3d getBaseAcceleration_B() const;
 
-		/** @brief Gets the base acceleration in the horizontal frame */
+		/** @brief Gets the base acceleration expressed in the horizontal frame */
 		Eigen::Vector3d getBaseAcceleration_H() const;
 
-		/** @brief Gets the base angular acceleration in the world frame */
+		/** @brief Gets the base angular acceleration expressed in the world frame */
 		Eigen::Vector3d getBaseAngularAcceleration_W() const;
 
-		/** @brief Gets the base angular acceleration in the base frame */
+		/** @brief Gets the base angular acceleration expressed in the base frame */
 		Eigen::Vector3d getBaseAngularAcceleration_B() const;
 
-		/** @brief Gets the base angular acceleration in the horizontal frame */
+		/** @brief Gets the base angular acceleration expressed in the horizontal frame */
 		Eigen::Vector3d getBaseAngularAcceleration_H() const;
 
 		/** @brief Gets the base RPY acceleration */
 		Eigen::Vector3d getBaseRPYAcceleration() const;
-
-
-		// Base state setter functions
-		/** @brief Sets the base position in the world frame */
-		void setBasePosition_W(const Eigen::Vector3d& pos_W);
-
-		/** @brief Sets the base orientation in the world frame */
-		void setBaseOrientation_W(const Eigen::Quaterniond& orient_W);
-
-		/** @brief Sets the base RPY angles in the world frame */
-		void setBaseRPY_W(const Eigen::Vector3d& rpy_W);
-
-		/** @brief Sets the base velocity in the world frame */
-		void setBaseVelocity_W(const Eigen::Vector3d& vel_W);
-
-		/** @brief Sets the base velocity in the base frame */
-		void setBaseVelocity_B(const Eigen::Vector3d& vel_B);
-
-		/** @brief Sets the base velocity in the horizontal frame */
-		void setBaseVelocity_H(const Eigen::Vector3d& vel_H);
-
-		/** @brief Sets the base angular velocity in the world frame */
-		void setBaseAngularVelocity_W(const Eigen::Vector3d& rate_W);
-
-		/** @brief Sets the base angular velocity in the base frame */
-		void setBaseAngularVelocity_B(const Eigen::Vector3d& rate_B);
-
-		/** @brief Sets the base angular velocity in the horizontal frame */
-		void setBaseAngularVelocity_H(const Eigen::Vector3d& rate_H);
-
-		/** @brief Sets the base RPY velocity */
-		void setBaseRPYVelocity(const Eigen::Vector3d& rpy_rate);
-
-		/** @brief Sets the base acceleration in the world frame */
-		void setBaseAcceleration_W(const Eigen::Vector3d& acc_W);
-
-		/** @brief Sets the base acceleration in the base frame */
-		void setBaseAcceleration_B(const Eigen::Vector3d& acc_B);
-
-		/** @brief Sets the base acceleration in the horizontal frame */
-		void setBaseAcceleration_H(const Eigen::Vector3d& acc_H);
-
-		/** @brief Sets the base angular acceleration in the world frame */
-		void setBaseAngularAcceleration_W(const Eigen::Vector3d& rotacc_W);
-
-		/** @brief Sets the base angular acceleration in the base frame */
-		void setBaseAngularAcceleration_B(const Eigen::Vector3d& rotacc_B);
-
-		/** @brief Sets the base angular acceleration in the horizontal frame */
-		void setBaseAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
-
-		/** @brief Sets the base RPY acceleration */
-		void setBaseRPYAcceleration(const Eigen::Vector3d& rpy,
-									const Eigen::Vector3d& rpy_rate);
 
 
 		// Joint state getter functions
@@ -207,6 +153,122 @@ class WholeBodyState
 
 		/** @brief Gets the number of joints */
 		const unsigned int getJointDof() const;
+
+
+		// Contact state getter functions
+		/** @brief Gets the contact position w.r.t. the world frame */
+		Eigen::VectorXd getContactPosition_W(ContactIterator pos_it) const;
+		Eigen::VectorXd getContactPosition_W(const std::string& name) const;
+		rbd::BodyVectorXd getContactPosition_W() const;
+
+		/** @brief Gets the contact position w.r.t. the base frame */
+		const Eigen::VectorXd& getContactPosition_B(ContactIterator pos_it) const;
+		const Eigen::VectorXd& getContactPosition_B(const std::string& name) const;
+		const rbd::BodyVectorXd& getContactPosition_B() const;
+
+		/** @brief Gets the contact position w.r.t. the horizontal frame */
+		Eigen::VectorXd getContactPosition_H(ContactIterator pos_it) const;
+		Eigen::VectorXd getContactPosition_H(const std::string& name) const;
+		rbd::BodyVectorXd getContactPosition_H() const;
+
+		/** @brief Gets the contact velocity w.r.t. the world frame */
+		Eigen::VectorXd getContactVelocity_W(ContactIterator vel_it) const;
+		Eigen::VectorXd getContactVelocity_W(const std::string& name) const;
+		rbd::BodyVectorXd getContactVelocity_W() const;
+
+		/** @brief Gets the contact velocities w.r.t. the base frame */
+		const Eigen::VectorXd& getContactVelocity_B(ContactIterator vel_it) const;
+		const Eigen::VectorXd& getContactVelocity_B(const std::string& name) const;
+		const rbd::BodyVectorXd& getContactVelocity_B() const;
+
+		/** @brief Gets the contact velocity w.r.t in the horizontal frame */
+		Eigen::VectorXd getContactVelocity_H(ContactIterator vel_it) const;
+		Eigen::VectorXd getContactVelocity_H(const std::string& name) const;
+		rbd::BodyVectorXd getContactVelocity_H() const;
+
+		/** @brief Gets the contact acceleration w.r.t in the world frame */
+		Eigen::VectorXd getContactAcceleration_W(ContactIterator acc_it) const;
+		Eigen::VectorXd getContactAcceleration_W(const std::string& name) const;
+		rbd::BodyVectorXd getContactAcceleration_W() const;
+
+		/** @brief Gets the contact accelerations w.r.t. the base frame */
+		const Eigen::VectorXd& getContactAcceleration_B(ContactIterator acc_it) const;
+		const Eigen::VectorXd& getContactAcceleration_B(const std::string& name) const;
+		const rbd::BodyVectorXd& getContactAcceleration_B() const;
+
+		/** @brief Gets the contact acceleration expressed in the horizontal frame */
+		Eigen::VectorXd getContactAcceleration_H(ContactIterator acc_it) const;
+		Eigen::VectorXd getContactAcceleration_H(const std::string& name) const;
+		rbd::BodyVectorXd getContactAcceleration_H() const;
+
+
+		/** @brief Gets the contact wrenches in the base frame */
+		const rbd::BodyVector6d& getContactWrench_B() const;
+		const rbd::Vector6d& getContactWrench_B(const std::string& name) const;
+
+		/**
+		 * @brief Gets the contact condition (active or inactive)
+		 * @param std::string Name of contact link
+		 * @param double Force threshold for detecting contact condition
+		 * @return bool True for active contacts, false for inactive ones
+		 */
+		bool getContactCondition(const std::string& name,
+								 const double& force_threshold) const;
+		bool getContactCondition(const std::string& name) const;
+
+
+		// Base state setter functions
+		/** @brief Sets the base position expressed in the world frame */
+		void setBasePosition_W(const Eigen::Vector3d& pos_W);
+
+		/** @brief Sets the base orientation expressed in the world frame */
+		void setBaseOrientation_W(const Eigen::Quaterniond& orient_W);
+
+		/** @brief Sets the base RPY angles expressed in the world frame */
+		void setBaseRPY_W(const Eigen::Vector3d& rpy_W);
+
+		/** @brief Sets the base velocity expressed in the world frame */
+		void setBaseVelocity_W(const Eigen::Vector3d& vel_W);
+
+		/** @brief Sets the base velocity expressed in the base frame */
+		void setBaseVelocity_B(const Eigen::Vector3d& vel_B);
+
+		/** @brief Sets the base velocity expressed in the horizontal frame */
+		void setBaseVelocity_H(const Eigen::Vector3d& vel_H);
+
+		/** @brief Sets the base angular velocity expressed in the world frame */
+		void setBaseAngularVelocity_W(const Eigen::Vector3d& rate_W);
+
+		/** @brief Sets the base angular velocity expressed in the base frame */
+		void setBaseAngularVelocity_B(const Eigen::Vector3d& rate_B);
+
+		/** @brief Sets the base angular velocity expressed in the horizontal frame */
+		void setBaseAngularVelocity_H(const Eigen::Vector3d& rate_H);
+
+		/** @brief Sets the base RPY velocity */
+		void setBaseRPYVelocity(const Eigen::Vector3d& rpy_rate);
+
+		/** @brief Sets the base acceleration expressed in the world frame */
+		void setBaseAcceleration_W(const Eigen::Vector3d& acc_W);
+
+		/** @brief Sets the base acceleration expressed in the base frame */
+		void setBaseAcceleration_B(const Eigen::Vector3d& acc_B);
+
+		/** @brief Sets the base acceleration expressed in the horizontal frame */
+		void setBaseAcceleration_H(const Eigen::Vector3d& acc_H);
+
+		/** @brief Sets the base angular acceleration expressed in the world frame */
+		void setBaseAngularAcceleration_W(const Eigen::Vector3d& rotacc_W);
+
+		/** @brief Sets the base angular acceleration expressed in the base frame */
+		void setBaseAngularAcceleration_B(const Eigen::Vector3d& rotacc_B);
+
+		/** @brief Sets the base angular acceleration expressed in the horizontal frame */
+		void setBaseAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
+
+		/** @brief Sets the base RPY acceleration */
+		void setBaseRPYAcceleration(const Eigen::Vector3d& rpy_rate);
+
 
 		// Joint state setter functions
 		/** @brief Sets the joint positions */
@@ -236,128 +298,61 @@ class WholeBodyState
 		void setJointDoF(const unsigned int& num_joints);
 
 
-		// Contact state getter functions
-		/** @brief Gets the contact position expressed in the world frame */
-		Eigen::VectorXd getContactPosition_W(ContactIterator it) const;
-		Eigen::VectorXd getContactPosition_W(const std::string& name) const;
-		rbd::BodyVectorXd getContactPosition_W() const;
-
-		/** @brief Gets the contact position in the base frame */
-		const Eigen::VectorXd& getContactPosition_B(ContactIterator it) const;
-		const Eigen::VectorXd& getContactPosition_B(const std::string& name) const;
-		const rbd::BodyVectorXd& getContactPosition_B() const;
-
-		/** @brief Gets the contact position expressed in the horizontal frame */
-		Eigen::VectorXd getContactPosition_H(ContactIterator it) const;
-		Eigen::VectorXd getContactPosition_H(const std::string& name) const;
-		rbd::BodyVectorXd getContactPosition_H() const;
-
-		/** @brief Gets the contact velocity expressed in the world frame */
-		Eigen::VectorXd getContactVelocity_W(ContactIterator it) const;
-		Eigen::VectorXd getContactVelocity_W(const std::string& name) const;
-		rbd::BodyVectorXd getContactVelocity_W() const;
-
-		/** @brief Gets the contact velocities in the base frame */
-		const Eigen::VectorXd& getContactVelocity_B(ContactIterator it) const;
-		const Eigen::VectorXd& getContactVelocity_B(const std::string& name) const;
-		const rbd::BodyVectorXd& getContactVelocity_B() const;
-
-		/** @brief Gets the contact velocity expressed in the horizontal frame */
-		Eigen::VectorXd getContactVelocity_H(ContactIterator it) const;
-		Eigen::VectorXd getContactVelocity_H(const std::string& name) const;
-		rbd::BodyVectorXd getContactVelocity_H() const;
-
-		/** @brief Gets the contact acceleration expressed in the world frame */
-		Eigen::VectorXd getContactAcceleration_W(ContactIterator it) const;
-		Eigen::VectorXd getContactAcceleration_W(const std::string& name) const;
-		rbd::BodyVectorXd getContactAcceleration_W() const;
-
-		/** @brief Gets the contact accelerations in the base frame */
-		const Eigen::VectorXd& getContactAcceleration_B(ContactIterator it) const;
-		const Eigen::VectorXd& getContactAcceleration_B(const std::string& name) const;
-		const rbd::BodyVectorXd& getContactAcceleration_B() const;
-
-		/** @brief Gets the contact acceleration expressed in the horizontal frame */
-		Eigen::VectorXd getContactAcceleration_H(ContactIterator it) const;
-		Eigen::VectorXd getContactAcceleration_H(const std::string& name) const;
-		rbd::BodyVectorXd getContactAcceleration_H() const;
-
-
-		/** @brief Gets the contact wrenches in the base frame */
-		const rbd::BodyVector6d& getContactWrench_B() const;
-		const rbd::Vector6d& getContactWrench_B(const std::string& name) const;
-
-		/**
-		 * @brief Gets the contact condition (active or inactive)
-		 * @param std::string Name of contact link
-		 * @param double Force threshold for detecting contact condition
-		 * @return bool True for active contacts, false for inactive ones
-		 */
-		bool getContactCondition(const std::string& name,
-								 const double& force_threshold) const;
-		bool getContactCondition(const std::string& name) const;
-
 		// Contact state setter functions		
-		/** @brief Sets the contact position expressed in the world frame */
+		/** @brief Sets the contact position w.r.t. the world frame */
 		void setContactPosition_W(ContactIterator it);
 		void setContactPosition_W(const std::string& name,
 								  const Eigen::VectorXd& pos_W);
 		void setContactPosition_W(const rbd::BodyVectorXd& pos_W);
 		
 		
-		/** @brief Sets the contact positions in the base frame */
+		/** @brief Sets the contact positions w.r.t. the base frame */
 		void setContactPosition_B(ContactIterator it);
 		void setContactPosition_B(const std::string& name,
 								  const Eigen::VectorXd& pos_B);
 		void setContactPosition_B(const rbd::BodyVectorXd& pos_B);
 		
-		/** @brief Sets the contact position expressed in the horizontal frame */
+		/** @brief Sets the contact position w.r.t. the horizontal frame */
 		void setContactPosition_H(ContactIterator it);
 		void setContactPosition_H(const std::string& name,
 								  const Eigen::VectorXd& pos_H);
 		void setContactPosition_H(const rbd::BodyVectorXd& pos_H);
 		
-		/** @brief Sets the contact velocity expressed in the world frame */
+		/** @brief Sets the contact velocity w.r.t. the world frame */
 		void setContactVelocity_W(ContactIterator it);
 		void setContactVelocity_W(const std::string& name,
 								  const Eigen::VectorXd& vel_W);
 		void setContactVelocity_W(const rbd::BodyVectorXd& vel_W);
 
-		/** @brief Sets the contact velocity expressed in the base frame */
+		/** @brief Sets the contact velocity w.r.t. the base frame */
 		void setContactVelocity_B(ContactIterator it);
 		void setContactVelocity_B(const std::string& name,
 								  const Eigen::VectorXd& vel_B);
 		void setContactVelocity_B(const rbd::BodyVectorXd& vel_B);
 
-		/** @brief Sets the contact velocity expressed in the horizontal frame */
+		/** @brief Sets the contact velocity w.r.t. the horizontal frame */
 		void setContactVelocity_H(ContactIterator it);
 		void setContactVelocity_H(const std::string& name,
 								  const Eigen::VectorXd& vel_H);
 		void setContactVelocity_H(const rbd::BodyVectorXd& vel_H);
 		
-		/** @brief Sets the contact acceleration expressed in the world frame */
-		void setContactAcceleration_W(ContactIterator vel_it,
-									  ContactIterator acc_it);
+		/** @brief Sets the contact acceleration w.r.t. the world frame */
+		void setContactAcceleration_W(ContactIterator acc_it);
 		void setContactAcceleration_W(const std::string& name,
-									  const Eigen::VectorXd& vel_W,
 									  const Eigen::VectorXd& acc_W);
-		void setContactAcceleration_W(const rbd::BodyVectorXd& vel_W,
-									  const rbd::BodyVectorXd& acc_W);
+		void setContactAcceleration_W(const rbd::BodyVectorXd& acc_W);
 
-		/** @brief Sets the contact acceleration expressed in the base frame */
-		void setContactAcceleration_B(ContactIterator it);
+		/** @brief Sets the contact acceleration w.r.t. the base frame */
+		void setContactAcceleration_B(ContactIterator acc_it);
 		void setContactAcceleration_B(const std::string& name,
 									  const Eigen::VectorXd& acc_B);
 		void setContactAcceleration_B(const rbd::BodyVectorXd& acc_B);
 
-		/** @brief Sets the contact acceleration expressed in the horizontal frame */
-		void setContactAcceleration_H(ContactIterator vel_it,
-									  ContactIterator acc_it);
+		/** @brief Sets the contact acceleration w.r.t. the horizontal frame */
+		void setContactAcceleration_H(ContactIterator acc_it);
 		void setContactAcceleration_H(const std::string& name,
-									  const Eigen::VectorXd& vel_H,
 									  const Eigen::VectorXd& acc_H);
-		void setContactAcceleration_H(const rbd::BodyVectorXd& vel_H,
-									  const rbd::BodyVectorXd& acc_H);
+		void setContactAcceleration_H(const rbd::BodyVectorXd& acc_H);
 
 		/** @brief Sets the contact wrenches in the base frame */
 		void setContactWrench_B(const rbd::BodyVector6d& eff);
@@ -391,31 +386,14 @@ class WholeBodyState
 
 
 	private:
-		/**
-		 * @brief Computes the relative contact velocity w.r.t. the base expressed
-		 * in the world frame
-		 * @param std::string Name of the contact
-		 * @param const Eigen::Vector3d& Contact velocity expressed in the world frame
-		 */
-		Eigen::Vector3d computeRelativeContactVelocity_W(const std::string& name,
-														 const Eigen::Vector3d& vel_W);
-
-		/**
-		 * @brief Computes the relative contact acceleration w.r.t. the base expressed
-		 * in the world frame
-		 * @param std::string Name of the contact
-		 * @param const Eigen::Vector3d& Contact velocity expressed in the world frame
-		 * @param const Eigen::Vector3d& Contact acceleration expressed in the world frame
-		 */
-		Eigen::Vector3d computeRelativeContactAcceleration_W(const std::string& name,
-															 const Eigen::Vector3d& vel_W,
-															 const Eigen::Vector3d& acc_W);
-		
 		/** @brief Number of joints */
 		unsigned int num_joints_;
 
 		/** @brief Frame transformations */
 		math::FrameTF frame_tf_;
+
+		/** @brief Default value for joint states that don't exist */
+		double default_joint_value_;
 };
 
 /** @brief Defines a whole-body trajectory */

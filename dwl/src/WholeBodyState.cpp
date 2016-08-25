@@ -5,7 +5,7 @@ namespace dwl
 {
 
 WholeBodyState::WholeBodyState(unsigned int num_joints) :
-		time(0.), duration(0.), num_joints_(num_joints)
+		time(0.), duration(0.), num_joints_(num_joints), default_joint_value_(0.)
 {
 	base_pos.setZero();
 	base_vel.setZero();
@@ -158,6 +158,415 @@ Eigen::Vector3d WholeBodyState::getBaseRPYAcceleration() const
 }
 
 
+const Eigen::VectorXd& WholeBodyState::getJointPosition() const
+{
+	return joint_pos;
+}
+
+
+const double& WholeBodyState::getJointPosition(const unsigned int& index) const
+{
+	if (index >= num_joints_) {
+		printf(YELLOW "Warning: the index is bigger than the number of joints."
+				" It cannot be set the joint position.\n"
+				COLOR_RESET);
+		return default_joint_value_;
+	}
+
+	return joint_pos(index);
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getJointVelocity() const
+{
+	return joint_vel;
+}
+
+
+const double& WholeBodyState::getJointVelocity(const unsigned int& index) const
+{
+	if (index >= num_joints_) {
+		printf(YELLOW "Warning: the index is bigger than the number of joints."
+				" It cannot be set the joint velocity.\n"
+				COLOR_RESET);
+		return default_joint_value_;
+	}
+
+	return joint_vel(index);
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getJointAcceleration() const
+{
+	return joint_acc;
+}
+
+
+const double& WholeBodyState::getJointAcceleration(const unsigned int& index) const
+{
+	if (index >= num_joints_) {
+		printf(YELLOW "Warning: the index is bigger than the number of joints."
+				" It cannot be set the joint acceleration.\n"
+				COLOR_RESET);
+		return default_joint_value_;
+	}
+
+	return joint_acc(index);
+}
+
+
+const double& WholeBodyState::getJointEffort(const unsigned int& index) const
+{
+	if (index >= num_joints_) {
+		printf(YELLOW "Warning: the index is bigger than the number of joints."
+				" It cannot be get the joint effort.\n"
+				COLOR_RESET);
+		return default_joint_value_;
+	}
+
+	return joint_eff(index);
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getJointEffort() const
+{
+	return joint_eff;
+}
+
+
+const unsigned int WholeBodyState::getJointDof() const
+{
+	return num_joints_;
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactPosition_W(ContactIterator pos_it) const
+{
+	return getBasePosition_W() +
+			frame_tf_.fromBaseToWorldFrame(pos_it->second, getBaseRPY_W());
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactPosition_W(const std::string& name) const
+{
+	ContactIterator contact_it = getContactPosition_B().find(name);
+	return getContactPosition_W(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactPosition_W() const
+{
+	rbd::BodyVectorXd contact_pos_W;
+	for (ContactIterator contact_it = getContactPosition_B().begin();
+			contact_it != getContactPosition_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_pos_W[name] = getContactPosition_W(contact_it);
+	}
+
+	return contact_pos_W;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactPosition_B(ContactIterator pos_it) const
+{
+	return pos_it->second;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactPosition_B(const std::string& name) const
+{
+	ContactIterator contact_it = getContactPosition_B().find(name);
+	return getContactPosition_B(contact_it);
+}
+
+
+const rbd::BodyVectorXd& WholeBodyState::getContactPosition_B() const
+{
+	return contact_pos;
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactPosition_H(ContactIterator pos_it) const
+{
+	return frame_tf_.fromBaseToHorizontalFrame(pos_it->second, getBaseRPY_W());
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactPosition_H(const std::string& name) const
+{
+	ContactIterator contact_it = getContactPosition_B().find(name);
+	return getContactPosition_H(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactPosition_H() const
+{
+	rbd::BodyVectorXd contact_pos_H;
+	for (ContactIterator contact_it = getContactPosition_B().begin();
+			contact_it != getContactPosition_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_pos_H[name] = getContactPosition_H(contact_it);
+	}
+
+	return contact_pos_H;
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactVelocity_W(ContactIterator vel_it) const
+{
+	// Computing the contact velocity w.r.t. the world frame.
+	// Here we use the equation:
+	// Xd^W_contact = Xd^W_base + Xd^W_contact/base + omega_base x X^W_contact/base
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getContactPosition_B(vel_it->first);
+	Eigen::Vector3d vel_fb_W = W_rot_B * getContactVelocity_B(vel_it);
+
+	return getBaseVelocity_W() + vel_fb_W + getBaseAngularVelocity_W().cross(pos_fb_W);
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactVelocity_W(const std::string& name) const
+{
+	ContactIterator contact_it = getContactVelocity_B().find(name);
+	return getContactVelocity_W(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactVelocity_W() const
+{
+	rbd::BodyVectorXd contact_vel_W;
+	for (ContactIterator contact_it = getContactVelocity_B().begin();
+			contact_it != getContactVelocity_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_vel_W[name] = getContactVelocity_W(contact_it);
+	}
+
+	return contact_vel_W;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(ContactIterator vel_it) const
+{
+	return vel_it->second;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(const std::string& name) const
+{
+	ContactIterator contact_it = contact_vel.find(name);
+	return getContactVelocity_B(contact_it);
+}
+
+
+const rbd::BodyVectorXd& WholeBodyState::getContactVelocity_B() const
+{
+	return contact_vel;
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactVelocity_H(ContactIterator vel_it) const
+{
+	// Computing the contact velocity w.r.t. the world frame.
+	// Here we use the equation:
+	// Xd^W_contact = Xd^W_base + Xd^W_contact/base + omega^W_base x X^W_contact/base
+	std::string name = vel_it->first;
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getContactPosition_B(name);
+	Eigen::Vector3d vel_fb_W = W_rot_B * getContactVelocity_B(vel_it);
+	Eigen::Vector3d vel_W = getBaseVelocity_W() + vel_fb_W +
+			getBaseAngularVelocity_W().cross(pos_fb_W);
+
+	// Computing the contact velocity w.r.t. the horizontal expressed in the world
+	// frame. Here we use the equation:
+	// Xd^W_contact = Xd^W_hor + Xd^W_contact/hor + omega^W_hor x X^W_contact/hor
+	Eigen::Vector3d omega_hor_W(0., 0., getBaseAngularVelocity_W()(rbd::Z));
+	Eigen::Vector3d pos_fh_W =
+			frame_tf_.fromHorizontalToWorldFrame(getContactPosition_H(name), getBaseRPY_W());
+	return vel_W - getBaseVelocity_W() - omega_hor_W.cross(pos_fh_W);
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactVelocity_H(const std::string& name) const
+{
+	ContactIterator contact_it = getContactVelocity_B().find(name);
+	return getContactVelocity_H(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactVelocity_H() const
+{
+	rbd::BodyVectorXd contact_vel_H;
+	for (ContactIterator contact_it = getContactVelocity_B().begin();
+			contact_it != getContactVelocity_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_vel_H[name] = getContactVelocity_H(contact_it);
+	}
+
+	return contact_vel_H;
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactAcceleration_W(ContactIterator acc_it) const
+{
+	// Computing the skew symmetric matrixes
+	Eigen::Matrix3d C_omega =
+			math::skewSymmetricMatrixFromVector(getBaseAngularVelocity_W());
+	Eigen::Matrix3d C_omega_dot =
+			math::skewSymmetricMatrixFromVector(getBaseAngularAcceleration_W());
+
+	// Computing the contact acceleration w.r.t. the world frame.
+	// Here we use the equation:
+	// Xdd^W_contact = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_contact/base
+	// + 2 C(w^W) Xd^W_contact/base
+	std::string name = acc_it->first;
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getContactPosition_B(name);
+	Eigen::Vector3d vel_fb_W = W_rot_B * getContactVelocity_B(name);
+	return getBaseAcceleration_W() +
+			(C_omega_dot + C_omega * C_omega) * pos_fb_W + 2 * C_omega * vel_fb_W;
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactAcceleration_W(const std::string& name) const
+{
+	ContactIterator contact_it = getContactAcceleration_B().find(name);
+	return getContactAcceleration_W(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactAcceleration_W() const
+{
+	rbd::BodyVectorXd contact_acc_W;
+	for (ContactIterator contact_it = getContactAcceleration_B().begin();
+			contact_it != getContactAcceleration_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_acc_W[name] = getContactAcceleration_W(contact_it);
+	}
+
+	return contact_acc_W;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(ContactIterator acc_it) const
+{
+	return acc_it->second;
+}
+
+
+const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(const std::string& name) const
+{
+	ContactIterator contact_it = getContactAcceleration_B().find(name);
+	return getContactAcceleration_B(contact_it);
+}
+
+
+const rbd::BodyVectorXd& WholeBodyState::getContactAcceleration_B() const
+{
+	return contact_acc;
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactAcceleration_H(ContactIterator acc_it) const
+{
+	std::string name = acc_it->first;
+
+	// Computing the skew symmetric matrixes
+	Eigen::Matrix3d C_omega_b =
+			math::skewSymmetricMatrixFromVector(getBaseAngularVelocity_W());
+	Eigen::Matrix3d C_omegad_b =
+			math::skewSymmetricMatrixFromVector(getBaseAngularAcceleration_W());
+	Eigen::Vector3d omega_hor(0., 0., getBaseAngularVelocity_W()(rbd::Z));
+	Eigen::Vector3d omegad_hor(0., 0., getBaseAngularAcceleration_W()(rbd::Z));
+	Eigen::Matrix3d C_omega_h =
+			math::skewSymmetricMatrixFromVector(omega_hor);
+	Eigen::Matrix3d C_omegad_h =
+			math::skewSymmetricMatrixFromVector(omegad_hor);
+
+	// Computing the contact acceleration w.r.t. the world frame.
+	// Here we use the equation:
+	// Xdd^W_contact = Xdd^W_base + [C(wd^W_base) + C(w^W_base) * C(w^W_base)] X^W_contact/base
+	// + 2 C(w^W_base) Xd^W_contact/base + Xdd^W_contact/base
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getContactPosition_B(name);
+	Eigen::Vector3d vel_fb_W = W_rot_B * getContactVelocity_B(name);
+	Eigen::Vector3d acc_W = getBaseVelocity_W() +
+			(C_omegad_b + C_omega_b * C_omega_b) * pos_fb_W +
+			2 * C_omega_b * vel_fb_W;
+
+	// Computing the foot acceleration w.r.t. the horizontal.
+	// Here we use the equation:
+	// Xdd^W_contact = Xdd^W_hor + [C(wd^W_hor) + C(w^W_hor) * C(w^W_hor)] X^W_contact/hor
+	// + 2 C(w^W_hor) Xd^W_contact/hor + Xdd^W_contact/hor
+	Eigen::Matrix3d W_rot_H = frame_tf_.getHorizontalToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fh_W = W_rot_H * getContactPosition_H(name);
+	Eigen::Vector3d vel_fh_W = W_rot_H * getContactVelocity_H(name);
+	return acc_W - getBaseAcceleration_W() -
+			(C_omegad_h + C_omega_h * C_omega_h) * pos_fh_W +
+			2 * C_omega_h * vel_fh_W;
+}
+
+
+Eigen::VectorXd WholeBodyState::getContactAcceleration_H(const std::string& name) const
+{
+	ContactIterator contact_it = getContactAcceleration_B().find(name);
+	return getContactAcceleration_H(contact_it);
+}
+
+
+rbd::BodyVectorXd WholeBodyState::getContactAcceleration_H() const
+{
+	rbd::BodyVectorXd contact_acc_H;
+	for (ContactIterator contact_it = getContactAcceleration_B().begin();
+			contact_it != getContactAcceleration_B().end(); contact_it++) {
+		std::string name = contact_it->first;
+		contact_acc_H[name] = getContactAcceleration_H(contact_it);
+	}
+
+	return contact_acc_H;
+}
+
+
+const rbd::BodyVector6d& WholeBodyState::getContactWrench_B() const
+{
+	return contact_eff;
+}
+
+
+const rbd::Vector6d& WholeBodyState::getContactWrench_B(const std::string& name) const
+{
+	return contact_eff.find(name)->second;
+}
+
+
+bool WholeBodyState::getContactCondition(const std::string& name,
+										 const double& force_threshold) const
+{
+	// Returns inactive in case that the contact wrench is not defined
+	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
+	if (it == contact_eff.end())
+		return false;
+
+	if (it->second.norm() > force_threshold)
+		return true;
+	else
+		return false;
+}
+
+
+bool WholeBodyState::getContactCondition(const std::string& name) const
+{
+	// Returns inactive in case that the contact wrench is not defined
+	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
+	if (it == contact_eff.end())
+		return false;
+
+	if (it->second == ACTIVE_CONTACT)
+		return true;
+	else
+		return false;
+}
+
+
 void WholeBodyState::setBasePosition_W(const Eigen::Vector3d& pos)
 {
 	rbd::linearPart(base_pos) = pos;
@@ -263,14 +672,14 @@ void WholeBodyState::setBaseAngularAcceleration_H(const Eigen::Vector3d& rotacc_
 }
 
 
-void WholeBodyState::setBaseRPYAcceleration(const Eigen::Vector3d& rpy_rate,
-											const Eigen::Vector3d& rpy_acc)
+void WholeBodyState::setBaseRPYAcceleration(const Eigen::Vector3d& rpy_acc)
 {
 	// omega_dot = EAR * rpy_ddot + EAR_dot * rpy_dot
 	Eigen::Vector3d rpy = getBaseRPY_W();
+	Eigen::Vector3d rpy_vel = getBaseRPYVelocity();
 	rbd::angularPart(base_acc) =
 			math::getInverseEulerAnglesRatesMatrix(rpy) * rpy_acc +
-			math::getInverseEulerAnglesRatesMatrix_dot(rpy, rpy_rate) * rpy_rate;
+			math::getInverseEulerAnglesRatesMatrix_dot(rpy, rpy_vel) * rpy_vel;
 }
 
 
@@ -284,76 +693,6 @@ void WholeBodyState::setJointDoF(const unsigned int& num_joints)
 }
 
 
-const Eigen::VectorXd& WholeBodyState::getJointPosition() const
-{
-	return joint_pos;
-}
-
-
-const double& WholeBodyState::getJointPosition(const unsigned int& index) const
-{
-	if (index >= num_joints_)
-		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
-				COLOR_RESET);
-
-	return joint_pos(index);
-}
-
-
-const Eigen::VectorXd& WholeBodyState::getJointVelocity() const
-{
-	return joint_vel;
-}
-
-
-const double& WholeBodyState::getJointVelocity(const unsigned int& index) const
-{
-	if (index >= num_joints_)
-		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
-				COLOR_RESET);
-
-	return joint_vel(index);
-}
-
-
-const Eigen::VectorXd& WholeBodyState::getJointAcceleration() const
-{
-	return joint_acc;
-}
-
-
-const double& WholeBodyState::getJointAcceleration(const unsigned int& index) const
-{
-	if (index >= num_joints_)
-		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
-				COLOR_RESET);
-
-	return joint_acc(index);
-}
-
-
-const double& WholeBodyState::getJointEffort(const unsigned int& index) const
-{
-	if (index >= num_joints_)
-		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
-				COLOR_RESET);
-
-	return joint_eff(index);
-}
-
-
-const Eigen::VectorXd& WholeBodyState::getJointEffort() const
-{
-	return joint_eff;
-}
-
-
-const unsigned int WholeBodyState::getJointDof() const
-{
-	return num_joints_;
-}
-
-
 void WholeBodyState::setJointPosition(const Eigen::VectorXd& pos)
 {
 	joint_pos = pos;
@@ -363,9 +702,12 @@ void WholeBodyState::setJointPosition(const Eigen::VectorXd& pos)
 void WholeBodyState::setJointPosition(const double& pos,
 									  const unsigned int& index)
 {
-	if (index >= num_joints_)
-		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
+	if (index >= num_joints_) {
+		printf(YELLOW "Warning: the index is bigger than the number of joints."
+				" It cannot be set the joint position.\n"
 				COLOR_RESET);
+		return;
+	}
 
 	joint_pos(index) = pos;
 }
@@ -380,9 +722,12 @@ void WholeBodyState::setJointVelocity(const Eigen::VectorXd& vel)
 void WholeBodyState::setJointVelocity(const double& vel,
 									  const unsigned int& index)
 {
-	if (index >= num_joints_)
-		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
+	if (index >= num_joints_) {
+		printf(YELLOW "Warning: the index is bigger than the number of joints."
+				" It cannot be set the joint velocity.\n"
 				COLOR_RESET);
+		return;
+	}
 
 	joint_vel(index) = vel;
 }
@@ -397,9 +742,12 @@ void WholeBodyState::setJointAcceleration(const Eigen::VectorXd& acc)
 void WholeBodyState::setJointAcceleration(const double& acc,
 										  const unsigned int& index)
 {
-	if (index >= num_joints_)
-		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
+	if (index >= num_joints_) {
+		printf(YELLOW "Warning: the index is bigger than the number of joints."
+				" It cannot be set the joint acceleration.\n"
 				COLOR_RESET);
+		return;
+	}
 
 	joint_acc(index) = acc;
 }
@@ -408,9 +756,12 @@ void WholeBodyState::setJointAcceleration(const double& acc,
 void WholeBodyState::setJointEffort(const double& eff,
 									const unsigned int& index)
 {
-	if (index >= num_joints_)
-		printf(YELLOW "Warning: the index is bigger than the number of joints\n"
+	if (index >= num_joints_) {
+		printf(YELLOW "Warning: the index is bigger than the number of joints."
+				" It cannot be set the joint effort.\n"
 				COLOR_RESET);
+		return;
+	}
 
 	joint_eff(index) = eff;
 }
@@ -419,260 +770,6 @@ void WholeBodyState::setJointEffort(const double& eff,
 void WholeBodyState::setJointEffort(const Eigen::VectorXd& eff)
 {
 	joint_eff = eff;
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactPosition_W(ContactIterator it) const
-{
-	return frame_tf_.fromBaseToWorldFrame(it->second, getBaseRPY_W());
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactPosition_W(const std::string& name) const
-{
-	ContactIterator contact_it = getContactPosition_B().find(name);
-	return getContactPosition_W(contact_it);
-}
-
-
-rbd::BodyVectorXd WholeBodyState::getContactPosition_W() const
-{
-	rbd::BodyVectorXd contact_pos_W;
-	for (ContactIterator contact_it = getContactPosition_B().begin();
-			contact_it != getContactPosition_B().end(); contact_it++) {
-		std::string name = contact_it->first;
-		contact_pos_W[name] = getContactPosition_W(contact_it);
-	}
-
-	return contact_pos_W;
-}
-
-
-const Eigen::VectorXd& WholeBodyState::getContactPosition_B(ContactIterator it) const
-{
-	return it->second;
-}
-
-
-const Eigen::VectorXd& WholeBodyState::getContactPosition_B(const std::string& name) const
-{
-	ContactIterator contact_it = getContactPosition_B().find(name);
-	return getContactPosition_B(contact_it);
-}
-
-
-const rbd::BodyVectorXd& WholeBodyState::getContactPosition_B() const
-{
-	return contact_pos;
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactPosition_H(ContactIterator it) const
-{
-	return frame_tf_.fromBaseToHorizontalFrame(it->second, getBaseRPY_W());
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactPosition_H(const std::string& name) const
-{
-	ContactIterator contact_it = getContactPosition_B().find(name);
-	return getContactPosition_H(contact_it);
-}
-
-
-rbd::BodyVectorXd WholeBodyState::getContactPosition_H() const
-{
-	rbd::BodyVectorXd contact_pos_H;
-	for (ContactIterator contact_it = getContactPosition_B().begin();
-			contact_it != getContactPosition_B().end(); contact_it++) {
-		std::string name = contact_it->first;
-		contact_pos_H[name] = getContactPosition_H(contact_it);
-	}
-
-	return contact_pos_H;
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactVelocity_W(ContactIterator it) const
-{
-	return frame_tf_.fromBaseToWorldFrame(it->second, getBaseRPY_W());
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactVelocity_W(const std::string& name) const
-{
-	ContactIterator contact_it = getContactVelocity_B().find(name);
-	return getContactVelocity_W(contact_it);
-}
-
-
-rbd::BodyVectorXd WholeBodyState::getContactVelocity_W() const
-{
-	rbd::BodyVectorXd contact_vel_W;
-	for (ContactIterator contact_it = getContactVelocity_B().begin();
-			contact_it != getContactVelocity_B().end(); contact_it++) {
-		std::string name = contact_it->first;
-		contact_vel_W[name] = getContactVelocity_W(contact_it);
-	}
-
-	return contact_vel_W;
-}
-
-
-const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(ContactIterator it) const
-{
-	return it->second;
-}
-
-
-const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(const std::string& name) const
-{
-	ContactIterator contact_it = contact_vel.find(name);
-	return getContactVelocity_B(contact_it);
-}
-
-
-const rbd::BodyVectorXd& WholeBodyState::getContactVelocity_B() const
-{
-	return contact_vel;
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactVelocity_H(ContactIterator it) const
-{
-	return frame_tf_.fromBaseToHorizontalFrame(it->second, getBaseRPY_W());
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactVelocity_H(const std::string& name) const
-{
-	ContactIterator contact_it = getContactVelocity_B().find(name);
-	return getContactVelocity_H(contact_it);
-}
-
-
-rbd::BodyVectorXd WholeBodyState::getContactVelocity_H() const
-{
-	rbd::BodyVectorXd contact_vel_H;
-	for (ContactIterator contact_it = getContactVelocity_B().begin();
-			contact_it != getContactVelocity_B().end(); contact_it++) {
-		std::string name = contact_it->first;
-		contact_vel_H[name] = getContactVelocity_H(contact_it);
-	}
-
-	return contact_vel_H;
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactAcceleration_W(ContactIterator it) const
-{
-	return frame_tf_.fromBaseToWorldFrame(it->second, getBaseRPY_W());
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactAcceleration_W(const std::string& name) const
-{
-	ContactIterator contact_it = getContactAcceleration_B().find(name);
-	return getContactAcceleration_W(contact_it);
-}
-
-
-rbd::BodyVectorXd WholeBodyState::getContactAcceleration_W() const
-{
-	rbd::BodyVectorXd contact_acc_W;
-	for (ContactIterator contact_it = getContactAcceleration_B().begin();
-			contact_it != getContactAcceleration_B().end(); contact_it++) {
-		std::string name = contact_it->first;
-		contact_acc_W[name] = getContactAcceleration_W(contact_it);
-	}
-
-	return contact_acc_W;
-}
-
-
-const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(ContactIterator it) const
-{
-	return it->second;
-}
-
-
-const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(const std::string& name) const
-{
-	ContactIterator contact_it = getContactAcceleration_B().find(name);
-	return getContactAcceleration_B(contact_it);
-}
-
-
-const rbd::BodyVectorXd& WholeBodyState::getContactAcceleration_B() const
-{
-	return contact_acc;
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactAcceleration_H(ContactIterator it) const
-{
-	return frame_tf_.fromBaseToHorizontalFrame(it->second, getBaseRPY_W());
-}
-
-
-Eigen::VectorXd WholeBodyState::getContactAcceleration_H(const std::string& name) const
-{
-	ContactIterator contact_it = getContactAcceleration_B().find(name);
-	return getContactAcceleration_H(contact_it);
-}
-
-
-rbd::BodyVectorXd WholeBodyState::getContactAcceleration_H() const
-{
-	rbd::BodyVectorXd contact_acc_H;
-	for (ContactIterator contact_it = getContactAcceleration_B().begin();
-			contact_it != getContactAcceleration_B().end(); contact_it++) {
-		std::string name = contact_it->first;
-		contact_acc_H[name] = getContactAcceleration_H(contact_it);
-	}
-
-	return contact_acc_H;
-}
-
-
-const rbd::BodyVector6d& WholeBodyState::getContactWrench_B() const
-{
-	return contact_eff;
-}
-
-
-const rbd::Vector6d& WholeBodyState::getContactWrench_B(const std::string& name) const
-{
-	return contact_eff.find(name)->second;
-}
-
-
-bool WholeBodyState::getContactCondition(const std::string& name,
-										 const double& force_threshold) const
-{
-	// Returns inactive in case that the contact wrench is not defined
-	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
-	if (it == contact_eff.end())
-		return false;
-
-	if (it->second.norm() > force_threshold)
-		return true;
-	else
-		return false;
-}
-
-
-bool WholeBodyState::getContactCondition(const std::string& name) const
-{
-	// Returns inactive in case that the contact wrench is not defined
-	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
-	if (it == contact_eff.end())
-		return false;
-
-	if (it->second == ACTIVE_CONTACT)
-		return true;
-	else
-		return false;
 }
 
 
@@ -749,11 +846,16 @@ void WholeBodyState::setContactVelocity_W(ContactIterator it)
 void WholeBodyState::setContactVelocity_W(const std::string& name,
 										  const Eigen::VectorXd& vel_W)
 {
-	// Computing the contact velocity relatives base expressed in the world frame
-	Eigen::Vector3d vel_fb_W = computeRelativeContactVelocity_W(name, vel_W);
+	// Computing the contact velocity w.r.t. the base but expressed in the world
+	// frame. Here we use the equation:
+	// Xd^W_contact = Xd^W_base + Xd^W_contact/base + omega_base x X^W_contact/base
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getContactPosition_B(name);
+	Eigen::Vector3d vel_fb_W = vel_W - getBaseVelocity_W() -
+			getBaseAngularVelocity_W().cross(pos_fb_W);
 
-	// Transforming the contact velocity in the base frame
-	contact_vel[name] = frame_tf_.fromWorldToBaseFrame(vel_fb_W, getBaseRPY_W());
+	// Expressing the contact velocity in the base frame
+	contact_vel[name] = W_rot_B.transpose() * vel_fb_W;
 }
 
 
@@ -793,16 +895,25 @@ void WholeBodyState::setContactVelocity_H(ContactIterator it)
 void WholeBodyState::setContactVelocity_H(const std::string& name,
 										  const Eigen::VectorXd& vel_H)
 {
-	// Computing the contact velocity expressed in the world frame
-	Eigen::Vector3d vel_W =
-			frame_tf_.fromHorizontalToWorldFrame(vel_H, getBaseRPY_W());
+	// Computing the contact velocity w.r.t. the world frame.
+	// Here we use the equation:
+	// Xd^W_contact = Xd^W_hor + Xd^W_contact/hor + omega^W_hor x X^W_contact/hor
+	Eigen::Matrix3d W_rot_H = frame_tf_.getHorizontalToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fh_W = W_rot_H * getContactPosition_H(name);
+	Eigen::Vector3d vel_fh_W = W_rot_H * vel_H;
+	Eigen::Vector3d omega_h_W(0., 0., getBaseAngularVelocity_W()(rbd::Z));
+	Eigen::Vector3d vel_W = getBaseVelocity_W() + vel_fh_W + omega_h_W.cross(pos_fh_W);
 
-	// Computing the contact velocity relatives base expressed in the world frame
-	Eigen::Vector3d vel_fb_W = computeRelativeContactVelocity_W(name, vel_W);
+	// Computing the contact velocity w.r.t. the base but expressed in the world
+	// frame. Here we use the equation:
+	// Xd^W_contact = Xd^W_base + Xd^W_contact/base + omega^W_base x X^W_contact/base
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getContactPosition_B(name);
+	Eigen::Vector3d vel_fb_W = vel_W - getBaseVelocity_W() -
+			getBaseAngularVelocity_W().cross(pos_fb_W);
 
-	// Transforming the contact velocity in the base frame
-	contact_vel[name] =
-			frame_tf_.fromHorizontalToBaseFrame(vel_fb_W, getBaseRPY_W());
+	// Expressing the contact velocity in the base frame
+	contact_vel[name] = W_rot_B.transpose() * vel_fb_W;
 }
 
 
@@ -814,39 +925,49 @@ void WholeBodyState::setContactVelocity_H(const rbd::BodyVectorXd& vel_H)
 }
 
 
-void WholeBodyState::setContactAcceleration_W(ContactIterator vel_it,
-											  ContactIterator acc_it)
+void WholeBodyState::setContactAcceleration_W(ContactIterator acc_it)
 {
-	setContactAcceleration_W(vel_it->first, vel_it->second, acc_it->second);
+	setContactAcceleration_W(acc_it->first, acc_it->second);
 }
 
 
 void WholeBodyState::setContactAcceleration_W(const std::string& name,
-											  const Eigen::VectorXd& vel_W,
 											  const Eigen::VectorXd& acc_W)
 {
-	// Computing the contact acceleration relatives base expressed in the world frame
-	Eigen::Vector3d acc_fb_W = computeRelativeContactAcceleration_W(name, vel_W, acc_W);
+	// Computing the skew symmetric matrixes
+	Eigen::Matrix3d C_omega =
+			math::skewSymmetricMatrixFromVector(getBaseAngularVelocity_W());
+	Eigen::Matrix3d C_omega_dot =
+			math::skewSymmetricMatrixFromVector(getBaseAngularAcceleration_W());
 
-	// Transforming the contact acceleration in the base frame
-	contact_acc[name] = frame_tf_.fromWorldToBaseFrame(acc_fb_W, getBaseRPY_W());
+	// Computing the contact acceleration w.r.t. the base but expressed in the
+	// world frame. Here we use the equation:
+	// Xdd^W_contact = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_contact/base
+	// + 2 C(w^W) Xd^W_contact/base + Xdd^W_contact/base
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getContactPosition_B(name);
+	Eigen::Vector3d vel_fb_W = W_rot_B * getContactVelocity_B(name);
+	Eigen::Vector3d acc_fb_W = acc_W - getBaseAcceleration_W() -
+			(C_omega_dot + C_omega * C_omega) * pos_fb_W -
+			2 * C_omega * vel_fb_W;
+
+	// Expressing the contact acceleration in the base frame
+	contact_acc[name] = W_rot_B.transpose() * acc_fb_W;
 }
 
 
-void WholeBodyState::setContactAcceleration_W(const rbd::BodyVectorXd& vel_W,
-											  const rbd::BodyVectorXd& acc_W)
+void WholeBodyState::setContactAcceleration_W(const rbd::BodyVectorXd& acc_W)
 {
 	for (ContactIterator acc_it = acc_W.begin();
 			acc_it != acc_W.end(); acc_it++) {
-		ContactIterator vel_it = vel_W.find(acc_it->first);
-		setContactAcceleration_W(vel_it, acc_it);
+		setContactAcceleration_W(acc_it);
 	}
 }
 
 
-void WholeBodyState::setContactAcceleration_B(ContactIterator it)
+void WholeBodyState::setContactAcceleration_B(ContactIterator acc_it)
 {
-	setContactAcceleration_B(it->first, it->second);
+	setContactAcceleration_B(acc_it->first, acc_it->second);
 }
 
 
@@ -863,39 +984,64 @@ void WholeBodyState::setContactAcceleration_B(const rbd::BodyVectorXd& acc_B)
 }
 
 
-void WholeBodyState::setContactAcceleration_H(ContactIterator vel_it,
-											  ContactIterator acc_it)
+void WholeBodyState::setContactAcceleration_H(ContactIterator acc_it)
 {
-	setContactAcceleration_H(vel_it->first, vel_it->second, acc_it->second);
+	setContactAcceleration_H(acc_it->first, acc_it->second);
 }
 
 
 void WholeBodyState::setContactAcceleration_H(const std::string& name,
-											  const Eigen::VectorXd& vel_H,
 											  const Eigen::VectorXd& acc_H)
 {
-	// Computing the contact velocity and acceleration expressed in the world frame
-	Eigen::Vector3d vel_W =
-			frame_tf_.fromHorizontalToWorldFrame(vel_H, getBaseRPY_W());
+	// Computing the skew symmetric matrixes
+	Eigen::Matrix3d C_omega_b =
+			math::skewSymmetricMatrixFromVector(getBaseAngularVelocity_W());
+	Eigen::Matrix3d C_omegad_b =
+			math::skewSymmetricMatrixFromVector(getBaseAngularAcceleration_W());
+	Eigen::Vector3d omega_h(0., 0., getBaseAngularVelocity_W()(rbd::Z));
+	Eigen::Vector3d omegad_h(0., 0., getBaseAngularAcceleration_W()(rbd::Z));
+	Eigen::Matrix3d C_omega_h =
+			math::skewSymmetricMatrixFromVector(omega_h);
+	Eigen::Matrix3d C_omegad_h =
+			math::skewSymmetricMatrixFromVector(omegad_h);
+
+	// Computing the contactacceleration w.r.t. the world frame.
+	// Here we use the equation:
+	// Xdd^W_contact = Xdd^W_hor + [C(wd^W_hor) + C(w^W_hor) * C(w^W_hor)] X^W_contact/hor
+	// + 2 C(w^W_hor) Xd^W_contact/hor + Xdd^W_contact/hor
+	Eigen::Matrix3d W_rot_H = frame_tf_.getHorizontalToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fh_W = W_rot_H * getContactPosition_H(name);
+	Eigen::Vector3d vel_fh_W = W_rot_H * getContactVelocity_H(name);
+	Eigen::Vector3d acc_fh_W = W_rot_H * acc_H;
 	Eigen::Vector3d acc_W =
-			frame_tf_.fromHorizontalToWorldFrame(acc_H, getBaseRPY_W());
+			getBaseAcceleration_W() +
+			(C_omegad_h + C_omega_h * C_omega_h) * pos_fh_W +
+			2 * C_omega_h * vel_fh_W + acc_fh_W;
 
-	// Computing the contact acceleration relatives base expressed in the world frame
-	Eigen::Vector3d acc_fb_W = computeRelativeContactAcceleration_W(name, vel_W, acc_W);
+	// Computing the contact acceleration w.r.t. the base but expressed in the
+	// world frame. Here we use the equation:
+	// Xdd^W_contact = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_contact/base
+	// + 2 C(w^W) Xd^W_contact/base + Xdd^W_contact/base
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(getBaseRPY_W());
+	Eigen::Vector3d pos_fb_W = W_rot_B * getContactPosition_B(name);
+	Eigen::Vector3d vel_fb_W = W_rot_B * getContactVelocity_B(name);
+	Eigen::Vector3d acc_fb_W =
+			acc_W - getBaseAcceleration_W() -
+			(C_omegad_b + C_omega_b * C_omega_b) * pos_fb_W -
+			2 * C_omega_b * vel_fb_W;
 
-	// Transforming the contact acceleration in the base frame
-	contact_acc[name] =
-			frame_tf_.fromHorizontalToBaseFrame(acc_fb_W, getBaseRPY_W());
+
+	// Expressing the contact acceleration in the base frame
+	contact_acc[name] = W_rot_B.transpose() * acc_fb_W;
+
 }
 
 
-void WholeBodyState::setContactAcceleration_H(const rbd::BodyVectorXd& vel_H,
-											  const rbd::BodyVectorXd& acc_H)
+void WholeBodyState::setContactAcceleration_H(const rbd::BodyVectorXd& acc_H)
 {
 	for (ContactIterator acc_it = acc_H.begin();
 			acc_it != acc_H.end(); acc_it++) {
-		ContactIterator vel_it = vel_H.find(acc_it->first);
-		setContactAcceleration_H(vel_it, acc_it);
+		setContactAcceleration_H(acc_it);
 	}
 }
 
@@ -920,37 +1066,6 @@ void WholeBodyState::setContactCondition(const std::string& name,
 		contact_eff[name] = ACTIVE_CONTACT;
 	else
 		contact_eff[name] = INACTIVE_CONTACT;
-}
-
-
-Eigen::Vector3d WholeBodyState::computeRelativeContactVelocity_W(const std::string& name,
-																 const Eigen::Vector3d& vel_W)
-{
-	// Computing the contact velocity relatives to the base, which is expressed in
-	// the world frame. Here we use the equation:
-	// Xd^W_foot = Xd^W_base + Xd^W_foot/base + omega_base x X^W_foot/base
-	return vel_W - getBaseVelocity_W() -
-			getBaseAngularVelocity_W().cross((Eigen::Vector3d)getContactPosition_W(name));
-}
-
-
-Eigen::Vector3d WholeBodyState::computeRelativeContactAcceleration_W(const std::string& name,
-																	 const Eigen::Vector3d& vel_W,
-																	 const Eigen::Vector3d& acc_W)
-{
-	// Computing the skew symmetric matrixes
-	Eigen::Matrix3d C_omega =
-			math::skewSymmetricMatrixFromVector(getBaseAngularVelocity_W());
-	Eigen::Matrix3d C_omega_dot =
-			math::skewSymmetricMatrixFromVector(getBaseAngularAcceleration_W());
-
-	// Computing the contact acceleration relatives to the base, which is expressed
-	// in the world frame. Here we use the equation:
-	// Xdd^W_foot = Xdd^W_base + [C(wd^W) + C(w^W) * C(w^W)] X^W_foot/base
-	// + 2 C(w^W) Xd^W_foot/base
-	return acc_W - getBaseAcceleration_W() -
-			(C_omega_dot + C_omega * C_omega) * getContactPosition_W(name) -
-			2 * C_omega * computeRelativeContactVelocity_W(name, vel_W);
 }
 
 } //@namespace dwl
