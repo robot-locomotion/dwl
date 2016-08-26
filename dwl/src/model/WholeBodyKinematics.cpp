@@ -212,17 +212,23 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 
 void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 												   const rbd::BodyVector3d& op_pos,
+												   double step_tol,
+												   double lambda,
+												   unsigned int max_iter)
+{
+	computeInverseKinematics(joint_pos, op_pos, joint_pos_middle_);
+}
+
+
+void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
+												   const rbd::BodyVector3d& op_pos,
 												   const Eigen::VectorXd& joint_pos_init,
 												   double step_tol,
 												   double lambda,
 												   unsigned int max_iter)
 {
 	// Setting up the guess point
-	joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
-	if (joint_pos_init.size() == 0)
-		joint_pos = joint_pos_middle_;
-	else
-		joint_pos = joint_pos_init;
+	joint_pos = joint_pos_init;
 
 	// Getting the end-effector names
 	rbd::BodySelector body_names;

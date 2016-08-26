@@ -99,7 +99,12 @@ class WholeBodyKinematics
 		 */
 		void computeInverseKinematics(Eigen::VectorXd& joint_pos,
 									  const rbd::BodyVector3d& op_pos,
-									  const Eigen::VectorXd& joint_pos_init = Eigen::VectorXd(),
+									  double step_tol = 1.0e-12,
+									  double lambda = 0.01,
+									  unsigned int max_iter = 50);
+		void computeInverseKinematics(Eigen::VectorXd& joint_pos,
+									  const rbd::BodyVector3d& op_pos,
+									  const Eigen::VectorXd& joint_pos_init,
 									  double step_tol = 1.0e-12,
 									  double lambda = 0.01,
 									  unsigned int max_iter = 50);
