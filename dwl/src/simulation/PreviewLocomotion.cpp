@@ -608,12 +608,11 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 			// Getting the target position of the contact w.r.t the CoM frame
 			Eigen::Vector3d footshift_B = (Eigen::Vector3d) swing_it->second;
 			Eigen::Vector3d stance_pos_B = stance_posture_C_.find(name)->second.head<3>();
-			Eigen::Vector3d target_pos_B = stance_pos_B + footshift_B
-					- Eigen::Vector3d(0.,0.,0.04); // TODO offset for dealing tracking error (remove)
+			Eigen::Vector3d target_pos_B = stance_pos_B + footshift_B;
 
 			// Initializing the foot pattern generator
 			simulation::StepParameters step_params(params.duration,//num_samples * sample_time_,
-												   step_height_);
+												   step_height_, 0.02);// TODO read it
 			feet_spline_generator_[name].setParameters(state.time,
 													   actual_pos_B,
 													   target_pos_B,

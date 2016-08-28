@@ -8,7 +8,7 @@ namespace simulation
 {
 
 FootSplinePatternGenerator::FootSplinePatternGenerator() : initial_time_(0.),
-		duration_(0.), penetration_(0.)
+		duration_(0.)
 {
 
 }
@@ -57,7 +57,7 @@ void FootSplinePatternGenerator::setParameters(const double& initial_time,
 									 params.duration / 2,
 									 target_appex,
 									 (double) target_pos(rbd::Z) -
-									 penetration_ * params.height);
+									 params.penetration);
 }
 
 

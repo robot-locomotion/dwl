@@ -20,8 +20,13 @@ struct StepParameters
 				   double _penetration = 0.) : duration(_duration),
 						   height(_height), penetration(_penetration) {}
 
+	/** @brief Duration of the step */
 	double duration;
+
+	/** @brief Height of the step */
 	double height;
+
+	/** @brief Distance of penetration of the swing trajectory */
 	double penetration;
 };
 
@@ -80,9 +85,6 @@ class FootSplinePatternGenerator
 
 		/** @brief Duration of the swing trajectory */
 		double duration_;
-
-		/** @brief Percentage of penetration of the swing trajectory */
-		double penetration_;
 };
 
 typedef std::map<std::string, FootSplinePatternGenerator> FootSplinerMap;
