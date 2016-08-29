@@ -611,8 +611,11 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 			Eigen::Vector3d target_pos_B = stance_pos_B + footshift_B;
 
 			// Initializing the foot pattern generator
+			double penetration = 0.;
+			if (name == "lf_foot" || name == "rf_foot")
+				penetration = 0.01;
 			simulation::StepParameters step_params(params.duration,//num_samples * sample_time_,
-												   step_height_, 0.02);// TODO read it
+												   step_height_, penetration);// TODO read it
 			feet_spline_generator_[name].setParameters(state.time,
 													   actual_pos_B,
 													   target_pos_B,
