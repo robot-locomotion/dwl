@@ -94,6 +94,8 @@ class Spline
 		virtual bool getPoint(const double& current_time,
 							  double& p) = 0;
 
+		bool isTimeElapsed(double& time);
+
 
 	protected:
 		/** @brief Initial time of the spline */
@@ -108,6 +110,15 @@ class Spline
 		/** @brief End point of the spline */
 		Point end_;
 };
+
+inline bool Spline::isTimeElapsed(double& t)
+{
+	//this makes sense only without the time interval
+	if ((t - initial_time_) > duration_)
+		return true;
+	else
+		return false;
+}
 
 
 /**
