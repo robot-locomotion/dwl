@@ -612,8 +612,6 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 
 			// Initializing the foot pattern generator
 			double penetration = 0.;
-			if (name == "lf_foot" || name == "rf_foot")
-				penetration = 0.01;
 			simulation::StepParameters step_params(params.duration,//num_samples * sample_time_,
 												   step_height_, penetration);// TODO read it
 			feet_spline_generator_[name].setParameters(state.time,
