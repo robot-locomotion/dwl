@@ -283,24 +283,14 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 						Eigen::Vector3d foothold = actual_state.com_pos +
 								frame_tf_.fromBaseToWorldFrame(stance + footshift,
 															   actual_state.getRPY_W());
-						// Computing the footshift in z from the height map. In
-						// case of no having the terrain height map, it assumes
-						// flat terrain conditions. Note that, for those cases,
-						// we compensate small drift between the actual and the
-						// default postures, and the displacement of the CoM in z
 						if (terrain_.isTerrainInformation()) {
 							// Adding the terrain height given the terrain
 							// height-map
 							Eigen::Vector2d foothold_2d = foothold.head<2>();
 							foothold(rbd::Z) = terrain_.getTerrainHeight(foothold_2d);
 						} else {
-							double comz_shift =
-									actual_state.com_pos(rbd::Z) -
-									actual_state_.com_pos(rbd::Z);
-							double footshift_z =
-									-(cart_table_.getPendulumHeight() +
-											stance(rbd::Z));
-							foothold(rbd::Z) = footshift_z - comz_shift;
+							foothold(rbd::Z) = actual_state_.com_pos(rbd::Z) -
+								cart_table_.getPendulumHeight();
 						}
 
 						actual_state.support_region[name] = foothold;
@@ -347,20 +337,13 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 			Eigen::Vector3d foothold = actual_state.com_pos +
 					frame_tf_.fromBaseToWorldFrame(stance + footshift,
 												   actual_state.getRPY_W());
-			// Computing the footshift in z from the height map. In case of no
-			// having the terrain height map, it assumes flat terrain conditions.
-			// Note that, in those cases, we compensate small drift between the
-			// actual and the default postures, and the displacement of the CoM
-			// in z
 			if (terrain_.isTerrainInformation()) {
 				// Adding the terrain height given the terrain height-map
 				Eigen::Vector2d foothold_2d = foothold.head<2>();
 				foothold(rbd::Z) = terrain_.getTerrainHeight(foothold_2d);
 			} else {
-				double comz_shift =
-						actual_state.com_pos(rbd::Z) - actual_state_.com_pos(rbd::Z);
-				double footshift_z = -(cart_table_.getPendulumHeight() + stance(rbd::Z));
-				foothold(rbd::Z) = footshift_z - comz_shift;
+				foothold(rbd::Z) = actual_state_.com_pos(rbd::Z) - 
+					cart_table_.getPendulumHeight();
 			}
 
 			actual_state.support_region[name] = foothold;
