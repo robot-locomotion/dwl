@@ -501,8 +501,8 @@ class PreviewLocomotion
 		/** @brief Step height for the swing generation */
 		double step_height_;
 
-		/** @ brief Stance posture position w.r.t. the CoM */
-		rbd::BodyVectorXd stance_posture_C_;
+		/** @ brief Stance posture position w.r.t. the horizontal frame */
+		rbd::BodyVectorXd stance_posture_H_;
 };
 
 } //@namespace simulation
