@@ -58,7 +58,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 //	Eigen::Vector3d com_pos_B = fbs_.getSystemCoM(rbd::Vector6d::Zero(), q0);
 
 	// Computing the stance posture using the default position
-	wkin_.computeForwardKinematics(stance_posture_C_,
+	wkin_.computeForwardKinematics(stance_posture_H_,
 								   rbd::Vector6d::Zero(),
 								   q0,
 								   feet_names_,
@@ -269,20 +269,22 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 					// Adding the foothold target of the previous phase
 					if (control.params[k-1].phase.isSwingFoot(name) &&
 							control.params[k-1].duration > sample_time_) {
-						Eigen::Vector3d stance =
-								stance_posture_C_.find(name)->second;
+						Eigen::Vector3d stance_H =
+								stance_posture_H_.find(name)->second;
 
 						// Getting the footshift control parameter
 						Eigen::Vector2d footshift_2d =
 								control.params[k-1].phase.getFootShift(name);
-						Eigen::Vector3d footshift(footshift_2d(rbd::X),
-												  footshift_2d(rbd::Y),
-												  0.);
+						Eigen::Vector3d footshift_H(footshift_2d(rbd::X),
+													footshift_2d(rbd::Y),
+													0.);
 
-						// Computing the foothold position w.r.t. the world
-						Eigen::Vector3d foothold = actual_state.com_pos +
-								frame_tf_.fromBaseToWorldFrame(stance + footshift,
-															   actual_state.getRPY_W());
+						// Computing the foothold position w.r.t. the world.
+						// Note that the footshift is always expressed in the
+						// horizontal frame
+						Eigen::Vector3d foothold =
+								actual_state.com_pos + stance_H + footshift_H;
+
 						if (terrain_.isTerrainInformation()) {
 							// Adding the terrain height given the terrain
 							// height-map
@@ -323,20 +325,21 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 		// Adding the foothold target of the current phase
 		if (end_control.phase.isSwingFoot(name) &&
 				end_control.duration > sample_time_) {
-			Eigen::Vector3d stance =
-					stance_posture_C_.find(name)->second.head<3>();
+			Eigen::Vector3d stance_H =
+					stance_posture_H_.find(name)->second;
 
 			// Getting the footshift control parameter
 			Eigen::Vector2d footshift_2d =
 					end_control.phase.getFootShift(name);
-			Eigen::Vector3d footshift(footshift_2d(rbd::X),
-									  footshift_2d(rbd::Y),
-									  0.);
+			Eigen::Vector3d footshift_H(footshift_2d(rbd::X),
+										footshift_2d(rbd::Y),
+										0.);
 
-			// Computing the foothold position w.r.t. the world
-			Eigen::Vector3d foothold = actual_state.com_pos +
-					frame_tf_.fromBaseToWorldFrame(stance + footshift,
-												   actual_state.getRPY_W());
+			// Computing the foothold position w.r.t. the world. Note that the
+			// footshift is always expressed in the horizontal frame
+			Eigen::Vector3d foothold =
+					actual_state.com_pos + stance_H + footshift_H;
+
 			if (terrain_.isTerrainInformation()) {
 				// Adding the terrain height given the terrain height-map
 				Eigen::Vector2d foothold_2d = foothold.head<2>();
@@ -528,9 +531,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 	rbd::BodyVector3d swing_shift_B;
 	for (unsigned int j = 0; j < params.phase.feet.size(); j++) {
 		std::string name = params.phase.feet[j];
-		Eigen::Vector3d stance_B = stance_posture_C_.find(name)->second;
-		Eigen::Vector3d stance_H =
-				frame_tf_.fromBaseToHorizontalFrame(stance_B, terminal_state.getRPY_W());
+		Eigen::Vector3d stance_H = stance_posture_H_.find(name)->second;
 
 		// Getting the footshift control parameter
 		Eigen::Vector2d footshift_2d = params.phase.getFootShift(name);
@@ -538,10 +539,10 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 									footshift_2d(rbd::Y),
 									0.);
 
-		// Computing the foothold position w.r.t. the world
-		Eigen::Vector3d foothold = terminal_state.com_pos +
-				frame_tf_.fromHorizontalToWorldFrame(stance_H + footshift_H,
-													 terminal_state.getRPY_W());
+		// Computing the foothold position w.r.t. the world. Note that the
+		// footshift is always expressed in the horizontal frame
+		Eigen::Vector3d foothold =
+				terminal_state.com_pos + stance_H + footshift_H;
 
 		// Computing the footshift in z from the height map. In case of no
 		// having the terrain height map, it assumes flat terrain conditions.
@@ -590,7 +591,10 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 
 			// Getting the target position of the contact w.r.t the CoM frame
 			Eigen::Vector3d footshift_B = (Eigen::Vector3d) swing_it->second;
-			Eigen::Vector3d stance_pos_B = stance_posture_C_.find(name)->second.head<3>();
+			Eigen::Vector3d stance_pos_H = stance_posture_H_.find(name)->second.head<3>();
+			Eigen::Vector3d stance_pos_B =
+					frame_tf_.fromHorizontalToBaseFrame(stance_pos_H,
+														terminal_state.getRPY_W());
 			Eigen::Vector3d target_pos_B = stance_pos_B + footshift_B;
 
 			// Initializing the foot pattern generator
