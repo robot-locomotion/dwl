@@ -18,6 +18,9 @@ WholeBodyState::WholeBodyState(unsigned int num_joints) :
 		joint_acc.setZero(num_joints_);
 		joint_eff.setZero(num_joints_);
 	}
+
+	null_3dvector_ = Eigen::Vector3d::Zero();
+	null_6dvector_ = NO_WRENCH;
 }
 
 
@@ -250,6 +253,9 @@ Eigen::VectorXd WholeBodyState::getContactPosition_W(ContactIterator pos_it) con
 Eigen::VectorXd WholeBodyState::getContactPosition_W(const std::string& name) const
 {
 	ContactIterator contact_it = getContactPosition_B().find(name);
+	if (contact_it == contact_pos.end())
+		return null_3dvector_;
+
 	return getContactPosition_W(contact_it);
 }
 
@@ -276,6 +282,9 @@ const Eigen::VectorXd& WholeBodyState::getContactPosition_B(ContactIterator pos_
 const Eigen::VectorXd& WholeBodyState::getContactPosition_B(const std::string& name) const
 {
 	ContactIterator contact_it = getContactPosition_B().find(name);
+	if (contact_it == contact_pos.end())
+		return null_3dvector_;
+
 	return getContactPosition_B(contact_it);
 }
 
@@ -295,6 +304,9 @@ Eigen::VectorXd WholeBodyState::getContactPosition_H(ContactIterator pos_it) con
 Eigen::VectorXd WholeBodyState::getContactPosition_H(const std::string& name) const
 {
 	ContactIterator contact_it = getContactPosition_B().find(name);
+	if (contact_it == contact_pos.end())
+		return null_3dvector_;
+
 	return getContactPosition_H(contact_it);
 }
 
@@ -328,6 +340,9 @@ Eigen::VectorXd WholeBodyState::getContactVelocity_W(ContactIterator vel_it) con
 Eigen::VectorXd WholeBodyState::getContactVelocity_W(const std::string& name) const
 {
 	ContactIterator contact_it = getContactVelocity_B().find(name);
+	if (contact_it == contact_vel.end())
+		return null_3dvector_;
+
 	return getContactVelocity_W(contact_it);
 }
 
@@ -354,6 +369,9 @@ const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(ContactIterator vel_
 const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(const std::string& name) const
 {
 	ContactIterator contact_it = contact_vel.find(name);
+	if (contact_it == contact_vel.end())
+		return null_3dvector_;
+
 	return getContactVelocity_B(contact_it);
 }
 
@@ -430,6 +448,9 @@ Eigen::VectorXd WholeBodyState::getContactAcceleration_W(ContactIterator acc_it)
 Eigen::VectorXd WholeBodyState::getContactAcceleration_W(const std::string& name) const
 {
 	ContactIterator contact_it = getContactAcceleration_B().find(name);
+	if (contact_it == contact_acc.end())
+		return null_3dvector_;
+
 	return getContactAcceleration_W(contact_it);
 }
 
@@ -456,6 +477,9 @@ const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(ContactIterator 
 const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(const std::string& name) const
 {
 	ContactIterator contact_it = getContactAcceleration_B().find(name);
+	if (contact_it == contact_acc.end())
+		return null_3dvector_;
+
 	return getContactAcceleration_B(contact_it);
 }
 
@@ -509,6 +533,9 @@ Eigen::VectorXd WholeBodyState::getContactAcceleration_H(ContactIterator acc_it)
 Eigen::VectorXd WholeBodyState::getContactAcceleration_H(const std::string& name) const
 {
 	ContactIterator contact_it = getContactAcceleration_B().find(name);
+	if (contact_it == contact_acc.end())
+		return null_3dvector_;
+
 	return getContactAcceleration_H(contact_it);
 }
 
@@ -534,7 +561,11 @@ const rbd::BodyVector6d& WholeBodyState::getContactWrench_B() const
 
 const rbd::Vector6d& WholeBodyState::getContactWrench_B(const std::string& name) const
 {
-	return contact_eff.find(name)->second;
+	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
+	if (it == contact_eff.end())
+		return null_6dvector_;
+	else
+		return it->second;
 }
 
 

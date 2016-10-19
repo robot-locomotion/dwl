@@ -394,6 +394,10 @@ class WholeBodyState
 
 		/** @brief Default value for joint states that don't exist */
 		double default_joint_value_;
+
+		/** @brief Null vectors for missed contact states */
+		Eigen::VectorXd null_3dvector_;
+		rbd::Vector6d null_6dvector_;
 };
 
 /** @brief Defines a whole-body trajectory */
