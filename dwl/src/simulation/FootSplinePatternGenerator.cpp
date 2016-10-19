@@ -89,30 +89,35 @@ bool FootSplinePatternGenerator::generateTrajectory(Eigen::Vector3d& foot_pos,
 	return true;
 }
 
-/*
-bool FootSplinePatternGenerator::check_stop_condition(const Eigen::Matrix3d & Jac, const Eigen::Vector3d & grforce_base, double force_th)
-{
-	//compute mobility loss as the min singular value
-	double sigma_min = 1;
-	bool stop_condition = false;
-	Eigen::Matrix3d A;
-	Eigen::JacobiSVD<Eigen::Matrix3d> svd;
-	A = Jac*Jac.transpose();
-	svd.compute(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
-	sigma_min = (svd.singularValues().array().abs()).minCoeff();
-	double sigma_min_thr = 0.017;
-	bool hit_workspace_lim = sigma_min<sigma_min_thr;
-	if (swingDown){ //check stop condition only at swing down
-		stop_condition = (surf_incl.dot(R.transpose()*grforce_base)>=force_th)|| hit_workspace_lim;
-	}
-	//check kin limit
-	if (stop_condition)
-	{
-		swingDown = false;
-		return true;
-	} else
-		return false;
-}*/
+
+//bool FootSplinePatternGenerator::hapticSwingStopCondition(const Eigen::Matrix3d& Jac,
+//														  const Eigen::Vector3d& grforce_base,
+//														  double force_th)
+//{
+//	Eigen::Vector3d surface_normal = Eigen::Vector3d::UnitZ();
+//	Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
+//
+//	//compute mobility loss as the min singular value
+//	double sigma_min = 1;
+//	bool stop_condition = false;
+//	Eigen::Matrix3d A;
+//	Eigen::JacobiSVD<Eigen::Matrix3d> svd;
+//	A = Jac * Jac.transpose();
+//	svd.compute(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
+//	sigma_min = (svd.singularValues().array().abs()).minCoeff();
+//	double sigma_min_thr = 0.017;
+//	bool hit_workspace_lim = sigma_min < sigma_min_thr;
+//	if (swingDown){ //check stop condition only at swing down
+//		stop_condition = (surface_normal.dot(R.transpose() * grforce_base) >= force_th) || hit_workspace_lim;
+//	}
+//	//check kin limit
+//	if (stop_condition)
+//	{
+////		swingDown = false;
+//		return true;
+//	} else
+//		return false;
+//}
 
 } //@namespace simulation
 } //@namespace dwl
