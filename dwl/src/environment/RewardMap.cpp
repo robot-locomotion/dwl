@@ -107,15 +107,17 @@ void RewardMap::compute(octomap::OcTree* octomap,
 
 				// Finding the cell of the surface
 				int r = 0;
+				octomap::OcTreeNode* heightmap_node =
+						octomap->search(init_key, depth_);
 				while (z >= search_areas_[n].min_z + robot_state(2)) {
 					octomap::OcTreeKey heightmap_key;
-					octomap::OcTreeNode* heightmap_node = octomap->search(init_key, depth_);
 					heightmap_key[0] = init_key[0];
 					heightmap_key[1] = init_key[1];
 					heightmap_key[2] = init_key[2] - r;
 
 					heightmap_node = octomap->search(heightmap_key, depth_);
-					octomap::point3d height_point = octomap->keyToCoord(heightmap_key, depth_);
+					octomap::point3d height_point =
+							octomap->keyToCoord(heightmap_key, depth_);
 					z = height_point(2);
 					if (heightmap_node) {
 						// Computation of the heightmap
@@ -130,15 +132,20 @@ void RewardMap::compute(octomap::OcTree* octomap,
 
 							Vertex vertex_id;
 							space_discretization_.keyToVertex(vertex_id, cell_key, true);
-
 							if (is_first_computation_)
-								addCellToTerrainHeightMap(vertex_id, (double) cell_position(2));
+								addCellToTerrainHeightMap(vertex_id,
+														  (double) cell_position(2));
 							else {
 								bool new_status = true;
-								if ((terrain_rewardmap_.count(vertex_id) > 0)) {
+								std::map<Vertex,double>::iterator height_it =
+										terrain_heightmap_.find(vertex_id);
+								if (height_it != terrain_heightmap_.end()) {
 									// Evaluating if it changed status (height)
-									RewardCell reward_cell = terrain_rewardmap_.find(vertex_id)->second;
-									if (reward_cell.key.z != cell_key.z) {
+									unsigned short int old_key_z;
+									space_discretization_.coordToKey(old_key_z,
+																	 height_it->second,
+																	 false);
+									if (old_key_z != cell_key.z) {
 										removeCellToRewardMap(vertex_id);
 										removeCellToTerrainHeightMap(vertex_id);
 									} else
@@ -147,7 +154,7 @@ void RewardMap::compute(octomap::OcTree* octomap,
 
 								if (new_status)
 									addCellToTerrainHeightMap(vertex_id,
-															 (double) cell_position(2));
+															  (double) cell_position(2));
 							}
 							break;
 						}
@@ -158,7 +165,7 @@ void RewardMap::compute(octomap::OcTree* octomap,
 		}
 	}
 
-	// Computing the total reward
+	// Computing the reward map
 	for (std::map<Vertex, double>::iterator terrain_iter = terrain_heightmap_.begin();
 			terrain_iter != terrain_heightmap_.end();
 			terrain_iter++)
@@ -179,9 +186,11 @@ void RewardMap::compute(octomap::OcTree* octomap,
 			computeRewards(octomap, heightmap_key);
 		else {
 			bool new_status = true;
-			if (terrain_rewardmap_.count(vertex_id) > 0) {
+			std::map<Vertex,RewardCell>::iterator reward_it =
+					terrain_rewardmap_.find(vertex_id);
+			if (reward_it != terrain_rewardmap_.end()) {
 				// Evaluating if it's changed status (height)
-				RewardCell reward_cell = terrain_rewardmap_.find(vertex_id)->second;
+				RewardCell reward_cell = reward_it->second;
 
 				if (reward_cell.key.z != heightmap_key[2]) {
 					removeCellToRewardMap(vertex_id);
@@ -195,8 +204,8 @@ void RewardMap::compute(octomap::OcTree* octomap,
 		}
 	}
 
-	// Removing the points that doesn't belong to interest area
-	Eigen::Vector3d robot_2dpose;
+	// Removing the points that doesn't belong to the interest area
+	Eigen::Vector3d robot_2dpose; // (x,y,yaw)
 	robot_2dpose(0) = robot_state(0);
 	robot_2dpose(1) = robot_state(1);
 	robot_2dpose(2) = robot_state(3);
