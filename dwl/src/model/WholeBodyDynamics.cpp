@@ -481,8 +481,10 @@ void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d com_pos,
 	}
 
 //	std::cout<<sum_x<<" "<<sum_z<<" "<<cop(dwl::rbd::Z)<<" "<<sum_x/sum_z*cop(dwl::rbd::Z)<<std::endl; // for debug
-	cmp_pos(dwl::rbd::X) = com_pos(dwl::rbd::X) - sum_x/sum_z*fabs(cop_pos(dwl::rbd::Z));
-	cmp_pos(dwl::rbd::Y) = com_pos(dwl::rbd::Y) - sum_y/sum_z*fabs(cop_pos(dwl::rbd::Z));
+	cmp_pos(dwl::rbd::X) =
+			com_pos(dwl::rbd::X) - sum_x / sum_z * fabs((double) cop_pos(dwl::rbd::Z));
+	cmp_pos(dwl::rbd::Y) =
+			com_pos(dwl::rbd::Y) - sum_y / sum_z * fabs((double) cop_pos(dwl::rbd::Z));
 	cmp_pos(dwl::rbd::Z) = cop_pos(dwl::rbd::Z);
 }
 
