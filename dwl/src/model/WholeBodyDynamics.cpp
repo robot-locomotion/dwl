@@ -430,9 +430,9 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 	cop_pos /= sum;
 }
 
-void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d com_pos,
-												Eigen::Vector3d cop_pos,
-												Eigen::Vector3d& cmp_pos,
+void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
+												const Eigen::Vector3d& com_pos,
+												const Eigen::Vector3d& cop_pos,
 												const rbd::BodyVector6d& contact_for,
 												const rbd::BodyVectorXd& contact_pos,
 												const rbd::BodySelector& ground_contacts)
@@ -488,14 +488,14 @@ void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d com_pos,
 	cmp_pos(dwl::rbd::Z) = cop_pos(dwl::rbd::Z);
 }
 
-void WholeBodyDynamics::computeInstantaneousCapturePoint(Eigen::Vector3d com_pos,
-		                                                 Eigen::Vector3d com_vel,
-		                                                 Eigen::Vector3d cop_pos,
-		                                                 Eigen::Vector3d& inst_cp_pos)
+void WholeBodyDynamics::computeInstantaneousCapturePoint(Eigen::Vector3d& icp_pos,
+														 const Eigen::Vector3d& com_pos,
+		                                                 const Eigen::Vector3d& com_vel,
+		                                                 const Eigen::Vector3d& cop_pos)
 {
 	double omega = sqrt(9.81/fabs(cop_pos(dwl::rbd::Z)));
-	inst_cp_pos = com_pos + com_vel/omega;
-	inst_cp_pos(dwl::rbd::Z) = cop_pos(dwl::rbd::Z);
+	icp_pos = com_pos + com_vel/omega;
+	icp_pos(dwl::rbd::Z) = cop_pos(dwl::rbd::Z);
 
 }
 

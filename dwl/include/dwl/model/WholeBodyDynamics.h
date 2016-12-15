@@ -218,17 +218,17 @@ class WholeBodyDynamics
 									 const rbd::BodyVectorXd& contact_pos,
 									 const rbd::BodySelector& ground_contacts);
 
-		void computeCentroidalMomentPivot(Eigen::Vector3d com_pos,
-                                          Eigen::Vector3d cop_pos,
-			                              Eigen::Vector3d& cmp_pos,
-			                              const rbd::BodyVector6d& contact_for,
-			                              const rbd::BodyVectorXd& contact_pos,
-			                              const rbd::BodySelector& ground_contacts);
+		void computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
+				                          const Eigen::Vector3d& com_pos,
+				                          const Eigen::Vector3d& cop_pos,
+				                          const rbd::BodyVector6d& contact_for,
+				                          const rbd::BodyVectorXd& contact_pos,
+				                          const rbd::BodySelector& ground_contacts);
 
-		void computeInstantaneousCapturePoint(Eigen::Vector3d com_pos,
-				                          Eigen::Vector3d com_vel,
-				                          Eigen::Vector3d cop_pos,
-			                              Eigen::Vector3d& inst_cp_pos);
+		void computeInstantaneousCapturePoint(Eigen::Vector3d& icp_pos,
+				                              const Eigen::Vector3d& com_pos,
+                                              const Eigen::Vector3d& com_vel,
+                                              const Eigen::Vector3d& cop_pos);
 
 		/**
 		 * @brief Computes the equivalent contact forces from a center of
