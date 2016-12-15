@@ -430,6 +430,71 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 	cop_pos /= sum;
 }
 
+void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d com_pos,
+												Eigen::Vector3d& cmp_pos,
+												const rbd::BodyVector6d& contact_for,
+												const rbd::BodyVectorXd& contact_pos,
+												const rbd::BodySelector& ground_contacts)
+{
+	double sum_x = 0.0, sum_y = 0.0, sum_z = 0.0;
+	Eigen::Vector3d cop;
+	// Sanity check: checking if there are contact information and the size
+	if ((contact_for.size() == 0) || (contact_pos.size() == 0) ||
+			contact_for.size() != contact_pos.size()) {
+		printf(YELLOW "Warning: could not compute the CoP because there is"
+				" missing information" COLOR_RESET);
+		return;
+	}
+
+	// the Centroidal Momentum Pivot (CMP) is computed with respect to the CoM position
+	cmp_pos = com_pos;
+	// Computing the Center of Pressure (CoP) position
+	for (rbd::BodySelector::const_iterator contact_iter = ground_contacts.begin();
+			contact_iter != ground_contacts.end(); contact_iter++) {
+		std::string name = *contact_iter;
+
+		// Getting the ground reaction forces
+		rbd::Vector6d force;
+		rbd::BodyVector6d::const_iterator for_it = contact_for.find(name);
+		if (for_it != contact_for.end())
+			force = for_it->second;
+		else {
+			printf(YELLOW "Warning: there is missing the contact force of"
+					" %s\n" COLOR_RESET, name.c_str());
+			return;
+		}
+
+		// Getting the contact position
+		rbd::BodyVectorXd::const_iterator pos_it = contact_pos.find(name);
+		Eigen::VectorXd position;
+		if (pos_it != contact_pos.end())
+			position = pos_it->second;
+		else {
+			printf(YELLOW "Warning: there is missing the contact position of"
+					" %s\n" COLOR_RESET, name.c_str());
+			return;
+		}
+
+		// Accumulate the cop position as a weighted sum, where the weight is
+		// the z component of the force at each contact point
+		double norm_for = force(rbd::LZ);
+		if (position.size() == 6)
+			cop += norm_for * position.segment<3>(rbd::LX);
+		else
+			cop += norm_for * position;
+
+		sum_z += norm_for;
+		sum_x += force(rbd::LX);
+		sum_y += force(rbd::LY);
+	}
+	cop /= sum_z;
+
+//	std::cout<<sum_x<<" "<<sum_z<<" "<<cop(dwl::rbd::Z)<<" "<<sum_x/sum_z*cop(dwl::rbd::Z)<<std::endl; // for debug
+	cmp_pos(dwl::rbd::X) = com_pos(dwl::rbd::X) - sum_x/sum_z*fabs(cop(dwl::rbd::Z));
+	cmp_pos(dwl::rbd::Y) = com_pos(dwl::rbd::Y) - sum_y/sum_z*fabs(cop(dwl::rbd::Z));
+	cmp_pos(dwl::rbd::Z) = cop(dwl::rbd::Z);
+}
+
 
 void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_for,
 											 const Eigen::Vector3d& cop_pos,

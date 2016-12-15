@@ -218,6 +218,12 @@ class WholeBodyDynamics
 									 const rbd::BodyVectorXd& contact_pos,
 									 const rbd::BodySelector& ground_contacts);
 
+		void computeCentroidalMomentPivot(Eigen::Vector3d com_pos,
+			                              Eigen::Vector3d& cmp_pos,
+			                              const rbd::BodyVector6d& contact_for,
+			                              const rbd::BodyVectorXd& contact_pos,
+			                              const rbd::BodySelector& ground_contacts);
+
 		/**
 		 * @brief Computes the equivalent contact forces from a center of
 		 * pressure position
