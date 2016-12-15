@@ -431,6 +431,7 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 }
 
 void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d com_pos,
+												Eigen::Vector3d cop_pos,
 												Eigen::Vector3d& cmp_pos,
 												const rbd::BodyVector6d& contact_for,
 												const rbd::BodyVectorXd& contact_pos,
@@ -474,25 +475,26 @@ void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d com_pos,
 					" %s\n" COLOR_RESET, name.c_str());
 			return;
 		}
-
-		// Accumulate the cop position as a weighted sum, where the weight is
-		// the z component of the force at each contact point
-		double norm_for = force(rbd::LZ);
-		if (position.size() == 6)
-			cop += norm_for * position.segment<3>(rbd::LX);
-		else
-			cop += norm_for * position;
-
-		sum_z += norm_for;
+		sum_z += force(rbd::LZ);
 		sum_x += force(rbd::LX);
 		sum_y += force(rbd::LY);
 	}
-	cop /= sum_z;
 
 //	std::cout<<sum_x<<" "<<sum_z<<" "<<cop(dwl::rbd::Z)<<" "<<sum_x/sum_z*cop(dwl::rbd::Z)<<std::endl; // for debug
-	cmp_pos(dwl::rbd::X) = com_pos(dwl::rbd::X) - sum_x/sum_z*fabs(cop(dwl::rbd::Z));
-	cmp_pos(dwl::rbd::Y) = com_pos(dwl::rbd::Y) - sum_y/sum_z*fabs(cop(dwl::rbd::Z));
-	cmp_pos(dwl::rbd::Z) = cop(dwl::rbd::Z);
+	cmp_pos(dwl::rbd::X) = com_pos(dwl::rbd::X) - sum_x/sum_z*fabs(cop_pos(dwl::rbd::Z));
+	cmp_pos(dwl::rbd::Y) = com_pos(dwl::rbd::Y) - sum_y/sum_z*fabs(cop_pos(dwl::rbd::Z));
+	cmp_pos(dwl::rbd::Z) = cop_pos(dwl::rbd::Z);
+}
+
+void WholeBodyDynamics::computeInstantaneousCapturePoint(Eigen::Vector3d com_pos,
+		                                                 Eigen::Vector3d com_vel,
+		                                                 Eigen::Vector3d cop_pos,
+		                                                 Eigen::Vector3d& inst_cp_pos)
+{
+	double omega = sqrt(9.81/fabs(cop_pos(dwl::rbd::Z)));
+	inst_cp_pos = com_pos + com_vel/omega;
+	inst_cp_pos(dwl::rbd::Z) = cop_pos(dwl::rbd::Z);
+
 }
 
 
