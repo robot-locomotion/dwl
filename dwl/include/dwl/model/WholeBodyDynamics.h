@@ -230,12 +230,19 @@ class WholeBodyDynamics
 				                              const Eigen::Vector3d& com_pos,
 											  const Eigen::Vector3d& com_vel,
 											  double height);
+
+		/**
+		 * @brief Computes the centroidal moment pivot position given the
+		 * contact forces (i.e. GRFs)
+		 * @param Eigen::Vector3d& Centroidal moment pivot position
+		 * @param const Eigen::Vector3d& CoM position
+		 * @param double Pendulum height
+		 * @param const rbd::BodyVector6d& Contact forces
+		 */
 		void computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
 				                          const Eigen::Vector3d& com_pos,
-				                          const Eigen::Vector3d& cop_pos,
-				                          const rbd::BodyVector6d& contact_for,
-				                          const rbd::BodyVectorXd& contact_pos,
-				                          const rbd::BodySelector& ground_contacts);
+				                          double height,
+				                          const rbd::BodyVector6d& contact_for);
 
 		/**
 		 * @brief Computes the equivalent contact forces from a center of

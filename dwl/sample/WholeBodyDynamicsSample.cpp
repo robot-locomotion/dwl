@@ -150,5 +150,11 @@ int main(int argc, char **argv)
 	cout << icp_pos.transpose() << " = icp" << endl;
 
 
+	// Computing the centroidal moment pivot
+	Eigen::Vector3d cmp_pos;
+	dyn.computeCentroidalMomentPivot(cmp_pos, com_pos, height, contact_forces);
+	cout << "--------------- Centroidal Moment Pivot --------------" << endl;
+	cout << cmp_pos.transpose() << " = cmp" << endl;
+
 	return 0;
 }
