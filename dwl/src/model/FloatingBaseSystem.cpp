@@ -306,7 +306,8 @@ const double& FloatingBaseSystem::getBodyMass(std::string body_name) const
 
 const double& FloatingBaseSystem::getGravityAcceleration() const
 {
-	return rbd_model_.gravity(rbd::Z);
+	return rbd_model_.gravity.norm();
+}
 }
 
 
