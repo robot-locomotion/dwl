@@ -219,6 +219,32 @@ class WholeBodyDynamics
 									 const rbd::BodySelector& ground_contacts);
 
 		/**
+		 * @brief Computes the instantaneous capture point position assuming an
+		 * linear inverted pendulum
+		 * @param Eigen::Vector3d& Instantaneous capture point position
+		 * @param const Eigen::Vector3d& CoM position
+		 * @param const Eigen::Vector3d& CoM velocity
+		 * @param double Pendulum height
+		 */
+		void computeInstantaneousCapturePoint(Eigen::Vector3d& icp_pos,
+				                              const Eigen::Vector3d& com_pos,
+											  const Eigen::Vector3d& com_vel,
+											  double height);
+
+		/**
+		 * @brief Computes the centroidal moment pivot position given the
+		 * contact forces (i.e. GRFs)
+		 * @param Eigen::Vector3d& Centroidal moment pivot position
+		 * @param const Eigen::Vector3d& CoM position
+		 * @param double Pendulum height
+		 * @param const rbd::BodyVector6d& Contact forces
+		 */
+		void computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
+				                          const Eigen::Vector3d& com_pos,
+				                          double height,
+				                          const rbd::BodyVector6d& contact_for);
+
+		/**
 		 * @brief Computes the equivalent contact forces from a center of
 		 * pressure position
 		 * @param rbd::BodyWrench& contact_for
