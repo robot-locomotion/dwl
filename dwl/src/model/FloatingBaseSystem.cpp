@@ -304,10 +304,21 @@ const double& FloatingBaseSystem::getBodyMass(std::string body_name) const
 }
 
 
+const Eigen::Vector3d& FloatingBaseSystem::getGravityVector() const
+{
+	return rbd_model_.gravity;
+}
+
+
 const double& FloatingBaseSystem::getGravityAcceleration() const
 {
 	return rbd_model_.gravity.norm();
 }
+
+
+const Eigen::Vector3d& FloatingBaseSystem::getGravityDirection() const
+{
+	return rbd_model_.gravity / rbd_model_.gravity.norm();
 }
 
 
