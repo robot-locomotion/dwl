@@ -7,11 +7,12 @@ namespace dwl
 namespace model
 {
 
-FloatingBaseSystem::FloatingBaseSystem(bool full, unsigned int _num_joints) : num_system_joints_(0),
-		num_floating_joints_(6 * full), num_joints_(_num_joints),
-		floating_ax_(full), floating_ay_(full), floating_az_(full),
-		floating_lx_(full), floating_ly_(full), floating_lz_(full),
-		type_of_system_(FixedBase), num_end_effectors_(0) , num_feet_(0)
+FloatingBaseSystem::FloatingBaseSystem(bool full, unsigned int _num_joints) :
+		num_system_joints_(0), num_floating_joints_(6 * full),
+		num_joints_(_num_joints), floating_ax_(full), floating_ay_(full),
+		floating_az_(full), floating_lx_(full), floating_ly_(full),
+		floating_lz_(full), type_of_system_(FixedBase), num_end_effectors_(0),
+		num_feet_(0), grav_acc_(0.)
 {
 
 }
@@ -157,6 +158,10 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 		full_state_.resize(getJointDoF());
 	}
 	joint_state_.resize(getJointDoF());
+
+	// Getting gravity information
+	grav_acc_ = rbd_model_.gravity.norm();
+	grav_dir_ = rbd_model_.gravity / grav_acc_;
 }
 
 
@@ -312,13 +317,13 @@ const Eigen::Vector3d& FloatingBaseSystem::getGravityVector() const
 
 const double& FloatingBaseSystem::getGravityAcceleration() const
 {
-	return rbd_model_.gravity.norm();
+	return grav_acc_;
 }
 
 
 const Eigen::Vector3d& FloatingBaseSystem::getGravityDirection() const
 {
-	return rbd_model_.gravity / rbd_model_.gravity.norm();
+	return grav_dir_;
 }
 
 

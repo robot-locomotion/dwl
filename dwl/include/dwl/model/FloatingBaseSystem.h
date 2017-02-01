@@ -404,6 +404,10 @@ class FloatingBaseSystem
 		urdf_model::LinkID feet_;
 		unsigned int num_feet_;
 		rbd::BodySelector foot_names_;
+
+		/** @brief Gravity information */
+		double grav_acc_;
+		Eigen::Vector3d grav_dir_;
 };
 
 } //@namespace
