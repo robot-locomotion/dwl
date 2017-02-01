@@ -430,6 +430,23 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 	cop_pos /= sum;
 }
 
+
+void WholeBodyDynamics::computeInstantaneousCapturePoint(Eigen::Vector3d& icp_pos,
+														 const Eigen::Vector3d& com_pos,
+		                                                 const Eigen::Vector3d& com_vel,
+		                                                 double height)
+{
+	if (height < 0.) {
+		height *= -1;
+		printf(YELLOW "Warning: the height should be a positive value\n" COLOR_RESET);
+	}
+
+	double omega = sqrt(system_.getGravityAcceleration() / height);
+	icp_pos = com_pos + com_vel / omega;
+	icp_pos(rbd::Z) = com_pos(rbd::Z) - height;
+}
+
+
 void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
 												const Eigen::Vector3d& com_pos,
 												const Eigen::Vector3d& cop_pos,
@@ -486,17 +503,6 @@ void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
 	cmp_pos(dwl::rbd::Y) =
 			com_pos(dwl::rbd::Y) - sum_y / sum_z * fabs((double) cop_pos(dwl::rbd::Z));
 	cmp_pos(dwl::rbd::Z) = cop_pos(dwl::rbd::Z);
-}
-
-void WholeBodyDynamics::computeInstantaneousCapturePoint(Eigen::Vector3d& icp_pos,
-														 const Eigen::Vector3d& com_pos,
-		                                                 const Eigen::Vector3d& com_vel,
-		                                                 const Eigen::Vector3d& cop_pos)
-{
-	double omega = sqrt(9.81/fabs(cop_pos(dwl::rbd::Z)));
-	icp_pos = com_pos + com_vel/omega;
-	icp_pos(dwl::rbd::Z) = cop_pos(dwl::rbd::Z);
-
 }
 
 

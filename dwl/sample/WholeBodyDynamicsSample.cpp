@@ -139,5 +139,16 @@ int main(int argc, char **argv)
 	cout << "--------------- Joint Space Inertia Matrix --------------" << endl;
 	cout << inertial_mat << " = inertial matrix" << endl;
 
+
+	// Computing the instantaneous capture point
+	Eigen::Vector3d icp_pos, com_pos, com_vel;
+	com_pos = Eigen::Vector3d(0.2, 0.05, 0.85);
+	com_vel = Eigen::Vector3d(0.1, 0.1, 0.);
+	double height = 0.85;
+	dyn.computeInstantaneousCapturePoint(icp_pos, com_pos, com_vel, height);
+	cout << "--------------- Instantaneous Capture Point --------------" << endl;
+	cout << icp_pos.transpose() << " = icp" << endl;
+
+
 	return 0;
 }
