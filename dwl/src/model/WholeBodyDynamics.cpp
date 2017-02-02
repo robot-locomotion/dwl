@@ -375,13 +375,15 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 
 void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 												const rbd::BodyVector6d& contact_for,
-												const rbd::BodyVectorXd& contact_pos,
-												const rbd::BodySelector& ground_contacts)
+												const rbd::BodyVectorXd& contact_pos)
 {
 	// TODO: Compute the CoM position for case when the normal surface is different to z
 	// Initializing the variables
 	cop_pos.setZero();
 	double sum = 0.;
+
+	// Getting the names of the feet
+	rbd::BodySelector ground_contacts = system_.getEndEffectorNames(model::FOOT);
 
 	// Sanity check: checking if there are contact information and the size
 	if ((contact_for.size() == 0) || (contact_pos.size() == 0) ||

@@ -141,8 +141,7 @@ const ReducedBodyState& RobotStates::getReducedBodyState(const WholeBodyState& s
 	Eigen::Vector3d cop_B;
 	wdyn_.computeCenterOfPressure(cop_B,
 								  state.contact_eff,
-								  state.contact_pos,
-								  feet_);
+								  state.contact_pos);
 	rs_.setCoPPosition_W(base_traslation + W_rot_B * cop_B);
 
 	// Getting the support region w.r.t the world frame. The support region

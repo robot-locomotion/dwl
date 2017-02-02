@@ -211,12 +211,10 @@ class WholeBodyDynamics
 		 * @param Eigen::Vector3d& Center of pressure position
 		 * @param const rbd::BodyWrench& Contact forces
 		 * @param const rbd::BodyVector& Contact position
-		 * @param const rbd::BodySelector& Selected set of active contact
 		 */
 		void computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 									 const rbd::BodyVector6d& contact_for,
-									 const rbd::BodyVectorXd& contact_pos,
-									 const rbd::BodySelector& ground_contacts);
+									 const rbd::BodyVectorXd& contact_pos);
 
 		/**
 		 * @brief Computes the instantaneous capture point position assuming an
