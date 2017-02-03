@@ -243,6 +243,19 @@ class WholeBodyDynamics
 				                          const rbd::BodyVector6d& contact_for);
 
 		/**
+		 * @brief Computes the CoM torque given the CoP and CMP positions
+		 * @param Eigen::Vector3d& CoM torque
+		 * @param const Eigen::Vector3d& CoP position
+		 * @param const Eigen::Vector3d& CMP position
+		 * @param const rbd::BodyVector6d& Contact forces
+		 */
+		void computeCoMTorque(Eigen::Vector3d& torque,
+							  const Eigen::Vector3d& cop_pos,
+							  const Eigen::Vector3d& cmp_pos,
+							  const rbd::BodyVector6d& contact_for);
+
+
+		/**
 		 * @brief Computes the equivalent contact forces from a center of
 		 * pressure position
 		 * @param rbd::BodyWrench& contact_for
