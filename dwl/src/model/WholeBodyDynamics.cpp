@@ -389,7 +389,7 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 	if ((contact_for.size() == 0) || (contact_pos.size() == 0) ||
 			contact_for.size() != contact_pos.size()) {
 		printf(YELLOW "Warning: could not compute the CoP because there is"
-				" missing information" COLOR_RESET);
+				" missing information\n" COLOR_RESET);
 		return;
 	}
 
@@ -463,7 +463,6 @@ void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
 	rbd::BodySelector ground_contacts = system_.getEndEffectorNames(model::FOOT);
 
 	// The Centroidal Momentum Pivot (CMP) is computed given the GRFs
-	Eigen::Vector3d cop;
 	double grf_x = 0., grf_y = 0., grf_z = 0.;
 	for (rbd::BodySelector::const_iterator contact_iter = ground_contacts.begin();
 			contact_iter != ground_contacts.end(); contact_iter++) {
