@@ -141,8 +141,14 @@ class FloatingBaseSystem
 		 */
 		const double& getBodyMass(std::string body_name) const;
 
+		/** @brief Gets the gravity vector of the rigid body system */
+		const Eigen::Vector3d& getGravityVector() const;
+
 		/** @brief Gets the gravity acceleration of the rigid body system */
 		const double& getGravityAcceleration() const;
+
+		/** @brief Gets the gravity direction of the rigid body system */
+		const Eigen::Vector3d& getGravityDirection() const;
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of the floating-base system
@@ -398,6 +404,10 @@ class FloatingBaseSystem
 		urdf_model::LinkID feet_;
 		unsigned int num_feet_;
 		rbd::BodySelector foot_names_;
+
+		/** @brief Gravity information */
+		double grav_acc_;
+		Eigen::Vector3d grav_dir_;
 };
 
 } //@namespace

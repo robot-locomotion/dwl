@@ -211,12 +211,49 @@ class WholeBodyDynamics
 		 * @param Eigen::Vector3d& Center of pressure position
 		 * @param const rbd::BodyWrench& Contact forces
 		 * @param const rbd::BodyVector& Contact position
-		 * @param const rbd::BodySelector& Selected set of active contact
 		 */
 		void computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 									 const rbd::BodyVector6d& contact_for,
-									 const rbd::BodyVectorXd& contact_pos,
-									 const rbd::BodySelector& ground_contacts);
+									 const rbd::BodyVectorXd& contact_pos);
+
+		/**
+		 * @brief Computes the instantaneous capture point position assuming an
+		 * linear inverted pendulum
+		 * @param Eigen::Vector3d& Instantaneous capture point position
+		 * @param const Eigen::Vector3d& CoM position
+		 * @param const Eigen::Vector3d& CoM velocity
+		 * @param double Pendulum height
+		 */
+		void computeInstantaneousCapturePoint(Eigen::Vector3d& icp_pos,
+				                              const Eigen::Vector3d& com_pos,
+											  const Eigen::Vector3d& com_vel,
+											  double height);
+
+		/**
+		 * @brief Computes the centroidal moment pivot position given the
+		 * contact forces (i.e. GRFs)
+		 * @param Eigen::Vector3d& Centroidal moment pivot position
+		 * @param const Eigen::Vector3d& CoM position
+		 * @param double Pendulum height
+		 * @param const rbd::BodyVector6d& Contact forces
+		 */
+		void computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
+				                          const Eigen::Vector3d& com_pos,
+				                          double height,
+				                          const rbd::BodyVector6d& contact_for);
+
+		/**
+		 * @brief Computes the CoM torque given the CoP and CMP positions
+		 * @param Eigen::Vector3d& CoM torque
+		 * @param const Eigen::Vector3d& CoP position
+		 * @param const Eigen::Vector3d& CMP position
+		 * @param const rbd::BodyVector6d& Contact forces
+		 */
+		void computeCoMTorque(Eigen::Vector3d& torque,
+							  const Eigen::Vector3d& cop_pos,
+							  const Eigen::Vector3d& cmp_pos,
+							  const rbd::BodyVector6d& contact_for);
+
 
 		/**
 		 * @brief Computes the equivalent contact forces from a center of

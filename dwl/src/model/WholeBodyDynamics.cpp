@@ -375,19 +375,21 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 
 void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 												const rbd::BodyVector6d& contact_for,
-												const rbd::BodyVectorXd& contact_pos,
-												const rbd::BodySelector& ground_contacts)
+												const rbd::BodyVectorXd& contact_pos)
 {
 	// TODO: Compute the CoM position for case when the normal surface is different to z
 	// Initializing the variables
 	cop_pos.setZero();
 	double sum = 0.;
 
+	// Getting the names of the feet
+	rbd::BodySelector ground_contacts = system_.getEndEffectorNames(model::FOOT);
+
 	// Sanity check: checking if there are contact information and the size
 	if ((contact_for.size() == 0) || (contact_pos.size() == 0) ||
 			contact_for.size() != contact_pos.size()) {
 		printf(YELLOW "Warning: could not compute the CoP because there is"
-				" missing information" COLOR_RESET);
+				" missing information\n" COLOR_RESET);
 		return;
 	}
 
@@ -431,6 +433,98 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 }
 
 
+void WholeBodyDynamics::computeInstantaneousCapturePoint(Eigen::Vector3d& icp_pos,
+														 const Eigen::Vector3d& com_pos,
+		                                                 const Eigen::Vector3d& com_vel,
+		                                                 double height)
+{
+	if (height < 0.) {
+		height *= -1;
+		printf(YELLOW "Warning: the height should be a positive value\n" COLOR_RESET);
+	}
+
+	double omega = sqrt(system_.getGravityAcceleration() / height);
+	icp_pos = com_pos + com_vel / omega;
+	icp_pos(rbd::Z) = com_pos(rbd::Z) - height;
+}
+
+
+void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
+													 const Eigen::Vector3d& com_pos,
+													 double height,
+													 const rbd::BodyVector6d& contact_for)
+{
+	if (height < 0.) {
+		height *= -1;
+		printf(YELLOW "Warning: the height should be a positive value\n" COLOR_RESET);
+	}
+
+	// Getting the names of the feet
+	rbd::BodySelector ground_contacts = system_.getEndEffectorNames(model::FOOT);
+
+	// The Centroidal Momentum Pivot (CMP) is computed given the GRFs
+	double grf_x = 0., grf_y = 0., grf_z = 0.;
+	for (rbd::BodySelector::const_iterator contact_iter = ground_contacts.begin();
+			contact_iter != ground_contacts.end(); contact_iter++) {
+		std::string name = *contact_iter;
+
+		// Getting the ground reaction forces
+		rbd::Vector6d force;
+		rbd::BodyVector6d::const_iterator for_it = contact_for.find(name);
+		if (for_it != contact_for.end())
+			force = for_it->second;
+		else {
+			printf(YELLOW "Warning: there is missing the contact force of"
+					" %s\n" COLOR_RESET, name.c_str());
+			return;
+		}
+
+		grf_x += force(rbd::LX);
+		grf_y += force(rbd::LY);
+		grf_z += force(rbd::LZ);
+	}
+
+	cmp_pos(rbd::X) =
+			com_pos(rbd::X) - grf_x / grf_z * height;
+	cmp_pos(rbd::Y) =
+			com_pos(rbd::Y) - grf_y / grf_z * height;
+	cmp_pos(rbd::Z) = com_pos(rbd::Z) - height;
+}
+
+
+void WholeBodyDynamics::computeCoMTorque(Eigen::Vector3d& torque,
+										 const Eigen::Vector3d& cop_pos,
+										 const Eigen::Vector3d& cmp_pos,
+										 const rbd::BodyVector6d& contact_for)
+{
+	// Getting the names of the feet
+	rbd::BodySelector ground_contacts = system_.getEndEffectorNames(model::FOOT);
+
+	// The Centroidal Momentum Pivot (CMP) is computed given the GRFs
+	double grf_z = 0.;
+	for (rbd::BodySelector::const_iterator contact_iter = ground_contacts.begin();
+			contact_iter != ground_contacts.end(); contact_iter++) {
+		std::string name = *contact_iter;
+
+		// Getting the ground reaction forces
+		rbd::Vector6d force;
+		rbd::BodyVector6d::const_iterator for_it = contact_for.find(name);
+		if (for_it != contact_for.end())
+			force = for_it->second;
+		else {
+			printf(YELLOW "Warning: there is missing the contact force of"
+					" %s\n" COLOR_RESET, name.c_str());
+			return;
+		}
+		grf_z += force(rbd::LZ);
+	}
+
+	torque(rbd::X) = grf_z * (cop_pos(rbd::Y) - cmp_pos(rbd::Y));
+	torque(rbd::Y) = grf_z * (cmp_pos(rbd::X) - cop_pos(rbd::X));
+	torque(rbd::Z) = 0.;
+}
+
+
 void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_for,
 											 const Eigen::Vector3d& cop_pos,
 											 const rbd::BodyVector3d& contact_pos,
@@ -469,7 +563,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_for,
 	}
 
 	// Computing the normal contact forces
-	double weight = system_.getTotalMass() * fabs(system_.getGravityAcceleration());
+	double weight = system_.getTotalMass() * system_.getGravityAcceleration();
 	Eigen::VectorXd norm_for = math::pseudoInverse(contact_mat) * cop_pos * weight;
 
 	// Filling the contact forces vector
