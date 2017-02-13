@@ -26,7 +26,7 @@ TerrainMap::~TerrainMap()
 }
 
 
-void TerrainMap::setRewardMap(std::vector<RewardCell> reward_map)
+void TerrainMap::setTerrainMap(TerrainData terrain_map)
 {
 	// Cleaning the old information
 	CostMap empty_terrain_cost_map;
@@ -35,19 +35,19 @@ void TerrainMap::setRewardMap(std::vector<RewardCell> reward_map)
 	heightmap_.swap(empty_terrain_height_map);
 	average_cost_ = 0;
 
-	// Storing the cost-map data according the vertex id
+	// Storing the terrain data according the vertex id
 	Vertex vertex_2d;
-	if (reward_map.size() != 0) {
+	if (terrain_map.size() != 0) {
 		// Setting the resolution
-		terrain_resolution_ = reward_map[0].plane_size;
-		height_resolution_ = reward_map[0].height_size;
+		terrain_resolution_ = terrain_map[0].plane_size;
+		height_resolution_ = terrain_map[0].height_size;
 		setTerrainResolution(terrain_resolution_, true);
 		setTerrainResolution(height_resolution_, false);
 
-		for (unsigned int i = 0; i < reward_map.size(); i++) {
+		for (unsigned int i = 0; i < terrain_map.size(); i++) {
 			// Building a cost-map for a every 3d vertex
-			terrain_discretization_.keyToVertex(vertex_2d, reward_map[i].key, true);
-			double cost_value = -reward_map[i].reward;
+			terrain_discretization_.keyToVertex(vertex_2d, terrain_map[i].key, true);
+			double cost_value = -terrain_map[i].reward;
 			costmap_[vertex_2d] = cost_value;
 
 			// Setting up the maximum cost value
@@ -56,14 +56,14 @@ void TerrainMap::setRewardMap(std::vector<RewardCell> reward_map)
 
 			// Building a height map (3d vertex) according to certain 2d position (2d vertex)
 			double height;
-			terrain_discretization_.keyToCoord(height, reward_map[i].key.z, false);
+			terrain_discretization_.keyToCoord(height, terrain_map[i].key.z, false);
 			heightmap_[vertex_2d] = height;
 
-			average_cost_ += -reward_map[i].reward;
+			average_cost_ += -terrain_map[i].reward;
 		}
 
 		// Computing the average cost of the terrain
-		average_cost_ /= reward_map.size();
+		average_cost_ /= terrain_map.size();
 
 		terrain_information_ = true;
 	}

@@ -25,10 +25,10 @@ class TerrainMap
 		~TerrainMap();
 
 		/**
-		 * @brief Sets the terrain cost-map and height-map
-		 * @param std::vector<RewardCell> Reward map
+		 * @brief Sets the terrain map
+		 * @param TerrainData Terrain map
 		 */
-		void setRewardMap(std::vector<RewardCell> reward_map);
+		void setTerrainMap(TerrainData terrain_map);
 
 		/**
 		 * @brief Sets the obstacle map
@@ -131,7 +131,7 @@ class TerrainMap
 
 		/**
 		 * @brief Gets the obstacle discrete model of the space according
-		 * the resolution of the reward map
+		 * the resolution of the obstacle map
 		 * @return The discrete space model
 		 */
 		SpaceDiscretization& getObstacleSpaceModel();

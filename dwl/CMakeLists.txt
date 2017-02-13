@@ -173,7 +173,7 @@ endif()
 # Adding Octomap components of the project
 if(octomap_FOUND)
 	include_directories(${OCTOMAP_INCLUDE_DIRS}) 
-	list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/RewardMap.cpp
+	list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/TerrainMapping.cpp
 										 src/environment/ObstacleMap.cpp)
 endif()
 

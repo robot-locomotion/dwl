@@ -92,7 +92,7 @@ class PlanningOfMotionSequence //TODO clean and define the final class
 		 * @brief Sets the reward map
 		 * @param std::vector<Cell> Reward map of the environment
 		 */
-		void setRewardMap(std::vector<RewardCell> reward_map);
+		void setTerrainMap(std::vector<TerrainCell> reward_map);
 
 		/**
 		 * @brief Sets the obstacle terrain map

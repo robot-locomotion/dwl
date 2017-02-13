@@ -1,8 +1,8 @@
 #ifndef DWL__OCP__COST__H
 #define DWL__OCP__COST__H
 
-#include <dwl/environment/RewardMap.h>
 #include <dwl/utils/utils.h>
+#include <dwl/environment/TerrainMapping.h>
 
 
 namespace dwl
