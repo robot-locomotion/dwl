@@ -26,15 +26,15 @@ class TerrainMap
 
 		/**
 		 * @brief Sets the terrain map
-		 * @param TerrainData Terrain map
+		 * @param const TerrainData& Terrain map
 		 */
-		void setTerrainMap(TerrainData terrain_map);
+		void setTerrainMap(const TerrainData& terrain_map);
 
 		/**
 		 * @brief Sets the obstacle map
-		 * @param std::vector<Cell> Obstacle map
+		 * @param const std::vector<Cell>& Obstacle map
 		 */
-		void setObstacleMap(std::vector<Cell> obstacle_map);
+		void setObstacleMap(const std::vector<Cell>& obstacle_map);
 
 		/**
 		 * @brief Sets the terrain resolution (cost and height map) of the

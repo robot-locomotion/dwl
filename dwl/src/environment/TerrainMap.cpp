@@ -26,7 +26,7 @@ TerrainMap::~TerrainMap()
 }
 
 
-void TerrainMap::setTerrainMap(TerrainData terrain_map)
+void TerrainMap::setTerrainMap(const TerrainData& terrain_map)
 {
 	// Cleaning the old information
 	CostMap empty_terrain_cost_map;
@@ -70,7 +70,7 @@ void TerrainMap::setTerrainMap(TerrainData terrain_map)
 }
 
 
-void TerrainMap::setObstacleMap(std::vector<Cell> obstacle_map)
+void TerrainMap::setObstacleMap(const std::vector<Cell>& obstacle_map)
 {
 	// Cleaning the old information
 	ObstacleMap empty_terrain_obstacle_map;
