@@ -32,18 +32,23 @@ class Feature
 		void reset(robot::Robot* robot);
 
 		/**
-		 * @brief Abstract method to compute reward value according some terrain information
+		 * @brief Abstract method to compute reward value according some
+		 * terrain information
 		 * @param double& Reference of the reward variable
-		 * @param Terrain Information about the terrain, i.e. position, surface and curvature
+		 * @param const Terrain& Information about the terrain, i.e. position,
+		 * surface and curvature
 		 */
-		virtual void computeReward(double& reward_value, Terrain terrain_info);
+		virtual void computeReward(double& reward_value,
+								   const Terrain& terrain_info);
 
 		/**
-		 * @brief Abstract method to compute reward value according some robot and terrain information
+		 * @brief Abstract method to compute reward value according some robot
+		 * and terrain information
 		 * @param double& Reference of the reward variable
-		 * @param RobotAndTerrain Information of the robot and terrain
+		 * @param const RobotAndTerrain& Information of the robot and terrain
 		 */
-		virtual void computeReward(double& reward_value, RobotAndTerrain info);
+		virtual void computeReward(double& reward_value,
+								   const RobotAndTerrain& info);
 
 		/**
 		 * @brief Sets the weight of the feature
