@@ -68,6 +68,8 @@ struct TerrainCell
 
 /** @brief Terrain map */
 typedef std::vector<TerrainCell> TerrainData;
+typedef std::map<Vertex, TerrainCell> TerrainDataMap;
+
 
 /**
  * @struct Terrain
