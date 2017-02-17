@@ -8,15 +8,17 @@ namespace environment
 {
 
 TerrainMap::TerrainMap() :
-		terrain_discretization_(0.04, 0.04, M_PI / 200),
+		space_discretization_(0.04, 0.04, M_PI / 200),
 		obstacle_discretization_(0.04, 0.04, M_PI / 200),
 		average_cost_(0.), max_cost_(0.), terrain_information_(false),
+		min_height_(std::numeric_limits<double>::max()),
 		obstacle_information_(false),
-		terrain_resolution_(std::numeric_limits<double>::max()),
-		height_resolution_(std::numeric_limits<double>::max()),
 		obstacle_resolution_(std::numeric_limits<double>::max())
 {
-
+	// Setting up the default values of the cell
+	// TODO key for a height value
+	default_cell_.reward = -std::numeric_limits<double>::max();
+	default_cell_.normal = Eigen::Vector3d::UnitZ();
 }
 
 
@@ -29,35 +31,27 @@ TerrainMap::~TerrainMap()
 void TerrainMap::setTerrainMap(const TerrainData& terrain_map)
 {
 	// Cleaning the old information
-	CostMap empty_terrain_cost_map;
+	TerrainDataMap empty_terrain_cost_map;
 	HeightMap empty_terrain_height_map;
-	costmap_.swap(empty_terrain_cost_map);
-	heightmap_.swap(empty_terrain_height_map);
-	average_cost_ = 0;
+	terrain_map_.swap(empty_terrain_cost_map);
+	average_cost_ = 0.;
 
 	// Storing the terrain data according the vertex id
 	Vertex vertex_2d;
 	if (terrain_map.size() != 0) {
 		// Setting the resolution
-		terrain_resolution_ = terrain_map[0].plane_size;
-		height_resolution_ = terrain_map[0].height_size;
-		setTerrainResolution(terrain_resolution_, true);
-		setTerrainResolution(height_resolution_, false);
+		setResolution(terrain_map[0].plane_size, true);
+		setResolution(terrain_map[0].height_size, false);
 
 		for (unsigned int i = 0; i < terrain_map.size(); i++) {
 			// Building a cost-map for a every 3d vertex
-			terrain_discretization_.keyToVertex(vertex_2d, terrain_map[i].key, true);
+			space_discretization_.keyToVertex(vertex_2d, terrain_map[i].key, true);
 			double cost_value = -terrain_map[i].reward;
-			costmap_[vertex_2d] = cost_value;
+			terrain_map_[vertex_2d] = terrain_map[i];
 
 			// Setting up the maximum cost value
 			if (cost_value > max_cost_)
 				max_cost_ = cost_value;
-
-			// Building a height map (3d vertex) according to certain 2d position (2d vertex)
-			double height;
-			terrain_discretization_.keyToCoord(height, terrain_map[i].key.z, false);
-			heightmap_[vertex_2d] = height;
 
 			average_cost_ += -terrain_map[i].reward;
 		}
@@ -68,6 +62,173 @@ void TerrainMap::setTerrainMap(const TerrainData& terrain_map)
 		terrain_information_ = true;
 	}
 }
+
+
+void TerrainMap::setTerrainMap(const TerrainDataMap& map)
+{
+	terrain_map_ = map;
+}
+
+
+void TerrainMap::setTerrainCell(TerrainCell& cell,
+								double reward,
+								const Terrain& terrain_info)
+{
+	space_discretization_.coordToKeyChecked(cell.key, terrain_info.position);
+	cell.reward = reward;
+	cell.normal = terrain_info.surface_normal;
+	cell.plane_size = space_discretization_.getEnvironmentResolution(true);
+	cell.height_size = space_discretization_.getEnvironmentResolution(false);
+}
+
+
+void TerrainMap::addCellToTerrainMap(const TerrainCell& cell)
+{
+	Vertex vertex_id;
+	space_discretization_.keyToVertex(vertex_id, cell.key, true);
+	terrain_map_[vertex_id] = cell;
+}
+
+
+void TerrainMap::removeCellToTerrainMap(const Vertex& cell_vertex)
+{
+	terrain_map_.erase(cell_vertex);
+}
+
+
+void TerrainMap::addCellToTerrainHeightMap(const Vertex& cell_vertex,
+											   double height)
+{
+	terrain_heightmap_[cell_vertex] = height;
+
+	if (height < min_height_)
+		min_height_ = height;
+}
+
+
+void TerrainMap::removeCellToTerrainHeightMap(const Vertex& cell_vertex)
+{
+	terrain_heightmap_.erase(cell_vertex);
+}
+
+
+double TerrainMap::getResolution(bool plane)
+{
+	return space_discretization_.getEnvironmentResolution(plane);
+}
+
+
+void TerrainMap::setResolution(double resolution,
+							   bool plane)
+{
+	space_discretization_.setEnvironmentResolution(resolution, plane);
+}
+
+
+const TerrainDataMap& TerrainMap::getTerrainDataMap() const
+{
+	return terrain_map_;
+}
+
+
+const HeightMap& TerrainMap::getTerrainHeightMap() const
+{
+	return terrain_heightmap_;
+}
+
+
+const TerrainCell& TerrainMap::getTerrainData(const Vertex& vertex) const
+{
+	TerrainDataMap::const_iterator cell_it = terrain_map_.find(vertex);
+	if (cell_it != terrain_map_.end())
+		return cell_it->second;
+	else
+		return default_cell_;
+}
+
+
+const TerrainCell& TerrainMap::getTerrainData(const Eigen::Vector2d& position) const
+{
+	// Converting the position to a vertex
+	Vertex vertex;
+	space_discretization_.coordToVertex(vertex, position);
+
+	return getTerrainData(vertex);
+}
+
+
+double TerrainMap::getTerrainHeight(const Vertex& vertex) const
+{
+	double height;
+	Key key = getTerrainData(vertex).key;
+	space_discretization_.keyToCoord(height, key.z, false);
+
+	return height;
+}
+
+
+double TerrainMap::getTerrainHeight(const Eigen::Vector2d& position) const
+{
+	// Converting the position to a vertex
+	Vertex vertex;
+	space_discretization_.coordToVertex(vertex, position);
+
+	return getTerrainHeight(position);
+}
+
+
+const Weight& TerrainMap::getTerrainReward(const Vertex& vertex) const
+{
+	return getTerrainData(vertex).reward;
+}
+
+
+const Weight& TerrainMap::getTerrainReward(const Eigen::Vector2d& position) const
+{
+	// Converting the position to a vertex
+	Vertex vertex;
+	space_discretization_.coordToVertex(vertex, position);
+
+	return getTerrainReward(vertex);
+}
+
+
+const Eigen::Vector3d& TerrainMap::getTerrainNormal(const Vertex& vertex) const
+{
+	return getTerrainData(vertex).normal;
+}
+
+
+const Eigen::Vector3d& TerrainMap::getTerrainNormal(const Eigen::Vector2d& position) const
+{
+	// Converting the position to a vertex
+	Vertex vertex;
+	space_discretization_.coordToVertex(vertex, position);
+
+	return getTerrainNormal(vertex);
+}
+
+
+const SpaceDiscretization& TerrainMap::getTerrainSpaceModel() const
+{
+	return space_discretization_;
+}
+
+
+double TerrainMap::getAverageCostOfTerrain()
+{
+	return average_cost_;
+}
+
+
+bool TerrainMap::isTerrainInformation()
+{
+	return terrain_information_;
+}
+
+
+
+
 
 
 void TerrainMap::setObstacleMap(const std::vector<Cell>& obstacle_map)
@@ -95,13 +256,6 @@ void TerrainMap::setObstacleMap(const std::vector<Cell>& obstacle_map)
 }
 
 
-void TerrainMap::setTerrainResolution(double resolution,
-									  bool plane)
-{
-	terrain_discretization_.setEnvironmentResolution(resolution, plane);
-}
-
-
 void TerrainMap::setObstacleResolution(double resolution,
 									   bool plane)
 {
@@ -112,82 +266,36 @@ void TerrainMap::setObstacleResolution(double resolution,
 void TerrainMap::setStateResolution(double position_resolution,
 									double angular_resolution)
 {
-	terrain_discretization_.setStateResolution(position_resolution,
+	space_discretization_.setStateResolution(position_resolution,
 											   angular_resolution);
 	obstacle_discretization_.setStateResolution(position_resolution,
 												angular_resolution);
 }
 
 
-Weight TerrainMap::getTerrainCost(const Vertex& vertex)
-{
-	CostMap::iterator cost_it = costmap_.find(vertex);
-	if (cost_it != costmap_.end())
-		return cost_it->second;
-	else
-		return max_cost_; // pass the maximum cost for unknown cases
-}
 
 
-Weight TerrainMap::getTerrainCost(const Eigen::Vector2d& position)
-{
-	// Getting the vertex
-	Vertex vertex;
-	terrain_discretization_.coordToVertex(vertex, position);
 
-	// Getting the cost value
-	return getTerrainCost(vertex);
-}
-
-
-double TerrainMap::getTerrainHeight(const Vertex& vertex)
-{
-	HeightMap::iterator height_it = heightmap_.find(vertex);
-	if (height_it != heightmap_.end())
-		return height_it->second + height_resolution_ / 2;
-	else
-		return 0.;
-}
+//double TerrainMap::getTerrainHeight(const Eigen::Vector2d position)
+//{
+//	// Getting the vertex
+//	Vertex vertex;
+//	space_discretization_.coordToVertex(vertex, position);
+//
+//	// Getting the height value
+//	return getTerrainHeight(vertex);
+//}
 
 
-double TerrainMap::getTerrainHeight(const Eigen::Vector2d position)
-{
-	// Getting the vertex
-	Vertex vertex;
-	terrain_discretization_.coordToVertex(vertex, position);
-
-	// Getting the height value
-	return getTerrainHeight(vertex);
-}
-
-
-void TerrainMap::getTerrainCostMap(CostMap& costmap)
-{
-	costmap = costmap_;
-}
-
-
-void TerrainMap::getTerrainHeightMap(HeightMap& heightmap)
-{
-	heightmap = heightmap_;
-}
+//void TerrainMap::getTerrainHeightMap(HeightMap& heightmap)
+//{
+//	heightmap = terrain_heightmap_;
+//}
 
 
 void TerrainMap::getObstacleMap(ObstacleMap& obstaclemap)
 {
 	obstaclemap = obstaclemap_;
-}
-
-
-double TerrainMap::getTerrainResolution()
-{
-	return terrain_resolution_;
-}
-
-
-double TerrainMap::getHeightResolution()
-{
-	return height_resolution_;
 }
 
 
@@ -197,16 +305,7 @@ double TerrainMap::getObstacleResolution()
 }
 
 
-double TerrainMap::getAverageCostOfTerrain()
-{
-	return average_cost_;
-}
 
-
-SpaceDiscretization& TerrainMap::getTerrainSpaceModel()
-{
-	return terrain_discretization_;
-}
 
 
 SpaceDiscretization& TerrainMap::getObstacleSpaceModel()
@@ -215,10 +314,7 @@ SpaceDiscretization& TerrainMap::getObstacleSpaceModel()
 }
 
 
-bool TerrainMap::isTerrainInformation()
-{
-	return terrain_information_;
-}
+
 
 
 bool TerrainMap::isObstacleInformation()
