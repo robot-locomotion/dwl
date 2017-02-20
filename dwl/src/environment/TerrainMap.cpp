@@ -45,16 +45,16 @@ void TerrainMap::setTerrainMap(const TerrainData& terrain_map)
 
 	// Storing the terrain data according the vertex id
 	Vertex vertex_2d;
-	if (terrain_map.size() != 0) {
+	if (terrain_map.data.size() != 0) {
 		// Setting the resolution
-		setResolution(terrain_map[0].plane_size, true);
-		setResolution(terrain_map[0].height_size, false);
+		setResolution(terrain_map.plane_size, true);
+		setResolution(terrain_map.height_size, false);
 
-		for (unsigned int i = 0; i < terrain_map.size(); i++) {
+		for (unsigned int i = 0; i < terrain_map.data.size(); i++) {
 			// Building a cost-map for a every 3d vertex
-			space_discretization_.keyToVertex(vertex_2d, terrain_map[i].key, true);
-			double cost_value = terrain_map[i].cost;
-			terrain_map_[vertex_2d] = terrain_map[i];
+			space_discretization_.keyToVertex(vertex_2d, terrain_map.data[i].key, true);
+			double cost_value = terrain_map.data[i].cost;
+			terrain_map_[vertex_2d] = terrain_map.data[i];
 
 			// Setting up the maximum cost value
 			if (cost_value > max_cost_)
@@ -64,7 +64,7 @@ void TerrainMap::setTerrainMap(const TerrainData& terrain_map)
 		}
 
 		// Computing the average cost of the terrain
-		average_cost_ /= terrain_map.size();
+		average_cost_ /= terrain_map.data.size();
 
 		terrain_information_ = true;
 	}
@@ -109,8 +109,6 @@ void TerrainMap::setTerrainCell(TerrainCell& cell,
 	space_discretization_.coordToKeyChecked(cell.key, terrain_info.position);
 	cell.cost = cost;
 	cell.normal = terrain_info.surface_normal;
-	cell.plane_size = space_discretization_.getEnvironmentResolution(true);
-	cell.height_size = space_discretization_.getEnvironmentResolution(false);
 }
 
 

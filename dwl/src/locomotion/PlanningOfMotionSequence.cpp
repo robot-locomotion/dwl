@@ -141,7 +141,7 @@ void PlanningOfMotionSequence::setComputationTime(double computation_time,
 }
 
 
-void PlanningOfMotionSequence::setTerrainMap(TerrainData terrain_map)
+void PlanningOfMotionSequence::setTerrainMap(const TerrainData& terrain_map)
 {
 	terrain_->setTerrainMap(terrain_map);
 }

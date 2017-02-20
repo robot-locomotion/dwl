@@ -45,29 +45,31 @@ struct Cell
 /** @brief Struct that defines the terrain information of the cell */
 struct TerrainCell
 {
-	TerrainCell() : cost(0.), normal(Eigen::Vector3d::UnitZ()),
-			plane_size(0.), height_size(0.) {}
+	TerrainCell() : cost(0.), normal(Eigen::Vector3d::UnitZ()) {}
 	TerrainCell(Key key_value,
 				 double reward_value,
 				 double plane,
 				 double height) : key(key_value),
-			cost(reward_value), plane_size(plane), height_size(height) {}
+			cost(reward_value) {}
 	TerrainCell(Key key_value,
 				 double reward_value,
 				 Eigen::Vector3d _normal,
 				 double plane,
 				 double height) : key(key_value),
-			cost(reward_value), normal(_normal),
-			plane_size(plane), height_size(height) {}
+			cost(reward_value), normal(_normal) {}
 	Key key;
 	double cost;
 	Eigen::Vector3d normal;
-	double plane_size;
-	double height_size;
 };
 
 /** @brief Terrain map */
-typedef std::vector<TerrainCell> TerrainData;
+struct TerrainData
+{
+	std::vector<TerrainCell> data;
+	double plane_size;
+	double height_size;
+};
+//typedef std::vector<TerrainCell> TerrainData;
 typedef std::map<Vertex, TerrainCell> TerrainDataMap;
 
 
