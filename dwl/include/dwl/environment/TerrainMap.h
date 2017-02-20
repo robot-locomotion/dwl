@@ -1,5 +1,5 @@
-#ifndef DWL__ENVIRONMENT__ENVIRONMENT_INFORMATION__H
-#define DWL__ENVIRONMENT__ENVIRONMENT_INFORMATION__H
+#ifndef DWL__ENVIRONMENT__TERRAIN_MAP__H
+#define DWL__ENVIRONMENT__TERRAIN_MAP__H
 
 #include <dwl/environment/SpaceDiscretization.h>
 #include <dwl/utils/utils.h>
@@ -23,6 +23,9 @@ class TerrainMap
 
 		/** @brief Destructor function */
 		~TerrainMap();
+
+		/** @brief Reset the terrain map */
+		void reset();
 
 		/** @brief Sets the terrain data map */
 		void setTerrainMap(const TerrainData& terrain_map);

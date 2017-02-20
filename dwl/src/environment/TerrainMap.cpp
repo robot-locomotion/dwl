@@ -28,6 +28,13 @@ TerrainMap::~TerrainMap()
 }
 
 
+void TerrainMap::reset()
+{
+	terrain_map_.clear();
+	terrain_heightmap_.clear();
+}
+
+
 void TerrainMap::setTerrainMap(const TerrainData& terrain_map)
 {
 	// Cleaning the old information
