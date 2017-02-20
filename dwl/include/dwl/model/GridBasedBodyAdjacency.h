@@ -71,8 +71,8 @@ class GridBasedBodyAdjacency : public AdjacencyModel
 		/** @brief Definition of the neighboring area (number of neighbors per size) */
 		int neighboring_definition_;
 
-		/** @brief Number of top reward for computing the stance cost */
-		int number_top_reward_;
+		/** @brief Number of top cost for computing the stance cost */
+		int number_top_cost_;
 
 		/** @brief Uncertainty factor which is applied in non-perceived environment */
 		double uncertainty_factor_; // For unknown (non-perceive) areas

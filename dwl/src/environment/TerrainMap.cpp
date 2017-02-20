@@ -17,7 +17,7 @@ TerrainMap::TerrainMap() :
 {
 	// Setting up the default values of the cell
 	// TODO key for a height value
-	default_cell_.reward = -std::numeric_limits<double>::max();
+	default_cell_.cost = std::numeric_limits<double>::max();
 	default_cell_.normal = Eigen::Vector3d::UnitZ();
 }
 
@@ -53,14 +53,14 @@ void TerrainMap::setTerrainMap(const TerrainData& terrain_map)
 		for (unsigned int i = 0; i < terrain_map.size(); i++) {
 			// Building a cost-map for a every 3d vertex
 			space_discretization_.keyToVertex(vertex_2d, terrain_map[i].key, true);
-			double cost_value = -terrain_map[i].reward;
+			double cost_value = terrain_map[i].cost;
 			terrain_map_[vertex_2d] = terrain_map[i];
 
 			// Setting up the maximum cost value
 			if (cost_value > max_cost_)
 				max_cost_ = cost_value;
 
-			average_cost_ += -terrain_map[i].reward;
+			average_cost_ += cost_value;
 		}
 
 		// Computing the average cost of the terrain
@@ -103,11 +103,11 @@ void TerrainMap::setObstacleMap(const std::vector<Cell>& obstacle_map)
 
 
 void TerrainMap::setTerrainCell(TerrainCell& cell,
-								double reward,
+								double cost,
 								const Terrain& terrain_info)
 {
 	space_discretization_.coordToKeyChecked(cell.key, terrain_info.position);
-	cell.reward = reward;
+	cell.cost = cost;
 	cell.normal = terrain_info.surface_normal;
 	cell.plane_size = space_discretization_.getEnvironmentResolution(true);
 	cell.height_size = space_discretization_.getEnvironmentResolution(false);
@@ -238,19 +238,19 @@ double TerrainMap::getTerrainHeight(const Eigen::Vector2d& position) const
 }
 
 
-const Weight& TerrainMap::getTerrainReward(const Vertex& vertex) const
+const Weight& TerrainMap::getTerrainCost(const Vertex& vertex) const
 {
-	return getTerrainData(vertex).reward;
+	return getTerrainData(vertex).cost;
 }
 
 
-const Weight& TerrainMap::getTerrainReward(const Eigen::Vector2d& position) const
+const Weight& TerrainMap::getTerrainCost(const Eigen::Vector2d& position) const
 {
 	// Converting the position to a vertex
 	Vertex vertex;
 	space_discretization_.coordToVertex(vertex, position);
 
-	return getTerrainReward(vertex);
+	return getTerrainCost(vertex);
 }
 
 

@@ -44,7 +44,7 @@ class TerrainMap
 		 * @param const Terrain& Information of the terrain in the specific cell
 		 */
 		void setTerrainCell(TerrainCell& cell,
-							double reward,
+							double cost,
 							const Terrain& terrain_info);
 
 		/**
@@ -134,8 +134,8 @@ class TerrainMap
 		 * @brief Gets the terrain reward value give a vertex or 2d position
 		 * @return The cost value
 		 */
-		const Weight& getTerrainReward(const Vertex& vertex) const;
-		const Weight& getTerrainReward(const Eigen::Vector2d& position) const;
+		const Weight& getTerrainCost(const Vertex& vertex) const;
+		const Weight& getTerrainCost(const Eigen::Vector2d& position) const;
 
 		/**
 		 * @brief Gets the terrain normal value give a vertex or 2d position

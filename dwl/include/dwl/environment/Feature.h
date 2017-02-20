@@ -14,7 +14,7 @@ namespace environment
 
 /**
  * @class Feature
- * @brief Abstract class for solving the reward value of a predefined terrain feature
+ * @brief Abstract class for solving the cost value of a predefined terrain feature
  */
 class Feature
 {
@@ -32,23 +32,23 @@ class Feature
 		void reset(robot::Robot* robot);
 
 		/**
-		 * @brief Abstract method to compute reward value according some
+		 * @brief Abstract method to compute the cost value according some
 		 * terrain information
-		 * @param double& Reference of the reward variable
+		 * @param double& Reference of the cost variable
 		 * @param const Terrain& Information about the terrain, i.e. position,
 		 * surface and curvature
 		 */
-		virtual void computeReward(double& reward_value,
-								   const Terrain& terrain_info);
+		virtual void computeCost(double& cost_value,
+								 const Terrain& terrain_info);
 
 		/**
-		 * @brief Abstract method to compute reward value according some robot
+		 * @brief Abstract method to compute the cost value according some robot
 		 * and terrain information
 		 * @param double& Reference of the reward variable
 		 * @param const RobotAndTerrain& Information of the robot and terrain
 		 */
-		virtual void computeReward(double& reward_value,
-								   const RobotAndTerrain& info);
+		virtual void computeCost(double& cost_value,
+								 const RobotAndTerrain& info);
 
 		/**
 		 * @brief Sets the weight of the feature
@@ -70,8 +70,9 @@ class Feature
 		 * @param double Maximum y
 		 * @param double resolution Resolution of the neighboring area
 		 */
-		void setNeighboringArea(double min_x, double max_x, double min_y, double max_y,
-				double resolution);
+		void setNeighboringArea(double min_x, double max_x,
+								double min_y, double max_y,
+								double resolution);
 
 		/**
 		 * @brief Gets the name of the feature
@@ -89,8 +90,8 @@ class Feature
 		/** @brief Pointer to the robot properties */
 		robot::Robot* robot_;
 
-		/** @brief Minimum reward */
-		double min_reward_;
+		/** @brief Maximum cost */
+		double max_cost_;
 
 		/** @brief Weight used for computing the total reward */
 		double weight_;

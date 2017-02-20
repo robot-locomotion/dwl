@@ -10,7 +10,7 @@ namespace environment
 Feature::Feature() :
 		space_discretization_(std::numeric_limits<double>::max(),
 				std::numeric_limits<double>::max()),
-				robot_(NULL), min_reward_(-2), weight_(1)
+				robot_(NULL), max_cost_(2.), weight_(1.)
 {
 
 }
@@ -36,16 +36,18 @@ std::string Feature::getName()
 }
 
 
-void Feature::computeReward(double& reward_value, const Terrain& terrain_info)
+void Feature::computeCost(double& cost_value,
+						  const Terrain& terrain_info)
 {
-	printf(YELLOW "Could not computed the reward value of the terrain because"
+	printf(YELLOW "Could not computed the cost value of the terrain because"
 			" was not defined\n" COLOR_RESET);
 }
 
 
-void Feature::computeReward(double& reward_value, const RobotAndTerrain& info)
+void Feature::computeCost(double& cost_value,
+						  const RobotAndTerrain& info)
 {
-	printf(YELLOW "Could not computed the reward value of the robot because was"
+	printf(YELLOW "Could not computed the cost value of the robot because was"
 			" not defined\n" COLOR_RESET);
 }
 

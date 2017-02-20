@@ -8,7 +8,7 @@ namespace model
 {
 
 LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : is_stance_adjacency_(true),
-		number_top_reward_(10)
+		number_top_cost_(10)
 {
 	name_ = "Lattice-based Body";
 	is_lattice_ = true;
@@ -61,7 +61,7 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors,
 					if (terrain_->getTerrainDataMap().count(terrain_vertex) == 0)
 						terrain_cost = uncertainty_factor_ * terrain_->getAverageCostOfTerrain();
 					else
-						terrain_cost = -terrain_->getTerrainReward(terrain_vertex);
+						terrain_cost = terrain_->getTerrainCost(terrain_vertex);
 
 					successors.push_back(Edge(current_action_vertex, terrain_cost));
 				} else {
@@ -118,26 +118,26 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost,
 				// Inserts the element in an organized vertex queue, according to the maximum value
 				if (terrain_->getTerrainDataMap().count(current_2d_vertex) > 0) {
 					stance_cost_queue.insert(std::pair<Weight, Vertex>(
-							-terrain_->getTerrainReward(current_2d_vertex),
+							terrain_->getTerrainCost(current_2d_vertex),
 							current_2d_vertex));
 				}
 			}
 		}
 
 		// Averaging the 5-best (lowest) cost
-		unsigned int number_top_reward = number_top_reward_;
-		if (stance_cost_queue.size() < number_top_reward)
-			number_top_reward = stance_cost_queue.size();
+		unsigned int number_top_cost = number_top_cost_;
+		if (stance_cost_queue.size() < number_top_cost)
+			number_top_cost = stance_cost_queue.size();
 
-		if (number_top_reward == 0) {
+		if (number_top_cost == 0) {
 			stance_cost += uncertainty_factor_ * terrain_->getAverageCostOfTerrain();
 		} else {
-			for (unsigned int i = 0; i < number_top_reward; i++) {
+			for (unsigned int i = 0; i < number_top_cost; i++) {
 				stance_cost += stance_cost_queue.begin()->first;
 				stance_cost_queue.erase(stance_cost_queue.begin());
 			}
 
-			stance_cost /= number_top_reward;
+			stance_cost /= number_top_cost;
 		}
 
 		terrain_cost += stance_cost;
@@ -158,12 +158,12 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost,
 	unsigned int feature_size = features_.size();
 	for (unsigned int i = 0; i < feature_size; i++) {
 		// Computing the cost associated with body path features
-		double feature_reward, weight;
-		features_[i]->computeReward(feature_reward, info);
+		double feature_cost, weight;
+		features_[i]->computeCost(feature_cost, info);
 		features_[i]->getWeight(weight);
 
 		// Computing the cost of the body feature
-		cost -= weight * feature_reward;
+		cost += weight * feature_cost;
 	}
 }
 
