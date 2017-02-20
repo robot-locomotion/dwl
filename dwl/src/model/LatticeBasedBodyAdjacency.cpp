@@ -173,8 +173,7 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex,
 												 bool body)
 {
 	// Getting the terrain obstacle map
-	ObstacleMap obstacle_map;
-	terrain_->getObstacleMap(obstacle_map);
+	ObstacleMap obstacle_map = terrain_->getObstacleMap();
 
 	// Converting the vertex to state (x,y,yaw)
 	Eigen::Vector3d state_3d;

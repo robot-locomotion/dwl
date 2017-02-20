@@ -29,6 +29,12 @@ class TerrainMap
 		void setTerrainMap(const TerrainDataMap& map);
 
 		/**
+		 * @brief Sets the obstacle map
+		 * @param const std::vector<Cell>& Obstacle map
+		 */
+		void setObstacleMap(const std::vector<Cell>& obstacle_map);
+
+		/**
 		 * @brief Sets the values of the terrain cell
 		 * @param TerrainCell& Values of the cell
 		 * @param double Terrain value of the cell
@@ -71,6 +77,9 @@ class TerrainMap
 		 */
 		double getResolution(bool plane);
 
+		/** @brief Gets the obstacle resolution */
+		double getObstacleResolution();
+
 		/**
 		 * @brief Sets the resolution of the environment discretization
 		 * @param double Resolution of the environment
@@ -79,11 +88,30 @@ class TerrainMap
 		void setResolution(double resolution,
 						   bool plane);
 
+		/**
+		 * @brief Sets the obstacle resolution of the plane or height
+		 * @param double Resolution value
+		 * @param bool Indicates if the key represents a plane or a height
+		 */
+		void setObstacleResolution(double resolution,
+								   bool plane);
+
+		/**
+		 * @brief Sets the state resolution of the plane or height
+		 * @param double Position resolution value
+		 * @param double Angular resolution value
+		 */
+		void setStateResolution(double position_resolution,
+								double angular_resolution);
+
 		/** @brief Gets the terrain map */
 		const TerrainDataMap& getTerrainDataMap() const;
 
 		/** @brief Gets the terrain heightmap */
 		const HeightMap& getTerrainHeightMap() const;
+
+		/** @brief Gets the obstacle-map (using vertex id) */
+		const ObstacleMap& getObstacleMap() const;
 
 		/**
 		 * @brief Gets the terrain data value give a vertex or 2d position
@@ -121,6 +149,13 @@ class TerrainMap
 		const SpaceDiscretization& getTerrainSpaceModel() const;
 
 		/**
+		 * @brief Gets the obstacle discrete model of the space according
+		 * the resolution of the obstacle map
+		 * @return The discrete space model
+		 */
+		const SpaceDiscretization& getObstacleSpaceModel() const;
+
+		/**
 		 * @brief Gets the average cost of the terrain
 		 * @return The average cost of the terrain
 		 */
@@ -132,11 +167,22 @@ class TerrainMap
 		 */
 		bool isTerrainInformation();
 
+		/**
+		 * @brief Indicates if it was defined terrain obstacle information
+		 * @return True if it was defined terrain obstacle information, otherwise false
+		 */
+		bool isObstacleInformation();
+
 
 	protected:
 		/** @brief Object of the SpaceDiscretization class for defining the
 		 *  grid routines */
 		SpaceDiscretization space_discretization_;
+
+		/**
+		 * @brief Object of the SpaceDiscretization class for defining the
+		 * conversion routines for the terrain obstacle-map */
+		environment::SpaceDiscretization obstacle_discretization_;
 
 		/** @brief Terrain values mapped using vertex id */
 		TerrainDataMap terrain_map_;
@@ -144,6 +190,10 @@ class TerrainMap
 		/** @brief Terrain height map */
 		HeightMap terrain_heightmap_;
 
+		/** @brief Gathers the obstacles that are mapped using the vertex id */
+		ObstacleMap obstaclemap_;
+
+		/** @brief Default values of the cell, e.g. for unperceived cells */
 		TerrainCell default_cell_;
 
 		/** @brief Average terrain cost which is used for unknown areas */
@@ -157,78 +207,6 @@ class TerrainMap
 
 		/** @brief Indicates if it was defined terrain information */
 		bool terrain_information_;
-
-
-
-
-	public:
-		/**
-		 * @brief Sets the obstacle map
-		 * @param const std::vector<Cell>& Obstacle map
-		 */
-		void setObstacleMap(const std::vector<Cell>& obstacle_map);
-
-		/**
-		 * @brief Sets the obstacle resolution of the plane or height
-		 * @param double Resolution value
-		 * @param bool Indicates if the key represents a plane or a height
-		 */
-		void setObstacleResolution(double resolution,
-								   bool plane);
-
-		/**
-		 * @brief Sets the state resolution of the plane or height
-		 * @param double Position resolution value
-		 * @param double Angular resolution value
-		 */
-		void setStateResolution(double position_resolution,
-								double angular_resolution);
-
-//		/**
-//		 * @brief Gets the terrain height
-//		 * @param const Vertex& Vertex id
-//		 * @return double Height value
-//		 */
-//		double getTerrainHeight(const Vertex& vertex);
-//
-//		/**
-//		 * @brief Gets the terrain height
-//		 * @param const Eigen::Vector2d& Position
-//		 * @return double Height value
-//		 */
-//		double getTerrainHeight(const Eigen::Vector2d position);
-
-		/**
-		 * @brief Gets the obstacle-map (using vertex id)
-		 * @param ObstacleMap& Obstacle map of the terrain
-		 */
-		void getObstacleMap(ObstacleMap& obstaclemap);
-
-		/** @brief Gets the obstacle resolution */
-		double getObstacleResolution();
-
-		/**
-		 * @brief Gets the obstacle discrete model of the space according
-		 * the resolution of the obstacle map
-		 * @return The discrete space model
-		 */
-		SpaceDiscretization& getObstacleSpaceModel();
-
-		/**
-		 * @brief Indicates if it was defined terrain obstacle information
-		 * @return True if it was defined terrain obstacle information, otherwise false
-		 */
-		bool isObstacleInformation();
-
-
-	private:
-		/**
-		 * @brief Object of the SpaceDiscretization class for defining the
-		 * conversion routines for the terrain obstacle-map */
-		environment::SpaceDiscretization obstacle_discretization_;
-
-		/** @brief Gathers the obstacles that are mapped using the vertex id */
-		ObstacleMap obstaclemap_;
 
 		/** @brief Indicates if it was defined obstacle information */
 		bool obstacle_information_;

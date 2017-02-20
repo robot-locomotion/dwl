@@ -10,10 +10,10 @@ namespace environment
 TerrainMap::TerrainMap() :
 		space_discretization_(0.04, 0.04, M_PI / 200),
 		obstacle_discretization_(0.04, 0.04, M_PI / 200),
-		average_cost_(0.), max_cost_(0.), terrain_information_(false),
+		average_cost_(0.), max_cost_(0.),
 		min_height_(std::numeric_limits<double>::max()),
-		obstacle_information_(false),
-		obstacle_resolution_(std::numeric_limits<double>::max())
+		terrain_information_(false), obstacle_information_(false),
+		obstacle_resolution_(0.04)
 {
 	// Setting up the default values of the cell
 	// TODO key for a height value
@@ -70,6 +70,31 @@ void TerrainMap::setTerrainMap(const TerrainDataMap& map)
 }
 
 
+void TerrainMap::setObstacleMap(const std::vector<Cell>& obstacle_map)
+{
+	// Cleaning the old information
+	ObstacleMap empty_terrain_obstacle_map;
+	obstaclemap_.swap(empty_terrain_obstacle_map);
+
+	//Storing the obstacle-map data according the vertex id
+	Vertex vertex_2d;
+	if (obstacle_map.size() != 0) {
+		// Setting the obstacle resolution
+		obstacle_resolution_ = obstacle_map[0].plane_size;
+		setObstacleResolution(obstacle_resolution_, true);
+		setObstacleResolution(obstacle_resolution_, false);
+
+		for (unsigned int i = 0; i < obstacle_map.size(); i++) {
+			// Building a cost map for a every 3d vertex
+			obstacle_discretization_.keyToVertex(vertex_2d, obstacle_map[i].key, true);
+			obstaclemap_[vertex_2d] = true;
+		}
+
+		obstacle_information_ = true;
+	}
+}
+
+
 void TerrainMap::setTerrainCell(TerrainCell& cell,
 								double reward,
 								const Terrain& terrain_info)
@@ -118,10 +143,33 @@ double TerrainMap::getResolution(bool plane)
 }
 
 
+double TerrainMap::getObstacleResolution()
+{
+	return obstacle_resolution_;
+}
+
+
 void TerrainMap::setResolution(double resolution,
 							   bool plane)
 {
 	space_discretization_.setEnvironmentResolution(resolution, plane);
+}
+
+
+void TerrainMap::setObstacleResolution(double resolution,
+									   bool plane)
+{
+	obstacle_discretization_.setEnvironmentResolution(resolution, plane);
+}
+
+
+void TerrainMap::setStateResolution(double position_resolution,
+									double angular_resolution)
+{
+	space_discretization_.setStateResolution(position_resolution,
+											   angular_resolution);
+	obstacle_discretization_.setStateResolution(position_resolution,
+												angular_resolution);
 }
 
 
@@ -134,6 +182,12 @@ const TerrainDataMap& TerrainMap::getTerrainDataMap() const
 const HeightMap& TerrainMap::getTerrainHeightMap() const
 {
 	return terrain_heightmap_;
+}
+
+
+const ObstacleMap& TerrainMap::getObstacleMap() const
+{
+	return obstaclemap_;
 }
 
 
@@ -215,6 +269,12 @@ const SpaceDiscretization& TerrainMap::getTerrainSpaceModel() const
 }
 
 
+const SpaceDiscretization& TerrainMap::getObstacleSpaceModel() const
+{
+	return obstacle_discretization_;
+}
+
+
 double TerrainMap::getAverageCostOfTerrain()
 {
 	return average_cost_;
@@ -225,96 +285,6 @@ bool TerrainMap::isTerrainInformation()
 {
 	return terrain_information_;
 }
-
-
-
-
-
-
-void TerrainMap::setObstacleMap(const std::vector<Cell>& obstacle_map)
-{
-	// Cleaning the old information
-	ObstacleMap empty_terrain_obstacle_map;
-	obstaclemap_.swap(empty_terrain_obstacle_map);
-
-	//Storing the obstacle-map data according the vertex id
-	Vertex vertex_2d;
-	if (obstacle_map.size() != 0) {
-		// Setting the obstacle resolution
-		obstacle_resolution_ = obstacle_map[0].plane_size;
-		setObstacleResolution(obstacle_resolution_, true);
-		setObstacleResolution(obstacle_resolution_, false);
-
-		for (unsigned int i = 0; i < obstacle_map.size(); i++) {
-			// Building a cost map for a every 3d vertex
-			obstacle_discretization_.keyToVertex(vertex_2d, obstacle_map[i].key, true);
-			obstaclemap_[vertex_2d] = true;
-		}
-
-		obstacle_information_ = true;
-	}
-}
-
-
-void TerrainMap::setObstacleResolution(double resolution,
-									   bool plane)
-{
-	obstacle_discretization_.setEnvironmentResolution(resolution, plane);
-}
-
-
-void TerrainMap::setStateResolution(double position_resolution,
-									double angular_resolution)
-{
-	space_discretization_.setStateResolution(position_resolution,
-											   angular_resolution);
-	obstacle_discretization_.setStateResolution(position_resolution,
-												angular_resolution);
-}
-
-
-
-
-
-//double TerrainMap::getTerrainHeight(const Eigen::Vector2d position)
-//{
-//	// Getting the vertex
-//	Vertex vertex;
-//	space_discretization_.coordToVertex(vertex, position);
-//
-//	// Getting the height value
-//	return getTerrainHeight(vertex);
-//}
-
-
-//void TerrainMap::getTerrainHeightMap(HeightMap& heightmap)
-//{
-//	heightmap = terrain_heightmap_;
-//}
-
-
-void TerrainMap::getObstacleMap(ObstacleMap& obstaclemap)
-{
-	obstaclemap = obstaclemap_;
-}
-
-
-double TerrainMap::getObstacleResolution()
-{
-	return obstacle_resolution_;
-}
-
-
-
-
-
-SpaceDiscretization& TerrainMap::getObstacleSpaceModel()
-{
-	return obstacle_discretization_;
-}
-
-
-
 
 
 bool TerrainMap::isObstacleInformation()
