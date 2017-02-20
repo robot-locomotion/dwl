@@ -69,7 +69,6 @@ struct TerrainData
 	double plane_size;
 	double height_size;
 };
-//typedef std::vector<TerrainCell> TerrainData;
 typedef std::map<Vertex, TerrainCell> TerrainDataMap;
 
 
