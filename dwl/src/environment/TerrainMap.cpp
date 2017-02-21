@@ -232,7 +232,7 @@ double TerrainMap::getTerrainHeight(const Eigen::Vector2d& position) const
 	Vertex vertex;
 	space_discretization_.coordToVertex(vertex, position);
 
-	return getTerrainHeight(position);
+	return getTerrainHeight(vertex);
 }
 
 
