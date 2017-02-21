@@ -205,14 +205,14 @@ class SpaceDiscretization
 		 * @param bool Indicates if the key represents a plane or a height
 		 * @return The resolution of the environment
 		 */
-		double getEnvironmentResolution(bool plane);
+		double getEnvironmentResolution(bool plane) const;
 
 		/*
 		 * @brief Gets the resolution of the state
 		 * @param bool Indicates if it's a position or angular state
 		 * @return The resolution of the state
 		 */
-		double getStateResolution(bool position);
+		double getStateResolution(bool position) const;
 
 		/**
 		 * @brief Sets the resolution of the environment

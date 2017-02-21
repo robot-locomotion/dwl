@@ -327,7 +327,7 @@ void SpaceDiscretization::stateVertexToEnvironmentVertex(Vertex& environment_ver
 }
 
 
-double SpaceDiscretization::getEnvironmentResolution(bool plane)
+double SpaceDiscretization::getEnvironmentResolution(bool plane) const
 {
 	double resolution;
 	if (plane)
@@ -339,7 +339,7 @@ double SpaceDiscretization::getEnvironmentResolution(bool plane)
 }
 
 
-double SpaceDiscretization::getStateResolution(bool position)
+double SpaceDiscretization::getStateResolution(bool position) const
 {
 	double resolution;
 	if (position)
