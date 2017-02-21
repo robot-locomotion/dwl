@@ -16,7 +16,8 @@ TerrainMap::TerrainMap() :
 		obstacle_resolution_(0.04)
 {
 	// Setting up the default values of the cell
-	// TODO key for a height value
+	 // TODO compute the default height from robot state
+	space_discretization_.coordToKey(default_cell_.key.z, 0., false);
 	default_cell_.cost = std::numeric_limits<double>::max();
 	default_cell_.normal = Eigen::Vector3d::UnitZ();
 }
@@ -45,12 +46,13 @@ void TerrainMap::setTerrainMap(const TerrainData& terrain_map)
 
 	// Storing the terrain data according the vertex id
 	Vertex vertex_2d;
-	if (terrain_map.data.size() != 0) {
+	unsigned int num_cells = terrain_map.data.size();
+	if (num_cells != 0) {
 		// Setting the resolution
 		setResolution(terrain_map.plane_size, true);
 		setResolution(terrain_map.height_size, false);
 
-		for (unsigned int i = 0; i < terrain_map.data.size(); i++) {
+		for (unsigned int i = 0; i < num_cells; i++) {
 			// Building a cost-map for a every 3d vertex
 			space_discretization_.keyToVertex(vertex_2d, terrain_map.data[i].key, true);
 			double cost_value = terrain_map.data[i].cost;
@@ -64,7 +66,13 @@ void TerrainMap::setTerrainMap(const TerrainData& terrain_map)
 		}
 
 		// Computing the average cost of the terrain
-		average_cost_ /= terrain_map.data.size();
+		average_cost_ /= num_cells;
+
+		// Setting up the values of the default cell. Note that these values
+		// are used for unperceived cells
+		default_cell_.cost = max_cost_;
+		 // TODO compute the default height from robot state
+		space_discretization_.coordToKey(default_cell_.key.z, 0., false);
 
 		terrain_information_ = true;
 	}
