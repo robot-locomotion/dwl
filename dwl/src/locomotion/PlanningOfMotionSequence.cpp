@@ -141,9 +141,9 @@ void PlanningOfMotionSequence::setComputationTime(double computation_time,
 }
 
 
-void PlanningOfMotionSequence::setRewardMap(std::vector<RewardCell> reward_map)
+void PlanningOfMotionSequence::setTerrainMap(const TerrainData& terrain_map)
 {
-	terrain_->setRewardMap(reward_map);
+	terrain_->setTerrainMap(terrain_map);
 }
 
 

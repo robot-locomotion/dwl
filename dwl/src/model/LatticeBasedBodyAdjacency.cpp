@@ -8,7 +8,7 @@ namespace model
 {
 
 LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : is_stance_adjacency_(true),
-		number_top_reward_(10)
+		number_top_cost_(10)
 {
 	name_ = "Lattice-based Body";
 	is_lattice_ = true;
@@ -39,8 +39,6 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors,
 
 	// Evaluating every action (body motor primitives)
 	if (terrain_->isTerrainInformation()) {
-		CostMap terrain_costmap;
-		terrain_->getTerrainCostMap(terrain_costmap);
 		unsigned int action_size = actions.size();
 		for (unsigned int i = 0; i < action_size; i++) {
 			// Converting the action to current vertex
@@ -60,10 +58,10 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors,
 			if (isFreeOfObstacle(current_action_vertex, XY_Y, true)) {
 				if (!isStanceAdjacency()) {
 					double terrain_cost;
-					if (terrain_costmap.count(terrain_vertex) == 0)
+					if (terrain_->getTerrainDataMap().count(terrain_vertex) == 0)
 						terrain_cost = uncertainty_factor_ * terrain_->getAverageCostOfTerrain();
 					else
-						terrain_cost = terrain_costmap.find(terrain_vertex)->second;
+						terrain_cost = terrain_->getTerrainCost(terrain_vertex);
 
 					successors.push_back(Edge(current_action_vertex, terrain_cost));
 				} else {
@@ -84,10 +82,6 @@ void LatticeBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors,
 void LatticeBasedBodyAdjacency::computeBodyCost(double& cost,
 												Eigen::Vector3d state)
 {
-	// Getting the terrain cost map
-	CostMap terrain_costmap;
-	terrain_->getTerrainCostMap(terrain_costmap);
-
 	// Getting the stance areas according to the action
 	stance_areas_ = robot_->getFootstepSearchAreas(current_action_);
 
@@ -122,27 +116,28 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost,
 				terrain_->getTerrainSpaceModel().coordToVertex(current_2d_vertex, point_position);
 
 				// Inserts the element in an organized vertex queue, according to the maximum value
-				if (terrain_costmap.count(current_2d_vertex) > 0) {
-					stance_cost_queue.insert(std::pair<Weight, Vertex>(terrain_costmap.find(current_2d_vertex)->second,
+				if (terrain_->getTerrainDataMap().count(current_2d_vertex) > 0) {
+					stance_cost_queue.insert(std::pair<Weight, Vertex>(
+							terrain_->getTerrainCost(current_2d_vertex),
 							current_2d_vertex));
 				}
 			}
 		}
 
 		// Averaging the 5-best (lowest) cost
-		unsigned int number_top_reward = number_top_reward_;
-		if (stance_cost_queue.size() < number_top_reward)
-			number_top_reward = stance_cost_queue.size();
+		unsigned int number_top_cost = number_top_cost_;
+		if (stance_cost_queue.size() < number_top_cost)
+			number_top_cost = stance_cost_queue.size();
 
-		if (number_top_reward == 0) {
+		if (number_top_cost == 0) {
 			stance_cost += uncertainty_factor_ * terrain_->getAverageCostOfTerrain();
 		} else {
-			for (unsigned int i = 0; i < number_top_reward; i++) {
+			for (unsigned int i = 0; i < number_top_cost; i++) {
 				stance_cost += stance_cost_queue.begin()->first;
 				stance_cost_queue.erase(stance_cost_queue.begin());
 			}
 
-			stance_cost /= number_top_reward;
+			stance_cost /= number_top_cost;
 		}
 
 		terrain_cost += stance_cost;
@@ -150,29 +145,25 @@ void LatticeBasedBodyAdjacency::computeBodyCost(double& cost,
 	terrain_cost /= stance_areas_.size();
 
 
-	// Getting the height map
-	HeightMap heightmap;
-	terrain_->getTerrainHeightMap(heightmap);
-
 	// Getting robot and terrain information
 	RobotAndTerrain info;
 	info.body_action = current_action_;
 	info.pose.position = (Eigen::Vector2d) state.head(2);
 	info.pose.orientation = (double) state(2);
-	info.height_map = heightmap;
-	info.resolution = terrain_->getTerrainResolution();
+	info.height_map = terrain_->getTerrainHeightMap();
+	info.resolution = terrain_->getResolution(true);
 
 	// Computing the cost of the body features
 	cost = terrain_cost;
 	unsigned int feature_size = features_.size();
 	for (unsigned int i = 0; i < feature_size; i++) {
 		// Computing the cost associated with body path features
-		double feature_reward, weight;
-		features_[i]->computeReward(feature_reward, info);
+		double feature_cost, weight;
+		features_[i]->computeCost(feature_cost, info);
 		features_[i]->getWeight(weight);
 
 		// Computing the cost of the body feature
-		cost -= weight * feature_reward;
+		cost += weight * feature_cost;
 	}
 }
 
@@ -182,8 +173,7 @@ bool LatticeBasedBodyAdjacency::isFreeOfObstacle(Vertex state_vertex,
 												 bool body)
 {
 	// Getting the terrain obstacle map
-	ObstacleMap obstacle_map;
-	terrain_->getObstacleMap(obstacle_map);
+	ObstacleMap obstacle_map = terrain_->getObstacleMap();
 
 	// Converting the vertex to state (x,y,yaw)
 	Eigen::Vector3d state_3d;

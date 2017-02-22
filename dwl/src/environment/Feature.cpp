@@ -8,8 +8,9 @@ namespace environment
 {
 
 Feature::Feature() :
-		space_discretization_(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
-		robot_(NULL), min_reward_(-2), weight_(1)
+		space_discretization_(std::numeric_limits<double>::max(),
+				std::numeric_limits<double>::max()),
+				robot_(NULL), max_cost_(2.), weight_(1.)
 {
 
 }
@@ -23,7 +24,8 @@ Feature::~Feature()
 
 void Feature::reset(robot::Robot* robot)
 {
-	printf(BLUE "Setting the robot properties in the %s feature \n" COLOR_RESET, name_.c_str());
+	printf(BLUE "Setting the robot properties in the %s feature \n"
+			COLOR_RESET, name_.c_str());
 	robot_ = robot;
 }
 
@@ -34,15 +36,19 @@ std::string Feature::getName()
 }
 
 
-void Feature::computeReward(double& reward_value, Terrain terrain_info)
+void Feature::computeCost(double& cost_value,
+						  const Terrain& terrain_info)
 {
-	printf(YELLOW "Could not computed the reward value of the terrain because was not defined\n" COLOR_RESET);
+	printf(YELLOW "Could not computed the cost value of the terrain because"
+			" was not defined\n" COLOR_RESET);
 }
 
 
-void Feature::computeReward(double& reward_value, RobotAndTerrain info)
+void Feature::computeCost(double& cost_value,
+						  const RobotAndTerrain& info)
 {
-	printf(YELLOW "Could not computed the reward value of the robot because was not defined\n" COLOR_RESET);
+	printf(YELLOW "Could not computed the cost value of the robot because was"
+			" not defined\n" COLOR_RESET);
 }
 
 

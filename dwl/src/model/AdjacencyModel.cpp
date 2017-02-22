@@ -54,10 +54,9 @@ void AdjacencyModel::getTheClosestStartAndGoalVertex(Vertex& closest_source,
 	bool is_there_start_vertex, is_there_goal_vertex = false;
 	std::vector<Vertex> vertex_map;
 	if (terrain_->isTerrainInformation()) {
-		CostMap terrain_costmap;
-		terrain_->getTerrainCostMap(terrain_costmap);
-		for (CostMap::iterator vertex_iter = terrain_costmap.begin();
-				vertex_iter != terrain_costmap.end(); vertex_iter++) {
+		TerrainDataMap terrain_map = terrain_->getTerrainDataMap();
+		for (TerrainDataMap::iterator vertex_iter = terrain_map.begin();
+				vertex_iter != terrain_map.end(); vertex_iter++) {
 			Vertex current_vertex = vertex_iter->first;
 			if (source == current_vertex) {
 				is_there_start_vertex = true;
@@ -159,10 +158,9 @@ void AdjacencyModel::getTheClosestVertex(Vertex& closest_vertex,
 	// Checking if the  vertex is part of the terrain information
 	std::vector<Vertex> vertex_map;
 	if (terrain_->isTerrainInformation()) {
-		CostMap terrain_costmap;
-		terrain_->getTerrainCostMap(terrain_costmap);
-		for (CostMap::iterator vertex_iter = terrain_costmap.begin();
-				vertex_iter != terrain_costmap.end(); vertex_iter++) {
+		TerrainDataMap terrain_map = terrain_->getTerrainDataMap();
+		for (TerrainDataMap::iterator vertex_iter = terrain_map.begin();
+				vertex_iter != terrain_map.end(); vertex_iter++) {
 			Vertex current_vertex = vertex_iter->first;
 			if (vertex == current_vertex) {
 				closest_vertex = current_vertex;

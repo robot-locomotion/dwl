@@ -108,7 +108,8 @@ struct ContactSearchRegion
 
 /**
  * @struct RobotAndTerrain
- * @brief Struct to define the relevant information of the robot and terrain for computing the reward
+ * @brief Struct to define the relevant information of the robot and terrain
+ *  for computing the terrain data
  */
 struct RobotAndTerrain
 {

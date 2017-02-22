@@ -58,11 +58,11 @@ SpaceDiscretization::~SpaceDiscretization()
 bool SpaceDiscretization::coordToKeyChecked(Key& key,
 											const Eigen::Vector3d& coordinate) const
 {
-	if (!coordToKeyChecked(key.x, (double) coordinate(0), true))
+	if (!coordToKeyChecked(key.x, (double) coordinate(rbd::X), true))
 		return false;
-	if (!coordToKeyChecked(key.y, (double) coordinate(1), true))
+	if (!coordToKeyChecked(key.y, (double) coordinate(rbd::Y), true))
 		return false;
-	if (!coordToKeyChecked(key.z, (double) coordinate(2), false))
+	if (!coordToKeyChecked(key.z, (double) coordinate(rbd::Z), false))
 		return false;
 
 	return true;
@@ -168,8 +168,8 @@ void SpaceDiscretization::vertexToCoord(Eigen::Vector2d& coordinate,
 	keyToCoord(x, key.x, true);
 	keyToCoord(y, key.y, true);
 
-	coordinate(0) = x;
-	coordinate(1) = y;
+	coordinate(rbd::X) = x;
+	coordinate(rbd::Y) = y;
 }
 
 
@@ -184,9 +184,9 @@ void SpaceDiscretization::vertexToCoord(Eigen::Vector3d& coordinate,
 	keyToCoord(y, key.y, true);
 	keyToCoord(z, key.z, false);
 
-	coordinate(0) = x;
-	coordinate(1) = y;
-	coordinate(2) = z;
+	coordinate(rbd::X) = x;
+	coordinate(rbd::Y) = y;
+	coordinate(rbd::Z) = z;
 }
 
 
@@ -243,8 +243,8 @@ void SpaceDiscretization::stateToVertex(Vertex& vertex,
 {
 	// State is defined as (x,y)
 	unsigned short int key_x, key_y;
-	stateToKey(key_x, (double) state(0), true);
-	stateToKey(key_y, (double) state(1), true);
+	stateToKey(key_x, (double) state(rbd::X), true);
+	stateToKey(key_y, (double) state(rbd::Y), true);
 
 	vertex = (unsigned long int) (key_y + max_position_count_ * key_x);
 }
@@ -255,9 +255,9 @@ void SpaceDiscretization::stateToVertex(Vertex& vertex,
 {
 	// State is defined as (x,y,yaw)
 	unsigned short int key_x, key_y, key_yaw;
-	stateToKey(key_x, (double) state(0), true);
-	stateToKey(key_y, (double) state(1), true);
-	stateToKey(key_yaw, (double) state(2), false);
+	stateToKey(key_x, (double) state(rbd::X), true);
+	stateToKey(key_y, (double) state(rbd::Y), true);
+	stateToKey(key_yaw, (double) state(rbd::Z), false);
 
 	vertex = (unsigned long int) key_yaw + max_angular_count_ * key_y +
 			max_angular_count_ * max_position_count_ * key_x;
@@ -275,8 +275,8 @@ void SpaceDiscretization::vertexToState(Eigen::Vector2d& state,
 	keyToState(x, key_x, true);
 	keyToState(y, key_y, true);
 
-	state(0) = x;
-	state(1) = y;
+	state(rbd::X) = x;
+	state(rbd::Y) = y;
 }
 
 
@@ -293,9 +293,9 @@ void SpaceDiscretization::vertexToState(Eigen::Vector3d& state,
 	keyToState(y, key_y, true);
 	keyToState(yaw, key_yaw, false);
 
-	state(0) = x;
-	state(1) = y;
-	state(2) = yaw;
+	state(rbd::X) = x;
+	state(rbd::Y) = y;
+	state(rbd::Z) = yaw;
 }
 
 
@@ -327,7 +327,7 @@ void SpaceDiscretization::stateVertexToEnvironmentVertex(Vertex& environment_ver
 }
 
 
-double SpaceDiscretization::getEnvironmentResolution(bool plane)
+double SpaceDiscretization::getEnvironmentResolution(bool plane) const
 {
 	double resolution;
 	if (plane)
@@ -339,7 +339,7 @@ double SpaceDiscretization::getEnvironmentResolution(bool plane)
 }
 
 
-double SpaceDiscretization::getStateResolution(bool position)
+double SpaceDiscretization::getStateResolution(bool position) const
 {
 	double resolution;
 	if (position)

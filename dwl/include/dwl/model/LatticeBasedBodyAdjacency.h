@@ -75,8 +75,8 @@ class LatticeBasedBodyAdjacency : public AdjacencyModel
 		/** @brief Map of search areas */
 		SearchAreaMap stance_areas_;
 
-		/** @brief Number of top reward for computing the stance cost */
-		int number_top_reward_;
+		/** @brief Number of top cost for computing the stance cost */
+		int number_top_cost_;
 };
 
 } //@namespace model

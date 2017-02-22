@@ -89,10 +89,10 @@ class PlanningOfMotionSequence //TODO clean and define the final class
 		virtual bool compute(Pose robot_state) = 0;
 
 		/**
-		 * @brief Sets the reward map
-		 * @param std::vector<Cell> Reward map of the environment
+		 * @brief Sets the terrain map
+		 * @param TerrainData Terrain map of the environment
 		 */
-		void setRewardMap(std::vector<RewardCell> reward_map);
+		void setTerrainMap(const TerrainData& terrain_map);
 
 		/**
 		 * @brief Sets the obstacle terrain map
