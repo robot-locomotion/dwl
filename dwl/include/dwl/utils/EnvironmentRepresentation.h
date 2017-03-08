@@ -45,20 +45,22 @@ struct Cell
 /** @brief Struct that defines the terrain information of the cell */
 struct TerrainCell
 {
-	TerrainCell() : cost(0.), normal(Eigen::Vector3d::UnitZ()) {}
+	TerrainCell() : cost(0.), height(0.),
+			normal(Eigen::Vector3d::UnitZ()) {}
 	TerrainCell(Key key_value,
-				 double reward_value,
+				 double cost_value,
 				 double plane,
-				 double height) : key(key_value),
-			cost(reward_value) {}
+				 double height) : key(key_value), cost(cost_value),
+						 height(height) {}
 	TerrainCell(Key key_value,
-				 double reward_value,
+				 double cost_value,
 				 Eigen::Vector3d _normal,
 				 double plane,
-				 double height) : key(key_value),
-			cost(reward_value), normal(_normal) {}
+				 double height) : key(key_value), cost(cost_value),
+						 height(height), normal(_normal) {}
 	Key key;
 	double cost;
+	double height;
 	Eigen::Vector3d normal;
 };
 

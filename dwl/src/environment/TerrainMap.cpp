@@ -40,7 +40,6 @@ void TerrainMap::setTerrainMap(const TerrainData& terrain_map)
 {
 	// Cleaning the old information
 	TerrainDataMap empty_terrain_cost_map;
-	HeightMap empty_terrain_height_map;
 	terrain_map_.swap(empty_terrain_cost_map);
 	average_cost_ = 0.;
 
@@ -112,10 +111,12 @@ void TerrainMap::setObstacleMap(const std::vector<Cell>& obstacle_map)
 
 void TerrainMap::setTerrainCell(TerrainCell& cell,
 								double cost,
+								double height,
 								const Terrain& terrain_info)
 {
 	space_discretization_.coordToKeyChecked(cell.key, terrain_info.position);
 	cell.cost = cost;
+	cell.height = height;
 	cell.normal = terrain_info.surface_normal;
 }
 
@@ -135,7 +136,7 @@ void TerrainMap::removeCellToTerrainMap(const Vertex& cell_vertex)
 
 
 void TerrainMap::addCellToTerrainHeightMap(const Vertex& cell_vertex,
-											   double height)
+										   double height)
 {
 	terrain_heightmap_[cell_vertex] = height;
 

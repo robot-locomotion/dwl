@@ -40,11 +40,13 @@ class TerrainMap
 		/**
 		 * @brief Sets the values of the terrain cell
 		 * @param TerrainCell& Values of the cell
-		 * @param double Terrain value of the cell
+		 * @param double Terrain cost value of the cell
+		 * @param double Terrain height value of the cell
 		 * @param const Terrain& Information of the terrain in the specific cell
 		 */
 		void setTerrainCell(TerrainCell& cell,
 							double cost,
+							double height,
 							const Terrain& terrain_info);
 
 		/**
