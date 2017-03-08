@@ -2,6 +2,7 @@
 #define DWL__ENVIRONMENT_REPRESENTATION__H
 
 #include <map>
+#include <memory>
 #include <Eigen/Dense>
 #include <dwl/utils/GraphSearching.h>
 #include <octomap/octomap.h>
@@ -84,7 +85,7 @@ struct Terrain
 	Eigen::Vector3d position;
 	Eigen::Vector3d surface_normal;
 	double curvature;
-	std::map<Vertex, double> height_map;
+	std::shared_ptr<std::map<Vertex, double> > height_map;
 	double min_height;
 	double resolution;
 };
