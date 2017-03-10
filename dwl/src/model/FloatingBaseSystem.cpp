@@ -27,9 +27,7 @@ FloatingBaseSystem::~FloatingBaseSystem()
 void FloatingBaseSystem::resetFromURDFFile(const std::string& urdf_file,
 										   const std::string& system_file)
 {
-	urdf_ = urdf_model::fileToXml(urdf_file);
-	yarf_ = system_file;
-	resetFromURDFModel(urdf_, system_file);
+	resetFromURDFModel(urdf_model::fileToXml(urdf_file), system_file);
 }
 
 
@@ -40,6 +38,8 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 	RigidBodyDynamics::Model rbd;
 	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &rbd, false);
 	rbd_model_ = rbd;
+	urdf_ = urdf_model;
+	yarf_ = system_file;
 
 	// Getting information about the floating-base joints
 	urdf_model::JointID floating_joint_names;
