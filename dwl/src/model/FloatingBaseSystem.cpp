@@ -24,15 +24,15 @@ FloatingBaseSystem::~FloatingBaseSystem()
 }
 
 
-void FloatingBaseSystem::resetFromURDFFile(std::string urdf_file,
-										   std::string system_file)
+void FloatingBaseSystem::resetFromURDFFile(const std::string& urdf_file,
+										   const std::string& system_file)
 {
 	resetFromURDFModel(urdf_model::fileToXml(urdf_file), system_file);
 }
 
 
-void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
-											std::string system_file)
+void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
+											const std::string& system_file)
 {
 	// Getting the RBDL model from URDF model
 	RigidBodyDynamics::Model rbd;

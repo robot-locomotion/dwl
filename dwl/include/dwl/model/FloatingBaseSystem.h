@@ -58,19 +58,19 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Resets the system information from an URDF file
-		 * @param std::string URDF filename
-		 * @param std::string Semantic system description filename
+		 * @param const std::string& URDF filename
+		 * @param const std::string& Semantic system description filename
 		 */
-		void resetFromURDFFile(std::string urdf_file,
-							   std::string system_file = std::string());
+		void resetFromURDFFile(const std::string& urdf_file,
+							   const std::string& system_file = std::string());
 
 		/**
 		 * @brief Resets the system information from URDF model
-		 * @param std::string URDF model
-		 * @param std::string Semantic system description filename
+		 * @param const std::string& URDF model
+		 * @param const std::string& Semantic system description filename
 		 */
-		void resetFromURDFModel(std::string urdf_model,
-								std::string system_file = std::string());
+		void resetFromURDFModel(const std::string& urdf_model,
+								const std::string& system_file = std::string());
 
 		/**
 		 * @brief Resets the system semantic description from yaml file
