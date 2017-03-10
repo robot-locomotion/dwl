@@ -27,7 +27,9 @@ FloatingBaseSystem::~FloatingBaseSystem()
 void FloatingBaseSystem::resetFromURDFFile(const std::string& urdf_file,
 										   const std::string& system_file)
 {
-	resetFromURDFModel(urdf_model::fileToXml(urdf_file), system_file);
+	urdf_ = urdf_model::fileToXml(urdf_file);
+	yarf_ = system_file;
+	resetFromURDFModel(urdf_, system_file);
 }
 
 
@@ -147,7 +149,7 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 		feet_ = end_effectors_;
 	}
 
-	// Resizyng the state vectors
+	// Resizing the state vectors
 	if (getTypeOfDynamicSystem() == FloatingBase ||
 			getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
 		full_state_.resize(6 + getJointDoF());
@@ -282,6 +284,18 @@ void FloatingBaseSystem::setSystemDoF(unsigned int num_dof)
 void FloatingBaseSystem::setJointDoF(unsigned int num_joints)
 {
 	num_joints_ = num_joints;
+}
+
+
+const std::string& FloatingBaseSystem::getURDFModel() const
+{
+	return urdf_;
+}
+
+
+const std::string& FloatingBaseSystem::getYARFModel() const
+{
+	return yarf_;
 }
 
 

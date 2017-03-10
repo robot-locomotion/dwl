@@ -124,6 +124,18 @@ class FloatingBaseSystem
 		void setJointDoF(unsigned int _num_joints);
 
 		/**
+		 * @brief Gets the URDF model
+		 * @return const std::string& URDF model
+		 */
+		const std::string& getURDFModel() const;
+
+		/**
+		 * @brief Gets the YARF model
+		 * @return const std::string& YARF model
+		 */
+		const std::string& getYARFModel() const;
+
+		/**
 		 * @brief Gets the rigid body dynamic model
 		 * @return const RigidBodyDynamics::Model& Rigid body dynamics model
 		 */
@@ -361,6 +373,10 @@ class FloatingBaseSystem
 
 
 	private:
+		/** @brief Robot models (urdf and yarf) */
+		std::string urdf_;
+		std::string yarf_;
+
 		/** @brief Rigid-body dynamic model */
 		RigidBodyDynamics::Model rbd_model_;
 		RigidBodyDynamics::Math::Vector3d com_system_;
