@@ -231,6 +231,8 @@ bool TerrainMap::getTerrainData(TerrainCell& cell,
 	TerrainDataMap::const_iterator cell_it = terrain_map_.find(vertex);
 	if (cell_it != terrain_map_.end()) {
 		cell = cell_it->second;
+
+		space_discretization_.keyToCoord(cell.height, cell.key.z, false);
 		return true;
 	} else {
 		cell = default_cell_;
