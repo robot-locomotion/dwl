@@ -225,6 +225,31 @@ const TerrainCell& TerrainMap::getTerrainData(const Eigen::Vector2d& position) c
 }
 
 
+bool TerrainMap::getTerrainData(TerrainCell& cell,
+								const Vertex& vertex) const
+{
+	TerrainDataMap::const_iterator cell_it = terrain_map_.find(vertex);
+	if (cell_it != terrain_map_.end()) {
+		cell = cell_it->second;
+		return true;
+	} else {
+		cell = default_cell_;
+		return false;
+	}
+}
+
+
+bool TerrainMap::getTerrainData(TerrainCell& cell,
+								const Eigen::Vector2d& position) const
+{
+	// Converting the position to a vertex
+	Vertex vertex;
+	space_discretization_.coordToVertex(vertex, position);
+
+	return getTerrainData(cell, vertex);
+}
+
+
 double TerrainMap::getTerrainHeight(const Vertex& vertex) const
 {
 	double height;
@@ -245,6 +270,29 @@ double TerrainMap::getTerrainHeight(const Eigen::Vector2d& position) const
 }
 
 
+bool TerrainMap::getTerrainHeight(double& height,
+								  const Vertex& vertex) const
+{
+	TerrainCell cell;
+	bool data = getTerrainData(cell, vertex);
+	Key key = cell.key;
+	space_discretization_.keyToCoord(height, key.z, false);
+
+	return data;
+}
+
+
+bool TerrainMap::getTerrainHeight(double& height,
+								  const Eigen::Vector2d& position) const
+{
+	// Converting the position to a vertex
+	Vertex vertex;
+	space_discretization_.coordToVertex(vertex, position);
+
+	return getTerrainHeight(height, vertex);
+}
+
+
 const Weight& TerrainMap::getTerrainCost(const Vertex& vertex) const
 {
 	return getTerrainData(vertex).cost;
@@ -261,6 +309,28 @@ const Weight& TerrainMap::getTerrainCost(const Eigen::Vector2d& position) const
 }
 
 
+bool TerrainMap::getTerrainCost(Weight& cost,
+								const Vertex& vertex) const
+{
+	TerrainCell cell;
+	bool data = getTerrainData(cell, vertex);
+	cost = cell.cost;
+
+	return data;
+}
+
+
+bool TerrainMap::getTerrainCost(Weight& cost,
+								const Eigen::Vector2d& position) const
+{
+	// Converting the position to a vertex
+	Vertex vertex;
+	space_discretization_.coordToVertex(vertex, position);
+
+	return getTerrainCost(cost, vertex);
+}
+
+
 const Eigen::Vector3d& TerrainMap::getTerrainNormal(const Vertex& vertex) const
 {
 	return getTerrainData(vertex).normal;
@@ -274,6 +344,28 @@ const Eigen::Vector3d& TerrainMap::getTerrainNormal(const Eigen::Vector2d& posit
 	space_discretization_.coordToVertex(vertex, position);
 
 	return getTerrainNormal(vertex);
+}
+
+
+bool TerrainMap::getTerrainNormal(Eigen::Vector3d& normal,
+								  const Vertex& vertex) const
+{
+	TerrainCell cell;
+	bool data = getTerrainData(cell, vertex);
+	normal = cell.normal;
+
+	return data;
+}
+
+
+bool TerrainMap::getTerrainNormal(Eigen::Vector3d& normal,
+								  const Eigen::Vector2d& position) const
+{
+	// Converting the position to a vertex
+	Vertex vertex;
+	space_discretization_.coordToVertex(vertex, position);
+
+	return getTerrainNormal(normal, vertex);
 }
 
 

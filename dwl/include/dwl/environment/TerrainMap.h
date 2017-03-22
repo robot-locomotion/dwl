@@ -124,6 +124,10 @@ class TerrainMap
 		 */
 		const TerrainCell& getTerrainData(const Vertex& vertex) const;
 		const TerrainCell& getTerrainData(const Eigen::Vector2d& position) const;
+		bool getTerrainData(TerrainCell& cell,
+							const Vertex& vertex) const;
+		bool getTerrainData(TerrainCell& cell,
+							const Eigen::Vector2d& position) const;
 
 		/**
 		 * @brief Gets the terrain height value give a vertex or 2d position
@@ -131,6 +135,10 @@ class TerrainMap
 		 */
 		double getTerrainHeight(const Vertex& vertex) const;
 		double getTerrainHeight(const Eigen::Vector2d& position) const;
+		bool getTerrainHeight(double& height,
+							  const Vertex& vertex) const;
+		bool getTerrainHeight(double& height,
+							  const Eigen::Vector2d& position) const;
 
 		/**
 		 * @brief Gets the terrain reward value give a vertex or 2d position
@@ -138,6 +146,10 @@ class TerrainMap
 		 */
 		const Weight& getTerrainCost(const Vertex& vertex) const;
 		const Weight& getTerrainCost(const Eigen::Vector2d& position) const;
+		bool getTerrainCost(Weight& cost,
+							const Vertex& vertex) const;
+		bool getTerrainCost(Weight& cost,
+							const Eigen::Vector2d& position) const;
 
 		/**
 		 * @brief Gets the terrain normal value give a vertex or 2d position
@@ -145,6 +157,10 @@ class TerrainMap
 		 */
 		const Eigen::Vector3d& getTerrainNormal(const Vertex& vertex) const;
 		const Eigen::Vector3d& getTerrainNormal(const Eigen::Vector2d& position) const;
+		bool getTerrainNormal(Eigen::Vector3d& normal,
+							  const Vertex& vertex) const;
+		bool getTerrainNormal(Eigen::Vector3d& normal,
+							  const Eigen::Vector2d& position) const;
 
 		/**
 		 * @brief Gets the terrain discrete model of the space according
