@@ -163,6 +163,9 @@ void solvePlaneParameters(Eigen::Vector3d &normal_vector,
 	else
 		eigenvector = vec3 / std::sqrt(len3);
 
+	// The normal vectors should point to the Z direction
+	if (eigenvector(2) < 0.)
+		eigenvector *= -1;
 
 	normal_vector = eigenvector;
 
