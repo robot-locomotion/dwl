@@ -143,6 +143,25 @@ Eigen::Matrix3d getEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion);
  */
 Eigen::Matrix3d getInverseEulerAnglesRatesMatrix_dot(const Eigen::Vector3d& rpy,
 													 const Eigen::Vector3d& rpyd);
+
+/**
+ * @brief Gets the direction cosine matrix from RPY angles
+ * Th outputted DCM performs the coordinate transformation of a vector in
+ * inertial axes to a vector in body axes.
+ * @param const Eigen::Vector3d& Roll, pitch and yaw vector
+ * @return Eigen::Matrix3d Direction cosine matrix
+ */
+Eigen::Matrix3d getDirectionCosineMatrix(const Eigen::Vector3d& rpy);
+
+/**
+ * @brief Gets the direction cosine matrix from quaternion
+ * Th outputted DCM performs the coordinate transformation of a vector in
+ * inertial axes to a vector in body axes.
+ * @param const Eigen::Vector3d& Roll, pitch and yaw vector
+ * @return Eigen::Matrix3d Direction cosine matrix
+ */
+Eigen::Matrix3d getDirectionCosineMatrix(const Eigen::Quaterniond& orientation);
+
 }
 }
 

@@ -172,5 +172,36 @@ Eigen::Matrix3d getInverseEulerAnglesRatesMatrix_dot(const Eigen::Vector3d& rpy,
 	return EARInv_dot;
 }
 
+
+Eigen::Matrix3d getDirectionCosineMatrix(const Eigen::Vector3d& rpy)
+{
+	return getDirectionCosineMatrix(getQuaternion(rpy));
+}
+
+
+Eigen::Matrix3d getDirectionCosineMatrix(const Eigen::Quaterniond& orientation)
+{
+	double q0, q1, q2, q3;
+	q0 = orientation.w();
+	q1 = orientation.x();
+	q2 = orientation.y();
+	q3 = orientation.z();
+
+	Eigen::Matrix3d dcm;
+	dcm(0,0) = q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3;
+	dcm(1,0) = 2 * (q1 * q2 - q0 * q3);
+	dcm(2,0) = 2 * (q1 * q3 + q0 * q2);
+
+	dcm(0,1) = 2 * (q1 * q2 + q0 * q3);
+	dcm(1,1) = q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3;
+	dcm(2,1) = 2 * (q2 * q3 - q0 * q1);
+
+	dcm(0,2) = 2 * (q1 * q3 - q0 * q2);
+	dcm(1,2) = 2 * (q2 * q3 + q0 * q1);
+	dcm(2,2) = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
+
+	return dcm;
+}
+
 }
 }
