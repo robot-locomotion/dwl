@@ -19,16 +19,16 @@ WholeBodyKinematics::~WholeBodyKinematics()
 }
 
 
-void WholeBodyKinematics::modelFromURDFFile(std::string urdf_file,
-											std::string system_file,
+void WholeBodyKinematics::modelFromURDFFile(const std::string& urdf_file,
+											const std::string& system_file,
 											bool info)
 {
 	modelFromURDFModel(urdf_model::fileToXml(urdf_file), system_file, info);
 }
 
 
-void WholeBodyKinematics::modelFromURDFModel(std::string urdf_model,
-											 std::string system_file,
+void WholeBodyKinematics::modelFromURDFModel(const std::string& urdf_model,
+											 const std::string& system_file,
 											 bool info)
 {
 	// Reseting the floating-base system information given an URDF model

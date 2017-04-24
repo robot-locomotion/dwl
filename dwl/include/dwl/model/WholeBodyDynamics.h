@@ -32,8 +32,8 @@ class WholeBodyDynamics
 		 * @param std::string Semantic system description filename
 		 * @param Print model information
 		 */
-		void modelFromURDFFile(std::string urdf_file,
-							   std::string system_file = std::string(),
+		void modelFromURDFFile(const std::string& urdf_file,
+							   const std::string& system_file = std::string(),
 							   bool info = false);
 
 		/**
@@ -42,8 +42,8 @@ class WholeBodyDynamics
 		 * @param std::string Semantic system description filename
 		 * @param Print model information
 		 */
-		void modelFromURDFModel(std::string urdf_model,
-								std::string system_file = std::string(),
+		void modelFromURDFModel(const std::string& urdf_model,
+								const std::string& system_file = std::string(),
 								bool info = false);
 
 		/**

@@ -24,20 +24,22 @@ FloatingBaseSystem::~FloatingBaseSystem()
 }
 
 
-void FloatingBaseSystem::resetFromURDFFile(std::string urdf_file,
-										   std::string system_file)
+void FloatingBaseSystem::resetFromURDFFile(const std::string& urdf_file,
+										   const std::string& system_file)
 {
 	resetFromURDFModel(urdf_model::fileToXml(urdf_file), system_file);
 }
 
 
-void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
-											std::string system_file)
+void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
+											const std::string& system_file)
 {
 	// Getting the RBDL model from URDF model
 	RigidBodyDynamics::Model rbd;
 	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &rbd, false);
 	rbd_model_ = rbd;
+	urdf_ = urdf_model;
+	yarf_ = system_file;
 
 	// Getting information about the floating-base joints
 	urdf_model::JointID floating_joint_names;
@@ -147,7 +149,7 @@ void FloatingBaseSystem::resetFromURDFModel(std::string urdf_model,
 		feet_ = end_effectors_;
 	}
 
-	// Resizyng the state vectors
+	// Resizing the state vectors
 	if (getTypeOfDynamicSystem() == FloatingBase ||
 			getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
 		full_state_.resize(6 + getJointDoF());
@@ -282,6 +284,18 @@ void FloatingBaseSystem::setSystemDoF(unsigned int num_dof)
 void FloatingBaseSystem::setJointDoF(unsigned int num_joints)
 {
 	num_joints_ = num_joints;
+}
+
+
+const std::string& FloatingBaseSystem::getURDFModel() const
+{
+	return urdf_;
+}
+
+
+const std::string& FloatingBaseSystem::getYARFModel() const
+{
+	return yarf_;
 }
 
 

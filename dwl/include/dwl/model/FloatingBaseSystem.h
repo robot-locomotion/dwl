@@ -58,19 +58,19 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Resets the system information from an URDF file
-		 * @param std::string URDF filename
-		 * @param std::string Semantic system description filename
+		 * @param const std::string& URDF filename
+		 * @param const std::string& Semantic system description filename
 		 */
-		void resetFromURDFFile(std::string urdf_file,
-							   std::string system_file = std::string());
+		void resetFromURDFFile(const std::string& urdf_file,
+							   const std::string& system_file = std::string());
 
 		/**
 		 * @brief Resets the system information from URDF model
-		 * @param std::string URDF model
-		 * @param std::string Semantic system description filename
+		 * @param const std::string& URDF model
+		 * @param const std::string& Semantic system description filename
 		 */
-		void resetFromURDFModel(std::string urdf_model,
-								std::string system_file = std::string());
+		void resetFromURDFModel(const std::string& urdf_model,
+								const std::string& system_file = std::string());
 
 		/**
 		 * @brief Resets the system semantic description from yaml file
@@ -122,6 +122,18 @@ class FloatingBaseSystem
 		 * @param unsigned int Number of joints
 		 */
 		void setJointDoF(unsigned int _num_joints);
+
+		/**
+		 * @brief Gets the URDF model
+		 * @return const std::string& URDF model
+		 */
+		const std::string& getURDFModel() const;
+
+		/**
+		 * @brief Gets the YARF model
+		 * @return const std::string& YARF model
+		 */
+		const std::string& getYARFModel() const;
 
 		/**
 		 * @brief Gets the rigid body dynamic model
@@ -361,6 +373,10 @@ class FloatingBaseSystem
 
 
 	private:
+		/** @brief Robot models (urdf and yarf) */
+		std::string urdf_;
+		std::string yarf_;
+
 		/** @brief Rigid-body dynamic model */
 		RigidBodyDynamics::Model rbd_model_;
 		RigidBodyDynamics::Math::Vector3d com_system_;
