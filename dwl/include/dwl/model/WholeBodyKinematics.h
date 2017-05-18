@@ -131,11 +131,11 @@ class WholeBodyKinematics
 		 * @param const rbd::BodyVector& Operational accelerations of bodies
 		 * @param const rbd::BodySelector& A predefined set of bodies
 		 */
-		void computeJoinAcceleration(Eigen::VectorXd& joint_acc,
-									 const Eigen::VectorXd& joint_pos,
-									 const Eigen::VectorXd& joint_vel,
-									 const rbd::BodyVectorXd& op_acc,
-									 const rbd::BodySelector& body_set);
+		void computeJointAcceleration(Eigen::VectorXd& joint_acc,
+									  const Eigen::VectorXd& joint_pos,
+									  const Eigen::VectorXd& joint_vel,
+									  const rbd::BodyVectorXd& op_acc,
+									  const rbd::BodySelector& body_set);
 
 		/**
 		 * @brief Computes the whole-body jacobian for a predefined set of

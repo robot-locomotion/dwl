@@ -101,11 +101,11 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 							   feet_);
 
 	// Computing the joint accelerations
-	wkin_.computeJoinAcceleration(ws_.joint_acc,
-								  ws_.joint_pos,
-								  ws_.joint_vel,
-								  ws_.contact_vel,
-								  feet_);
+	wkin_.computeJointAcceleration(ws_.joint_acc,
+								   ws_.joint_pos,
+								   ws_.joint_vel,
+								   ws_.contact_vel,
+								   feet_);
 
 	// Setting up the desired joint efforts equals to zero
 	ws_.joint_eff = Eigen::VectorXd::Zero(num_joints_);

@@ -308,11 +308,11 @@ void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
 }
 
 
-void WholeBodyKinematics::computeJoinAcceleration(Eigen::VectorXd& joint_acc,
-												  const Eigen::VectorXd& joint_pos,
-												  const Eigen::VectorXd& joint_vel,
-												  const rbd::BodyVectorXd& op_acc,
-												  const rbd::BodySelector& body_set)
+void WholeBodyKinematics::computeJointAcceleration(Eigen::VectorXd& joint_acc,
+												   const Eigen::VectorXd& joint_pos,
+												   const Eigen::VectorXd& joint_vel,
+												   const rbd::BodyVectorXd& op_acc,
+												   const rbd::BodySelector& body_set)
 {
 	// Computing the Jac_d*Qd
 	dwl::rbd::BodyVectorXd jacd_qd;
