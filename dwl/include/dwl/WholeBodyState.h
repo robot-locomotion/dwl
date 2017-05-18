@@ -20,14 +20,15 @@ namespace dwl
 
 /**
  * @brief The WholeBodyState class
- * This class incorporate the whole-body state of the robot, including:
+ * This class describes the whole-body state of the robot, including:
  * <ul>
  *    <li>time, in seconds</li>
- *    <li>Base position, expressed in the world frame of reference</li>
+ *    <li>Base position, expressed in the world frame</li>
+ *    <li>Base orientation, expressed in a world frame</li>
  *    <li>Base velocity, expressed in the world frame</li>
+ *    <li>Base angular velocity (rotation rate), expressed in the world frame</li><li>
  *    <li>Base acceleration, expressed in the world frame</li>
- *    <li>Base orientation, expressed in a world frame of reference</li>
- *    <li>Base rotation rate, expressed in the world frame</li>
+ *    <li>Base angular acceleration, expressed in the world frame</li>
  *    <li>Joint positions, expressed with the urdf order</li>
  *    <li>Joint velocities, expressed with the urdf order</li>
  *    <li>Joint accelerations, expressed with the urdf order</li>
@@ -38,30 +39,32 @@ namespace dwl
  *    <li>Contact efforts, expressed in the base frame</li>
  * </ul>
  *
- * The class provides getter and setter methods for all these states.
+ * The class provides getter and setter routines for all these states.
  * When useful, it provides alternatives to set or get the desired physical
  * quantity in one of the following frames of reference: W (fixed-world frame),
  * B (base frame) and H (horizontal frame). Every getter/setter methods have one
  * of these three letters at the end of the signature, to clearly state what is
- * the reference frame adopted. Also convenient methods to set or get RPY angles
- * are provided. Both Eigen and base types are available for setter methods.
- * You could also interact with the states without using the getter and setter
- * functions. Note that the states are:
+ * the adopted reference frame. Also convenient methods to set or get RPY angles
+ * and derivatives are provided. Both Eigen and base types are available for
+ * setter methods. You could also interact with the states without using the
+ * getter and setter routines. Note that the states are:
  * <ul>
- *   <li>time</li>
- * 	 <li>base_pos [roll, pitch, yaw, x, y, z]</li>
- * 	 <li>base_vel [rate_x, rate_y, rate_z, x, y, z]</li>
- * 	 <li>base_acc [rotacc_x, rotacc_y, rotacc_y, x, y, z]</li>
- * 	 <li>joint_pos</li>
- * 	 <li>joint_vel</li>
- * 	 <li>joint_acc</li>
- * 	 <li>joint_eff</li>
- * 	 <li>contact_pos</li>
- * 	 <li>contact_vel</li>
- * 	 <li>contact_acc</li>
- * 	 <li>contact_eff</li>
- * 	 Note that these quantities have to be expressed in the above mentioned
- * 	 frames and orders.
+ *   <li>time in seconds</li>
+ * 	 <li>base_pos [roll, pitch, yaw, x, y, z] expressed in the world frame </li>
+ * 	 <li>base_vel [rate_x, rate_y, rate_z, x, y, z] expressed in the world frame </li>
+ * 	 <li>base_acc [rotacc_x, rotacc_y, rotacc_y, x, y, z] expressed in the world frame </li>
+ * 	 <li>joint_pos [q_0, ..., q_N]</li>
+ * 	 <li>joint_vel [qd_0, ..., qd_N]</li>
+ * 	 <li>joint_acc [qdd_0, ..., qdd_N]</li>
+ * 	 <li>joint_eff [tau_0, ..., tau_N]</li>
+ * 	 <li>contact_pos [x_0, ..., x_P] expressed in the base frame </li>
+ * 	 <li>contact_vel [xd_0, ..., xd_P] expressed in the base frame </li>
+ * 	 <li>contact_acc [xdd_0, ..., xdd_P] expressed in the base frame </li>
+ * 	 <li>contact_eff [f_0, ..., f_P] expressed in the base frame </li>
+ * 	 where N and P are the number of DoF and contacts, respectively. Note that
+ * 	 these quantities have to be expressed in the above mentioned frames and
+ * 	 orders. The number of contact states are described at runtime by using its
+ * 	 name.
  * </ul>
  */
 class WholeBodyState
@@ -85,10 +88,12 @@ class WholeBodyState
 		/** @brief Gets the base RPY angles expressed in the world frame */
 		Eigen::Vector3d getBaseRPY_W() const;
 
-		/** @brief Gets the base orientation in the horizontal frame */
+		/** @brief Gets the base orientation in the horizontal frame expressed
+		 * in the world frame */
 		Eigen::Quaterniond getBaseOrientation_H() const;
 
-		/** @brief Gets the base RPY angles in the horizontal frame */
+		/** @brief Gets the base RPY angles in the horizontal frame expressed
+		 * in the world frame */
 		Eigen::Vector3d getBaseRPY_H() const;
 
 		/** @brief Gets the base velocity expressed in the world frame */
@@ -109,8 +114,8 @@ class WholeBodyState
 		/** @brief Gets the base angular velocity expressed in the horizontal frame */
 		Eigen::Vector3d getBaseAngularVelocity_H() const;
 
-		/** @brief Gets the base RPY velocity */
-		Eigen::Vector3d getBaseRPYVelocity() const;
+		/** @brief Gets the base RPY velocity expressed in the world frame */
+		Eigen::Vector3d getBaseRPYVelocity_W() const;
 
 		/** @brief Gets the base acceleration expressed in the world frame */
 		Eigen::Vector3d getBaseAcceleration_W() const;
@@ -131,7 +136,7 @@ class WholeBodyState
 		Eigen::Vector3d getBaseAngularAcceleration_H() const;
 
 		/** @brief Gets the base RPY acceleration */
-		Eigen::Vector3d getBaseRPYAcceleration() const;
+		Eigen::Vector3d getBaseRPYAcceleration_W() const;
 
 
 		// Joint state getter functions
@@ -201,7 +206,6 @@ class WholeBodyState
 		Eigen::VectorXd getContactAcceleration_H(const std::string& name) const;
 		rbd::BodyVectorXd getContactAcceleration_H() const;
 
-
 		/** @brief Gets the contact wrenches in the base frame */
 		const rbd::BodyVector6d& getContactWrench_B() const;
 		const rbd::Vector6d& getContactWrench_B(const std::string& name) const;
@@ -245,8 +249,8 @@ class WholeBodyState
 		/** @brief Sets the base angular velocity expressed in the horizontal frame */
 		void setBaseAngularVelocity_H(const Eigen::Vector3d& rate_H);
 
-		/** @brief Sets the base RPY velocity */
-		void setBaseRPYVelocity(const Eigen::Vector3d& rpy_rate);
+		/** @brief Sets the base RPY velocity expressed in the world frame */
+		void setBaseRPYVelocity_W(const Eigen::Vector3d& rpy_rate);
 
 		/** @brief Sets the base acceleration expressed in the world frame */
 		void setBaseAcceleration_W(const Eigen::Vector3d& acc_W);
@@ -266,8 +270,8 @@ class WholeBodyState
 		/** @brief Sets the base angular acceleration expressed in the horizontal frame */
 		void setBaseAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
 
-		/** @brief Sets the base RPY acceleration */
-		void setBaseRPYAcceleration(const Eigen::Vector3d& rpy_rate);
+		/** @brief Sets the base RPY acceleration expressed in the world frame */
+		void setBaseRPYAcceleration_W(const Eigen::Vector3d& rpy_rate);
 
 
 		// Joint state setter functions
@@ -293,7 +297,7 @@ class WholeBodyState
 
 		/**
 		 * @brief Sets the number of joints
-		 * @param unsigned int Number of joints
+		 * @param unsigned int& Number of joints
 		 */
 		void setJointDoF(const unsigned int& num_joints);
 
@@ -304,7 +308,6 @@ class WholeBodyState
 		void setContactPosition_W(const std::string& name,
 								  const Eigen::VectorXd& pos_W);
 		void setContactPosition_W(const rbd::BodyVectorXd& pos_W);
-		
 		
 		/** @brief Sets the contact positions w.r.t. the base frame */
 		void setContactPosition_B(ContactIterator it);

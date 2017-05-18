@@ -100,7 +100,7 @@ Eigen::Vector3d WholeBodyState::getBaseAngularVelocity_H() const
 }
 
 
-Eigen::Vector3d WholeBodyState::getBaseRPYVelocity() const
+Eigen::Vector3d WholeBodyState::getBaseRPYVelocity_W() const
 {
 	Eigen::Matrix3d EAR =
 			math::getInverseEulerAnglesRatesMatrix(getBaseRPY_W()).inverse();
@@ -148,11 +148,11 @@ Eigen::Vector3d WholeBodyState::getBaseAngularAcceleration_H() const
 }
 
 
-Eigen::Vector3d WholeBodyState::getBaseRPYAcceleration() const
+Eigen::Vector3d WholeBodyState::getBaseRPYAcceleration_W() const
 {
 	// rpy_ddot = EAR^-1 * (omega_dot - EAR_dot * rpy_dot)
 	Eigen::Vector3d rpy = getBaseRPY_W();
-	Eigen::Vector3d rpy_d = getBaseRPYVelocity();
+	Eigen::Vector3d rpy_d = getBaseRPYVelocity_W();
 	Eigen::Matrix3d EAR =
 			math::getInverseEulerAnglesRatesMatrix(rpy).inverse();
 	Eigen::Matrix3d EARinv_dot =
@@ -656,7 +656,7 @@ void WholeBodyState::setBaseAngularVelocity_H(const Eigen::Vector3d& rate_H)
 }
 
 
-void WholeBodyState::setBaseRPYVelocity(const Eigen::Vector3d& rpy_rate)
+void WholeBodyState::setBaseRPYVelocity_W(const Eigen::Vector3d& rpy_rate)
 {
 	rbd::angularPart(base_vel) =
 			math::getInverseEulerAnglesRatesMatrix(getBaseRPY_W()) * rpy_rate;
@@ -703,11 +703,11 @@ void WholeBodyState::setBaseAngularAcceleration_H(const Eigen::Vector3d& rotacc_
 }
 
 
-void WholeBodyState::setBaseRPYAcceleration(const Eigen::Vector3d& rpy_acc)
+void WholeBodyState::setBaseRPYAcceleration_W(const Eigen::Vector3d& rpy_acc)
 {
 	// omega_dot = EAR * rpy_ddot + EAR_dot * rpy_dot
 	Eigen::Vector3d rpy = getBaseRPY_W();
-	Eigen::Vector3d rpy_vel = getBaseRPYVelocity();
+	Eigen::Vector3d rpy_vel = getBaseRPYVelocity_W();
 	rbd::angularPart(base_acc) =
 			math::getInverseEulerAnglesRatesMatrix(rpy) * rpy_acc +
 			math::getInverseEulerAnglesRatesMatrix_dot(rpy, rpy_vel) * rpy_vel;
