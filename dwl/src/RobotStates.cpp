@@ -45,7 +45,7 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 	// Adding the time
 	ws_.time = state.time;
 
-	// From the preview model we do not know the joint states, so we neglect
+	// From the reduced-body state we do not know the joint states, so we neglect
 	// the joint-related components of the CoM. Therefore, we transform the
 	// CoM states assuming that CoM is fixed-point in the base
 	Eigen::Vector3d com_pos_W =
@@ -86,9 +86,9 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 	}
 
 	// Adding the joint positions, velocities and accelerations
-	ws_.joint_pos = Eigen::VectorXd::Zero(num_joints_);
-	ws_.joint_vel = Eigen::VectorXd::Zero(num_joints_);
-	ws_.joint_acc = Eigen::VectorXd::Zero(num_joints_);
+	ws_.setJointPosition(Eigen::VectorXd::Zero(num_joints_));
+	ws_.setJointVelocity(Eigen::VectorXd::Zero(num_joints_));
+	ws_.setJointAcceleration(Eigen::VectorXd::Zero(num_joints_));
 
 	// Computing the joint positions
 	wkin_.computeInverseKinematics(ws_.joint_pos,
@@ -101,11 +101,11 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 							   feet_);
 
 	// Computing the joint accelerations
-	wkin_.computeJoinAcceleration(ws_.joint_acc,
-								  ws_.joint_pos,
-								  ws_.joint_vel,
-								  ws_.contact_vel,
-								  feet_);
+	wkin_.computeJointAcceleration(ws_.joint_acc,
+								   ws_.joint_pos,
+								   ws_.joint_vel,
+								   ws_.contact_vel,
+								   feet_);
 
 	// Setting up the desired joint efforts equals to zero
 	ws_.joint_eff = Eigen::VectorXd::Zero(num_joints_);
