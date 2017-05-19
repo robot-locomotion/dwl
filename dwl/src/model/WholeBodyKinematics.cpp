@@ -271,6 +271,21 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 
 		Eigen::VectorXd delta_theta = fixed_jac.transpose() * z; //math::pseudoInverse(fixed_jac) * e;
 		joint_pos = joint_pos + delta_theta;
+
+		// Checking if the IK solution is in the joint limits
+		dwl::urdf_model::JointLimits joint_limits = system_.getJointLimits();
+		for (dwl::urdf_model::JointLimits::iterator jnt_it = joint_limits.begin();
+				jnt_it != joint_limits.end(); jnt_it++) {
+			std::string name = jnt_it->first;
+			urdf::JointLimits limits = jnt_it->second;
+			unsigned int id = system_.getJointId(name);
+
+			if (joint_pos(id) > limits.upper)
+				joint_pos(id) = limits.upper;
+			else if (joint_pos(id) < limits.lower)
+				joint_pos(id) = limits.lower;
+		}
+
 		if (delta_theta.norm() < step_tol)
 			return;
 	}
