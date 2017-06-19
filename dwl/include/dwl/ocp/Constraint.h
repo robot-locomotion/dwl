@@ -21,17 +21,20 @@ enum SoftConstraintFamily {QUADRATIC, UNWEIGHTED};
 
 struct SoftConstraintProperties
 {
-	SoftConstraintProperties() : weight(0.), threshold(0.),
+	SoftConstraintProperties() : weight(0.), threshold(0.), offset(0.),
 			family(QUADRATIC) {}
 	SoftConstraintProperties(double _weight,
 							 double _threshold,
+							 double _offset,
 							 enum SoftConstraintFamily _family = QUADRATIC) :
 								 weight(_weight),
 								 threshold(_threshold),
+								 offset(_offset),
 								 family(_family) {}
 
 	double weight;
 	double threshold;
+	double offset;
 	enum SoftConstraintFamily family;
 };
 

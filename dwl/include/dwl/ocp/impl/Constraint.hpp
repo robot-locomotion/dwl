@@ -10,7 +10,7 @@ namespace ocp
 
 template <typename TState>
 Constraint<TState>::Constraint() : constraint_dimension_(0), is_soft_(false),
-	soft_properties_(SoftConstraintProperties(10000., 0.))
+	soft_properties_(SoftConstraintProperties(10000., 0., 0.))
 {
 	state_buffer_.set_capacity(4);
 }
@@ -81,6 +81,7 @@ void Constraint<TState>::computeSoft(double& constraint_cost,
 	getBounds(lower_bound, upper_bound);
 
 	// Computing the violation vector
+	double offset_cost = 0.;
 	unsigned int vec_dim = constraint.size();
 	Eigen::VectorXd violation_vec = Eigen::VectorXd::Zero(vec_dim);
 	for (unsigned int i = 0; i < vec_dim; i++) {
@@ -114,10 +115,13 @@ void Constraint<TState>::computeSoft(double& constraint_cost,
 				break;
 			}
 		}
+
+		if (upper_bound(i) < const_val || lower_bound(i) > const_val)
+			offset_cost = soft_properties_.offset;
 	}
 
 	// Computing a weighted quadratic cost of the constraint violation
-	constraint_cost = soft_properties_.weight * violation_vec.norm();
+	constraint_cost = soft_properties_.weight * violation_vec.norm() + offset_cost;
 }
 
 
