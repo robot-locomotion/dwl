@@ -11,12 +11,6 @@
   <!-- Hip assembly -->
   <!-- Upper leg -->
   <!-- Lower leg -->
-  <!-- PTU unit -->
-  <!-- Asus Xtion Camera Location (Nominally 0) -->
-  <!-- Kinect Camera Location (Nominally 0) -->
-  <!-- Bumblebee mass and lengths for computing inertia tensor -->
-  <!-- Velodyne Lidar Location (Nominally 0) -->
-  <!-- HighDef Camera Location (Nominally 0) -->
   <!-- HyQ trunk -->
   <!-- Things that are needed only for Gazebo (not the physical robot). These include sensor and controller plugin specifications -->
   <!-- ================================ Trunk ================================ -->
@@ -29,19 +23,19 @@
   <gazebo>
     <plugin filename="libgazebo_ros_control.so" name="gazebo_ros_controller_manager">
       <robotNamespace>/hyq</robotNamespace>
-      <!--<robotSimType>hyq2max_gazebo/HyQ2MaxHWSim</robotSimType>-->
-      <controlPeriod>0.005</controlPeriod>
+      <robotSimType>dls_gazebo_interface/DLSHWSim</robotSimType>
+      <controlPeriod>0.004</controlPeriod>
     </plugin>
     <plugin filename="libgazebo_ros_p3d.so" name="gazebo_ros_p3d">
       <robotNamespace>/hyq</robotNamespace>
       <bodyName>trunk</bodyName>
-      <topicName>odom</topicName>
+      <topicName>ground_truth</topicName>
       <frameName>world</frameName>
       <xyzOffsets>0 0 0</xyzOffsets>
       <rpyOffsets>0 0 0</rpyOffsets>
       <gaussianNoise>0</gaussianNoise>
       <alwaysOn>true</alwaysOn>
-      <updateRate>200.0</updateRate>
+      <updateRate>250.0</updateRate>
     </plugin>
   </gazebo>
   <!-- Now we can start using the macros included above to define the actual HyQ -->
@@ -72,9 +66,9 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
   <!-- Trunk link -->
   <link name="trunk">
     <inertial>
-      <origin xyz="0.02707 0.0 0.0329"/>
-      <mass value="71.758"/>
-      <inertia ixx="1.61053" ixy="-0.0288" ixz="0.34161" iyy="8.53505" iyz="0.0038" izz="9.19102"/>
+      <origin xyz="-0.0004 -5.36e-05 0.003553"/>
+      <mass value="59.1"/>
+      <inertia ixx="1.5725937" ixy="0.028375" ixz="-0.203139" iyy="8.5015928" iyz="-0.004462" izz="9.1954911"/>
     </inertial>
     <visual>
       <geometry>
@@ -126,7 +120,7 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
     <!-- Foot joint -->
   </joint>
   <joint name="lf_foot_joint" type="fixed">
-    <origin rpy="1.57079632679 0 -1.57079632679" xyz="0.341 0 0"/>
+    <origin rpy="1.57079632679 0 -1.57079632679" xyz="0.346 0 0"/>
     <parent link="lf_lowerleg"/>
     <child link="lf_foot"/>
   </joint>
@@ -197,6 +191,13 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       <mass value="0.0"/>
       <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
     </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02175"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -204,6 +205,9 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       </geometry>
     </collision>
   </link>
+  <gazebo reference="lf_foot">
+    <material>Gazebo/Black</material>
+  </gazebo>
   <!-- Extensions -->
   <!-- Hip assembly -->
   <transmission name="lf_haa_trans">
@@ -238,6 +242,15 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
+  <gazebo reference="lf_haa_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+  <gazebo reference="lf_kfe_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+  <gazebo reference="lf_hfe_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
   <gazebo reference="lf_upperleg">
     <kp>1000000.0</kp>
     <kd>100.0</kd>
@@ -257,14 +270,16 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
     <minDepth>0.00</minDepth>
   </gazebo>
   <gazebo reference="lf_foot">
-    <!-- contact sensor -->
     <sensor name="lf_foot_contact_sensor" type="contact">
+      <always_on>true</always_on>
       <update_rate>1000.0</update_rate>
-      <always_on>1</always_on>
       <contact>
         <collision>lf_foot_collision</collision>
-        <topic>/lf_foot_contact</topic>
       </contact>
+      <plugin filename="libgazebo_ros_bumper.so" name="lf_foot_bumper">
+        <bumperTopicName>/lf_grf</bumperTopicName>
+        <frameName>base_link</frameName>
+      </plugin>
     </sensor>
   </gazebo>
   <!-- RF leg -->
@@ -301,7 +316,7 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
     <!-- Foot joint -->
   </joint>
   <joint name="rf_foot_joint" type="fixed">
-    <origin rpy="1.57079632679 0 -1.57079632679" xyz="0.341 0 0"/>
+    <origin rpy="1.57079632679 0 -1.57079632679" xyz="0.346 0 0"/>
     <parent link="rf_lowerleg"/>
     <child link="rf_foot"/>
   </joint>
@@ -372,6 +387,13 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       <mass value="0.0"/>
       <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
     </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02175"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -379,6 +401,9 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       </geometry>
     </collision>
   </link>
+  <gazebo reference="rf_foot">
+    <material>Gazebo/Black</material>
+  </gazebo>
   <!-- Extensions -->
   <!-- Hip assembly -->
   <transmission name="rf_haa_trans">
@@ -413,6 +438,15 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
+  <gazebo reference="rf_haa_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+  <gazebo reference="rf_kfe_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+  <gazebo reference="rf_hfe_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
   <gazebo reference="rf_upperleg">
     <kp>1000000.0</kp>
     <kd>100.0</kd>
@@ -432,14 +466,16 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
     <minDepth>0.00</minDepth>
   </gazebo>
   <gazebo reference="rf_foot">
-    <!-- contact sensor -->
     <sensor name="rf_foot_contact_sensor" type="contact">
+      <always_on>true</always_on>
       <update_rate>1000.0</update_rate>
-      <always_on>1</always_on>
       <contact>
         <collision>rf_foot_collision</collision>
-        <topic>/rf_foot_contact</topic>
       </contact>
+      <plugin filename="libgazebo_ros_bumper.so" name="rf_foot_bumper">
+        <bumperTopicName>/rf_grf</bumperTopicName>
+        <frameName>base_link</frameName>
+      </plugin>
     </sensor>
   </gazebo>
   <!-- LH leg -->
@@ -476,7 +512,7 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
     <!-- Foot joint -->
   </joint>
   <joint name="lh_foot_joint" type="fixed">
-    <origin rpy="1.57079632679 0 -1.57079632679" xyz="0.341 0 0"/>
+    <origin rpy="1.57079632679 0 -1.57079632679" xyz="0.346 0 0"/>
     <parent link="lh_lowerleg"/>
     <child link="lh_foot"/>
   </joint>
@@ -547,6 +583,13 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       <mass value="0.0"/>
       <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
     </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02175"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -554,6 +597,9 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       </geometry>
     </collision>
   </link>
+  <gazebo reference="lh_foot">
+    <material>Gazebo/Black</material>
+  </gazebo>
   <!-- Extensions -->
   <!-- Hip assembly -->
   <transmission name="lh_haa_trans">
@@ -588,6 +634,15 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
+  <gazebo reference="lh_haa_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+  <gazebo reference="lh_kfe_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+  <gazebo reference="lh_hfe_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
   <gazebo reference="lh_upperleg">
     <kp>1000000.0</kp>
     <kd>100.0</kd>
@@ -607,14 +662,16 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
     <minDepth>0.00</minDepth>
   </gazebo>
   <gazebo reference="lh_foot">
-    <!-- contact sensor -->
     <sensor name="lh_foot_contact_sensor" type="contact">
+      <always_on>true</always_on>
       <update_rate>1000.0</update_rate>
-      <always_on>1</always_on>
       <contact>
         <collision>lh_foot_collision</collision>
-        <topic>/lh_foot_contact</topic>
       </contact>
+      <plugin filename="libgazebo_ros_bumper.so" name="lh_foot_bumper">
+        <bumperTopicName>/lh_grf</bumperTopicName>
+        <frameName>base_link</frameName>
+      </plugin>
     </sensor>
   </gazebo>
   <!-- RH leg -->
@@ -651,7 +708,7 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
     <!-- Foot joint -->
   </joint>
   <joint name="rh_foot_joint" type="fixed">
-    <origin rpy="1.57079632679 0 -1.57079632679" xyz="0.341 0 0"/>
+    <origin rpy="1.57079632679 0 -1.57079632679" xyz="0.346 0 0"/>
     <parent link="rh_lowerleg"/>
     <child link="rh_foot"/>
   </joint>
@@ -722,6 +779,13 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       <mass value="0.0"/>
       <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
     </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02175"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -729,6 +793,9 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       </geometry>
     </collision>
   </link>
+  <gazebo reference="rh_foot">
+    <material>Gazebo/Black</material>
+  </gazebo>
   <!-- Extensions -->
   <!-- Hip assembly -->
   <transmission name="rh_haa_trans">
@@ -763,6 +830,15 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
+  <gazebo reference="rh_haa_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+  <gazebo reference="rh_kfe_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
+  <gazebo reference="rh_hfe_joint">
+    <provideFeedback>true</provideFeedback>
+  </gazebo>
   <gazebo reference="rh_upperleg">
     <kp>1000000.0</kp>
     <kd>100.0</kd>
@@ -782,18 +858,20 @@ is the world frame). For more, see http://www.ros.org/wiki/xacro -->
     <minDepth>0.00</minDepth>
   </gazebo>
   <gazebo reference="rh_foot">
-    <!-- contact sensor -->
     <sensor name="rh_foot_contact_sensor" type="contact">
+      <always_on>true</always_on>
       <update_rate>1000.0</update_rate>
-      <always_on>1</always_on>
       <contact>
         <collision>rh_foot_collision</collision>
-        <topic>/rh_foot_contact</topic>
       </contact>
+      <plugin filename="libgazebo_ros_bumper.so" name="rh_foot_bumper">
+        <bumperTopicName>/rh_grf</bumperTopicName>
+        <frameName>base_link</frameName>
+      </plugin>
     </sensor>
   </gazebo>
   <!-- IMU trunk -->
-  <xacro:microstrain_3dmgx425_imu accel_bias_mean="0.002" accel_bias_stddev="0.001" accel_mean="0" accel_stddev="1.7e-2" imu_name="imu" imu_topic="trunk_imu/data" parent="trunk" rate_bias_mean="0.00087" rate_bias_stddev="0.0000008" rate_mean="0" rate_stddev="2e-4" update_rate="250">
+  <xacro:microstrain_3dmgx425_imu imu_name="trunk_imu" imu_topic="trunk_imu/data" parent="trunk" update_rate="250">
     <origin rpy="0 -3.14159265359 0" xyz="0.290 0.000 0.0999214"/>
   </xacro:microstrain_3dmgx425_imu>
 </robot>
