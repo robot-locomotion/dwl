@@ -10,7 +10,7 @@ namespace environment
 Feature::Feature() :
 		space_discretization_(std::numeric_limits<double>::max(),
 				std::numeric_limits<double>::max()),
-				robot_(NULL), max_cost_(2.), weight_(1.)
+				robot_(NULL), max_cost_(1.), weight_(1.)
 {
 
 }
