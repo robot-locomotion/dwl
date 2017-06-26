@@ -96,7 +96,7 @@ void PreviewLocomotion::readPreviewSequence(PreviewData& data,
 
 	// Reading the preview sequence
 	data.resize(num_datapoint);
-	for (int k = 0; k < num_datapoint; k++) {
+	for (int k = 0; k < num_datapoint; ++k) {
 		YamlNamespace data_ns = {"preview_sequence",
 								 "datapoint_" + std::to_string(k)};
 
@@ -176,7 +176,7 @@ void PreviewLocomotion::readPreviewSequence(StepCommand& command,
 	control.params.resize(num_phases);
 
 	// Reading the preview parameters per phase
-	for (int k = 0; k < num_phases; k++) {
+	for (int k = 0; k < num_phases; ++k) {
 		// Getting the phase namespace
 		YamlNamespace phase_ns = control_ns;
 		phase_ns.push_back("phase_" + std::to_string(k));
@@ -193,7 +193,7 @@ void PreviewLocomotion::readPreviewSequence(StepCommand& command,
 			control.params[k].phase.setTypeOfPhase(simulation::STANCE);
 
 		// Reading the footstep shifts
-		for (unsigned int f = 0; f < feet_names_.size(); f++) {
+		for (unsigned int f = 0; f < feet_names_.size(); ++f) {
 			std::string name = feet_names_[f];
 
 			// Setting up if there is a foot shift in this phase
@@ -245,7 +245,7 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 
 	// Computing the preview for multi-phase
 	ReducedBodyState actual_state;
-	for (unsigned int k = 0; k < control.params.size(); k++) {
+	for (unsigned int k = 0; k < control.params.size(); ++k) {
 		ReducedBodyTrajectory phase_traj;
 
 		// Getting the preview params of the actual phase
@@ -259,7 +259,7 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 
 			// Updating the support region for this phase
 			if (preview_params.duration > sample_time_) {
-				for (unsigned int f = 0; f < num_feet_; f++) {
+				for (unsigned int f = 0; f < num_feet_; ++f) {
 					std::string name = feet_names_[f];
 
 					// Removing the swing foot of the actual phase
@@ -319,7 +319,7 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 	// Adding the latest state
 	actual_state = trajectory.back();
 	PreviewParams end_control = control.params.back();
-	for (unsigned int f = 0; f < num_feet_; f++) {
+	for (unsigned int f = 0; f < num_feet_; ++f) {
 		std::string name = feet_names_[f];
 
 		// Adding the foothold target of the current phase
@@ -374,7 +374,7 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 
 	// Computing the energy for multi-phase
 	ReducedBodyState actual_state = state;
-	for (unsigned int k = 0; k < control.params.size(); k++) {
+	for (unsigned int k = 0; k < control.params.size(); ++k) {
 		// Getting the preview params of the actual phase
 		PreviewParams preview_params = control.params[k];
 
@@ -434,7 +434,7 @@ void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 
 	// Computing the preview trajectory
 	double time;
-	for (unsigned int k = idx; k < num_samples + 1; k++) {
+	for (unsigned int k = idx; k < num_samples + 1; ++k) {
 		// Computing the current time of the preview trajectory
 		if (k == num_samples)
 			time = params.duration;
@@ -487,7 +487,7 @@ void PreviewLocomotion::flightPreview(ReducedBodyTrajectory& trajectory,
 
 	// Computing the preview trajectory
 	double time;
-	for (unsigned int k = idx; k < num_samples + 1; k++) {
+	for (unsigned int k = idx; k < num_samples + 1; ++k) {
 		// Computing the current time of the preview trajectory
 		if (k == num_samples)
 			time = params.duration;
@@ -529,7 +529,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 
 	// Getting the swing shift per foot
 	rbd::BodyVector3d swing_shift_B;
-	for (unsigned int j = 0; j < params.phase.feet.size(); j++) {
+	for (unsigned int j = 0; j < params.phase.feet.size(); ++j) {
 		std::string name = params.phase.feet[j];
 		Eigen::Vector3d stance_H = stance_posture_H_.find(name)->second;
 
@@ -580,7 +580,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 	// Generating the actual state for every feet
 	feet_spline_generator_.clear();
 	for (rbd::BodyVector3d::const_iterator foot_it = state.foot_pos.begin();
-			foot_it != state.foot_pos.end(); foot_it++) {
+			foot_it != state.foot_pos.end(); ++foot_it) {
 		std::string name = foot_it->first;
 
 		// Checking the feet that swing
@@ -616,7 +616,7 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 	// Generating the actual state for every feet
 	Eigen::Vector3d foot_pos_B, foot_vel_B, foot_acc_B;
 	for (rbd::BodyVector3d::const_iterator foot_it = phase_state_.foot_pos.begin();
-			foot_it != phase_state_.foot_pos.end(); foot_it++) {
+			foot_it != phase_state_.foot_pos.end(); ++foot_it) {
 		std::string name = foot_it->first;
 
 		// Checking the feet that swing

@@ -66,7 +66,7 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	vertices.resize(initial_state_.support_region.size());
 	unsigned int v_idx = 0;
 	for (rbd::BodyVector3d::const_iterator v = initial_state_.support_region.begin();
-			v != initial_state_.support_region.end(); v++) {
+			v != initial_state_.support_region.end(); ++v) {
 		vertices[v_idx] = v->second.cast<float>();
 		++v_idx;
 	}
