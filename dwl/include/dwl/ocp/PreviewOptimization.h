@@ -28,6 +28,20 @@ struct PreviewBounds
 	PreviewVariables upper;
 };
 
+struct TerrainModel
+{
+	TerrainModel() : weight(0.), margin(std::numeric_limits<double>::max()),
+			offset(0.) {}
+	TerrainModel(double _weight,
+				 double _margin,
+				 double _offset) : weight(_weight), margin(_margin),
+						 offset(_offset) {}
+
+	double weight;
+	double margin;
+	double offset;
+};
+
 /**
  * @class PreviewOptimization
  * @brief A preview optimization problem requires information of "modeling"
@@ -117,9 +131,9 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/**
 		 * @brief Sets the terrain cost weight
-		 * @param double Terrain weight
+		 * @param TerrainModel Terrain model
 		 */
-		void setTerrainWeight(double weight);
+		void setTerrainModel(const TerrainModel& model);
 
 		/**
 		 * @brief Sets the reference step properties
@@ -283,11 +297,11 @@ class PreviewOptimization : public model::OptimizationModel
 		simulation::StepCommand actual_command_;
 		double desired_yaw_B_;
 
-		/** @brief Weights of the cost functions */
+		/** @brief Cost and constraint models */
 		double step_duration_weight_;
 		double step_length_weight_;
 		Eigen::Vector3d acc_int_weight_;
-		double terrain_weight_;
+		TerrainModel terrain_model_;
 
 		/** @brief Feet information */
 		rbd::BodySelector feet_;
