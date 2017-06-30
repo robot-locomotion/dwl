@@ -69,9 +69,9 @@ namespace dwl
  */
 class WholeBodyState
 {
-	typedef rbd::BodyVectorXd::const_iterator ContactIterator;
-
 	public:
+		typedef rbd::BodyVectorXd::const_iterator ContactIterator;
+
 		/** @brief Constructor function */
 		WholeBodyState(unsigned int num_joints = 0);
 

@@ -184,6 +184,13 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
 
 
+option(WITH_PYTHON "Compile the Python front-end" ON)
+if(WITH_PYTHON)# OR WITH_MATLAB OR WITH_OCTAVE OR WITH_JSON)
+  add_subdirectory(swig)
+endif()
+
+
+
 # Adding sample executables
 add_executable(fb_sample  sample/FloatingBaseSample.cpp)
 target_link_libraries(fb_sample ${PROJECT_NAME})
