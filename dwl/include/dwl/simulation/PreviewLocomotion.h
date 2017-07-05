@@ -105,7 +105,7 @@ struct PreviewSchedule
 	}
 
 	void init(const rbd::BodyVector3d& support) {
-		for (unsigned int p = 0; p < getNumberPhases(); p++) {
+		for (unsigned int p = 0; p < getNumberPhases(); ++p) {
 			std::vector<std::string> swings = getSwingFeet(p);
 			unsigned int num_swings = getNumberOfSwingFeet(p);
 
@@ -115,7 +115,7 @@ struct PreviewSchedule
 					actual_phase_ = p;
 				}
 			} else {
-				for (unsigned int s = 0; s < num_swings; s++) {
+				for (unsigned int s = 0; s < num_swings; ++s) {
 					std::string swing = swings[s];
 
 					if (support.find(swing) != support.end()) {
