@@ -1,40 +1,39 @@
+#include <dwl/WholeBodyState.h>
 #include <dwl/model/WholeBodyDynamics.h>
-
-using namespace std;
 
 
 
 int main(int argc, char **argv)
 {
-	// Floating-base system & Whole-body dynamics object
-	dwl::model::FloatingBaseSystem sys;
-	dwl::model::WholeBodyDynamics dyn;
+	dwl::WholeBodyState ws;
+	dwl::model::FloatingBaseSystem fbs;
+	dwl::model::WholeBodyDynamics wdyn;
 
 	// Resetting the system from the hyq urdf file
-	string model_file = "../sample/hyq.urdf";
-	string robot_file = "../config/hyq.yarf";
-	sys.resetFromURDFFile(model_file, robot_file);
-	dyn.modelFromURDFFile(model_file, robot_file);
+	std::string urdf_file = "../sample/hyq.urdf";
+	std::string yarf_file = "../config/hyq.yarf";
+	fbs.resetFromURDFFile(urdf_file, yarf_file);
+	wdyn.modelFromURDFFile(urdf_file, yarf_file);
+
+	// Define the DoF after initializing the robot model
+	ws.setJointDoF(fbs.getJointDoF());
 
 
 	// The robot state
-	dwl::rbd::Vector6d base_wrench, base_pos, base_vel, base_acc;
-	Eigen::VectorXd joint_forces(12), joint_pos(12), joint_vel(12), joint_acc(12);
-	base_pos = dwl::rbd::Vector6d::Zero();
-	base_vel = dwl::rbd::Vector6d::Zero();
-	base_acc = dwl::rbd::Vector6d::Zero();
-	base_wrench = dwl::rbd::Vector6d::Zero();
-	joint_pos = Eigen::VectorXd::Zero(12);
-	joint_pos(sys.getJointId("lf_hfe_joint")) = 0.75;
-	joint_pos(sys.getJointId("lf_kfe_joint")) = -1.5;
-	joint_pos(sys.getJointId("lh_hfe_joint")) = -0.75;
-	joint_pos(sys.getJointId("lh_kfe_joint")) = 1.5;
-	joint_pos(sys.getJointId("rf_hfe_joint")) = 0.75;
-	joint_pos(sys.getJointId("rf_kfe_joint")) = -1.5;
-	joint_pos(sys.getJointId("rh_hfe_joint")) = -0.75;
-	joint_pos(sys.getJointId("rh_kfe_joint")) = 1.5;
-	joint_vel = Eigen::VectorXd::Zero(12);
-	joint_acc = Eigen::VectorXd::Zero(12);
+	ws.setBasePosition_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseRPY_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseVelocity_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseRPYVelocity_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseAcceleration_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseRPYAcceleration_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setJointPosition(0.75, fbs.getJointId("lf_hfe_joint"));
+	ws.setJointPosition(-1.5, fbs.getJointId("lf_kfe_joint"));
+	ws.setJointPosition(-0.75, fbs.getJointId("lh_hfe_joint"));
+	ws.setJointPosition(1.5, fbs.getJointId("lh_kfe_joint"));
+	ws.setJointPosition(0.75, fbs.getJointId("rf_hfe_joint"));
+	ws.setJointPosition(-1.5, fbs.getJointId("rf_kfe_joint"));
+	ws.setJointPosition(-0.75, fbs.getJointId("rh_hfe_joint"));
+	ws.setJointPosition(1.5, fbs.getJointId("rh_kfe_joint"));
 
 
 	// Computing the ID
@@ -43,72 +42,72 @@ int main(int argc, char **argv)
 	grf["rf_foot"] << 0, 0, 0, 0, 0, 190.778;
 	grf["lh_foot"] << 0, 0, 0, 0, 0, 190.778;
 	grf["rh_foot"] << 0, 0, 0, 0, 0, 190.778;
-	dyn.computeInverseDynamics(base_wrench, joint_forces,
-							   base_pos, joint_pos,
-							   base_vel, joint_vel,
-							   base_acc, joint_acc, grf);
-	cout << "--------------------------- ID --------------------------" << endl;
-	cout << "Base wrench = " << base_wrench.transpose() << endl;
-	cout << "Joint forces = " << joint_forces.transpose() << endl << endl;
+	wdyn.computeInverseDynamics(ws.base_eff, ws.joint_eff,
+								ws.base_pos, ws.joint_pos,
+								ws.base_vel, ws.joint_vel,
+								ws.base_acc, ws.joint_acc, grf);
+	std::cout << "--------------------------- ID --------------------------" << std::endl;
+	std::cout << "Base wrench = " << ws.base_eff.transpose() << std::endl;
+	std::cout << "Joint forces = " << ws.joint_eff.transpose() << std::endl << std::endl;
 
 
 	// Estimating active contacts
 	double force_threshold = 0.;
 	dwl::rbd::BodySelector active_contacts;
 	dwl::rbd::BodyVector6d contact_forces;
-	dyn.estimateActiveContacts(active_contacts, contact_forces,
-							   base_pos, joint_pos,
-							   base_vel, joint_vel,
-							   base_acc, joint_acc,
-							   joint_forces, sys.getEndEffectorNames(), // it uses all the end-effector of the system
-							   force_threshold);
-	cout << "--------------- Estimated active contacts ---------------" << endl;
+	wdyn.estimateActiveContacts(active_contacts, contact_forces,
+								ws.base_pos, ws.joint_pos,
+								ws.base_vel, ws.joint_vel,
+								ws.base_acc, ws.joint_acc,
+								ws.joint_eff, fbs.getEndEffectorNames(), // it uses all the end-effector of the system
+								force_threshold);
+	std::cout << "--------------- Estimated active contacts ---------------" << std::endl;
 	for (dwl::rbd::BodyVector6d::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
-		string name = it->first;
+		std::string name = it->first;
 		dwl::rbd::Vector6d force = it->second;
 
-		cout << "active contact: " << name << " and its force is " << force.transpose() << endl << endl;
+		std::cout << "active contact: " << name << " and its force is " << force.transpose() << std::endl << std::endl;
 	}
 
 
 	// Estimating contact forces from joint measurements
-	dyn.computeContactForces(contact_forces, joint_forces,
-							 base_pos, joint_pos,
-							 base_vel, joint_vel,
-							 base_acc, joint_acc,
-							 sys.getEndEffectorNames());
-	cout << "--------------- Estimated contact forces ----------------" << endl;
-	std::cout << "Joint forces = " << joint_forces.transpose() << std::endl;
+	wdyn.computeContactForces(contact_forces, ws.joint_eff,
+							  ws.base_pos, ws.joint_pos,
+							  ws.base_vel, ws.joint_vel,
+							  ws.base_acc, ws.joint_acc,
+							  fbs.getEndEffectorNames());
+	std::cout << "--------------- Estimated contact forces ----------------" << std::endl;
+	std::cout << "Joint forces = " << ws.joint_eff.transpose() << std::endl;
 	for (dwl::rbd::BodyVector6d::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
-		string name = it->first;
+		std::string name = it->first;
 		dwl::rbd::Vector6d force = it->second;
 
-		cout << "contact force[" << name << "] = " << force.transpose() << endl;
+		std::cout << "contact force[" << name << "] = " << force.transpose() << std::endl;
 	}
-	cout << endl;
+	std::cout << std::endl;
 
 
 	// Computing the floating-base ID
-	dyn.computeFloatingBaseInverseDynamics(base_acc, joint_forces,
-										   base_pos, joint_pos,
-										   base_vel, joint_vel,
-										   joint_acc, contact_forces);
-	cout << "---------------- Floating-base ID ------------------" << std::endl;
-	cout << "Base accelerations = " << base_acc.transpose() << endl;
-	cout << "Joint forces = " << joint_forces.transpose() << endl << endl;
+	wdyn.computeFloatingBaseInverseDynamics(ws.base_acc, ws.joint_eff,
+											ws.base_pos, ws.joint_pos,
+											ws.base_vel, ws.joint_vel,
+											ws.joint_acc, contact_forces);
+	std::cout << "---------------- Floating-base ID ------------------" << std::endl;
+	std::cout << "Base accelerations = " << ws.base_acc.transpose() << std::endl;
+	std::cout << "Joint forces = " << ws.joint_eff.transpose() << std::endl << std::endl;
 
 
 	// Computing the constrained ID
-	base_acc.setZero();
-	dyn.computeConstrainedFloatingBaseInverseDynamics(joint_forces,
-													  base_pos, joint_pos,
-													  base_vel, joint_vel,
-													  base_acc, joint_acc,
-													  sys.getEndEffectorNames());
-	cout << "------------------ Constrained ID ------------------" << std::endl;
-	cout << "Joint forces = " << joint_forces.transpose() << endl << endl;
+	ws.base_acc.setZero();
+	wdyn.computeConstrainedFloatingBaseInverseDynamics(ws.joint_eff,
+													   ws.base_pos, ws.joint_pos,
+													   ws.base_vel, ws.joint_vel,
+													   ws.base_acc, ws.joint_acc,
+													   fbs.getEndEffectorNames());
+	std::cout << "------------------ Constrained ID ------------------" << std::endl;
+	std::cout << "Joint forces = " << ws.joint_eff.transpose() << std::endl << std::endl;
 
 
 	// Computing the contact forces from the CoP
@@ -118,26 +117,26 @@ int main(int argc, char **argv)
 	contact_pos["lh_foot"] = Eigen::Vector3d(-0.335953242968, 0.207404146377, 0.0215);
 	contact_pos["rf_foot"] = Eigen::Vector3d(0.31996232038, -0.207592286639, 0.0215);
 	contact_pos["rh_foot"] = Eigen::Vector3d(-0.331894998575, -0.207236136594, 0.0215);
-	dyn.computeContactForces(contact_forces,
+	wdyn.computeContactForces(contact_forces,
 							 cop_pos,
 							 contact_pos,
-							 sys.getEndEffectorNames());
-	cout << "----------------- Contact forces from CoP ---------------" << endl;
+							 fbs.getEndEffectorNames());
+	std::cout << "----------------- Contact forces from CoP ---------------" << std::endl;
 	for (dwl::rbd::BodyVector6d::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
-		string name = it->first;
+		std::string name = it->first;
 		dwl::rbd::Vector6d force = it->second;
 
-		cout << "contact force[" << name << "] = " << force.transpose() << endl;
+		std::cout << "contact force[" << name << "] = " << force.transpose() << std::endl;
 	}
-	cout << endl;
+	std::cout << std::endl;
 
 
 	// Computing the joint space inertia matrix
 	Eigen::MatrixXd inertial_mat;
-	dyn.computeJointSpaceInertialMatrix(inertial_mat, base_pos, joint_pos);
-	cout << "--------------- Joint Space Inertia Matrix --------------" << endl;
-	cout << inertial_mat << " = inertial matrix" << endl;
+	wdyn.computeJointSpaceInertialMatrix(inertial_mat, ws.base_pos, ws.joint_pos);
+	std::cout << "--------------- Joint Space Inertia Matrix --------------" << std::endl;
+	std::cout << inertial_mat << " = inertial matrix" << std::endl;
 
 
 	// Computing the instantaneous capture point
@@ -145,16 +144,16 @@ int main(int argc, char **argv)
 	com_pos = Eigen::Vector3d(0.2, 0.05, 0.85);
 	com_vel = Eigen::Vector3d(0.1, 0.1, 0.);
 	double height = 0.85;
-	dyn.computeInstantaneousCapturePoint(icp_pos, com_pos, com_vel, height);
-	cout << "--------------- Instantaneous Capture Point --------------" << endl;
-	cout << icp_pos.transpose() << " = icp" << endl;
+	wdyn.computeInstantaneousCapturePoint(icp_pos, com_pos, com_vel, height);
+	std::cout << "--------------- Instantaneous Capture Point --------------" << std::endl;
+	std::cout << icp_pos.transpose() << " = icp" << std::endl;
 
 
 	// Computing the centroidal moment pivot
 	Eigen::Vector3d cmp_pos;
-	dyn.computeCentroidalMomentPivot(cmp_pos, com_pos, height, contact_forces);
-	cout << "--------------- Centroidal Moment Pivot --------------" << endl;
-	cout << cmp_pos.transpose() << " = cmp" << endl;
+	wdyn.computeCentroidalMomentPivot(cmp_pos, com_pos, height, contact_forces);
+	std::cout << "--------------- Centroidal Moment Pivot --------------" << std::endl;
+	std::cout << cmp_pos.transpose() << " = cmp" << std::endl;
 
 	return 0;
 }
