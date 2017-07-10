@@ -226,7 +226,7 @@ void LinearControlledCartTableModel::computeCoMResponse(ReducedBodyState& state,
 	double normal_z = support_normal_(rbd::Z);
 	double delta_posz = -(normal_2d.dot(delta_cop.head<2>())) / normal_z;
 
-	Eigen::Vector2d cop_vel = Eigen::Vector2d::Ones() / params_W_.duration;
+	Eigen::Vector2d cop_vel = params_W_.cop_shift.head<2>() / params_W_.duration;
 
 	// There is not vertical motion of the CoM. Note that we derive the above
 	// mentioned equation in order to get the velocity and acceleration components
