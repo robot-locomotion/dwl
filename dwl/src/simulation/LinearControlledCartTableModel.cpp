@@ -105,14 +105,16 @@ void LinearControlledCartTableModel::initAttitudeResponse(const ReducedBodyState
 	double pitch_delta = support_rpy_(1) - initial_state_.getRPY_W()(1);
 	double roll_vel = roll_delta / params_W_.duration;
 	double pitch_vel = pitch_delta / params_W_.duration;
+	Eigen::Vector3d initial_rpyd = initial_state_.getRPYVelocity_W();
+	Eigen::Vector3d initial_rpydd = initial_state_.getRPYAcceleration_W();
 
 	// Saturating the maximum roll and pitch displacement in case that we
 	// reach maximum velocity
 	double max_roll_vel = 0.1;
 	double max_pitch_vel = 0.1;
 	math::Spline::Point start_roll(initial_state_.getRPY_W()(0),
-								   initial_state_.getAngularVelocity_W()(0),
-								   initial_state_.getAngularAcceleration_W()(0));
+								   initial_rpyd(0),
+								   initial_rpydd(0));
 	math::Spline::Point end_roll;
 	if (fabs(roll_vel) > max_roll_vel) {
 		double final_roll;
@@ -136,8 +138,8 @@ void LinearControlledCartTableModel::initAttitudeResponse(const ReducedBodyState
 	}
 
 	math::Spline::Point start_pitch(initial_state_.getRPY_W()(1),
-									initial_state_.getAngularVelocity_W()(1),
-									initial_state_.getAngularAcceleration_W()(1));
+									initial_rpyd(1),
+									initial_rpydd(1));
 	math::Spline::Point end_pitch;
 	if (fabs(pitch_vel) > max_pitch_vel) {
 		double final_pitch;
