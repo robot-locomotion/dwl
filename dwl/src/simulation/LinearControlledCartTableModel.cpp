@@ -118,7 +118,7 @@ void LinearControlledCartTableModel::initAttitudeResponse(const ReducedBodyState
 	math::Spline::Point end_roll;
 	if (fabs(roll_vel) > max_roll_vel) {
 		double final_roll;
-		if (roll_vel >= 0) {
+		if (roll_vel >= 0.) {
 			final_roll =
 					initial_state_.getRPY_W()(0) + max_roll_vel * params_W_.duration;
 			end_roll = math::Spline::Point(final_roll,
@@ -143,7 +143,7 @@ void LinearControlledCartTableModel::initAttitudeResponse(const ReducedBodyState
 	math::Spline::Point end_pitch;
 	if (fabs(pitch_vel) > max_pitch_vel) {
 		double final_pitch;
-		if (pitch_vel >= 0) {
+		if (pitch_vel >= 0.) {
 			final_pitch =
 					initial_state_.getRPY_W()(1) + max_pitch_vel * params_W_.duration;
 			end_pitch = math::Spline::Point(final_pitch,
@@ -222,18 +222,17 @@ void LinearControlledCartTableModel::computeCoMResponse(ReducedBodyState& state,
 			omega_ * omega_ * beta_exp_2;
 
 	// Computing the Z-component of the CoP
-	// From the plane equation (i.e.  n * p = 0), we derive the following
+	// From the plane equation (i.e. n * p = 0), we derive the following
 	// equation that allows us to compute the delta in z
 	Eigen::Vector2d normal_2d = support_normal_.head<2>();
 	double normal_z = support_normal_(rbd::Z);
 	double delta_posz = -(normal_2d.dot(delta_cop.head<2>())) / normal_z;
 
-	Eigen::Vector2d cop_vel = params_W_.cop_shift.head<2>() / params_W_.duration;
-
 	// There is not vertical motion of the CoM. Note that we derive the above
 	// mentioned equation in order to get the velocity and acceleration components
+	// Note that cop_T_ is equal to the CoP velocity in the horizontal frame
 	state.com_pos(rbd::Z) = initial_state_.com_pos(rbd::Z) + delta_posz;
-	state.com_vel(rbd::Z) = -(normal_2d.dot(cop_vel)) / normal_z;
+	state.com_vel(rbd::Z) = -(normal_2d.dot(cop_T_)) / normal_z;
 	state.com_acc(rbd::Z) = 0.;
 	state.cop(rbd::Z) = initial_state_.cop(rbd::Z) + delta_posz;
 	state.support_region = initial_state_.support_region;
