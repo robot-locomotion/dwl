@@ -59,11 +59,11 @@ void computePlaneParameters(Eigen::Vector3d& normal,
 		printf(YELLOW "Warning: could not computed the plane parameter"
 				" with less of 3 points\n" COLOR_RESET);
 	} else if (num_points == 3) {
-		// Determinate the signe of the angles in order to compute a normal
+		// Determinate the sign of the angles in order to compute a normal
 		// that follows the right-handed rule
 		Eigen::Vector3d a = (points[1] - points[0]).cast<double>();
 		Eigen::Vector3d b = (points[2] - points[0]).cast<double>();
-		Eigen::Vector2d p(-b(1), b(0));
+		Eigen::Vector2d p((double) -b(1), (double) b(0));
 		double b_coord = a.head<2>().dot(b.head<2>());
 		double p_coord = a.head<2>().dot(p);
 
@@ -72,6 +72,7 @@ void computePlaneParameters(Eigen::Vector3d& normal,
 			normal = b.cross(a);
 		else
 			normal = a.cross(b);
+		normal /= normal.norm();
 	} else {
 		Eigen::Matrix3d covariance;
 		Eigen::Vector3d mean;
