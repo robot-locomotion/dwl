@@ -269,6 +269,9 @@ bool IpoptNLP::init()
 	// Computing Hessian numerically (do not need to implement)
 	app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
 
+	// Computing Hessian numerically (do not need to implement)
+	app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
+
 	app_->Options()->SetStringValue("warm_start_init_point", "yes");
 
 //	app_->Options()->SetNumericValue("dual_inf_tol", 1000);
