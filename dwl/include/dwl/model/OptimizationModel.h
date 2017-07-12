@@ -182,6 +182,9 @@ class OptimizationModel
 		/** @brief Numerical differentiation mode */
 		Eigen::NumericalDiffMode num_diff_mode_;
 
+		/**@brief The solution vector */
+		Eigen::VectorXd solution_;
+
 		/** @brief Whole-body solution */
 		WholeBodyTrajectory motion_solution_;
 

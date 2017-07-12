@@ -21,6 +21,9 @@ int main(int argc, char **argv)
 	solver->setFromConfigFile("../config/ipopt_config.yaml");
 	solver->init();
 	solver->compute();
+	Eigen::VectorXd sol = solver->getSolution();
+	printf(BLUE "The solution is: " COLOR_RESET);
+	std::cout << sol.transpose() << std::endl;
 
 	return 0;
 }

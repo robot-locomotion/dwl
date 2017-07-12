@@ -58,8 +58,14 @@ class OptimizationSolver
 		model::OptimizationModel* getOptimizationModel();
 
 		/**
+		 * @brief Gets the solution computed by the optimizer
+		 * @return const Eigen::VectorXd& The solution vector
+		 */
+		const Eigen::VectorXd& getSolution();
+
+		/**
 		 * @brief Gets the whole-body trajectory computed by the optimizer
-		 * @return const WholeBodyTrajectory Whole-body trajectory
+		 * @return const WholeBodyTrajectory& Whole-body trajectory
 		 */
 		const WholeBodyTrajectory& getWholeBodyTrajectory();
 
@@ -76,6 +82,9 @@ class OptimizationSolver
 
 		/** @brief Optimization model */
 		model::OptimizationModel* model_;
+
+		/** @brief The solution vector */
+		Eigen::VectorXd solution_;
 
 		/** @brief Computed whole-body trajectory */
 		WholeBodyTrajectory locomotion_trajectory_;

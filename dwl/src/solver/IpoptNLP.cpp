@@ -319,7 +319,8 @@ bool IpoptNLP::compute(double allocated_time_secs)
 
 	if (solved) {
 		printf("\n\n*** The problem solved!\n");
-		locomotion_trajectory_ = model_->evaluateSolution(ipopt_.getSolution());
+		solution_ = ipopt_.getSolution();
+		locomotion_trajectory_ = model_->evaluateSolution(solution_);
 	} else
 		printf("\n\n*** The problem FAILED!\n");
 

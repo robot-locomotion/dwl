@@ -328,9 +328,9 @@ bool cmaesSOFamily<TScaling>::compute(double allocated_time_secs)
 	}
 
 	// Evaluation of the solution
-	Eigen::VectorXd solution =
+	solution_ =
 			cmaes_params_->get_gp().pheno(cmasols.best_candidate().get_x_dvec());
-	locomotion_trajectory_ = model_->evaluateSolution(solution);
+	locomotion_trajectory_ = model_->evaluateSolution(solution_);
 
 	return cmasols.run_status();
 }

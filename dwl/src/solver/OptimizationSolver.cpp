@@ -37,6 +37,12 @@ model::OptimizationModel* OptimizationSolver::getOptimizationModel()
 }
 
 
+const Eigen::VectorXd& OptimizationSolver::getSolution()
+{
+	return solution_;
+}
+
+
 const WholeBodyTrajectory& OptimizationSolver::getWholeBodyTrajectory()
 {
 	return locomotion_trajectory_;
