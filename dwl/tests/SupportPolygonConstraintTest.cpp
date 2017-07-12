@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(squared_support) // specify a test case for squared region
 {
 	// Declaring the constraint
 	dwl::ocp::SupportPolygonConstraint constraint;
-	constraint.setSoftProperties(dwl::ocp::SoftConstraintProperties(10, 0.));
+	constraint.setSoftProperties(dwl::ocp::SoftConstraintProperties(10, 0., 0.));
 
 	// Defining the squared support region
 	double dim = 1.;
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(triangle_support) // specify a test case for triangle regio
 {
 	// Declaring the constraint
 	dwl::ocp::SupportPolygonConstraint constraint;
-	constraint.setSoftProperties(dwl::ocp::SoftConstraintProperties(10, 0.));
+	constraint.setSoftProperties(dwl::ocp::SoftConstraintProperties(10, 0., 0.));
 
 	// Defining the squared support region
 	double dim = 1.;
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(line_support) // specify a test case for line region
 {
 	// Declaring the constraint
 	dwl::ocp::SupportPolygonConstraint constraint;
-	constraint.setSoftProperties(dwl::ocp::SoftConstraintProperties(10, 0.));
+	constraint.setSoftProperties(dwl::ocp::SoftConstraintProperties(10, 0., 0.));
 
 	// Defining the squared support region
 	double dim = 1.;
