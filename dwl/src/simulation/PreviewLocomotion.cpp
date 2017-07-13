@@ -110,7 +110,7 @@ void PreviewLocomotion::readPreviewSequence(PreviewData& data,
 }
 
 
-void PreviewLocomotion::readPreviewSequence(StepCommand& command,
+void PreviewLocomotion::readPreviewSequence(VelocityCommand& command,
 											PreviewState& state,
 											PreviewControl& control,
 											std::string filename,
@@ -134,12 +134,12 @@ void PreviewLocomotion::readPreviewSequence(StepCommand& command,
 	control_ns.push_back("preview_control");
 
 	// Reading the command
-	if (!yaml_reader.read(command.duration, "step_duration", command_ns)) {
-		printf(RED "Error: the step duration was not found\n" COLOR_RESET);
+	if (!yaml_reader.read(command.linear, "linear", command_ns)) {
+		printf(RED "Error: the linear velocity was not found\n" COLOR_RESET);
 		return;
 	}
-	if (!yaml_reader.read(command.length, "step_length", command_ns)) {
-		printf(RED "Error: the step length was not found\n" COLOR_RESET);
+	if (!yaml_reader.read(command.angular, "angular", command_ns)) {
+		printf(RED "Error: the angular velocity was not found\n" COLOR_RESET);
 		return;
 	}
 
