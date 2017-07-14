@@ -244,68 +244,19 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 	trajectory.clear();
 
 	// Computing the preview for multi-phase
-	ReducedBodyState actual_state;
-	for (unsigned int k = 0; k < control.params.size(); ++k) {
+	ReducedBodyState initial_state = state;
+	unsigned int num_phases = control.params.size();
+	for (unsigned int k = 0; k < num_phases; ++k) {
 		ReducedBodyTrajectory phase_traj;
 
 		// Getting the preview params of the actual phase
-		PreviewParams preview_params = control.params[k];
-
-		// Getting the actual preview state for this phase
-		if (k == 0)
-			actual_state = state;
-		else {
-			actual_state = trajectory.back();
-
-			// Updating the support region for this phase
-			if (preview_params.duration > sample_time_) {
-				for (unsigned int f = 0; f < num_feet_; ++f) {
-					std::string name = feet_names_[f];
-
-					// Removing the swing foot of the actual phase
-					if (preview_params.phase.isSwingFoot(name))
-						actual_state.support_region.erase(name);
-
-					// Adding the foothold target of the previous phase
-					if (control.params[k-1].phase.isSwingFoot(name) &&
-							control.params[k-1].duration > sample_time_) {
-						Eigen::Vector3d stance_H =
-								stance_posture_H_.find(name)->second;
-
-						// Getting the footshift control parameter
-						Eigen::Vector2d footshift_2d =
-								control.params[k-1].phase.getFootShift(name);
-						Eigen::Vector3d footshift_H(footshift_2d(rbd::X),
-													footshift_2d(rbd::Y),
-													0.);
-
-						// Computing the foothold position w.r.t. the world.
-						// Note that the footshift is always expressed in the
-						// horizontal frame
-						Eigen::Vector3d foothold =
-								actual_state.com_pos + stance_H + footshift_H;
-
-						if (terrain_.isTerrainInformation()) {
-							// Adding the terrain height given the terrain
-							// height-map
-							Eigen::Vector2d foothold_2d = foothold.head<2>();
-							foothold(rbd::Z) = terrain_.getTerrainHeight(foothold_2d);
-						} else {
-							foothold(rbd::Z) = actual_state_.com_pos(rbd::Z) -
-								cart_table_.getPendulumHeight();
-						}
-
-						actual_state.support_region[name] = foothold;
-					}
-				}
-			}
-		}
+		const PreviewParams& preview_params = control.params[k];
 
 		// Computing the preview of the actual phase
 		if (preview_params.phase.type == STANCE) {
-			stancePreview(phase_traj, actual_state, preview_params, full);
+			stancePreview(phase_traj, initial_state, preview_params, full);
 		} else {
-			flightPreview(phase_traj, actual_state, preview_params, full);
+			flightPreview(phase_traj, initial_state, preview_params, full);
 		}
 
 		// Appending the actual phase trajectory
@@ -314,45 +265,10 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 		// Sanity action: defining the actual state if there isn't a trajectory
 		if (trajectory.size() == 0)
 			trajectory.push_back(state);
+
+		// Updating the actual preview state for the next phase
+		initial_state = trajectory.back();
 	}
-
-	// Adding the latest state
-	actual_state = trajectory.back();
-	PreviewParams end_control = control.params.back();
-	for (unsigned int f = 0; f < num_feet_; ++f) {
-		std::string name = feet_names_[f];
-
-		// Adding the foothold target of the current phase
-		if (end_control.phase.isSwingFoot(name) &&
-				end_control.duration > sample_time_) {
-			Eigen::Vector3d stance_H =
-					stance_posture_H_.find(name)->second;
-
-			// Getting the footshift control parameter
-			Eigen::Vector2d footshift_2d =
-					end_control.phase.getFootShift(name);
-			Eigen::Vector3d footshift_H(footshift_2d(rbd::X),
-										footshift_2d(rbd::Y),
-										0.);
-
-			// Computing the foothold position w.r.t. the world. Note that the
-			// footshift is always expressed in the horizontal frame
-			Eigen::Vector3d foothold =
-					actual_state.com_pos + stance_H + footshift_H;
-
-			if (terrain_.isTerrainInformation()) {
-				// Adding the terrain height given the terrain height-map
-				Eigen::Vector2d foothold_2d = foothold.head<2>();
-				foothold(rbd::Z) = terrain_.getTerrainHeight(foothold_2d);
-			} else {
-				foothold(rbd::Z) = actual_state_.com_pos(rbd::Z) - 
-					cart_table_.getPendulumHeight();
-			}
-
-			actual_state.support_region[name] = foothold;
-		}
-	}
-	trajectory.push_back(actual_state);
 }
 
 
@@ -373,7 +289,7 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 	com_energy.setZero();
 
 	// Computing the energy for multi-phase
-	ReducedBodyState actual_state = state;
+	ReducedBodyState initial_state = state;
 	for (unsigned int k = 0; k < control.params.size(); ++k) {
 		// Getting the preview params of the actual phase
 		PreviewParams preview_params = control.params[k];
@@ -385,7 +301,7 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 			CartTableControlParams model_params(preview_params.duration,
 											    preview_params.cop_shift);
 			cart_table_.computeSystemEnergy(phase_energy,
-											actual_state,
+											initial_state,
 											model_params);
 			com_energy += phase_energy;
 		} else { // Flight phase
@@ -393,8 +309,8 @@ void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
 		}
 
 		// Updating the actual state
-		double time = actual_state.time + preview_params.duration;
-		cart_table_.computeResponse(actual_state, time);
+		double time = initial_state.time + preview_params.duration;
+		cart_table_.computeResponse(initial_state, time);
 	}
 }
 
@@ -409,10 +325,21 @@ void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 		return; // duration it's always positive, and makes sense when
 				// is bigger than the sample time
 
+	// Adding the actual support region. Note that the support region
+	// remains constant during this phase
+	ReducedBodyState current_state = state;
+	for (unsigned int f = 0; f < num_feet_; ++f) {
+		std::string name = feet_names_[f];
+
+		// Removing the swing foot of the actual phase
+		if (params.phase.isSwingFoot(name))
+			current_state.support_region.erase(name);
+	}
+
 	// Initialization of the Linear Controlled SLIP model
 	CartTableControlParams model_params(params.duration,
 										params.cop_shift);
-	cart_table_.initResponse(state, model_params);
+	cart_table_.initResponse(current_state, model_params);
 
 	// Computing the number of samples and initial index
 	unsigned int num_samples = floor(params.duration / sample_time_);
@@ -422,15 +349,11 @@ void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 		trajectory.resize(num_samples + 1);
 
 		// Initialization of the swing generator
-		initSwing(state, params);
+		initSwing(current_state, params);
 	} else {
 		idx = num_samples;
-		trajectory.resize(1);
+		trajectory.resize(2);
 	}
-
-	// Adding the actual support region. Note that the support region
-	// remains constant during this phase
-	ReducedBodyState current_state = state;
 
 	// Computing the preview trajectory
 	double time;
@@ -453,6 +376,41 @@ void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 
 		// Appending the current state to the preview trajectory
 		trajectory[k-idx] = current_state;
+	}
+
+	// Adding the foothold target of the previous phase
+	trajectory[1] = trajectory[0];
+	for (unsigned int f = 0; f < num_feet_; ++f) {
+		std::string name = feet_names_[f];
+		if (params.phase.isSwingFoot(name)) {
+			Eigen::Vector3d stance_H =
+					stance_posture_H_.find(name)->second;
+
+			// Getting the footshift control parameter
+			Eigen::Vector2d footshift_2d =
+					params.phase.getFootShift(name);
+			Eigen::Vector3d footshift_H(footshift_2d(rbd::X),
+										footshift_2d(rbd::Y),
+										0.);
+
+			// Computing the foothold position w.r.t. the world.
+			// Note that the footshift is always expressed in the
+			// horizontal frame
+			Eigen::Vector3d foothold =
+					trajectory.back().com_pos + stance_H + footshift_H;
+
+			if (terrain_.isTerrainInformation()) {
+				// Adding the terrain height given the terrain
+				// height-map
+				Eigen::Vector2d foothold_2d = foothold.head<2>();
+				foothold(rbd::Z) = terrain_.getTerrainHeight(foothold_2d);
+			} else {
+				foothold(rbd::Z) = actual_state_.com_pos(rbd::Z) -
+					cart_table_.getPendulumHeight();
+			}
+
+			trajectory.back().support_region[name] = foothold;
+		}
 	}
 }
 
