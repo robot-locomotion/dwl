@@ -12,287 +12,368 @@ COLOR_UNDE="\033[4m"
 DWL_INSTALL_PREFIX=/usr/local/dwl
 
 
+## This function detects the current os and distro
+CURRENT_OS="Unsupported" #CENTOS, UBUNUTU are other valid options
+function findCurrentOSType()
+{
+	echo
+	osType=$(uname)
+	case "$osType" in
+	"Darwin")
+	{
+		CURRENT_OS="OSX"
+	} ;;
+	"Linux")
+	{
+		# If available, use LSB to identify distribution
+		if [ -f /etc/lsb-release -o -d /etc/lsb-release.d ]; then
+			DISTRO=$(gawk -F= '/^NAME/{print $2}' /etc/os-release)
+		else
+			DISTRO=$(ls -d /etc/[A-Za-z]*[_-][rv]e[lr]* | grep -v "lsb" | cut -d'/' -f3 | cut -d'-' -f1 | cut -d'_' -f1)
+		fi
+		CURRENT_OS=$(echo $DISTRO | tr 'a-z' 'A-Z')
+	} ;;
+	*)
+	{
+		echo "Unsupported OS, exiting"
+		exit
+	} ;;
+	esac
+	echo -e "${COLOR_BOLD}Running on ${CURRENT_OS}.${COLOR_RESET}"
+}
+
+
 function install_eigen
 {
-	# Remove old folder (sanity procedure)
-	rm -rf eigen
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf eigen
 
-	# Getting Eigen 3.2.7
-	wget http://www.bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2
-	mkdir eigen && tar jxf 3.2.7.tar.bz2 -C eigen --strip-components 1
-	rm -rf 3.2.7.tar.bz2
-	cd eigen
-	mkdir -p build
-	cd build
-	cmake -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DEIGEN_INCLUDE_INSTALL_DIR=$DWL_INSTALL_PREFIX/include/eigen3 -Dpkg_config_libdir=$DWL_INSTALL_PREFIX/lib/ ../
-	sudo make -j install
-	cd ../../
+		# Getting Eigen 3.2.7
+		wget http://www.bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2
+		mkdir eigen && tar jxf 3.2.7.tar.bz2 -C eigen --strip-components 1
+		rm -rf 3.2.7.tar.bz2
+		cd eigen
+		mkdir -p build
+		cd build
+		cmake -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DEIGEN_INCLUDE_INSTALL_DIR=$DWL_INSTALL_PREFIX/include/eigen3 -Dpkg_config_libdir=$DWL_INSTALL_PREFIX/lib/ ../
+		sudo make -j install
+		cd ../../    
+    fi
 }
 
 
 function install_rbdl
 {
-	# Remove old folder (sanity procedure)
-	rm -rf rbdl
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf rbdl
 
-	# Getting RBDL 2.4.0
-	wget https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip
-	unzip v2.4.0.zip
-	rm v2.4.0.zip
-	mv rbdl-rbdl-* rbdl
-	cd rbdl
-	mkdir -p build
-	cd build
-	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
-	make -j
-	sudo make -j install
-	cd ../../
+		# Getting RBDL 2.4.0
+		wget https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip
+		unzip v2.4.0.zip
+		rm v2.4.0.zip
+		mv rbdl-rbdl-* rbdl
+		cd rbdl
+		mkdir -p build
+		cd build
+		cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		make -j
+		sudo make -j install
+		cd ../../
+	fi
 }
 
 
 function install_urdfdom_headers
 {
-	# Remove old folder (sanity procedure)
-	rm -rf urdf_headers
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf urdf_headers
 
-	# Getting urdfdom_headers 0.2.3
-	wget https://github.com/ros/urdfdom_headers/archive/0.2.3.tar.gz
-	mkdir urdfdom_headers && tar zxf 0.2.3.tar.gz -C urdfdom_headers --strip-components 1
-	rm -rf 0.2.3.tar.gz
-	cd urdfdom_headers
-	mkdir -p build
-	cd build
-	cmake ../
-	sudo make -j install
-	cd ../../
+		# Getting urdfdom_headers 0.2.3
+		wget https://github.com/ros/urdfdom_headers/archive/0.2.3.tar.gz
+		mkdir urdfdom_headers && tar zxf 0.2.3.tar.gz -C urdfdom_headers --strip-components 1
+		rm -rf 0.2.3.tar.gz
+		cd urdfdom_headers
+		mkdir -p build
+		cd build
+		cmake ../
+		sudo make -j install
+		cd ../../
+	fi
 }
 
 
 function install_console_bridge
 {
-	# Remove old folder (sanity procedure)
-	rm -rf console_bridge
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf console_bridge
 
-	# Getting console_bridge 0.2.7
-	wget https://github.com/ros/console_bridge/archive/0.2.7.tar.gz
-	mkdir console_bridge && tar zxf 0.2.7.tar.gz -C console_bridge --strip-components 1
-	rm -rf 0.2.7.tar.gz
-	cd console_bridge
-	mkdir -p build
-	cd build
-	cmake ../
-	sudo make -j install
-	cd ../../
+		# Getting console_bridge 0.2.7
+		wget https://github.com/ros/console_bridge/archive/0.2.7.tar.gz
+		mkdir console_bridge && tar zxf 0.2.7.tar.gz -C console_bridge --strip-components 1
+		rm -rf 0.2.7.tar.gz
+		cd console_bridge
+		mkdir -p build
+		cd build
+		cmake ../
+		sudo make -j install
+		cd ../../
+	fi
 }
 
 
 function install_urdfdom
 {
-	# Remove old folder (sanity procedure)
-	rm -rf urdfdom
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf urdfdom
 
-	# Getting console_bridge 0.2.10
-	wget https://github.com/ros/urdfdom/archive/0.2.10.tar.gz
-	mkdir urdfdom && tar zxf 0.2.10.tar.gz -C urdfdom --strip-components 1
-	rm -rf 0.2.10.tar.gz
-	cd urdfdom
-	mkdir -p build
-	cd build
-	cmake ../
-	sudo make -j install
-	cd ../../
+		# Getting console_bridge 0.2.10
+		wget https://github.com/ros/urdfdom/archive/0.2.10.tar.gz
+		mkdir urdfdom && tar zxf 0.2.10.tar.gz -C urdfdom --strip-components 1
+		rm -rf 0.2.10.tar.gz
+		cd urdfdom
+		mkdir -p build
+		cd build
+		cmake ../
+		sudo make -j install
+		cd ../../
+	fi
 }
 
 
 function install_yamlcpp
 {
-	# Remove old folder (sanity procedure)
-	rm -rf yaml-cpp
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf yaml-cpp
 
-	# Getting the YAML-CPP 0.5.1
-	wget https://github.com/jbeder/yaml-cpp/archive/release-0.5.1.zip
-	unzip release-0.5.1.zip && rm -rf release-0.5.1.zip
-	mv yaml-cpp-release-0.5.1 yaml-cpp
-	cd yaml-cpp
-	mkdir -p build
-	cd build
-	cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
-	sudo make -j install
-	cd ../../
+		# Getting the YAML-CPP 0.5.1
+		wget https://github.com/jbeder/yaml-cpp/archive/release-0.5.1.zip
+		unzip release-0.5.1.zip && rm -rf release-0.5.1.zip
+		mv yaml-cpp-release-0.5.1 yaml-cpp
+		cd yaml-cpp
+		mkdir -p build
+		cd build
+		cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		sudo make -j install
+		cd ../../
+	fi
 }
 
 
 function install_lapack
 {
-	# Remove old folder (sanity procedure)
-	rm -rf lapack
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf lapack
 
-	# Getting the LAPACK 3.6.0
-	wget http://www.netlib.org/lapack/lapack-3.6.0.tgz
-	mkdir lapack && tar xzvf lapack-3.6.0.tgz -C lapack --strip-components 1
-	rm -rf lapack-3.6.0.tgz
-	cd lapack
-	mkdir -p build
-	cd build
-	cmake -D BUILD_SHARED_LIBS:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -D CMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
-	sudo make -j install
-	cd ../../
+		# Getting the LAPACK 3.6.0
+		wget http://www.netlib.org/lapack/lapack-3.6.0.tgz
+		mkdir lapack && tar xzvf lapack-3.6.0.tgz -C lapack --strip-components 1
+		rm -rf lapack-3.6.0.tgz
+		cd lapack
+		mkdir -p build
+		cd build
+		cmake -D BUILD_SHARED_LIBS:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -D CMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		sudo make -j install
+		cd ../../
+	fi
 }
 
 
 function install_ipopt
 {
-	# Remove old folder (sanity procedure)
-	rm -rf ipopt
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf ipopt
 
-	# Installing necessary packages
-	sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
+		# Installing necessary packages
+		sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
 
-	# Getting Ipopt 3.12.4
-	wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.4.tgz
-	mkdir ipopt && tar xzvf Ipopt-3.12.4.tgz -C ipopt --strip-components 1
-	rm -rf Ipopt-3.12.4.tgz
-	# Documentation for Ipopt Third Party modules:
-	# http://www.coin-or.org/Ipopt/documentation/node13.html
+		# Getting Ipopt 3.12.4
+		wget http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.4.tgz
+		mkdir ipopt && tar xzvf Ipopt-3.12.4.tgz -C ipopt --strip-components 1
+		rm -rf Ipopt-3.12.4.tgz
+		# Documentation for Ipopt Third Party modules:
+		# http://www.coin-or.org/Ipopt/documentation/node13.html
 
-	# Installing LAPACK and BLAS
-	if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
-		install_lapack
+		# Installing LAPACK and BLAS
+		if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
+			install_lapack
+		fi
+
+		cd ipopt/ThirdParty
+		# Getting Metis dependency
+		cd Metis
+#		sed -i 's/metis\/metis/metis\/OLD\/metis/g' get.Metis
+#		sed -i 's/metis-4\.0/metis-4\.0\.3/g' get.Metis
+#		sed -i 's/mv metis/#mv metis/g' get.Metis
+		./get.Metis
+		# Patching is necessary. See http://www.math-linux.com/mathematics/Linear-Systems/How-to-patch-metis-4-0-error
+		wget http://www.math-linux.com/IMG/patch/metis-4.0.patch
+		patch -p0 < metis-4.0.patch
+		cd ..
+		# Getting Mumps dependency
+		cd Mumps
+		./get.Mumps
+		cd ..
+		# Getting ASL dependency
+		cd ASL
+		wget --recursive --include-directories=ampl/solvers http://www.netlib.org/ampl/solvers || true
+		rm -rf solvers
+		mv www.netlib.org/ampl/solvers .
+		rm -rf www.netlib.org/
+		sed -i 's/^rm/# rm/g' get.ASL
+		sed -i 's/^tar /# tar/g' get.ASL
+		sed -i 's/^$wgetcmd/# $wgetcmd/g' get.ASL
+		cd ..
+		# bugfix of http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=625018#10
+		cd ..
+		sed -n 'H;${x;s/#include "IpReferenced.hpp"/#include <cstddef>\
+		\
+		&/;p;}' Ipopt/src/Common/IpSmartPtr.hpp > IpSmartPtr.hpp
+		mv IpSmartPtr.hpp Ipopt/src/Common/IpSmartPtr.hpp
+		sed -n 'H;${x;s/#include <list>/&\
+		#include <cstddef>/;p;}' Ipopt/src/Algorithm/LinearSolvers/IpTripletToCSRConverter.cpp > IpTripletToCSRConverter.cpp
+		mv IpTripletToCSRConverter.cpp Ipopt/src/Algorithm/LinearSolvers/IpTripletToCSRConverter.cpp
+		# create build directory
+		mkdir -p build
+		cd build
+		# start building
+		../configure --enable-static --prefix $DWL_INSTALL_PREFIX --with-lapack="-L$DWL_INSTALL_PREFIX/lib -llapack" --with-blas="-L$DWL_INSTALL_PREFIX/lib -lblas"
+		sudo make -j install
+		cd ../../
 	fi
-
-	cd ipopt/ThirdParty
-	# Getting Metis dependency
-	cd Metis
-#	sed -i 's/metis\/metis/metis\/OLD\/metis/g' get.Metis
-#	sed -i 's/metis-4\.0/metis-4\.0\.3/g' get.Metis
-#	sed -i 's/mv metis/#mv metis/g' get.Metis
-	./get.Metis
-	# Patching is necessary. See http://www.math-linux.com/mathematics/Linear-Systems/How-to-patch-metis-4-0-error
-	wget http://www.math-linux.com/IMG/patch/metis-4.0.patch
-	patch -p0 < metis-4.0.patch
-	cd ..
-	# Getting Mumps dependency
-	cd Mumps
-	./get.Mumps
-	cd ..
-	# Getting ASL dependency
-	cd ASL
-	wget --recursive --include-directories=ampl/solvers http://www.netlib.org/ampl/solvers || true
-	rm -rf solvers
-	mv www.netlib.org/ampl/solvers .
-	rm -rf www.netlib.org/
-	sed -i 's/^rm/# rm/g' get.ASL
-	sed -i 's/^tar /# tar/g' get.ASL
-	sed -i 's/^$wgetcmd/# $wgetcmd/g' get.ASL
-	cd ..
-	# bugfix of http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=625018#10
-	cd ..
-	sed -n 'H;${x;s/#include "IpReferenced.hpp"/#include <cstddef>\
-	\
-	&/;p;}' Ipopt/src/Common/IpSmartPtr.hpp > IpSmartPtr.hpp
-	mv IpSmartPtr.hpp Ipopt/src/Common/IpSmartPtr.hpp
-	sed -n 'H;${x;s/#include <list>/&\
-	#include <cstddef>/;p;}' Ipopt/src/Algorithm/LinearSolvers/IpTripletToCSRConverter.cpp > IpTripletToCSRConverter.cpp
-	mv IpTripletToCSRConverter.cpp Ipopt/src/Algorithm/LinearSolvers/IpTripletToCSRConverter.cpp
-	# create build directory
-	mkdir -p build
-	cd build
-	# start building
-	../configure --enable-static --prefix $DWL_INSTALL_PREFIX --with-lapack="-L$DWL_INSTALL_PREFIX/lib -llapack" --with-blas="-L$DWL_INSTALL_PREFIX/lib -lblas"
-	sudo make -j install
-	cd ../../
 }
-
 
 
 function install_qpoases
 {
-	# Remove old folder (sanity procedure)
-	rm -rf qpOASES
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf qpOASES
 
-	# Getting the qpOASES 3.2.0
-	wget http://www.coin-or.org/download/source/qpOASES/qpOASES-3.2.0.tgz
-	tar xzfv qpOASES-3.2.0.tgz && rm qpOASES-3.2.0.tgz
-	mv qpOASES-3.2.0 qpOASES
+		# Getting the qpOASES 3.2.0
+		wget http://www.coin-or.org/download/source/qpOASES/qpOASES-3.2.0.tgz
+		tar xzfv qpOASES-3.2.0.tgz && rm qpOASES-3.2.0.tgz
+		mv qpOASES-3.2.0 qpOASES
 
-	# Installing LAPACK and BLAS
-	if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
-		install_lapack
+		# Installing LAPACK and BLAS
+		if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
+			install_lapack
+		fi
+
+		cd qpOASES
+		make -j REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
+		cd ../
 	fi
-
-	cd qpOASES
-	make -j REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
-	cd ../
 }
 
 
 function install_libcmaes
 {
-	# Remove old folder (sanity procedure)
-	rm -rf libcmaes
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf libcmaes
 
-	# Installing libcmaes dependecies
-	sudo apt-get install autoconf automake libtool libgoogle-glog-dev libgflags-dev
+		# Installing libcmaes dependecies
+		sudo apt-get install autoconf automake libtool libgoogle-glog-dev libgflags-dev
 	
-	# Getting the current path
-	CURRENT_PATH=$(pwd -P)
+		# Getting the current path
+		CURRENT_PATH=$(pwd -P)
 	
-	# Compiling and installing Google unit test framework
-	cd /usr/src/gtest
-	sudo mkdir -p build
-	cd build
-	sudo cmake ../
-	sudo make
-	sudo cp *.a /usr/lib
-	cd $CURRENT_PATH
+		# Compiling and installing Google unit test framework
+		cd /usr/src/gtest
+		sudo mkdir -p build
+		cd build
+		sudo cmake ../
+		sudo make
+		sudo cp *.a /usr/lib
+		cd $CURRENT_PATH
 	
-	# Getting the libcmaes 0.9.5
-	wget https://github.com/beniz/libcmaes/archive/0.9.5.tar.gz
-	mkdir libcmaes && tar zxf 0.9.5.tar.gz -C libcmaes --strip-components 1
-	rm -rf 0.9.5.tar.gz
-	cd libcmaes
-	./autogen.sh
-	./configure --enable-gglog --prefix=$DWL_INSTALL_PREFIX --with-eigen3-include=$DWL_INSTALL_PREFIX/include/eigen3
-	sudo make -j4 install
-	cd ../
+		# Getting the libcmaes 0.9.5
+		wget https://github.com/beniz/libcmaes/archive/0.9.5.tar.gz
+		mkdir libcmaes && tar zxf 0.9.5.tar.gz -C libcmaes --strip-components 1
+		rm -rf 0.9.5.tar.gz
+		cd libcmaes
+		./autogen.sh
+		./configure --enable-gglog --prefix=$DWL_INSTALL_PREFIX --with-eigen3-include=$DWL_INSTALL_PREFIX/include/eigen3
+		sudo make -j4 install
+		cd ../
+	fi
 }
 
 
 function install_octomap
 {
-	# Remove old folder (sanity procedure)
-	rm -rf octomap
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf octomap
 
-	# Getting Octomap 1.6.8
-	wget https://github.com/OctoMap/octomap/archive/v1.6.8.tar.gz
-	mkdir octomap && tar zxf v1.6.8.tar.gz -C octomap --strip-components 1
-	rm -rf v1.6.8.tar.gz
-	cd octomap
-	mkdir -p build
-	cd build
-	cmake ../
-	sudo make -j install
-	cd ../../
+		# Getting Octomap 1.6.8
+		wget https://github.com/OctoMap/octomap/archive/v1.6.8.tar.gz
+		mkdir octomap && tar zxf v1.6.8.tar.gz -C octomap --strip-components 1
+		rm -rf v1.6.8.tar.gz
+		cd octomap
+		mkdir -p build
+		cd build
+		cmake ../
+		sudo make -j install
+		cd ../../
+	fi
 }
 
 
 function install_gnuplot
 {
-	# Remove old folder (sanity procedure)
-	rm -rf gnuplot
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+		# Remove old folder (sanity procedure)
+		rm -rf gnuplot
 
-	# Installing qt5
-	sudo apt-get install qt5-default
+		# Installing qt5
+		sudo apt-get install qt5-default
 
-	# Getting the gnuplot 5.0.3
-	wget https://sourceforge.net/projects/gnuplot/files/gnuplot/5.0.3/gnuplot-5.0.3.tar.gz
-	mkdir gnuplot && tar zxf gnuplot-5.0.3.tar.gz -C gnuplot --strip-components 1
-	rm -rf gnuplot-5.0.3.tar.gz
-	cd gnuplot
-	./configure
-	sudo make install
-	cd ../
+		# Getting the gnuplot 5.0.3
+		wget https://sourceforge.net/projects/gnuplot/files/gnuplot/5.0.3/gnuplot-5.0.3.tar.gz
+		mkdir gnuplot && tar zxf gnuplot-5.0.3.tar.gz -C gnuplot --strip-components 1
+		rm -rf gnuplot-5.0.3.tar.gz
+		cd gnuplot
+		./configure
+		sudo make install
+		cd ../
+	fi
 }
+
+
+
 
 ##############################################  MAIN  ########################################################
 # Getting the path of the install_deps.sh file
@@ -322,6 +403,9 @@ echo "under certain conditions; see the filecontent for more information."
 # You should have received a copy of the GNU General Public License
 # along with DWL Installer.  If not, see
 # <http://www.gnu.org/licenses/>.
+
+## Detecting the current OS and distro
+findCurrentOSType
 
 echo ""
 read -s -p "Press enter to start the installation. " 
