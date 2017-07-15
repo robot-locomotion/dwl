@@ -67,3 +67,50 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set_target_properties(_dwl PROPERTIES COMPILE_FLAGS "-Wno-dynamic-class-memaccess -Wno-self-assign -Wno-maybe-uninitialized ${MAYBE_WERROR}")
 endif()
+
+# the name used for the shared module for the python interface is determined
+get_target_property(DWL_PYTHON_LIBRARY_SUFFIX ${SWIG_MODULE_dwl_REAL_NAME} SUFFIX)
+if(NOT ${DWL_PYTHON_LIBRARY_SUFFIX})
+  if( WIN32 )
+    set(DWL_PYTHON_LIBRARY_SUFFIX ".pyd")
+  else()
+    set(DWL_PYTHON_LIBRARY_SUFFIX ${CMAKE_SHARED_MODULE_SUFFIX})
+  endif()
+endif()
+set(DWL_PYTHON_LIBRARY ${SWIG_MODULE_dwl_REAL_NAME}${DWL_PYTHON_LIBRARY_SUFFIX})
+
+# Custom installation command for Python
+add_custom_target(install_python
+COMMAND ${CMAKE_COMMAND}
+  -D COMPONENT=install_python
+  -D CMAKE_INSTALL_PREFIX="${PYTHON_PREFIX}"
+  -P cmake_install.cmake
+)
+add_dependencies(install_python _dwl)
+
+# Install C++ wrapper library
+install(TARGETS _dwl
+  DESTINATION "${PYTHON_PREFIX}/dwl"
+  COMPONENT install_python
+)
+
+# Install Python proxy classes
+install(FILES ${PROJECT_BINARY_DIR}/swig/python/dwl.py
+  DESTINATION "${PYTHON_PREFIX}/dwl"
+  COMPONENT install_python
+)
+
+# Install Python tools
+#install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools
+#  DESTINATION "${PYTHON_PREFIX}/dwl"
+#  COMPONENT install_python
+#  USE_SOURCE_PERMISSIONS
+#  PATTERN .pyc EXCLUDE
+#  PATTERN .svn EXCLUDE
+#)
+
+# Install Python package initialization
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
+  DESTINATION "${PYTHON_PREFIX}/dwl"
+  COMPONENT install_python
+)
