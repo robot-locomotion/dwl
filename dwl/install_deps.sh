@@ -45,12 +45,20 @@ function findCurrentOSType()
 
 function install_eigen
 {
+	# Remove old folder (sanity procedure)
+	rm -rf eigen
+		
 	if [ "$CURRENT_OS" == "OSX" ]; then
-		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+		# Getting Eigen 3.2.7
+		curl -L "http://www.bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2" | tar xj
+		mv eigen-eigen-*/ eigen
+		cd eigen
+		mkdir -p build
+		cd build
+		cmake -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DEIGEN_INCLUDE_INSTALL_DIR=$DWL_INSTALL_PREFIX/include/eigen3 -Dpkg_config_libdir=$DWL_INSTALL_PREFIX/lib/ ../
+		sudo make -j install
+		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf eigen
-
 		# Getting Eigen 3.2.7
 		wget http://www.bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2
 		mkdir eigen && tar jxf 3.2.7.tar.bz2 -C eigen --strip-components 1
@@ -60,19 +68,29 @@ function install_eigen
 		cd build
 		cmake -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DEIGEN_INCLUDE_INSTALL_DIR=$DWL_INSTALL_PREFIX/include/eigen3 -Dpkg_config_libdir=$DWL_INSTALL_PREFIX/lib/ ../
 		sudo make -j install
-		cd ../../    
+		cd ../../
     fi
 }
 
 
 function install_rbdl
 {
+	# Remove old folder (sanity procedure)
+	rm -rf rbdl
+	
 	if [ "$CURRENT_OS" == "OSX" ]; then
-		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+		curl -L "https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip" > v2.4.0.zip
+		unzip v2.4.0.zip
+		rm v2.4.0.zip
+		mv rbdl-*/ rbdl
+		cd rbdl
+		mkdir -p build
+		cd build
+		cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		make -j
+		sudo make -j install
+		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf rbdl
-
 		# Getting RBDL 2.4.0
 		wget https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip
 		unzip v2.4.0.zip
@@ -91,12 +109,20 @@ function install_rbdl
 
 function install_urdfdom_headers
 {
+	# Remove old folder (sanity procedure)
+	rm -rf urdf_headers
+	
 	if [ "$CURRENT_OS" == "OSX" ]; then
-		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+		# Getting urdfdom_headers 0.2.3
+		curl -L "https://github.com/ros/urdfdom_headers/archive/0.2.3.tar.gz" | tar xz
+		mv urdfdom_headers-*/ urdfdom_headers
+		cd urdfdom_headers
+		mkdir -p build
+		cd build
+		cmake ../
+		sudo make -j install
+		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf urdf_headers
-
 		# Getting urdfdom_headers 0.2.3
 		wget https://github.com/ros/urdfdom_headers/archive/0.2.3.tar.gz
 		mkdir urdfdom_headers && tar zxf 0.2.3.tar.gz -C urdfdom_headers --strip-components 1
@@ -113,12 +139,21 @@ function install_urdfdom_headers
 
 function install_console_bridge
 {
+	# Remove old folder (sanity procedure)
+	rm -rf console_bridge
+	
 	if [ "$CURRENT_OS" == "OSX" ]; then
-		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+		# Getting console_bridge 0.2.7
+		curl -L "https://github.com/ros/console_bridge/archive/0.2.7.tar.gz" | tar xz
+		mv console_bridge-*/ console_bridge
+		cd console_bridge
+		mkdir -p build
+		cd build
+		brew install boost
+		cmake ../
+		sudo make -j install
+		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf console_bridge
-
 		# Getting console_bridge 0.2.7
 		wget https://github.com/ros/console_bridge/archive/0.2.7.tar.gz
 		mkdir console_bridge && tar zxf 0.2.7.tar.gz -C console_bridge --strip-components 1
@@ -135,12 +170,20 @@ function install_console_bridge
 
 function install_urdfdom
 {
-	if [ "$CURRENT_OS" == "OSX" ]; then
-		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
-	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf urdfdom
+	# Remove old folder (sanity procedure)
+	rm -rf urdfdom
 
+	if [ "$CURRENT_OS" == "OSX" ]; then
+		# Getting console_bridge 0.2.10
+		curl -L "https://github.com/ros/urdfdom/archive/0.2.10.tar.gz" | tar xz
+		mv urdfdom-*/ urdfdom
+		cd urdfdom
+		mkdir -p build
+		cd build
+		brew install tinyxml
+		cmake ../
+		cd ../../
+	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting console_bridge 0.2.10
 		wget https://github.com/ros/urdfdom/archive/0.2.10.tar.gz
 		mkdir urdfdom && tar zxf 0.2.10.tar.gz -C urdfdom --strip-components 1
@@ -157,16 +200,25 @@ function install_urdfdom
 
 function install_yamlcpp
 {
+	# Remove old folder (sanity procedure)
+	rm -rf yaml-cpp
+	
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+		# Getting the YAML-CPP 0.5.1
+		curl -L "https://github.com/jbeder/yaml-cpp/archive/release-0.5.1.zip" > release-0.5.1.zip
+		unzip release-0.5.1.zip && rm -rf release-0.5.1.zip
+		mv yaml-cpp-*/ yaml-cpp
+		cd yaml-cpp
+		mkdir -p build
+		cd build
+		cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		sudo make -j install
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf yaml-cpp
-
 		# Getting the YAML-CPP 0.5.1
 		wget https://github.com/jbeder/yaml-cpp/archive/release-0.5.1.zip
 		unzip release-0.5.1.zip && rm -rf release-0.5.1.zip
-		mv yaml-cpp-release-0.5.1 yaml-cpp
+		mv yaml-cpp-*/ yaml-cpp
 		cd yaml-cpp
 		mkdir -p build
 		cd build
@@ -330,12 +382,20 @@ function install_libcmaes
 
 function install_octomap
 {
+	# Remove old folder (sanity procedure)
+	rm -rf octomap
+	
 	if [ "$CURRENT_OS" == "OSX" ]; then
-		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+		# Getting Octomap 1.6.8
+		curl -L "https://github.com/OctoMap/octomap/archive/v1.6.8.tar.gz" | tar xj
+		mv octomap-*/ octomap
+		cd octomap
+		mkdir -p build
+		cd build
+		cmake ../
+		sudo make -j install
+		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf octomap
-
 		# Getting Octomap 1.6.8
 		wget https://github.com/OctoMap/octomap/archive/v1.6.8.tar.gz
 		mkdir octomap && tar zxf v1.6.8.tar.gz -C octomap --strip-components 1
