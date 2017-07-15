@@ -600,105 +600,105 @@ bool WholeBodyState::getContactCondition(const std::string& name) const
 
 void WholeBodyState::setBasePosition_W(const Eigen::Vector3d& pos)
 {
-	rbd::linearPart(base_pos) = pos;
+	base_pos.bottomRows<3>() = pos;
 }
 
 
 void WholeBodyState::setBaseOrientation_W(const Eigen::Quaterniond& orient)
 {
-	rbd::angularPart(base_pos) = math::getRPY(orient);
+	base_pos.topRows<3>() = math::getRPY(orient);
 }
 
 
 void WholeBodyState::setBaseRPY_W(const Eigen::Vector3d& rpy)
 {
-	rbd::angularPart(base_pos) = rpy;
+	base_pos.topRows<3>() = rpy;
 }
 
 
 void WholeBodyState::setBaseVelocity_W(const Eigen::Vector3d& vel_W)
 {
-	rbd::linearPart(base_vel) = vel_W;
+	base_vel.bottomRows<3>() = vel_W;
 }
 
 
 void WholeBodyState::setBaseVelocity_B(const Eigen::Vector3d& vel_B)
 {
-	rbd::linearPart(base_vel) =
+	base_vel.topRows<3>() =
 			frame_tf_.fromBaseToWorldFrame(vel_B, getBaseOrientation_W());
 }
 
 
 void WholeBodyState::setBaseVelocity_H(const Eigen::Vector3d& vel_H)
 {
-	rbd::linearPart(base_vel) =
+	base_vel.bottomRows<3>() =
 			frame_tf_.fromHorizontalToWorldFrame(vel_H, getBaseRPY_W());
 }
 
 
 void WholeBodyState::setBaseAngularVelocity_W(const Eigen::Vector3d& rate_W)
 {
-	rbd::angularPart(base_vel) = rate_W;
+	base_vel.topRows<3>() = rate_W;
 }
 
 
 void WholeBodyState::setBaseAngularVelocity_B(const Eigen::Vector3d& rate_B)
 {
-	rbd::angularPart(base_vel) =
+	base_vel.topRows<3>() =
 			frame_tf_.fromBaseToWorldFrame(rate_B, getBaseOrientation_W());
 }
 
 
 void WholeBodyState::setBaseAngularVelocity_H(const Eigen::Vector3d& rate_H)
 {
-	rbd::angularPart(base_vel) =
+	base_vel.topRows<3>() =
 			frame_tf_.fromHorizontalToWorldFrame(rate_H, getBaseRPY_W());
 }
 
 
 void WholeBodyState::setBaseRPYVelocity_W(const Eigen::Vector3d& rpy_rate)
 {
-	rbd::angularPart(base_vel) =
+	base_vel.topRows<3>() =
 			math::getInverseEulerAnglesRatesMatrix(getBaseRPY_W()) * rpy_rate;
 }
 
 
 void WholeBodyState::setBaseAcceleration_W(const Eigen::Vector3d& acc_W)
 {
-	rbd::linearPart(base_acc) = acc_W;
+	base_acc.bottomRows<3>() = acc_W;
 }
 
 
 void WholeBodyState::setBaseAcceleration_B(const Eigen::Vector3d& acc_B)
 {
-	rbd::linearPart(base_acc) =
+	base_acc.bottomRows<3>() =
 			frame_tf_.fromBaseToWorldFrame(acc_B, getBaseOrientation_W());
 }
 
 
 void WholeBodyState::setBaseAcceleration_H(const Eigen::Vector3d& acc_H)
 {
-	rbd::linearPart(base_acc) =
+	base_acc.bottomRows<3>() =
 			frame_tf_.fromHorizontalToWorldFrame(acc_H, getBaseRPY_W());
 }
 
 
 void WholeBodyState::setBaseAngularAcceleration_W(const Eigen::Vector3d& rotacc_W)
 {
-	rbd::angularPart(base_acc) = rotacc_W;
+	base_acc.topRows<3>() = rotacc_W;
 }
 
 
 void WholeBodyState::setBaseAngularAcceleration_B(const Eigen::Vector3d& rotacc_B)
 {
-	rbd::angularPart(base_acc) =
+	base_acc.topRows<3>() =
 			frame_tf_.fromBaseToWorldFrame(rotacc_B, getBaseOrientation_W());
 }
 
 
 void WholeBodyState::setBaseAngularAcceleration_H(const Eigen::Vector3d& rotacc_H)
 {
-	rbd::angularPart(base_acc) =
+	base_acc.topRows<3>() =
 			frame_tf_.fromHorizontalToWorldFrame(rotacc_H, getBaseRPY_W());
 }
 
@@ -708,7 +708,7 @@ void WholeBodyState::setBaseRPYAcceleration_W(const Eigen::Vector3d& rpy_acc)
 	// omega_dot = EAR * rpy_ddot + EAR_dot * rpy_dot
 	Eigen::Vector3d rpy = getBaseRPY_W();
 	Eigen::Vector3d rpy_vel = getBaseRPYVelocity_W();
-	rbd::angularPart(base_acc) =
+	base_acc.topRows<3>() =
 			math::getInverseEulerAnglesRatesMatrix(rpy) * rpy_acc +
 			math::getInverseEulerAnglesRatesMatrix_dot(rpy, rpy_vel) * rpy_vel;
 }

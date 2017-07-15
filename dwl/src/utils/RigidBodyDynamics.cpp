@@ -25,25 +25,25 @@ std::string coord6dToName(enum Coords6d coord)
 }
 
 
-Part3d angularPart(Vector6d& vector)
+Eigen::Vector3d angularPart(Vector6d& vector)
 {
 	return vector.topRows<3>();
 }
 
 
-Part3d linearPart(Vector6d& vector)
+Eigen::Vector3d linearPart(Vector6d& vector)
 {
 	return vector.bottomRows<3>();
 }
 
 
-TranslationPart translationVector(Eigen::Matrix4d& hom_transform)
+Eigen::Vector3d translationVector(Eigen::Matrix4d& hom_transform)
 {
     return hom_transform.block<3,1>(0,3);
 }
 
 
-RotationPart rotationMatrix(Eigen::MatrixBase<Eigen::Matrix4d>& hom_transform)
+Eigen::Matrix3d rotationMatrix(Eigen::MatrixBase<Eigen::Matrix4d>& hom_transform)
 {
     return hom_transform.block<3,3>(0,0);
 }

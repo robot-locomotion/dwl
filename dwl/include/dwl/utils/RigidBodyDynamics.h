@@ -16,9 +16,6 @@ enum Component {Linear, Angular, Full};
 
 typedef Eigen::Matrix<double,6,1> Vector6d;
 typedef Eigen::Matrix<double,6,6> Matrix6d;
-typedef Eigen::Block<Vector6d,3,1> Part3d;///< a 3D sub-vector of a 6D vector
-typedef Eigen::Block<Eigen::Matrix4d,3,1> TranslationPart;
-typedef Eigen::Block<Eigen::Matrix4d,3,3> RotationPart;
 typedef std::vector<std::string> BodySelector;
 typedef std::map<std::string,unsigned int> BodyID;
 typedef std::map<std::string,Eigen::Vector3d> BodyVector3d;
@@ -39,19 +36,19 @@ std::string coord6dToName(enum Coords6d coord);
  * @brief The 3-coordinate vector with the angular components (angular velocity or torque) of the
  * given spatial vector
  */
-Part3d angularPart(Vector6d& vector);
+Eigen::Vector3d angularPart(Vector6d& vector);
 
 /**
  * @brief The 3-coordinate vector with the linear components (linear
  * velocity or force) of the given spatial vector.
  */
-Part3d linearPart(Vector6d& vector);
+Eigen::Vector3d linearPart(Vector6d& vector);
 
 /** @brief The translation vector of a homogeneous transform */
-TranslationPart translationVector(Eigen::Matrix4d& hom_transform);
+Eigen::Vector3d translationVector(Eigen::Matrix4d& hom_transform);
 
 /** @brief The rotation matrix of a homogeneous transform */
-RotationPart rotationMatrix(Eigen::MatrixBase<Eigen::Matrix4d>& hom_transform);
+Eigen::Matrix3d rotationMatrix(Eigen::MatrixBase<Eigen::Matrix4d>& hom_transform);
 
 /**
  * @brief Gets list of bodies (movable and fixed) of the rigid-body system
