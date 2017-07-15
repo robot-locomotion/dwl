@@ -1,11 +1,7 @@
 %module dwl
 %{
-#include <vector>
-#include <Eigen/Dense>
-#include <rbdl/rbdl.h>
-#include <dwl/utils/Math.h>
-//#include <dwl/utils/FrameTF.h>
-#include <dwl/utils/RigidBodyDynamics.h>
+#include <Python.h>
+#include <dwl/WholeBodyState.h>
 %}
 
 /// Data structure in the target language holding data
@@ -17,34 +13,50 @@
 #define GUESTOBJECT void
 #endif
 
-%include "std_vector.i"
+// typemaps.i is a built-in swig interface that lets us map c++ types to other
+// types in our language of choice. We'll use it to map Eigen matrices to
+// Numpy arrays.
+%include <typemaps.i>
+%include <std_string.i>
+%include <std_vector.i>
+%include <std_map.i>
+
+// eigen.i is found in ../swig/ and contains specific definitions to convert
+// Eigen matrices into Numpy arrays.
 %include <eigen.i>
-%rename(myVector6d) dwl::rbd::Vector6d;
-%rename(myPart3d) dwl::rbd::Part3d;
-typedef Eigen::Block<Vector6d,3,1> Part3d;
 
-//%ignore angularPart(Vector6d& vector);
-//myPart3d angularPart(myVector6d& vector);
-
-
-//%include <rbdl/rbdl.h>
-%include <dwl/utils/Math.h>
 
 %include <dwl/utils/RigidBodyDynamics.h>
-//%include "dwl/WholeBodyState.h"
+%include <dwl/WholeBodyState.h>
 
 
 
-%template(vectorMatrixXd) std::vector<Eigen::MatrixXd>;
-%template(vectorVectorXd) std::vector<Eigen::VectorXd>;
+
+%template(vector_matrix3d) std::vector<Eigen::Matrix3d>;
+%template(vector_matrix4d) std::vector<Eigen::Matrix4d>;
+%template(vector_matrixXd) std::vector<Eigen::MatrixXd>;
+%template(vector_vector2d) std::vector<Eigen::Vector2d>;
+%template(vector_vector3d) std::vector<Eigen::Vector3d>;
+%template(vector_vectorXd) std::vector<Eigen::VectorXd>;
+
+%template(map_string_vector3d) std::map<std::string, Eigen::Vector3d>;
+%template(map_string_vector6d) std::map<std::string, dwl::rbd::Vector6d>;
+%template(map_string_vectorXd) std::map<std::string, Eigen::VectorXd>;
+
 
 // Since Eigen uses templates, we have to declare exactly which types we'd
 // like to generate mappings for.
+%eigen_typemaps(Eigen::Vector2d)
+%eigen_typemaps(Eigen::Vector3d)
+%eigen_typemaps(dwl::rbd::Vector6d)
 %eigen_typemaps(Eigen::VectorXd)
+%eigen_typemaps(Eigen::Matrix3d)
+%eigen_typemaps(Eigen::Matrix4d)
 %eigen_typemaps(Eigen::MatrixXd)
 // Even though Eigen::MatrixXd is just a typedef for Eigen::Matrix<double,
 // Eigen::Dynamic, Eigen::Dynamic>, our templatedInverse function doesn't
 // compile correctly unless we also declare typemaps for Eigen::Matrix<double,
 // Eigen::Dynamic, Eigen::Dynamic>. Not totally sure why that is.
 %eigen_typemaps(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>)
+
 
