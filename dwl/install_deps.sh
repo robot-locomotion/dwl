@@ -230,6 +230,23 @@ function install_yamlcpp
 }
 
 
+function install_swig
+{
+	# Remove old folder (sanity procedure)
+	rm -rf swig
+
+	# Getting the SWIG 3.0.12
+	wget http://downloads.sourceforge.net/swig/swig-3.0.12.tar.gz
+	mkdir swig && tar zxf swig-3.0.12.tar.gz -C swig --strip-components 1
+	rm -rf swig-3.0.12.tar.gz
+	cd swig
+	./configure --prefix=/usr --without-clisp --without-maximum-compile-warnings
+	make -j
+	sudo make install
+	cd ../../
+}
+
+
 function install_lapack
 {
 	# Remove old folder (sanity procedure)
@@ -652,6 +669,23 @@ if [ -d "$DWL_INSTALL_PREFIX/include/yaml-cpp" ]; then
     fi
 else
 	install_yamlcpp
+fi
+
+
+
+##---------------------------------------------------------------##
+##------------------------ Installing SWIG ----------------------##
+##---------------------------------------------------------------##
+echo ""
+echo -e "${COLOR_BOLD}Installing SWIG ...${COLOR_RESET}"
+if [ -d "/usr/share/swig" ]; then
+	echo -e -n "${COLOR_QUES}Do you want to re-install SWIG 3.0.12? [y/N]: ${COLOR_RESET}"
+	read ANSWER_SWIG
+	if [ "$ANSWER_SWIG" == "Y" ] || [ "$ANSWER_SWIG" == "y" ]; then
+		install_swig
+    fi
+else
+	install_swig
 fi
 
 
