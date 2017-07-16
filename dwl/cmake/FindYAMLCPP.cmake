@@ -8,7 +8,7 @@
 #  YAMLCPP_INCLUDE_DIRS - the yaml-cpp include directory
 #  YAMLCPP_LIBRARIES - the yaml-cpp libraries
 #
-# Copyright (c) 2015 Carlos Mastalli, <carlos.mastalli@iit.it>
+# Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@iit.it>
 # Redistribution and use is allowed according to the terms of the XXX license.
 
 
@@ -20,12 +20,12 @@ endif()
 # find the yaml-cpp include directory
 find_path(YAMLCPP_INCLUDE_DIRS  yaml-cpp/yaml.h
                                 PATH_SUFFIXES include
-                                HINTS /usr/local/dwl)
+                                HINTS /usr/include /usr/local ${DWL_INSTALL_PREFIX})
 
 # find the yaml-cpp library
 find_library(YAMLCPP_LIBRARIES  NAMES ${YAMLCPP_STATIC} yaml-cpp
                                 PATH_SUFFIXES lib
-                                HINTS /usr/local/dwl)
+                                HINTS /usr/include /usr/local ${DWL_INSTALL_PREFIX})
 
 # handle the QUIETLY and REQUIRED arguments and set YAMLCPP_FOUND to TRUE if all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
