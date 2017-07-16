@@ -231,12 +231,22 @@ function install_yamlcpp
 
 function install_lapack
 {
+	# Remove old folder (sanity procedure)
+	rm -rf lapack
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+		# Getting the LAPACK 3.6.0
+		curl -L "http://www.netlib.org/lapack/lapack-3.6.0.tgz" | tar xz
+		mv lapack-* lapack
+		cd lapack
+		mkdir -p build
+		cd build
+		#TODO this part doesn't work yet
+		cmake -D BUILD_SHARED_LIBS:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -D CMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		sudo make -j install
+		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf lapack
-
 		# Getting the LAPACK 3.6.0
 		wget http://www.netlib.org/lapack/lapack-3.6.0.tgz
 		mkdir lapack && tar xzvf lapack-3.6.0.tgz -C lapack --strip-components 1
