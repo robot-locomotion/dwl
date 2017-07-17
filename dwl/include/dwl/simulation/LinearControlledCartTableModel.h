@@ -73,6 +73,10 @@ class LinearControlledCartTableModel
 		 */
 		void initResponse(const ReducedBodyState& state,
 						  const CartTableControlParams& params_H);
+		void initCoMResponse(const ReducedBodyState& state,
+							 const CartTableControlParams& params_H);
+		void initAttitudeResponse(const ReducedBodyState& state,
+								  const CartTableControlParams& params_H);
 
 		/**
 		 * @brief Computes the response of LC-SLIP model
@@ -81,6 +85,10 @@ class LinearControlledCartTableModel
 		 */
 		void computeResponse(ReducedBodyState& state,
 							 double time);
+		void computeCoMResponse(ReducedBodyState& state,
+				 	 	 	 	double time);
+		void computeAttitudeResponse(ReducedBodyState& state,
+									 double time);
 
 		/**
 		 * @brief Computes the energy associated to the CoM

@@ -32,20 +32,33 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 {
 	if (!init_model_) {
 		printf(YELLOW "Warning: could not initialized the initResponse because"
-				" there is not defined the SLIP model\n" COLOR_RESET);
+				" there is not defined the cart-table model\n" COLOR_RESET);
 		return;
 	}
 
+	// Initializes the CoM response
+	initCoMResponse(state, params_H);
+
+	// Initializes the attitude response
+	initAttitudeResponse(state, params_H);
+
+	init_response_ = true;
+}
+
+
+void LinearControlledCartTableModel::initCoMResponse(const ReducedBodyState& state,
+													 const CartTableControlParams& params_H)
+{
 	// Saving the initial state
 	initial_state_ = state;
 
-	// Saving the SLIP control params in the world frame
+	// Saving the cart-table control params in the world frame
 	params_W_.duration = params_H.duration;
 	params_W_.cop_shift =
 			frame_tf_.fromHorizontalToWorldFrame(params_H.cop_shift,
 												 initial_state_.getRPY_W());
 
-	// Computing the coefficients of the Cart-Table response
+	// Computing the coefficients of the cart-table response
 	height_ = initial_state_.getCoMPosition_W()(rbd::Z) -
 			  initial_state_.getCoPPosition_W()(rbd::Z);
 	omega_ = sqrt(properties_.gravity / height_);
@@ -59,14 +72,21 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	beta_2_ = hor_proj / 2 -
 			(hor_disp - params_W_.cop_shift.head<2>()) / alpha;
 	cop_T_ = params_W_.cop_shift.head<2>() / params_W_.duration;
+}
 
+
+void LinearControlledCartTableModel::initAttitudeResponse(const ReducedBodyState& state,
+		 	 	 	 	 	 	 	 	 	 	 	 	  const CartTableControlParams& params_H)
+{
+	// Saving the initial state
+	initial_state_ = state;
 
 	// Getting the support vertices
 	std::vector<Eigen::Vector3f> vertices;
 	vertices.resize(initial_state_.support_region.size());
 	unsigned int v_idx = 0;
 	for (rbd::BodyVector3d::const_iterator v = initial_state_.support_region.begin();
-			v != initial_state_.support_region.end(); v++) {
+			v != initial_state_.support_region.end(); ++v) {
 		vertices[v_idx] = v->second.cast<float>();
 		++v_idx;
 	}
@@ -85,18 +105,20 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	double pitch_delta = support_rpy_(1) - initial_state_.getRPY_W()(1);
 	double roll_vel = roll_delta / params_W_.duration;
 	double pitch_vel = pitch_delta / params_W_.duration;
+	Eigen::Vector3d initial_rpyd = initial_state_.getRPYVelocity_W();
+	Eigen::Vector3d initial_rpydd = initial_state_.getRPYAcceleration_W();
 
 	// Saturating the maximum roll and pitch displacement in case that we
 	// reach maximum velocity
 	double max_roll_vel = 0.1;
 	double max_pitch_vel = 0.1;
 	math::Spline::Point start_roll(initial_state_.getRPY_W()(0),
-								   initial_state_.getAngularVelocity_W()(0),
-								   initial_state_.getAngularAcceleration_W()(0));
+								   initial_rpyd(0),
+								   initial_rpydd(0));
 	math::Spline::Point end_roll;
 	if (fabs(roll_vel) > max_roll_vel) {
 		double final_roll;
-		if (roll_vel >= 0) {
+		if (roll_vel >= 0.) {
 			final_roll =
 					initial_state_.getRPY_W()(0) + max_roll_vel * params_W_.duration;
 			end_roll = math::Spline::Point(final_roll,
@@ -116,12 +138,12 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	}
 
 	math::Spline::Point start_pitch(initial_state_.getRPY_W()(1),
-									initial_state_.getAngularVelocity_W()(1),
-									initial_state_.getAngularAcceleration_W()(1));
+									initial_rpyd(1),
+									initial_rpydd(1));
 	math::Spline::Point end_pitch;
 	if (fabs(pitch_vel) > max_pitch_vel) {
 		double final_pitch;
-		if (pitch_vel >= 0) {
+		if (pitch_vel >= 0.) {
 			final_pitch =
 					initial_state_.getRPY_W()(1) + max_pitch_vel * params_W_.duration;
 			end_pitch = math::Spline::Point(final_pitch,
@@ -147,8 +169,6 @@ void LinearControlledCartTableModel::initResponse(const ReducedBodyState& state,
 	pitch_spline_.setBoundary(0., params_W_.duration,
 							 start_pitch,
 							 end_pitch);
-
-	init_response_ = true;
 }
 
 
@@ -166,7 +186,17 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 		return; // duration it's always positive, and makes sense when
 				// is bigger than the sample time
 
+	// Computing the CoM response
+	computeCoMResponse(state, time);
 
+	// Computing the attitude response
+	computeAttitudeResponse(state, time);
+}
+
+
+void LinearControlledCartTableModel::computeCoMResponse(ReducedBodyState& state,
+				 	 	 	 							double time)
+{
 	// Computing the delta time w.r.t. the initial time
 	double dt = time - initial_state_.time;
 	state.time = time;
@@ -192,24 +222,29 @@ void LinearControlledCartTableModel::computeResponse(ReducedBodyState& state,
 			omega_ * omega_ * beta_exp_2;
 
 	// Computing the Z-component of the CoP
-	// From the plane equation (i.e.  n * p = 0), we derive the following
+	// From the plane equation (i.e. n * p = 0), we derive the following
 	// equation that allows us to compute the delta in z
 	Eigen::Vector2d normal_2d = support_normal_.head<2>();
 	double normal_z = support_normal_(rbd::Z);
 	double delta_posz = -(normal_2d.dot(delta_cop.head<2>())) / normal_z;
 
-	Eigen::Vector2d cop_vel = Eigen::Vector2d::Ones() / params_W_.duration;
-
 	// There is not vertical motion of the CoM. Note that we derive the above
 	// mentioned equation in order to get the velocity and acceleration components
+	// Note that cop_T_ is equal to the CoP velocity in the horizontal frame
 	state.com_pos(rbd::Z) = initial_state_.com_pos(rbd::Z) + delta_posz;
-	state.com_vel(rbd::Z) = -(normal_2d.dot(cop_vel)) / normal_z;
+	state.com_vel(rbd::Z) = -(normal_2d.dot(cop_T_)) / normal_z;
 	state.com_acc(rbd::Z) = 0.;
 	state.cop(rbd::Z) = initial_state_.cop(rbd::Z) + delta_posz;
 	state.support_region = initial_state_.support_region;
+}
 
+
+void LinearControlledCartTableModel::computeAttitudeResponse(ReducedBodyState& state,
+							 	 	 	 	 	 	 	 	 double time)
+{
 	// Splinning the roll and pitch angle in order to have the base frame
 	// parallel with the support frame
+	double dt = time - initial_state_.time;
 	math::Spline::Point roll, pitch, yaw;
 	roll_spline_.getPoint(dt, roll);
 	pitch_spline_.getPoint(dt, pitch);
@@ -234,17 +269,17 @@ void LinearControlledCartTableModel::computeSystemEnergy(Eigen::Vector3d& com_en
 
 	// Computing the CoM energy associated to the horizontal
 	// dynamics
-	// x_acc^2 = (beta1 * omega^2)^2 * exp(2 * omega * dt)
-	//			 (beta2 * omega^2)^2 * exp(-2 * omega * dt)
-	//			 beta1 * beta2 * slip_omega^4
+	// int_0^dt x_acc^2 dt = 0.5 * beta1^2 * omega^3 * (exp(2 * omega * dt) - 1) -
+	//						 0.5 * beta2^2 * omega^3 * (exp(-2 * omega * dt) + 1) +
+	//						 beta1 * beta2 * slip_omega^4 dt
 	double dt = params_H.duration;
-	c_1_ = (beta_1_ * pow(omega_,2)).array().pow(2);
-	c_2_ = (beta_2_ * pow(omega_,2)).array().pow(2);
-	c_3_ = beta_1_.cwiseProduct(beta_2_) * pow(omega_,4);
+	c_1_ = 0.5 * beta_1_ .array().pow(2) * omega_ * omega_ * omega_;
+	c_2_ = 0.5 * beta_2_ .array().pow(2) * omega_ * omega_ * omega_;
+	c_3_ = beta_1_.cwiseProduct(beta_2_) * omega_ * omega_ * omega_ * omega_;
 	com_energy.head<2>() =
-			c_1_ * exp(2 * omega_ * dt) +
-			c_2_ * exp(-2 * omega_ * dt) +
-			c_3_;
+			c_1_ * (exp(2 * omega_ * dt) - 1) -
+			c_2_ * (exp(-2 * omega_ * dt) + 1) +
+			c_3_ * dt;
 
 	// There is not energy associated to the vertical movement
 	com_energy(rbd::Z) = 0;

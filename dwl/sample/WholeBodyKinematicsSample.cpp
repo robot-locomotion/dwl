@@ -1,146 +1,140 @@
+#include <dwl/WholeBodyState.h>
 #include <dwl/model/WholeBodyKinematics.h>
-
-using namespace std;
 
 
 
 int main(int argc, char **argv)
 {
-	dwl::model::FloatingBaseSystem sys;
-	dwl::model::WholeBodyKinematics kin;
+	dwl::WholeBodyState ws;
+	dwl::model::FloatingBaseSystem fbs;
+	dwl::model::WholeBodyKinematics wkin;
 
 	// Resetting the system from the hyq urdf file
-	std::string model_file = "../sample/hyq.urdf";
-	string robot_file = "../config/hyq.yarf";
-	sys.resetFromURDFFile(model_file, robot_file);
-	kin.modelFromURDFFile(model_file, robot_file);
+	std::string urdf_file = "../sample/hyq.urdf";
+	std::string yarf_file = "../config/hyq.yarf";
+	fbs.resetFromURDFFile(urdf_file, yarf_file);
+	wkin.modelFromURDFFile(urdf_file, yarf_file);
+
+	// Define the DoF after initializing the robot model
+	ws.setJointDoF(fbs.getJointDoF());
 
 
 	// The robot state
-	dwl::rbd::Vector6d base_wrench, base_pos, base_vel, base_acc;
-	Eigen::VectorXd joint_forces(12), joint_pos(12), joint_vel(12), joint_acc(12);
-	base_pos = dwl::rbd::Vector6d::Zero();
-	base_vel = dwl::rbd::Vector6d::Zero();
-	base_acc = dwl::rbd::Vector6d::Zero();
-	base_wrench = dwl::rbd::Vector6d::Zero();
-	joint_pos = Eigen::VectorXd::Zero(12);
-	joint_pos(sys.getJointId("lf_hfe_joint")) = 0.75;
-	joint_pos(sys.getJointId("lf_kfe_joint")) = -1.5;
-	joint_pos(sys.getJointId("lh_hfe_joint")) = -0.75;
-	joint_pos(sys.getJointId("lh_kfe_joint")) = 1.5;
-	joint_pos(sys.getJointId("rf_hfe_joint")) = 0.75;
-	joint_pos(sys.getJointId("rf_kfe_joint")) = -1.5;
-	joint_pos(sys.getJointId("rh_hfe_joint")) = -0.75;
-	joint_pos(sys.getJointId("rh_kfe_joint")) = 1.5;
-	joint_vel = Eigen::VectorXd::Zero(12);
-	joint_acc = Eigen::VectorXd::Zero(12);
-
+	ws.setBasePosition_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseRPY_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseVelocity_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseRPYVelocity_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseAcceleration_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseRPYAcceleration_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setJointPosition(0.75, fbs.getJointId("lf_hfe_joint"));
+	ws.setJointPosition(-1.5, fbs.getJointId("lf_kfe_joint"));
+	ws.setJointPosition(-0.75, fbs.getJointId("lh_hfe_joint"));
+	ws.setJointPosition(1.5, fbs.getJointId("lh_kfe_joint"));
+	ws.setJointPosition(0.75, fbs.getJointId("rf_hfe_joint"));
+	ws.setJointPosition(-1.5, fbs.getJointId("rf_kfe_joint"));
+	ws.setJointPosition(-0.75, fbs.getJointId("rh_hfe_joint"));
+	ws.setJointPosition(1.5, fbs.getJointId("rh_kfe_joint"));
 
 
 	// Computing the jacobians
 	Eigen::MatrixXd jacobian, fixed_jac, floating_jac;
-	kin.computeJacobian(jacobian,
-						base_pos, joint_pos,
-						sys.getEndEffectorNames(),
-						dwl::rbd::Full);
+	wkin.computeJacobian(jacobian,
+						 ws.base_pos, ws.joint_pos,
+						 fbs.getEndEffectorNames(),
+						 dwl::rbd::Full);
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << jacobian << " = jacobian" << std::endl;
-	kin.getFixedBaseJacobian(fixed_jac, jacobian);
+	wkin.getFixedBaseJacobian(fixed_jac, jacobian);
 	std::cout << "---------------------------------------" << std::endl;
 	std::cout << fixed_jac << " = fixed jacobian" << std::endl;
-	kin.getFloatingBaseJacobian(floating_jac, jacobian);
+	wkin.getFloatingBaseJacobian(floating_jac, jacobian);
 	std::cout << "---------------------------------------" << std::endl;
-	std::cout << floating_jac << " = floating jacobian" << std::endl;
+	std::cout << floating_jac << " = floating jacobian" << std::endl << std::endl;
 
 
-	// Computing FK
-	dwl::rbd::BodyVectorXd contact_pos;
-	kin.computeForwardKinematics(contact_pos,
-								 base_pos, joint_pos,
-								 sys.getEndEffectorNames(), // it uses all the end-effector of the system
-								 dwl::rbd::Linear, dwl::RollPitchYaw);
-	cout << "------------------- FK --------------------" << endl;
-	for (dwl::rbd::BodyVectorXd::iterator it = contact_pos.begin();
-			it != contact_pos.end(); it++) {
-		string name = it->first;
-		Eigen::VectorXd position = it->second;
-
-		cout << "fk[" << name << "] = " << position.transpose() << endl << endl;
+	// Computing contact positions w.r.t to the world frame
+	dwl::rbd::BodyVectorXd contact_pos_W;
+	wkin.computeForwardKinematics(contact_pos_W,
+								  ws.base_pos, ws.joint_pos,
+								  fbs.getEndEffectorNames(), // it uses all the end-effector of the system
+								  dwl::rbd::Linear, dwl::RollPitchYaw);
+	ws.setContactPosition_W(contact_pos_W);
+	std::cout << "------------------- Contact positions --------------------" << std::endl;
+	for (unsigned int c = 0; c < fbs.getNumberOfEndEffectors(); ++c) {
+		std::string name = fbs.getEndEffectorNames()[c];
+		Eigen::VectorXd position = ws.getContactPosition_W(name);
+		std::cout << name << " = " << position.transpose() << std::endl << std::endl;
 	}
 
+
+	// Computing the contact velocities w.r.t to the world frame
+	dwl::rbd::BodyVectorXd contact_vel_W;
+	wkin.computeVelocity(contact_vel_W,
+						 ws.base_pos, ws.joint_pos,
+						 ws.base_vel, ws.joint_vel,
+						 fbs.getEndEffectorNames(), dwl::rbd::Full);
+	ws.setContactVelocity_W(contact_vel_W);
+	std::cout << "------------------- Contact velocities --------------------" << std::endl;
+	for (unsigned int c = 0; c < fbs.getNumberOfEndEffectors(); ++c) {
+		std::string name = fbs.getEndEffectorNames()[c];
+		Eigen::VectorXd velocity = ws.getContactVelocity_W(name);
+		std::cout << name << " = " << velocity.transpose() << std::endl << std::endl;
+	}
+
+
+	// Computing the contact accelerations w.r.t to the world frame
+	dwl::rbd::BodyVectorXd contact_acc_W;
+	wkin.computeAcceleration(contact_acc_W,
+							 ws.base_pos, ws.joint_pos,
+							 ws.base_vel, ws.joint_vel,
+							 ws.base_acc, ws.joint_acc,
+							 fbs.getEndEffectorNames(), dwl::rbd::Full);
+	ws.setContactAcceleration_W(contact_acc_W);
+	std::cout << "------------------- Contact accelerations --------------------" << std::endl;
+	for (unsigned int c = 0; c < fbs.getNumberOfEndEffectors(); ++c) {
+		std::string name = fbs.getEndEffectorNames()[c];
+		Eigen::VectorXd acceleration = ws.getContactAcceleration_W(name);
+		std::cout << name << " = " << acceleration.transpose() << std::endl << std::endl;
+	}
 
 
 	// Computing IK
 	dwl::rbd::BodyVector3d ik_pos;
-	ik_pos[sys.getFloatingBaseName()] = Eigen::Vector3d::Zero();
-	ik_pos["lf_foot"] = contact_pos["lf_foot"].tail(3);
-	ik_pos["rf_foot"] = contact_pos["rf_foot"].tail(3);
-	ik_pos["lh_foot"] = contact_pos["lh_foot"].tail(3);
-	ik_pos["rh_foot"] = contact_pos["rh_foot"].tail(3);
+	ik_pos[fbs.getFloatingBaseName()] = Eigen::Vector3d::Zero();
+	ik_pos["lf_foot"] = ws.getContactPosition_W("lf_foot").tail(3);
+	ik_pos["rf_foot"] = ws.getContactPosition_W("rf_foot").tail(3);
+	ik_pos["lh_foot"] = ws.getContactPosition_W("lh_foot").tail(3);
+	ik_pos["rh_foot"] = ws.getContactPosition_W("rh_foot").tail(3);
 	dwl::rbd::Vector6d base_pos_init = dwl::rbd::Vector6d::Zero();
 	Eigen::VectorXd joint_pos_init(12);
 	joint_pos_init << 0., 0.5, -1., 0., -0.5, 1., 0., 0.5, -1., 0., -0.5, 1.;
-	kin.computeInverseKinematics(base_pos, joint_pos,
-								 ik_pos,
-								 base_pos_init, joint_pos_init);
-	cout << "------------------ WB-IK ---------------------" << endl;
-	cout << "Base position = " << base_pos.transpose() << endl;
-	cout << "Joint positions = "<< joint_pos.transpose() << endl << endl;
+	wkin.computeInverseKinematics(ws.base_pos, ws.joint_pos,
+								  ik_pos,
+								  base_pos_init, joint_pos_init);
+	std::cout << "------------------ WB-IK ---------------------" << std::endl;
+	std::cout << "Base position = " << ws.base_pos.transpose() << std::endl;
+	std::cout << "Joint position = "<< ws.joint_pos.transpose() << std::endl << std::endl;
 
-	kin.computeInverseKinematics(joint_pos,
+	wkin.computeInverseKinematics(ws.joint_pos,
 								 ik_pos,
 								 joint_pos_init, 1.0e-12, 0.01, 50);
-	cout << "------------------ IK ---------------------" << endl;
-	cout << "Base position = " << base_pos.transpose() << endl;
-	cout << "Joint positions = "<< joint_pos.transpose() << endl << endl;
-
-
-	// Computing the contact velocities
-	dwl::rbd::BodyVectorXd contact_vel;
-	kin.computeVelocity(contact_vel,
-						base_pos, joint_pos,
-						base_vel, joint_vel,
-						sys.getEndEffectorNames(), dwl::rbd::Full);
-	cout << "------------------- Contact velocities --------------------" << endl;
-	for (dwl::rbd::BodyVectorXd::iterator it = contact_vel.begin();
-			it != contact_vel.end(); it++) {
-		string name = it->first;
-		Eigen::VectorXd velocity = it->second;
-
-		cout << "velocity[" << name << "] = " << velocity.transpose() << endl << endl;
-	}
-
-
-	// Computing the contact accelerations
-	dwl::rbd::BodyVectorXd contact_acc;
-	kin.computeAcceleration(contact_acc,
-							base_pos, joint_pos,
-							base_vel, joint_vel,
-							base_acc, joint_acc,
-							sys.getEndEffectorNames(), dwl::rbd::Full);
-	cout << "------------------- Contact accelerations --------------------" << endl;
-	for (dwl::rbd::BodyVectorXd::iterator it = contact_acc.begin();
-			it != contact_acc.end(); it++) {
-		string name = it->first;
-		Eigen::VectorXd acceleration = it->second;
-
-		cout << "acceleration[" << name << "] = " << acceleration.transpose() << endl << endl;
-	}
+	std::cout << "------------------ IK ---------------------" << std::endl;
+	std::cout << "Joint position = "<< ws.joint_pos.transpose() << std::endl << std::endl;
 
 
 	// Computing the contact Jacd*Qd
 	dwl::rbd::BodyVectorXd contact_jacd_qd;
-	kin.computeJdotQdot(contact_jacd_qd,
-						base_pos, joint_pos,
-						base_vel, joint_vel,
-						sys.getEndEffectorNames(), dwl::rbd::Full);
-	cout << "------------------- Contact Jdot*Qdot --------------------" << endl;
+	wkin.computeJdotQdot(contact_jacd_qd,
+						 ws.base_pos, ws.joint_pos,
+						 ws.base_vel, ws.joint_vel,
+						 fbs.getEndEffectorNames(), dwl::rbd::Full);
+	std::cout << "------------------- Contact Jdot*Qdot --------------------" << std::endl;
 	for (dwl::rbd::BodyVectorXd::iterator it = contact_jacd_qd.begin();
-			it != contact_jacd_qd.end(); it++) {
-		string name = it->first;
+			it != contact_jacd_qd.end(); ++it) {
+		std::string name = it->first;
 		Eigen::VectorXd jacd_qd = it->second;
 
-		cout << "jacd_qd[" << name << "] = " << jacd_qd.transpose() << endl << endl;
+		std::cout << name << " = " << jacd_qd.transpose() << std::endl << std::endl;
 	}
 
 

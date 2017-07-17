@@ -93,6 +93,14 @@ struct PreviewControl
 	PreviewControl() : params(std::vector<PreviewParams>()) {}
 	PreviewControl(const std::vector<PreviewParams>& _params) : params(_params) {}
 
+	double getTotalDuration() const {
+		double duration = 0.;
+		for (unsigned int i = 0; i < params.size(); ++i)
+			duration += params[i].duration;
+
+		return duration;
+	}
+
 	std::vector<PreviewParams> params;
 };
 
@@ -105,7 +113,7 @@ struct PreviewSchedule
 	}
 
 	void init(const rbd::BodyVector3d& support) {
-		for (unsigned int p = 0; p < getNumberPhases(); p++) {
+		for (unsigned int p = 0; p < getNumberPhases(); ++p) {
 			std::vector<std::string> swings = getSwingFeet(p);
 			unsigned int num_swings = getNumberOfSwingFeet(p);
 
@@ -115,7 +123,7 @@ struct PreviewSchedule
 					actual_phase_ = p;
 				}
 			} else {
-				for (unsigned int s = 0; s < num_swings; s++) {
+				for (unsigned int s = 0; s < num_swings; ++s) {
 					std::string swing = swings[s];
 
 					if (support.find(swing) != support.end()) {
@@ -190,14 +198,14 @@ struct SwingParams
 };
 
 
-struct StepCommand
+struct VelocityCommand
 {
-	StepCommand() : duration(0.), length(0.) {}
-	StepCommand(const double& _duration,
-				const double& _length) : duration(_duration), length(_length) {}
+	VelocityCommand() : linear(Eigen::Vector2d::Zero()), angular(0.) {}
+	VelocityCommand(const Eigen::Vector2d& _linear,
+					const double& _angular) : linear(_linear), angular(_angular) {}
 
-	double duration;
-	double length;
+	Eigen::Vector2d linear;
+	double angular;
 };
 
 typedef std::map<std::string,bool> Support;
@@ -242,14 +250,14 @@ struct PreviewState
 
 struct PreviewSets
 {
-	PreviewSets() : command(StepCommand()),
+	PreviewSets() : command(VelocityCommand()),
 			state(PreviewState()), control(PreviewControl()){};
-	PreviewSets(const StepCommand& _command,
+	PreviewSets(const VelocityCommand& _command,
 				const PreviewState& _state,
 				const PreviewControl& _control) :
 					command(_command), state(_state), control(_control) {}
 
-	StepCommand command;
+	VelocityCommand command;
 	PreviewState state;
 	PreviewControl control;
 };
@@ -308,13 +316,13 @@ class PreviewLocomotion
 		/**
 		 * @brief Reads the preview sequence from a Yaml file defined in
 		 * specific namespace
-		 * @param StepCommand& Step command
+		 * @param VelocityCommand& Velocity command
 		 * @param PreviewState& Preview state
 		 * @param PreviewControl& Preview control parameters
 		 * @param std::string Filename
 		 * @param YamlNamespace Yaml namspace where is defined the preview sequence
 		 */
-		void readPreviewSequence(StepCommand& command,
+		void readPreviewSequence(VelocityCommand& command,
 								 PreviewState& state,
 								 PreviewControl& control,
 								 std::string filename,

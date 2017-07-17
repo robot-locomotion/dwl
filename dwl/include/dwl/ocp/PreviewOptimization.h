@@ -28,6 +28,20 @@ struct PreviewBounds
 	PreviewVariables upper;
 };
 
+struct TerrainModel
+{
+	TerrainModel() : weight(0.), margin(std::numeric_limits<double>::max()),
+			offset(0.) {}
+	TerrainModel(double _weight,
+				 double _margin,
+				 double _offset) : weight(_weight), margin(_margin),
+						 offset(_offset) {}
+
+	double weight;
+	double margin;
+	double offset;
+};
+
 /**
  * @class PreviewOptimization
  * @brief A preview optimization problem requires information of "modeling"
@@ -100,12 +114,10 @@ class PreviewOptimization : public model::OptimizationModel
 									   const SoftConstraintProperties& properties = SoftConstraintProperties());
 
 		/**
-		 * @brief Sets the step cost weights
-		 * @param double Step duration weight
-		 * @param double Step distance weight
+		 * @brief Sets the velocity commands cost weights
+		 * @param double Velocity weight
 		 */
-		void setStepWeights(double time_weight,
-							double distance_weight);
+		void setVelocityWeights(double velocity_weight);
 
 		/**
 		 * @brief Sets the CoM acceleration weights
@@ -116,18 +128,24 @@ class PreviewOptimization : public model::OptimizationModel
 									  double y_weight);
 
 		/**
-		 * @brief Sets the terrain cost weight
-		 * @param double Terrain weight
+		 * @brief Sets the CoT weight
+		 * @param double Weight of the CoT
 		 */
-		void setTerrainWeight(double weight);
+		void setCostOfTransportWeight(double weight);
 
 		/**
-		 * @brief Sets the reference step properties
-		 * @param double Step duration
-		 * @param double Step distance
+		 * @brief Sets the terrain cost weight
+		 * @param TerrainModel Terrain model
 		 */
-		void setStepCommand(double duration,
-							double distance);
+		void setTerrainModel(const TerrainModel& model);
+
+		/**
+		 * @brief Sets the reference velocity commands
+		 * @param double Desired velocity in X
+		 * @param double Desired velocity in Y
+		 */
+		void setVelocityCommand(double velocity_x,
+								double velocity_y);
 
 		/**
 		 * @brief Gets the starting point of the problem
@@ -139,8 +157,8 @@ class PreviewOptimization : public model::OptimizationModel
 		simulation::PreviewControl& getFullPreviewControl();
 		simulation::PreviewControl& getAppliedPreviewControl();
 
-		/** @brief Returns the applied step command */
-		simulation::StepCommand& getStepCommand();
+		/** @brief Returns the applied velocity command */
+		simulation::VelocityCommand& getVelocityCommand();
 
 		/**
 		 * @brief Evaluates the bounds of the problem
@@ -201,11 +219,13 @@ class PreviewOptimization : public model::OptimizationModel
 
 
 	private:
-		double stepCost(const ReducedBodyTrajectory& phase_trans,
-						const ReducedBodyState& actual_state,
-						const simulation::PreviewControl& preview_control);
+		double velocityCost(const ReducedBodyState& terminal_state,
+							const ReducedBodyState& actual_state,
+							const simulation::PreviewControl& preview_control);
 		double comEnergyCost(const ReducedBodyState& actual_state,
 							 const simulation::PreviewControl& preview_control);
+		double costOfTransport(const ReducedBodyState& terminal_state,
+							   const ReducedBodyState& actual_state);
 		double copStabilitySoftConstraint(const ReducedBodyTrajectory& phase_trans,
 										  const ReducedBodyState& actual_state,
 										  const simulation::PreviewControl& preview_control);
@@ -280,14 +300,14 @@ class PreviewOptimization : public model::OptimizationModel
 		ReducedBodyTrajectory phase_transitions_;
 
 		/** @brief Desired states */
-		simulation::StepCommand actual_command_;
+		simulation::VelocityCommand actual_command_;
 		double desired_yaw_B_;
 
-		/** @brief Weights of the cost functions */
-		double step_duration_weight_;
-		double step_length_weight_;
+		/** @brief Cost and constraint models */
+		Eigen::Vector2d command_weight_;
 		Eigen::Vector3d acc_int_weight_;
-		double terrain_weight_;
+		double cot_weight_;
+		TerrainModel terrain_model_;
 
 		/** @brief Feet information */
 		rbd::BodySelector feet_;

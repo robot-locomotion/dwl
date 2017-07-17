@@ -45,7 +45,7 @@ set xrange [:$max_iter]
 set yrange [$min_y:$max_y]
 
 # Declaring the multiplot layout
-set multiplot layout 4,1
+set multiplot layout 6,1
 set tmargin 2
 set grid
 
@@ -63,8 +63,17 @@ plot "$filename" using 3 title '' with lines
 
 # Model cost plot
 set ylabel "Model cost"
-set xlabel "Number of iterations"
 plot "$filename" using 4 title '' with lines
+
+# Terrain cost plot
+set ylabel "Terrain cost"
+plot "$filename" using 5 title '' with lines
+
+# Total cost
+set ylabel "Total cost"
+plot "$filename" using 6 title '' with lines
+set xlabel "Number of iterations"
+
 
 unset multiplot
 EOF

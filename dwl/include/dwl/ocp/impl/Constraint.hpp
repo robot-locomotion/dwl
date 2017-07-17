@@ -74,6 +74,9 @@ template <typename TState>
 void Constraint<TState>::computeSoft(double& constraint_cost,
 									 const TState& state)
 {
+	// Initialization of the cost value
+	constraint_cost = 0.;
+
 	// Getting the constraint value and bounds
 	Eigen::VectorXd constraint, lower_bound, upper_bound;
 	compute(constraint, state);
