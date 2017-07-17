@@ -235,7 +235,6 @@ function install_lapack
 	rm -rf lapack
 
 	if [ "$CURRENT_OS" == "OSX" ]; then
-		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
 		# Getting the LAPACK 3.6.0
 		curl -L "http://www.netlib.org/lapack/lapack-3.6.0.tgz" | tar xz
 		mv lapack-* lapack
