@@ -14,15 +14,15 @@
 # find the rbdl include directory
 find_path(RBDL_INCLUDE_DIRS  rbdl/rbdl.h
                              PATH_SUFFIXES include
-                             HINTS /usr/include /usr/local ${DWL_INSTALL_PREFIX})   
+                             HINTS ${DWL_INSTALL_PREFIX} /usr/include /usr/local)   
 
 # find the rbdl library
 find_library(RBDL_LIBRARIES  NAMES rbdl
                              PATH_SUFFIXES lib
-                             HINTS /usr/include /usr/local ${DWL_INSTALL_PREFIX})
+                             HINTS ${DWL_INSTALL_PREFIX} /usr/include /usr/local)
 find_library(RBDL_URDF_LIBRARIES  NAMES  rbdl_urdfreader
                                   PATH_SUFFIXES lib
-                                  HINTS /usr/include /usr/local ${DWL_INSTALL_PREFIX})
+                                  HINTS ${DWL_INSTALL_PREFIX} /usr/include /usr/local)
 list(APPEND RBDL_LIBRARIES  ${RBDL_URDF_LIBRARIES})
 
 # handle the QUIETLY and REQUIRED arguments and set RBDL_FOUND to TRUE if all listed variables are TRUE
