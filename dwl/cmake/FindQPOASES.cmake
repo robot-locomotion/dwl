@@ -9,7 +9,7 @@
 #  QPOASES_INCLUDE_DIRS - the qpOASES include directory
 #  QPOASES_LIBRARIES - the qpOASES libraries
 #
-# Copyright (c) 2015 Carlos Mastalli, <carlos.mastalli@iit.it>
+# Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@iit.it>
 # Redistribution and use is allowed according to the terms of the XXX license.
 
 set(QPOASES_DIR ${PROJECT_SOURCE_DIR}/thirdparty/qpOASES)

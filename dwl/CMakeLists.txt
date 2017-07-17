@@ -3,7 +3,7 @@ project(dwl)
 
 set(DWL_VERSION 1.1.4 CACHE STRING "DWL version")
 message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
-message("Copyright (C) 2014-2016 Carlos Mastalli - Istituto Italiano di Tecnologia.")
+message("Copyright (C) 2014-2018 Carlos Mastalli - Istituto Italiano di Tecnologia.")
 message("Released under the XXX License.")
 
 # Defining the dwl install prefix
@@ -32,7 +32,7 @@ set(ENV{PKG_CONFIG_PATH} "${DWL_INSTALL_PREFIX}/lib/pkgconfig/:$ENV{PKG_CONFIG_P
 # Finding dependencies
 find_package(PkgConfig)
 pkg_check_modules(EIGEN3 eigen3=3.2.7 REQUIRED)
-pkg_check_modules(RBDL rbdl REQUIRED)
+find_package(RBDL REQUIRED)
 find_package(URDF REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(QPOASES)
@@ -54,8 +54,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno
 
 # Setting the thirdparties directories and libraries
 set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS} ${URDF_INCLUDE_DIRS} ${RBDL_INCLUDE_DIRS})
-set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} rbdl_urdfreader ${URDF_LIBRARIES} ${YAMLCPP_LIBRARIES})
+set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} ${URDF_LIBRARIES} ${YAMLCPP_LIBRARIES})
 set(DEPENDENCIES_LIBRARY_DIRS  ${RBDL_LIBRARY_DIRS})
+
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/dwl/lib)
 
 # Including directories
 set(INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
