@@ -302,6 +302,22 @@ function install_ipopt
 		rm -rf www.netlib.org/
 		sed -i '.original' 's/^rm/# rm/g' get.ASL
 		sed -i '.original' 's/^tar /# tar/g' get.ASL
+		sed -i '.original' 's/^$wgetcmd/# $wgetcmd/g' get.ASL
+		cd ..
+		# bugfix of http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=625018#10
+		cd ..
+		sed -n 'H;${x;s/#include "IpReferenced.hpp"/#include <cstddef>\
+		\
+		&/;p;}' Ipopt/src/Common/IpSmartPtr.hpp > IpSmartPtr.hpp
+		mv IpSmartPtr.hpp Ipopt/src/Common/IpSmartPtr.hpp
+		sed -n 'H;${x;s/#include <list>/&\
+		#include <cstddef>/;p;}' Ipopt/src/Algorithm/LinearSolvers/IpTripletToCSRConverter.cpp > IpTripletToCSRConverter.cpp
+		mv IpTripletToCSRConverter.cpp Ipopt/src/Algorithm/LinearSolvers/IpTripletToCSRConverter.cpp
+		# create build directory
+		mkdir -p build
+		../configure --enable-static --prefix $DWL_INSTALL_PREFIX --with-lapack="-L$DWL_INSTALL_PREFIX/lib -llapack" --with-blas="-L$DWL_INSTALL_PREFIX/lib -lblas"
+		sudo make -j install
+		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Installing necessary packages
 		sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
@@ -365,12 +381,25 @@ function install_ipopt
 
 function install_qpoases
 {
+	# Remove old folder (sanity procedure)
+	rm -rf qpOASES
+	
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+		# Getting the qpOASES 3.2.0
+		wget http://www.coin-or.org/download/source/qpOASES/qpOASES-3.2.0.tgz
+		tar xzfv qpOASES-3.2.0.tgz && rm qpOASES-3.2.0.tgz
+		mv qpOASES-3.2.0 qpOASES
+		
+		# Installing LAPACK and BLAS
+		if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
+			install_lapack
+		fi
+		
+		cd qpOASES
+		make -j REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
+		cd ../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf qpOASES
-
 		# Getting the qpOASES 3.2.0
 		wget http://www.coin-or.org/download/source/qpOASES/qpOASES-3.2.0.tgz
 		tar xzfv qpOASES-3.2.0.tgz && rm qpOASES-3.2.0.tgz
@@ -390,12 +419,33 @@ function install_qpoases
 
 function install_libcmaes
 {
+	# Remove old folder (sanity procedure)
+	rm -rf libcmaes
+	
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+		# Getting the current path
+		CURRENT_PATH=$(pwd -P)
+		
+		curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar xz
+		mv googletest-release-1.8.0/ gtest
+		cd gtest
+		mkdir -p build
+		cd build
+		cmake ../
+		sudo make -j install
+		cd $CURRENT_PATH
+		
+		# Getting the libcmaes 0.9.5
+		wget https://github.com/beniz/libcmaes/archive/0.9.5.tar.gz
+		mkdir libcmaes && tar zxf 0.9.5.tar.gz -C libcmaes --strip-components 1
+		rm -rf 0.9.5.tar.gz
+		cd libcmaes
+		./autogen.sh
+		./configure --enable-gglog --prefix=$DWL_INSTALL_PREFIX --with-eigen3-include=$DWL_INSTALL_PREFIX/include/eigen3
+		sudo make -j4 install
+		cd ../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf libcmaes
-
 		# Installing libcmaes dependecies
 		sudo apt-get install autoconf automake libtool libgoogle-glog-dev libgflags-dev
 	
