@@ -146,7 +146,17 @@ class WholeBodyDynamics
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
 		 */
-		void computeJointSpaceInertialMatrix(Eigen::MatrixXd& inertial_mat,
+		void computeJointSpaceInertialMatrix(Eigen::MatrixXd& inertia_mat,
+											 const rbd::Vector6d& base_pos,
+											 const Eigen::VectorXd& joint_pos);
+
+		/**
+		 * @brief Computes the centroidal inertia matrix
+		 * @param Eigen::MatrixXd& Centroidal inertia matrix
+		 * @param const Eigen::Vector6d& Base position
+		 * @param const Eigen::VectorXd& Joint position
+		 */
+		void computeCentroidalInertialMatrix(Eigen::MatrixXd& inertia_mat,
 											 const rbd::Vector6d& base_pos,
 											 const Eigen::VectorXd& joint_pos);
 

@@ -200,6 +200,23 @@ void WholeBodyDynamics::computeJointSpaceInertialMatrix(Eigen::MatrixXd& inertia
 }
 
 
+void WholeBodyDynamics::computeCentroidalInertialMatrix(Eigen::MatrixXd& inertia_mat,
+														const rbd::Vector6d& base_pos,
+														const Eigen::VectorXd& joint_pos)
+{
+	// We compute the centroidal inertia matrix from the joint-space inertia
+	// matrix, i.e. as I_com = base_X_com^T * Ic * base_X_com
+	// Getting the joint-space inertia matrix
+	Eigen::MatrixXd I_base;
+	computeJointSpaceInertialMatrix(I_base, base_pos, joint_pos);
+	
+	// Getting the spatial transform from CoM to base frame
+	Eigen::Vector3d com_pos = system_.getSystemCoM(base_pos, joint_pos);
+	RigidBodyDynamics::Math::SpatialTransform base_X_com(Eigen::Matrix3d::Identity(), -com_pos);
+	inertia_mat = base_X_com.toMatrixTranspose() * I_base * base_X_com.toMatrix();
+}
+
+
 void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 											 Eigen::VectorXd& joint_forces,
 											 const rbd::Vector6d& base_pos,
