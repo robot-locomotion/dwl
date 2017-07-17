@@ -262,12 +262,47 @@ function install_lapack
 
 function install_ipopt
 {
+	# Remove old folder (sanity procedure)
+	rm -rf ipopt
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
+		# Getting Ipopt 3.12.4
+		curl -L "http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.4.tgz" | tar xz
+		mv Ipopt-* ipopt
+		# Documentation for Ipopt Third Party modules:
+		# http://www.coin-or.org/Ipopt/documentation/node13.html
+		
+		# Installing LAPACK and BLAS
+		if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
+			install_lapack
+		fi
+		
+		cd ipopt/ThirdParty
+		# Getting Metis dependency
+		cd Metis
+#		sed -i 's/metis\/metis/metis\/OLD\/metis/g' get.Metis
+#		sed -i 's/metis-4\.0/metis-4\.0\.3/g' get.Metis
+#		sed -i 's/mv metis/#mv metis/g' get.Metis
+		./get.Metis
+		# Patching is necessary. See http://www.math-linux.com/mathematics/Linear-Systems/How-to-patch-metis-4-0-error
+		wget http://www.math-linux.com/IMG/patch/metis-4.0.patch
+		#curl -L "http://www.math-linux.com/IMG/patch/metis-4.0.patch" -O metis-4.0.patch
+		patch -p0 < metis-4.0.patch
+		cd ..
+		# Getting Mumps dependency
+		cd Mumps
+		./get.Mumps
+		cd ..
+		# Getting ASL dependency
+		cd ASL
+		wget --recursive --include-directories=ampl/solvers http://www.netlib.org/ampl/solvers || true
+		rm -rf solvers
+		mv www.netlib.org/ampl/solvers .
+		rm -rf www.netlib.org/
+		sed -i '.original' 's/^rm/# rm/g' get.ASL
+		sed -i '.original' 's/^tar /# tar/g' get.ASL
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf ipopt
-
 		# Installing necessary packages
 		sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
 
