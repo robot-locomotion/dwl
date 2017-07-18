@@ -184,6 +184,73 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
 
 
+############################################################
+################# Installation location ####################
+############################################################
+# Flat hierarchy if self-contained and on Windows
+option(WITH_SELFCONTAINED "Make the install directory self-contained" OFF)
+if(WITH_SELFCONTAINED OR (WIN32 AND NOT CYGWIN))
+#  set(DEF_LIB_PREFIX casadi)
+#  set(DEF_BIN_PREFIX casadi)
+#  set(DEF_CMAKE_PREFIX dwl/cmake)
+  set(DEF_PYTHON_PREFIX) # Note: Files installed in a casadi subdirectory
+#  set(DEF_INCLUDE_PREFIX dwl/include)
+else()
+#  set(DEF_LIB_PREFIX lib)
+#  set(DEF_BIN_PREFIX bin)
+#  set(DEF_CMAKE_PREFIX lib/cmake/dwl)
+  set(DEF_PYTHON_PREFIX python)
+#  set(DEF_INCLUDE_PREFIX include)
+endif()
+
+
+# Installation directories are cache entries that can be modified
+#set(LIB_PREFIX ${DEF_LIB_PREFIX} CACHE PATH "Installation directory for libraries")
+#set(BIN_PREFIX ${DEF_BIN_PREFIX} CACHE PATH "Installation directory for executables")
+#set(INCLUDE_PREFIX ${DEF_INCLUDE_PREFIX} CACHE PATH "Installation directory for header files")
+#set(CMAKE_PREFIX ${DEF_CMAKE_PREFIX} CACHE PATH "Installation directory for CMake files")
+set(PYTHON_PREFIX ${DEF_PYTHON_PREFIX} CACHE PATH "Installation directory for Python files")
+
+
+# Make relative paths absolute (needed later on)
+#foreach(p LIB BIN INCLUDE CMAKE PYTHON)
+foreach(PYTHON)
+  set(var ${p}_PREFIX)
+  if(${var})
+    if(NOT IS_ABSOLUTE "${${var}}")
+      # Turn relative path into absolute
+      set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+    endif()
+  else()
+    # Flat installation hierarchy
+    set(${var} "${CMAKE_INSTALL_PREFIX}")
+  endif()
+endforeach()
+
+# Set rpath
+if(WITH_SELFCONTAINED)
+  if(APPLE)
+    set(CMAKE_INSTALL_RPATH "@loader_path/")
+  else()
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
+  endif()
+else()
+  # add the automatically determined parts of the RPATH
+  # which point to directories outside the build tree to the install RPATH
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+  # the RPATH to be used when installing, but only if it's not a system directory
+  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${LIB_PREFIX}" isSystemDir)
+  if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "${LIB_PREFIX}")
+  endif()
+endif()
+
+
+
+#####################################################
+######################### swig ######################
+#####################################################
 option(WITH_PYTHON "Compile the Python front-end" ON)
 if(WITH_PYTHON)# OR WITH_MATLAB OR WITH_OCTAVE OR WITH_JSON)
   add_subdirectory(swig)
@@ -234,6 +301,11 @@ if(UNIT_TEST)
 	add_executable(numdiff_utest  tests/NumDiffEigenTest.cpp)
 	target_link_libraries(numdiff_utest ${PROJECT_NAME})
 endif()
+
+
+
+
+
 
 # Exporting the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
