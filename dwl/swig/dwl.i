@@ -49,10 +49,6 @@
 %template(vector_vector3d) std::vector<Eigen::Vector3d>;
 %template(vector_vectorXd) std::vector<Eigen::VectorXd>;
 
-//%template(map_string_vector3d) std::map<std::string,Eigen::Vector3d>;
-//%template(map_string_vector6d) std::map<std::string,dwl::rbd::Vector6d>;
-//%template(map_string_vectorXd) std::map<std::string,Eigen::VectorXd>;
-
 
 %include <dwl/utils/RigidBodyDynamics.h>
 %include <dwl/WholeBodyState.h>

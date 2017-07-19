@@ -341,6 +341,120 @@
   $1 = temp;
 }
 
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS >
+{
+  $result = PyDict_New();
+  const char* name;
+  CLASS temp;
+  for (std::map<std::string, CLASS >::const_iterator it = $1.begin();
+			it != $1.end(); ++it) {
+	name = it->first.c_str();
+    temp = it->second;
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+      SWIG_fail;
+    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+      SWIG_fail;
+  }
+}
+
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS > const
+{
+  $result = PyDict_New();
+  const char* name;
+  CLASS temp;
+  for (std::map<std::string, CLASS >::const_iterator it = $1.begin();
+			it != $1.end(); ++it) {
+	name = it->first.c_str();
+    temp = it->second;
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+      SWIG_fail;
+    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+      SWIG_fail;
+  }
+}
+
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS > const&
+{
+  $result = PyDict_New();
+  const char* name;
+  CLASS temp;
+  for (std::map<std::string, CLASS >::const_iterator it = $1->begin();
+			it != $1->end(); ++it) {
+	name = it->first.c_str();
+    temp = it->second;
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+      SWIG_fail;
+    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+      SWIG_fail;
+  }
+}
+
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS > &
+{
+  $result = PyDict_New();
+  const char* name;
+  CLASS temp;
+  for (std::map<std::string, CLASS >::const_iterator it = $1->begin();
+			it != $1->end(); ++it) {
+	name = it->first.c_str();
+    temp = it->second;
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+      SWIG_fail;
+    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+      SWIG_fail;
+  }
+}
+
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS > const*
+{
+  $result = PyDict_New();
+  const char* name;
+  CLASS temp;
+  for (std::map<std::string, CLASS >::const_iterator it = $1->begin();
+			it != $1->end(); ++it) {
+	name = it->first.c_str();
+    temp = it->second;
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+      SWIG_fail;
+    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+      SWIG_fail;
+  }
+}
+
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS > *
+{
+  $result = PyDict_New();
+  const char* name;
+  CLASS temp;
+  for (std::map<std::string, CLASS >::const_iterator it = $1->begin();
+			it != $1->end(); ++it) {
+	name = it->first.c_str();
+    temp = it->second;
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+      SWIG_fail;
+    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+      SWIG_fail;
+  }
+}
+
+%typemap(in, fragment="Eigen_Fragments") std::map<CLASS > (std::map<CLASS > temp)
+{
+  if (!PyList_Check($input))
+    SWIG_fail;
+  temp.resize(PyList_Size($input));
+  for (size_t i=0; i != PyList_Size($input); ++i) {
+    if (!ConvertFromNumpyToEigenMatrix<CLASS >(&(temp[i]), PyList_GetItem($input, i)))
+      SWIG_fail;
+  }
+  $1 = temp;
+}
+
 %typecheck(SWIG_TYPECHECK_DOUBLE_ARRAY)
     CLASS,
     const CLASS &,
