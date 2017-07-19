@@ -2,6 +2,8 @@
 %{
 #include <Python.h>
 #include <dwl/WholeBodyState.h>
+#include <dwl/utils/URDF.h>
+#include <dwl/model/FloatingBaseSystem.h>
 %}
 
 /// Data structure in the target language holding data
@@ -48,7 +50,10 @@
 %template(vector_vector2d) std::vector<Eigen::Vector2d>;
 %template(vector_vector3d) std::vector<Eigen::Vector3d>;
 %template(vector_vectorXd) std::vector<Eigen::VectorXd>;
+%template(string_jointLimits) std::map<std::string,urdf::JointLimits>; 
 
 
 %include <dwl/utils/RigidBodyDynamics.h>
 %include <dwl/WholeBodyState.h>
+%include <dwl/utils/URDF.h>
+%include <dwl/model/FloatingBaseSystem.h>

@@ -341,8 +341,8 @@ const Eigen::Vector3d& FloatingBaseSystem::getGravityDirection() const
 }
 
 
-Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& base_pos,
-												  const Eigen::VectorXd& joint_pos)
+const Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& base_pos,
+														const Eigen::VectorXd& joint_pos)
 {
 	Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
 	Eigen::VectorXd qd = Eigen::VectorXd::Zero(num_system_joints_);
@@ -356,10 +356,10 @@ Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& base_pos,
 }
 
 
-Eigen::Vector3d& FloatingBaseSystem::getSystemCoMRate(const rbd::Vector6d& base_pos,
-													  const Eigen::VectorXd& joint_pos,
-													  const rbd::Vector6d& base_vel,
-													  const Eigen::VectorXd& joint_vel)
+const Eigen::Vector3d& FloatingBaseSystem::getSystemCoMRate(const rbd::Vector6d& base_pos,
+															const Eigen::VectorXd& joint_pos,
+															const rbd::Vector6d& base_vel,
+															const Eigen::VectorXd& joint_vel)
 {
 	Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
 	Eigen::VectorXd qd = toGeneralizedJointState(base_vel, joint_vel);
