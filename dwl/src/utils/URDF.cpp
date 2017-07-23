@@ -236,29 +236,29 @@ void getFloatingBaseJointMotion(JointID& joints,
 				current_joint->type == urdf::Joint::CONTINUOUS) {
 			// Getting the axis of movements
 			if (current_joint->axis.x != 0) {
-				joints[joint_name] = AX;
+				joints[joint_name] = RX;
 				break;
 			}
 			if (current_joint->axis.y != 0) {
-				joints[joint_name] = AY;
+				joints[joint_name] = RY;
 				break;
 			}
 			if (current_joint->axis.z != 0) {
-				joints[joint_name] = AZ;
+				joints[joint_name] = RZ;
 				break;
 			}
 		} else if (current_joint->type == urdf::Joint::PRISMATIC) {
 			// Getting the axis of movements
 			if (current_joint->axis.x != 0) {
-				joints[joint_name] = LX;
+				joints[joint_name] = TX;
 				break;
 			}
 			if (current_joint->axis.y != 0) {
-				joints[joint_name] = LY;
+				joints[joint_name] = TY;
 				break;
 			}
 			if (current_joint->axis.z != 0) {
-				joints[joint_name] = LZ;
+				joints[joint_name] = TZ;
 				break;
 			}
 		}

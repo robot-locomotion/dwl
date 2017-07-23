@@ -565,8 +565,8 @@ bool FloatingBaseSystem::hasFloatingBaseConstraints()
 }
 
 
-Eigen::VectorXd& FloatingBaseSystem::toGeneralizedJointState(const rbd::Vector6d& base_state,
-															 const Eigen::VectorXd& joint_state)
+const Eigen::VectorXd& FloatingBaseSystem::toGeneralizedJointState(const rbd::Vector6d& base_state,
+																   const Eigen::VectorXd& joint_state)
 {
 	// Getting the number of joints
 	assert(joint_state.size() == getJointDoF());

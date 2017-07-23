@@ -16,6 +16,7 @@ ws.setJointDoF(fbs.getJointDoF())
 # body (e.g. sys.getBodyMass(body_name))
 print("Total mass: ", fbs.getTotalMass())
 print("lf_upperleg mass: ", fbs.getBodyMass("lf_upperleg"))
+print("The gravity acceleration is ", fbs.getGravityAcceleration())
 
 
 # Getting the CoM of the floating-base body. Note that you could also get the CoM of a
@@ -39,71 +40,64 @@ print("The CoM velocity: ", fbs.getSystemCoMRate(ws.base_pos, ws.joint_pos,
 												 ws.base_vel, ws.joint_vel).transpose())
 
 
-joint_lim = fbs.getJointLimits()
-for key in joint_lim:
-  print(joint_lim[key].lower)
 
 
 # Getting the floating-base information
-#	for (unsigned int i = 0; i < 6; i++) {
-#		dwl::rbd::Coords6d base_id = dwl::rbd::Coords6d(i);
-#		dwl::model::FloatingBaseJoint jnt = sys.getFloatingBaseJoint(base_id);
+for i in range(0,6):
+	base_joint = fbs.getFloatingBaseJoint(i)
+	if (base_joint.active):
+		print("Base joint[", base_joint.id, "] = ", base_joint.name)
 
-#		if (jnt.active) {
-#			cout << "Base joint[" << jnt.id << "] = " << jnt.name << endl;
-#		}
-#	}
-#	cout << endl;
+for name in fbs.getFloatingJointNames():
+	print("The base joint names are ", name)
 
-#	// Getting the joint names and ids
-#	dwl::urdf_model::JointID joint_links = sys.getJoints();
-#	for (dwl::urdf_model::JointID::const_iterator joint_it = joint_links.begin();
-#			joint_it != joint_links.end(); joint_it++) {
-#		string name = joint_it->first;
-#		unsigned int id = joint_it->second;
+# Getting the joint names and ids
+joints = fbs.getJoints()
+for name in joints:
+	print("Joint[", joints[name], "] = ", name)
 
-#		cout << "Joint[" << id << "] = " << name << endl;
-#	}
-#	cout << endl;
+for name in fbs.getJointNames():
+	print("The joint names are ", name)
 
-#	// Getting the end-effector names and ids
-#	dwl::urdf_model::LinkID contact_links = sys.getEndEffectors();
-#	for (dwl::urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
-#			contact_it != contact_links.end(); contact_it++) {
-#		string name = contact_it->first;
-#		unsigned int id = contact_it->second;
+# Getting the end-effector names and ids
+contacts = fbs.getEndEffectors()
+print("The number of feet are ", fbs.getNumberOfEndEffectors(dwl.FOOT))
+for name in contacts:
+	print("End-effector[", contacts[name], "] = ", name)
 
-#		cout << "End-effector[" << id << "] = " << name << endl;
-#	}
-#	cout << endl;
+# Getting the joint limits
+#joint_lim = fbs.getJointLimits()
+#for key in joint_lim:
+#	print(joint_lim[key].effort)
 
-#	// Getting the default posture
-#	Eigen::VectorXd joint_pos0 = sys.getDefaultPosture();
+#print(joint_lim)
+#print(joint_lim['lf_haa_joint'])
 
-#	// Getting the joint limits
-#	dwl::urdf_model::JointLimits joint_limits = sys.getJointLimits();
-#	dwl::urdf_model::JointID ids = sys.getJoints();
-#	for (dwl::urdf_model::JointLimits::iterator jnt_it = joint_limits.begin();
-#			jnt_it != joint_limits.end(); jnt_it++) {
-#		string name = jnt_it->first;
-#		urdf::JointLimits limits = jnt_it->second;
-#		unsigned int id = sys.getJointId(name);
 
-#		cout << name << "[" << id << "].lower = " << limits.lower << endl;
-#		cout << name << "[" << id << "].upper = " << limits.upper << endl;
-#		cout << name << "[" << id << "].velocity = " << limits.velocity << endl;
-#		cout << name << "[" << id << "].effort = " << limits.effort << endl;
-#		cout << name << "[" << id << "].pos0 = " << joint_pos0(id) << endl << endl;
-#	}
+# Getting the default posture
+joint_pos0 = fbs.getDefaultPosture()
+print("The nominal joint positions = ", joint_pos0.transpose())
 
-#	// Setting up the branch states
-#	dwl::rbd::Vector6d base_pos = dwl::rbd::Vector6d::Zero();
-#	Eigen::VectorXd joint_pos = Eigen::VectorXd::Zero(sys.getJointDoF());
-#	Eigen::Vector3d lf_branch_pos = Eigen::Vector3d(0.5, 0.75, 1.5);
-#	sys.setBranchState(joint_pos, lf_branch_pos, "lf_foot");
-#	cout << "Setting up lf_foot branch position = " << lf_branch_pos.transpose() << endl;
-#	cout << "Base position = " << base_pos.transpose() << endl;
-#	cout << "Joint position = " << joint_pos.transpose() << endl;
-#	cout << "Getting the lf_foot branch position = ";
-#	cout << sys.getBranchState(joint_pos, "lf_foot").transpose() << endl << endl;
+# Converting between whole-body state to generalized state, and viceverse
+base_state = np.zeros(6)
+joint_state = joint_pos0
+generalized_state = fbs.toGeneralizedJointState(base_state, joint_state)
+print("Converting the whole-body state to generalized state")
+print("Base state = ", base_state.transpose())
+print("Joint state = ", joint_state.transpose())
+print("The generalized state = ", generalized_state.transpose())
+new_base_state = np.zeros(6)
+new_joint_state = np.zeros(fbs.getJointDoF())
+fbs.fromGeneralizedJointState(new_base_state, new_joint_state, generalized_state);
+print("New base state = ", new_base_state.transpose())
+print("New joint state = ", new_joint_state.transpose())
 
+
+# Setting up the branch states
+joint_pos = ws.getJointPosition()
+lf_branch_pos = np.array([0.5, 0.75, 1.5]);
+fbs.setBranchState(joint_pos, lf_branch_pos, "lf_foot");
+ws.setJointPosition(joint_pos)
+print("Setting up the lf_foot branch position = ", lf_branch_pos.transpose())
+print("Joint_position = ", ws.getJointPosition().transpose())
+print("The lf_foot branch position = ", fbs.getBranchState(ws.getJointPosition(), "lf_foot").transpose())

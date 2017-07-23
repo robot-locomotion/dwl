@@ -323,8 +323,8 @@ class FloatingBaseSystem
 		 * @param const Eigen::VectorXd& Joint state
 		 * @return Eigen::VectorXd& Generalized joint state
 		 */
-		Eigen::VectorXd& toGeneralizedJointState(const rbd::Vector6d& base_state,
-												 const Eigen::VectorXd& joint_state);
+		const Eigen::VectorXd& toGeneralizedJointState(const rbd::Vector6d& base_state,
+													   const Eigen::VectorXd& joint_state);
 
 		/**
 		 * @brief Converts the generalized joint state to base and joint states
