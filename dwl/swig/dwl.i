@@ -3,8 +3,8 @@
 #include <Python.h>
 //#include <urdf_model/joint.h>
 #include <dwl/WholeBodyState.h>
-#include <dwl/utils/URDF.h>
 #include <dwl/model/FloatingBaseSystem.h>
+#include <dwl/model/WholeBodyKinematics.h>
 %}
 
 /// Data structure in the target language holding data
@@ -59,4 +59,6 @@
 %include <dwl/utils/RigidBodyDynamics.h>
 %include <dwl/WholeBodyState.h>
 %include <dwl/utils/URDF.h>
+%include <dwl/utils/Orientation.h>
 %include <dwl/model/FloatingBaseSystem.h>
+%include <dwl/model/WholeBodyKinematics.h>

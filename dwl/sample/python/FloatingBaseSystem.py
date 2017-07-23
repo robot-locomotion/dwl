@@ -4,7 +4,7 @@ from __future__ import print_function
 import dwl
 import numpy as np
 
-# Construct an instance of the WholeBodyState class, which wraps the C++ class.
+# Construct an instance of the FloatingBaseSystem class, which wraps the C++ class.
 fbs = dwl.FloatingBaseSystem()
 ws = dwl.WholeBodyState()
 
