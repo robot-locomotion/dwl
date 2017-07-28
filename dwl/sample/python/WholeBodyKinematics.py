@@ -36,21 +36,19 @@ ws.setJointPosition(1.5, fbs.getJointId("rh_kfe_joint"))
 
 
 # Computing the jacobians
-jacobian = []#np.array([])#, fixed_jac, floating_jac;
-print(jacobian)
-print(fbs.getEndEffectorNames(dwl.FOOT))
+jacobian = np.zeros([3 * fbs.getNumberOfEndEffectors(dwl.FOOT), 6 + fbs.getJointDoF()])
+fixed_jac = np.zeros([3 * fbs.getNumberOfEndEffectors(dwl.FOOT), fbs.getJointDoF()])
+floating_jac = np.zeros([3 * fbs.getNumberOfEndEffectors(dwl.FOOT), 6])
 base_pos = ws.base_pos
 joint_pos = ws.joint_pos
 wkin.computeJacobian(jacobian,
                      base_pos, joint_pos,
                      fbs.getEndEffectorNames(dwl.FOOT),
                      dwl.Linear)
-#    std::cout << "---------------------------------------" << std::endl;
-print(jacobian)
-#    std::cout << jacobian << " = jacobian" << std::endl;
-#    wkin.getFixedBaseJacobian(fixed_jac, jacobian);
-#    std::cout << "---------------------------------------" << std::endl;
-#    std::cout << fixed_jac << " = fixed jacobian" << std::endl;
-#    wkin.getFloatingBaseJacobian(floating_jac, jacobian);
-#    std::cout << "---------------------------------------" << std::endl;
-#    std::cout << floating_jac << " = floating jacobian" << std::endl << std::endl;
+print(jacobian, " = Full Jacobian")
+
+wkin.getFixedBaseJacobian(fixed_jac, jacobian);
+print(fixed_jac, " = Fixed Jacobian")
+
+wkin.getFloatingBaseJacobian(floating_jac, jacobian);
+print(floating_jac, " =  Floating-based Jacobian")
