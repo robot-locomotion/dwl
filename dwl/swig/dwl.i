@@ -45,13 +45,13 @@
 // Eigen::Dynamic, Eigen::Dynamic>. Not totally sure why that is.
 %eigen_typemaps(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>)
 
-%template(vector_string) std::vector<std::string>;
-%template(vector_matrix3d) std::vector<Eigen::Matrix3d>;
-%template(vector_matrix4d) std::vector<Eigen::Matrix4d>;
-%template(vector_matrixXd) std::vector<Eigen::MatrixXd>;
-%template(vector_vector2d) std::vector<Eigen::Vector2d>;
-%template(vector_vector3d) std::vector<Eigen::Vector3d>;
-%template(vector_vectorXd) std::vector<Eigen::VectorXd>;
+%template(string_List) std::vector<std::string>;
+%template(Matrix3d_List) std::vector<Eigen::Matrix3d>;
+%template(Matrix4d_List) std::vector<Eigen::Matrix4d>;
+%template(MatrixXd_List) std::vector<Eigen::MatrixXd>;
+%template(Vector2d_List) std::vector<Eigen::Vector2d>;
+%template(Vector3d_List) std::vector<Eigen::Vector3d>;
+%template(VectorXd_List) std::vector<Eigen::VectorXd>;
 %template(string_uint) std::map<std::string,unsigned int>;
 %template(string_jointLimits) std::map<std::string,urdf::JointLimits>;
 
