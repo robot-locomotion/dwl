@@ -54,6 +54,7 @@
   import_array();
 %}
 
+
 %fragment("Eigen_Fragments", "header",  fragment="NumPy_Fragments")
 %{
   template <typename T> int NumPyType() {return -1;};
@@ -222,55 +223,45 @@
 // ----------------------------------------------------------------------------
 %define %eigen_typemaps(CLASS...)
 
-// Argout: const & (Disabled and prevents calling of the non-const typemap)
-%typemap(argout, fragment="Eigen_Fragments") const CLASS & ""
-
-// Argout: & (for returning values to in-out arguments)
-%typemap(argout, fragment="Eigen_Fragments") CLASS &
-{
-  // Argout: &
-  if (!CopyFromEigenToNumPyMatrix<CLASS >($input, $1))
-    SWIG_fail;
-}
-
 // In: (nothing: no constness)
 %typemap(in, fragment="Eigen_Fragments") CLASS (CLASS temp)
 {
-  if (!ConvertFromNumpyToEigenMatrix<CLASS >(&temp, $input))
+  if (!ConvertFromNumpyToEigenMatrix<CLASS>(&temp, $input))
     SWIG_fail;
   $1 = temp;
 }
+
 // In: const&
 %typemap(in, fragment="Eigen_Fragments") CLASS const& (CLASS temp)
 {
-  // In: const&
-  if (!ConvertFromNumpyToEigenMatrix<CLASS >(&temp, $input))
+  if (!ConvertFromNumpyToEigenMatrix<CLASS>(&temp, $input))
     SWIG_fail;
   $1 = &temp;
 }
+
 // In: MatrixBase const&
-%typemap(in, fragment="Eigen_Fragments") Eigen::MatrixBase< CLASS > const& (CLASS temp)
+%typemap(in, fragment="Eigen_Fragments") Eigen::MatrixBase<CLASS> const& (CLASS temp)
 {
-  // In: MatrixBase const&
-  if (!ConvertFromNumpyToEigenMatrix<CLASS >(&temp, $input))
+  if (!ConvertFromNumpyToEigenMatrix<CLASS>(&temp, $input))
     SWIG_fail;
   $1 = &temp;
 }
+
 // In: & (not yet implemented)
 %typemap(in, fragment="Eigen_Fragments") CLASS & (CLASS temp)
 {
-  // In: non-const&
-  if (!ConvertFromNumpyToEigenMatrix<CLASS >(&temp, $input))
+  if (!ConvertFromNumpyToEigenMatrix<CLASS>(&temp, $input))
     SWIG_fail;
-
   $1 = &temp;
 }
+
 // In: const* (not yet implemented)
 %typemap(in, fragment="Eigen_Fragments") CLASS const*
 {
   PyErr_SetString(PyExc_ValueError, "The input typemap for const pointer is not yet implemented. Please report this problem to the developer.");
   SWIG_fail;
 }
+
 // In: * (not yet implemented)
 %typemap(in, fragment="Eigen_Fragments") CLASS *
 {
@@ -281,33 +272,38 @@
 // Out: (nothing: no constness)
 %typemap(out, fragment="Eigen_Fragments") CLASS
 {
-  if (!ConvertFromEigenToNumPyMatrix<CLASS >(&$result, &$1))
+  if (!ConvertFromEigenToNumPyMatrix<CLASS>(&$result, &$1))
     SWIG_fail;
 }
+
 // Out: const
 %typemap(out, fragment="Eigen_Fragments") CLASS const
 {
-  if (!ConvertFromEigenToNumPyMatrix<CLASS >(&$result, &$1))
+  if (!ConvertFromEigenToNumPyMatrix<CLASS>(&$result, &$1))
     SWIG_fail;
 }
+
 // Out: const&
 %typemap(out, fragment="Eigen_Fragments") CLASS const&
 {
-  if (!ConvertFromEigenToNumPyMatrix<CLASS >(&$result, $1))
+  if (!ConvertFromEigenToNumPyMatrix<CLASS>(&$result, $1))
     SWIG_fail;
 }
+
 // Out: & (not yet implemented)
 %typemap(out, fragment="Eigen_Fragments") CLASS &
 {
   PyErr_SetString(PyExc_ValueError, "The output typemap for non-const reference is not yet implemented. Please report this problem to the developer.");
   SWIG_fail;
 }
+
 // Out: const* (not yet implemented)
 %typemap(out, fragment="Eigen_Fragments") CLASS const*
 {
   PyErr_SetString(PyExc_ValueError, "The output typemap for const pointer is not yet implemented. Please report this problem to the developer.");
   SWIG_fail;
 }
+
 // Out: * (not yet implemented)
 %typemap(out, fragment="Eigen_Fragments") CLASS *
 {
@@ -315,12 +311,51 @@
   SWIG_fail;
 }
 
-%typemap(out, fragment="Eigen_Fragments") std::vector<CLASS >
+// Argout: const & (Disabled and prevents calling of the non-const typemap)
+%typemap(argout, fragment="Eigen_Fragments") const CLASS & ""
+
+// Argout: & (for returning values to in-out arguments)
+%typemap(argout, fragment="Eigen_Fragments") CLASS &
+{
+  if (!CopyFromEigenToNumPyMatrix<CLASS>($input, $1))
+    SWIG_fail;
+}
+
+
+// In: std::vector<>
+%typemap(in, fragment="Eigen_Fragments") std::vector<CLASS> (std::vector<CLASS> temp)
+{
+  if (!PyList_Check($input))
+    SWIG_fail;
+  temp.resize(PyList_Size($input));
+  for (size_t i = 0; i != PyList_Size($input); ++i) {
+    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(temp[i]), PyList_GetItem($input, i)))
+      SWIG_fail;
+  }
+  $1 = temp;
+}
+
+// In: const std::vector<>&
+%typemap(in, fragment="Eigen_Fragments") std::vector<CLASS> const& (std::vector<CLASS> temp)
+{
+  if (!PyList_Check($input))
+    SWIG_fail;
+  temp.resize(PyList_Size($input));
+  for (size_t i = 0; i != PyList_Size($input); ++i) {
+    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(temp[i]), PyList_GetItem($input, i)))
+      SWIG_fail;
+  }
+  $1 = temp;
+}
+
+
+// Out: std::vector<>
+%typemap(out, fragment="Eigen_Fragments") std::vector<CLASS>
 {
   $result = PyList_New($1.size());
   if (!$result)
     SWIG_fail;
-  for (size_t i=0; i != $1.size(); ++i) {
+  for (size_t i = 0; i != $1.size(); ++i) {
     PyObject *out;
     if (!ConvertFromEigenToNumPyMatrix(&out, &$1[i]))
       SWIG_fail;
@@ -329,24 +364,110 @@
   }
 }
 
-%typemap(in, fragment="Eigen_Fragments") std::vector<CLASS > (std::vector<CLASS > temp)
+// Out: const std::vector<>
+%typemap(out, fragment="Eigen_Fragments") std::vector<CLASS> const
 {
-  if (!PyList_Check($input))
+  $result = PyList_New($1.size());
+  if (!$result)
     SWIG_fail;
-  temp.resize(PyList_Size($input));
-  for (size_t i=0; i != PyList_Size($input); ++i) {
-    if (!ConvertFromNumpyToEigenMatrix<CLASS >(&(temp[i]), PyList_GetItem($input, i)))
+  for (size_t i = 0; i != $1.size(); ++i) {
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &$1[i]))
+      SWIG_fail;
+    if (PyList_SetItem($result, i, out) == -1)
+      SWIG_fail;
+  }
+}
+
+// Out: const& std::vector<>
+%typemap(out, fragment="Eigen_Fragments") std::vector<CLASS> const&
+{
+  $result = PyList_New($1.size());
+  if (!$result)
+    SWIG_fail;
+  for (size_t i = 0; i != $1.size(); ++i) {
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &$1[i]))
+      SWIG_fail;
+    if (PyList_SetItem($result, i, out) == -1)
+      SWIG_fail;
+  }
+}
+
+// Out: & std::vector<> (not yet implemented)
+%typemap(out, fragment="Eigen_Fragments") std::vector<CLASS> &
+{
+  PyErr_SetString(PyExc_ValueError, "The output typemap for non-const vector reference is not yet implemented. Please report this problem to the developer.");
+  SWIG_fail;
+}
+
+// Out: const* std::vector<> (not yet implemented)
+%typemap(out, fragment="Eigen_Fragments") CLASS const*
+{
+  PyErr_SetString(PyExc_ValueError, "The output typemap for const vector pointer is not yet implemented. Please report this problem to the developer.");
+  SWIG_fail;
+}
+
+// Out: * std::vector<> (not yet implemented)
+%typemap(out, fragment="Eigen_Fragments") CLASS *
+{
+  PyErr_SetString(PyExc_ValueError, "The output typemap for non-const vector pointer is not yet implemented. Please report this problem to the developer.");
+  SWIG_fail;
+}
+
+// Argout: const std::vector<>& (Disabled and prevents calling of the non-const typemap)
+%typemap(argout, fragment="Eigen_Fragments") const std::vector<CLASS> & ""
+
+// Argout: std::vector<>& (for returning values to in-out arguments)
+%typemap(argout, fragment="Eigen_Fragments") std::vector<CLASS> &
+{
+  $input = PyList_New($1->size());
+  if (!$input)
+    SWIG_fail;
+  for (size_t i = 0; i != $1->size(); ++i) {
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &$1->at(i)))
+      SWIG_fail;
+    if (PyList_SetItem($input, i, out) == -1)
+      SWIG_fail;
+  }
+}
+
+
+
+
+
+%typemap(in, fragment="Eigen_Fragments") std::map<CLASS> (std::map<CLASS> temp)
+{
+  if (!PyDict_Check($input))
+    SWIG_fail;
+  temp.resize(PyDict_Size($input));
+  for (size_t i=0; i != PyDict_Size($input); ++i) {
+    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(temp[i]), PyDict_GetItem($input, i)))
       SWIG_fail;
   }
   $1 = temp;
 }
 
-%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS >
+%typemap(in, fragment="Eigen_Fragments") std::map<CLASS> & (std::map<CLASS> temp)
+{
+  if (!PyDict_Check($input))
+    SWIG_fail;
+  temp.resize(PyDict_Size($input));
+  for (size_t i=0; i != PyDict_Size($input); ++i) {
+    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(temp[i]), PyDict_GetItem($input, i)))
+      SWIG_fail;
+  }
+  $1 = temp;
+}
+
+
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS>
 {
   $result = PyDict_New();
   const char* name;
   CLASS temp;
-  for (std::map<std::string, CLASS >::const_iterator it = $1.begin();
+  for (std::map<std::string,CLASS>::const_iterator it = $1.begin();
 			it != $1.end(); ++it) {
 	name = it->first.c_str();
     temp = it->second;
@@ -358,12 +479,12 @@
   }
 }
 
-%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS > const
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> const
 {
   $result = PyDict_New();
   const char* name;
   CLASS temp;
-  for (std::map<std::string, CLASS >::const_iterator it = $1.begin();
+  for (std::map<std::string,CLASS>::const_iterator it = $1.begin();
 			it != $1.end(); ++it) {
 	name = it->first.c_str();
     temp = it->second;
@@ -375,12 +496,12 @@
   }
 }
 
-%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS > const&
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> const&
 {
   $result = PyDict_New();
   const char* name;
   CLASS temp;
-  for (std::map<std::string, CLASS >::const_iterator it = $1->begin();
+  for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
 			it != $1->end(); ++it) {
 	name = it->first.c_str();
     temp = it->second;
@@ -392,12 +513,12 @@
   }
 }
 
-%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS > &
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> &
 {
   $result = PyDict_New();
   const char* name;
   CLASS temp;
-  for (std::map<std::string, CLASS >::const_iterator it = $1->begin();
+  for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
 			it != $1->end(); ++it) {
 	name = it->first.c_str();
     temp = it->second;
@@ -409,12 +530,12 @@
   }
 }
 
-%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS > const*
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> const*
 {
   $result = PyDict_New();
   const char* name;
   CLASS temp;
-  for (std::map<std::string, CLASS >::const_iterator it = $1->begin();
+  for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
 			it != $1->end(); ++it) {
 	name = it->first.c_str();
     temp = it->second;
@@ -426,12 +547,12 @@
   }
 }
 
-%typemap(out, fragment="Eigen_Fragments") std::map<std::string, CLASS > *
+%typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> *
 {
   $result = PyDict_New();
   const char* name;
   CLASS temp;
-  for (std::map<std::string, CLASS >::const_iterator it = $1->begin();
+  for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
 			it != $1->end(); ++it) {
 	name = it->first.c_str();
     temp = it->second;
@@ -443,38 +564,51 @@
   }
 }
 
-%typemap(in, fragment="Eigen_Fragments") std::map<CLASS > (std::map<CLASS > temp)
+// Argout: const std::vector<>& (Disabled and prevents calling of the non-const typemap)
+%typemap(argout, fragment="Eigen_Fragments") const std::map<std::string,CLASS> & ""
+
+// Argout: std::vector<>& (for returning values to in-out arguments)
+%typemap(argout, fragment="Eigen_Fragments") std::map<std::string,CLASS> &
 {
-  if (!PyList_Check($input))
-    SWIG_fail;
-  temp.resize(PyList_Size($input));
-  for (size_t i=0; i != PyList_Size($input); ++i) {
-    if (!ConvertFromNumpyToEigenMatrix<CLASS >(&(temp[i]), PyList_GetItem($input, i)))
+std::cout << "-------------testing" << std::endl;
+  $input = PyDict_New();
+  const char* name;
+  CLASS temp;
+  for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
+			it != $1->end(); ++it) {
+	name = it->first.c_str();
+    temp = it->second;
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+      SWIG_fail;
+    if (PyDict_SetItem($input, PyString_FromString(name), out) == -1)
       SWIG_fail;
   }
-  $1 = temp;
 }
+
+	
+
 
 %typecheck(SWIG_TYPECHECK_DOUBLE_ARRAY)
     CLASS,
     const CLASS &,
     CLASS const &,
-    Eigen::MatrixBase< CLASS >,
-    const Eigen::MatrixBase< CLASS > &,
+    Eigen::MatrixBase<CLASS>,
+    const Eigen::MatrixBase<CLASS> &,
     CLASS &
   {
     $1 = is_array($input);
   }
 
 %typecheck(SWIG_TYPECHECK_DOUBLE_ARRAY)
-  std::vector<CLASS >
+  std::vector<CLASS>
   {
     $1 = PyList_Check($input) && ((PyList_Size($input) == 0) || is_array(PyList_GetItem($input, 0)));
   }
 
-%typemap(in, fragment="Eigen_Fragments") const Eigen::Ref<const CLASS >& (CLASS temp)
+%typemap(in, fragment="Eigen_Fragments") const Eigen::Ref<const CLASS>& (CLASS temp)
 {
-  if (!ConvertFromNumpyToEigenMatrix<CLASS >(&temp, $input))
+  if (!ConvertFromNumpyToEigenMatrix<CLASS>(&temp, $input))
     SWIG_fail;
   Eigen::Ref<const CLASS > temp_ref(temp);
   $1 = &temp_ref;
