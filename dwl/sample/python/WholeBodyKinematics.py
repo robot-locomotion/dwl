@@ -52,3 +52,17 @@ print(fixed_jac, " = Fixed Jacobian")
 
 wkin.getFloatingBaseJacobian(floating_jac, jacobian);
 print(floating_jac, " =  Floating-based Jacobian")
+
+#dwl::rbd::BodyVectorXd contact_pos_W;
+contact_pos_W = dict([("lf_foot", np.array([0,0,0])), ("lh_foot", np.array([0,0,0])), ("rf_foot", np.array([0,0,0])), ("rh_foot", np.array([0,0,0]))])
+#print(contact_pos_W)
+#contact_pos_W = dwl.map_string_vectorxd({ 'lf_foot' : np.array([0,0,0]), 'lh_foot' : np.array([0,0,0]), 'rf_foot' : np.array([0,0,0]), 'rh_foot' : np.array([0,0,0])})
+#contact_pos_W = {}
+#contact_pos_W["lf_foot"] = np.zeros(3)
+#contact_pos_W["lh_foot"] = np.zeros(3)
+#contact_pos_W["rf_foot"] = np.zeros(3)
+#contact_pos_W["rh_foot"] = np.zeros(3)
+wkin.computeForwardKinematics(contact_pos_W,
+                              base_pos, joint_pos,
+                              fbs.getEndEffectorNames(dwl.FOOT),
+                              dwl.Linear) #dwl.RollPitchYaw);
