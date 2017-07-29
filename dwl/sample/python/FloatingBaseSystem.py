@@ -66,9 +66,9 @@ for name in contacts:
 	print("End-effector[", contacts[name], "] = ", name)
 
 # Getting the joint limits
-#joint_lim = fbs.getJointLimits()
-#for key in joint_lim:
-#	print(joint_lim[key].effort)
+joint_lim = fbs.getJointLimits()
+for key in joint_lim:
+	print(joint_lim[key])
 
 #print(joint_lim)
 #print(joint_lim['lf_haa_joint'])
