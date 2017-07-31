@@ -450,7 +450,7 @@ function install_libcmaes
 		cd gtest
 		mkdir -p build
 		cd build
-		cmake ../
+		cmake -D BUILD_SHARED_LIBS:bool=ON  CMAKE_BUILD_TYPE=Release ../
 		sudo make -j install
 		cd $CURRENT_PATH
 		
