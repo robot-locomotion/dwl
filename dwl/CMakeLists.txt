@@ -199,7 +199,7 @@ else()
 #  set(DEF_LIB_PREFIX lib)
 #  set(DEF_BIN_PREFIX bin)
 #  set(DEF_CMAKE_PREFIX lib/cmake/dwl)
-  set(DEF_PYTHON_PREFIX python)
+  set(DEF_PYTHON_PREFIX python2.7/dist-packages)
 #  set(DEF_INCLUDE_PREFIX include)
 endif()
 
@@ -214,12 +214,12 @@ set(PYTHON_PREFIX ${DEF_PYTHON_PREFIX} CACHE PATH "Installation directory for Py
 
 # Make relative paths absolute (needed later on)
 #foreach(p LIB BIN INCLUDE CMAKE PYTHON)
-foreach(PYTHON)
+foreach(p PYTHON)
   set(var ${p}_PREFIX)
   if(${var})
     if(NOT IS_ABSOLUTE "${${var}}")
       # Turn relative path into absolute
-      set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+      set(${var} "${CMAKE_INSTALL_PREFIX}/lib/${${var}}")
     endif()
   else()
     # Flat installation hierarchy
@@ -319,8 +319,12 @@ if(CATKIN_CALL)
 		DEPENDS system_lib ${DEPENDENCIES_LIBRARIES} ${DEPENDENCIES_LIBRARY_DIRS} ${DEPENDENCIES_INCLUDE_DIRS})
 else()
     # Installing catkin package.xml and dwl-config.cmake for dwl as pure cmake project
-    install(FILES package.xml DESTINATION share/dwl)
-    install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" DESTINATION share/dwl/cmake)
+    install(FILES package.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/share/dwl)
+    install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake"
+                  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/share/dwl/cmake)
+
+	# Install C++ library
+	install(TARGETS dwl DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
 
 	# Creating a dwl-config.cmake file for the use from the build tree
 	set(DWL_INCLUDE_DIRS  ${INCLUDE_DIRS}
