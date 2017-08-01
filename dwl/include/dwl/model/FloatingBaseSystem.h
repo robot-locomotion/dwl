@@ -256,6 +256,28 @@ class FloatingBaseSystem
 		const urdf_model::JointLimits& getJointLimits() const;
 
 		/**
+		 * @brief Gets the joint limits given its name
+		 * @return const urdf::JointLimits& The joint limits
+		 */
+		const urdf::JointLimits& getJointLimit(const std::string& name) const;
+
+		/** @brief Gets the lower joint limit */
+		const double& getLowerLimit(const std::string& name) const;
+		const double& getLowerLimit(const urdf::JointLimits& joint) const;
+
+		/** @brief Gets the upper joint limit */
+		const double& getUpperLimit(const std::string& name) const;
+		const double& getUpperLimit(const urdf::JointLimits& joint) const;
+
+		/** @brief Gets the velocity joint limit */
+		const double& getVelocityLimit(const std::string& name) const;
+		const double& getVelocityLimit(const urdf::JointLimits& joint) const;
+
+		/** @brief Gets the effort joint limit */
+		const double& getEffortLimit(const std::string& name) const;
+		const double& getEffortLimit(const urdf::JointLimits& joint) const;
+
+		/**
 		 * @brief Gets the floating-base joint names list
 		 * @return const rbd::BodySelector& Joint names list
 		 */

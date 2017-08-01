@@ -468,6 +468,61 @@ const urdf_model::JointLimits& FloatingBaseSystem::getJointLimits() const
 }
 
 
+const urdf::JointLimits& FloatingBaseSystem::getJointLimit(const std::string& name) const
+{
+	return joint_limits_.find(name)->second;
+}
+
+
+const double& FloatingBaseSystem::getLowerLimit(const std::string& name) const
+{
+	return getJointLimit(name).lower;
+}
+
+
+const double& FloatingBaseSystem::getLowerLimit(const urdf::JointLimits& joint) const
+{
+	return joint.lower;
+}
+
+
+const double& FloatingBaseSystem::getUpperLimit(const std::string& name) const
+{
+	return getJointLimit(name).upper;
+}
+
+
+const double& FloatingBaseSystem::getUpperLimit(const urdf::JointLimits& joint) const
+{
+	return joint.upper;
+}
+
+
+const double& FloatingBaseSystem::getVelocityLimit(const std::string& name) const
+{
+	return getJointLimit(name).velocity;
+}
+
+
+const double& FloatingBaseSystem::getVelocityLimit(const urdf::JointLimits& joint) const
+{
+	return joint.velocity;
+}
+
+
+const double& FloatingBaseSystem::getEffortLimit(const std::string& name) const
+{
+	return getJointLimit(name).effort;
+}
+
+
+const double& FloatingBaseSystem::getEffortLimit(const urdf::JointLimits& joint) const
+{
+	return joint.effort;
+}
+
+
+const rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames() const
 {
 	return floating_joint_names_;
 }
