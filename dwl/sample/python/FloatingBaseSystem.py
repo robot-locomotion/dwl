@@ -68,11 +68,25 @@ for name in contacts:
 # Getting the joint limits
 joint_lim = fbs.getJointLimits()
 for key in joint_lim:
-	print(joint_lim[key])
+	# The lower limit
+	print(key, "lower limit =", fbs.getLowerLimit(joint_lim[key]))
+# 	print(key, "lower limit =", fbs.getLowerLimit(key))
+# 	print(key, "lower limit =", joint_lim[key].lower)
 
-#print(joint_lim)
-#print(joint_lim['lf_haa_joint'])
+	# The upper limit
+	print(key, "upper limit =", fbs.getUpperLimit(joint_lim[key]))
+# 	print(key, "upper limit =", fbs.getUpperLimit(key))
+# 	print(key, "upper limit =", joint_lim[key].upper)
 
+	# The velocity limit
+	print(key, "velocity limit =", fbs.getVelocityLimit(joint_lim[key]))
+# 	print(key, "velocity limit =", fbs.getVelocityLimit(key))
+# 	print(key, "velocity limit =", joint_lim[key].velocity)
+
+	# The effort limit
+	print(key, "effort limit =", fbs.getEffortLimit(joint_lim[key]))
+# 	print(key, "effort limit =", fbs.getEffortLimit(key))
+# 	print(key, "effort limit =", joint_lim[key].effort)
 
 # Getting the default posture
 joint_pos0 = fbs.getDefaultPosture()

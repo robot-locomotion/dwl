@@ -56,8 +56,12 @@
 %template(string_jointLimits) std::map<std::string,urdf::JointLimits>;
 
 
+%rename(urdf_Joint) urdf::Joint;
+%rename(urdf_Pose) urdf::Pose;
 %include <dwl/utils/RigidBodyDynamics.h>
 %include <dwl/WholeBodyState.h>
+%include <urdf_model/pose.h>
+%include <urdf_model/joint.h>
 %include <dwl/utils/URDF.h>
 %include <dwl/utils/Orientation.h>
 %include <dwl/model/FloatingBaseSystem.h>
