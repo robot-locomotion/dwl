@@ -1,11 +1,11 @@
 %module dwl
 %{
 #include <Python.h>
-//#include <urdf_model/joint.h>
 #include <dwl/WholeBodyState.h>
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/model/WholeBodyKinematics.h>
 %}
+
 
 /// Data structure in the target language holding data
 #ifdef SWIGPYTHON

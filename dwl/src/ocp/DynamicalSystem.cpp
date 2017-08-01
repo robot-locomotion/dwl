@@ -63,7 +63,7 @@ void DynamicalSystem::jointLimitsFromURDF()
 	dwl::urdf_model::JointLimits joint_limits = system_.getJointLimits();
 	dwl::urdf_model::JointID joint_ids = system_.getJoints();
 	for (dwl::urdf_model::JointLimits::iterator jnt_it = joint_limits.begin();
-			jnt_it != joint_limits.end(); jnt_it++) {
+			jnt_it != joint_limits.end(); ++jnt_it) {
 		std::string joint_name = jnt_it->first;
 		urdf::JointLimits joint_limits = jnt_it->second;
 		unsigned int joint_id = joint_ids.find(joint_name)->second;

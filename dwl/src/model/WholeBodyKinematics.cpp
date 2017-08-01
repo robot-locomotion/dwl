@@ -45,7 +45,7 @@ void WholeBodyKinematics::modelFromURDFModel(const std::string& urdf_model,
 	joint_pos_middle_ = Eigen::VectorXd::Zero(system_.getJointDoF());
 	urdf_model::JointLimits joint_limits = system_.getJointLimits();
 	for (urdf_model::JointLimits::iterator it = joint_limits.begin();
-			it != joint_limits.end(); it++) {
+			it != joint_limits.end(); ++it) {
 		std::string name = it->first;
 		double lower_limit = it->second.lower;
 		double upper_limit = it->second.upper;
@@ -246,7 +246,7 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 	// number of iterations
 	Eigen::MatrixXd full_jac, fixed_jac, JJTe_lambda2_I;
 	rbd::Vector6d base_pos = rbd::Vector6d::Zero();
-	for (unsigned int k = 0; k < max_iter; k++) {
+	for (unsigned int k = 0; k < max_iter; ++k) {
 		// Computing the Jacobian
 		computeJacobian(full_jac, base_pos, joint_pos, body_names, rbd::Linear);
 		getFixedBaseJacobian(fixed_jac, full_jac);
@@ -256,7 +256,7 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 		computeForwardKinematics(fk_pos, base_pos, joint_pos, body_names, rbd::Linear);
 
 		// Computing the error
-		for (unsigned int f = 0; f < body_names.size(); f++) {
+		for (unsigned int f = 0; f < body_names.size(); ++f) {
 			e.segment<3>(3 * f) = target_pos[f] -
 					(Eigen::Vector3d) fk_pos.find(body_names[f])->second;
 		}
@@ -275,7 +275,7 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 		// Checking if the IK solution is in the joint limits
 		dwl::urdf_model::JointLimits joint_limits = system_.getJointLimits();
 		for (dwl::urdf_model::JointLimits::iterator jnt_it = joint_limits.begin();
-				jnt_it != joint_limits.end(); jnt_it++) {
+				jnt_it != joint_limits.end(); ++jnt_it) {
 			std::string name = jnt_it->first;
 			urdf::JointLimits limits = jnt_it->second;
 			unsigned int id = system_.getJointId(name);
