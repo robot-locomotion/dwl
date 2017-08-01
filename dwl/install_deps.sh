@@ -415,7 +415,7 @@ function install_qpoases
 		fi
 		
 		cd qpOASES
-		make -j REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
+		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
 		cd ../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting the qpOASES 3.2.0
@@ -429,7 +429,7 @@ function install_qpoases
 		fi
 
 		cd qpOASES
-		make -j REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
+		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
 		cd ../
 	fi
 }
