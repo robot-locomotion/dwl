@@ -76,7 +76,7 @@ class FloatingBaseSystem
 		 * @brief Resets the system semantic description from yaml file
 		 * @param std::string Semantic system description filename
 		 */
-		void resetSystemDescription(std::string filename);
+		void resetSystemDescription(const std::string& filename);
 
 		/**
 		 * @brief Sets the 6d floating-base joint information
@@ -149,9 +149,10 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the body mass
+		 * @param const std::string& The body name
 		 * @return const double& The mass of the body
 		 */
-		const double& getBodyMass(std::string body_name) const;
+		const double& getBodyMass(const std::string& body_name) const;
 
 		/** @brief Gets the gravity vector of the rigid body system */
 		const Eigen::Vector3d& getGravityVector() const;
@@ -188,20 +189,20 @@ class FloatingBaseSystem
 		 * @brief Gets the Center of Mass (CoM) of floating-base
 		 * @return double The CoM of the floating-base
 		 */
-		const Eigen::Vector3d& getFloatingBaseCoM();
+		const Eigen::Vector3d& getFloatingBaseCoM() const;
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of a specific body
-		 * @param std::string Body name
+		 * @param const std::string& Body name
 		 * @return double The CoM of the body
 		 */
-		const Eigen::Vector3d& getBodyCoM(std::string body_name);
+		const Eigen::Vector3d& getBodyCoM(const std::string& body_name) const;
 
 		/**
 		 * @brief Gets the floating-base system DoF
 		 * @return const unsigned int& Number of DoF of the floating-base system
 		 */
-		const unsigned int& getSystemDoF();
+		const unsigned int& getSystemDoF() const;
 
 		/**
 		 * @brief Gets the floating-base DoF
@@ -233,44 +234,44 @@ class FloatingBaseSystem
 		 * @brief Gets the name of the floating-base body
 		 * @return Returns the name of the floating-base body
 		 */
-		const std::string& getFloatingBaseName();
+		const std::string& getFloatingBaseName() const;
 
 		/**
 		 * @brief Gets the joint id given the name
-		 * @param std::string Joint name
+		 * @param const std::string& Joint name
 		 * @return Returns the joint id
 		 */
-		const unsigned int& getJointId(std::string joint_name) const;
+		const unsigned int& getJointId(const std::string& joint_name) const;
 
 		/**
 		 * @brief Gets actuated joint information
 		 * @return const urdf_model::JointID& Joint names and Ids
 		 */
-		const urdf_model::JointID& getJoints();
+		const urdf_model::JointID& getJoints() const;
 
 		/**
 		 * @brief Gets actuated joint limits
 		 * @return const urdf_model::JointLimits& Joint names and limits
 		 */
-		const urdf_model::JointLimits& getJointLimits();
+		const urdf_model::JointLimits& getJointLimits() const;
 
 		/**
 		 * @brief Gets the floating-base joint names list
 		 * @return const rbd::BodySelector& Joint names list
 		 */
-		const rbd::BodySelector& getFloatingJointNames();
+		const rbd::BodySelector& getFloatingJointNames() const;
 
 		/**
 		 * @brief Gets the joint names list
 		 * @return const rbd::BodySelector& Joint names list
 		 */
-		const rbd::BodySelector& getJointNames();
+		const rbd::BodySelector& getJointNames() const;
 
 		/**
 		 * @brief Gets the body name of the floating-base
-		 * @return std::string Floating-base body
+		 * @return const std::string& Floating-base body
 		 */
-		std::string getFloatingBaseBody();
+		const std::string& getFloatingBaseBody() const;
 
 		/**
 		 * @brief Gets the type of floating-base system
@@ -283,27 +284,27 @@ class FloatingBaseSystem
 		 * @param enum TypeOfEndEffector Type of end-effector
 		 * @return const unsigned int& Number of end-effectors
 		 */
-		const unsigned int& getNumberOfEndEffectors(enum TypeOfEndEffector type = ALL);
+		const unsigned int& getNumberOfEndEffectors(enum TypeOfEndEffector type = ALL) const;
 
 		/**
 		 * @brief Gets the end-effector id given the name
 		 * @param std::string End-effector name
 		 * @return Returns the end-effector id
 		 */
-		unsigned int& getEndEffectorId(std::string contact_name);
+		const unsigned int& getEndEffectorId(const std::string& contact_name) const;
 
 		/**
 		 * @brief Gets the end-effectors names
 		 * @return const urdf_model::LinkID& Names and ids of the end-effectors
 		 */
-		const urdf_model::LinkID& getEndEffectors(enum TypeOfEndEffector type = ALL);
+		const urdf_model::LinkID& getEndEffectors(enum TypeOfEndEffector type = ALL) const;
 
 		/**
 		 * @brief Gets the end-effector names list
 		 * @param enum TypeOfEndEffector Type of end-effector
 		 * @return const rbd::BodySelector& End-effector names list
 		 */
-		const rbd::BodySelector& getEndEffectorNames(enum TypeOfEndEffector type = ALL);
+		const rbd::BodySelector& getEndEffectorNames(enum TypeOfEndEffector type = ALL) const;
 
 		/** @brief Returns true if the system has fully floating-base */
 		bool isFullyFloatingBase();
@@ -350,26 +351,26 @@ class FloatingBaseSystem
 		 * @brief Gets the branch values given a joint state
 		 * @param Eigen::VectorXd& Joint state vector
 		 * @param cons Eigen::VectorXd& Branch state
-		 * @param std::string Body name
+		 * @param const std::string& Body name
 		 */
 		Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
-									   std::string body_name);
+									   const std::string& body_name);
 
 		/**
 		 * @brief Gets the position index and number of DOF of certain branch
 		 * @param unsigned int& Position index of the body branch
 		 * @param unsigned int& Degrees of freedom of the body branch
-		 * @param std::string Name of the body branch (end-effector name)
+		 * @param const std::string& Name of the body branch (end-effector name)
 		 */
 		void getBranch(unsigned int& pos_idx,
 					   unsigned int& num_dof,
-					   std::string body_name);
+					   const std::string& body_name);
 
 		/**
 		 * @brief Gets the default posture defined in the system file
-		 * @return Eigen::VectorXd Default joint position
+		 * @return const Eigen::VectorXd& Default joint position
 		 */
-		Eigen::VectorXd getDefaultPosture();
+		const Eigen::VectorXd& getDefaultPosture() const;
 
 
 	private:
