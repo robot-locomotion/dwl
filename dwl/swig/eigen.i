@@ -1,50 +1,11 @@
 /*
- * The Biomechanical ToolKit
- * Copyright (c) 2009-2013, Arnaud Barré
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *     * Redistributions of source code must retain the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer.
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials
- *       provided with the distribution.
- *     * Neither the name(s) of the copyright holders nor the names
- *       of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written
- *       permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
-
- /*
- Changes:
- Robin Deits:
-  * modified the typemaps to throw SWIG_fail when errors occur, which results in helpful Python errors being thrown when the type conversions fail
-  * added typemaps for std::vector containers
-  * updated to use the new numpy API for full python3 support
  */
 
 %{
   #define SWIG_FILE_WITH_INIT
   #include "Eigen/Core"
   #include <vector>
+  #include <map>
 %}
 
 %include "numpy.i"
@@ -436,45 +397,84 @@
 
 
 
-
-%typemap(in, fragment="Eigen_Fragments") std::map<CLASS> (std::map<CLASS> temp)
+/*
+%typemap(in, fragment="Eigen_Fragments") std::map<std::string,CLASS> (std::map<std::string,CLASS> temp)
 {
+std::cout << "-----------------------------------1" << std::endl;
   if (!PyDict_Check($input))
     SWIG_fail;
   temp.resize(PyDict_Size($input));
-  for (size_t i=0; i != PyDict_Size($input); ++i) {
+  for (size_t i = 0; i != PyDict_Size($input); ++i) {
     if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(temp[i]), PyDict_GetItem($input, i)))
       SWIG_fail;
   }
   $1 = temp;
 }
-
-%typemap(in, fragment="Eigen_Fragments") std::map<CLASS> & (std::map<CLASS> temp)
+*/
+/*
+%typemap(in, fragment="Eigen_Fragments") std::map<std::string,CLASS> const& (std::map<std::string,CLASS> temp)
 {
+std::cout << "-----------------------------------2" << std::endl;
   if (!PyDict_Check($input))
     SWIG_fail;
+
+//  PyObject *key, *value;
+//  Py_ssize_t pos = 0;
+
+//  while (PyDict_Next(index, &pos, &key, &value)) {
+//    CLASS tmp;
+ //   if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(tmp), PyDict_GetItem($input, key)))
+   //   SWIG_fail;
+    
+   // temp[key] = tmp;
+//    std::cout << index << std::endl;
+//    std::cout << pos << std::endl;
+//    std::cout << key << std::endl;
+//    std::cout << value << std::endl;
+//  }
+  
+//  for (std::map<std::string,CLASS>::const_iterator it = $input->begin();
+//    it != $input->end(); ++it) {
+/*  for (size_t i = 0; i != PyDict_Size($input); ++i) {
+    std::cout << i << std::endl;
+    std::cout << PyDict_GetItem($input, i) << std::endl;
+  }
+//  temp.resize(PyDict_Size($input));
+//  for (size_t i = 0; i != PyDict_Size($input); ++i) {
+//    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(temp[i]), PyDict_GetItem($input, i)))
+//      SWIG_fail;
+//  }
+//  $1 = temp;
+}
+*/
+/*
+%typemap(in, fragment="Eigen_Fragments") std::map<std::string,CLASS> & (std::map<std::string,CLASS> temp)
+{
+std::cout << "-----------------------------------3" << std::endl;
+/*  if (!PyDict_Check($input))
+    SWIG_fail;
   temp.resize(PyDict_Size($input));
-  for (size_t i=0; i != PyDict_Size($input); ++i) {
+  for (size_t i = 0; i != PyDict_Size($input); ++i) {
     if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(temp[i]), PyDict_GetItem($input, i)))
       SWIG_fail;
   }
   $1 = temp;
 }
-
+*/
 
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS>
 {
   $result = PyDict_New();
-  const char* name;
-  CLASS temp;
+  const char* key;
+  CLASS value;
   for (std::map<std::string,CLASS>::const_iterator it = $1.begin();
 			it != $1.end(); ++it) {
-	name = it->first.c_str();
-    temp = it->second;
+    key = it->first.c_str();
+    value = it->second;
     PyObject *out;
-    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+    if (!ConvertFromEigenToNumPyMatrix(&out, &value))
       SWIG_fail;
-    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+    if (PyDict_SetItem($result, PyString_FromString(key), out) == -1)
       SWIG_fail;
   }
 }
@@ -482,16 +482,16 @@
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> const
 {
   $result = PyDict_New();
-  const char* name;
-  CLASS temp;
+  const char* key;
+  CLASS value;
   for (std::map<std::string,CLASS>::const_iterator it = $1.begin();
 			it != $1.end(); ++it) {
-	name = it->first.c_str();
-    temp = it->second;
+    key = it->first.c_str();
+    value = it->second;
     PyObject *out;
-    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+    if (!ConvertFromEigenToNumPyMatrix(&out, &value))
       SWIG_fail;
-    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+    if (PyDict_SetItem($result, PyString_FromString(key), out) == -1)
       SWIG_fail;
   }
 }
@@ -499,16 +499,16 @@
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> const&
 {
   $result = PyDict_New();
-  const char* name;
-  CLASS temp;
+  const char* key;
+  CLASS value;
   for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
 			it != $1->end(); ++it) {
-	name = it->first.c_str();
-    temp = it->second;
+    key = it->first.c_str();
+    value = it->second;
     PyObject *out;
-    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+    if (!ConvertFromEigenToNumPyMatrix(&out, &value))
       SWIG_fail;
-    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+    if (PyDict_SetItem($result, PyString_FromString(key), out) == -1)
       SWIG_fail;
   }
 }
@@ -516,16 +516,16 @@
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> &
 {
   $result = PyDict_New();
-  const char* name;
-  CLASS temp;
+  const char* key;
+  CLASS value;
   for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
 			it != $1->end(); ++it) {
-	name = it->first.c_str();
-    temp = it->second;
+    key = it->first.c_str();
+    value = it->second;
     PyObject *out;
-    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+    if (!ConvertFromEigenToNumPyMatrix(&out, &value))
       SWIG_fail;
-    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+    if (PyDict_SetItem($result, PyString_FromString(key), out) == -1)
       SWIG_fail;
   }
 }
@@ -533,16 +533,16 @@
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> const*
 {
   $result = PyDict_New();
-  const char* name;
-  CLASS temp;
+  const char* key;
+  CLASS value;
   for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
 			it != $1->end(); ++it) {
-	name = it->first.c_str();
-    temp = it->second;
+    key = it->first.c_str();
+    value = it->second;
     PyObject *out;
-    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+    if (!ConvertFromEigenToNumPyMatrix(&out, &value))
       SWIG_fail;
-    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+    if (PyDict_SetItem($result, PyString_FromString(key), out) == -1)
       SWIG_fail;
   }
 }
@@ -550,43 +550,58 @@
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> *
 {
   $result = PyDict_New();
-  const char* name;
-  CLASS temp;
+  const char* key;
+  CLASS value;
   for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
 			it != $1->end(); ++it) {
-	name = it->first.c_str();
-    temp = it->second;
+    key = it->first.c_str();
+    value = it->second;
     PyObject *out;
-    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+    if (!ConvertFromEigenToNumPyMatrix(&out, &value))
       SWIG_fail;
-    if (PyDict_SetItem($result, PyString_FromString(name), out) == -1)
+    if (PyDict_SetItem($result, PyString_FromString(key), out) == -1)
       SWIG_fail;
   }
 }
 
-// Argout: const std::vector<>& (Disabled and prevents calling of the non-const typemap)
+// Argout: const std::map<std::string,>& (Disabled and prevents calling of the non-const typemap)
 %typemap(argout, fragment="Eigen_Fragments") const std::map<std::string,CLASS> & ""
 
-// Argout: std::vector<>& (for returning values to in-out arguments)
+// Argout: std::map<std::string,>& (for returning values to in-out arguments)
 %typemap(argout, fragment="Eigen_Fragments") std::map<std::string,CLASS> &
 {
-std::cout << "-------------testing" << std::endl;
   $input = PyDict_New();
-  const char* name;
-  CLASS temp;
+  const char* key;
+  CLASS value;
   for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
 			it != $1->end(); ++it) {
-	name = it->first.c_str();
-    temp = it->second;
+	key = it->first.c_str();
+    value = it->second;
     PyObject *out;
-    if (!ConvertFromEigenToNumPyMatrix(&out, &temp))
+    if (!ConvertFromEigenToNumPyMatrix(&out, &value))
       SWIG_fail;
-    if (PyDict_SetItem($input, PyString_FromString(name), out) == -1)
+    if (PyDict_SetItem($input, PyString_FromString(key), out) == -1)
       SWIG_fail;
   }
 }
 
-	
+// Argout: std::map<std::string,>* (for returning values to in-out arguments)
+%typemap(argout, fragment="Eigen_Fragments") std::map<std::string,CLASS> *
+{
+  $input = PyDict_New();
+  const char* key;
+  CLASS value;
+  for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
+			it != $1->end(); ++it) {
+	key = it->first.c_str();
+    value = it->second;
+    PyObject *out;
+    if (!ConvertFromEigenToNumPyMatrix(&out, &value))
+      SWIG_fail;
+    if (PyDict_SetItem($input, PyString_FromString(key), out) == -1)
+      SWIG_fail;
+  }
+}
 
 
 %typecheck(SWIG_TYPECHECK_DOUBLE_ARRAY)
@@ -596,15 +611,22 @@ std::cout << "-------------testing" << std::endl;
     Eigen::MatrixBase<CLASS>,
     const Eigen::MatrixBase<CLASS> &,
     CLASS &
-  {
-    $1 = is_array($input);
-  }
+{
+  $1 = is_array($input);
+}
 
 %typecheck(SWIG_TYPECHECK_DOUBLE_ARRAY)
-  std::vector<CLASS>
-  {
-    $1 = PyList_Check($input) && ((PyList_Size($input) == 0) || is_array(PyList_GetItem($input, 0)));
-  }
+    std::vector<CLASS>
+{
+  $1 = PyList_Check($input) && ((PyList_Size($input) == 0) || is_array(PyList_GetItem($input, 0)));
+}
+
+%typecheck(SWIG_TYPECHECK_DOUBLE_ARRAY)
+    std::map<std::string,CLASS>
+{
+  $1 = PyDict_Check($input) && ((PyDict_Size($input) == 0) || is_array(PyDict_GetItem($input, 0)));
+}
+
 
 %typemap(in, fragment="Eigen_Fragments") const Eigen::Ref<const CLASS>& (CLASS temp)
 {

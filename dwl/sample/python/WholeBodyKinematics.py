@@ -41,6 +41,10 @@ fixed_jac = np.zeros([3 * fbs.getNumberOfEndEffectors(dwl.FOOT), fbs.getJointDoF
 floating_jac = np.zeros([3 * fbs.getNumberOfEndEffectors(dwl.FOOT), 6])
 base_pos = ws.base_pos
 joint_pos = ws.joint_pos
+base_vel = ws.base_vel
+joint_vel = ws.joint_vel
+base_acc = ws.base_acc
+joint_acc = ws.joint_acc
 wkin.computeJacobian(jacobian,
                      base_pos, joint_pos,
                      fbs.getEndEffectorNames(dwl.FOOT),
@@ -53,16 +57,43 @@ print(fixed_jac, " = Fixed Jacobian")
 wkin.getFloatingBaseJacobian(floating_jac, jacobian);
 print(floating_jac, " =  Floating-based Jacobian")
 
-#dwl::rbd::BodyVectorXd contact_pos_W;
-contact_pos_W = dict([("lf_foot", np.array([0,0,0])), ("lh_foot", np.array([0,0,0])), ("rf_foot", np.array([0,0,0])), ("rh_foot", np.array([0,0,0]))])
-#print(contact_pos_W)
-#contact_pos_W = dwl.map_string_vectorxd({ 'lf_foot' : np.array([0,0,0]), 'lh_foot' : np.array([0,0,0]), 'rf_foot' : np.array([0,0,0]), 'rh_foot' : np.array([0,0,0])})
-#contact_pos_W = {}
-#contact_pos_W["lf_foot"] = np.zeros(3)
-#contact_pos_W["lh_foot"] = np.zeros(3)
-#contact_pos_W["rf_foot"] = np.zeros(3)
-#contact_pos_W["rh_foot"] = np.zeros(3)
-wkin.computeForwardKinematics(contact_pos_W,
-                              base_pos, joint_pos,
-                              fbs.getEndEffectorNames(dwl.FOOT),
-                              dwl.Linear) #dwl.RollPitchYaw);
+
+contact_pos_W = wkin.computePosition(base_pos, joint_pos,
+                                     fbs.getEndEffectorNames(dwl.FOOT),
+                                     dwl.Linear)
+print(contact_pos_W)
+
+# wkin.computeForwardKinematics(contact_pos_W2,
+#                               base_pos, joint_pos,
+#                               fbs.getEndEffectorNames(dwl.FOOT),
+#                               dwl.Linear) #dwl.RollPitchYaw);
+
+
+contact_vel_W = wkin.computeVelocity(base_pos, joint_pos,
+                                     base_vel, joint_vel,
+                                     fbs.getEndEffectorNames(dwl.FOOT),
+                                     dwl.Linear)
+print(contact_vel_W)
+
+contact_acc_W = wkin.computeAcceleration(base_pos, joint_pos,
+                                         base_vel, joint_vel,
+                                         base_acc, joint_acc,
+                                         fbs.getEndEffectorNames(dwl.FOOT),
+                                         dwl.Linear)
+print(contact_acc_W)
+
+contact_jdqd_W = wkin.computeJdotQdot(base_pos, joint_pos,
+                                      base_vel, joint_vel,
+                                      fbs.getEndEffectorNames(dwl.FOOT),
+                                      dwl.Linear)
+print(contact_jdqd_W)
+
+
+contact_pos_W2 = dwl.Vector3d_Dict({ 'a' : np.array([0.,0.,0.]),  'b' : np.array([0.,0.,0.]) })
+#contact_pos_W2["lf_foot"] = np.array([0,0,0])
+#contact_pos_W2.__setitem__("lf_foot")
+#print(contact_pos_W2)
+#wkin.computeInverseKinematics(base_pos, joint_pos, contact_pos_W)
+wkin.computeInverseKinematics(joint_pos, contact_pos_W2)
+print(base_pos)
+print(joint_pos)
