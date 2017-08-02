@@ -61,6 +61,12 @@ class WholeBodyKinematics
 									  const rbd::BodySelector& body_set,
 									  enum rbd::Component component = rbd::Full,
 									  enum TypeOfOrientation type = RollPitchYaw);
+		const rbd::BodyVectorXd& computePosition(const rbd::Vector6d& base_pos,
+												 const Eigen::VectorXd& joint_pos,
+												 const rbd::BodySelector& body_set,
+												 enum rbd::Component component = rbd::Full,
+												 enum TypeOfOrientation type = RollPitchYaw);
+
 
 		/**
 		 * @brief Computes the inverse kinematics for a predefined set of
@@ -212,6 +218,12 @@ class WholeBodyKinematics
 							 const Eigen::VectorXd& joint_vel,
 							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
+		const rbd::BodyVectorXd& computeVelocity(const rbd::Vector6d& base_pos,
+												 const Eigen::VectorXd& joint_pos,
+												 const rbd::Vector6d& base_vel,
+												 const Eigen::VectorXd& joint_vel,
+												 const rbd::BodySelector& body_set,
+												 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the operational acceleration from the joint space
@@ -236,6 +248,14 @@ class WholeBodyKinematics
 								 const Eigen::VectorXd& joint_acc,
 								 const rbd::BodySelector& body_set,
 								 enum rbd::Component component = rbd::Full);
+		const rbd::BodyVectorXd& computeAcceleration(const rbd::Vector6d& base_pos,
+								 	 	 	 	 	 const Eigen::VectorXd& joint_pos,
+													 const rbd::Vector6d& base_vel,
+													 const Eigen::VectorXd& joint_vel,
+													 const rbd::Vector6d& base_acc,
+													 const Eigen::VectorXd& joint_acc,
+													 const rbd::BodySelector& body_set,
+													 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the operational acceleration contribution from the
@@ -258,6 +278,12 @@ class WholeBodyKinematics
 							 const Eigen::VectorXd& joint_vel,
 							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
+		const rbd::BodyVectorXd& computeJdotQdot(const rbd::Vector6d& base_pos,
+												 const Eigen::VectorXd& joint_pos,
+												 const rbd::Vector6d& base_vel,
+												 const Eigen::VectorXd& joint_vel,
+												 const rbd::BodySelector& body_set,
+												 enum rbd::Component component = rbd::Full);
 
 		/** @brief Gets the floating-base system information */
 		const FloatingBaseSystem& getFloatingBaseSystem() const;
@@ -278,6 +304,11 @@ class WholeBodyKinematics
 
 		/** @brief Middle joint position */
 		Eigen::VectorXd joint_pos_middle_;
+
+		rbd::BodyVectorXd body_pos_;
+		rbd::BodyVectorXd body_vel_;
+		rbd::BodyVectorXd body_acc_;
+		rbd::BodyVectorXd jdot_qdot_;
 };
 
 } //@namespace model

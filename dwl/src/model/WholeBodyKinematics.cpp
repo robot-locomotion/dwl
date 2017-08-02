@@ -163,6 +163,19 @@ void WholeBodyKinematics::computeForwardKinematics(rbd::BodyVectorXd& op_pos,
 }
 
 
+const rbd::BodyVectorXd& WholeBodyKinematics::computePosition(const rbd::Vector6d& base_pos,
+															  const Eigen::VectorXd& joint_pos,
+															  const rbd::BodySelector& body_set,
+															  enum rbd::Component component,
+															  enum TypeOfOrientation type)
+{
+	computeForwardKinematics(body_pos_,
+							base_pos, joint_pos,
+							body_set, component, type);
+	return body_pos_;
+}
+
+
 void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 												   Eigen::VectorXd& joint_pos,
 												   const rbd::BodyVector3d& op_pos,
@@ -571,6 +584,21 @@ void WholeBodyKinematics::computeVelocity(rbd::BodyVectorXd& op_vel,
 }
 
 
+const rbd::BodyVectorXd& WholeBodyKinematics::computeVelocity(const rbd::Vector6d& base_pos,
+										 	 	 	 	 	  const Eigen::VectorXd& joint_pos,
+															  const rbd::Vector6d& base_vel,
+															  const Eigen::VectorXd& joint_vel,
+															  const rbd::BodySelector& body_set,
+															  enum rbd::Component component)
+{
+	computeVelocity(body_vel_,
+					base_pos, joint_pos,
+					base_vel, joint_vel,
+					body_set, component);
+	return body_vel_;
+}
+
+
 void WholeBodyKinematics::computeAcceleration(rbd::BodyVectorXd& op_acc,
 											  const rbd::Vector6d& base_pos,
 											  const Eigen::VectorXd& joint_pos,
@@ -632,6 +660,25 @@ void WholeBodyKinematics::computeAcceleration(rbd::BodyVectorXd& op_acc,
 		}
 	}
 }
+
+
+const rbd::BodyVectorXd& WholeBodyKinematics::computeAcceleration(const rbd::Vector6d& base_pos,
+																  const Eigen::VectorXd& joint_pos,
+																  const rbd::Vector6d& base_vel,
+																  const Eigen::VectorXd& joint_vel,
+																  const rbd::Vector6d& base_acc,
+																  const Eigen::VectorXd& joint_acc,
+																  const rbd::BodySelector& body_set,
+																  enum rbd::Component component)
+{
+	computeAcceleration(body_acc_,
+					base_pos, joint_pos,
+					base_vel, joint_vel,
+					base_acc, joint_acc,
+					body_set, component);
+	return body_acc_;
+}
+
 
 
 void WholeBodyKinematics::computeJdotQdot(rbd::BodyVectorXd& jacd_qd,
@@ -715,6 +762,21 @@ void WholeBodyKinematics::computeJdotQdot(rbd::BodyVectorXd& jacd_qd,
 			jacd_qd[body_name] = body_jacd_qd;
 		}
 	}
+}
+
+
+const rbd::BodyVectorXd& WholeBodyKinematics::computeJdotQdot(const rbd::Vector6d& base_pos,
+										 	 	 	 	 	  const Eigen::VectorXd& joint_pos,
+															  const rbd::Vector6d& base_vel,
+															  const Eigen::VectorXd& joint_vel,
+															  const rbd::BodySelector& body_set,
+															  enum rbd::Component component)
+{
+	computeJdotQdot(jdot_qdot_,
+					base_pos, joint_pos,
+					base_vel, joint_vel,
+					body_set, component);
+	return jdot_qdot_;
 }
 
 
