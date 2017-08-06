@@ -59,6 +59,15 @@
 %template(string_jointLimits) std::map<std::string,urdf::JointLimits>;
 
 
+// Renaming orientation methods to get rid of the ambiguity
+%rename(getQuaternion_RM) getQuaternion(const Eigen::Matrix3d& rotation_mtx);
+%rename(getQuaternion_RPY) getQuaternion(const Eigen::Vector3d& rpy);
+%rename(getInverseEulerAnglesRatesMatrix_RPY) getInverseEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy);
+%rename(getInverseEulerAnglesRatesMatrix_RM) getInverseEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx);
+%rename(getInverseEulerAnglesRatesMatrix_Q) getInverseEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion);
+%rename(getEulerAnglesRatesMatrix_RPY) getEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy);
+%rename(getEulerAnglesRatesMatrix_RM) getEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx);
+%rename(getEulerAnglesRatesMatrix_Q) getEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion);
 
 // Ignoring two methods of the WholeBodyKinematic class that generate
 // ambiguity
@@ -67,7 +76,6 @@
 %ignore computeInverseKinematics(rbd::Vector6d&,
 								 Eigen::VectorXd&,
 								 const rbd::BodyVector3d&);
-
 
 %rename(urdf_Joint) urdf::Joint;
 %rename(urdf_Pose) urdf::Pose;
