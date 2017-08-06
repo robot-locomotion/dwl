@@ -35,8 +35,8 @@
 %template(Vector2d_List) std::vector<Eigen::Vector2d>;
 %template(Vector3d_List) std::vector<Eigen::Vector3d>;
 %template(VectorXd_List) std::vector<Eigen::VectorXd>;
-%template(Vector3d_Dict) std::map<std::string,Eigen::Vector3d>;
-%template(VectorXd_Dict) std::map<std::string,Eigen::VectorXd>;
+//%template(Vector3d_Dict) std::map<std::string,Eigen::Vector3d>;
+//%template(VectorXd_Dict) std::map<std::string,Eigen::VectorXd>;
 
 // Since Eigen uses templates, we have to declare exactly which types we'd
 // like to generate mappings for.
@@ -52,11 +52,21 @@
 // Eigen::Dynamic, Eigen::Dynamic>, our templatedInverse function doesn't
 // compile correctly unless we also declare typemaps for Eigen::Matrix<double,
 // Eigen::Dynamic, Eigen::Dynamic>. Not totally sure why that is.
-%eigen_typemaps(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>)
+//%eigen_typemaps(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>)
 
 %template(string_List) std::vector<std::string>;
 %template(string_uint) std::map<std::string,unsigned int>;
 %template(string_jointLimits) std::map<std::string,urdf::JointLimits>;
+
+
+
+// Ignoring two methods of the WholeBodyKinematic class that generate
+// ambiguity
+%ignore computeJointPosition(Eigen::VectorXd&,
+							 const rbd::BodyVector3d&);
+%ignore computeInverseKinematics(rbd::Vector6d&,
+								 Eigen::VectorXd&,
+								 const rbd::BodyVector3d&);
 
 
 %rename(urdf_Joint) urdf::Joint;

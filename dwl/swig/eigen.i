@@ -625,6 +625,15 @@
 }
 
 
+%typemap(in, fragment="Eigen_Fragments") const Eigen::Ref<const CLASS>& (CLASS temp)
+{
+  if (!ConvertFromNumpyToEigenMatrix<CLASS>(&temp, $input))
+    SWIG_fail;
+  Eigen::Ref<const CLASS > temp_ref(temp);
+  $1 = &temp_ref;
+}
+
+
 %typecheck(SWIG_TYPECHECK_DOUBLE_ARRAY)
     CLASS,
     const CLASS &,
@@ -646,15 +655,6 @@
     std::map<std::string,CLASS>
 {
   $1 = PyDict_Check($input) && ((PyDict_Size($input) == 0) || is_array(PyDict_GetItem($input, 0)));
-}
-
-
-%typemap(in, fragment="Eigen_Fragments") const Eigen::Ref<const CLASS>& (CLASS temp)
-{
-  if (!ConvertFromNumpyToEigenMatrix<CLASS>(&temp, $input))
-    SWIG_fail;
-  Eigen::Ref<const CLASS > temp_ref(temp);
-  $1 = &temp_ref;
 }
 
 %enddef

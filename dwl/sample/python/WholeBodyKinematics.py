@@ -58,42 +58,49 @@ wkin.getFloatingBaseJacobian(floating_jac, jacobian);
 print(floating_jac, " =  Floating-based Jacobian")
 
 
+# Computing the contact positions
 contact_pos_W = wkin.computePosition(base_pos, joint_pos,
                                      fbs.getEndEffectorNames(dwl.FOOT),
                                      dwl.Linear)
-print(contact_pos_W)
-
-# wkin.computeForwardKinematics(contact_pos_W2,
-#                               base_pos, joint_pos,
-#                               fbs.getEndEffectorNames(dwl.FOOT),
-#                               dwl.Linear) #dwl.RollPitchYaw);
+print("The contact position:", contact_pos_W)
 
 
+# Computing the contact velocities
 contact_vel_W = wkin.computeVelocity(base_pos, joint_pos,
                                      base_vel, joint_vel,
                                      fbs.getEndEffectorNames(dwl.FOOT),
                                      dwl.Linear)
-print(contact_vel_W)
+print("The contact velocity:", contact_vel_W)
 
+
+# Computing the contact accelerations
 contact_acc_W = wkin.computeAcceleration(base_pos, joint_pos,
                                          base_vel, joint_vel,
                                          base_acc, joint_acc,
                                          fbs.getEndEffectorNames(dwl.FOOT),
                                          dwl.Linear)
-print(contact_acc_W)
+print("The contact accelerations:", contact_acc_W)
 
+
+# Computing the Jdot *qdot of the contacts
 contact_jdqd_W = wkin.computeJdotQdot(base_pos, joint_pos,
                                       base_vel, joint_vel,
                                       fbs.getEndEffectorNames(dwl.FOOT),
                                       dwl.Linear)
-print(contact_jdqd_W)
+print("The Jdot*qdot:", contact_jdqd_W)
 
 
-contact_pos_W2 = dwl.Vector3d_Dict({ 'a' : np.array([0.,0.,0.]),  'b' : np.array([0.,0.,0.]) })
-#contact_pos_W2["lf_foot"] = np.array([0,0,0])
-#contact_pos_W2.__setitem__("lf_foot")
-#print(contact_pos_W2)
-#wkin.computeInverseKinematics(base_pos, joint_pos, contact_pos_W)
-wkin.computeInverseKinematics(joint_pos, contact_pos_W2)
-print(base_pos)
-print(joint_pos)
+# Computing the joint positions
+wkin.setIKSolver(1.0e-12, 0.01, 50)
+joint_pos_init = fbs.getDefaultPosture();
+contact_pos_B = { 'lh_foot' : np.array([-0.371,0.207,-0.689]),
+                  'rh_foot' : np.array([-0.371,-0.207,-0.589]) }
+wkin.computeJointPosition(joint_pos, contact_pos_W, joint_pos_init)
+print("The joint positions:", joint_pos.transpose())
+
+
+# Computing the whole-body inverse kinematics
+base_pos_init = np.zeros(6);
+wkin.computeInverseKinematics(base_pos, joint_pos, contact_pos_B, base_pos_init, joint_pos_init)
+print("The base position:", base_pos.transpose())
+print("The joint positions:", joint_pos.transpose())
