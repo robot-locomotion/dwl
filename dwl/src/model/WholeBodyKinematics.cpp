@@ -7,7 +7,8 @@ namespace dwl
 namespace model
 {
 
-WholeBodyKinematics::WholeBodyKinematics()
+WholeBodyKinematics::WholeBodyKinematics() : step_tol_(1.0e-12),
+		lambda_(0.01), max_iter_(50)
 {
 
 }
@@ -52,6 +53,16 @@ void WholeBodyKinematics::modelFromURDFModel(const std::string& urdf_model,
 
 		joint_pos_middle_(system_.getJointId(name)) = (upper_limit + lower_limit) / 2;
 	}
+}
+
+
+void WholeBodyKinematics::setIKSolver(double step_tol,
+						 	 	 	  double lambda,
+									  unsigned int max_iter)
+{
+	step_tol_ = step_tol;
+	lambda_ = lambda;
+	max_iter_ = max_iter;
 }
 
 
@@ -178,18 +189,22 @@ const rbd::BodyVectorXd& WholeBodyKinematics::computePosition(const rbd::Vector6
 
 void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 												   Eigen::VectorXd& joint_pos,
+												   const rbd::BodyVector3d& op_pos)
+{
+	computeInverseKinematics(base_pos, joint_pos,
+							 op_pos,
+							 rbd::Vector6d::Zero(), joint_pos_middle_);
+}
+
+
+void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
+												   Eigen::VectorXd& joint_pos,
 												   const rbd::BodyVector3d& op_pos,
 												   const rbd::Vector6d& base_pos_init,
-												   const Eigen::VectorXd& joint_pos_init,
-												   double step_tol,
-												   double lambda,
-												   unsigned int max_iter)
+												   const Eigen::VectorXd& joint_pos_init)
 {//TODO this routines has to consider more general cases, i.e. 6d operational position
 	Eigen::VectorXd joint_pos_guess = Eigen::VectorXd::Zero(system_.getJointDoF());
-	if (joint_pos_init.size() == 0)
-		joint_pos_guess = joint_pos_middle_;
-	else
-		joint_pos_guess = joint_pos_init;
+	joint_pos_guess = joint_pos_init;
 
 	// Setting the desired body position for RBDL
 	std::vector<unsigned int> body_id;
@@ -216,29 +231,23 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 	RigidBodyDynamics::InverseKinematics(system_.getRBDModel(),
 										 q_guess, body_id, body_point,
 										 target_pos, q_res,
-										 step_tol, lambda, max_iter);
+										 step_tol_, lambda_, max_iter_);
 
 	// Converting the base and joint positions
 	system_.fromGeneralizedJointState(base_pos, joint_pos, q_res);
 }
 
 
-void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
-												   const rbd::BodyVector3d& op_pos,
-												   double step_tol,
-												   double lambda,
-												   unsigned int max_iter)
+void WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
+											   const rbd::BodyVector3d& op_pos)
 {
-	computeInverseKinematics(joint_pos, op_pos, joint_pos_middle_);
+	computeJointPosition(joint_pos, op_pos, joint_pos_middle_);
 }
 
 
-void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
-												   const rbd::BodyVector3d& op_pos,
-												   const Eigen::VectorXd& joint_pos_init,
-												   double step_tol,
-												   double lambda,
-												   unsigned int max_iter)
+void WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
+											   const rbd::BodyVector3d& op_pos,
+											   const Eigen::VectorXd& joint_pos_init)
 {
 	// Setting up the guess point
 	joint_pos = joint_pos_init;
@@ -259,7 +268,7 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 	// number of iterations
 	Eigen::MatrixXd full_jac, fixed_jac, JJTe_lambda2_I;
 	rbd::Vector6d base_pos = rbd::Vector6d::Zero();
-	for (unsigned int k = 0; k < max_iter; ++k) {
+	for (unsigned int k = 0; k < max_iter_; ++k) {
 		// Computing the Jacobian
 		computeJacobian(full_jac, base_pos, joint_pos, body_names, rbd::Linear);
 		getFixedBaseJacobian(fixed_jac, full_jac);
@@ -276,7 +285,7 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 
 		// Computing the weighted fixed jacobian
 		JJTe_lambda2_I = fixed_jac * fixed_jac.transpose() +
-				lambda * lambda * Eigen::MatrixXd::Identity(e.size(), e.size());
+				lambda_ * lambda_ * Eigen::MatrixXd::Identity(e.size(), e.size());
 
 		// Solving the linear system
 		Eigen::VectorXd z;
@@ -299,9 +308,11 @@ void WholeBodyKinematics::computeInverseKinematics(Eigen::VectorXd& joint_pos,
 				joint_pos(id) = limits.lower;
 		}
 
-		if (delta_theta.norm() < step_tol)
+		if (delta_theta.norm() < step_tol_)
 			return;
 	}
+
+
 }
 
 

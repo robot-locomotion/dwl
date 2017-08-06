@@ -99,6 +99,7 @@ int main(int argc, char **argv)
 
 
 	// Computing IK
+	wkin.setIKSolver( 1.0e-12, 0.01, 50);
 	dwl::rbd::BodyVector3d ik_pos;
 	ik_pos[fbs.getFloatingBaseName()] = Eigen::Vector3d::Zero();
 	ik_pos["lf_foot"] = ws.getContactPosition_W("lf_foot").tail(3);
@@ -115,9 +116,9 @@ int main(int argc, char **argv)
 	std::cout << "Base position = " << ws.base_pos.transpose() << std::endl;
 	std::cout << "Joint position = "<< ws.joint_pos.transpose() << std::endl << std::endl;
 
-	wkin.computeInverseKinematics(ws.joint_pos,
-								 ik_pos,
-								 joint_pos_init, 1.0e-12, 0.01, 50);
+	wkin.computeJointPosition(ws.joint_pos,
+							  ik_pos,
+							  joint_pos_init);
 	std::cout << "------------------ IK ---------------------" << std::endl;
 	std::cout << "Joint position = "<< ws.joint_pos.transpose() << std::endl << std::endl;
 
