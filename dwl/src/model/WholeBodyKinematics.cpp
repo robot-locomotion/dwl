@@ -311,8 +311,6 @@ void WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 		if (delta_theta.norm() < step_tol_)
 			return;
 	}
-
-
 }
 
 
