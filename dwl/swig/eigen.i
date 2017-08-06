@@ -395,73 +395,88 @@
 }
 
 
-
-
-/*
+// In: std::map<std::string,>
 %typemap(in, fragment="Eigen_Fragments") std::map<std::string,CLASS> (std::map<std::string,CLASS> temp)
 {
-std::cout << "-----------------------------------1" << std::endl;
   if (!PyDict_Check($input))
     SWIG_fail;
-  temp.resize(PyDict_Size($input));
-  for (size_t i = 0; i != PyDict_Size($input); ++i) {
-    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(temp[i]), PyDict_GetItem($input, i)))
+
+  PyObject *key, *value;
+  Py_ssize_t pos = 0;
+
+  while (PyDict_Next($input, &pos, &key, &value)) {
+	std::string tmp_key = PyString_AsString(key);
+    CLASS tmp_value;
+    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&tmp_value, value))
       SWIG_fail;
+
+    temp[tmp_key] = tmp_value;
   }
   $1 = temp;
 }
-*/
-/*
-%typemap(in, fragment="Eigen_Fragments") std::map<std::string,CLASS> const& (std::map<std::string,CLASS> temp)
+
+// In: const std::map<std::string,>
+%typemap(in, fragment="Eigen_Fragments") std::map<std::string,CLASS> const (std::map<std::string,CLASS> temp)
 {
-std::cout << "-----------------------------------2" << std::endl;
   if (!PyDict_Check($input))
     SWIG_fail;
 
-//  PyObject *key, *value;
-//  Py_ssize_t pos = 0;
+  PyObject *key, *value;
+  Py_ssize_t pos = 0;
 
-//  while (PyDict_Next(index, &pos, &key, &value)) {
-//    CLASS tmp;
- //   if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(tmp), PyDict_GetItem($input, key)))
-   //   SWIG_fail;
-    
-   // temp[key] = tmp;
-//    std::cout << index << std::endl;
-//    std::cout << pos << std::endl;
-//    std::cout << key << std::endl;
-//    std::cout << value << std::endl;
-//  }
-  
-//  for (std::map<std::string,CLASS>::const_iterator it = $input->begin();
-//    it != $input->end(); ++it) {
-/*  for (size_t i = 0; i != PyDict_Size($input); ++i) {
-    std::cout << i << std::endl;
-    std::cout << PyDict_GetItem($input, i) << std::endl;
+  while (PyDict_Next($input, &pos, &key, &value)) {
+	std::string tmp_key = PyString_AsString(key);
+    CLASS tmp_value;
+    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&tmp_value, value))
+      SWIG_fail;
+
+    temp[tmp_key] = tmp_value;
   }
-//  temp.resize(PyDict_Size($input));
-//  for (size_t i = 0; i != PyDict_Size($input); ++i) {
-//    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(temp[i]), PyDict_GetItem($input, i)))
-//      SWIG_fail;
-//  }
-//  $1 = temp;
+  $1 = temp;
 }
-*/
-/*
+
+// In: std::map<std::string,>&
 %typemap(in, fragment="Eigen_Fragments") std::map<std::string,CLASS> & (std::map<std::string,CLASS> temp)
 {
-std::cout << "-----------------------------------3" << std::endl;
-/*  if (!PyDict_Check($input))
+  if (!PyDict_Check($input))
     SWIG_fail;
-  temp.resize(PyDict_Size($input));
-  for (size_t i = 0; i != PyDict_Size($input); ++i) {
-    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&(temp[i]), PyDict_GetItem($input, i)))
-      SWIG_fail;
-  }
-  $1 = temp;
-}
-*/
 
+  PyObject *key, *value;
+  Py_ssize_t pos = 0;
+
+  while (PyDict_Next($input, &pos, &key, &value)) {
+	std::string tmp_key = PyString_AsString(key);
+    CLASS tmp_value;
+    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&tmp_value, value))
+      SWIG_fail;
+
+    temp[tmp_key] = tmp_value;
+  }
+  $1 = &temp;
+}
+
+// In: const std::map<std::string,>&
+%typemap(in, fragment="Eigen_Fragments") std::map<std::string,CLASS> const& (std::map<std::string,CLASS> temp)
+{
+  if (!PyDict_Check($input))
+    SWIG_fail;
+
+  PyObject *key, *value;
+  Py_ssize_t pos = 0;
+
+  while (PyDict_Next($input, &pos, &key, &value)) {
+	std::string tmp_key = PyString_AsString(key);
+    CLASS tmp_value;
+    if (!ConvertFromNumpyToEigenMatrix<CLASS>(&tmp_value, value))
+      SWIG_fail;
+
+    temp[tmp_key] = tmp_value;
+  }
+  $1 = &temp;
+}
+
+
+// Out: std::map<std::string,>
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS>
 {
   $result = PyDict_New();
@@ -479,6 +494,7 @@ std::cout << "-----------------------------------3" << std::endl;
   }
 }
 
+// Out: const std::map<std::string,>
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> const
 {
   $result = PyDict_New();
@@ -496,6 +512,7 @@ std::cout << "-----------------------------------3" << std::endl;
   }
 }
 
+// Out: const std::map<std::string,>&
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> const&
 {
   $result = PyDict_New();
@@ -513,6 +530,7 @@ std::cout << "-----------------------------------3" << std::endl;
   }
 }
 
+// Out: std::map<std::string,>&
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> &
 {
   $result = PyDict_New();
@@ -530,6 +548,7 @@ std::cout << "-----------------------------------3" << std::endl;
   }
 }
 
+// Out: const std::map<std::string,>*
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> const*
 {
   $result = PyDict_New();
@@ -547,6 +566,7 @@ std::cout << "-----------------------------------3" << std::endl;
   }
 }
 
+// Out: std::map<std::string,>*
 %typemap(out, fragment="Eigen_Fragments") std::map<std::string,CLASS> *
 {
   $result = PyDict_New();
@@ -563,6 +583,7 @@ std::cout << "-----------------------------------3" << std::endl;
       SWIG_fail;
   }
 }
+
 
 // Argout: const std::map<std::string,>& (Disabled and prevents calling of the non-const typemap)
 %typemap(argout, fragment="Eigen_Fragments") const std::map<std::string,CLASS> & ""
