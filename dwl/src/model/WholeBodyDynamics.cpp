@@ -346,7 +346,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 }
 
 
-void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
+void WholeBodyDynamics::estimateContactForces(rbd::BodyVector6d& contact_forces,
 											 const rbd::Vector6d& base_pos,
 											 const Eigen::VectorXd& joint_pos,
 											 const rbd::Vector6d& base_vel,
@@ -542,10 +542,10 @@ void WholeBodyDynamics::computeCoMTorque(Eigen::Vector3d& torque,
 }
 
 
-void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_for,
-											 const Eigen::Vector3d& cop_pos,
-											 const rbd::BodyVector3d& contact_pos,
-											 const rbd::BodySelector& ground_contacts)
+void WholeBodyDynamics::estimateGroundReactionForces(rbd::BodyVector6d& contact_for,
+													 const Eigen::Vector3d& cop_pos,
+													 const rbd::BodyVector3d& contact_pos,
+													 const rbd::BodySelector& ground_contacts)
 {
 	// Sanity check: checking if there are contact information and the size
 	if (contact_pos.size() == 0) {
@@ -595,20 +595,20 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_for,
 }
 
 
-void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contacts,
-											   rbd::BodyVector6d& contact_forces,
-											   const rbd::Vector6d& base_pos,
-											   const Eigen::VectorXd& joint_pos,
-											   const rbd::Vector6d& base_vel,
-											   const Eigen::VectorXd& joint_vel,
-											   const rbd::Vector6d& base_acc,
-											   const Eigen::VectorXd& joint_acc,
-											   const Eigen::VectorXd& joint_forces,
-											   const rbd::BodySelector& contacts,
-											   double force_threshold)
+void WholeBodyDynamics::estimateActiveContactsAndForces(rbd::BodySelector& active_contacts,
+														rbd::BodyVector6d& contact_forces,
+														const rbd::Vector6d& base_pos,
+														const Eigen::VectorXd& joint_pos,
+														const rbd::Vector6d& base_vel,
+														const Eigen::VectorXd& joint_vel,
+														const rbd::Vector6d& base_acc,
+														const Eigen::VectorXd& joint_acc,
+														const Eigen::VectorXd& joint_forces,
+														const rbd::BodySelector& contacts,
+														double force_threshold)
 {
 	// Computing the contact forces for a predefined set of end-effector
-	computeContactForces(contact_forces,
+	estimateContactForces(contact_forces,
 						 base_pos, joint_pos,
 						 base_vel, joint_vel,
 						 base_acc, joint_acc,
@@ -634,7 +634,7 @@ void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contact
 {
 	// Computing the contact forces in predefined set of end-effector
 	rbd::BodyVector6d contact_forces;
-	estimateActiveContacts(active_contacts,
+	estimateActiveContactsAndForces(active_contacts,
 						   contact_forces,
 						   base_pos, joint_pos,
 						   base_vel, joint_vel,
