@@ -4,6 +4,7 @@
 #include <dwl/WholeBodyState.h>
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/model/WholeBodyKinematics.h>
+#include <dwl/model/WholeBodyDynamics.h>
 %}
 
 
@@ -77,6 +78,27 @@
 								 Eigen::VectorXd&,
 								 const rbd::BodyVector3d&);
 
+
+// Renaming some functions that generate ambiguity in the WholeBodyDynamic class
+%rename(computeInverseDynamics_withoutFex)
+		computeInverseDynamics(rbd::Vector6d&,
+							   Eigen::VectorXd&,
+							   const rbd::Vector6d&,
+							   const Eigen::VectorXd&,
+							   const rbd::Vector6d&,
+							   const Eigen::VectorXd&,
+							   const rbd::Vector6d&,
+							   const Eigen::VectorXd&);
+%rename(computeFloatingBaseInverseDynamics_withoutFex)
+		computeFloatingBaseInverseDynamics(rbd::Vector6d&,
+										   Eigen::VectorXd&,
+										   const rbd::Vector6d&,
+										   const Eigen::VectorXd&,
+										   const rbd::Vector6d&,
+										   const Eigen::VectorXd&,
+										   const Eigen::VectorXd&);
+
+
 %rename(urdf_Joint) urdf::Joint;
 %rename(urdf_Pose) urdf::Pose;
 %include <dwl/utils/RigidBodyDynamics.h>
@@ -87,3 +109,4 @@
 %include <dwl/utils/Orientation.h>
 %include <dwl/model/FloatingBaseSystem.h>
 %include <dwl/model/WholeBodyKinematics.h>
+%include <dwl/model/WholeBodyDynamics.h>
