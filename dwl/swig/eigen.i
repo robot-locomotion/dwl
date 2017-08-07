@@ -591,7 +591,6 @@
 // Argout: std::map<std::string,>& (for returning values to in-out arguments)
 %typemap(argout, fragment="Eigen_Fragments") std::map<std::string,CLASS> &
 {
-  $input = PyDict_New();
   const char* key;
   CLASS value;
   for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
@@ -609,7 +608,6 @@
 // Argout: std::map<std::string,>* (for returning values to in-out arguments)
 %typemap(argout, fragment="Eigen_Fragments") std::map<std::string,CLASS> *
 {
-  $input = PyDict_New();
   const char* key;
   CLASS value;
   for (std::map<std::string,CLASS>::const_iterator it = $1->begin();
