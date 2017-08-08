@@ -145,3 +145,34 @@
 %include <dwl/model/FloatingBaseSystem.h>
 %include <dwl/model/WholeBodyKinematics.h>
 %include <dwl/model/WholeBodyDynamics.h>
+%extend dwl::ReducedBodyState {
+	const char *__str__() {
+		std::stringstream buffer;
+		buffer << "ReducedBodyState:" << std::endl;
+		buffer << "	com_pos: " << $self->getCoMPosition_W().transpose() << std::endl;
+		buffer << "	com_vel: " << $self->getCoMVelocity_W().transpose() << std::endl;
+		buffer << "	com_acc: " << $self->getCoMAcceleration_W().transpose() << std::endl;
+		buffer << "	angular_pos: " << $self->getRPY_W().transpose() << std::endl;
+		buffer << "	angular_vel: " << $self->getAngularVelocity_W().transpose() << std::endl;
+		buffer << "	angular_acc: " << $self->getAngularAcceleration_W().transpose() << std::endl;
+		buffer << "	cop: " << $self->getCoPPosition_W().transpose() << std::endl;
+		buffer << "	foot_pos: " << std::endl;
+		for (dwl::rbd::BodyVector3d::const_iterator it = $self->getFootPosition_B().begin();
+				it != $self->getFootPosition_B().end(); ++it) {
+			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
+		}
+		buffer << "	foot_vel: " << std::endl;
+		for (dwl::rbd::BodyVector3d::const_iterator it = $self->getFootVelocity_B().begin();
+				it != $self->getFootVelocity_B().end(); ++it) {
+			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
+		}
+		buffer << "	foot_acc: " << std::endl;
+		for (dwl::rbd::BodyVector3d::const_iterator it = $self->getFootAcceleration_B().begin();
+				it != $self->getFootAcceleration_B().end(); ++it) {
+			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
+		}
+		
+		const std::string tmp = buffer.str();
+		return tmp.c_str();
+	}
+};
