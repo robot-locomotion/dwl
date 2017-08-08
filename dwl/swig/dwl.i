@@ -6,6 +6,7 @@
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/model/WholeBodyKinematics.h>
 #include <dwl/model/WholeBodyDynamics.h>
+#include <dwl/RobotStates.h>
 %}
 
 
@@ -132,7 +133,6 @@
 										   const Eigen::VectorXd&,
 										   const Eigen::VectorXd&);
 
-
 %rename(urdf_Joint) urdf::Joint;
 %rename(urdf_Pose) urdf::Pose;
 %include <dwl/utils/RigidBodyDynamics.h>
@@ -145,6 +145,7 @@
 %include <dwl/model/FloatingBaseSystem.h>
 %include <dwl/model/WholeBodyKinematics.h>
 %include <dwl/model/WholeBodyDynamics.h>
+%include <dwl/RobotStates.h>
 %extend dwl::ReducedBodyState {
 	const char *__str__() {
 		std::stringstream buffer;
