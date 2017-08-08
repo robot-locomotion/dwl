@@ -79,6 +79,31 @@
 %rename(getEulerAnglesRatesMatrix_Q)
 		getEulerAnglesRatesMatrix(const Eigen::Quaterniond&);
 
+
+// Renaming few functions of the WholeBodyState class to get rid of the ambiguity
+%rename(setContactPositionDict_W) setContactPosition_W(const rbd::BodyVectorXd&);
+%rename(setContactPositionDict_B) setContactPosition_B(const rbd::BodyVectorXd&);
+%rename(setContactPositionDict_H) setContactPosition_H(const rbd::BodyVectorXd&);
+%rename(setContactVelocityDict_W) setContactVelocity_W(const rbd::BodyVectorXd&);
+%rename(setContactVelocityDict_B) setContactVelocity_B(const rbd::BodyVectorXd&);
+%rename(setContactVelocityDict_H) setContactVelocity_H(const rbd::BodyVectorXd&);
+%rename(setContactAccelerationDict_W) setContactAcceleration_W(const rbd::BodyVectorXd&);
+%rename(setContactAccelerationDict_B) setContactAcceleration_B(const rbd::BodyVectorXd&);
+%rename(setContactAccelerationDict_H) setContactAcceleration_H(const rbd::BodyVectorXd&);
+%rename(setContactWrenchDict_B) setContactWrench_B(const rbd::BodyVector6d&);
+
+
+// Renaming few functions of the ReducedBodyState class to get rid of the ambiguity
+%rename(setFootPositionDict_W) setFoottPosition_W(const rbd::BodyVectorXd&);
+%rename(setFootPositionDict_B) setFootPosition_B(const rbd::BodyVectorXd&);
+%rename(setFootPositionDict_H) setFootPosition_H(const rbd::BodyVectorXd&);
+%rename(setFootVelocityDict_W) setFootVelocity_W(const rbd::BodyVectorXd&);
+%rename(setFootVelocityDict_B) setFootVelocity_B(const rbd::BodyVectorXd&);
+%rename(setFootVelocityDict_H) setFootVelocity_H(const rbd::BodyVectorXd&);
+%rename(setFootAccelerationDict_W) setFootAcceleration_W(const rbd::BodyVectorXd&);
+%rename(setFootAccelerationDict_B) setFootAcceleration_B(const rbd::BodyVectorXd&);
+%rename(setFootAccelerationDict_H) setFootAcceleration_H(const rbd::BodyVectorXd&);
+
 // Ignoring two methods of the WholeBodyKinematic class that generate
 // ambiguity
 %ignore computeJointPosition(Eigen::VectorXd&,
