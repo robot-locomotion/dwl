@@ -1,6 +1,7 @@
 %module dwl
 %{
 #include <Python.h>
+#include <dwl/ReducedBodyState.h>
 #include <dwl/WholeBodyState.h>
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/model/WholeBodyKinematics.h>
@@ -110,6 +111,7 @@
 %rename(urdf_Joint) urdf::Joint;
 %rename(urdf_Pose) urdf::Pose;
 %include <dwl/utils/RigidBodyDynamics.h>
+%include <dwl/ReducedBodyState.h>
 %include <dwl/WholeBodyState.h>
 %include <urdf_model/pose.h>
 %include <urdf_model/joint.h>
