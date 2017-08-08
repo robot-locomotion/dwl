@@ -59,4 +59,7 @@ ws.setContactWrenchDict_B({ 'lf_foot' : np.array([0., 0., 0., 0., 0., 208.21]),
 
 rs = rob.getReducedBodyState(ws)
 
+
 print(rs)
+
+print(ws)

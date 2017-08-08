@@ -146,10 +146,15 @@
 %include <dwl/model/WholeBodyKinematics.h>
 %include <dwl/model/WholeBodyDynamics.h>
 %include <dwl/RobotStates.h>
+
+
+
+// Extending the C++ class by adding printing methods in python
 %extend dwl::ReducedBodyState {
 	const char *__str__() {
 		std::stringstream buffer;
 		buffer << "ReducedBodyState:" << std::endl;
+		buffer << "	time: " << $self->time << std::endl;
 		buffer << "	com_pos: " << $self->getCoMPosition_W().transpose() << std::endl;
 		buffer << "	com_vel: " << $self->getCoMVelocity_W().transpose() << std::endl;
 		buffer << "	com_acc: " << $self->getCoMAcceleration_W().transpose() << std::endl;
@@ -157,23 +162,63 @@
 		buffer << "	angular_vel: " << $self->getAngularVelocity_W().transpose() << std::endl;
 		buffer << "	angular_acc: " << $self->getAngularAcceleration_W().transpose() << std::endl;
 		buffer << "	cop: " << $self->getCoPPosition_W().transpose() << std::endl;
-		buffer << "	foot_pos: " << std::endl;
+		buffer << "	foot_pos_B: " << std::endl;
 		for (dwl::rbd::BodyVector3d::const_iterator it = $self->getFootPosition_B().begin();
 				it != $self->getFootPosition_B().end(); ++it) {
 			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
 		}
-		buffer << "	foot_vel: " << std::endl;
+		buffer << "	foot_vel_B: " << std::endl;
 		for (dwl::rbd::BodyVector3d::const_iterator it = $self->getFootVelocity_B().begin();
 				it != $self->getFootVelocity_B().end(); ++it) {
 			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
 		}
-		buffer << "	foot_acc: " << std::endl;
+		buffer << "	foot_acc_B: " << std::endl;
 		for (dwl::rbd::BodyVector3d::const_iterator it = $self->getFootAcceleration_B().begin();
 				it != $self->getFootAcceleration_B().end(); ++it) {
 			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
 		}
+		buffer << "	support_region: " << std::endl;
+		for (dwl::rbd::BodyVector3d::const_iterator it = $self->support_region.begin();
+				it != $self->support_region.end(); ++it) {
+			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
+		}
+
+		return buffer.str().c_str();
+	}
+};
+
+%extend dwl::WholeBodyState {
+	const char *__str__() {
+		std::stringstream buffer;
+		buffer << "WholeBodyState:" << std::endl;
+		buffer << "	time: " << $self->time << std::endl;
+		buffer << "	base_pos: " << $self->getBasePosition_W().transpose() << std::endl;
+		buffer << "	base_vel: " << $self->getBaseVelocity_W().transpose() << std::endl;
+		buffer << "	base_acc: " << $self->getBaseAcceleration_W().transpose() << std::endl;
+		buffer << "	joint_pos: " << $self->getJointPosition().transpose() << std::endl;
+		buffer << "	joint_vel: " << $self->getJointVelocity().transpose() << std::endl;
+		buffer << "	joint_acc: " << $self->getJointAcceleration().transpose() << std::endl;
+		buffer << "	contact_pos_B: " << std::endl;
+		for (dwl::rbd::BodyVectorXd::const_iterator it = $self->getContactPosition_B().begin();
+				it != $self->getContactPosition_B().end(); ++it) {
+			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
+		}
+		buffer << "	contact_vel_B: " << std::endl;
+		for (dwl::rbd::BodyVectorXd::const_iterator it = $self->getContactVelocity_B().begin();
+				it != $self->getContactVelocity_B().end(); ++it) {
+			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
+		}
+		buffer << "	contact_acc_B: " << std::endl;
+		for (dwl::rbd::BodyVectorXd::const_iterator it = $self->getContactAcceleration_B().begin();
+				it != $self->getContactAcceleration_B().end(); ++it) {
+			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
+		}
+		buffer << "	contact_eff_B: " << std::endl;
+		for (dwl::rbd::BodyVector6d::const_iterator it = $self->getContactWrench_B().begin();
+				it != $self->getContactWrench_B().end(); ++it) {
+			buffer << "		" << it->first << ": " << it->second.transpose() << std::endl;
+		}
 		
-		const std::string tmp = buffer.str();
-		return tmp.c_str();
+		return buffer.str().c_str();
 	}
 };
