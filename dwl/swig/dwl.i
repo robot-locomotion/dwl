@@ -61,14 +61,22 @@
 
 
 // Renaming orientation methods to get rid of the ambiguity
-%rename(getQuaternion_RM) getQuaternion(const Eigen::Matrix3d& rotation_mtx);
-%rename(getQuaternion_RPY) getQuaternion(const Eigen::Vector3d& rpy);
-%rename(getInverseEulerAnglesRatesMatrix_RPY) getInverseEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy);
-%rename(getInverseEulerAnglesRatesMatrix_RM) getInverseEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx);
-%rename(getInverseEulerAnglesRatesMatrix_Q) getInverseEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion);
-%rename(getEulerAnglesRatesMatrix_RPY) getEulerAnglesRatesMatrix(const Eigen::Vector3d& rpy);
-%rename(getEulerAnglesRatesMatrix_RM) getEulerAnglesRatesMatrix(const Eigen::Matrix3d& rotation_mtx);
-%rename(getEulerAnglesRatesMatrix_Q) getEulerAnglesRatesMatrix(const Eigen::Quaterniond& quaternion);
+%rename(getQuaternion_RM) 
+		getQuaternion(const Eigen::Matrix3d&);
+%rename(getQuaternion_RPY) 
+		getQuaternion(const Eigen::Vector3d&);
+%rename(getInverseEulerAnglesRatesMatrix_RPY)
+		getInverseEulerAnglesRatesMatrix(const Eigen::Vector3d&);
+%rename(getInverseEulerAnglesRatesMatrix_RM)
+		getInverseEulerAnglesRatesMatrix(const Eigen::Matrix3d&);
+%rename(getInverseEulerAnglesRatesMatrix_Q)
+		getInverseEulerAnglesRatesMatrix(const Eigen::Quaterniond&);
+%rename(getEulerAnglesRatesMatrix_RPY)
+		getEulerAnglesRatesMatrix(const Eigen::Vector3d&);
+%rename(getEulerAnglesRatesMatrix_RM)
+		getEulerAnglesRatesMatrix(const Eigen::Matrix3d&);
+%rename(getEulerAnglesRatesMatrix_Q)
+		getEulerAnglesRatesMatrix(const Eigen::Quaterniond&);
 
 // Ignoring two methods of the WholeBodyKinematic class that generate
 // ambiguity
