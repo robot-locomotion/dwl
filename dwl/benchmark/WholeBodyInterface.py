@@ -23,11 +23,14 @@ N = 1000000
 # Construct an instance of the WholeBodyDynamics class, which wraps the C++ class.
 ws = dwl.WholeBodyState()
 fbs = dwl.FloatingBaseSystem()
+wkin = dwl.WholeBodyKinematics()
 wdyn = dwl.WholeBodyDynamics()
 
 # Resetting the system from the hyq urdf file
 wdyn.modelFromURDFFile("../sample/hyq.urdf", "../config/hyq.yarf")
 fbs = wdyn.getFloatingBaseSystem()
+wkin = wdyn.getWholeBodyKinematics()
+
 
 # Define the DoF after initializing the robot model
 ws.setJointDoF(fbs.getJointDoF())
@@ -61,6 +64,27 @@ base_vel = ws.base_vel
 joint_vel = ws.joint_vel
 base_acc = ws.base_acc
 joint_acc = ws.joint_acc
+
+
+
+startcputime = time.clock()
+for x in range(0, N):
+    contact_pos_W = wkin.computePosition(base_pos, joint_pos,
+                                         fbs.getEndEffectorNames(dwl.FOOT),
+                                         dwl.Linear)
+cpu_duration = (time.clock() - startcputime) * 1000000;
+print("  Forward kinematics: ", cpu_duration / N, "(microsecs, CPU time)")
+
+
+
+base_pos_init = np.zeros(6);
+startcputime = time.clock()
+for x in range(0, N):
+    wkin.computeInverseKinematics(base_pos, joint_pos, contact_pos_B, base_pos_init, joint_pos_init)
+cpu_duration = (time.clock() - startcputime) * 1000000;
+print("  Inverse kinematics: ", cpu_duration / N, "(microsecs, CPU time)")
+
+
 
 startcputime = time.clock()
 for x in range(0, N):
