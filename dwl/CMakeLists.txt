@@ -9,8 +9,9 @@ message("Released under the XXX License.")
 # Defining the dwl install prefix
 set(DWL_INSTALL_PREFIX /usr/local/dwl CACHE STRINGS "DWL Install Prefix")
 
-# Defining the unit testing environment
-set(UNIT_TEST false CACHE BOOL "Unit testing")
+# Defining the unit testing and benckmark environments
+set(WITH_UNIT_TEST false CACHE BOOL "Unit testing")
+set(WITH_BENCHMARK false CACHE BOOL "Benchmarking")
 
 # Checking if the project is compiling with Catkin or CMake
 set(CATKIN_CALL "${CATKIN_DEVEL_PREFIX}")
@@ -276,7 +277,7 @@ target_link_libraries(cd_sample ${PROJECT_NAME})
 
 
 # Adding the test executables
-if(UNIT_TEST)
+if(WITH_UNIT_TEST)
 	message("-- Building unit testing")
 	include_directories(tests)
     add_executable(ws_utest  tests/WholeBodyStateUTest.cpp)
@@ -306,8 +307,10 @@ if(UNIT_TEST)
 endif()
 
 
-
-
+# Adding the benchmark executables
+if(WITH_BENCHMARK)
+    add_subdirectory(benchmark)
+endif()
 
 
 # Exporting the package for use from the build-tree
