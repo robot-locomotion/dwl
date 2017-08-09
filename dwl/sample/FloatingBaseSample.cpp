@@ -10,8 +10,8 @@ int main(int argc, char **argv)
 	dwl::model::FloatingBaseSystem sys;
 
 	// Resetting the system from the hyq urdf file
-	string model_file = "../sample/hyq.urdf";
-	string robot_file = "../config/hyq.yarf";
+	string model_file = DWL_SOURCE_DIR"/sample/hyq.urdf";
+	string robot_file = DWL_SOURCE_DIR"/config/hyq.yarf";
 	sys.resetFromURDFFile(model_file, robot_file);
 
 	// Getting the total mass of the system. Note that you could also get the mass of a specific
