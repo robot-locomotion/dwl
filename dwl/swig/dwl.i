@@ -151,7 +151,7 @@
 
 // Extending the C++ class by adding printing methods in python
 %extend dwl::ReducedBodyState {
-	const char *__str__() {
+	char *__str__() {
 		std::stringstream buffer;
 		buffer << "ReducedBodyState:" << std::endl;
 		buffer << "\ttime: " << $self->time << std::endl;
@@ -182,13 +182,17 @@
 				it != $self->support_region.end(); ++it) {
 			buffer << "\t\t" << it->first << ": " << it->second.transpose() << std::endl;
 		}
-
-		return buffer.str().c_str();
+		std::string str = buffer.str();
+		char * writable = new char[str.size() + 1];
+		std::copy(str.begin(), str.end(), writable);
+		writable[str.size()] = '\0';
+		
+		return writable;
 	}
 };
 
 %extend dwl::WholeBodyState {
-	const char *__str__() {
+	char *__str__() {
 		std::stringstream buffer;
 		buffer << "WholeBodyState:" << std::endl;
 		buffer << "\ttime: " << $self->time << std::endl;
@@ -218,7 +222,11 @@
 				it != $self->getContactWrench_B().end(); ++it) {
 			buffer << "\t\t" << it->first << ": " << it->second.transpose() << std::endl;
 		}
+		std::string str = buffer.str();
+		char * writable = new char[str.size() + 1];
+		std::copy(str.begin(), str.end(), writable);
+		writable[str.size()] = '\0';
 		
-		return buffer.str().c_str();
+		return writable;
 	}
 };
