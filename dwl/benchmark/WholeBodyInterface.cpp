@@ -44,12 +44,6 @@ int main(int argc, char **argv)
 	ws.setJointPosition(-0.75, fbs.getJointId("rh_hfe_joint"));
 	ws.setJointPosition(1.5, fbs.getJointId("rh_kfe_joint"));
 
-	dwl::rbd::BodyVector3d ik_pos;
-	ik_pos[fbs.getFloatingBaseName()] = Eigen::Vector3d::Zero();
-	ik_pos["lf_foot"] = ws.getContactPosition_W("lf_foot").tail(3);
-	ik_pos["rf_foot"] = ws.getContactPosition_W("rf_foot").tail(3);
-	ik_pos["lh_foot"] = ws.getContactPosition_W("lh_foot").tail(3);
-	ik_pos["rh_foot"] = ws.getContactPosition_W("rh_foot").tail(3);
 
 	dwl::rbd::BodyVector6d grf;
 	grf["lf_foot"] << 0, 0, 0, 0, 0, 190.778;
@@ -70,6 +64,12 @@ int main(int argc, char **argv)
 	std::cout << "  Forward kinematics: " << cpu_duration / N << " (microsecs, CPU time)" << std::endl;
 
 
+	dwl::rbd::BodyVector3d ik_pos;
+	ik_pos[fbs.getFloatingBaseName()] = Eigen::Vector3d::Zero();
+	ik_pos["lf_foot"] = contact_pos_W.find("lf_foot")->second.tail(3);
+	ik_pos["rf_foot"] = contact_pos_W.find("rf_foot")->second.tail(3);
+	ik_pos["lh_foot"] = contact_pos_W.find("lh_foot")->second.tail(3);
+	ik_pos["rh_foot"] = contact_pos_W.find("rh_foot")->second.tail(3);
 	dwl::rbd::Vector6d base_pos_init = dwl::rbd::Vector6d::Zero();
 	Eigen::VectorXd joint_pos_init(12);
 	joint_pos_init << 0., 0.5, -1., 0., -0.5, 1., 0., 0.5, -1., 0., -0.5, 1.;
