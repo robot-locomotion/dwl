@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 
 	double cpu_duration =
 				(std::clock() - startcputime) * 1000000 / (double) CLOCKS_PER_SEC;
-	std::cout << "  Foward kinematics: " << cpu_duration / N << " (microsecs, CPU time)" << std::endl;
+	std::cout << "  Forward kinematics: " << cpu_duration / N << " (microsecs, CPU time)" << std::endl;
 
 
 	dwl::rbd::Vector6d base_pos_init = dwl::rbd::Vector6d::Zero();
