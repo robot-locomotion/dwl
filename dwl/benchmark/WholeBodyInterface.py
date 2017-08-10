@@ -18,7 +18,7 @@ import numpy as np
 import time
 
 # Number of iterations
-N = 1000000
+N = 100000
 
 # Construct an instance of the WholeBodyDynamics class, which wraps the C++ class.
 ws = dwl.WholeBodyState()
@@ -69,7 +69,7 @@ joint_acc = ws.joint_acc
 
 startcputime = time.clock()
 for x in range(0, N):
-    contact_pos_W = wkin.computePosition(base_pos, joint_pos,
+    contact_pos_B = wkin.computePosition(base_pos, joint_pos,
                                          fbs.getEndEffectorNames(dwl.FOOT),
                                          dwl.Linear)
 cpu_duration = (time.clock() - startcputime) * 1000000;
@@ -77,10 +77,12 @@ print("  Forward kinematics: ", cpu_duration / N, "(microsecs, CPU time)")
 
 
 
+wkin.setIKSolver(1.0e-12, 0.01, 50)
 base_pos_init = np.zeros(6);
+joint_pos_init = fbs.getDefaultPosture();
 startcputime = time.clock()
 for x in range(0, N):
-    wkin.computeInverseKinematics(base_pos, joint_pos, contact_pos_B, base_pos_init, joint_pos_init)
+    wkin.computeJointPosition(joint_pos, contact_pos_B, joint_pos_init)
 cpu_duration = (time.clock() - startcputime) * 1000000;
 print("  Inverse kinematics: ", cpu_duration / N, "(microsecs, CPU time)")
 

@@ -8,7 +8,7 @@
 int main(int argc, char **argv)
 {
 	// The number of iterations
-	unsigned int N = 1000000;
+	unsigned int N = 100000;
 
 	dwl::WholeBodyState ws;
 	dwl::model::FloatingBaseSystem fbs;
@@ -65,19 +65,14 @@ int main(int argc, char **argv)
 
 
 	dwl::rbd::BodyVector3d ik_pos;
-	ik_pos[fbs.getFloatingBaseName()] = Eigen::Vector3d::Zero();
 	ik_pos["lf_foot"] = contact_pos_W.find("lf_foot")->second.tail(3);
 	ik_pos["rf_foot"] = contact_pos_W.find("rf_foot")->second.tail(3);
 	ik_pos["lh_foot"] = contact_pos_W.find("lh_foot")->second.tail(3);
 	ik_pos["rh_foot"] = contact_pos_W.find("rh_foot")->second.tail(3);
-	dwl::rbd::Vector6d base_pos_init = dwl::rbd::Vector6d::Zero();
-	Eigen::VectorXd joint_pos_init(12);
-	joint_pos_init << 0., 0.5, -1., 0., -0.5, 1., 0., 0.5, -1., 0., -0.5, 1.;
+	Eigen::VectorXd joint_pos_init = fbs.getDefaultPosture();
 	startcputime = std::clock();
 	for (unsigned int i = 0; i < N; ++i)
-		wkin.computeInverseKinematics(ws.base_pos, ws.joint_pos,
-									  ik_pos,
-									  base_pos_init, joint_pos_init);
+		wkin.computeJointPosition(ws.joint_pos, ik_pos, joint_pos_init);
 
 	cpu_duration =
 				(std::clock() - startcputime) * 1000000 / (double) CLOCKS_PER_SEC;
