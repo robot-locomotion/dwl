@@ -89,6 +89,18 @@ print("  Inverse kinematics: ", cpu_duration / N, "(microsecs, CPU time)")
 
 
 startcputime = time.clock()
+jacobian = np.zeros([3 * fbs.getNumberOfEndEffectors(dwl.FOOT), 6 + fbs.getJointDoF()])
+for x in range(0, N):
+    wkin.computeJacobian(jacobian,
+                         base_pos, joint_pos,
+                         fbs.getEndEffectorNames(dwl.FOOT),
+                         dwl.Linear)
+cpu_duration = (time.clock() - startcputime) * 1000000;
+print("  Jacobians: ", cpu_duration / N, "(microsecs, CPU time)")
+
+
+
+startcputime = time.clock()
 for x in range(0, N):
     wdyn.computeInverseDynamics(base_eff, joint_eff,
                                 base_pos, joint_pos,

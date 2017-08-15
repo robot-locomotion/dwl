@@ -80,6 +80,17 @@ int main(int argc, char **argv)
 
 
 	startcputime = std::clock();
+	Eigen::MatrixXd jacobian;
+	for (unsigned int i = 0; i < N; ++i)
+		wkin.computeJacobian(jacobian,
+							 ws.base_pos, ws.joint_pos,
+							 fbs.getEndEffectorNames(dwl::model::FOOT),
+							 dwl::rbd::Full);
+	cpu_duration =
+			(std::clock() - startcputime) * 1000000 / (double) CLOCKS_PER_SEC;
+	std::cout << "  Jacobians: " << cpu_duration / N << " (microsecs, CPU time)" << std::endl;
+
+	startcputime = std::clock();
 	for (unsigned int i = 0; i < N; ++i)
 		wdyn.computeInverseDynamics(ws.base_eff, ws.joint_eff,
 									ws.base_pos, ws.joint_pos,
