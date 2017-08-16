@@ -229,7 +229,7 @@ const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhole
 																	  end_effector_names,
 																	  dwl::rbd::Linear);
 			// Computing the contact forces
-			getDynamicalSystem()->getDynamics().computeContactForces(current_state.contact_eff,
+			getDynamicalSystem()->getDynamics().estimateContactForces(current_state.contact_eff,
 																	 current_state.base_pos,
 																	 current_state.joint_pos,
 																	 current_state.base_vel,

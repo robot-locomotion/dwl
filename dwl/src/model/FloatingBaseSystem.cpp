@@ -167,7 +167,7 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 }
 
 
-void FloatingBaseSystem::resetSystemDescription(std::string filename)
+void FloatingBaseSystem::resetSystemDescription(const std::string& filename)
 {
 	// Yaml reader
 	YamlWrapper yaml_reader(filename);
@@ -316,7 +316,7 @@ double FloatingBaseSystem::getTotalMass()
 }
 
 
-const double& FloatingBaseSystem::getBodyMass(std::string body_name) const
+const double& FloatingBaseSystem::getBodyMass(const std::string& body_name) const
 {
 	unsigned int body_id = rbd_model_.GetBodyId(body_name.c_str());
 	return rbd_model_.mBodies[body_id].mMass;
@@ -341,8 +341,8 @@ const Eigen::Vector3d& FloatingBaseSystem::getGravityDirection() const
 }
 
 
-Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& base_pos,
-												  const Eigen::VectorXd& joint_pos)
+const Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& base_pos,
+														const Eigen::VectorXd& joint_pos)
 {
 	Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
 	Eigen::VectorXd qd = Eigen::VectorXd::Zero(num_system_joints_);
@@ -356,10 +356,10 @@ Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& base_pos,
 }
 
 
-Eigen::Vector3d& FloatingBaseSystem::getSystemCoMRate(const rbd::Vector6d& base_pos,
-													  const Eigen::VectorXd& joint_pos,
-													  const rbd::Vector6d& base_vel,
-													  const Eigen::VectorXd& joint_vel)
+const Eigen::Vector3d& FloatingBaseSystem::getSystemCoMRate(const rbd::Vector6d& base_pos,
+															const Eigen::VectorXd& joint_pos,
+															const rbd::Vector6d& base_vel,
+															const Eigen::VectorXd& joint_vel)
 {
 	Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
 	Eigen::VectorXd qd = toGeneralizedJointState(base_vel, joint_vel);
@@ -373,21 +373,21 @@ Eigen::Vector3d& FloatingBaseSystem::getSystemCoMRate(const rbd::Vector6d& base_
 }
 
 
-const Eigen::Vector3d& FloatingBaseSystem::getFloatingBaseCoM()
+const Eigen::Vector3d& FloatingBaseSystem::getFloatingBaseCoM() const
 {
 	unsigned int body_id = rbd_model_.GetBodyId(floating_body_name_.c_str());
 	return rbd_model_.mBodies[body_id].mCenterOfMass;
 }
 
 
-const Eigen::Vector3d& FloatingBaseSystem::getBodyCoM(std::string body_name)
+const Eigen::Vector3d& FloatingBaseSystem::getBodyCoM(const std::string& body_name) const
 {
 	unsigned int body_id = rbd_model_.GetBodyId(body_name.c_str());
 	return rbd_model_.mBodies[body_id].mCenterOfMass;
 }
 
 
-const unsigned int& FloatingBaseSystem::getSystemDoF()
+const unsigned int& FloatingBaseSystem::getSystemDoF() const
 {
 	return num_system_joints_;
 }
@@ -444,43 +444,97 @@ unsigned int FloatingBaseSystem::getFloatingBaseJointCoordinate(unsigned int id)
 }
 
 
-const std::string& FloatingBaseSystem::getFloatingBaseName()
+const std::string& FloatingBaseSystem::getFloatingBaseName() const
 {
 	return floating_body_name_;
 }
 
 
-const unsigned int& FloatingBaseSystem::getJointId(std::string joint_name) const
+const unsigned int& FloatingBaseSystem::getJointId(const std::string& joint_name) const
 {
 	return joints_.find(joint_name)->second;
 }
 
 
-const urdf_model::JointID& FloatingBaseSystem::getJoints()
+const urdf_model::JointID& FloatingBaseSystem::getJoints() const
 {
 	return joints_;
 }
 
 
-const urdf_model::JointLimits& FloatingBaseSystem::getJointLimits()
+const urdf_model::JointLimits& FloatingBaseSystem::getJointLimits() const
 {
 	return joint_limits_;
 }
 
 
-const rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames()
+const urdf::JointLimits& FloatingBaseSystem::getJointLimit(const std::string& name) const
+{
+	return joint_limits_.find(name)->second;
+}
+
+
+const double& FloatingBaseSystem::getLowerLimit(const std::string& name) const
+{
+	return getJointLimit(name).lower;
+}
+
+
+const double& FloatingBaseSystem::getLowerLimit(const urdf::JointLimits& joint) const
+{
+	return joint.lower;
+}
+
+
+const double& FloatingBaseSystem::getUpperLimit(const std::string& name) const
+{
+	return getJointLimit(name).upper;
+}
+
+
+const double& FloatingBaseSystem::getUpperLimit(const urdf::JointLimits& joint) const
+{
+	return joint.upper;
+}
+
+
+const double& FloatingBaseSystem::getVelocityLimit(const std::string& name) const
+{
+	return getJointLimit(name).velocity;
+}
+
+
+const double& FloatingBaseSystem::getVelocityLimit(const urdf::JointLimits& joint) const
+{
+	return joint.velocity;
+}
+
+
+const double& FloatingBaseSystem::getEffortLimit(const std::string& name) const
+{
+	return getJointLimit(name).effort;
+}
+
+
+const double& FloatingBaseSystem::getEffortLimit(const urdf::JointLimits& joint) const
+{
+	return joint.effort;
+}
+
+
+const rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames() const
 {
 	return floating_joint_names_;
 }
 
 
-const rbd::BodySelector& FloatingBaseSystem::getJointNames()
+const rbd::BodySelector& FloatingBaseSystem::getJointNames() const
 {
 	return joint_names_;
 }
 
 
-std::string FloatingBaseSystem::getFloatingBaseBody()
+const std::string& FloatingBaseSystem::getFloatingBaseBody() const
 {
 	return floating_body_name_;
 }
@@ -492,7 +546,7 @@ const enum TypeOfSystem& FloatingBaseSystem::getTypeOfDynamicSystem() const
 }
 
 
-const unsigned int& FloatingBaseSystem::getNumberOfEndEffectors(enum TypeOfEndEffector type)
+const unsigned int& FloatingBaseSystem::getNumberOfEndEffectors(enum TypeOfEndEffector type) const
 {
 	if (type == ALL)
 		return num_end_effectors_;
@@ -501,13 +555,13 @@ const unsigned int& FloatingBaseSystem::getNumberOfEndEffectors(enum TypeOfEndEf
 }
 
 
-unsigned int& FloatingBaseSystem::getEndEffectorId(std::string contact_name)
+const unsigned int& FloatingBaseSystem::getEndEffectorId(const std::string& contact_name) const
 {
 	return end_effectors_.find(contact_name)->second;
 }
 
 
-const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors(enum TypeOfEndEffector type)
+const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors(enum TypeOfEndEffector type) const
 {
 	if (type == ALL)
 		return end_effectors_;
@@ -516,7 +570,7 @@ const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors(enum TypeOfEndEffe
 }
 
 
-const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames(enum TypeOfEndEffector type)
+const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames(enum TypeOfEndEffector type) const
 {
 	if (type == ALL)
 		return end_effector_names_;
@@ -565,8 +619,8 @@ bool FloatingBaseSystem::hasFloatingBaseConstraints()
 }
 
 
-Eigen::VectorXd& FloatingBaseSystem::toGeneralizedJointState(const rbd::Vector6d& base_state,
-															 const Eigen::VectorXd& joint_state)
+const Eigen::VectorXd& FloatingBaseSystem::toGeneralizedJointState(const rbd::Vector6d& base_state,
+																   const Eigen::VectorXd& joint_state)
 {
 	// Getting the number of joints
 	assert(joint_state.size() == getJointDoF());
@@ -661,7 +715,7 @@ void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 
 
 Eigen::VectorXd FloatingBaseSystem::getBranchState(Eigen::VectorXd& joint_state,
-												   std::string body_name)
+												   const std::string& body_name)
 {
 	// Getting the branch properties
 	unsigned int q_index, num_dof;
@@ -682,7 +736,7 @@ Eigen::VectorXd FloatingBaseSystem::getBranchState(Eigen::VectorXd& joint_state,
 
 void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 		   	   	   	   	   	   	   unsigned int& num_dof,
-		   	   	   	   	   	   	   std::string body_name)
+								   const std::string& body_name)
 {
 	// Getting the body id
 	unsigned int body_id = rbd_model_.GetBodyId(body_name.c_str());
@@ -717,7 +771,7 @@ void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 }
 
 
-Eigen::VectorXd FloatingBaseSystem::getDefaultPosture()
+const Eigen::VectorXd& FloatingBaseSystem::getDefaultPosture() const
 {
 	return default_joint_pos_;
 }

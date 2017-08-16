@@ -91,8 +91,8 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 	ws_.setJointAcceleration(Eigen::VectorXd::Zero(num_joints_));
 
 	// Computing the joint positions
-	wkin_.computeInverseKinematics(ws_.joint_pos,
-								   feet_pos);
+	wkin_.computeJointPosition(ws_.joint_pos,
+							   feet_pos);
 
 	// Computing the joint velocities
 	wkin_.computeJointVelocity(ws_.joint_vel,

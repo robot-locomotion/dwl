@@ -46,6 +46,16 @@ class WholeBodyKinematics
 								bool info = false);
 
 		/**
+		 * @brief Sets the Ik solver properties
+		 * @param double Step tolerance
+		 * @param double Lambda value for singularities
+		 * @param unsigned int Maximum number of iterations
+		 */
+		void setIKSolver(double step_tol,
+						 double lambda,
+						 unsigned int max_iter);
+
+		/**
 		 * @brief Computes the forward kinematics for a predefined set of bodies
 		 * @param rbd::BodyVector& Operational position of bodies
 		 * @param const rbd::Vector6d& Base position
@@ -61,6 +71,12 @@ class WholeBodyKinematics
 									  const rbd::BodySelector& body_set,
 									  enum rbd::Component component = rbd::Full,
 									  enum TypeOfOrientation type = RollPitchYaw);
+		const rbd::BodyVectorXd& computePosition(const rbd::Vector6d& base_pos,
+												 const Eigen::VectorXd& joint_pos,
+												 const rbd::BodySelector& body_set,
+												 enum rbd::Component component = rbd::Full,
+												 enum TypeOfOrientation type = RollPitchYaw);
+
 
 		/**
 		 * @brief Computes the inverse kinematics for a predefined set of
@@ -72,45 +88,33 @@ class WholeBodyKinematics
 		 * @param const rbd::BodyPosition& Operational position of bodies
 		 * @param const rbd::Vector6d& Initial base position for the iteration
 		 * @param const Eigen::VectorXd& Initial joint position for the iteration
-		 * @param double Step tolerance
-		 * @param double Lambda value for singularities
-		 * @param unsigned int Maximum number of iterations
 		 */
 		void computeInverseKinematics(rbd::Vector6d& base_pos,
 									  Eigen::VectorXd& joint_pos,
+									  const rbd::BodyVector3d& op_pos);
+		void computeInverseKinematics(rbd::Vector6d& base_pos,
+									  Eigen::VectorXd& joint_pos,
 									  const rbd::BodyVector3d& op_pos,
-									  const rbd::Vector6d& base_pos_init = rbd::Vector6d::Zero(),
-									  const Eigen::VectorXd& joint_pos_init = Eigen::VectorXd(),
-									  double step_tol = 1.0e-12,
-									  double lambda = 0.01,
-									  unsigned int max_iter = 50);
+									  const rbd::Vector6d& base_pos_init,
+									  const Eigen::VectorXd& joint_pos_init);
 
 		/**
-		 * @brief Computes the inverse kinematics for a predefined set of
-		 * bodies positions w.r.t the base.
+		 * @brief Computes the joint position from a predefined set of
+		 * body positions w.r.t the base.
 		 * This inverse kinematics algorithm uses an operational position which
 		 * consists of the desired 3d position for each body
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::BodyPosition& Operational position of bodies
 		 * @param const Eigen::VectorXd& Initial joint position for the iteration
-		 * @param double Step tolerance
-		 * @param double Lambda value for singularities
-		 * @param unsigned int Maximum number of iterations
 		 */
-		void computeInverseKinematics(Eigen::VectorXd& joint_pos,
-									  const rbd::BodyVector3d& op_pos,
-									  double step_tol = 1.0e-12,
-									  double lambda = 0.01,
-									  unsigned int max_iter = 50);
-		void computeInverseKinematics(Eigen::VectorXd& joint_pos,
-									  const rbd::BodyVector3d& op_pos,
-									  const Eigen::VectorXd& joint_pos_init,
-									  double step_tol = 1.0e-12,
-									  double lambda = 0.01,
-									  unsigned int max_iter = 50);
+		void computeJointPosition(Eigen::VectorXd& joint_pos,
+								  const rbd::BodyVector3d& op_pos);
+		void computeJointPosition(Eigen::VectorXd& joint_pos,
+								  const rbd::BodyVector3d& op_pos,
+								  const Eigen::VectorXd& joint_pos_init);
 
 		/**
-		 * @brief Computes the joint velocity for a predefined set of bodies
+		 * @brief Computes the joint velocity for a predefined set of body
 		 * velocities (q_d = J^-1 * x_d)
 		 * @param Eigen::VectorXd& Joint velocities
 		 * @param const Eigen::VectorXd& Joint positions
@@ -124,7 +128,7 @@ class WholeBodyKinematics
 
 		/**
 		 * @brief Computes the joint acceleration for a predefined set of
-		 * bodies (q_dd = J^-1 * [x_dd - J_d * q_d])
+		 * body (q_dd = J^-1 * [x_dd - J_d * q_d])
 		 * @param Eigen::VectorXd& Joint accelerations
 		 * @param const Eigen::VectorXd& joint positions
 		 * @param const Eigen::VectorXd& joint velocities
@@ -212,6 +216,12 @@ class WholeBodyKinematics
 							 const Eigen::VectorXd& joint_vel,
 							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
+		const rbd::BodyVectorXd& computeVelocity(const rbd::Vector6d& base_pos,
+												 const Eigen::VectorXd& joint_pos,
+												 const rbd::Vector6d& base_vel,
+												 const Eigen::VectorXd& joint_vel,
+												 const rbd::BodySelector& body_set,
+												 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the operational acceleration from the joint space
@@ -236,6 +246,14 @@ class WholeBodyKinematics
 								 const Eigen::VectorXd& joint_acc,
 								 const rbd::BodySelector& body_set,
 								 enum rbd::Component component = rbd::Full);
+		const rbd::BodyVectorXd& computeAcceleration(const rbd::Vector6d& base_pos,
+								 	 	 	 	 	 const Eigen::VectorXd& joint_pos,
+													 const rbd::Vector6d& base_vel,
+													 const Eigen::VectorXd& joint_vel,
+													 const rbd::Vector6d& base_acc,
+													 const Eigen::VectorXd& joint_acc,
+													 const rbd::BodySelector& body_set,
+													 enum rbd::Component component = rbd::Full);
 
 		/**
 		 * @brief Computes the operational acceleration contribution from the
@@ -258,6 +276,12 @@ class WholeBodyKinematics
 							 const Eigen::VectorXd& joint_vel,
 							 const rbd::BodySelector& body_set,
 							 enum rbd::Component component = rbd::Full);
+		const rbd::BodyVectorXd& computeJdotQdot(const rbd::Vector6d& base_pos,
+												 const Eigen::VectorXd& joint_pos,
+												 const rbd::Vector6d& base_vel,
+												 const Eigen::VectorXd& joint_vel,
+												 const rbd::BodySelector& body_set,
+												 enum rbd::Component component = rbd::Full);
 
 		/** @brief Gets the floating-base system information */
 		const FloatingBaseSystem& getFloatingBaseSystem() const;
@@ -278,6 +302,16 @@ class WholeBodyKinematics
 
 		/** @brief Middle joint position */
 		Eigen::VectorXd joint_pos_middle_;
+
+		rbd::BodyVectorXd body_pos_;
+		rbd::BodyVectorXd body_vel_;
+		rbd::BodyVectorXd body_acc_;
+		rbd::BodyVectorXd jdot_qdot_;
+
+		/** @brief IK solver */
+		double step_tol_;
+		double lambda_;
+		unsigned int max_iter_;
 };
 
 } //@namespace model

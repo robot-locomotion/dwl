@@ -10,8 +10,8 @@ int main(int argc, char **argv)
 	dwl::model::FloatingBaseSystem sys;
 
 	// Resetting the system from the hyq urdf file
-	string model_file = "../sample/hyq.urdf";
-	string robot_file = "../config/hyq.yarf";
+	string model_file = DWL_SOURCE_DIR"/sample/hyq.urdf";
+	string robot_file = DWL_SOURCE_DIR"/config/hyq.yarf";
 	sys.resetFromURDFFile(model_file, robot_file);
 
 	// Getting the total mass of the system. Note that you could also get the mass of a specific
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 	// Getting the joint names and ids
 	dwl::urdf_model::JointID joint_links = sys.getJoints();
 	for (dwl::urdf_model::JointID::const_iterator joint_it = joint_links.begin();
-			joint_it != joint_links.end(); joint_it++) {
+			joint_it != joint_links.end(); ++joint_it) {
 		string name = joint_it->first;
 		unsigned int id = joint_it->second;
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 	dwl::urdf_model::JointLimits joint_limits = sys.getJointLimits();
 	dwl::urdf_model::JointID ids = sys.getJoints();
 	for (dwl::urdf_model::JointLimits::iterator jnt_it = joint_limits.begin();
-			jnt_it != joint_limits.end(); jnt_it++) {
+			jnt_it != joint_limits.end(); ++jnt_it) {
 		string name = jnt_it->first;
 		urdf::JointLimits limits = jnt_it->second;
 		unsigned int id = sys.getJointId(name);

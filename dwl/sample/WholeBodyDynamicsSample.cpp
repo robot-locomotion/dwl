@@ -10,8 +10,8 @@ int main(int argc, char **argv)
 	dwl::model::WholeBodyDynamics wdyn;
 
 	// Resetting the system from the hyq urdf file
-	std::string urdf_file = "../sample/hyq.urdf";
-	std::string yarf_file = "../config/hyq.yarf";
+	std::string urdf_file = DWL_SOURCE_DIR"/sample/hyq.urdf";
+	std::string yarf_file = DWL_SOURCE_DIR"/config/hyq.yarf";
 	fbs.resetFromURDFFile(urdf_file, yarf_file);
 	wdyn.modelFromURDFFile(urdf_file, yarf_file);
 
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 	double force_threshold = 0.;
 	dwl::rbd::BodySelector active_contacts;
 	dwl::rbd::BodyVector6d contact_forces;
-	wdyn.estimateActiveContacts(active_contacts, contact_forces,
+	wdyn.estimateActiveContactsAndForces(active_contacts, contact_forces,
 								ws.base_pos, ws.joint_pos,
 								ws.base_vel, ws.joint_vel,
 								ws.base_acc, ws.joint_acc,
@@ -112,16 +112,15 @@ int main(int argc, char **argv)
 
 	// Computing the contact forces from the CoP
 	Eigen::Vector3d cop_pos(0.0196, -0.0012, 0.0215);
-	dwl::rbd::BodyVector3d contact_pos;
-	contact_pos["lf_foot"] = Eigen::Vector3d(0.319215579664, 0.206424153349, 0.0215);
-	contact_pos["lh_foot"] = Eigen::Vector3d(-0.335953242968, 0.207404146377, 0.0215);
-	contact_pos["rf_foot"] = Eigen::Vector3d(0.31996232038, -0.207592286639, 0.0215);
-	contact_pos["rh_foot"] = Eigen::Vector3d(-0.331894998575, -0.207236136594, 0.0215);
-	wdyn.computeContactForces(contact_forces,
-							 cop_pos,
-							 contact_pos,
-							 fbs.getEndEffectorNames());
-	std::cout << "----------------- Contact forces from CoP ---------------" << std::endl;
+	dwl::rbd::BodyVector3d feet_pos;
+	feet_pos["lf_foot"] = Eigen::Vector3d(0.319215579664, 0.206424153349, 0.0215);
+	feet_pos["lh_foot"] = Eigen::Vector3d(-0.335953242968, 0.207404146377, 0.0215);
+	feet_pos["rf_foot"] = Eigen::Vector3d(0.31996232038, -0.207592286639, 0.0215);
+	feet_pos["rh_foot"] = Eigen::Vector3d(-0.331894998575, -0.207236136594, 0.0215);
+	wdyn.estimateGroundReactionForces(contact_forces,
+									  cop_pos, feet_pos,
+									  fbs.getEndEffectorNames(dwl::model::FOOT));
+	std::cout << "----------------- Ground reaction forces from CoP ---------------" << std::endl;
 	for (dwl::rbd::BodyVector6d::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
 		std::string name = it->first;

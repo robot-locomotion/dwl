@@ -33,16 +33,17 @@ DWL has the following required dependencies:
 * [Eigen](http://eigen.tuxfamily.org) (version 3.2.7 or higher)
 * [Yaml-cpp](https://code.google.com/p/yaml-cpp/) (version 0.5.1 or higher)
 * [RBDL](http://rbdl.bitbucket.org/) (version 2.4.0 or higher)
+* [SWIG](http://www.swig.org/) (version 3.0.12 or higher)
 * [urdfdom_header](https://github.com/ros/urdfdom_headers) (version 0.2.3 or higher)
 * [console_bridge](https://github.com/ros/console_bridge) (version 0.2.7 or higher)
 * [urdfdom](https://github.com/ros/urdfdom) (version 0.2.10 or higher)
+* [Octomap](http://octomap.github.io) (version 1.6.8 or higher)
 
 The following dependencies are optional:
 * [Doxygen](http://www.doxygen.org)
 * [qpOASES](https://projects.coin-or.org/qpOASES) (version 3.2.0 or higher)
 * [Ipopt](https://projects.coin-or.org/Ipopt) (version 3.12.4 or higher)
 * [libcmaes](https://github.com/beniz/libcmaes) (version 0.9.5 or higher)
-* [Octomap](http://octomap.github.io) (version 1.6.8 or higher)
 
 
 Building

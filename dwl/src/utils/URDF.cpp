@@ -31,7 +31,7 @@ std::string fileToXml(const std::string& filename)
 
 
 void getJointNames(JointID& joints,
-				   std::string urdf_model,
+				   const std::string& urdf_model,
 				   enum JointType type)
 {
 	// Parsing the URDF-XML
@@ -54,7 +54,8 @@ void getJointNames(JointID& joints,
 		unsigned int branch_idx = branch_index_stack.top();
 
 		if (branch_idx < current_link->child_joints.size()) {
-			boost::shared_ptr<urdf::Joint> current_joint = current_link->child_joints[branch_idx];
+			boost::shared_ptr<urdf::Joint> current_joint =
+					current_link->child_joints[branch_idx];
 
 			// Incrementing branch index
 			branch_index_stack.pop();
@@ -93,7 +94,8 @@ void getJointNames(JointID& joints,
 				}
 			} else { // all joints
 				if (current_joint->type == urdf::Joint::FIXED)
-					joints[current_joint->name] = std::numeric_limits<unsigned int>::max();
+					joints[current_joint->name] =
+							std::numeric_limits<unsigned int>::max();
 				else {
 					joints[current_joint->name] = joint_idx;
 					joint_idx++;
@@ -108,7 +110,7 @@ void getJointNames(JointID& joints,
 
 
 void getEndEffectors(LinkID& end_effectors,
-					 std::string urdf_model)
+					 const std::string& urdf_model)
 {
 	// Parsing the URDF-XML
 	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
@@ -129,13 +131,16 @@ void getEndEffectors(LinkID& end_effectors,
 		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
 
 		// Getting the parent and child link of the current fixed joint
-		boost::shared_ptr<urdf::Link> parent_link = model->links_[current_joint->parent_link_name];
-		boost::shared_ptr<urdf::Link> child_link = model->links_[current_joint->child_link_name];
+		boost::shared_ptr<urdf::Link> parent_link =
+				model->links_[current_joint->parent_link_name];
+		boost::shared_ptr<urdf::Link> child_link =
+				model->links_[current_joint->child_link_name];
 
 		// Checking if it's an end-effector
 		unsigned int num_childs = child_link->child_joints.size();
 		while (parent_link->name != root_link->name && num_childs == 0) {
-			boost::shared_ptr<urdf::Joint> parent_joint = model->joints_[parent_link->parent_joint->name];
+			boost::shared_ptr<urdf::Joint> parent_joint =
+					model->joints_[parent_link->parent_joint->name];
 			if (parent_joint->type == urdf::Joint::PRISMATIC ||
 					parent_joint->type == urdf::Joint::REVOLUTE) {
 				end_effectors[current_joint->child_link_name] = end_effector_idx;
@@ -150,7 +155,7 @@ void getEndEffectors(LinkID& end_effectors,
 
 
 void getJointLimits(JointLimits& joint_limits,
-					std::string urdf_model)
+					const std::string& urdf_model)
 {
 	// Parsing the URDF-XML
 	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
@@ -178,7 +183,7 @@ void getJointLimits(JointLimits& joint_limits,
 		boost::shared_ptr<urdf::Joint> current_joint = model->joints_[joint_name];
 
 		if (current_joint->type != urdf::Joint::FLOATING) {
-			if (current_joint->limits->effort != 0) {  // Virtual floating-base joints
+			if (current_joint->limits->effort != 0) { // Virtual floating-base joints
 				joint_limits[joint_name].lower = current_joint->limits->lower;
 				joint_limits[joint_name].upper = current_joint->limits->upper;
 				joint_limits[joint_name].velocity = current_joint->limits->velocity;
@@ -190,7 +195,7 @@ void getJointLimits(JointLimits& joint_limits,
 
 
 void getJointAxis(JointAxis& joints,
-				  std::string urdf_model,
+				  const std::string& urdf_model,
 				  enum JointType type)
 {
 	// Parsing the URDF-XML
@@ -207,7 +212,9 @@ void getJointAxis(JointAxis& joints,
 
 		if (current_joint->type != urdf::Joint::FLOATING ||
 				current_joint->type != urdf::Joint::FIXED)
-			joints[joint_name] << current_joint->axis.x, current_joint->axis.y, current_joint->axis.z;
+			joints[joint_name] << current_joint->axis.x,
+								  current_joint->axis.y,
+								  current_joint->axis.z;
 		else
 			joints[joint_name] = Eigen::Vector3d::Zero();
 	}
@@ -215,7 +222,7 @@ void getJointAxis(JointAxis& joints,
 
 
 void getFloatingBaseJointMotion(JointID& joints,
-								std::string urdf_model)
+								const std::string& urdf_model)
 {
 	// Parsing the URDF-XML
 	boost::shared_ptr<urdf::ModelInterface> model = urdf::parseURDF(urdf_model);
@@ -236,29 +243,29 @@ void getFloatingBaseJointMotion(JointID& joints,
 				current_joint->type == urdf::Joint::CONTINUOUS) {
 			// Getting the axis of movements
 			if (current_joint->axis.x != 0) {
-				joints[joint_name] = AX;
+				joints[joint_name] = RX;
 				break;
 			}
 			if (current_joint->axis.y != 0) {
-				joints[joint_name] = AY;
+				joints[joint_name] = RY;
 				break;
 			}
 			if (current_joint->axis.z != 0) {
-				joints[joint_name] = AZ;
+				joints[joint_name] = RZ;
 				break;
 			}
 		} else if (current_joint->type == urdf::Joint::PRISMATIC) {
 			// Getting the axis of movements
 			if (current_joint->axis.x != 0) {
-				joints[joint_name] = LX;
+				joints[joint_name] = TX;
 				break;
 			}
 			if (current_joint->axis.y != 0) {
-				joints[joint_name] = LY;
+				joints[joint_name] = TY;
 				break;
 			}
 			if (current_joint->axis.z != 0) {
-				joints[joint_name] = LZ;
+				joints[joint_name] = TZ;
 				break;
 			}
 		}

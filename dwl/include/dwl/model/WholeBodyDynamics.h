@@ -205,15 +205,15 @@ class WholeBodyDynamics
 		 * @param const Eigen::VectorXd& Joint forces
 		 * @param const rbd::BodySelector& Selected set of end-effectors (bodies)
 		 */
-		void computeContactForces(rbd::BodyVector6d& contact_forces,
-								  const rbd::Vector6d& base_pos,
-								  const Eigen::VectorXd& joint_pos,
-								  const rbd::Vector6d& base_vel,
-								  const Eigen::VectorXd& joint_vel,
-								  const rbd::Vector6d& base_acc,
-								  const Eigen::VectorXd& joint_acc,
-								  const Eigen::VectorXd& joint_forces,
-								  const rbd::BodySelector& contacts);
+		void estimateContactForces(rbd::BodyVector6d& contact_forces,
+								   const rbd::Vector6d& base_pos,
+								   const Eigen::VectorXd& joint_pos,
+								   const rbd::Vector6d& base_vel,
+								   const Eigen::VectorXd& joint_vel,
+								   const rbd::Vector6d& base_acc,
+								   const Eigen::VectorXd& joint_acc,
+								   const Eigen::VectorXd& joint_forces,
+								   const rbd::BodySelector& contacts);
 
 		/**
 		 * @brief Computes the center of pressure position given the ground
@@ -273,10 +273,10 @@ class WholeBodyDynamics
 		 * @param const rbd::BodyPosition& contact_pos
 		 * @param const rbd::BodySelector& Selected set of active contact
 		 */
-		void computeContactForces(rbd::BodyVector6d& contact_for,
-								  const Eigen::Vector3d& cop_pos,
-								  const rbd::BodyVector3d& contact_pos,
-								  const rbd::BodySelector& ground_contacts);
+		void estimateGroundReactionForces(rbd::BodyVector6d& contact_for,
+										  const Eigen::Vector3d& cop_pos,
+										  const rbd::BodyVector3d& contact_pos,
+										  const rbd::BodySelector& ground_contacts);
 
 		/**
 		 * @brief Estimates active contacts by comparing the estimated joint
@@ -294,17 +294,17 @@ class WholeBodyDynamics
 		 * @param const rbd::BodySelector& Selected set of end-effectors (bodies)
 		 * @param double Force threshold
 		 */
-		void estimateActiveContacts(rbd::BodySelector& active_contacts,
-									rbd::BodyVector6d& contact_forces,
-									const rbd::Vector6d& base_pos,
-									const Eigen::VectorXd& joint_pos,
-									const rbd::Vector6d& base_vel,
-									const Eigen::VectorXd& joint_vel,
-									const rbd::Vector6d& base_acc,
-									const Eigen::VectorXd& joint_acc,
-									const Eigen::VectorXd& joint_forces,
-									const rbd::BodySelector& contacts,
-									double force_threshold);
+		void estimateActiveContactsAndForces(rbd::BodySelector& active_contacts,
+											 rbd::BodyVector6d& contact_forces,
+											 const rbd::Vector6d& base_pos,
+											 const Eigen::VectorXd& joint_pos,
+											 const rbd::Vector6d& base_vel,
+											 const Eigen::VectorXd& joint_vel,
+											 const rbd::Vector6d& base_acc,
+											 const Eigen::VectorXd& joint_acc,
+											 const Eigen::VectorXd& joint_forces,
+											 const rbd::BodySelector& contacts,
+											 double force_threshold);
 
 		/**
 		 * @brief Estimates active contacts by comparing the estimated joint
