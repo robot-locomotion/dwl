@@ -30,6 +30,12 @@ WholeBodyState::~WholeBodyState()
 }
 
 
+const double& WholeBodyState::getTime() const
+{
+	return time;
+}
+
+
 Eigen::Vector3d WholeBodyState::getBasePosition_W() const
 {
 	return base_pos.segment<3>(rbd::LX);
@@ -595,6 +601,12 @@ bool WholeBodyState::getContactCondition(const std::string& name) const
 		return true;
 	else
 		return false;
+}
+
+
+void WholeBodyState::setTime(const double& _time)
+{
+	time = _time;
 }
 
 

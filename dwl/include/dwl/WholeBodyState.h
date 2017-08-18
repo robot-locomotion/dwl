@@ -78,6 +78,9 @@ class WholeBodyState
 		/** @brief Destructor function */
 		~WholeBodyState();
 
+		// Time getter function
+		const double& getTime() const;
+
 		// Base state getter functions
 		/** @brief Gets the base position expressed in the world frame */
 		Eigen::Vector3d getBasePosition_W() const;
@@ -220,6 +223,9 @@ class WholeBodyState
 								 const double& force_threshold) const;
 		bool getContactCondition(const std::string& name) const;
 
+
+		// Time setter function
+		void setTime(const double& time);
 
 		// Base state setter functions
 		/** @brief Sets the base position expressed in the world frame */

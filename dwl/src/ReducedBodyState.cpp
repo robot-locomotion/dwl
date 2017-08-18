@@ -24,6 +24,12 @@ ReducedBodyState::~ReducedBodyState()
 }
 
 
+const double& ReducedBodyState::getTime() const
+{
+	return time;
+}
+
+
 const Eigen::Vector3d& ReducedBodyState::getCoMPosition_W() const
 {
 	return com_pos;
@@ -432,6 +438,12 @@ rbd::BodyVector3d ReducedBodyState::getFootAcceleration_H() const
 	}
 
 	return foot_acc_H;
+}
+
+
+void ReducedBodyState::setTime(const double& _time)
+{
+	time = _time;
 }
 
 
