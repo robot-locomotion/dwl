@@ -196,12 +196,13 @@
 		std::stringstream buffer;
 		buffer << "WholeBodyState:" << std::endl;
 		buffer << "\ttime: " << $self->time << std::endl;
-		buffer << "\tbase_pos: " << $self->getBasePosition_W().transpose() << std::endl;
-		buffer << "\tbase_vel: " << $self->getBaseVelocity_W().transpose() << std::endl;
-		buffer << "\tbase_acc: " << $self->getBaseAcceleration_W().transpose() << std::endl;
+		buffer << "\tbase_pos: " << $self->base_pos.transpose() << std::endl;
+		buffer << "\tbase_vel: " << $self->base_vel.transpose() << std::endl;
+		buffer << "\tbase_acc: " << $self->base_acc.transpose() << std::endl;
 		buffer << "\tjoint_pos: " << $self->getJointPosition().transpose() << std::endl;
 		buffer << "\tjoint_vel: " << $self->getJointVelocity().transpose() << std::endl;
 		buffer << "\tjoint_acc: " << $self->getJointAcceleration().transpose() << std::endl;
+		buffer << "\tjoint_eff: " << $self->getJointEffort().transpose() << std::endl;
 		buffer << "\tcontact_pos_B: " << std::endl;
 		for (dwl::rbd::BodyVectorXd::const_iterator it = $self->getContactPosition_B().begin();
 				it != $self->getContactPosition_B().end(); ++it) {
