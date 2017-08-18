@@ -68,6 +68,9 @@ class ReducedBodyState
 		/** @brief Destructor function */
 		~ReducedBodyState();
 
+		// Time getter function
+		const double& getTime() const;
+
 		// CoM state getter functions
 		/** @brief Gets the CoM position expressed in the world frame */
 		const Eigen::Vector3d& getCoMPosition_W() const;
@@ -172,6 +175,9 @@ class ReducedBodyState
 		Eigen::Vector3d getFootAcceleration_H(const std::string& name) const;
 		rbd::BodyVector3d getFootAcceleration_H() const;
 
+
+		// Time setter function
+		void setTime(const double& time);
 
 		// CoM state setter functions
 		/** @brief Sets the CoM position expressed in the world frame */
