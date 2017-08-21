@@ -160,7 +160,7 @@ class WholeBodyState
 		const double& getJointEffort(const unsigned int& index) const;
 
 		/** @brief Gets the number of joints */
-		const unsigned int getJointDof() const;
+		const unsigned int getJointDoF() const;
 
 
 		// Contact state getter functions

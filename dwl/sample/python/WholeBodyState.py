@@ -10,7 +10,7 @@ ws = dwl.WholeBodyState()
 
 # Setting up the joint dof
 ws.setJointDoF(12)
-print("The number of DoFs is ", ws.getJointDof())
+print("The number of DoFs is ", ws.getJointDoF())
 
 
 # Setting up the base states
