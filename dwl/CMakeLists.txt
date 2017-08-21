@@ -258,6 +258,13 @@ if(WITH_PYTHON)# OR WITH_MATLAB OR WITH_OCTAVE OR WITH_JSON)
 endif()
 
 
+option(WITH_DOC "Enable documentation generation" ON)
+if(WITH_DOC)
+    set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/doc/Doxyfile.in)
+    set(DOXYFILE_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/doc/doxygen)
+    include(UseDoxygen OPTIONAL)
+endif()
+
 
 # Adding sample executables
 add_executable(fb_sample  sample/FloatingBaseSample.cpp)
