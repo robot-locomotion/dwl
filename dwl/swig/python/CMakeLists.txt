@@ -59,13 +59,21 @@ set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} "-DWITH_PYTHON3")
 endif()
 
 # Generate SWIG wrapper
-set_source_files_properties(../dwl.i  PROPERTIES  CPLUSPLUS ON)
-swig_add_module(dwl python ../dwl.i)
+if(WITH_DOC)
+    set_source_files_properties(../dwl_doc.i  PROPERTIES  CPLUSPLUS ON)
+    swig_add_module(dwl python ../dwl_doc.i)
+    add_dependencies(dwl swig_doxygen)
+else()
+    set_source_files_properties(../dwl.i  PROPERTIES  CPLUSPLUS ON)
+    swig_add_module(dwl python ../dwl.i)
+endif()
 swig_link_libraries(dwl ${PYTHON_LIBRARIES} dwl)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set_target_properties(_dwl PROPERTIES COMPILE_FLAGS "-Wno-dynamic-class-memaccess -Wno-self-assign ${MAYBE_WERROR}")
+  set_target_properties(_dwl PROPERTIES
+                             COMPILE_FLAGS "-Wno-dynamic-class-memaccess -Wno-self-assign ${MAYBE_WERROR}")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set_target_properties(_dwl PROPERTIES COMPILE_FLAGS "-Wno-dynamic-class-memaccess -Wno-self-assign -Wno-maybe-uninitialized ${MAYBE_WERROR}")
+  set_target_properties(_dwl PROPERTIES
+                             COMPILE_FLAGS "-Wno-dynamic-class-memaccess -Wno-self-assign -Wno-maybe-uninitialized ${MAYBE_WERROR}")
 endif()
 
 # the name used for the shared module for the python interface is determined

@@ -40,27 +40,15 @@ if(DOXYGEN_FOUND)
     configure_file(${DOXYFILE_IN} ${DOXYFILE} @ONLY)
     message("Doxygen build started")
 
-    # Create a custom command for the doxygen documentation that is target when it's typed "doc" or "doc_doxygen"
-    add_custom_target(doc_doxygen
+    # Generate the doxygen documentation
+    add_custom_target( swig_doxygen ALL
         COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
+        COMMAND python "${CMAKE_CURRENT_SOURCE_DIR}/doc/doxy2swig.py"
+                            ${DOXYFILE_OUTPUT_DIR}/xml/index.xml
+                            ${CMAKE_CURRENT_SOURCE_DIR}/swig/doc.i
         WORKING_DIRECTORY ${DOXYFILE_OUTPUT_DIR}
         COMMENT "Generating API documentation with Doxygen to ${DOXYFILE_OUTPUT_DIR}"
         VERBATIM)
-    
-    add_custom_command(TARGET doc_doxygen
-        PRE_BUILD
-        COMMAND ${MAKE_PROGRAM}
-        COMMENT  "Running LaTeX for Doxygen documentation in ${DOXYFILE_OUTPUT_DIR}/${DOXYFILE_LATEX_DIR}..."
-        WORKING_DIRECTORY "${DOXYFILE_OUTPUT_DIR}/${DOXYFILE_LATEX_DIR}")
-        
-    get_target_property(DOC_TARGET doc TYPE)
-    if(NOT DOC_TARGET)
-        add_custom_target(doc)
-    endif()
-    add_dependencies(doc doc_doxygen)
-
-    # Generate the doxygen documentation when it's called the install
-    install(CODE "execute_process(COMMAND \"${CMAKE_COMMAND}\" --build \"${CMAKE_CURRENT_BINARY_DIR}\" --target doc)")
     
     # Installing the doxygen files
     install(DIRECTORY ${DOXYFILE_OUTPUT_DIR} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/share/dwl)

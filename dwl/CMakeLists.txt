@@ -249,20 +249,20 @@ endif()
 
 
 
+option(WITH_DOC "Enable documentation generation" OFF)
+if(WITH_DOC)
+    set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/doc/Doxyfile.in)
+    set(DOXYFILE_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/doc/doxygen)
+    include(UseDoxygen OPTIONAL)
+endif()
+
+
 #####################################################
 ######################### swig ######################
 #####################################################
 option(WITH_PYTHON "Compile the Python front-end" ON)
 if(WITH_PYTHON)# OR WITH_MATLAB OR WITH_OCTAVE OR WITH_JSON)
   add_subdirectory(swig)
-endif()
-
-
-option(WITH_DOC "Enable documentation generation" ON)
-if(WITH_DOC)
-    set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/doc/Doxyfile.in)
-    set(DOXYFILE_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/doc/doxygen)
-    include(UseDoxygen OPTIONAL)
 endif()
 
 
