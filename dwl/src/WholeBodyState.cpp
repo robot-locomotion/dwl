@@ -243,7 +243,7 @@ const Eigen::VectorXd& WholeBodyState::getJointEffort() const
 }
 
 
-const unsigned int WholeBodyState::getJointDof() const
+const unsigned int WholeBodyState::getJointDoF() const
 {
 	return num_joints_;
 }
