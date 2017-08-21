@@ -5,7 +5,7 @@ DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "Dynamic Whole-body Locomotion (DWL)"
 PROJECT_NUMBER         = @DWL_VERSION@
 PROJECT_BRIEF          = Synopsis
-PROJECT_LOGO           = @CMAKE_CURRENT_SOURCE_DIR@/iit_advr.png
+PROJECT_LOGO           = @CMAKE_CURRENT_SOURCE_DIR@/doc/iit_advr.png
 OUTPUT_DIRECTORY       = @DOXYFILE_OUTPUT_DIR@
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -95,10 +95,10 @@ CITE_BIB_FILES         =
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
-QUIET                  = NO
-WARNINGS               = YES
-WARN_IF_UNDOCUMENTED   = YES
-WARN_IF_DOC_ERROR      = YES
+QUIET                  = YES
+WARNINGS               = NO
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = NO
 WARN_NO_PARAMDOC       = NO
 WARN_FORMAT            = "$file:$line: $text"
 WARN_LOGFILE           = 
@@ -113,8 +113,8 @@ WARN_LOGFILE           =
 INPUT				   = @CMAKE_CURRENT_SOURCE_DIR@/include/ \
 						 @CMAKE_CURRENT_SOURCE_DIR@/src/ \
 						 @CMAKE_CURRENT_SOURCE_DIR@/doc \
-						 @CMAKE_CURRENT_SOURCE_DIR@/dwl.doxy \
-						 @CMAKE_CURRENT_SOURCE_DIR@/README.md
+						 @CMAKE_CURRENT_SOURCE_DIR@/doc/dwl.doxy \
+						 @CMAKE_CURRENT_SOURCE_DIR@/../README.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.c \
                          *.cc \

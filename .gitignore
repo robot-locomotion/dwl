@@ -8,3 +8,4 @@ thirdparty
 .settings
 dwl/doc/doxygen
 dwl-lcm-pkgs/dwl_lcmtypes/include
+doc.i
