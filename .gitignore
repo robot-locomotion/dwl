@@ -6,5 +6,5 @@ thirdparty
 .cproject
 .pydevproject
 .settings
-dwl/doc/documetation
+dwl/doc/doxygen
 dwl-lcm-pkgs/dwl_lcmtypes/include
