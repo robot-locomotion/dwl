@@ -43,7 +43,7 @@ if(DOXYGEN_FOUND)
     # Generate the doxygen documentation
     add_custom_target( swig_doxygen ALL
         COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
-        COMMAND python "${CMAKE_CURRENT_SOURCE_DIR}/doc/doxy2swig.py"
+        COMMAND python "${CMAKE_CURRENT_SOURCE_DIR}/doc/doxy2swig.py" -q
                             ${DOXYFILE_OUTPUT_DIR}/xml/index.xml
                             ${CMAKE_CURRENT_SOURCE_DIR}/swig/doc.i
         WORKING_DIRECTORY ${DOXYFILE_OUTPUT_DIR}
