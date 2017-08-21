@@ -216,35 +216,35 @@ set(PYTHON_PREFIX ${DEF_PYTHON_PREFIX} CACHE PATH "Installation directory for Py
 # Make relative paths absolute (needed later on)
 #foreach(p LIB BIN INCLUDE CMAKE PYTHON)
 foreach(p PYTHON)
-  set(var ${p}_PREFIX)
-  if(${var})
-    if(NOT IS_ABSOLUTE "${${var}}")
-      # Turn relative path into absolute
-      set(${var} "${CMAKE_INSTALL_PREFIX}/lib/${${var}}")
+    set(var ${p}_PREFIX)
+    if(${var})
+        if(NOT IS_ABSOLUTE "${${var}}")
+          # Turn relative path into absolute
+          set(${var} "${CMAKE_INSTALL_PREFIX}/lib/${${var}}")
+        endif()
+    else()
+        # Flat installation hierarchy
+        set(${var} "${CMAKE_INSTALL_PREFIX}")
     endif()
-  else()
-    # Flat installation hierarchy
-    set(${var} "${CMAKE_INSTALL_PREFIX}")
-  endif()
 endforeach()
 
 # Set rpath
 if(WITH_SELFCONTAINED)
-  if(APPLE)
-    set(CMAKE_INSTALL_RPATH "@loader_path/")
-  else()
-    set(CMAKE_INSTALL_RPATH "$ORIGIN")
-  endif()
+    if(APPLE)
+        set(CMAKE_INSTALL_RPATH "@loader_path/")
+    else()
+        set(CMAKE_INSTALL_RPATH "$ORIGIN")
+    endif()
 else()
-  # add the automatically determined parts of the RPATH
-  # which point to directories outside the build tree to the install RPATH
-  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+    # add the automatically determined parts of the RPATH
+    # which point to directories outside the build tree to the install RPATH
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-  # the RPATH to be used when installing, but only if it's not a system directory
-  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${LIB_PREFIX}" isSystemDir)
-  if("${isSystemDir}" STREQUAL "-1")
-    set(CMAKE_INSTALL_RPATH "${LIB_PREFIX}")
-  endif()
+    # the RPATH to be used when installing, but only if it's not a system directory
+    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${LIB_PREFIX}" isSystemDir)
+    if("${isSystemDir}" STREQUAL "-1")
+        set(CMAKE_INSTALL_RPATH "${LIB_PREFIX}")
+    endif()
 endif()
 
 
@@ -268,16 +268,22 @@ endif()
 
 # Adding sample executables
 add_executable(fb_sample  sample/FloatingBaseSample.cpp)
-target_link_libraries(fb_sample ${PROJECT_NAME})
-set_target_properties(fb_sample PROPERTIES COMPILE_DEFINITIONS DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+target_link_libraries(fb_sample  ${PROJECT_NAME})
+set_target_properties(fb_sample  PROPERTIES
+                                 COMPILE_DEFINITIONS
+                                 DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
 add_executable(kin_sample  sample/WholeBodyKinematicsSample.cpp)
 target_link_libraries(kin_sample ${PROJECT_NAME})
-set_target_properties(kin_sample PROPERTIES COMPILE_DEFINITIONS DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+set_target_properties(kin_sample  PROPERTIES
+                                  COMPILE_DEFINITIONS
+                                  DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
 add_executable(dyn_sample  sample/WholeBodyDynamicsSample.cpp)
-target_link_libraries(dyn_sample ${PROJECT_NAME})
-set_target_properties(dyn_sample PROPERTIES COMPILE_DEFINITIONS DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+target_link_libraries(dyn_sample  ${PROJECT_NAME})
+set_target_properties(dyn_sample  PROPERTIES
+                                  COMPILE_DEFINITIONS
+                                  DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
 add_executable(cd_sample sample/CollectDataSample.cpp)
 target_link_libraries(cd_sample ${PROJECT_NAME})
@@ -304,7 +310,9 @@ if(CATKIN_CALL)
 	catkin_package(
 		INCLUDE_DIRS include ${DEPENDENCIES_INCLUDE_DIRS}
 		LIBRARIES ${PROJECT_NAME} 
-		DEPENDS system_lib ${DEPENDENCIES_LIBRARIES} ${DEPENDENCIES_LIBRARY_DIRS} ${DEPENDENCIES_INCLUDE_DIRS})
+		DEPENDS system_lib ${DEPENDENCIES_LIBRARIES}
+		                   ${DEPENDENCIES_LIBRARY_DIRS}
+		                   ${DEPENDENCIES_INCLUDE_DIRS})
 else()
     # Installing catkin package.xml and dwl-config.cmake for dwl as pure cmake project
     install(FILES package.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/share/dwl)
