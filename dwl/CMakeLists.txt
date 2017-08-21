@@ -278,32 +278,7 @@ target_link_libraries(cd_sample ${PROJECT_NAME})
 
 # Adding the test executables
 if(WITH_UNIT_TEST)
-	message("-- Building unit testing")
-	include_directories(tests)
-    add_executable(ws_utest  tests/WholeBodyStateUTest.cpp)
-	target_link_libraries(ws_utest ${PROJECT_NAME})
-	if(IPOPT_FOUND)
-		add_executable(ipopt_utest  tests/IpoptDWLTest.cpp
-									tests/model/HS071DynamicalSystem.cpp
-									tests/model/HS071Cost.cpp)
-		target_link_libraries(ipopt_utest ${PROJECT_NAME})
-	endif()
-
-	if(LIBCMAES_FOUND)
-		add_executable(cmaes_utest  tests/cmaesFamilyDWLTest.cpp
-									tests/model/HS071DynamicalSystem.cpp
-									tests/model/HS071Cost.cpp)
-		target_link_libraries(cmaes_utest ${PROJECT_NAME})
-	endif()
-
-	add_executable(support_utest  tests/SupportPolygonConstraintTest.cpp)
-	target_link_libraries(support_utest ${PROJECT_NAME})
-
-	add_executable(yaml_utest  tests/YamlWrapperTest.cpp)
-	target_link_libraries(yaml_utest ${PROJECT_NAME})
-
-	add_executable(numdiff_utest  tests/NumDiffEigenTest.cpp)
-	target_link_libraries(numdiff_utest ${PROJECT_NAME})
+    add_subdirectory(tests)
 endif()
 
 

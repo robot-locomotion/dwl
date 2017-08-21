@@ -143,11 +143,11 @@ BOOST_AUTO_TEST_CASE(base_joint) // specify a test case for joint states
 	Eigen::Vector2d new_joint_state;
 
 
-	n_joints = ws.getJointDof();
+	n_joints = ws.getJointDoF();
 	BOOST_CHECK(n_joints == 12);
 
 	ws.setJointDoF(2);
-	n_joints = ws.getJointDof();
+	n_joints = ws.getJointDoF();
 	BOOST_CHECK(n_joints == 2);
 
 	// Testing joint position
