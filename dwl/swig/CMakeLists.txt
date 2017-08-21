@@ -8,13 +8,13 @@ link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib)
 
 
 if(WITH_WERROR)
-  # This will make the swig command return an error so that "make" will fail,
-  # but swig will emit the output files anyways so subsequent calls to "make"
-  # will succeed. At least buildbot will report failures.
-  set(USE_SWIG_FLAGS ${USE_SWIG_FLAGS} "-Werror")
-  set(MAYBE_WERROR "-Werror")
+    # This will make the swig command return an error so that "make" will fail,
+    # but swig will emit the output files anyways so subsequent calls to "make"
+    # will succeed. At least buildbot will report failures.
+    set(USE_SWIG_FLAGS ${USE_SWIG_FLAGS} "-Werror")
+    set(MAYBE_WERROR "-Werror")
 else()
-  set(MAYBE_WERROR "")
+    set(MAYBE_WERROR "")
 endif()
 
 
@@ -28,13 +28,13 @@ set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} "-DSWIG_TYPE_TABLE=dwl")
 set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} "-fvirtual")
 #set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} "-fcompact")
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../doc/doc.i)
-  set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} "-DWITH_DOXDOC")
+    set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} "-DWITH_DOXDOC")
 endif()
 
 if(WITH_DEPRECATED_FEATURES)
-  set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} "-DWITH_DEPRECATED_FEATURES")
+    set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} "-DWITH_DEPRECATED_FEATURES")
 endif()
 
 if(WITH_PYTHON)
-   add_subdirectory(python)
+     add_subdirectory(python)
 endif()
