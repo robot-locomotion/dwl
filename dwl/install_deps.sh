@@ -587,6 +587,9 @@ echo ""
 mkdir -p ${SELF_PATH}/thirdparty
 cd ${SELF_PATH}/thirdparty
 
+# Added doxygen install. TODO moved from here and tested for other OS (i.e. Mac OSX)
+sudo apt-get install doxygen
+
 ##---------------------------------------------------------------##
 ##---------------------- Installing Eigen -----------------------##
 ##---------------------------------------------------------------##
