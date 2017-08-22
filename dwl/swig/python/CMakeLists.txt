@@ -61,7 +61,7 @@ if("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
 endif()
 
 # Generate SWIG wrapper
-if(WITH_DOC)
+if(WITH_DOC AND DOXYGEN_FOUND)
     set_source_files_properties(../dwl_doc.i  PROPERTIES  CPLUSPLUS ON)
     swig_add_module(dwl python ../dwl_doc.i)
     add_dependencies(dwl swig_doxygen)
