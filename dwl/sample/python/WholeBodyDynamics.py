@@ -80,14 +80,10 @@ print("Joint forces:", joint_eff.transpose())
 
 print()
 print("---------------------------- Inertial matrices -----------------------------------")
-joint_inertial_mat = np.zeros([6 + fbs.getJointDoF(), 6 + fbs.getJointDoF()])
-wdyn.computeJointSpaceInertialMatrix(joint_inertial_mat,
-                                     base_pos, joint_pos);
+joint_inertial_mat = wdyn.computeJointSpaceInertiaMatrix(base_pos, joint_pos);
 print("The joint-space inertial matrix: ", joint_inertial_mat)
 
-com_inertial_mat = np.zeros([6, 6])
-wdyn.computeCentroidalInertialMatrix(com_inertial_mat,
-                                     base_pos, joint_pos)
+com_inertial_mat = wdyn.computeCentroidalInertiaMatrix(base_pos, joint_pos)
 print("The centroidal inertial matrix: ", com_inertial_mat)
 
 

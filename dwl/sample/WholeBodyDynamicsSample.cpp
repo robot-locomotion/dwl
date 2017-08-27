@@ -132,14 +132,12 @@ int main(int argc, char **argv)
 
 
 	// Computing the joint space inertia matrix
-	Eigen::MatrixXd inertial_mat;
-	wdyn.computeJointSpaceInertialMatrix(inertial_mat, ws.base_pos, ws.joint_pos);
+	Eigen::MatrixXd inertial_mat = wdyn.computeJointSpaceInertiaMatrix(ws.base_pos, ws.joint_pos);
 	std::cout << "--------------- Joint Space Inertia Matrix --------------" << std::endl;
 	std::cout << inertial_mat << " = inertial matrix" << std::endl;
 
 	// Computing the centroidal inertia matrix
-	Eigen::MatrixXd com_inertial_mat;
-	wdyn.computeCentroidalInertialMatrix(com_inertial_mat, ws.base_pos, ws.joint_pos);
+	dwl::rbd::Matrix6d com_inertial_mat = wdyn.computeCentroidalInertiaMatrix(ws.base_pos, ws.joint_pos);
 	std::cout << "--------------- _Centroidal Inertia Matrix --------------" << std::endl;
 	std::cout << com_inertial_mat << " = centroidal inertial matrix" << std::endl;
 

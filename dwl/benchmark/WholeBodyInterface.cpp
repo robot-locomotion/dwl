@@ -105,7 +105,7 @@ int main(int argc, char **argv)
 	Eigen::MatrixXd inertial_mat;
 	startcputime = std::clock();
 	for (unsigned int i = 0; i < N; ++i)
-		wdyn.computeJointSpaceInertialMatrix(inertial_mat, ws.base_pos, ws.joint_pos);
+		inertial_mat = wdyn.computeJointSpaceInertiaMatrix(ws.base_pos, ws.joint_pos);
 
 	cpu_duration =
 				(std::clock() - startcputime) * 1000000 / (double) CLOCKS_PER_SEC;

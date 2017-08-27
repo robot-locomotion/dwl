@@ -140,25 +140,23 @@ class WholeBodyDynamics
 														   const rbd::BodySelector& contacts);
 
 		/**
-		 * @brief Computes the joint space inertia matrix by using the
+		 * @brief Computes the joint-space inertia matrix by using the
 		 * Composite Rigid Body Algorithm
-		 * @param Eigen::MatrixXd& Joint space inertia matrix
 		 * @param const rbd::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
+		 * @return Eigen::MatrixXd& The joint-space inertia matrix
 		 */
-		void computeJointSpaceInertialMatrix(Eigen::MatrixXd& inertia_mat,
-											 const rbd::Vector6d& base_pos,
-											 const Eigen::VectorXd& joint_pos);
+		const Eigen::MatrixXd& computeJointSpaceInertiaMatrix(const rbd::Vector6d& base_pos,
+															  const Eigen::VectorXd& joint_pos);
 
 		/**
 		 * @brief Computes the centroidal inertia matrix
-		 * @param Eigen::MatrixXd& Centroidal inertia matrix
 		 * @param const Eigen::Vector6d& Base position
 		 * @param const Eigen::VectorXd& Joint position
+		 * @return rbd::Matrix6d& The centroidal inertia matrix
 		 */
-		void computeCentroidalInertialMatrix(Eigen::MatrixXd& inertia_mat,
-											 const rbd::Vector6d& base_pos,
-											 const Eigen::VectorXd& joint_pos);
+		const rbd::Matrix6d& computeCentroidalInertiaMatrix(const rbd::Vector6d& base_pos,
+															const Eigen::VectorXd& joint_pos);
 
 		/**
 		 * @brief Computes the contact forces that generates the desired base
@@ -394,6 +392,12 @@ class WholeBodyDynamics
 
 		/** @brief A floating-base system information */
 		FloatingBaseSystem system_;
+
+		/** @brief The joint-space inertial matrix of the system */
+		Eigen::MatrixXd joint_inertia_mat_;
+
+		/** @brief The centroidal inertia matrix */
+		rbd::Matrix6d com_inertia_mat_;
 };
 
 } //@namespace model

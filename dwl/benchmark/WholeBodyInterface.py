@@ -113,9 +113,7 @@ print("  Inverse dynamics: ", cpu_duration / N, "(microsecs, CPU time)")
 
 
 startcputime = time.clock()
-joint_inertial_mat = np.zeros([6 + fbs.getJointDoF(), 6 + fbs.getJointDoF()])
 for x in range(0, N):
-    wdyn.computeJointSpaceInertialMatrix(joint_inertial_mat,
-                                         base_pos, joint_pos);
+    joint_inertial_mat = wdyn.computeJointSpaceInertiaMatrix(base_pos, joint_pos);
 cpu_duration = (time.clock() - startcputime) * 1000000;
 print("  Joint space inertia matrix: ", cpu_duration / N, "(microsecs, CPU time)")
