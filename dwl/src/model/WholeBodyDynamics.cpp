@@ -207,7 +207,7 @@ const rbd::Matrix6d& WholeBodyDynamics::computeCentroidalInertiaMatrix(const rbd
 	// We compute the centroidal inertia matrix from the joint-space inertia
 	// matrix, i.e. as I_com = base_X_com^T * Ic * base_X_com
 	// Getting the joint-space inertia matrix
-	Eigen::MatrixXd I_base =computeJointSpaceInertiaMatrix(base_pos, joint_pos);
+	Eigen::MatrixXd I_base = computeJointSpaceInertiaMatrix(base_pos, joint_pos);
 	
 	// Getting the spatial transform from CoM to base frame
 	Eigen::Vector3d com_pos = system_.getSystemCoM(base_pos, joint_pos);

@@ -95,7 +95,7 @@
 
 
 // Renaming few functions of the ReducedBodyState class to get rid of the ambiguity
-%rename(setFootPositionDict_W) setFoottPosition_W(const rbd::BodyVectorXd&);
+%rename(setFootPositionDict_W) setFootPosition_W(const rbd::BodyVectorXd&);
 %rename(setFootPositionDict_B) setFootPosition_B(const rbd::BodyVectorXd&);
 %rename(setFootPositionDict_H) setFootPosition_H(const rbd::BodyVectorXd&);
 %rename(setFootVelocityDict_W) setFootVelocity_W(const rbd::BodyVectorXd&);
