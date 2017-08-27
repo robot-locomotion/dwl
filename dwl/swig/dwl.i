@@ -50,6 +50,7 @@
 %eigen_typemaps(Eigen::Matrix3d)
 %eigen_typemaps(Eigen::Matrix4d)
 %eigen_typemaps(Eigen::MatrixXd)
+%eigen_typemaps(dwl::rbd::Matrix6d)
 //%eigen_typemaps(Eigen::Quaterniond) TODO it doesn't work yet
 // Even though Eigen::MatrixXd is just a typedef for Eigen::Matrix<double,
 // Eigen::Dynamic, Eigen::Dynamic>, our templatedInverse function doesn't
