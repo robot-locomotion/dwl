@@ -56,11 +56,11 @@ int main(int argc, char **argv)
 	dwl::rbd::BodySelector active_contacts;
 	dwl::rbd::BodyVector6d contact_forces;
 	wdyn.estimateActiveContactsAndForces(active_contacts, contact_forces,
-								ws.base_pos, ws.joint_pos,
-								ws.base_vel, ws.joint_vel,
-								ws.base_acc, ws.joint_acc,
-								ws.joint_eff, fbs.getEndEffectorNames(), // it uses all the end-effector of the system
-								force_threshold);
+										 ws.base_pos, ws.joint_pos,
+										 ws.base_vel, ws.joint_vel,
+										 ws.base_acc, ws.joint_acc,
+										 ws.joint_eff, fbs.getEndEffectorNames(), // it uses all the end-effector of the system
+										 force_threshold);
 	std::cout << "--------------- Estimated active contacts ---------------" << std::endl;
 	for (dwl::rbd::BodyVector6d::iterator it = contact_forces.begin();
 			it != contact_forces.end(); it++) {
