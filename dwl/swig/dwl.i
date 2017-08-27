@@ -1,5 +1,6 @@
 %module dwl
 %{
+#define SWIG_PYTHON_EXTRA_NATIVE_CONTAINERS 
 #include <Python.h>
 #include <dwl/ReducedBodyState.h>
 #include <dwl/WholeBodyState.h>
@@ -9,15 +10,6 @@
 #include <dwl/RobotStates.h>
 %}
 
-
-/// Data structure in the target language holding data
-#ifdef SWIGPYTHON
-#define GUESTOBJECT PyObject
-#elif defined(SWIGMATLAB)
-#define GUESTOBJECT mxArray
-#else
-#define GUESTOBJECT void
-#endif
 
 // typemaps.i is a built-in swig interface that lets us map c++ types to other
 // types in our language of choice. We'll use it to map Eigen matrices to
