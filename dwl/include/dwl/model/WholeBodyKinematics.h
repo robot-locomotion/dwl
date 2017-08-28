@@ -88,11 +88,12 @@ class WholeBodyKinematics
 		 * @param const rbd::BodyPosition& Operational position of bodies
 		 * @param const rbd::Vector6d& Initial base position for the iteration
 		 * @param const Eigen::VectorXd& Initial joint position for the iteration
+		 * @return True on success, false otherwise
 		 */
-		void computeInverseKinematics(rbd::Vector6d& base_pos,
+		bool computeInverseKinematics(rbd::Vector6d& base_pos,
 									  Eigen::VectorXd& joint_pos,
 									  const rbd::BodyVector3d& op_pos);
-		void computeInverseKinematics(rbd::Vector6d& base_pos,
+		bool computeInverseKinematics(rbd::Vector6d& base_pos,
 									  Eigen::VectorXd& joint_pos,
 									  const rbd::BodyVector3d& op_pos,
 									  const rbd::Vector6d& base_pos_init,
@@ -106,10 +107,11 @@ class WholeBodyKinematics
 		 * @param const Eigen::VectorXd& Joint position
 		 * @param const rbd::BodyPosition& Operational position of bodies
 		 * @param const Eigen::VectorXd& Initial joint position for the iteration
+		 * @return True on success, false otherwise
 		 */
-		void computeJointPosition(Eigen::VectorXd& joint_pos,
+		bool computeJointPosition(Eigen::VectorXd& joint_pos,
 								  const rbd::BodyVector3d& op_pos);
-		void computeJointPosition(Eigen::VectorXd& joint_pos,
+		bool computeJointPosition(Eigen::VectorXd& joint_pos,
 								  const rbd::BodyVector3d& op_pos,
 								  const Eigen::VectorXd& joint_pos_init);
 

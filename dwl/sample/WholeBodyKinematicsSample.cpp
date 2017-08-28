@@ -109,18 +109,24 @@ int main(int argc, char **argv)
 	dwl::rbd::Vector6d base_pos_init = dwl::rbd::Vector6d::Zero();
 	Eigen::VectorXd joint_pos_init(12);
 	joint_pos_init << 0., 0.5, -1., 0., -0.5, 1., 0., 0.5, -1., 0., -0.5, 1.;
-	wkin.computeInverseKinematics(ws.base_pos, ws.joint_pos,
-								  ik_pos,
-								  base_pos_init, joint_pos_init);
 	std::cout << "------------------ WB-IK ---------------------" << std::endl;
-	std::cout << "Base position = " << ws.base_pos.transpose() << std::endl;
-	std::cout << "Joint position = "<< ws.joint_pos.transpose() << std::endl << std::endl;
+	if (wkin.computeInverseKinematics(ws.base_pos, ws.joint_pos,
+									  ik_pos,
+								 	  base_pos_init, joint_pos_init)) {
+		std::cout << "Base position = " << ws.base_pos.transpose() << std::endl;
+		std::cout << "Joint position = "<< ws.joint_pos.transpose() << std::endl << std::endl;
+	} else {
+		std::cout << "The WB-IK problem could not be solved" << std::endl;
+	}
 
-	wkin.computeJointPosition(ws.joint_pos,
-							  ik_pos,
-							  joint_pos_init);
 	std::cout << "------------------ IK ---------------------" << std::endl;
-	std::cout << "Joint position = "<< ws.joint_pos.transpose() << std::endl << std::endl;
+	if (wkin.computeJointPosition(ws.joint_pos,
+								  ik_pos,
+								  joint_pos_init)) {
+		std::cout << "Joint position = "<< ws.joint_pos.transpose() << std::endl << std::endl;
+	} else {
+		std::cout << "The IK problem could not be solved" << std::endl;
+	}
 
 
 	// Computing the contact Jacd*Qd

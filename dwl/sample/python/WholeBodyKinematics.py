@@ -93,14 +93,18 @@ print("The Jdot*qdot:", contact_jdqd_W)
 # Computing the joint positions
 wkin.setIKSolver(1.0e-12, 0.01, 50)
 joint_pos_init = fbs.getDefaultPosture();
-contact_pos_B = { 'lh_foot' : np.array([-0.371,0.207,-0.689]),
+contact_pos_B = { 'lh_foot' : np.array([-0.371,0.207,-0.589]),
                   'rh_foot' : np.array([-0.371,-0.207,-0.589]) }
-wkin.computeJointPosition(joint_pos, contact_pos_W, joint_pos_init)
-print("The joint positions:", joint_pos.transpose())
+if wkin.computeJointPosition(joint_pos, contact_pos_B, joint_pos_init):
+    print("The joint positions:", joint_pos.transpose())
+else:
+    print("The IK problem could not be solved")
 
 
 # Computing the whole-body inverse kinematics
 base_pos_init = np.zeros(6);
-wkin.computeInverseKinematics(base_pos, joint_pos, contact_pos_B, base_pos_init, joint_pos_init)
-print("The base position:", base_pos.transpose())
-print("The joint positions:", joint_pos.transpose())
+if wkin.computeInverseKinematics(base_pos, joint_pos, contact_pos_B, base_pos_init, joint_pos_init):
+    print("The base position:", base_pos.transpose())
+    print("The joint positions:", joint_pos.transpose())
+else:
+    print("The WB-IK problem could not be solved")

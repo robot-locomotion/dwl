@@ -187,17 +187,17 @@ const rbd::BodyVectorXd& WholeBodyKinematics::computePosition(const rbd::Vector6
 }
 
 
-void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
+bool WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 												   Eigen::VectorXd& joint_pos,
 												   const rbd::BodyVector3d& op_pos)
 {
-	computeInverseKinematics(base_pos, joint_pos,
-							 op_pos,
-							 rbd::Vector6d::Zero(), joint_pos_middle_);
+	return computeInverseKinematics(base_pos, joint_pos,
+									op_pos,
+									rbd::Vector6d::Zero(), joint_pos_middle_);
 }
 
 
-void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
+bool WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 												   Eigen::VectorXd& joint_pos,
 												   const rbd::BodyVector3d& op_pos,
 												   const rbd::Vector6d& base_pos_init,
@@ -228,27 +228,32 @@ void WholeBodyKinematics::computeInverseKinematics(rbd::Vector6d& base_pos,
 
 	// Computing the inverse kinematics
 	Eigen::VectorXd q_res;
-	RigidBodyDynamics::InverseKinematics(system_.getRBDModel(),
-										 q_guess, body_id, body_point,
-										 target_pos, q_res,
-										 step_tol_, lambda_, max_iter_);
+	bool success = RigidBodyDynamics::InverseKinematics(system_.getRBDModel(),
+														q_guess, body_id, body_point,
+														target_pos, q_res,
+														step_tol_, lambda_, max_iter_);
 
 	// Converting the base and joint positions
 	system_.fromGeneralizedJointState(base_pos, joint_pos, q_res);
+
+	return success;
 }
 
 
-void WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
+bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 											   const rbd::BodyVector3d& op_pos)
 {
-	computeJointPosition(joint_pos, op_pos, joint_pos_middle_);
+	return computeJointPosition(joint_pos, op_pos, joint_pos_middle_);
 }
 
 
-void WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
+bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 											   const rbd::BodyVector3d& op_pos,
 											   const Eigen::VectorXd& joint_pos_init)
 {
+	// Indicates if we manage to solve the IK problem
+	bool success = false;
+
 	// Setting up the guess point
 	joint_pos = joint_pos_init;
 
@@ -308,9 +313,13 @@ void WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 				joint_pos(id) = limits.lower;
 		}
 
-		if (delta_theta.norm() < step_tol_)
-			return;
+		if (delta_theta.norm() < step_tol_) {
+			success = true;
+			return success;
+		}
 	}
+
+	return success;
 }
 
 
