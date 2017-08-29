@@ -38,6 +38,8 @@ cmaes:
   elitism: 0
   # Maximum number of restarts applies to IPOP and BIPOP
   max_restarts: 10
+  # Enable of disable the gradient injection
+  with_gradient: false
   # Enable or disable the multi-threading optimization
   multithreads: false
   # Generates an output file if the name is defined

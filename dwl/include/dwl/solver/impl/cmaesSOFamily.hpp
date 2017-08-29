@@ -13,7 +13,7 @@ namespace solver
 
 template<typename TScaling>
 cmaesSOFamily<TScaling>::cmaesSOFamily() : cmaes_params_(NULL),
-        initialized_(false), print_(false), ftolerance_(1e-12),
+        initialized_(false), print_(false), with_gradient_(false), ftolerance_(1e-12),
 		family_((int) CMAES), sigma_(-1.), lambda_(-1), max_iteration_(-1),
 		max_fevals_(-1), elitism_(0), max_restarts_(0), multithreading_(false),
 		outfile_(false)
@@ -88,6 +88,11 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 	int max_restarts;
 	if (yaml_reader.read(max_restarts, "max_restarts", cmaes_ns))
 		setNumberOfRestarts(max_restarts);
+
+	// Reading the gradient injection option
+	bool with_grad;
+	if (yaml_reader.read(with_grad, "with_gradient", cmaes_ns))
+		setGradientInjection(with_grad);
 
 	// Reading the multithreading option
 	bool multithreading;
@@ -241,6 +246,16 @@ void cmaesSOFamily<TScaling>::setPrintOption(bool print)
 
 
 template<typename TScaling>
+void cmaesSOFamily<TScaling>::setGradientInjection(bool with_gradient)
+{
+	with_gradient_ = with_gradient;
+
+	if (initialized_)
+		init(); // Note that this parameter is only set in the init() calls
+}
+
+
+template<typename TScaling>
 bool cmaesSOFamily<TScaling>::init()
 {
 	// Initializing the optimization model
@@ -296,12 +311,16 @@ bool cmaesSOFamily<TScaling>::init()
 	if (outfile_)
 		cmaes_params_->set_fplot(output_file_);
 
-	bool with_gradient = false;
-	cmaes_params_->set_gradient(with_gradient);
-
 	// Wrapping the fitness function
 	fitness_ = std::bind(&cmaesSOFamily<TScaling>::fitnessFunction,
 						 this, std::placeholders::_1, std::placeholders::_2);
+
+	// Wrapping the gradient of the fitness function
+	if (with_gradient_) {
+		grad_fitness_ = std::bind(&cmaesSOFamily<TScaling>::gradientFitnessFunction,
+				 	 	 	 	  this, std::placeholders::_1, std::placeholders::_2);
+		cmaes_params_->set_gradient(with_gradient_);
+	}
 
 	return true;
 }
@@ -315,9 +334,16 @@ bool cmaesSOFamily<TScaling>::compute(double allocated_time_secs)
 	cmaes_params_->set_x0(warm_point_);
 
 	// Computing the solution
-	libcmaes::CMASolutions cmasols =
-			libcmaes::cmaes<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
-												TScaling>>(fitness_, *cmaes_params_);
+	libcmaes::CMASolutions cmasols;
+	if (with_gradient_)
+		cmasols = libcmaes::cmaes<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
+												TScaling>>(fitness_, *cmaes_params_,
+														libcmaes::CMAStrategy<libcmaes::CovarianceUpdate,
+																			  libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,TScaling>>::_defaultPFunc,
+														 grad_fitness_);
+	else
+		cmasols = cmasols = libcmaes::cmaes<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
+														TScaling>>(fitness_, *cmaes_params_);
 
 	// Prints the solution in the terminal
 	if (print_) {
@@ -351,6 +377,25 @@ double cmaesSOFamily<TScaling>::fitnessFunction(const double* x,
 	model_->evaluateCosts(obj_value, decision_var);
 
 	return obj_value;
+}
+
+
+template<typename TScaling>
+dVec cmaesSOFamily<TScaling>::gradientFitnessFunction(const double *x,
+													  const int& n)
+{
+	dVec gradient(n);
+
+	// Eigen interfacing to raw buffers
+	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
+
+	// Evaluation of the gradient
+	Eigen::MatrixXd grad(1,n);
+	model_->evaluateCostGradient(grad, decision_var);
+	gradient = grad;
+
+	return gradient;
+
 }
 
 } //@namespace solver

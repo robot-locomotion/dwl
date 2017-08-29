@@ -77,6 +77,9 @@ class cmaesSOFamily : public OptimizationSolver
 		/** @brief Sets if we desired to print in the terminal the solution */
 		void setPrintOption(bool print);
 
+		/** @brief Sets if we desire to inject the gradient information */
+		void setGradientInjection(bool with_gradient);
+
 		/**
 		 * @brief Initialization of the NLP solver using Ipopt
 		 * @return True if was initialized
@@ -100,8 +103,19 @@ class cmaesSOFamily : public OptimizationSolver
 		double fitnessFunction(const double* x,
 							   const int& n);
 
+		/**
+		 * @brief Wraps the gradient of the fitness function
+		 * @param const double* State array
+		 * @param const int& Dimension of the state array
+		 */
+		dVec gradientFitnessFunction(const double *x,
+									 const int& n);
+
 		/** @brief Fitness function wrapper */
 		libcmaes::FitFunc fitness_;
+
+		/** @brief Gradient of the fitness function */
+		libcmaes::GradFunc grad_fitness_;
 
 		/** @brief Pointer to the CMA-ES configuration parameters */
 		libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,TScaling>>* cmaes_params_;
@@ -114,6 +128,9 @@ class cmaesSOFamily : public OptimizationSolver
 
 		/** @brief Prints the solution **/
 		bool print_;
+
+		/** @brief Use the gradient injection */
+		bool with_gradient_;
 
         /** @brief Function tolerance for convergent */
         double ftolerance_;
