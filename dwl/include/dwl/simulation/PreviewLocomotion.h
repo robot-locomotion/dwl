@@ -78,11 +78,18 @@ struct PreviewPhase
 
 struct PreviewParams
 {
-	PreviewParams() : duration(0.), cop_shift(Eigen::Vector2d::Zero()) {}
+	PreviewParams() : id(0), duration(0.), cop_shift(Eigen::Vector2d::Zero()) {}
 	PreviewParams(const double& _duration,
-				  const Eigen::Vector2d& _cop_shift) : duration(_duration),
+				  const Eigen::Vector2d& _cop_shift) : id(0),
+						  duration(_duration),
 						  cop_shift(_cop_shift) {}
+	PreviewParams(const unsigned int _id,
+				  const double& _duration,
+				  const Eigen::Vector2d& _cop_shift) : id(_id),
+							  duration(_duration),
+							  cop_shift(_cop_shift) {}
 
+	unsigned int id;
 	double duration;
 	Eigen::Vector2d cop_shift;
 	PreviewPhase phase;
