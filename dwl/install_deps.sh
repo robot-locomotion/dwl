@@ -243,7 +243,7 @@ function install_swig
 	./configure --prefix=/usr --without-clisp --without-maximum-compile-warnings
 	make -j
 	sudo make install
-	cd ../../
+	cd ../
 }
 
 
