@@ -159,6 +159,13 @@ class WholeBodyDynamics
 															const Eigen::VectorXd& joint_pos);
 
 		/**
+		 * @brief Computes the gravitational wrench in the CoM position
+		 * @param const Eigen::Vector3d& CoM position expressed in the world frame
+		 * @return rbd::Vector6d& Gravitational wrench
+		 */
+		const rbd::Vector6d& computeGravitoWrench(const Eigen::Vector3d& com_pos);
+
+		/**
 		 * @brief Computes the contact forces that generates the desired base
 		 * wrench. This desired base wrench is computed by using robot state,
 		 * i.e. position, velocity, acceleration and contacts. This function
@@ -403,6 +410,9 @@ class WholeBodyDynamics
 
 		/** @brief A floating-base system information */
 		FloatingBaseSystem system_;
+
+		/** @brief Gravitational wrench */
+		rbd::Vector6d grav_wrench_;
 
 		/** @brief The joint-space inertial matrix of the system */
 		Eigen::MatrixXd joint_inertia_mat_;

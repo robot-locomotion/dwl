@@ -79,7 +79,14 @@ print("Joint forces:", joint_eff.transpose())
 
 
 print()
-print("---------------------------- Inertial matrices -----------------------------------")
+print("--------------------------- Gravitational Wrench ----------------------------------")
+com_pos = np.zeros(3)
+grav_wrench_W = wdyn.computeGravitoWrench(com_pos)
+print("The gravitational wrench:", grav_wrench_W.transpose())
+
+
+print()
+print("---------------------------- Inertial matrices ------------------------------------")
 joint_inertial_mat = wdyn.computeJointSpaceInertiaMatrix(base_pos, joint_pos);
 print("The joint-space inertial matrix: ", joint_inertial_mat)
 
@@ -88,7 +95,7 @@ print("The centroidal inertial matrix: ", com_inertial_mat)
 
 
 print()
-print("----------------------------- Contact forces -------------------------------------")
+print("----------------------------- Contact forces --------------------------------------")
 contact_forces = dict()
 wdyn.computeContactForces(contact_forces, joint_eff,
                           base_pos, joint_pos,
@@ -100,7 +107,7 @@ print("The joint efforts:", joint_eff.transpose())
 
 
 print()
-print("------------------------ Estimated contact forces --------------------------------")
+print("------------------------ Estimated contact forces ---------------------------------")
 wdyn.estimateContactForces(contact_forces,
                            base_pos, joint_pos,
                            base_vel, joint_vel,
@@ -110,7 +117,7 @@ print("The contact forces:", contact_forces)
 
 
 print()
-print("-------------------------- Center of pressure ------------------------------------")
+print("-------------------------- Center of pressure -------------------------------------")
 cop_pos = np.zeros(3)
 contact_forces = { 'lf_foot' : np.array([0., 0., 0., 0., 0., 190.778]),
                    'lh_foot' : np.array([0., 0., 0., 0., 0., 190.778]),
@@ -127,7 +134,7 @@ print("The center of pressure:", cop_pos.transpose())
 
 
 print()
-print("--------------------------- Capture point ---------------------------------------")
+print("--------------------------- Capture point -----------------------------------------")
 icp_pos = np.zeros(3)
 com_pos = fbs.getSystemCoM(ws.base_pos, ws.joint_pos)
 com_vel = fbs.getSystemCoMRate(ws.base_pos, ws.joint_pos,
@@ -140,7 +147,7 @@ print("The instantaneous capture point:", icp_pos.transpose())
 
 
 print()
-print("----------------------- Centroidal moment pivot --------------------------------")
+print("----------------------- Centroidal moment pivot -----------------------------------")
 cmp_pos = np.zeros(3)
 wdyn.computeCentroidalMomentPivot(cmp_pos,
                                   com_pos, height,
@@ -149,7 +156,7 @@ print("The centroidal moment pivot:", cmp_pos.transpose())
 
 
 print()
-print("----------------------------- CoM torque ---------------------------------------")
+print("----------------------------- CoM torque ------------------------------------------")
 com_torque = np.zeros(3)
 wdyn.computeCoMTorque(com_torque,
                       cop_pos, cmp_pos,
@@ -158,7 +165,7 @@ print("The CoM torque:", com_torque.transpose())
 
 
 print()
-print("---------------------- Estimated GRFs from CoP ---------------------------------")
+print("----------------------- Estimated GRFs from CoP -----------------------------------")
 wdyn.estimateGroundReactionForces(grf,
                                   cop_pos, contact_pos,
                                   fbs.getEndEffectorNames(dwl.FOOT));
@@ -166,7 +173,7 @@ print("The estimated GRFs:", grf)
 
 
 print()
-print("---------------------- Estimated active contacts -------------------------------")
+print("------------------------- Estimated active contacts -------------------------------")
 force_threshold = 50.
 active_contacts = dwl.string_List()
 contact_forces = dict()
@@ -182,7 +189,7 @@ print("The active contact forces:", contact_forces)
 
 
 print()
-print("-------------------------- Active contacts ------------------------------------")
+print("------------------------------ Active contacts ------------------------------------")
 wdyn.getActiveContacts(active_contacts,
                        contact_forces, force_threshold);
 print("The active contacts:", active_contacts)

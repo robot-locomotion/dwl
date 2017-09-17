@@ -218,6 +218,22 @@ const rbd::Matrix6d& WholeBodyDynamics::computeCentroidalInertiaMatrix(const rbd
 }
 
 
+const rbd::Vector6d& WholeBodyDynamics::computeGravitoWrench(const Eigen::Vector3d& com_pos)
+{
+	// Computing the weight vector
+	Eigen::Vector3d weight_vec;
+	weight_vec.setZero();
+	weight_vec(rbd::Z) =
+			-system_.getTotalMass() * system_.getGravityAcceleration();
+
+	// Mapping the gravitational wrench in the world frame
+	grav_wrench_.topRows<3>() = com_pos.cross(weight_vec);
+	grav_wrench_.bottomRows<3>() = weight_vec;
+
+	return grav_wrench_;
+}
+
+
 void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 											 Eigen::VectorXd& joint_forces,
 											 const rbd::Vector6d& base_pos,
