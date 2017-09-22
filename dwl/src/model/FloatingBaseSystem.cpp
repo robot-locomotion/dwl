@@ -179,6 +179,12 @@ void FloatingBaseSystem::resetSystemDescription(const std::string& filename)
 
 	// Reading and setting up the foot names
 	if (yaml_reader.read(foot_names_, "feet", robot_ns)) {
+		// Ordering the foot names
+		using namespace std::placeholders;
+		std::sort(foot_names_.begin(),
+				  foot_names_.end(),
+				  std::bind(&FloatingBaseSystem::compareString, this, _1, _2)); 
+
 		// Getting the number of foot
 		num_feet_ = foot_names_.size();
 
@@ -775,6 +781,12 @@ const Eigen::VectorXd& FloatingBaseSystem::getDefaultPosture() const
 {
 	return default_joint_pos_;
 }
+
+
+bool FloatingBaseSystem::compareString(std::string a, std::string b)
+{
+	return a < b;
+} 
 
 } //@namespace model
 } //@namespace dwl

@@ -396,6 +396,9 @@ class FloatingBaseSystem
 
 
 	private:
+		/** @brief Compared string function */
+		bool compareString(std::string a, std::string b);
+
 		/** @brief Robot models (urdf and yarf) */
 		std::string urdf_;
 		std::string yarf_;
