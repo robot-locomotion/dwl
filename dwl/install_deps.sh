@@ -243,7 +243,7 @@ function install_swig
 	./configure --prefix=/usr --without-clisp --without-maximum-compile-warnings
 	make -j
 	sudo make install
-	cd ../../
+	cd ../
 }
 
 
@@ -415,8 +415,12 @@ function install_qpoases
 		fi
 		
 		cd qpOASES
-		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
-		cd ../
+		mkdir build
+		cd build
+		cmake ../
+		make -j4
+		sudo make -j4 install
+		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting the qpOASES 3.2.0
 		wget http://www.coin-or.org/download/source/qpOASES/qpOASES-3.2.0.tgz
@@ -429,8 +433,12 @@ function install_qpoases
 		fi
 
 		cd qpOASES
-		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
-		cd ../
+		mkdir build
+		cd build
+		cmake ../
+		make -j4
+		sudo make -j4 install
+		cd ../../
 	fi
 }
 
