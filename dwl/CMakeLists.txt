@@ -28,13 +28,18 @@ endif()
 
 # Appending the project module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(ENV{PKG_CONFIG_PATH} "${DWL_INSTALL_PREFIX}/lib/pkgconfig/:$ENV{PKG_CONFIG_PATH}")
+set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${DWL_INSTALL_PREFIX}/lib/pkgconfig/")
 
 # Finding dependencies
 find_package(PkgConfig)
-pkg_check_modules(EIGEN3 eigen3=3.2.7 REQUIRED)
-find_package(RBDL REQUIRED)
-find_package(URDF REQUIRED)
+# Eigen 3.2.10 to remove deprecated functions in C++11
+pkg_check_modules(EIGEN3 eigen3>=3.2.10 REQUIRED)
+# RBDL must be 2.4.0 (code incompatible with 2.5.0) but compiled with URDFDOM 0.4
+pkg_check_modules(RBDL rbdl=2.4.0 REQUIRED)
+LINK_DIRECTORIES(${RBDL_LIBRARY_DIRS})
+# URDFDOM 0.4.0 from ROS Kinetic
+pkg_check_modules(URDFDOM urdfdom>=0.4.0)
+
 find_package(YAMLCPP REQUIRED)
 find_package(QPOASES)
 pkg_check_modules(IPOPT ipopt)
@@ -55,17 +60,18 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno
 
 # Setting the thirdparties directories and libraries
 set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS} ${URDF_INCLUDE_DIRS} ${RBDL_INCLUDE_DIRS})
-set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} ${URDF_LIBRARIES} ${YAMLCPP_LIBRARIES})
-set(DEPENDENCIES_LIBRARY_DIRS  ${RBDL_LIBRARY_DIRS})
 
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/dwl/lib)
+set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} rbdl_urdfreader ${URDFDOM_LIBRARIES} ${YAMLCPP_LIBRARIES})
+set(DEPENDENCIES_LIBRARY_DIRS  ${RBDL_LIBRARY_DIRS})
 
-# Including directories
+
+## Including directories
 set(INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_DIRS})
-include_directories(src)
+#include_directories(src)
 include_directories(${EIGEN3_INCLUDE_DIRS})
-include_directories(${RBDL_INCLUDE_DIRS})
+#include_directories(${RBDL_INCLUDE_DIRS})
 include_directories(${YAMLCPP_INCLUDE_DIRS})
 
 # Setting the project sources
