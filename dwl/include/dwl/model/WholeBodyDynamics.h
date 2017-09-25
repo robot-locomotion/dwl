@@ -225,6 +225,17 @@ class WholeBodyDynamics
 									 const rbd::BodyVectorXd& contact_pos);
 
 		/**
+		 * @brief Computes the zero momento point using the inverted pendulum model
+		 * @param const Eigen::Vector3d& Center of mass position
+		 * @param const Eigen::Vector3d& Center of mass acceleration
+		 * @param const double& Pendulum height
+		 */
+		void computeZeroMomentPoint(Eigen::Vector3d& zmp_pos,
+									const Eigen::Vector3d& com_pos,
+									const Eigen::Vector3d& com_acc,
+									const double& height);
+
+		/**
 		 * @brief Computes the instantaneous capture point position assuming an
 		 * linear inverted pendulum
 		 * @param Eigen::Vector3d& Instantaneous capture point position

@@ -451,6 +451,21 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 }
 
 
+void WholeBodyDynamics::computeZeroMomentPoint(Eigen::Vector3d& zmp_pos,
+											   const Eigen::Vector3d& com_pos,
+											   const Eigen::Vector3d& com_acc,
+											   const double& height)
+{
+	if (height < 0.) {
+		printf(YELLOW "Warning: the height should be a positive value\n" COLOR_RESET);
+	}
+
+	double omega = sqrt(system_.getGravityAcceleration() / height);
+	zmp_pos = com_pos -	com_acc / omega;
+	zmp_pos(rbd::Z) = com_pos(rbd::Z) - height;
+}
+
+
 void WholeBodyDynamics::computeInstantaneousCapturePoint(Eigen::Vector3d& icp_pos,
 														 const Eigen::Vector3d& com_pos,
 		                                                 const Eigen::Vector3d& com_vel,
