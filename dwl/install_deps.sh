@@ -51,7 +51,7 @@ function install_eigen
 		
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		# Getting Eigen 3.2.7
-		curl -L "http://www.bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2" | tar xj
+		curl -L "http://www.bitbucket.org/eigen/eigen/get/3.2.10.tar.bz2" | tar xj
 		mv eigen-eigen-*/ eigen
 		cd eigen
 		mkdir -p build
@@ -61,9 +61,9 @@ function install_eigen
 		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting Eigen 3.2.7
-		wget http://www.bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2
-		mkdir eigen && tar jxf 3.2.7.tar.bz2 -C eigen --strip-components 1
-		rm -rf 3.2.7.tar.bz2
+		wget http://www.bitbucket.org/eigen/eigen/get/3.2.10.tar.bz2
+		mkdir eigen && tar jxf 3.2.10.tar.bz2 -C eigen --strip-components 1
+		rm -rf 3.2.10.tar.bz2
 		cd eigen
 		mkdir -p build
 		cd build
@@ -619,38 +619,38 @@ fi
 ##---------------------------------------------------------------##
 ##----------------------- Installing URDF -----------------------##
 ##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing URDF facilities ...${COLOR_RESET}"
-# Installing urdfdom_headers
-if [ -d "/usr/include/urdf_model" ] || [ -d "/usr/local/include/urdf_model" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install URDFDOM Headers? [y/N]: ${COLOR_RESET}"
-	read ANSWER_URDF
-	if [ "${ANSWER_URDF}" == "Y" ] || [ "${ANSWER_URDF}" == "y" ]; then
-		install_urdfdom_headers
-	fi
-else
-	install_urdfdom_headers
-fi
-# Installing console_bridge
-if [ -d "/usr/include/console_bridge" ] || [ -d "/usr/local/include/console_bridge" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install console bridge? [y/N]: ${COLOR_RESET}"
-	read ANSWER_CONSOLE
-	if [ "${ANSWER_CONSOLE}" == "Y" ] || [ "${ANSWER_CONSOLE}" == "y" ]; then
-		install_console_bridge
-	fi
-else
-	install_console_bridge
-fi
+#echo ""
+#echo -e "${COLOR_BOLD}Installing URDF facilities ...${COLOR_RESET}"
+## Installing urdfdom_headers
+#if [ -d "/usr/include/urdf_model" ] || [ -d "/usr/local/include/urdf_model" ]; then
+#	echo -e -n "${COLOR_QUES}Do you want to re-install URDFDOM Headers? [y/N]: ${COLOR_RESET}"
+#	read ANSWER_URDF
+#	if [ "${ANSWER_URDF}" == "Y" ] || [ "${ANSWER_URDF}" == "y" ]; then
+#		install_urdfdom_headers
+#	fi
+#else
+#	install_urdfdom_headers
+#fi
+## Installing console_bridge
+#if [ -d "/usr/include/console_bridge" ] || [ -d "/usr/local/include/console_bridge" ]; then
+#	echo -e -n "${COLOR_QUES}Do you want to re-install console bridge? [y/N]: ${COLOR_RESET}"
+#	read ANSWER_CONSOLE
+#	if [ "${ANSWER_CONSOLE}" == "Y" ] || [ "${ANSWER_CONSOLE}" == "y" ]; then
+#		install_console_bridge
+#	fi
+#else
+#	install_console_bridge
+#fi
 # Installing urdfdom
-if [ -d "/usr/include/urdf_parser" ] || [ -d "/usr/local/include/urdf_parser" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install urdf parser? [y/N]: ${COLOR_RESET}"
-	read ANSWER_URDFPARSER
-	if [ "${ANSWER_URDFPARSER}" == "Y" ] || [ "${ANSWER_URDFPARSER}" == "y" ]; then
-		install_urdfdom
-	fi
-else
-	install_urdfdom
-fi
+#if [ -d "/usr/include/urdf_parser" ] || [ -d "/usr/local/include/urdf_parser" ]; then
+#	echo -e -n "${COLOR_QUES}Do you want to re-install urdf parser? [y/N]: ${COLOR_RESET}"
+#	read ANSWER_URDFPARSER
+#	if [ "${ANSWER_URDFPARSER}" == "Y" ] || [ "${ANSWER_URDFPARSER}" == "y" ]; then
+#		install_urdfdom
+#	fi
+#else
+#	install_urdfdom
+#fi
 
 
 ##---------------------------------------------------------------##
@@ -672,17 +672,17 @@ fi
 ##---------------------------------------------------------------##
 ##-------------------- Installing YAML-CPP ----------------------##
 ##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
-if [ -d "$DWL_INSTALL_PREFIX/include/yaml-cpp" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.1? [y/N]: ${COLOR_RESET}"
-	read ANSWER_YAMLCPP
-	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
-		install_yamlcpp
-    fi
-else
-	install_yamlcpp
-fi
+#echo ""
+#echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
+#if [ -d "$DWL_INSTALL_PREFIX/include/yaml-cpp" ]; then
+#	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.1? [y/N]: ${COLOR_RESET}"
+#	read ANSWER_YAMLCPP
+#	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
+#		install_yamlcpp
+#    fi
+#else
+#	install_yamlcpp
+#fi
 
 
 
@@ -768,38 +768,38 @@ fi
 ##---------------------------------------------------------------##
 ##--------------------- Installing Octomap ----------------------##
 ##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing Octomap ...${COLOR_RESET}"
-if [ -d "/usr/local/include/octomap" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
-	read ANSWER_OCTOMAP
-	if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
-		install_octomap
-    fi
-else
-	echo -e -n "${COLOR_QUES}Do you want to install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
-	read ANSWER_OCTOMAP
-	if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
-		install_octomap
-	fi
-fi
+#echo ""
+#echo -e "${COLOR_BOLD}Installing Octomap ...${COLOR_RESET}"
+#if [ -d "/usr/local/include/octomap" ]; then
+#	echo -e -n "${COLOR_QUES}Do you want to re-install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
+#	read ANSWER_OCTOMAP
+#	if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
+#		install_octomap
+#    fi
+#else
+#	echo -e -n "${COLOR_QUES}Do you want to install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
+#	read ANSWER_OCTOMAP
+#	if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
+#		install_octomap
+#	fi
+#fi
 
 
 ##---------------------------------------------------------------##
 ##-------------------- Installing gnuplot ----------------------##
 ##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing gnuplot ...${COLOR_RESET}"
-if [ -x "/usr/local/bin/gnuplot" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install gnuplot 5.0.3? [y/N]: ${COLOR_RESET}"
-	read ANSWER_GNUPLOT
-	if [ "$ANSWER_GNUPLOT" == "Y" ] || [ "$ANSWER_GNUPLOT" == "y" ]; then
-		install_gnuplot
-    fi
-else
-	echo -e -n "${COLOR_QUES}Do you want to install gnuplot 5.0.3? [y/N]: ${COLOR_RESET}"
-	read ANSWER_GNUPLOT
-	if [ "$ANSWER_GNUPLOT" == "Y" ] || [ "$ANSWER_GNUPLOT" == "y" ]; then
-		install_gnuplot
-	fi
-fi
+#echo ""
+#echo -e "${COLOR_BOLD}Installing gnuplot ...${COLOR_RESET}"
+#if [ -x "/usr/local/bin/gnuplot" ]; then
+#	echo -e -n "${COLOR_QUES}Do you want to re-install gnuplot 5.0.3? [y/N]: ${COLOR_RESET}"
+#	read ANSWER_GNUPLOT
+#	if [ "$ANSWER_GNUPLOT" == "Y" ] || [ "$ANSWER_GNUPLOT" == "y" ]; then
+#		install_gnuplot
+#    fi
+#else
+#	echo -e -n "${COLOR_QUES}Do you want to install gnuplot 5.0.3? [y/N]: ${COLOR_RESET}"
+#	read ANSWER_GNUPLOT
+#	if [ "$ANSWER_GNUPLOT" == "Y" ] || [ "$ANSWER_GNUPLOT" == "y" ]; then
+#		install_gnuplot
+#	fi
+#fi
