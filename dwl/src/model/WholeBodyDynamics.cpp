@@ -454,10 +454,9 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 void WholeBodyDynamics::computeInstantaneousCapturePoint(Eigen::Vector3d& icp_pos,
 														 const Eigen::Vector3d& com_pos,
 		                                                 const Eigen::Vector3d& com_vel,
-		                                                 double height)
+		                                                 const double& height)
 {
 	if (height < 0.) {
-		height *= -1;
 		printf(YELLOW "Warning: the height should be a positive value\n" COLOR_RESET);
 	}
 
@@ -469,11 +468,10 @@ void WholeBodyDynamics::computeInstantaneousCapturePoint(Eigen::Vector3d& icp_po
 
 void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
 													 const Eigen::Vector3d& com_pos,
-													 double height,
+													 const double& height,
 													 const rbd::BodyVector6d& contact_for)
 {
 	if (height < 0.) {
-		height *= -1;
 		printf(YELLOW "Warning: the height should be a positive value\n" COLOR_RESET);
 	}
 
