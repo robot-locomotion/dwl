@@ -67,7 +67,8 @@ function install_eigen
 		cd eigen
 		mkdir -p build
 		cd build
-		cmake -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DEIGEN_INCLUDE_INSTALL_DIR=$DWL_INSTALL_PREFIX/include/eigen3 -Dpkg_config_libdir=$DWL_INSTALL_PREFIX/lib/ ../
+		cmake -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DPKGCONFIG_INSTALL_DIR=$DWL_INSTALL_PREFIX/lib/pkgconfig ..
+		#cmake -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DEIGEN_INCLUDE_INSTALL_DIR=$DWL_INSTALL_PREFIX/include/eigen3 -Dpkg_config_libdir=$DWL_INSTALL_PREFIX/lib/ ../
 		sudo make -j install
 		cd ../../
     fi
