@@ -607,7 +607,7 @@ sudo apt-get install doxygen
 echo ""
 echo -e "${COLOR_BOLD}Installing Eigen ...${COLOR_RESET}"
 if [ -d "$DWL_INSTALL_PREFIX/include/eigen3" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install Eigen 3.2.7? [y/N]: ${COLOR_RESET}"
+	echo -e -n "${COLOR_QUES}Do you want to re-install Eigen 3.2.10? [y/N]: ${COLOR_RESET}"
 	read ANSWER_EIGEN
 	if [ "$ANSWER_EIGEN" == "Y" ] || [ "$ANSWER_EIGEN" == "y" ]; then
 		install_eigen
