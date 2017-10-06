@@ -260,7 +260,7 @@ endif()
 #####################################################
 ######################### swig ######################
 #####################################################
-option(WITH_PYTHON "Compile the Python front-end" ON)
+option(WITH_PYTHON "Compile the Python front-end" OFF)
 if(WITH_PYTHON)# OR WITH_MATLAB OR WITH_OCTAVE OR WITH_JSON)
   add_subdirectory(swig)
 endif()
