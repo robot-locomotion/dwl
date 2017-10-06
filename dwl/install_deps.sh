@@ -415,6 +415,7 @@ function install_qpoases
 		fi
 		
 		cd qpOASES
+		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
 		mkdir build
 		cd build
 		cmake ../
@@ -433,6 +434,7 @@ function install_qpoases
 		fi
 
 		cd qpOASES
+		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
 		mkdir build
 		cd build
 		cmake ../
