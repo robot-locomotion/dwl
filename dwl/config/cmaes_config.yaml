@@ -17,11 +17,11 @@ cmaes:
   family: 0
   # initial step-size, i.e. estimated initial parameter error
   # (-1 for automatically decided sigma)
-  sigma: 0.5 #-1 #0.005
+  sigma: 0.85 #-1 #0.005
   # Number of offsprings at each generation
   #   -1 -> for automatically decided lambda
   #    0 -> is for random seeding of the internal generator
-  lambda: 450
+  lambda: 1850
   # Threshold function convergence
   ftolerance: 1e-12
   # Allowed number of iteration (-1 for unlimited)
