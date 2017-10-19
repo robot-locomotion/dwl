@@ -90,17 +90,6 @@ class LinearControlledCartTableModel
 		void computeAttitudeResponse(ReducedBodyState& state,
 									 double time);
 
-		/**
-		 * @brief Computes the energy associated to the CoM
-		 * @param Eigen::Vector3d& CoM energy
-		 * @param const ReducedBodyState& Initial reduced state
-		 * @param const CartTableControlParams& Control parameters describe in
-		 * the horizontal frame
-		 */
-		void computeSystemEnergy(Eigen::Vector3d& com_energy,
-								 const ReducedBodyState& initial_state,
-								 const CartTableControlParams& params_H);
-
 		/** @brief Gets the pendulum height */
 		double getPendulumHeight();
 

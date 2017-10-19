@@ -367,16 +367,6 @@ class PreviewLocomotion
 							   bool full = true);
 
 		/**
-		 * @brief Computes the total energy of the multi-phase preview
-		 * @param Eigen::Vector3d& CoM energy
-		 * @param const ReducedBodyState& Initial state
-		 * @param const PreviewControl& Preview schedule control
-		 */
-		void multiPhaseEnergy(Eigen::Vector3d& com_energy,
-							  const ReducedBodyState& state,
-							  const PreviewControl& control);
-
-		/**
 		 * @brief Computes the preview of a stance phase
 		 * The preview is computed according a Spring Loaded Linear
 		 * Inverted Pendulum (SLIP) model, and by assuming that the

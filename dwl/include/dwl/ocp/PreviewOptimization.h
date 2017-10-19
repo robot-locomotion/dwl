@@ -120,14 +120,6 @@ class PreviewOptimization : public model::OptimizationModel
 		void setVelocityWeights(double velocity_weight);
 
 		/**
-		 * @brief Sets the CoM acceleration weights
-		 * @param double Weight in the x-axis acceleration
-		 * @param double Weight in the y-axis acceleration
-		 */
-		void setComAccelerationWeight(double x_weight,
-									  double y_weight);
-
-		/**
 		 * @brief Sets the CoT weight
 		 * @param double Weight of the CoT
 		 */
@@ -222,8 +214,6 @@ class PreviewOptimization : public model::OptimizationModel
 		double velocityCost(const ReducedBodyState& terminal_state,
 							const ReducedBodyState& actual_state,
 							const simulation::PreviewControl& preview_control);
-		double comEnergyCost(const ReducedBodyState& actual_state,
-							 const simulation::PreviewControl& preview_control);
 		double costOfTransport(const ReducedBodyState& terminal_state,
 							   const ReducedBodyState& actual_state);
 		double copStabilitySoftConstraint(const ReducedBodyTrajectory& phase_trans,
@@ -305,7 +295,6 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief Cost and constraint models */
 		Eigen::Vector2d command_weight_;
-		Eigen::Vector3d acc_int_weight_;
 		double cot_weight_;
 		TerrainModel terrain_model_;
 

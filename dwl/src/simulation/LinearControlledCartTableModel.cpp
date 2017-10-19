@@ -260,26 +260,6 @@ void LinearControlledCartTableModel::computeAttitudeResponse(ReducedBodyState& s
 }
 
 
-void LinearControlledCartTableModel::computeSystemEnergy(Eigen::Vector3d& com_energy,
-														 const ReducedBodyState& initial_state,
-														 const CartTableControlParams& params_H)
-{
-	// Initialization the coefficient of the cart-table model
-	initCoMResponse(initial_state, params_H);
-
-	// Computing the CoT
-	double dt = params_H.duration;
-	ReducedBodyState terminal_state;
-	computeCoMResponse(terminal_state, initial_state.time + dt);
-	double travel_distance = (terminal_state.com_pos - initial_state.com_pos).norm();
-	double CoT = terminal_state.com_vel.squaredNorm() / (2 * 9.81 * travel_distance);
-
-	// There is not energy associated to the vertical movement
-	com_energy.setZero();
-	com_energy(rbd::Z) = 0;
-}
-
-
 double LinearControlledCartTableModel::getPendulumHeight()
 {
 	return height_;

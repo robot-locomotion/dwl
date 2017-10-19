@@ -272,49 +272,6 @@ void PreviewLocomotion::multiPhasePreview(ReducedBodyTrajectory& trajectory,
 }
 
 
-void PreviewLocomotion::multiPhaseEnergy(Eigen::Vector3d& com_energy,
-										 const ReducedBodyState& state,
-										 const PreviewControl& control)
-{
-	// Checking that the robot model was initialized
-	if (!robot_model_) {
-		printf(RED "Error: the robot model was not initialized\n" COLOR_RESET);
-		return;
-	}
-
-	// Updating the actual state
-	actual_state_ = state;
-
-	// Initializing the CoM energy vector
-	com_energy.setZero();
-
-	// Computing the energy for multi-phase
-	ReducedBodyState initial_state = state;
-	for (unsigned int k = 0; k < control.params.size(); ++k) {
-		// Getting the preview params of the actual phase
-		PreviewParams preview_params = control.params[k];
-
-
-		// Computing the CoM energy of this phase
-		if (preview_params.phase.type == STANCE) {
-			Eigen::Vector3d phase_energy;
-			CartTableControlParams model_params(preview_params.duration,
-											    preview_params.cop_shift);
-			cart_table_.computeSystemEnergy(phase_energy,
-											initial_state,
-											model_params);
-			com_energy += phase_energy;
-		} else { // Flight phase
-			// TODO compute the energy for flight phases
-		}
-
-		// Updating the actual state
-		double time = initial_state.time + preview_params.duration;
-		cart_table_.computeResponse(initial_state, time);
-	}
-}
-
-
 void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 									  const ReducedBodyState& state,
 									  const PreviewParams& params,
