@@ -86,6 +86,9 @@ bool FootSplinePatternGenerator::generateTrajectory(Eigen::Vector3d& foot_pos,
 	foot_vel << swing_traj_x.xd, swing_traj_y.xd, swing_traj_z.xd;
 	foot_acc << swing_traj_x.xdd, swing_traj_y.xdd, swing_traj_z.xdd;
 
+	if (time >= initial_time_ + duration_)
+		return false;
+
 	return true;
 }
 

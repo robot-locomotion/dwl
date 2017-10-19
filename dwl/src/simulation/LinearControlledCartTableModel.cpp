@@ -265,23 +265,17 @@ void LinearControlledCartTableModel::computeSystemEnergy(Eigen::Vector3d& com_en
 														 const CartTableControlParams& params_H)
 {
 	// Initialization the coefficient of the cart-table model
-	initResponse(initial_state, params_H);
+	initCoMResponse(initial_state, params_H);
 
-	// Computing the CoM energy associated to the horizontal
-	// dynamics
-	// int_0^dt x_acc^2 dt = 0.5 * beta1^2 * omega^3 * (exp(2 * omega * dt) - 1) -
-	//						 0.5 * beta2^2 * omega^3 * (exp(-2 * omega * dt) + 1) +
-	//						 beta1 * beta2 * slip_omega^4 dt
+	// Computing the CoT
 	double dt = params_H.duration;
-	c_1_ = 0.5 * beta_1_ .array().pow(2) * omega_ * omega_ * omega_;
-	c_2_ = 0.5 * beta_2_ .array().pow(2) * omega_ * omega_ * omega_;
-	c_3_ = beta_1_.cwiseProduct(beta_2_) * omega_ * omega_ * omega_ * omega_;
-	com_energy.head<2>() =
-			c_1_ * (exp(2 * omega_ * dt) - 1) -
-			c_2_ * (exp(-2 * omega_ * dt) + 1) +
-			c_3_ * dt;
+	ReducedBodyState terminal_state;
+	computeCoMResponse(terminal_state, initial_state.time + dt);
+	double travel_distance = (terminal_state.com_pos - initial_state.com_pos).norm();
+	double CoT = terminal_state.com_vel.squaredNorm() / (2 * 9.81 * travel_distance);
 
 	// There is not energy associated to the vertical movement
+	com_energy.setZero();
 	com_energy(rbd::Z) = 0;
 }
 
