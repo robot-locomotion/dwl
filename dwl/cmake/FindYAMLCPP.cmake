@@ -20,12 +20,12 @@ endif()
 # find the yaml-cpp include directory
 find_path(YAMLCPP_INCLUDE_DIRS  yaml-cpp/yaml.h
                                 PATH_SUFFIXES include
-                                HINTS ${DWL_INSTALL_PREFIX} /usr/include /usr/local)
+                                HINTS ${DWL_INSTALL_PREFIX} /usr /usr/local)
 
 # find the yaml-cpp library
 find_library(YAMLCPP_LIBRARIES  NAMES ${YAMLCPP_STATIC} yaml-cpp
                                 PATH_SUFFIXES lib
-                                HINTS ${DWL_INSTALL_PREFIX} /usr/include /usr/local)
+                                HINTS ${DWL_INSTALL_PREFIX} /usr /usr/local)
 
 # handle the QUIETLY and REQUIRED arguments and set YAMLCPP_FOUND to TRUE if all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
