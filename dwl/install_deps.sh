@@ -261,7 +261,7 @@ function install_lapack
 		mkdir -p build
 		cd build
 		#TODO this part doesn't work yet
-		cmake -D BUILD_SHARED_LIBS:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -D CMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ../
 		sudo make -j install
 		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
@@ -272,7 +272,7 @@ function install_lapack
 		cd lapack
 		mkdir -p build
 		cd build
-		cmake -D BUILD_SHARED_LIBS:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -D CMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ../
 		sudo make -j install
 		cd ../../
 	fi
