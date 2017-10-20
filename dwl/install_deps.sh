@@ -10,6 +10,7 @@ COLOR_BOLD="\033[1m"
 COLOR_UNDE="\033[4m"
 
 DWL_INSTALL_PREFIX=/usr/local/dwl
+COMMON_INSTALL_PREFIX=/usr
 
 
 ## This function detects the current os and distro
@@ -206,9 +207,9 @@ function install_yamlcpp
 	
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
-		# Getting the YAML-CPP 0.5.1
-		curl -L "https://github.com/jbeder/yaml-cpp/archive/release-0.5.1.zip" > release-0.5.1.zip
-		unzip release-0.5.1.zip && rm -rf release-0.5.1.zip
+		# Getting the YAML-CPP 0.5.2
+		curl -L "https://github.com/jbeder/yaml-cpp/archive/release-0.5.2.zip" > release-0.5.2.zip
+		unzip release-0.5.2.zip && rm -rf release-0.5.2.zip
 		mv yaml-cpp-*/ yaml-cpp
 		cd yaml-cpp
 		mkdir -p build
@@ -216,14 +217,14 @@ function install_yamlcpp
 		cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
 		sudo make -j install
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Getting the YAML-CPP 0.5.1
-		wget https://github.com/jbeder/yaml-cpp/archive/release-0.5.1.zip
-		unzip release-0.5.1.zip && rm -rf release-0.5.1.zip
+		# Getting the YAML-CPP 0.5.2
+		wget https://github.com/jbeder/yaml-cpp/archive/release-0.5.2.zip
+		unzip release-0.5.2.zip && rm -rf release-0.5.2.zip
 		mv yaml-cpp-*/ yaml-cpp
 		cd yaml-cpp
 		mkdir -p build
 		cd build
-		cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
 		sudo make -j install
 		cd ../../
 	fi
