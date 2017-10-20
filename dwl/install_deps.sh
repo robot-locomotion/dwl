@@ -673,17 +673,17 @@ fi
 ##---------------------------------------------------------------##
 ##-------------------- Installing YAML-CPP ----------------------##
 ##---------------------------------------------------------------##
-#echo ""
-#echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
-#if [ -d "$DWL_INSTALL_PREFIX/include/yaml-cpp" ]; then
-#	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.1? [y/N]: ${COLOR_RESET}"
-#	read ANSWER_YAMLCPP
-#	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
-#		install_yamlcpp
-#    fi
-#else
-#	install_yamlcpp
-#fi
+echo ""
+echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
+if [ -d "$DWL_INSTALL_PREFIX/include/yaml-cpp" ] || [ -d "$COMMON_INSTALL_PREFIX/include/yaml-cpp" ]; then
+	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.2? [y/N]: ${COLOR_RESET}"
+	read ANSWER_YAMLCPP
+	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
+		install_yamlcpp
+    fi
+else
+	install_yamlcpp
+fi
 
 
 
