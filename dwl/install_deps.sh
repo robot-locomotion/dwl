@@ -12,6 +12,9 @@ COLOR_UNDE="\033[4m"
 DWL_INSTALL_PREFIX=/usr/local/dwl
 COMMON_INSTALL_PREFIX=/usr
 
+# Getting the current directory of this script
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 
 ## This function detects the current os and distro
 CURRENT_OS="Unsupported" #CENTOS, UBUNTU are other valid options
@@ -48,8 +51,9 @@ function findCurrentOSType()
 function install_eigen
 {
 	# Remove old folder (sanity procedure)
-	rm -rf eigen
-		
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf eigen
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		# Getting Eigen 3.2.10
 		curl -L "http://www.bitbucket.org/eigen/eigen/get/3.2.10.tar.bz2" | tar xj
@@ -59,7 +63,6 @@ function install_eigen
 		cd build
 		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DPKGCONFIG_INSTALL_DIR=$DWL_INSTALL_PREFIX/lib/pkgconfig ..
 		sudo make -j install
-		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting Eigen 3.2.10
 		wget http://www.bitbucket.org/eigen/eigen/get/3.2.10.tar.bz2
@@ -70,7 +73,6 @@ function install_eigen
 		cd build
 		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DPKGCONFIG_INSTALL_DIR=$DWL_INSTALL_PREFIX/lib/pkgconfig ..
 		sudo make -j install
-		cd ../../
     fi
 }
 
@@ -78,8 +80,9 @@ function install_eigen
 function install_rbdl
 {
 	# Remove old folder (sanity procedure)
-	rm -rf rbdl
-	
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf rbdl
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		curl -L "https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip" > v2.4.0.zip
 		unzip v2.4.0.zip
@@ -91,7 +94,6 @@ function install_rbdl
 		cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
 		make -j
 		sudo make -j install
-		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting RBDL 2.4.0
 		wget https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip
@@ -104,7 +106,6 @@ function install_rbdl
 		cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
 		make -j
 		sudo make -j install
-		cd ../../
 	fi
 }
 
@@ -112,8 +113,9 @@ function install_rbdl
 function install_urdfdom_headers
 {
 	# Remove old folder (sanity procedure)
-	rm -rf urdf_headers
-	
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf urdf_headers
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		# Getting urdfdom_headers 0.2.3
 		curl -L "https://github.com/ros/urdfdom_headers/archive/0.2.3.tar.gz" | tar xz
@@ -123,7 +125,6 @@ function install_urdfdom_headers
 		cd build
 		cmake ../
 		sudo make -j install
-		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting urdfdom_headers 0.2.3
 		wget https://github.com/ros/urdfdom_headers/archive/0.2.3.tar.gz
@@ -134,7 +135,6 @@ function install_urdfdom_headers
 		cd build
 		cmake ../
 		sudo make -j install
-		cd ../../
 	fi
 }
 
@@ -142,8 +142,9 @@ function install_urdfdom_headers
 function install_console_bridge
 {
 	# Remove old folder (sanity procedure)
-	rm -rf console_bridge
-	
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf console_bridge
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		# Getting console_bridge 0.2.7
 		curl -L "https://github.com/ros/console_bridge/archive/0.2.7.tar.gz" | tar xz
@@ -154,7 +155,6 @@ function install_console_bridge
 		brew install boost
 		cmake ../
 		sudo make -j install
-		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting console_bridge 0.2.7
 		wget https://github.com/ros/console_bridge/archive/0.2.7.tar.gz
@@ -165,7 +165,6 @@ function install_console_bridge
 		cd build
 		cmake ../
 		sudo make -j install
-		cd ../../
 	fi
 }
 
@@ -173,7 +172,8 @@ function install_console_bridge
 function install_urdfdom
 {
 	# Remove old folder (sanity procedure)
-	rm -rf urdfdom
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf urdfdom
 
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		# Getting console_bridge 0.2.10
@@ -184,7 +184,6 @@ function install_urdfdom
 		cd build
 		brew install tinyxml
 		cmake ../
-		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting console_bridge 0.2.10
 		wget https://github.com/ros/urdfdom/archive/0.2.10.tar.gz
@@ -195,7 +194,6 @@ function install_urdfdom
 		cd build
 		cmake ../
 		sudo make -j install
-		cd ../../
 	fi
 }
 
@@ -203,8 +201,9 @@ function install_urdfdom
 function install_yamlcpp
 {
 	# Remove old folder (sanity procedure)
-	rm -rf yaml-cpp
-	
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf yaml-cpp
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
 		# Getting the YAML-CPP 0.5.2
@@ -214,7 +213,7 @@ function install_yamlcpp
 		cd yaml-cpp
 		mkdir -p build
 		cd build
-		cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
 		sudo make -j install
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting the YAML-CPP 0.5.2
@@ -226,7 +225,6 @@ function install_yamlcpp
 		cd build
 		cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
 		sudo make -j install
-		cd ../../
 	fi
 }
 
@@ -234,7 +232,8 @@ function install_yamlcpp
 function install_swig
 {
 	# Remove old folder (sanity procedure)
-	rm -rf swig
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf swig
 
 	# Getting the SWIG 3.0.12
 	wget http://downloads.sourceforge.net/swig/swig-3.0.12.tar.gz
@@ -244,14 +243,14 @@ function install_swig
 	./configure --prefix=/usr --without-clisp --without-maximum-compile-warnings
 	make -j
 	sudo make install
-	cd ../
 }
 
 
 function install_lapack
 {
 	# Remove old folder (sanity procedure)
-	rm -rf lapack
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf lapack
 
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		# Getting the LAPACK 3.6.0
@@ -263,7 +262,6 @@ function install_lapack
 		#TODO this part doesn't work yet
 		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ../
 		sudo make -j install
-		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting the LAPACK 3.6.0
 		wget http://www.netlib.org/lapack/lapack-3.6.0.tgz
@@ -274,7 +272,6 @@ function install_lapack
 		cd build
 		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ../
 		sudo make -j install
-		cd ../../
 	fi
 }
 
@@ -282,7 +279,8 @@ function install_lapack
 function install_ipopt
 {
 	# Remove old folder (sanity procedure)
-	rm -rf ipopt
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf ipopt
 
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
@@ -296,7 +294,8 @@ function install_ipopt
 		if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
 			install_lapack
 		fi
-		
+
+		cd $CURRENT_DIR/thirdparty
 		cd ipopt/ThirdParty
 		# Getting Metis dependency
 		cd Metis
@@ -336,7 +335,6 @@ function install_ipopt
 		mkdir -p build
 		../configure --enable-static --prefix $DWL_INSTALL_PREFIX --with-lapack="-L$DWL_INSTALL_PREFIX/lib -llapack" --with-blas="-L$DWL_INSTALL_PREFIX/lib -lblas"
 		sudo make -j install
-		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Installing necessary packages
 		sudo apt-get install f2c libf2c2-dev libf2c2 gfortran
@@ -353,6 +351,7 @@ function install_ipopt
 			install_lapack
 		fi
 
+		cd $CURRENT_DIR/thirdparty
 		cd ipopt/ThirdParty
 		# Getting Metis dependency
 		cd Metis
@@ -393,7 +392,6 @@ function install_ipopt
 		# start building
 		../configure --enable-static --prefix $DWL_INSTALL_PREFIX --with-lapack="-L$DWL_INSTALL_PREFIX/lib -llapack" --with-blas="-L$DWL_INSTALL_PREFIX/lib -lblas"
 		sudo make -j install
-		cd ../../
 	fi
 }
 
@@ -401,8 +399,9 @@ function install_ipopt
 function install_qpoases
 {
 	# Remove old folder (sanity procedure)
-	rm -rf qpOASES
-	
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf qpOASES
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
 		# Getting the qpOASES 3.2.0
@@ -414,7 +413,8 @@ function install_qpoases
 		if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
 			install_lapack
 		fi
-		
+
+		cd $CURRENT_DIR/thirdparty
 		cd qpOASES
 		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
 		mkdir build
@@ -422,7 +422,6 @@ function install_qpoases
 		cmake ../
 		make -j4
 		sudo make -j4 install
-		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting the qpOASES 3.2.0
 		wget http://www.coin-or.org/download/source/qpOASES/qpOASES-3.2.0.tgz
@@ -434,6 +433,7 @@ function install_qpoases
 			install_lapack
 		fi
 
+		cd $CURRENT_DIR/thirdparty
 		cd qpOASES
 		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
 		mkdir build
@@ -441,7 +441,6 @@ function install_qpoases
 		cmake ../
 		make -j4
 		sudo make -j4 install
-		cd ../../
 	fi
 }
 
@@ -449,13 +448,13 @@ function install_qpoases
 function install_libcmaes
 {
 	# Remove old folder (sanity procedure)
-	rm -rf libcmaes
-	
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf libcmaes
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
-		# Getting the current path
-		CURRENT_PATH=$(pwd -P)
-		
+
+		# Compiling and installing Google unit test framework
 		curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar xz
 		mv googletest-release-1.8.0/ gtest
 		cd gtest
@@ -463,8 +462,8 @@ function install_libcmaes
 		cd build
 		cmake -D BUILD_SHARED_LIBS:bool=ON  CMAKE_BUILD_TYPE=Release ../
 		sudo make -j install
-		cd $CURRENT_PATH
-		
+		cd $CURRENT_DIR/thirdparty
+
 		# Getting the libcmaes 0.9.5
 		wget https://github.com/beniz/libcmaes/archive/0.9.5.tar.gz
 		mkdir libcmaes && tar zxf 0.9.5.tar.gz -C libcmaes --strip-components 1
@@ -473,14 +472,10 @@ function install_libcmaes
 		./autogen.sh
 		./configure --enable-gglog --prefix=$DWL_INSTALL_PREFIX --with-eigen3-include=$DWL_INSTALL_PREFIX/include/eigen3
 		sudo make -j4 install
-		cd ../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Installing libcmaes dependecies
 		sudo apt-get install autoconf automake libtool libgoogle-glog-dev libgflags-dev
-	
-		# Getting the current path
-		CURRENT_PATH=$(pwd -P)
-	
+
 		# Compiling and installing Google unit test framework
 		cd /usr/src/gtest
 		sudo mkdir -p build
@@ -488,8 +483,8 @@ function install_libcmaes
 		sudo cmake ../
 		sudo make
 		sudo cp *.a /usr/lib
-		cd $CURRENT_PATH
-	
+		cd $CURRENT_DIR/thirdparty
+
 		# Getting the libcmaes 0.9.5
 		wget https://github.com/beniz/libcmaes/archive/0.9.5.tar.gz
 		mkdir libcmaes && tar zxf 0.9.5.tar.gz -C libcmaes --strip-components 1
@@ -498,7 +493,6 @@ function install_libcmaes
 		./autogen.sh
 		./configure --enable-gglog --prefix=$DWL_INSTALL_PREFIX --with-eigen3-include=$DWL_INSTALL_PREFIX/include/eigen3
 		sudo make -j4 install
-		cd ../
 	fi
 }
 
@@ -506,8 +500,9 @@ function install_libcmaes
 function install_octomap
 {
 	# Remove old folder (sanity procedure)
-	rm -rf octomap
-	
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf octomap
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		# Getting Octomap 1.6.8
 		curl -L "https://github.com/OctoMap/octomap/archive/v1.6.8.tar.gz" | tar xj
@@ -517,7 +512,6 @@ function install_octomap
 		cd build
 		cmake ../
 		sudo make -j install
-		cd ../../
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting Octomap 1.6.8
 		wget https://github.com/OctoMap/octomap/archive/v1.6.8.tar.gz
@@ -528,19 +522,19 @@ function install_octomap
 		cd build
 		cmake ../
 		sudo make -j install
-		cd ../../
 	fi
 }
 
 
 function install_gnuplot
 {
+	# Remove old folder (sanity procedure)
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf gnuplot
+
 	if [ "$CURRENT_OS" == "OSX" ]; then
 		echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-		# Remove old folder (sanity procedure)
-		rm -rf gnuplot
-
 		# Installing qt5
 		sudo apt-get install qt5-default
 
@@ -559,9 +553,6 @@ function install_gnuplot
 
 
 ##############################################  MAIN  ########################################################
-# Getting the path of the install_deps.sh file
-SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
-
 # Printing the information of the shell script
 echo -e "${COLOR_BOLD}install_deps.sh - DWL Installation Script for Ubuntu Precise Pangolin 12.04 and Ubuntu Trusty Tahr 14.04${COLOR_RESET}"
 echo ""
@@ -573,7 +564,7 @@ echo "under certain conditions; see the filecontent for more information."
 
 # This file is part of DWL Installer.
 #
-# Psopt Installer is free software: you can redistribute it and/or
+# DWL Installer is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
@@ -595,8 +586,8 @@ read -s -p "Press enter to start the installation. "
 echo ""
 
 
-mkdir -p ${SELF_PATH}/thirdparty
-cd ${SELF_PATH}/thirdparty
+mkdir -p ${CURRENT_DIR}/thirdparty
+cd ${CURRENT_DIR}/thirdparty
 
 # Added doxygen install. TODO moved from here and tested for other OS (i.e. Mac OSX)
 sudo apt-get install doxygen
