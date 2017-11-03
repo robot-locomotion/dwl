@@ -42,7 +42,7 @@ class IpoptWrapper : public Ipopt::TNLP
 		/**
 		 * @brief Gets the general information about the NonLinear Program (NLP)
 		 * @param Index& Number of decision variables (dimension of $x$)
-		 * @param Index& Number of constraint variables (dimension of $g(x)$)
+		 * @param Index& Number of constraints (dimension of $g(x)$)
 		 * @param Index& Number of nonzero entries in the Jacobian
 		 * @param Index& Number of nonzero entries in the Hessian
 		 * @param IndexStyleEnum& Numbering style used for row/col entries in the sparse matrix
@@ -57,9 +57,9 @@ class IpoptWrapper : public Ipopt::TNLP
 		 * @param Index Number of decision variables (dimension of $x$)
 		 * @param Number* Lower bounds $x^L$ for $x$
 		 * @param Number* Upper bounds $x^U$ for $x$
-		 * @param Index Number of constraint variables (dimension of $g(x)$)
-		 * @param Number* Lower bounds $g^L$ for $x$
-		 * @param Number* Upper bounds $g^U$ for $x$
+		 * @param Index Number of constraints (dimension of $g(x)$)
+		 * @param Number* Lower bounds of the constraints $g^L$ for $x$
+		 * @param Number* Upper bounds of the constraints $g^U$ for $x$
 		 */
 		bool get_bounds_info(Index n, Number* x_l, Number* x_u,
 							 Index m, Number* g_l, Number* g_u);
@@ -85,7 +85,7 @@ class IpoptWrapper : public Ipopt::TNLP
 		/**
 		 * @brief Gets the objective (cost function) value
 		 * @param Index Number of decision variables (dimension of $x$)
-		 * @param Number* Values for the primal variables, $x$, at which $f(x)$ is to be evaluated
+		 * @param Number* Values for the primal variables, $x$, at which $f(x)$ is evaluated
 		 * @param bool False if any evaluation method was previously called with the same values
 		 * in $x$, true otherwise
 		 * @param Number& Value of the objective function ($f(x)$).
@@ -95,7 +95,7 @@ class IpoptWrapper : public Ipopt::TNLP
 		/**
 		 * @brief Gets the gradient of the objective
 		 * @param Index Number of decision variables (dimension of $x$)
-		 * @param Number* Values for the primal variables, $x$, at which $\nabla f(x)$ is to be
+		 * @param Number* Values for the primal variables, $x$, at which $\nabla f(x)$ is
 		 * evaluated
 		 * @param bool False if any evaluation method was previously called with the same values
 		 * in $x$, true otherwise
@@ -107,7 +107,7 @@ class IpoptWrapper : public Ipopt::TNLP
 		 * @brief Gets the constraint residuals
 		 * @param Index Number of decision variables (dimension of $x$)
 		 * @param Number* Values for the primal variables, $x$, at which the constraint functions,
-		 * $g(x)$, are to be evaluated
+		 * $g(x)$, are evaluated
 		 * @param bool False if any evaluation method was previously called with the same values
 		 * in $x$, true otherwise
 		 * @param Index Number of constraint variables (dimension of $g(x)$)
