@@ -44,7 +44,7 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 
 	// Parsing the configuration file
 	std::string cmaes = "cmaes";
-	printf("Reading the configuration parameters from the %s namespace\n",
+	printf(BLUE "Reading the configuration parameters from the %s namespace.\n" COLOR_RESET,
 			cmaes.c_str());
 	YamlNamespace cmaes_ns = {cmaes};
 	YamlNamespace ofile_ns = {cmaes, "output_file"};
