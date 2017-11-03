@@ -102,6 +102,18 @@ class IpoptNLP : public OptimizationSolver
 		void setMuStrategy(std::string mu_strategy);
 
 		/**
+		 * @brief Enables/disables the numerical computation of the Jacobian using finite-difference
+		 * @param bool True for enabling the approximation
+		 */
+		void setJacobianApproximation(bool enable);
+
+		/**
+		 * @brief Enables/disables the numerical computation of the Hessian using limited-memory
+		 * @param bool True for enabling the approximation
+		 */
+		void setHessianApproximation(bool enable);
+
+		/**
 		 * @brief Initialization of the NLP solver using Ipopt
 		 * @return True if was initialized
 		 */
@@ -166,6 +178,12 @@ class IpoptNLP : public OptimizationSolver
 
 		/** @brief Barrier method */
 		std::string mu_strategy_;
+
+		/** @brief True enables the numerical computationg using finite-difference */
+		bool jac_approximation_;
+
+		/** @brief True enables the numerical computationg using limited-memory */
+		bool hess_approximation_;
 };
 
 } //@namespace solver

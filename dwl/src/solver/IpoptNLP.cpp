@@ -11,7 +11,8 @@ IpoptNLP::IpoptNLP() : initialized_(false), print_level_(5),
 		print_freq_iter_(1), outfile_(false), filename_("ipopt.opt"),
 		file_print_level_(5), convergence_tol_(1e-7), max_iter_(-1),
 		dual_inf_tol_(1.), constr_viol_tol_(0.0001), compl_viol_tol_(0.0001),
-		acceptable_tol_(1e-6), acceptable_iter_(15), mu_strategy_("adaptive")
+		acceptable_tol_(1e-6), acceptable_iter_(15), mu_strategy_("adaptive"),
+		jac_approximation_(false), hess_approximation_(false)
 {
 	name_ = "IpoptNLP";
 }
@@ -45,6 +46,7 @@ void IpoptNLP::setFromConfigFile(std::string filename)
 	YamlNamespace output_file_ns = {ipopt_ns, "output", "output_file"};
 	YamlNamespace termination_ns = {ipopt_ns, "termination"};
 	YamlNamespace barrier_ns = {ipopt_ns, "barrier"};
+	YamlNamespace derivatives_ns = {ipopt_ns, "derivatives"};
 
 	// Output parameters
 	// Reading and setting up the print level
@@ -108,6 +110,15 @@ void IpoptNLP::setFromConfigFile(std::string filename)
 	std::string mu_strategy;
 	if (yaml_reader.read(mu_strategy, "mu_strategy", barrier_ns))
 		setMuStrategy(mu_strategy);
+
+	// Derivatives parameters
+	// Reading and setting up the jacobian approximation
+	if (yaml_reader.read(jac_approximation_, "jacobian_approximation", derivatives_ns))
+		setJacobianApproximation(jac_approximation_);
+
+		// Reading and setting up the jacobian approximation
+	if (yaml_reader.read(hess_approximation_, "hessian_approximation", derivatives_ns))
+		setHessianApproximation(hess_approximation_);
 
 	// Re-initialization of the solver if it was initialized
 	if (reinit)
@@ -225,6 +236,18 @@ void IpoptNLP::setMuStrategy(std::string mu_strategy)
 
 	if (initialized_)
 		app_->Options()->SetStringValue("mu_strategy", mu_strategy_);
+}
+
+
+void IpoptNLP::setJacobianApproximation(bool enable)
+{
+	jac_approximation_ = enable;
+}
+
+
+void IpoptNLP::setHessianApproximation(bool enable)
+{
+	hess_approximation_ = enable;
 }
 
 
