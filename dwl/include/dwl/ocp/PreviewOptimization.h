@@ -141,9 +141,10 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/**
 		 * @brief Gets the starting point of the problem
-		 * @param Eigen::Ref<Eigen::VectorXd> Full initial point
+		 * @param double* Initial values for the decision variables, $x$
+		 * @param int Number of the decision variables
 		 */
-		void getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point);
+		void getStartingPoint(double* decision, int decision_dim);
 
 		/** @brief Gets the optimized preview control */
 		simulation::PreviewControl& getFullPreviewControl();
@@ -154,30 +155,37 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/**
 		 * @brief Evaluates the bounds of the problem
-		 * @param Eigen::Ref<Eigen::VectorXd> Full state lower bound
-		 * @param Eigen::Ref<Eigen::VectorXd> Full state upper bound
-		 * @param Eigen::Ref<Eigen::VectorXd> Full constraint lower bound
-		 * @param Eigen::Ref<Eigen::VectorXd> Full constraint upper bound
+		 * @param double* Lower bounds $x^L$ for $x$
+		 * @param double* Upper bounds $x^L$ for $x$
+		 * @param int Number of decision variables (dimension of $x$)
+		 * @param double* Lower bounds of the constraints $g^L$ for $x$
+		 * @param double* Upper bounds of the constraints $g^L$ for $x$
+		 * @param int Number of constraints (dimension of $g(x)$)
 		 */
-		void evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lower_bound,
-							Eigen::Ref<Eigen::VectorXd> full_state_upper_bound,
-							Eigen::Ref<Eigen::VectorXd> full_constraint_lower_bound,
-							Eigen::Ref<Eigen::VectorXd> full_constraint_upper_bound);
+		void evaluateBounds(double* decision_lbound, int decision_dim1,
+							double* decision_ubound, int decision_dim2,
+							double* constraint_lbound, int constraint_dim1,
+							double* constraint_ubound, int constraint_dim2);
 		/**
 		 * @brief Evaluates the constraint function given a current decision state
-		 * @param Eigen::Ref<Eigen::VectorXd> Constraint vector
-		 * @param const Eigen::Ref<const Eigen:VectorXd>& Decision vector
+		 * @param double* Array of constraint function values, $g(x)$
+		 * @param int Number of constraint variables (dimension of $g(x)$)
+		 * @param const double* Array of the decision variables, $x$, at which the constraint functions,
+		 * $g(x)$, are evaluated
+		 * @param int Number of decision variables (dimension of $x$)
 		 */
-		void evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constraint,
-								 const Eigen::Ref<const Eigen::VectorXd>& decision_var);
+		void evaluateConstraints(double* constraint, int constraint_dim,
+						 	 	 const double* decision, int decision_dim);
 
 		/**
 		 * @brief Evaluates the cost function given a current decision state
-		 * @param double& Cost value
-		 * @param const Eigen::Ref<const Eigen:VectorXd>& Decision vector
+		 * @param double& Value of the objective function ($f(x)$).
+		 * @param const double* Array of the decision variables, $x$, at which the cost functions,
+		 * $f(x)$, is evaluated
+		 * @param int Number of decision variables (dimension of $x$)
 		 */
 		void evaluateCosts(double& cost,
-						   const Eigen::Ref<const Eigen::VectorXd>& decision_var);
+						   const double* decision, int decision_dim);
 
 		/**
 		 * @brief Evaluates the solution from an optimizer
@@ -188,6 +196,9 @@ class PreviewOptimization : public model::OptimizationModel
 
 		/** @brief Returns the preview system pointer */
 		simulation::PreviewLocomotion* getPreviewSystem();
+
+		/** @brief Returns the whole-body trajectory */
+		WholeBodyTrajectory& getWholeBodyTrajectory();
 
 		/** @brief Returns the reduced-body trajectory */
 		ReducedBodyTrajectory& getReducedBodyTrajectory();
@@ -326,6 +337,9 @@ class PreviewOptimization : public model::OptimizationModel
 		/** @brief For collecting data */
 		utils::CollectData cdata_;
 		bool collect_data_;
+
+		/** @brief Whole-body solution */
+		WholeBodyTrajectory motion_solution_;
 };
 
 } //@namespace ocp

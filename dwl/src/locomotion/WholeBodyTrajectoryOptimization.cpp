@@ -110,7 +110,7 @@ ocp::DynamicalSystem* WholeBodyTrajectoryOptimization::getDynamicalSystem()
 
 const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getWholeBodyTrajectory()
 {
-	return solver_->getWholeBodyTrajectory();
+	return oc_model_.evaluateSolution(solver_->getSolution());
 }
 
 
@@ -120,7 +120,7 @@ const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhole
 	interpolated_trajectory_.clear();
 
 	// Getting the whole-body trajectory
-	WholeBodyTrajectory trajectory = solver_->getWholeBodyTrajectory();
+	WholeBodyTrajectory trajectory = getWholeBodyTrajectory();
 
 	// Getting the number of joints and end-effectors
 	unsigned int num_joints = getDynamicalSystem()->getFloatingBaseSystem().getJointDoF();

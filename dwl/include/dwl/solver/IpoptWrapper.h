@@ -203,6 +203,12 @@ class IpoptWrapper : public Ipopt::TNLP
 
 		/** @brief Solution vector */
 		Eigen::VectorXd solution_;
+
+		/** @brief True if the constraint Jacobian is implemented */
+		bool jacobian_;
+
+		/** @brief True if the Lagrangian Hessian is implemented */
+		bool hessian_;
 };
 
 } //@namespace solver

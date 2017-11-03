@@ -8,7 +8,8 @@ namespace ocp
 {
 
 OptimalControl::OptimalControl() : dynamical_system_(NULL),
-		is_added_dynamic_system_(false), is_added_constraint_(false), is_added_cost_(false)
+		is_added_dynamic_system_(false), is_added_constraint_(false), is_added_cost_(false),
+		terminal_constraint_dimension_(0), horizon_(1)
 {
 
 }
@@ -69,8 +70,11 @@ void OptimalControl::setStartingTrajectory(WholeBodyTrajectory& initial_trajecto
 }
 
 
-void OptimalControl::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_point)
+void OptimalControl::getStartingPoint(double* decision, int decision_dim)
 {
+	// Eigen interfacing to raw buffers
+	Eigen::Map<Eigen::VectorXd> full_initial_point(decision, decision_dim);
+
 	if (motion_solution_.size() == 0) {
 		// Getting the initial and ending locomotion state
 		WholeBodyState starting_system_state = dynamical_system_->getInitialState();
@@ -137,11 +141,18 @@ void OptimalControl::getStartingPoint(Eigen::Ref<Eigen::VectorXd> full_initial_p
 }
 
 
-void OptimalControl::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lower_bound,
-									Eigen::Ref<Eigen::VectorXd> full_state_upper_bound,
-									Eigen::Ref<Eigen::VectorXd> full_constraint_lower_bound,
-									Eigen::Ref<Eigen::VectorXd> full_constraint_upper_bound)
+void OptimalControl::evaluateBounds(double* decision_lbound, int decision_dim1,
+									double* decision_ubound, int decision_dim2,
+									double* constraint_lbound, int constraint_dim1,
+									double* constraint_ubound, int constraint_dim2)
 {
+	// Eigen interfacing to raw buffers
+	Eigen::Map<Eigen::VectorXd> full_state_lower_bound(decision_lbound, decision_dim1);
+	Eigen::Map<Eigen::VectorXd> full_state_upper_bound(decision_ubound, decision_dim2);
+	Eigen::Map<Eigen::VectorXd> full_constraint_lower_bound(constraint_lbound, constraint_dim1);
+	Eigen::Map<Eigen::VectorXd> full_constraint_upper_bound(constraint_ubound, constraint_dim2);
+
+
 	// Getting the lower and upper bound of the locomotion state
 	WholeBodyState locomotion_lower_bound, locomotion_upper_bound;
 	dynamical_system_->getStateBounds(locomotion_lower_bound, locomotion_upper_bound);
@@ -231,9 +242,14 @@ void OptimalControl::evaluateBounds(Eigen::Ref<Eigen::VectorXd> full_state_lower
 }
 
 
-void OptimalControl::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constraint,
-										 const Eigen::Ref<const Eigen::VectorXd>& decision_var)
+void OptimalControl::evaluateConstraints(double* constraint, int constraint_dim,
+										 const double* decision, int decision_dim)
 {
+	// Eigen interfacing to raw buffers
+	const Eigen::Map<const Eigen::VectorXd> decision_var(decision, decision_dim);
+	Eigen::Map<Eigen::VectorXd> full_constraint(constraint, constraint_dim);
+	full_constraint.setZero();
+
 	if (state_dimension_ != (decision_var.size() / horizon_)) {
 		printf(RED "FATAL: the state and decision dimensions are not consistent\n" COLOR_RESET);
 		exit(EXIT_FAILURE);
@@ -332,8 +348,11 @@ void OptimalControl::evaluateConstraints(Eigen::Ref<Eigen::VectorXd> full_constr
 
 
 void OptimalControl::evaluateCosts(double& cost,
-								   const Eigen::Ref<const Eigen::VectorXd>& decision_var)
+								   const double* decision, int decision_dim)
 {
+	// Eigen interfacing to raw buffers
+	const Eigen::Map<const Eigen::VectorXd> decision_var(decision, decision_dim);
+
 	if (state_dimension_ != (decision_var.size() / horizon_)) {
 		printf(RED "FATAL: the state and decision dimensions are not consistent\n" COLOR_RESET);
 		exit(EXIT_FAILURE);

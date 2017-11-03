@@ -281,12 +281,22 @@ bool IpoptNLP::init()
 	setAcceptableIterations(acceptable_iter_);
 	setMuStrategy(mu_strategy_);
 
+	if (!model_->isCostGradientImplemented())
+		printf(BLUE "Info: Computing the Gradient using numerical differentiation.\n" COLOR_RESET);
 
-	// Computing Hessian numerically (do not need to implement)
-	app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
+	// Enable/disable the numerical computation of the Jacobian
+	if (!model_->isConstraintJacobianImplemented() || jac_approximation_) {
+		// Computing Jacobian numerically (do not need to implement or configure)
+		printf(BLUE "Info: Computing the Jacobian using finite-difference.\n" COLOR_RESET);
+		app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
+	}
 
-	// Computing Hessian numerically (do not need to implement)
-	app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
+	// Enable/disable the numerical computation of the Hessian
+	if (!model_->isLagrangianHessianImplemented() || hess_approximation_) {
+		// Computing Hessian numerically (do not need to implement or configure)
+		printf(BLUE "Info: Computing the Lagrangian Hessian using limited-memory.\n" COLOR_RESET);
+		app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
+	}
 
 	app_->Options()->SetStringValue("warm_start_init_point", "yes");
 
@@ -336,7 +346,6 @@ bool IpoptNLP::compute(double allocated_time_secs)
 	if (solved) {
 		printf("\n\n*** The problem solved!\n");
 		solution_ = ipopt_.getSolution();
-		locomotion_trajectory_ = model_->evaluateSolution(solution_);
 	} else
 		printf("\n\n*** The problem FAILED!\n");
 
