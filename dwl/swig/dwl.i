@@ -1,13 +1,21 @@
-%module dwl
+%module(directors="1") dwl
 %{
 #define SWIG_PYTHON_EXTRA_NATIVE_CONTAINERS 
+#define SWIG_FILE_WITH_INIT
 #include <Python.h>
+
+// Robot-related core functions
 #include <dwl/ReducedBodyState.h>
 #include <dwl/WholeBodyState.h>
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/model/WholeBodyKinematics.h>
 #include <dwl/model/WholeBodyDynamics.h>
 #include <dwl/RobotStates.h>
+
+// Optimization-related core functions
+#include <dwl/model/OptimizationModel.h>
+#include <dwl/solver/OptimizationSolver.h>
+#include <dwl/solver/IpoptNLP.h>
 %}
 
 
@@ -19,6 +27,11 @@
 %include <std_vector.i>
 %include <std_map.i>
 
+
+
+////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////// Robot-related core functions ///////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 // eigen.i is found in ../swig/ and contains specific definitions to convert
 // Eigen matrices into Numpy arrays.
 %include <eigen.i>
@@ -140,8 +153,6 @@
 %include <dwl/model/WholeBodyDynamics.h>
 %include <dwl/RobotStates.h>
 
-
-
 // Extending the C++ class by adding printing methods in python
 %extend dwl::ReducedBodyState {
 	char *__str__() {
@@ -224,3 +235,49 @@
 		return writable;
 	}
 };
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
+/////////////////////// Optimization-related core functions ////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+%feature("director") dwl::model::OptimizationModel;
+%feature("director:except") {
+    if( $error != NULL ) {
+        PyObject *ptype, *pvalue, *ptraceback;
+        PyErr_Fetch( &ptype, &pvalue, &ptraceback );
+        PyErr_Restore( ptype, pvalue, ptraceback );
+        PyErr_Print();
+        Py_Exit(1);
+    }
+}
+
+%include "numpy.i"
+%init %{
+	import_array();
+%}
+// For the typemap of the optimization model interface
+%apply double& INOUT { double& cost };
+%apply (double* IN_ARRAY1, int DIM1) {(double* decision, int decision_dim),
+									  (const double* decision, int decision_dim),
+									  (double* decision_lbound, int decision_dim1),
+									  (double* decision_ubound, int decision_dim2),
+									  (double* constraint_lbound, int constraint_dim1),
+									  (double* constraint_ubound, int constraint_dim2),
+									  (double* gradient, int grad_dim),
+									  (double* constraint, int constraint_dim),
+									  (double* jacobian_values, int nonzero_dim1),
+									  (double* hessian_values, int nonzero_dim1),
+									  (const double* lagrange, int constraint_dim)}
+%apply (int* IN_ARRAY1, int DIM1) {(int* row_entries, int nonzero_dim2),
+								   (int* col_entries, int nonzero_dim3)}
+%typemap(directorin,numinputs=1) double &
+{
+	npy_intp dim = 1;
+	$input = PyArray_SimpleNewFromData(1, &dim, NPY_DOUBLE, (void *)&$1);
+}
+
+%include <dwl/model/OptimizationModel.h>
+%include <dwl/solver/OptimizationSolver.h>
+%include <dwl/solver/IpoptNLP.h>
