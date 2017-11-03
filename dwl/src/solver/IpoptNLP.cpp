@@ -38,7 +38,7 @@ void IpoptNLP::setFromConfigFile(std::string filename)
 
 	// Parsing the configuration file
 	std::string ipopt_ns = "ipopt";
-	printf("Reading the configuration parameters from the %s namespace\n",
+	printf(BLUE "Reading the configuration parameters from the %s namespace.\n" COLOR_RESET,
 			ipopt_ns.c_str());
 
 	// Getting the different nodes
@@ -281,13 +281,6 @@ bool IpoptNLP::init()
 	setAcceptableIterations(acceptable_iter_);
 	setMuStrategy(mu_strategy_);
 
-	// Change some options (do not touch these)
-	app_->Options()->SetNumericValue("tol", 1e-7);
-//	app_->Options()->SetNumericValue("acceptable_tol", 1e-2);
-	app_->Options()->SetStringValue("mu_strategy", "adaptive");
-//	app_->Options()->SetStringValue("output_file", "ipopt.out");
-	app_->Options()->SetIntegerValue("max_iter", std::numeric_limits<int>::max());
-	app_->Options()->SetIntegerValue("print_level", 5);
 
 	// Computing Hessian numerically (do not need to implement)
 	app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
