@@ -115,6 +115,15 @@ class HS071(dwl.OptimizationModel):
 if __name__ == '__main__':
   op = HS071()
 
+#  cmaes = dwl.cmaesSO()
+#  cmaes.setFromConfigFile("../../config/cmaes_config.yaml")
+#  op = op.__disown__()
+#  cmaes.setOptimizationModel(op)
+#  cmaes.init()
+#  cmaes.compute()
+#  print cmaes.getSolution().transpose()
+#  del cmaes
+
   ipopt = dwl.IpoptNLP()
   ipopt.setFromConfigFile("../../config/ipopt_config.yaml")
   op = op.__disown__()
