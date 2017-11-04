@@ -9,8 +9,9 @@ namespace model
 
 OptimizationModel::OptimizationModel() : solution_(NULL), state_dimension_(0),
 		constraint_dimension_(0), nonzero_jacobian_(0), nonzero_hessian_(0), gradient_(true),
-		jacobian_(true), hessian_(true), first_time_(true), cost_function_(this),
-		num_diff_mode_(Eigen::Central),	epsilon_(1E-06)
+		jacobian_(true), hessian_(true), bounds_(false), soft_constraints_(false),
+		first_time_(true), cost_function_(this), num_diff_mode_(Eigen::Central), epsilon_(1E-06),
+		soft_properties_(SoftConstraintProperties(10000., 0., 0.))
 {
 
 }
@@ -48,6 +49,18 @@ void OptimizationModel::setNumberOfNonzeroJacobian(unsigned int nonzero)
 void OptimizationModel::setNumberOfNonzeroHessian(unsigned int nonzero)
 {
 	nonzero_hessian_ = nonzero;
+}
+
+
+void OptimizationModel::setSoftProperties(const SoftConstraintProperties& properties)
+{
+	soft_properties_ = properties;
+}
+
+
+void OptimizationModel::defineAsSoftConstraint()
+{
+	soft_constraints_ = true;
 }
 
 
@@ -132,6 +145,87 @@ void OptimizationModel::evaluateConstraints(double* constraint, int constraint_d
 }
 
 
+double OptimizationModel::evaluateAsSoftConstraints(
+												  const double* decision, int decision_dim)
+{
+	// Initialization of the cost value
+	double cost = 0.;
+
+	// Getting the constraint value and bounds
+	double g[constraint_dimension_];
+	Eigen::Map<Eigen::VectorXd> constraint(g, constraint_dimension_);
+
+	// Computing the constraint
+	evaluateConstraints(g, constraint_dimension_,
+						decision, decision_dim);
+
+
+	// Getting the bounds of the optimization problem just ones
+	if (!bounds_) {
+		// Eigen interfacing to raw buffers
+		double x_l[decision_dim], x_u[decision_dim];
+		double g_l[constraint_dimension_], g_u[constraint_dimension_];
+		Eigen::Map<Eigen::VectorXd> state_lower_bound(x_l, decision_dim);
+		Eigen::Map<Eigen::VectorXd> state_upper_bound(x_u, decision_dim);
+		Eigen::Map<Eigen::VectorXd> constraint_lower_bound(g_l, constraint_dimension_);
+		Eigen::Map<Eigen::VectorXd> constraint_upper_bound(g_u, constraint_dimension_);
+
+		// Evaluating the bounds. Note that CMA-ES cannot handle hard constraints
+		evaluateBounds(x_l, decision_dim, x_u, decision_dim,
+					   g_l, constraint_dimension_, g_u, constraint_dimension_);
+		g_lbound_ = constraint_lower_bound;
+		g_ubound_ = constraint_upper_bound;
+
+		bounds_ = true;
+	}
+
+	// Computing the violation vector
+	double offset_cost = 0.;
+	Eigen::VectorXd violation_vec = Eigen::VectorXd::Zero(constraint_dimension_);
+	for (unsigned int i = 0; i < constraint_dimension_; ++i) {
+		double lower_val = g_lbound_(i) + soft_properties_.threshold;
+		double upper_val = g_ubound_(i) - soft_properties_.threshold;
+		double const_val = constraint(i);
+		if (lower_val > const_val) {
+			switch (soft_properties_.family) {
+			case UNWEIGHTED:
+				violation_vec(i) += 1.;
+				break;
+			case QUADRATIC:
+				violation_vec(i) += lower_val - const_val;
+				break;
+			default:
+				violation_vec(i) += lower_val - const_val;
+				break;
+			}
+		}
+
+		if (upper_val < const_val) {
+			switch (soft_properties_.family) {
+			case UNWEIGHTED:
+				violation_vec(i) += 1.;
+				break;
+			case QUADRATIC:
+				violation_vec(i) += const_val - upper_val;
+				break;
+			default:
+				violation_vec(i) += const_val - upper_val;
+				break;
+			}
+		}
+
+		if (g_ubound_(i) < const_val || g_lbound_(i) > const_val)
+			offset_cost = soft_properties_.offset;
+	}
+
+	// Computing a weighted quadratic cost of the constraint violation
+	cost = soft_properties_.weight * violation_vec.norm() + offset_cost;
+
+	return cost;
+}
+
+
+
 void OptimizationModel::evaluateConstraintJacobian(double* jacobian_values, int nonzero_dim1,
 												   int* row_entries, int nonzero_dim2,
 												   int* col_entries, int nonzero_dim3,
@@ -193,6 +287,12 @@ bool OptimizationModel::isConstraintJacobianImplemented()
 bool OptimizationModel::isLagrangianHessianImplemented()
 {
 	return hessian_;
+}
+
+
+bool OptimizationModel::isSoftConstraint()
+{
+	return soft_constraints_;
 }
 
 } //@namespace model

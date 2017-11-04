@@ -14,6 +14,27 @@ namespace dwl
 namespace model
 {
 
+enum SoftConstraintFamily {QUADRATIC, UNWEIGHTED};
+
+struct SoftConstraintProperties
+{
+	SoftConstraintProperties() : weight(0.), threshold(0.), offset(0.),
+			family(QUADRATIC) {}
+	SoftConstraintProperties(double _weight,
+							 double _threshold,
+							 double _offset,
+							 enum SoftConstraintFamily _family = QUADRATIC) :
+								 weight(_weight),
+								 threshold(_threshold),
+								 offset(_offset),
+								 family(_family) {}
+
+	double weight;
+	double threshold;
+	double offset;
+	enum SoftConstraintFamily family;
+};
+
 /**
  * @class OptimizationModel
  * @brief A NLP problem requires information of constraints (dynamical, active or inactive) and
@@ -90,6 +111,17 @@ class OptimizationModel
 		/** @brief Sets the number of nonzero values of the Hessian function */
 		void setNumberOfNonzeroHessian(unsigned int dim);
 
+		/** @brief Sets the constraint as soft constraint, i.e. inside the
+		 * cost function */
+		void defineAsSoftConstraint();
+
+		/**
+		 * @brief Sets the weight for computing the soft-constraint, i.e.
+		 * the associated cost
+		 * @param const SoftConstraintProperties& Soft-constraints properties
+		 */
+		void setSoftProperties(const SoftConstraintProperties& properties);
+
 		/**
 		 * @brief Gets the starting point of the problem
 		 * @param double* Initial values for the decision variables, $x$
@@ -145,6 +177,15 @@ class OptimizationModel
 		 */
 		virtual void evaluateConstraints(double* constraint, int constraint_dim,
 								 	 	 const double* decision, int decision_dim);
+
+		/**
+		 * @brief Abstract method for evaluating the constraint function as soft one
+		 * @param const double* Array of the decision variables, $x$, at which the constraint functions,
+		 * $g(x)$, are evaluated
+		 * @param int Number of decision variables (dimension of $x$)
+		 * @param return The soft-cost value
+		 */
+		virtual double evaluateAsSoftConstraints(const double* decision, int decision_dim);
 
 		/**
 		 * @brief Abstract method for evaluating the jacobian of the constraint function given a
@@ -211,6 +252,9 @@ class OptimizationModel
 		/** @brief Returns true if the Lagrangian Hessian is implemented */
 		bool isLagrangianHessianImplemented();
 
+		/** @brief Indicates is the constraint is implemented as soft-constraint */
+		bool isSoftConstraint();
+
 
 	protected:
 		/**@brief The solution vector */
@@ -239,6 +283,12 @@ class OptimizationModel
 		/** @brief True if the Lagrangian Hessian is implemented */
 		bool hessian_;
 
+		/** @brief True if the bounds are evaluated */
+		bool bounds_;
+
+		/** @brief True if the constraint are defined as soft */
+		bool soft_constraints_;
+
 		bool first_time_;
 
 		/** @brief Cost functor for numerical differentiation */
@@ -250,6 +300,12 @@ class OptimizationModel
 		/** @brief Machine epsilon constant which gives an upper bound on the relative error
 		    due to rounding in floating point arithmetic */
 		double epsilon_;
+
+		/** @brief Lower and upper bound of the constraints */
+		Eigen::VectorXd g_lbound_, g_ubound_;
+
+		/** @brief Soft-constraints properties */
+		SoftConstraintProperties soft_properties_;
 };
 
 } //@namespace model
