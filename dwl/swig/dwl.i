@@ -16,6 +16,7 @@
 #include <dwl/model/OptimizationModel.h>
 #include <dwl/solver/OptimizationSolver.h>
 #include <dwl/solver/IpoptNLP.h>
+#include <dwl/solver/cmaesSOFamily.h>
 %}
 
 
@@ -43,8 +44,6 @@
 %template(Vector2d_List) std::vector<Eigen::Vector2d>;
 %template(Vector3d_List) std::vector<Eigen::Vector3d>;
 %template(VectorXd_List) std::vector<Eigen::VectorXd>;
-//%template(Vector3d_Dict) std::map<std::string,Eigen::Vector3d>;
-//%template(VectorXd_Dict) std::map<std::string,Eigen::VectorXd>;
 
 // Since Eigen uses templates, we have to declare exactly which types we'd
 // like to generate mappings for.
@@ -244,13 +243,13 @@
 ////////////////////////////////////////////////////////////////////////////////////
 %feature("director") dwl::model::OptimizationModel;
 %feature("director:except") {
-    if( $error != NULL ) {
-        PyObject *ptype, *pvalue, *ptraceback;
-        PyErr_Fetch( &ptype, &pvalue, &ptraceback );
-        PyErr_Restore( ptype, pvalue, ptraceback );
-        PyErr_Print();
-        Py_Exit(1);
-    }
+	if( $error != NULL ) {
+		PyObject *ptype, *pvalue, *ptraceback;
+		PyErr_Fetch( &ptype, &pvalue, &ptraceback );
+		PyErr_Restore( ptype, pvalue, ptraceback );
+		PyErr_Print();
+		Py_Exit(1);
+	}
 }
 
 %include "numpy.i"
@@ -281,3 +280,5 @@
 %include <dwl/model/OptimizationModel.h>
 %include <dwl/solver/OptimizationSolver.h>
 %include <dwl/solver/IpoptNLP.h>
+%include <dwl/solver/cmaesSOFamily.h>
+%template(cmaesSO) dwl::solver::cmaesSOFamily<>;
