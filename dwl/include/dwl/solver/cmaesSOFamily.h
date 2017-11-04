@@ -118,7 +118,7 @@ class cmaesSOFamily : public OptimizationSolver
 		libcmaes::GradFunc grad_fitness_;
 
 		/** @brief Pointer to the CMA-ES configuration parameters */
-		libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,TScaling>>* cmaes_params_;
+		libcmaes::CMAParameters<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,TScaling> >* cmaes_params_;
 
 		/** @brief Warm point for the initialization of the optimization */
 		Eigen::VectorXd warm_point_;
