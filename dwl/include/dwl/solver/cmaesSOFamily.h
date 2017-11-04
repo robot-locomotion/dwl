@@ -164,6 +164,9 @@ class cmaesSOFamily : public OptimizationSolver
 		/** @brief Output file for plotting */
 		std::string output_file_;
 		bool outfile_;
+
+		/** @brief Number of constraint variables */
+		int constraint_dim_;
 };
 
 } //@namespace solver

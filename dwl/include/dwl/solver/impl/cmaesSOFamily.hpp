@@ -272,24 +272,24 @@ bool cmaesSOFamily<TScaling>::init()
 		x0[i] = warm_point_(i);
 
 	// Safety checking of hard-constraints
-	unsigned int constraint_dim = model_->getDimensionOfConstraints();
-	if (constraint_dim > 0)
-		printf(YELLOW "The hard constraint will not consider in the"
-				" optimization problem.\n" COLOR_RESET);
+	constraint_dim_ = model_->getDimensionOfConstraints();
+	if (constraint_dim_ > 0) {
+		printf(BLUE "Info: The hard constraints will be described as soft"
+				" constraints.\n" COLOR_RESET);
+	}
 
 	// Getting the bounds of the optimization problem
 	// Eigen interfacing to raw buffers
 	double x_l[state_dim], x_u[state_dim];
-	double g_l[constraint_dim], g_u[constraint_dim];
+	double g_l[constraint_dim_], g_u[constraint_dim_];
 	Eigen::Map<Eigen::VectorXd> state_lower_bound(x_l, state_dim);
 	Eigen::Map<Eigen::VectorXd> state_upper_bound(x_u, state_dim);
-	Eigen::Map<Eigen::VectorXd> constraint_lower_bound(g_l, constraint_dim);
-	Eigen::Map<Eigen::VectorXd> constraint_upper_bound(g_u, constraint_dim);
+	Eigen::Map<Eigen::VectorXd> constraint_lower_bound(g_l, constraint_dim_);
+	Eigen::Map<Eigen::VectorXd> constraint_upper_bound(g_u, constraint_dim_);
 
 	// Evaluating the bounds. Note that CMA-ES cannot handle hard constraints
 	model_->evaluateBounds(x_l, state_dim, x_u, state_dim,
-						   g_l, constraint_dim, g_u, constraint_dim);
-
+						   g_l, constraint_dim_, g_u, constraint_dim_);
 
 	// Defining the associated bound of the genotype and phenotype
 	libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
@@ -372,6 +372,10 @@ double cmaesSOFamily<TScaling>::fitnessFunction(const double* x,
 	// Numerical evaluation of the cost function
 	double obj_value = 0;
 	model_->evaluateCosts(obj_value, x, n);
+
+	if (constraint_dim_ > 0) {
+		obj_value += model_->evaluateAsSoftConstraints(x, n);
+	}
 
 	return obj_value;
 }
