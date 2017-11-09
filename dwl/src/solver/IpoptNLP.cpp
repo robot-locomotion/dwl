@@ -344,7 +344,6 @@ bool IpoptNLP::compute(double allocated_time_secs)
 	}
 
 	if (solved) {
-		printf("\n\n*** The problem solved!\n");
 		solution_ = ipopt_.getSolution();
 	} else
 		printf("\n\n*** The problem FAILED!\n");
