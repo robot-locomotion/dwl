@@ -32,3 +32,8 @@ ipopt:
   barrier:
     # Update strategy for barrier parameter. Possible values are: monotone and adaptive
     mu_strategy: adaptive
+  derivatives:
+    # True enables the numerical computationg using finite-difference
+    jacobian_approximation: false
+    # True enables the numerical computationg using limited-memory
+    hessian_approximation: false

@@ -497,6 +497,20 @@ function install_libcmaes
 }
 
 
+function install_pyadolc
+{
+	# Remove old folder (sanity procedure)
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf pyadolc
+
+	# Clone pyadolc
+	git clone git@github.com:robot-locomotion/pyadolc.git
+	cd pyadolc
+	./bootstrap.sh # download and compile ADOL-C and ColPack
+	sudo python setup.py install
+}
+
+
 function install_octomap
 {
 	# Remove old folder (sanity procedure)
@@ -753,6 +767,27 @@ else
 	read ANSWER_LIBCMAES
 	if [ "$ANSWER_LIBCMAES" == "Y" ] || [ "$ANSWER_LIBCMAES" == "y" ]; then
 		install_libcmaes
+	fi
+fi
+
+
+##---------------------------------------------------------------##
+##-------------------- Installing PyADOLC -----------------------##
+##---------------------------------------------------------------##
+echo ""
+echo -e "${COLOR_BOLD}Installing pyadolc ...${COLOR_RESET}"
+if [ -d "/usr/local/lib/python2.7/dist-packages/adolc" ]; then
+	# Control will enter here if $DIRECTORY exists.
+	echo -e -n "${COLOR_QUES}Do you want to re-install pyadolc? [y/N]: ${COLOR_RESET}"
+	read ANSWER_PYADOLC
+	if [ "$ANSWER_LIBCMAES" == "Y" ] || [ "$ANSWER_LIBCMAES" == "y" ]; then
+		install_pyadolc
+    fi
+else
+	echo -e -n "${COLOR_QUES}Do you want to install pyadolc? [y/N]: ${COLOR_RESET}"
+	read ANSWER_PYADOLC
+	if [ "$ANSWER_LIBCMAES" == "Y" ] || [ "$ANSWER_LIBCMAES" == "y" ]; then
+		install_pyadolc
 	fi
 fi
 

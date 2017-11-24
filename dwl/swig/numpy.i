@@ -763,6 +763,12 @@
   if (is_new_object$argnum && array$argnum)
     { Py_DECREF(array$argnum); }
 }
+%typemap(directorin, numinputs=1)
+  (DATA_TYPE* IN_ARRAY1, DIM_TYPE DIM1)
+{
+	npy_intp dim = $2;
+	$input = PyArray_SimpleNewFromData(1, &dim, DATA_TYPECODE, (void *)$1);
+}
 
 /* Typemap suite for (DIM_TYPE DIM1, DATA_TYPE* IN_ARRAY1)
  */

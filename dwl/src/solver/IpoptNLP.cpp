@@ -11,7 +11,8 @@ IpoptNLP::IpoptNLP() : initialized_(false), print_level_(5),
 		print_freq_iter_(1), outfile_(false), filename_("ipopt.opt"),
 		file_print_level_(5), convergence_tol_(1e-7), max_iter_(-1),
 		dual_inf_tol_(1.), constr_viol_tol_(0.0001), compl_viol_tol_(0.0001),
-		acceptable_tol_(1e-6), acceptable_iter_(15), mu_strategy_("adaptive")
+		acceptable_tol_(1e-6), acceptable_iter_(15), mu_strategy_("adaptive"),
+		jac_approximation_(false), hess_approximation_(false)
 {
 	name_ = "IpoptNLP";
 }
@@ -37,7 +38,7 @@ void IpoptNLP::setFromConfigFile(std::string filename)
 
 	// Parsing the configuration file
 	std::string ipopt_ns = "ipopt";
-	printf("Reading the configuration parameters from the %s namespace\n",
+	printf(BLUE "Reading the configuration parameters from the %s namespace.\n" COLOR_RESET,
 			ipopt_ns.c_str());
 
 	// Getting the different nodes
@@ -45,6 +46,7 @@ void IpoptNLP::setFromConfigFile(std::string filename)
 	YamlNamespace output_file_ns = {ipopt_ns, "output", "output_file"};
 	YamlNamespace termination_ns = {ipopt_ns, "termination"};
 	YamlNamespace barrier_ns = {ipopt_ns, "barrier"};
+	YamlNamespace derivatives_ns = {ipopt_ns, "derivatives"};
 
 	// Output parameters
 	// Reading and setting up the print level
@@ -108,6 +110,15 @@ void IpoptNLP::setFromConfigFile(std::string filename)
 	std::string mu_strategy;
 	if (yaml_reader.read(mu_strategy, "mu_strategy", barrier_ns))
 		setMuStrategy(mu_strategy);
+
+	// Derivatives parameters
+	// Reading and setting up the jacobian approximation
+	if (yaml_reader.read(jac_approximation_, "jacobian_approximation", derivatives_ns))
+		setJacobianApproximation(jac_approximation_);
+
+		// Reading and setting up the jacobian approximation
+	if (yaml_reader.read(hess_approximation_, "hessian_approximation", derivatives_ns))
+		setHessianApproximation(hess_approximation_);
 
 	// Re-initialization of the solver if it was initialized
 	if (reinit)
@@ -228,6 +239,18 @@ void IpoptNLP::setMuStrategy(std::string mu_strategy)
 }
 
 
+void IpoptNLP::setJacobianApproximation(bool enable)
+{
+	jac_approximation_ = enable;
+}
+
+
+void IpoptNLP::setHessianApproximation(bool enable)
+{
+	hess_approximation_ = enable;
+}
+
+
 bool IpoptNLP::init()
 {
 	// Setting the optimization model to Ipopt wrapper
@@ -258,19 +281,22 @@ bool IpoptNLP::init()
 	setAcceptableIterations(acceptable_iter_);
 	setMuStrategy(mu_strategy_);
 
-	// Change some options (do not touch these)
-	app_->Options()->SetNumericValue("tol", 1e-7);
-//	app_->Options()->SetNumericValue("acceptable_tol", 1e-2);
-	app_->Options()->SetStringValue("mu_strategy", "adaptive");
-//	app_->Options()->SetStringValue("output_file", "ipopt.out");
-	app_->Options()->SetIntegerValue("max_iter", std::numeric_limits<int>::max());
-	app_->Options()->SetIntegerValue("print_level", 5);
+	if (!model_->isCostGradientImplemented())
+		printf(BLUE "Info: Computing the Gradient using numerical differentiation.\n" COLOR_RESET);
 
-	// Computing Hessian numerically (do not need to implement)
-	app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
+	// Enable/disable the numerical computation of the Jacobian
+	if (!model_->isConstraintJacobianImplemented() || jac_approximation_) {
+		// Computing Jacobian numerically (do not need to implement or configure)
+		printf(BLUE "Info: Computing the Jacobian using finite-difference.\n" COLOR_RESET);
+		app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
+	}
 
-	// Computing Hessian numerically (do not need to implement)
-	app_->Options()->SetStringValue("jacobian_approximation", "finite-difference-values");
+	// Enable/disable the numerical computation of the Hessian
+	if (!model_->isLagrangianHessianImplemented() || hess_approximation_) {
+		// Computing Hessian numerically (do not need to implement or configure)
+		printf(BLUE "Info: Computing the Lagrangian Hessian using limited-memory.\n" COLOR_RESET);
+		app_->Options()->SetStringValue("hessian_approximation", "limited-memory");
+	}
 
 	app_->Options()->SetStringValue("warm_start_init_point", "yes");
 
@@ -318,9 +344,7 @@ bool IpoptNLP::compute(double allocated_time_secs)
 	}
 
 	if (solved) {
-		printf("\n\n*** The problem solved!\n");
 		solution_ = ipopt_.getSolution();
-		locomotion_trajectory_ = model_->evaluateSolution(solution_);
 	} else
 		printf("\n\n*** The problem FAILED!\n");
 

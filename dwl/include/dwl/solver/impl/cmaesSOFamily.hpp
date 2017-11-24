@@ -44,7 +44,7 @@ void cmaesSOFamily<TScaling>::setFromConfigFile(std::string filename)
 
 	// Parsing the configuration file
 	std::string cmaes = "cmaes";
-	printf("Reading the configuration parameters from the %s namespace\n",
+	printf(BLUE "Reading the configuration parameters from the %s namespace.\n" COLOR_RESET,
 			cmaes.c_str());
 	YamlNamespace cmaes_ns = {cmaes};
 	YamlNamespace ofile_ns = {cmaes, "output_file"};
@@ -264,7 +264,7 @@ bool cmaesSOFamily<TScaling>::init()
 	// Resizing the warm point dimension and getting the warm point
 	unsigned int state_dim = model_->getDimensionOfState();
 	warm_point_.resize(state_dim);
-	model_->getStartingPoint(warm_point_);
+	model_->getStartingPoint(warm_point_.data(), state_dim);
 
 	// Converting the warm point to std::vector
 	std::vector<double> x0(state_dim);
@@ -272,23 +272,24 @@ bool cmaesSOFamily<TScaling>::init()
 		x0[i] = warm_point_(i);
 
 	// Safety checking of hard-constraints
-	unsigned int constraint_dim = model_->getDimensionOfConstraints();
-	if (constraint_dim > 0)
-		printf(YELLOW "The hard constraint will not consider in the"
-				" optimization problem.\n" COLOR_RESET);
+	constraint_dim_ = model_->getDimensionOfConstraints();
+	if (constraint_dim_ > 0) {
+		printf(BLUE "Info: The hard constraints will be described as soft"
+				" constraints.\n" COLOR_RESET);
+	}
 
 	// Getting the bounds of the optimization problem
 	// Eigen interfacing to raw buffers
 	double x_l[state_dim], x_u[state_dim];
-	double g_l[constraint_dim], g_u[constraint_dim];
+	double g_l[constraint_dim_], g_u[constraint_dim_];
 	Eigen::Map<Eigen::VectorXd> state_lower_bound(x_l, state_dim);
 	Eigen::Map<Eigen::VectorXd> state_upper_bound(x_u, state_dim);
-	Eigen::Map<Eigen::VectorXd> constraint_lower_bound(g_l, constraint_dim);
-	Eigen::Map<Eigen::VectorXd> constraint_upper_bound(g_u, constraint_dim);
+	Eigen::Map<Eigen::VectorXd> constraint_lower_bound(g_l, constraint_dim_);
+	Eigen::Map<Eigen::VectorXd> constraint_upper_bound(g_u, constraint_dim_);
 
 	// Evaluating the bounds. Note that CMA-ES cannot handle hard constraints
-	model_->evaluateBounds(state_lower_bound, state_upper_bound,
-						   constraint_lower_bound, constraint_upper_bound);
+	model_->evaluateBounds(x_l, state_dim, x_u, state_dim,
+						   g_l, constraint_dim_, g_u, constraint_dim_);
 
 	// Defining the associated bound of the genotype and phenotype
 	libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
@@ -330,7 +331,7 @@ template<typename TScaling>
 bool cmaesSOFamily<TScaling>::compute(double allocated_time_secs)
 {
 	// Setting the warm-point
-	model_->getStartingPoint(warm_point_);
+	model_->getStartingPoint(warm_point_.data(), warm_point_.size());
 	cmaes_params_->set_x0(warm_point_);
 
 	// Computing the solution
@@ -356,7 +357,6 @@ bool cmaesSOFamily<TScaling>::compute(double allocated_time_secs)
 	// Evaluation of the solution
 	solution_ =
 			cmaes_params_->get_gp().pheno(cmasols.best_candidate().get_x_dvec());
-	locomotion_trajectory_ = model_->evaluateSolution(solution_);
 
 	return cmasols.run_status();
 }
@@ -369,12 +369,13 @@ double cmaesSOFamily<TScaling>::fitnessFunction(const double* x,
 	// Locking the thread for multi-threading cases
 	std::lock_guard<std::mutex> lck(fmtx);
 
-	// Eigen interfacing to raw buffers
-	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
-
 	// Numerical evaluation of the cost function
 	double obj_value = 0;
-	model_->evaluateCosts(obj_value, decision_var);
+	model_->evaluateCosts(obj_value, x, n);
+
+	if (constraint_dim_ > 0) {
+		obj_value += model_->evaluateAsSoftConstraints(x, n);
+	}
 
 	return obj_value;
 }
@@ -386,16 +387,10 @@ dVec cmaesSOFamily<TScaling>::gradientFitnessFunction(const double *x,
 {
 	dVec gradient(n);
 
-	// Eigen interfacing to raw buffers
-	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
-
 	// Evaluation of the gradient
-	Eigen::MatrixXd grad(1,n);
-	model_->evaluateCostGradient(grad, decision_var);
-	gradient = grad;
+	model_->evaluateCostGradient(gradient.data(), n, x, n);
 
 	return gradient;
-
 }
 
 } //@namespace solver

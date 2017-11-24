@@ -43,13 +43,13 @@ class OptimizationSolver
 		 * @brief Abstract method for initialization of the solver
 		 * @return True if was initialized
 		 */
-		virtual bool init() = 0;
+		virtual bool init();
 
 		/**
 		 * @brief Abstract method for computing a solution of an optimization problem
 		 * @return True if it was computed a solution
 		 */
-		virtual bool compute(double computation_time = 2e19) = 0;
+		virtual bool compute(double computation_time = 2e19);
 
 		/**
 		 * @brief Gets the optimization model
@@ -62,12 +62,6 @@ class OptimizationSolver
 		 * @return const Eigen::VectorXd& The solution vector
 		 */
 		const Eigen::VectorXd& getSolution();
-
-		/**
-		 * @brief Gets the whole-body trajectory computed by the optimizer
-		 * @return const WholeBodyTrajectory& Whole-body trajectory
-		 */
-		const WholeBodyTrajectory& getWholeBodyTrajectory();
 
 		/**
 		 * @brief Gets the name of the solver
@@ -85,9 +79,6 @@ class OptimizationSolver
 
 		/** @brief The solution vector */
 		Eigen::VectorXd solution_;
-
-		/** @brief Computed whole-body trajectory */
-		WholeBodyTrajectory locomotion_trajectory_;
 };
 
 } //@namespace solver

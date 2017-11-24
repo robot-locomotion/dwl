@@ -7,7 +7,7 @@ namespace dwl
 namespace solver
 {
 
-IpoptWrapper::IpoptWrapper() : opt_model_(NULL)
+IpoptWrapper::IpoptWrapper() : opt_model_(NULL), jacobian_(false), hessian_(false)
 {
 
 }
@@ -37,12 +37,24 @@ bool IpoptWrapper::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 	// Getting the dimension of constraints for every knots
 	m = opt_model_->getDimensionOfConstraints();
 
-    // Assuming that Jacobian and Hessian are dense
-    nnz_jac_g = n * m;
-    nnz_h_lag = n * (n + 1) * 0.5;
+	// Getting the number of nonzero values of the Jacobian
+	unsigned int nnz_jac = opt_model_->getNumberOfNonzeroJacobian();
+	jacobian_ = opt_model_->isConstraintJacobianImplemented();
+	if (nnz_jac == 0 || !jacobian_) // Assume that the Jacobian is dense
+		nnz_jac_g = n * m;
+	else
+		nnz_jac_g = nnz_jac;
 
-    // use the C style indexing (0-based)
-    index_style = TNLP::C_STYLE;
+	// Getting the number of nonzero values of the Hessian
+	unsigned int nnz_hess = opt_model_->getNumberOfNonzeroHessian();
+	hessian_ = opt_model_->isLagrangianHessianImplemented();
+	if (nnz_hess == 0 || !hessian_) // Assume that the Hessian is dense
+		nnz_h_lag = n * (n + 1) * 0.5;
+	else
+		nnz_h_lag = nnz_hess;
+
+	// use the C style indexing (0-based)
+	index_style = TNLP::C_STYLE;
 
 	return true;
 }
@@ -51,15 +63,9 @@ bool IpoptWrapper::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 bool IpoptWrapper::get_bounds_info(Index n, Number* x_l, Number* x_u,
 								   Index m, Number* g_l, Number* g_u)
 {
-	// Eigen interfacing to raw buffers
-	Eigen::Map<Eigen::VectorXd> full_state_lower_bound(x_l, n);
-	Eigen::Map<Eigen::VectorXd> full_state_upper_bound(x_u, n);
-	Eigen::Map<Eigen::VectorXd> full_constraint_lower_bound(g_l, m);
-	Eigen::Map<Eigen::VectorXd> full_constraint_upper_bound(g_u, m);
-
 	// Evaluating the bounds
-	opt_model_->evaluateBounds(full_state_lower_bound, full_state_upper_bound,
-							   full_constraint_lower_bound, full_constraint_upper_bound);
+	opt_model_->evaluateBounds(x_l, n, x_u, n,
+							   g_l, m, g_u, m);
 
 	return true;
 }
@@ -71,12 +77,7 @@ bool IpoptWrapper::get_starting_point(Index n, bool init_x, Number* x,
 {
 	// Here, we assume we only have starting values for x, if you code your own NLP, you can
 	// provide starting values for the dual variables if you wish to use a warmstart option
-
-	// Eigen interfacing to raw buffers
-	Eigen::Map<Eigen::VectorXd> full_initial_state(x, n);
-
-	// Setting the full starting state for the predefined horizon
-	opt_model_->getStartingPoint(full_initial_state);
+	opt_model_->getStartingPoint(x, n);
 
 	return true;
 }
@@ -84,11 +85,8 @@ bool IpoptWrapper::get_starting_point(Index n, bool init_x, Number* x,
 
 bool IpoptWrapper::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
-	// Eigen interfacing to raw buffers
-	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
-
 	// Numerical evaluation of the cost function
-	opt_model_->evaluateCosts(obj_value, decision_var);
+	opt_model_->evaluateCosts(obj_value, x, n);
 
 	return true;
 }
@@ -96,15 +94,8 @@ bool IpoptWrapper::eval_f(Index n, const Number* x, bool new_x, Number& obj_valu
 
 bool IpoptWrapper::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
-	// Eigen interfacing to raw buffers
-	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
-	Eigen::Map<Eigen::VectorXd> full_gradient(grad_f, n);
-
-	// Computing the gradient of the cost function for a predefined horizon
-	Eigen::MatrixXd grad(1,n);
-	opt_model_->evaluateCostGradient(grad, decision_var);
-
-	full_gradient = grad;
+	// Computing the gradient of the cost function
+	opt_model_->evaluateCostGradient(grad_f, n, x, n);
 
 	return true;
 }
@@ -112,13 +103,8 @@ bool IpoptWrapper::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 
 bool IpoptWrapper::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
-	// Eigen interfacing to raw buffers
-	const Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
-	Eigen::Map<Eigen::VectorXd> full_constraint(g, m);
-	full_constraint.setZero();
-
 	// Numerical evaluation of the constraint function
-	opt_model_->evaluateConstraints(full_constraint, decision_var);
+	opt_model_->evaluateConstraints(g, m, x, n);
 
 	return true;
 }
@@ -128,28 +114,29 @@ bool IpoptWrapper::eval_jac_g(Index n, const Number* x, bool new_x,
 							  Index m, Index nele_jac, Index* row_entries, Index* col_entries,
 							  Number* values)
 {
+	bool flag = false;
 	if (values == NULL) {
-		// Returns the structure of the Jacobian assuming it's dense
-		int idx = 0;
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				row_entries[idx] = i;
-				col_entries[idx] = j;
-				idx++;
+		flag = true;
+	}
+
+	if (!jacobian_) {
+		if (flag) {
+			// Returns the structure of the Jacobian assuming it's dense
+			int idx = 0;
+			for (int i = 0; i < m; ++i) {
+				for (int j = 0; j < n; ++j) {
+					row_entries[idx] = i;
+					col_entries[idx] = j;
+					idx++;
+				}
 			}
 		}
 	} else {
-		// Returns the values of the Jacobian of the constraints
-		// Eigen interfacing to raw buffers
-		Eigen::Map<const Eigen::VectorXd> decision_var(x, n);
-		Eigen::Map<MatrixRXd> full_jacobian(values, m, n);
-		full_jacobian.setZero();
-
-		// Computing the Jacobian for a predefined horizon
-		Eigen::MatrixXd jac(m,n);
-		opt_model_->evaluateConstraintJacobian(jac, decision_var);
-
-		full_jacobian = jac;
+		// Computing the Jacobian and its sparsity structure
+		opt_model_->evaluateConstraintJacobian(values, nele_jac,
+											   row_entries, nele_jac,
+											   col_entries, nele_jac,
+											   x, n, flag);
 	}
 
 	return true;
@@ -160,25 +147,31 @@ bool IpoptWrapper::eval_h(Index n, const Number* x, bool new_x, Number obj_facto
 						  Index m, const Number* lambda, bool new_lambda,
 						  Index nele_hess, Index* row_entries, Index* col_entries, Number* values)
 {
+	bool flag = false;
 	if (values == NULL) {
-		// Returns the structure. This is a symmetric matrix, fill the lower left
-		// triangle only. Assume the Hessian is dense
-		Index idx = 0;
-		for (Index row = 0; row < n; row++) {
-			for (Index col = 0; col <= row; col++) {
-				row_entries[idx] = row;
-				col_entries[idx] = col;
-				idx++;
+		flag = true;
+	}
+
+	if (!hessian_) {
+		if (flag) {
+			// Returns the structure. This is a symmetric matrix, fill the lower left
+			// triangle only. Assume the Hessian is dense
+			Index idx = 0;
+			for (Index row = 0; row < n; row++) {
+				for (Index col = 0; col <= row; col++) {
+					row_entries[idx] = row;
+					col_entries[idx] = col;
+					idx++;
+				}
 			}
 		}
-
-		assert(idx == nele_hess);
 	} else {
-		Eigen::MatrixXd full_hessian(m, n);
-		full_hessian.setZero();
-		values = full_hessian.data();
-
-		return false;// use limited memory approx http://www.coin-or.org/Ipopt/documentation/node31.html
+		// Computing the Hessian and its sparsity structure
+		opt_model_->evaluateLagrangianHessian(values, nele_hess,
+											  row_entries, nele_hess,
+											  col_entries, nele_hess,
+											  obj_factor,
+											  lambda, m, x, n, flag);
 	}
 
 	return true;

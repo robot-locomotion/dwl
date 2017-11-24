@@ -26,6 +26,3 @@ target_link_libraries(support_utest ${PROJECT_NAME})
 
 add_executable(yaml_utest  YamlWrapperTest.cpp)
 target_link_libraries(yaml_utest ${PROJECT_NAME})
-
-add_executable(numdiff_utest  NumDiffEigenTest.cpp)
-target_link_libraries(numdiff_utest ${PROJECT_NAME})

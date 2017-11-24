@@ -19,9 +19,14 @@ int main(int argc, char **argv)
 	optimal_control.addCost(cost);
 
 	solver->setFromConfigFile("../config/ipopt_config.yaml");
+
+	std::clock_t startcputime = std::clock();
 	solver->init();
 	solver->compute();
 	Eigen::VectorXd sol = solver->getSolution();
+	double cpu_duration =
+				(std::clock() - startcputime) / (double) CLOCKS_PER_SEC;
+	std::cout << "  Computation time: " << cpu_duration << " (microsecs, CPU time)" << std::endl;
 	printf(BLUE "The solution is: " COLOR_RESET);
 	std::cout << sol.transpose() << std::endl;
 
