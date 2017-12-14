@@ -9,9 +9,6 @@ message("Released under the XXX License.")
 # Defining the dwl install prefix
 set(DWL_INSTALL_PREFIX /usr/local/dwl CACHE STRINGS "DWL Install Prefix")
 
-# Defining the unit testing and benckmark environments
-set(WITH_UNIT_TEST false CACHE BOOL "Unit testing")
-set(WITH_BENCHMARK false CACHE BOOL "Benchmarking")
 
 # Checking if the project is compiling with Catkin or CMake
 set(CATKIN_CALL "${CATKIN_DEVEL_PREFIX}")
@@ -29,6 +26,13 @@ endif()
 # Appending the project module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(ENV{PKG_CONFIG_PATH} "${DWL_INSTALL_PREFIX}/lib/pkgconfig/:$ENV{PKG_CONFIG_PATH}")
+# Adding all the options for compilation
+option(DWL_WITH_DOC "Enable the documentation generation" OFF)
+option(DWL_WITH_PYTHON "Compile the Python front-end" OFF)
+option(DWL_WITH_SAMPLE "Compile the sample code" OFF)
+option(DWL_WITH_UNIT_TEST "Compile the code for unit testing" OFF)
+option(DWL_WITH_BENCHMARK "Compile the code for benchmarking" OFF)
+
 
 # Finding dependencies
 find_package(PkgConfig)
@@ -247,56 +251,31 @@ else()
 endif()
 
 
-
-option(WITH_DOC "Enable documentation generation" OFF)
-if(WITH_DOC)
-    set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/doc/Doxyfile.in)
-    set(DOXYFILE_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/doc/doxygen)
-    include(UseDoxygen OPTIONAL)
+# Adding the doxygen documentation
+if(DWL_WITH_DOC)
+	set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/doc/Doxyfile.in)
+	set(DOXYFILE_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/doc/doxygen)
+	include(UseDoxygen OPTIONAL)
 endif()
 
-
-#####################################################
-######################### swig ######################
-#####################################################
-option(WITH_PYTHON "Compile the Python front-end" OFF)
-if(WITH_PYTHON)# OR WITH_MATLAB OR WITH_OCTAVE OR WITH_JSON)
-  add_subdirectory(swig)
+# Building the python module
+if(DWL_WITH_PYTHON)# OR WITH_MATLAB OR WITH_OCTAVE OR WITH_JSON)
+	add_subdirectory(swig)
 endif()
 
-
-# Adding sample executables
-add_executable(fb_sample  sample/FloatingBaseSample.cpp)
-target_link_libraries(fb_sample  ${PROJECT_NAME})
-set_target_properties(fb_sample  PROPERTIES
-                                 COMPILE_DEFINITIONS
-                                 DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
-
-add_executable(kin_sample  sample/WholeBodyKinematicsSample.cpp)
-target_link_libraries(kin_sample ${PROJECT_NAME})
-set_target_properties(kin_sample  PROPERTIES
-                                  COMPILE_DEFINITIONS
-                                  DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
-
-add_executable(dyn_sample  sample/WholeBodyDynamicsSample.cpp)
-target_link_libraries(dyn_sample  ${PROJECT_NAME})
-set_target_properties(dyn_sample  PROPERTIES
-                                  COMPILE_DEFINITIONS
-                                  DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
-
-add_executable(cd_sample sample/CollectDataSample.cpp)
-target_link_libraries(cd_sample ${PROJECT_NAME})
-
+# Adding the sample executables
+if(DWL_WITH_SAMPLE)
+	add_subdirectory(sample)
+endif()
 
 # Adding the test executables
-if(WITH_UNIT_TEST)
-    add_subdirectory(tests)
+if(DWL_WITH_UNIT_TEST)
+	add_subdirectory(tests)
 endif()
 
-
 # Adding the benchmark executables
-if(WITH_BENCHMARK)
-    add_subdirectory(benchmark)
+if(DWL_WITH_BENCHMARK)
+	add_subdirectory(benchmark)
 endif()
 
 
