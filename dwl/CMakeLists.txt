@@ -301,4 +301,7 @@ else()
     # Install C++ library and header files
     install(TARGETS dwl
             LIBRARY DESTINATION "${INSTALL_LIB_PREFIX}")
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
+            DESTINATION DESTINATION "${INSTALL_INCLUDE_PREFIX}"
+            FILES_MATCHING PATTERN "*.h*")
 endif()
