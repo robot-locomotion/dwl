@@ -93,23 +93,23 @@ set(DWL_PYTHON_LIBRARY ${SWIG_MODULE_dwl_REAL_NAME}${DWL_PYTHON_LIBRARY_SUFFIX})
 add_custom_target(install_python
 COMMAND ${CMAKE_COMMAND}
     -D COMPONENT=install_python
-    -D CMAKE_INSTALL_PREFIX="${PYTHON_PREFIX}"
+    -D CMAKE_INSTALL_PREFIX="${INSTALL_PYTHON_PREFIX}"
     -P cmake_install.cmake)
 add_dependencies(install_python _dwl)
 
 # Install C++ wrapper library
 install(TARGETS _dwl
-    DESTINATION "${PYTHON_PREFIX}/dwl"
+    DESTINATION "${INSTALL_PYTHON_PREFIX}/dwl"
     COMPONENT install_python)
 
 # Install Python proxy classes
 install(FILES ${PROJECT_BINARY_DIR}/swig/python/dwl.py
-    DESTINATION "${PYTHON_PREFIX}/dwl"
+    DESTINATION "${INSTALL_PYTHON_PREFIX}/dwl"
     COMPONENT install_python)
 
 # Install Python tools
 #install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools
-#  DESTINATION "${PYTHON_PREFIX}/dwl"
+#  DESTINATION "${INSTALL_PYTHON_PREFIX}/dwl"
 #  COMPONENT install_python
 #  USE_SOURCE_PERMISSIONS
 #  PATTERN .pyc EXCLUDE
@@ -118,5 +118,5 @@ install(FILES ${PROJECT_BINARY_DIR}/swig/python/dwl.py
 
 # Install Python package initialization
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
-    DESTINATION "${PYTHON_PREFIX}/dwl"
+    DESTINATION "${INSTALL_PYTHON_PREFIX}/dwl"
     COMPONENT install_python)

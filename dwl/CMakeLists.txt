@@ -193,38 +193,36 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
 
 
-#  set(DEF_LIB_PREFIX casadi)
-#  set(DEF_BIN_PREFIX casadi)
-#  set(DEF_CMAKE_PREFIX dwl/cmake)
-  set(DEF_PYTHON_PREFIX) # Note: Files installed in a casadi subdirectory
-#  set(DEF_INCLUDE_PREFIX dwl/include)
 # Installation location for Windows
 if(WIN32 AND NOT CYGWIN)
+  set(DEF_LIB_PREFIX casadi)
+  set(DEF_BIN_PREFIX casadi)
+  set(DEF_INCLUDE_PREFIX dwl/include)
+  set(DEF_CMAKE_PREFIX dwl/cmake)
+  set(DEF_PYTHON_PREFIX) # Note: Files installed in a dwl subdirectory
 else()
-#  set(DEF_LIB_PREFIX lib)
-#  set(DEF_BIN_PREFIX bin)
-#  set(DEF_CMAKE_PREFIX lib/cmake/dwl)
-  set(DEF_PYTHON_PREFIX python2.7/dist-packages)
-#  set(DEF_INCLUDE_PREFIX include)
+  set(DEF_LIB_PREFIX lib)
+  set(DEF_BIN_PREFIX bin)
+  set(DEF_INCLUDE_PREFIX include)
+  set(DEF_CMAKE_PREFIX share/dwl/cmake)
+  set(DEF_PYTHON_PREFIX lib/python2.7/dist-packages)
 endif()
 
-
 # Installation directories are cache entries that can be modified
-#set(LIB_PREFIX ${DEF_LIB_PREFIX} CACHE PATH "Installation directory for libraries")
-#set(BIN_PREFIX ${DEF_BIN_PREFIX} CACHE PATH "Installation directory for executables")
-#set(INCLUDE_PREFIX ${DEF_INCLUDE_PREFIX} CACHE PATH "Installation directory for header files")
-#set(CMAKE_PREFIX ${DEF_CMAKE_PREFIX} CACHE PATH "Installation directory for CMake files")
-set(PYTHON_PREFIX ${DEF_PYTHON_PREFIX} CACHE PATH "Installation directory for Python files")
+set(INSTALL_LIB_PREFIX ${DEF_LIB_PREFIX} CACHE PATH "Installation directory for libraries")
+set(INSTALL_BIN_PREFIX ${DEF_BIN_PREFIX} CACHE PATH "Installation directory for executables")
+set(INSTALL_INCLUDE_PREFIX ${DEF_INCLUDE_PREFIX} CACHE PATH "Installation directory for header files")
+set(INSTALL_CMAKE_PREFIX ${DEF_CMAKE_PREFIX} CACHE PATH "Installation directory for CMake files")
+set(INSTALL_PYTHON_PREFIX ${DEF_PYTHON_PREFIX} CACHE PATH "Installation directory for Python files")
 
 
 # Make relative paths absolute (needed later on)
-#foreach(p LIB BIN INCLUDE CMAKE PYTHON)
-foreach(p PYTHON)
-    set(var ${p}_PREFIX)
+foreach(p LIB BIN INCLUDE CMAKE PYTHON)
+    set(var INSTALL_${p}_PREFIX)
     if(${var})
         if(NOT IS_ABSOLUTE "${${var}}")
           # Turn relative path into absolute
-          set(${var} "${CMAKE_INSTALL_PREFIX}/lib/${${var}}")
+          set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
         endif()
     else()
         # Flat installation hierarchy
@@ -279,20 +277,12 @@ export(PACKAGE dwl)
 # Adding the description of the dwl library
 if(CATKIN_CALL)
 	catkin_package(
-		INCLUDE_DIRS include ${DEPENDENCIES_INCLUDE_DIRS}
-		LIBRARIES ${PROJECT_NAME} 
-		DEPENDS system_lib ${DEPENDENCIES_LIBRARIES}
-		                   ${DEPENDENCIES_LIBRARY_DIRS}
-		                   ${DEPENDENCIES_INCLUDE_DIRS})
+		INCLUDE_DIRS  include ${DEPENDENCIES_INCLUDE_DIRS}
+		LIBRARIES  ${PROJECT_NAME} 
+		DEPENDS  ${DEPENDENCIES_LIBRARIES}
+		         ${DEPENDENCIES_LIBRARY_DIRS}
+		         ${DEPENDENCIES_INCLUDE_DIRS})
 else()
-    # Installing catkin package.xml and dwl-config.cmake for dwl as pure cmake project
-    install(FILES package.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/share/dwl)
-    install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake"
-                  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/share/dwl/cmake)
-
-	# Install C++ library
-	install(TARGETS dwl DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
-
 	# Creating a dwl-config.cmake file for the use from the build tree
 	set(DWL_INCLUDE_DIRS  ${INCLUDE_DIRS}:${INSTALL_INCLUDE_PREFIX}
 						  ${DEPENDENCIES_INCLUDE_DIRS})
@@ -302,4 +292,13 @@ else()
 					   ${DEPENDENCIES_LIBRARIES})
 	configure_file(dwl-config.cmake.in
 		"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" @ONLY)
+
+    # Installing catkin package.xml and dwl-config.cmake for dwl as pure cmake project
+    install(FILES package.xml DESTINATION ${INSTALL_LIB_PREFIX}/share/dwl)
+    install(FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake"
+                  DESTINATION ${INSTALL_CMAKE_PREFIX})
+
+    # Install C++ library and header files
+    install(TARGETS dwl
+            LIBRARY DESTINATION "${INSTALL_LIB_PREFIX}")
 endif()
