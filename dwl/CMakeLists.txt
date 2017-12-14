@@ -7,7 +7,7 @@ message("Copyright (C) 2014-2018 Carlos Mastalli - Istituto Italiano di Tecnolog
 message("Released under the XXX License.")
 
 # Defining the dwl install prefix
-set(DWL_INSTALL_PREFIX /usr/local/dwl CACHE STRINGS "DWL Install Prefix")
+set(INSTALL_DEPS_PREFIX /usr/local CACHE STRINGS "DWL thirdparty install path")
 
 
 # Checking if the project is compiling with Catkin or CMake
@@ -23,9 +23,15 @@ else()
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
 endif()
 
-# Appending the project module path
+# Appending the thirdparty path for CMake and package config variables
+set(CMAKE_LIBRARY_PATH ${INSTALL_DEPS_PREFIX}/lib ${CMAKE_LIBRARY_PATH})
+set(CMAKE_SYSTEM_PREFIX_PATH ${INSTALL_DEPS_PREFIX} ${CMAKE_SYSTEM_PREFIX_PATH})
+set(ENV{PKG_CONFIG_PATH} "${INSTALL_DEPS_PREFIX}/lib/pkgconfig/:$ENV{PKG_CONFIG_PATH}")
+
+# Appending the dwl module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(ENV{PKG_CONFIG_PATH} "${DWL_INSTALL_PREFIX}/lib/pkgconfig/:$ENV{PKG_CONFIG_PATH}")
+
+
 # Adding all the options for compilation
 option(DWL_WITH_DOC "Enable the documentation generation" OFF)
 option(DWL_WITH_PYTHON "Compile the Python front-end" OFF)
@@ -62,7 +68,6 @@ set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS} ${URDF_INCLUDE_DIRS} ${RBD
 set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} ${URDF_LIBRARIES} ${YAMLCPP_LIBRARIES})
 set(DEPENDENCIES_LIBRARY_DIRS  ${RBDL_LIBRARY_DIRS})
 
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/dwl/lib)
 
 # Including directories
 set(INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
@@ -301,7 +306,7 @@ else()
 	install(TARGETS dwl DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
 
 	# Creating a dwl-config.cmake file for the use from the build tree
-	set(DWL_INCLUDE_DIRS  ${INCLUDE_DIRS}
+	set(DWL_INCLUDE_DIRS  ${INCLUDE_DIRS}:${INSTALL_INCLUDE_PREFIX}
 						  ${DEPENDENCIES_INCLUDE_DIRS})
 	set(DWL_LIBRARY_DIRS  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
 						  ${DEPENDENCIES_LIBRARY_DIRS})

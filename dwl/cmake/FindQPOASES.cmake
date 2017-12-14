@@ -12,14 +12,16 @@
 # Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@iit.it>
 # Redistribution and use is allowed according to the terms of the XXX license.
 
-set(QPOASES_DIR  /usr/local/)
-#set(QPOASES_DIR  ${PROJECT_SOURCE_DIR}/thirdparty/qpOASES)
+# find the qpOASES include directory
+find_path(QPOASES_INCLUDE_DIRS  qpOASES/QProblem.hpp
+                                PATH_SUFFIXES include
+                                HINTS ${INSTALL_DEPS_PREFIX} /usr /usr/local)
 
-set(QPOASES_INCLUDE_DIRS ${QPOASES_DIR}/include)
-set(QPOASES_LIBRARY_DIR ${QPOASES_DIR}/lib)
-find_library(QPOASES_LIBRARIES NAMES  qpOASES
-							   PATHS  ${QPOASES_LIBRARY_DIR}
-									  NO_DEFAULT_PATH)
+# find the qpOASES library
+find_library(QPOASES_LIBRARIES  NAMES qpOASES
+                                PATH_SUFFIXES lib
+                                HINTS ${INSTALL_DEPS_PREFIX} /usr /usr/local)
+
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(QPOASES DEFAULT_MSG QPOASES_LIBRARIES QPOASES_INCLUDE_DIRS)

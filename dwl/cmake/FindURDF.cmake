@@ -18,26 +18,32 @@ set(URDFDOM_HEADERS_FOUND FALSE)
 set(URDFDOM_FOUND FALSE)
 
 find_path(CONSOLE_BRIDGE_DIR console_bridge/console.h
-	/usr/local/include
+	${INSTALL_DEPS_PREFIX}
+    /usr/local/include
 	/usr/include)
 
 find_library(CONSOLE_BRIDGE_LIBRARY NAMES console_bridge PATHS
+	${INSTALL_DEPS_PREFIX}
 	/usr/local/include
 	/usr/include)
 
 find_path(URDFDOM_HEADERS_DIR urdf_model/model.h
+	${INSTALL_DEPS_PREFIX}
 	/usr/local/include
 	/usr/include)
 
 find_path(URDFDOM_DIR urdf_parser/urdf_parser.h
+	${INSTALL_DEPS_PREFIX}
 	/usr/local/include
 	/usr/include)
 
 find_library(URDFDOM_MODEL_LIBRARY NAMES urdfdom_model PATHS
+	${INSTALL_DEPS_PREFIX}
 	/usr/local/include
 	/usr/include)
 
 find_library(URDFDOM_WORLD_LIBRARY NAMES urdfdom_world PATHS
+	${INSTALL_DEPS_PREFIX}
  	/usr/local/include
  	/usr/include)
 
