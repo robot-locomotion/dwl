@@ -9,7 +9,7 @@ COLOR_WARN="\033[0;33m"
 COLOR_BOLD="\033[1m"
 COLOR_UNDE="\033[4m"
 
-DWL_INSTALL_PREFIX=/usr/local/dwl
+INSTALL_DEPS_PREFIX=/usr/local
 COMMON_INSTALL_PREFIX=/usr
 
 # Getting the current directory of this script
@@ -61,7 +61,7 @@ function install_eigen
 		cd eigen
 		mkdir -p build
 		cd build
-		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DPKGCONFIG_INSTALL_DIR=$DWL_INSTALL_PREFIX/lib/pkgconfig ..
+		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX -DPKGCONFIG_INSTALL_DIR=$INSTALL_DEPS_PREFIX/lib/pkgconfig ..
 		sudo make -j install
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting Eigen 3.2.10
@@ -71,7 +71,7 @@ function install_eigen
 		cd eigen
 		mkdir -p build
 		cd build
-		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DPKGCONFIG_INSTALL_DIR=$DWL_INSTALL_PREFIX/lib/pkgconfig ..
+		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX -DPKGCONFIG_INSTALL_DIR=$INSTALL_DEPS_PREFIX/lib/pkgconfig ..
 		sudo make -j install
     fi
 }
@@ -91,7 +91,7 @@ function install_rbdl
 		cd rbdl
 		mkdir -p build
 		cd build
-		cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX ../
 		make -j
 		sudo make -j install
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
@@ -103,7 +103,7 @@ function install_rbdl
 		cd rbdl
 		mkdir -p build
 		cd build
-		cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX ../
 		make -j
 		sudo make -j install
 	fi
@@ -213,7 +213,7 @@ function install_yamlcpp
 		cd yaml-cpp
 		mkdir -p build
 		cd build
-		cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX ../
 		sudo make -j install
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting the YAML-CPP 0.5.2
@@ -223,7 +223,7 @@ function install_yamlcpp
 		cd yaml-cpp
 		mkdir -p build
 		cd build
-		cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX ../
+		cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX ../
 		sudo make -j install
 	fi
 }
@@ -240,7 +240,8 @@ function install_swig
 	mkdir swig && tar zxf swig-3.0.12.tar.gz -C swig --strip-components 1
 	rm -rf swig-3.0.12.tar.gz
 	cd swig
-	./configure --prefix=/usr --without-clisp --without-maximum-compile-warnings
+#	./configure --prefix=/usr --without-clisp --without-maximum-compile-warnings
+	./configure --prefix=$INSTALL_DEPS_PREFIX --without-clisp --without-maximum-compile-warnings
 	make -j
 	sudo make install
 }
@@ -260,7 +261,7 @@ function install_lapack
 		mkdir -p build
 		cd build
 		#TODO this part doesn't work yet
-		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ../
+		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX -DBUILD_SHARED_LIBS=ON ../
 		sudo make -j install
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Getting the LAPACK 3.6.0
@@ -270,7 +271,7 @@ function install_lapack
 		cd lapack
 		mkdir -p build
 		cd build
-		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$DWL_INSTALL_PREFIX -DBUILD_SHARED_LIBS=ON ../
+		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX -DBUILD_SHARED_LIBS=ON ../
 		sudo make -j install
 	fi
 }
@@ -291,7 +292,7 @@ function install_ipopt
 		# http://www.coin-or.org/Ipopt/documentation/node13.html
 		
 		# Installing LAPACK and BLAS
-		if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
+		if [ ! -f "$INSTALL_DEPS_PREFIX/lib/liblapack.so" ]; then
 			install_lapack
 		fi
 
@@ -333,7 +334,7 @@ function install_ipopt
 		mv IpTripletToCSRConverter.cpp Ipopt/src/Algorithm/LinearSolvers/IpTripletToCSRConverter.cpp
 		# create build directory
 		mkdir -p build
-		../configure --enable-static --prefix $DWL_INSTALL_PREFIX --with-lapack="-L$DWL_INSTALL_PREFIX/lib -llapack" --with-blas="-L$DWL_INSTALL_PREFIX/lib -lblas"
+		../configure --enable-static --prefix $INSTALL_DEPS_PREFIX --with-lapack="-L$INSTALL_DEPS_PREFIX/lib -llapack" --with-blas="-L$INSTALL_DEPS_PREFIX/lib -lblas"
 		sudo make -j install
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Installing necessary packages
@@ -347,7 +348,7 @@ function install_ipopt
 		# http://www.coin-or.org/Ipopt/documentation/node13.html
 
 		# Installing LAPACK and BLAS
-		if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
+		if [ ! -f "$INSTALL_DEPS_PREFIX/lib/liblapack.so" ]; then
 			install_lapack
 		fi
 
@@ -390,7 +391,7 @@ function install_ipopt
 		mkdir -p build
 		cd build
 		# start building
-		../configure --enable-static --prefix $DWL_INSTALL_PREFIX --with-lapack="-L$DWL_INSTALL_PREFIX/lib -llapack" --with-blas="-L$DWL_INSTALL_PREFIX/lib -lblas"
+		../configure --enable-static --prefix $INSTALL_DEPS_PREFIX --with-lapack="-L$INSTALL_DEPS_PREFIX/lib -llapack" --with-blas="-L$INSTALL_DEPS_PREFIX/lib -lblas"
 		sudo make -j install
 	fi
 }
@@ -410,13 +411,13 @@ function install_qpoases
 		mv qpOASES-3.2.0 qpOASES
 		
 		# Installing LAPACK and BLAS
-		if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
+		if [ ! -f "$INSTALL_DEPS_PREFIX/lib/liblapack.so" ]; then
 			install_lapack
 		fi
 
 		cd $CURRENT_DIR/thirdparty
 		cd qpOASES
-		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
+		sudo make -j BINDIR=$INSTALL_DEPS_PREFIX/lib REPLACE_LINALG=0 LIB_LAPACK=$INSTALL_DEPS_PREFIX/lib/liblapack.so LIB_BLAS=$INSTALL_DEPS_PREFIX/lib/libblas.so
 		mkdir build
 		cd build
 		cmake ../
@@ -429,16 +430,17 @@ function install_qpoases
 		mv qpOASES-3.2.0 qpOASES
 
 		# Installing LAPACK and BLAS
-		if [ ! -f "$DWL_INSTALL_PREFIX/lib/liblapack.so" ]; then
+		if [ ! -f "$INSTALL_DEPS_PREFIX/lib/liblapack.so" ]; then
 			install_lapack
 		fi
 
 		cd $CURRENT_DIR/thirdparty
 		cd qpOASES
-		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$DWL_INSTALL_PREFIX/lib/liblapack.so LIB_BLAS=$DWL_INSTALL_PREFIX/lib/libblas.so
+		sudo make -j BINDIR=/usr/local/lib REPLACE_LINALG=0 LIB_LAPACK=$INSTALL_DEPS_PREFIX/lib/liblapack.so LIB_BLAS=$INSTALL_DEPS_PREFIX/lib/libblas.so
 		mkdir build
 		cd build
-		cmake ../
+#		cmake ../
+		cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX ../
 		make -j4
 		sudo make -j4 install
 	fi
@@ -470,7 +472,7 @@ function install_libcmaes
 		rm -rf 0.9.5.tar.gz
 		cd libcmaes
 		./autogen.sh
-		./configure --enable-gglog --prefix=$DWL_INSTALL_PREFIX --with-eigen3-include=$DWL_INSTALL_PREFIX/include/eigen3
+		./configure --enable-gglog --prefix=$INSTALL_DEPS_PREFIX --with-eigen3-include=$INSTALL_DEPS_PREFIX/include/eigen3
 		sudo make -j4 install
 	elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 		# Installing libcmaes dependecies
@@ -491,7 +493,7 @@ function install_libcmaes
 		rm -rf 0.9.5.tar.gz
 		cd libcmaes
 		./autogen.sh
-		./configure --enable-gglog --prefix=$DWL_INSTALL_PREFIX --with-eigen3-include=$DWL_INSTALL_PREFIX/include/eigen3
+		./configure --enable-gglog --prefix=$INSTALL_DEPS_PREFIX --with-eigen3-include=$INSTALL_DEPS_PREFIX/include/eigen3
 		sudo make -j4 install
 	fi
 }
@@ -534,7 +536,8 @@ function install_octomap
 		cd octomap
 		mkdir -p build
 		cd build
-		cmake ../
+#		cmake ../
+		cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX ../
 		sudo make -j install
 	fi
 }
@@ -611,7 +614,7 @@ sudo apt-get install doxygen
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing Eigen ...${COLOR_RESET}"
-if [ -d "$DWL_INSTALL_PREFIX/include/eigen3" ]; then
+if [ -d "$INSTALL_DEPS_PREFIX/include/eigen3" ]; then
 	echo -e -n "${COLOR_QUES}Do you want to re-install Eigen 3.2.10? [y/N]: ${COLOR_RESET}"
 	read ANSWER_EIGEN
 	if [ "$ANSWER_EIGEN" == "Y" ] || [ "$ANSWER_EIGEN" == "y" ]; then
@@ -664,7 +667,7 @@ fi
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing RBDL ...${COLOR_RESET}"
-if [ -d "$DWL_INSTALL_PREFIX/include/rbdl" ]; then
+if [ -d "$INSTALL_DEPS_PREFIX/include/rbdl" ]; then
 	echo -e -n "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? [y/N]: ${COLOR_RESET}"
 	read ANSWER_RBDL
 	if [ "$ANSWER_RBDL" == "Y" ] || [ "$ANSWER_RBDL" == "y" ]; then
@@ -680,7 +683,7 @@ fi
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
-if [ -d "$DWL_INSTALL_PREFIX/include/yaml-cpp" ] || [ -d "$COMMON_INSTALL_PREFIX/include/yaml-cpp" ]; then
+if [ -d "$INSTALL_DEPS_PREFIX/include/yaml-cpp" ] || [ -d "$COMMON_INSTALL_PREFIX/include/yaml-cpp" ]; then
 	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.2? [y/N]: ${COLOR_RESET}"
 	read ANSWER_YAMLCPP
 	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
@@ -713,7 +716,7 @@ fi
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing Ipopt ...${COLOR_RESET}"
-if [ -d "$DWL_INSTALL_PREFIX/include/coin" ]; then
+if [ -d "$INSTALL_DEPS_PREFIX/include/coin" ]; then
 	# Control will enter here if $DIRECTORY exists.
 	echo -e -n "${COLOR_QUES}Do you want to re-install Ipopt 3.12.4? [y/N]: ${COLOR_RESET}"
 	read ANSWER_IPOPT
@@ -755,7 +758,7 @@ fi
 ##---------------------------------------------------------------##
 echo ""
 echo -e "${COLOR_BOLD}Installing libcmaes ...${COLOR_RESET}"
-if [ -d "$DWL_INSTALL_PREFIX/include/libcmaes" ]; then
+if [ -d "$INSTALL_DEPS_PREFIX/include/libcmaes" ]; then
 	# Control will enter here if $DIRECTORY exists.
 	echo -e -n "${COLOR_QUES}Do you want to re-install libcmaes 0.9.5? [y/N]: ${COLOR_RESET}"
 	read ANSWER_LIBCMAES
