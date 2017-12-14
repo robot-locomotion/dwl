@@ -8,7 +8,7 @@
 #  RBDL_INCLUDE_DIRS - the rbdl include directory
 #  RBDL_LIBRARIES - the rbdl libraries
 #
-# Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@iit.it>
+# Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@laas.fr>
 # Redistribution and use is allowed according to the terms of the XXX license.
 
 # find the rbdl include directory

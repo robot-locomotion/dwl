@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(dwl)
 
-set(DWL_VERSION 1.1.4 CACHE STRING "DWL version")
+set(DWL_VERSION 1.2.3 CACHE STRING "DWL version")
 message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
-message("Copyright (C) 2014-2018 Carlos Mastalli - Istituto Italiano di Tecnologia.")
+message("Copyright (C) 2014-2018 Carlos Mastalli - LAAS-CNRS & Istituto Italiano di Tecnologia.")
 message("Released under the XXX License.")
 
 # Defining the dwl install prefix

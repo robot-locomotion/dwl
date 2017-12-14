@@ -9,7 +9,7 @@
 #  URDF_INCLUDE_DIR - the urdf include directory
 #  URDF_LIBRARIES - the urdf libraries
 #
-# Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@iit.it>
+# Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@laas.fr>
 # Redistribution and use is allowed according to the terms of the XXX license.
 
 set(URDF_FOUND FALSE)

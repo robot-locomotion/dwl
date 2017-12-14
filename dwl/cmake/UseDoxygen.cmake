@@ -10,7 +10,7 @@
 #  DOXYFILE_OUTPUT_DIR - Path where the Doxygen output is stored.
 #                        The default path is "${CMAKE_CURRENT_BINARY_DIR}/doc".
 #
-# Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@iit.it>
+# Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@laas.fr>
 # Redistribution and use is allowed according to the terms of the XXX license.
 
 

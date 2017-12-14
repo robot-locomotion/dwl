@@ -8,7 +8,7 @@
 #  YAMLCPP_INCLUDE_DIRS - the yaml-cpp include directory
 #  YAMLCPP_LIBRARIES - the yaml-cpp libraries
 #
-# Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@iit.it>
+# Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@laas.fr>
 # Redistribution and use is allowed according to the terms of the XXX license.
 
 
