@@ -571,9 +571,9 @@ function install_gnuplot
 
 ##############################################  MAIN  ########################################################
 # Printing the information of the shell script
-echo -e "${COLOR_BOLD}install_deps.sh - DWL Installation Script for Ubuntu Precise Pangolin 12.04 and Ubuntu Trusty Tahr 14.04${COLOR_RESET}"
+echo -e "${COLOR_BOLD}install_deps.sh - DWL Installation Script for Ubuntu Trusty Tahr 14.04${COLOR_RESET}"
 echo ""
-echo "Copyright (C) 2015 Carlos Mastalli"
+echo "Copyright (C) 2015-2018 Carlos Mastalli"
 echo ""
 echo "This program comes with ABSOLUTELY NO WARRANTY."
 echo "This is free software, and you are welcome to redistribute it"
@@ -601,6 +601,14 @@ findCurrentOSType
 echo ""
 read -s -p "Press enter to start the installation. " 
 echo ""
+
+echo -e -n "${COLOR_QUES}Do you want to install the thirdparties in $INSTALL_DEPS_PREFIX [Y/n]: ${COLOR_RESET}"
+read ANSWER_PATH
+if [ "$ANSWER_PATH" == "N" ] || [ "$ANSWER_PATH" == "n" ]; then
+echo -e -n "${COLOR_QUES}Please write absolute path: ${COLOR_RESET}"
+read ANSWER_PATH_STRING
+INSTALL_DEPS_PREFIX=$ANSWER_PATH_STRING
+fi
 
 
 mkdir -p ${CURRENT_DIR}/thirdparty
