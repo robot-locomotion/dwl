@@ -23,6 +23,18 @@ else()
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
 endif()
 
+# Set a default build type to 'Release' if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+	message(STATUS "Setting build type to 'Release' as none was specified.")
+	set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+	# Set the possible values of build type for cmake-gui
+	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
+# Setting flags for optimization
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
+
 # Appending the thirdparty path for CMake and package config variables
 set(CMAKE_LIBRARY_PATH ${INSTALL_DEPS_PREFIX}/lib ${CMAKE_LIBRARY_PATH})
 set(CMAKE_SYSTEM_PREFIX_PATH ${INSTALL_DEPS_PREFIX} ${CMAKE_SYSTEM_PREFIX_PATH})
@@ -50,18 +62,6 @@ find_package(QPOASES)
 pkg_check_modules(IPOPT ipopt)
 pkg_check_modules(LIBCMAES libcmaes)
 find_package(octomap)
-
-# Set a default build type to 'Release' if none was specified
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-	message(STATUS "Setting build type to 'Release' as none was specified.")
-	set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-	# Set the possible values of build type for cmake-gui
-	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
-
-# Setting flags for optimization
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
 
 # Setting the thirdparties directories and libraries
 set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS} ${URDF_INCLUDE_DIRS} ${RBDL_INCLUDE_DIRS})
@@ -193,17 +193,13 @@ add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
 
 
-############################################################
-################# Installation location ####################
-############################################################
-# Flat hierarchy if self-contained and on Windows
-option(WITH_SELFCONTAINED "Make the install directory self-contained" OFF)
-if(WITH_SELFCONTAINED OR (WIN32 AND NOT CYGWIN))
 #  set(DEF_LIB_PREFIX casadi)
 #  set(DEF_BIN_PREFIX casadi)
 #  set(DEF_CMAKE_PREFIX dwl/cmake)
   set(DEF_PYTHON_PREFIX) # Note: Files installed in a casadi subdirectory
 #  set(DEF_INCLUDE_PREFIX dwl/include)
+# Installation location for Windows
+if(WIN32 AND NOT CYGWIN)
 else()
 #  set(DEF_LIB_PREFIX lib)
 #  set(DEF_BIN_PREFIX bin)
@@ -237,22 +233,14 @@ foreach(p PYTHON)
 endforeach()
 
 # Set rpath
-if(WITH_SELFCONTAINED)
-    if(APPLE)
-        set(CMAKE_INSTALL_RPATH "@loader_path/")
-    else()
-        set(CMAKE_INSTALL_RPATH "$ORIGIN")
-    endif()
-else()
-    # add the automatically determined parts of the RPATH
-    # which point to directories outside the build tree to the install RPATH
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-    # the RPATH to be used when installing, but only if it's not a system directory
-    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${LIB_PREFIX}" isSystemDir)
-    if("${isSystemDir}" STREQUAL "-1")
-        set(CMAKE_INSTALL_RPATH "${LIB_PREFIX}")
-    endif()
+# the RPATH to be used when installing, but only if it's not a system directory
+list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${LIB_PREFIX}" isSystemDir)
+if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "${LIB_PREFIX}")
 endif()
 
 
