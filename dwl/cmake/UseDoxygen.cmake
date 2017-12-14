@@ -51,7 +51,7 @@ if(DOXYGEN_FOUND)
         VERBATIM)
     
     # Installing the doxygen files
-    install(DIRECTORY ${DOXYFILE_OUTPUT_DIR} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/share/dwl)
+    install(DIRECTORY ${DOXYFILE_OUTPUT_DIR} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/dwl/doc)
 else (DOXYGEN_FOUND)
   message("Doxygen need to be installed to generate the doxygen documentation")
 endif()
