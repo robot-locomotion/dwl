@@ -83,11 +83,8 @@ set(${PROJECT_NAME}_SOURCES  src/WholeBodyState.cpp
                              src/locomotion/PlanningOfMotionSequence.cpp 
 							 src/locomotion/HierarchicalPlanning.cpp
 							 src/locomotion/MotionPlanning.cpp
-							 src/locomotion/SearchBasedBodyMotionPlanning.cpp
 							 src/locomotion/ContactPlanning.cpp
-							 src/locomotion/GreedyFootstepPlanning.cpp
 							 src/locomotion/WholeBodyTrajectoryOptimization.cpp
-							 src/locomotion/PreviewTrajectoryOptimization.cpp
 							 src/solver/SearchTreeSolver.cpp	
 							 src/solver/OptimizationSolver.cpp
 							 src/solver/Dijkstrap.cpp
@@ -117,7 +114,6 @@ set(${PROJECT_NAME}_SOURCES  src/WholeBodyState.cpp
 							 src/ocp/TerminalStateTrackingEnergyCost.cpp
 							 src/ocp/IntegralStateTrackingEnergyCost.cpp
 							 src/ocp/IntegralControlEnergyCost.cpp
-							 src/ocp/PreviewOptimization.cpp
 							 src/simulation/PreviewLocomotion.cpp
 							 src/simulation/LinearControlledCartTableModel.cpp
 							 src/simulation/FootSplinePatternGenerator.cpp
