@@ -35,6 +35,6 @@ if(WITH_DEPRECATED_FEATURES)
     set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} "-DWITH_DEPRECATED_FEATURES")
 endif()
 
-if(WITH_PYTHON)
+if(DWL_WITH_PYTHON)
      add_subdirectory(python)
 endif()
