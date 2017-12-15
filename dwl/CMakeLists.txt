@@ -126,16 +126,6 @@ set(${PROJECT_NAME}_SOURCES  src/WholeBodyState.cpp
 							 src/environment/TerrainMap.cpp
 							 src/environment/SpaceDiscretization.cpp
 							 src/environment/Feature.cpp
-							 src/environment/SlopeFeature.cpp
-							 src/environment/CurvatureFeature.cpp
-							 src/environment/HeightDeviationFeature.cpp
-							 src/environment/PotentialLegCollisionFeature.cpp
-							 src/environment/PotentialBodyOrientationFeature.cpp
-							 src/environment/LegCollisionFeature.cpp
-							 src/environment/BodyOrientationFeature.cpp
-							 src/environment/SupportTriangleFeature.cpp
-							 src/environment/KinematicFeasibilityFeature.cpp
-							 src/environment/StancePostureFeature.cpp
 							 src/robot/Robot.cpp
 							 src/utils/Geometry.cpp
 							 src/utils/Algebra.cpp
@@ -184,8 +174,7 @@ endif()
 # Adding Octomap components of the project
 if(octomap_FOUND)
 	include_directories(${OCTOMAP_INCLUDE_DIRS}) 
-	list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/TerrainMapping.cpp
-										 src/environment/ObstacleMap.cpp)
+	list(APPEND ${PROJECT_NAME}_SOURCES  src/environment/ObstacleMap.cpp)
 endif()
 
 # Adding the dwl library
