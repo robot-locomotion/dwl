@@ -10,7 +10,7 @@
 #  QPOASES_LIBRARIES - the qpOASES libraries
 #
 # Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@laas.fr>
-# Redistribution and use is allowed according to the terms of the XXX license.
+# Redistribution and use is allowed according to the terms of the BSD 3-Clause license.
 
 # find the qpOASES include directory
 find_path(QPOASES_INCLUDE_DIRS  qpOASES/QProblem.hpp

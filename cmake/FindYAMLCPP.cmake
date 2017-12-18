@@ -9,7 +9,7 @@
 #  YAMLCPP_LIBRARIES - the yaml-cpp libraries
 #
 # Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@laas.fr>
-# Redistribution and use is allowed according to the terms of the XXX license.
+# Redistribution and use is allowed according to the terms of the BSD 3-Clause license.
 
 
 # attempt to find static library first if this is set

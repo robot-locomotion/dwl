@@ -11,7 +11,7 @@
 #                        The default path is "${CMAKE_CURRENT_BINARY_DIR}/doc".
 #
 # Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@laas.fr>
-# Redistribution and use is allowed according to the terms of the XXX license.
+# Redistribution and use is allowed according to the terms of the BSD 3-Clause license.
 
 
 macro(usedoxygen_set_default name value)

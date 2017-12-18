@@ -3,8 +3,9 @@ project(dwl)
 
 set(DWL_VERSION 1.2.3 CACHE STRING "DWL version")
 message("Dynamic Whole-Body Locomotion (DWL) library, version ${DWL_VERSION}")
-message("Copyright (C) 2014-2018 Carlos Mastalli - LAAS-CNRS & Istituto Italiano di Tecnologia.")
-message("Released under the XXX License.")
+message("Copyright (C) 2014-2018 Carlos Mastalli, <carlos.mastalli@laas.fr>")
+message("All rights reserved.")
+message("Released under the BSD 3-Clause License.")
 
 # Defining the dwl install prefix
 set(INSTALL_DEPS_PREFIX /usr/local CACHE STRINGS "DWL thirdparty install path")

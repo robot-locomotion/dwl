@@ -9,7 +9,7 @@
 #  RBDL_LIBRARIES - the rbdl libraries
 #
 # Copyright (c) 2014-2018 Carlos Mastalli, <carlos.mastalli@laas.fr>
-# Redistribution and use is allowed according to the terms of the XXX license.
+# Redistribution and use is allowed according to the terms of the BSD 3-Clause license.
 
 # find the rbdl include directory
 find_path(RBDL_INCLUDE_DIRS  rbdl/rbdl.h
