@@ -503,12 +503,50 @@ function install_pyadolc
 {
 	# Remove old folder (sanity procedure)
 	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf colpack
+
+	# Installing ColPAck
+	# Download ColPack
+	wget -O ColPack-1.0.10.tar.gz https://github.com/CSCsw/ColPack/archive/v1.0.10.tar.gz
+
+	# build ColPack
+	tar xfvz ColPack-1.0.10.tar.gz
+	rm ColPack-1.0.10.tar.gz
+	mv ColPack-1.0.10 colpack
+	cd colpack
+	autoreconf -vif
+	./configure --prefix=$INSTALL_DEPS_PREFIX --libdir='${prefix}/lib'
+	make
+	sudo make install
+
+
+	# Remove old folder (sanity procedure)
+	cd $CURRENT_DIR/thirdparty
+	sudo rm -rf adolc
+
+	# Download ADOL-C
+	wget http://www.coin-or.org/download/source/ADOL-C/ADOL-C-2.6.0.tgz
+	tar xfvz ADOL-C-2.6.0.tgz
+	rm ADOL-C-2.6.0.tgz
+	mv ADOL-C-2.6.0 adolc
+	cd adolc
+	./update_versions.sh
+	./configure --enable-sparse --with-colpack=$INSTALL_DEPS_PREFIX --prefix=$INSTALL_DEPS_PREFIX
+	make
+	sudo make install
+
+
+	# Remove old folder (sanity procedure)
+	cd $CURRENT_DIR/thirdparty
 	sudo rm -rf pyadolc
 
 	# Clone pyadolc
 	git clone git@github.com:robot-locomotion/pyadolc.git
 	cd pyadolc
-	./bootstrap.sh # download and compile ADOL-C and ColPack
+
+	export BOOST_DIR=$INSTALL_DEPS_PREFIX
+	export ADOLC_DIR=$INSTALL_DEPS_PREFIX
+	export COLPACK_DIR=$INSTALL_DEPS_PREFIX
 	sudo python setup.py install
 }
 
