@@ -37,7 +37,7 @@ if [ "$CURRENT_OS" == "OSX" ]; then
 	cd gtest
 	mkdir -p build
 	cd build
-	cmake -D BUILD_SHARED_LIBS:bool=ON  CMAKE_BUILD_TYPE=Release $VERBOSITY ../
+	cmake -D BUILD_SHARED_LIBS:bool=ON CMAKE_BUILD_TYPE=Release $VERBOSITY ../
 	make -j
 	if [[ $OWNER == 'root' ]]; then
 		sudo make -j install
@@ -61,7 +61,7 @@ if [ "$CURRENT_OS" == "OSX" ]; then
 	fi
 elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 	# Installing libcmaes dependecies
-	sudo apt-get install autoconf automake libtool libgoogle-glog-dev libgflags-dev
+	sudo apt-get install autoconf automake libtool libgoogle-glog-dev libgflags-dev libgtest-dev
 
 	# Compiling and installing Google unit test framework
 	cd /usr/src/gtest
@@ -70,7 +70,7 @@ elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 	sudo cmake $VERBOSITY ../
 	sudo make -j
 	sudo cp *.a /usr/lib
-	cd $CURRENT_DIR/thirdparty
+	cd $DWL_DIR/thirdparty
 
 	# Getting the libcmaes 0.9.5
 	wget https://github.com/beniz/libcmaes/archive/0.9.5.tar.gz
