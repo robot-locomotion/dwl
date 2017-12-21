@@ -787,7 +787,7 @@ cd ${CURRENT_DIR}/thirdparty
 
 
 if [[ $1 == 'default' ]]; then
-	INSTALL_DEPS_PREFIX=$HOME/tmprobots
+	INSTALL_DEPS_PREFIX=$HOME/openrobots
 	mkdir -p $INSTALL_DEPS_PREFIX
 
 	# Checking if the installation folder has sudo rights

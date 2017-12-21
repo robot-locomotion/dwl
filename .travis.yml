@@ -8,7 +8,7 @@ before_install:
 #- wget https://github.com/ros/console_bridge/archive/0.4.0.tar.gz && tar xvf 0.4.0.tar.gz && cd console_bridge-0.4.0 && cmake . && make install && cd -
 #- wget https://bitbucket.org/rbdl/rbdl/get/v2.5.0.tar.gz && tar xvf v2.5.0.tar.gz && cd rbdl-rbdl-379184776089 && cmake . && make install && cd -
 install:
-- cmake .
+- cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/openrobots . 
 - make
 #- make test
 - make install
