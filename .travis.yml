@@ -3,7 +3,7 @@ sudo: required
 #dist: xenial
 dist: trusty
 before_install:
-- ./install_deps.sh
+- ./install_deps.sh default
 #- apt-get update && apt-get install -qqy libboost-all-dev cmake libeigen3-dev libyaml-cpp-dev swig liburdfdom-headers-dev liburdfdom-dev liboctomap-dev
 #- wget https://github.com/ros/console_bridge/archive/0.4.0.tar.gz && tar xvf 0.4.0.tar.gz && cd console_bridge-0.4.0 && cmake . && make install && cd -
 #- wget https://bitbucket.org/rbdl/rbdl/get/v2.5.0.tar.gz && tar xvf v2.5.0.tar.gz && cd rbdl-rbdl-379184776089 && cmake . && make install && cd -

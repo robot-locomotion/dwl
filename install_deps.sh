@@ -777,256 +777,278 @@ echo "under certain conditions; see the LICENSE text file for more information."
 # modify it under the terms of the BSD 3-Clause License
 
 
-
 ## Detecting the current OS and distro
 findCurrentOSType
-
-echo ""
-read -s -p "Press enter to start the installation. " 
-echo ""
-
-echo -e -n "${COLOR_QUES}Do you want to install the thirdparties in $INSTALL_DEPS_PREFIX [Y/n]: ${COLOR_RESET}"
-read ANSWER_PATH
-if [ "$ANSWER_PATH" == "N" ] || [ "$ANSWER_PATH" == "n" ]; then
-echo -e -n "${COLOR_QUES}Please write absolute path: ${COLOR_RESET}"
-read ANSWER_PATH_STRING
-INSTALL_DEPS_PREFIX=$ANSWER_PATH_STRING
-fi
-
-# Checking if the installation folder has sudo rights
-INFO=( $(stat -L -c "%a %G %U" $INSTALL_DEPS_PREFIX) )
-PERM=${INFO[0]}
-GROUP=${INFO[1]}
-OWNER=${INFO[2]}
-
 
 mkdir -p ${CURRENT_DIR}/thirdparty
 cd ${CURRENT_DIR}/thirdparty
 
-# Added doxygen install. TODO moved from here and tested for other OS (i.e. Mac OSX)
-sudo apt-get install doxygen
 
-##---------------------------------------------------------------##
-##---------------------- Installing Eigen -----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing Eigen ...${COLOR_RESET}"
-if [ -d "$INSTALL_DEPS_PREFIX/include/eigen3" ] || [ -d "$COMMON_INSTALL_PREFIX/include/eigen3" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install Eigen 3.2.10? [y/N]: ${COLOR_RESET}"
-	read ANSWER_EIGEN
-	if [ "$ANSWER_EIGEN" == "Y" ] || [ "$ANSWER_EIGEN" == "y" ]; then
-		install_eigen
-    fi
-else
+
+
+if [[ $1 == 'default' ]]; then
+	INSTALL_DEPS_PREFIX=$HOME/tmprobots
+	mkdir -p $INSTALL_DEPS_PREFIX
+
+	# Checking if the installation folder has sudo rights
+	INFO=( $(stat -L -c "%a %G %U" $INSTALL_DEPS_PREFIX) )
+	PERM=${INFO[0]}
+	GROUP=${INFO[1]}
+	OWNER=${INFO[2]}
+
+	# Installing all the dwl dependencies
 	install_eigen
-fi
+	install_rbdl
+	install_yamlcpp
+	install_swig
+	install_ipopt
+	install_qpoases
+#	install_libcmaes
+#	install_pyadolc
+else
+	echo ""
+	read -s -p "Press enter to start the installation. " 
+	echo ""
+
+	echo -e -n "${COLOR_QUES}Do you want to install the thirdparties in $INSTALL_DEPS_PREFIX [Y/n]: ${COLOR_RESET}"
+	read ANSWER_PATH
+	if [ "$ANSWER_PATH" == "N" ] || [ "$ANSWER_PATH" == "n" ]; then
+		echo -e -n "${COLOR_QUES}Please write absolute path: ${COLOR_RESET}"
+		read ANSWER_PATH_STRING
+		INSTALL_DEPS_PREFIX=$ANSWER_PATH_STRING
+	fi
+
+	# Checking if the installation folder has sudo rights
+	INFO=( $(stat -L -c "%a %G %U" $INSTALL_DEPS_PREFIX) )
+	PERM=${INFO[0]}
+	GROUP=${INFO[1]}
+	OWNER=${INFO[2]}
+
+	# Added doxygen install. TODO moved from here and tested for other OS (i.e. Mac OSX)
+	sudo apt-get install doxygen
 
 
-##---------------------------------------------------------------##
-##----------------------- Installing URDF -----------------------##
-##---------------------------------------------------------------##
-#echo ""
-#echo -e "${COLOR_BOLD}Installing URDF facilities ...${COLOR_RESET}"
-## Installing urdfdom_headers
-#if [ -d "/usr/include/urdf_model" ] || [ -d "/usr/local/include/urdf_model" ]; then
-#	echo -e -n "${COLOR_QUES}Do you want to re-install URDFDOM Headers? [y/N]: ${COLOR_RESET}"
-#	read ANSWER_URDF
-#	if [ "${ANSWER_URDF}" == "Y" ] || [ "${ANSWER_URDF}" == "y" ]; then
+	##---------------------------------------------------------------##
+	##---------------------- Installing Eigen -----------------------##
+	##---------------------------------------------------------------##
+	echo ""
+	echo -e "${COLOR_BOLD}Installing Eigen ...${COLOR_RESET}"
+	if [ -d "$INSTALL_DEPS_PREFIX/include/eigen3" ] || [ -d "$COMMON_INSTALL_PREFIX/include/eigen3" ]; then
+		echo -e -n "${COLOR_QUES}Do you want to re-install Eigen 3.2.10? [y/N]: ${COLOR_RESET}"
+		read ANSWER_EIGEN
+		if [ "$ANSWER_EIGEN" == "Y" ] || [ "$ANSWER_EIGEN" == "y" ]; then
+			install_eigen
+	    fi
+	else
+		install_eigen
+	fi
+
+	##---------------------------------------------------------------##
+	##----------------------- Installing URDF -----------------------##
+	##---------------------------------------------------------------##
+#	echo ""
+#	echo -e "${COLOR_BOLD}Installing URDF facilities ...${COLOR_RESET}"
+#	# Installing urdfdom_headers
+#	if [ -d "/usr/include/urdf_model" ] || [ -d "/usr/local/include/urdf_model" ]; then
+#		echo -e -n "${COLOR_QUES}Do you want to re-install URDFDOM Headers? [y/N]: ${COLOR_RESET}"
+#		read ANSWER_URDF
+#		if [ "${ANSWER_URDF}" == "Y" ] || [ "${ANSWER_URDF}" == "y" ]; then
+#			install_urdfdom_headers
+#		fi
+#	else
 #		install_urdfdom_headers
 #	fi
-#else
-#	install_urdfdom_headers
-#fi
-## Installing console_bridge
-#if [ -d "/usr/include/console_bridge" ] || [ -d "/usr/local/include/console_bridge" ]; then
-#	echo -e -n "${COLOR_QUES}Do you want to re-install console bridge? [y/N]: ${COLOR_RESET}"
-#	read ANSWER_CONSOLE
-#	if [ "${ANSWER_CONSOLE}" == "Y" ] || [ "${ANSWER_CONSOLE}" == "y" ]; then
+#	# Installing console_bridge
+#	if [ -d "/usr/include/console_bridge" ] || [ -d "/usr/local/include/console_bridge" ]; then
+#		echo -e -n "${COLOR_QUES}Do you want to re-install console bridge? [y/N]: ${COLOR_RESET}"
+#		read ANSWER_CONSOLE
+#		if [ "${ANSWER_CONSOLE}" == "Y" ] || [ "${ANSWER_CONSOLE}" == "y" ]; then
+#			install_console_bridge
+#		fi
+#	else
 #		install_console_bridge
 #	fi
-#else
-#	install_console_bridge
-#fi
-# Installing urdfdom
-#if [ -d "/usr/include/urdf_parser" ] || [ -d "/usr/local/include/urdf_parser" ]; then
-#	echo -e -n "${COLOR_QUES}Do you want to re-install urdf parser? [y/N]: ${COLOR_RESET}"
-#	read ANSWER_URDFPARSER
-#	if [ "${ANSWER_URDFPARSER}" == "Y" ] || [ "${ANSWER_URDFPARSER}" == "y" ]; then
+	# Installing urdfdom
+#	if [ -d "/usr/include/urdf_parser" ] || [ -d "/usr/local/include/urdf_parser" ]; then
+#		echo -e -n "${COLOR_QUES}Do you want to re-install urdf parser? [y/N]: ${COLOR_RESET}"
+#		read ANSWER_URDFPARSER
+#		if [ "${ANSWER_URDFPARSER}" == "Y" ] || [ "${ANSWER_URDFPARSER}" == "y" ]; then
+#			install_urdfdom
+#		fi
+#	else
 #		install_urdfdom
 #	fi
-#else
-#	install_urdfdom
-#fi
 
 
-##---------------------------------------------------------------##
-##----------------------- Installing RBDL -----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing RBDL ...${COLOR_RESET}"
-if [ -d "$INSTALL_DEPS_PREFIX/include/rbdl" ] || [ -d "$COMMON_INSTALL_PREFIX/include/rbdl" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? [y/N]: ${COLOR_RESET}"
-	read ANSWER_RBDL
-	if [ "$ANSWER_RBDL" == "Y" ] || [ "$ANSWER_RBDL" == "y" ]; then
+	##---------------------------------------------------------------##
+	##----------------------- Installing RBDL -----------------------##
+	##---------------------------------------------------------------##
+	echo ""
+	echo -e "${COLOR_BOLD}Installing RBDL ...${COLOR_RESET}"
+	if [ -d "$INSTALL_DEPS_PREFIX/include/rbdl" ] || [ -d "$COMMON_INSTALL_PREFIX/include/rbdl" ]; then
+		echo -e -n "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? [y/N]: ${COLOR_RESET}"
+		read ANSWER_RBDL
+		if [ "$ANSWER_RBDL" == "Y" ] || [ "$ANSWER_RBDL" == "y" ]; then
+			install_rbdl
+	    fi
+	else
 		install_rbdl
-    fi
-else
-	install_rbdl
-fi
+	fi
 
 
-##---------------------------------------------------------------##
-##-------------------- Installing YAML-CPP ----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
-if [ -d "$INSTALL_DEPS_PREFIX/include/yaml-cpp" ] || [ -d "$COMMON_INSTALL_PREFIX/include/yaml-cpp" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.2? [y/N]: ${COLOR_RESET}"
-	read ANSWER_YAMLCPP
-	if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
+	##---------------------------------------------------------------##
+	##-------------------- Installing YAML-CPP ----------------------##
+	##---------------------------------------------------------------##
+	echo ""
+	echo -e "${COLOR_BOLD}Installing YAML-CPP ...${COLOR_RESET}"
+	if [ -d "$INSTALL_DEPS_PREFIX/include/yaml-cpp" ] || [ -d "$COMMON_INSTALL_PREFIX/include/yaml-cpp" ]; then
+		echo -e -n "${COLOR_QUES}Do you want to re-install YAML-CPP 0.5.2? [y/N]: ${COLOR_RESET}"
+		read ANSWER_YAMLCPP
+		if [ "$ANSWER_YAMLCPP" == "Y" ] || [ "$ANSWER_YAMLCPP" == "y" ]; then
+			install_yamlcpp
+		fi
+	else
 		install_yamlcpp
-    fi
-else
-	install_yamlcpp
-fi
+	fi
 
 
 
-##---------------------------------------------------------------##
-##------------------------ Installing SWIG ----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing SWIG ...${COLOR_RESET}"
-if [ -d "$INSTALL_DEPS_PREFIX/share/swig" ] || [ -d "$COMMON_INSTALL_PREFIX/share/swig" ]; then
-	echo -e -n "${COLOR_QUES}Do you want to re-install SWIG 3.0.12? [y/N]: ${COLOR_RESET}"
-	read ANSWER_SWIG
-	if [ "$ANSWER_SWIG" == "Y" ] || [ "$ANSWER_SWIG" == "y" ]; then
+	##---------------------------------------------------------------##
+	##------------------------ Installing SWIG ----------------------##
+	##---------------------------------------------------------------##
+	echo ""
+	echo -e "${COLOR_BOLD}Installing SWIG ...${COLOR_RESET}"
+	if [ -d "$INSTALL_DEPS_PREFIX/share/swig" ] || [ -d "$COMMON_INSTALL_PREFIX/share/swig" ]; then
+		echo -e -n "${COLOR_QUES}Do you want to re-install SWIG 3.0.12? [y/N]: ${COLOR_RESET}"
+		read ANSWER_SWIG
+		if [ "$ANSWER_SWIG" == "Y" ] || [ "$ANSWER_SWIG" == "y" ]; then
+			install_swig
+		fi
+	else
 		install_swig
-    fi
-else
-	install_swig
-fi
-
-
-##---------------------------------------------------------------##
-##---------------------- Installing Ipopt -----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing Ipopt ...${COLOR_RESET}"
-if [ -d "$INSTALL_DEPS_PREFIX/include/coin" ] || [ -d "$COMMON_INSTALL_PREFIX/include/coin" ]; then
-	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install Ipopt 3.12.4? [y/N]: ${COLOR_RESET}"
-	read ANSWER_IPOPT
-	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
-		install_ipopt
-    fi
-else
-	echo -e -n "${COLOR_QUES}Do you want to install Ipopt 3.12.4? [y/N]: ${COLOR_RESET}"
-	read ANSWER_IPOPT
-	if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
-		install_ipopt
 	fi
-fi
 
 
-##---------------------------------------------------------------##
-##--------------------- Installing qpOASES ----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing qpOASES ...${COLOR_RESET}"
-if [ -d "$INSTALL_DEPS_PREFIX/include/qpOASES" ] || [ -d "$COMMON_INSTALL_PREFIX/include/qpOASES" ]; then
-	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install qpOASES 3.2.0? [y/N]: ${COLOR_RESET}"
-	read ANSWER_QPOASES
-	if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
-		install_qpoases
-    fi
-else
-	echo -e -n "${COLOR_QUES}Do you want to install qpOASES 3.2.0? [y/N]: ${COLOR_RESET}"
-	read ANSWER_QPOASES
-	if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
-		install_qpoases
+	##---------------------------------------------------------------##
+	##---------------------- Installing Ipopt -----------------------##
+	##---------------------------------------------------------------##
+	echo ""
+	echo -e "${COLOR_BOLD}Installing Ipopt ...${COLOR_RESET}"
+	if [ -d "$INSTALL_DEPS_PREFIX/include/coin" ] || [ -d "$COMMON_INSTALL_PREFIX/include/coin" ]; then
+		# Control will enter here if $DIRECTORY exists.
+		echo -e -n "${COLOR_QUES}Do you want to re-install Ipopt 3.12.4? [y/N]: ${COLOR_RESET}"
+		read ANSWER_IPOPT
+		if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
+			install_ipopt
+    	fi
+	else
+		echo -e -n "${COLOR_QUES}Do you want to install Ipopt 3.12.4? [y/N]: ${COLOR_RESET}"
+		read ANSWER_IPOPT
+		if [ "$ANSWER_IPOPT" == "Y" ] || [ "$ANSWER_IPOPT" == "y" ]; then
+			install_ipopt
+		fi
 	fi
-fi
 
 
-##---------------------------------------------------------------##
-##--------------------- Installing CMA-ES -----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing libcmaes ...${COLOR_RESET}"
-if [ -d "$INSTALL_DEPS_PREFIX/include/libcmaes" ] || [ -d "$COMMON_INSTALL_PREFIX/include/yaml-cpp" ]; then
-	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install libcmaes 0.9.5? [y/N]: ${COLOR_RESET}"
-	read ANSWER_LIBCMAES
-	if [ "$ANSWER_LIBCMAES" == "Y" ] || [ "$ANSWER_LIBCMAES" == "y" ]; then
-		install_libcmaes
-    fi
-else
-	echo -e -n "${COLOR_QUES}Do you want to install libcmaes 0.9.5? [y/N]: ${COLOR_RESET}"
-	read ANSWER_LIBCMAES
-	if [ "$ANSWER_LIBCMAES" == "Y" ] || [ "$ANSWER_LIBCMAES" == "y" ]; then
-		install_libcmaes
+	##---------------------------------------------------------------##
+	##--------------------- Installing qpOASES ----------------------##
+	##---------------------------------------------------------------##
+	echo ""
+	echo -e "${COLOR_BOLD}Installing qpOASES ...${COLOR_RESET}"
+	if [ -d "$INSTALL_DEPS_PREFIX/include/qpOASES" ] || [ -d "$COMMON_INSTALL_PREFIX/include/qpOASES" ]; then
+		# Control will enter here if $DIRECTORY exists.
+		echo -e -n "${COLOR_QUES}Do you want to re-install qpOASES 3.2.0? [y/N]: ${COLOR_RESET}"
+		read ANSWER_QPOASES
+		if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
+			install_qpoases
+    	fi
+	else
+		echo -e -n "${COLOR_QUES}Do you want to install qpOASES 3.2.0? [y/N]: ${COLOR_RESET}"
+		read ANSWER_QPOASES
+		if [ "$ANSWER_QPOASES" == "Y" ] || [ "$ANSWER_QPOASES" == "y" ]; then
+			install_qpoases
+		fi
 	fi
-fi
 
 
-##---------------------------------------------------------------##
-##-------------------- Installing PyADOLC -----------------------##
-##---------------------------------------------------------------##
-echo ""
-echo -e "${COLOR_BOLD}Installing pyadolc ...${COLOR_RESET}"
-if [ -d "/usr/local/lib/python2.7/dist-packages/adolc" ]; then
-	# Control will enter here if $DIRECTORY exists.
-	echo -e -n "${COLOR_QUES}Do you want to re-install pyadolc? [y/N]: ${COLOR_RESET}"
-	read ANSWER_PYADOLC
-	if [ "$ANSWER_PYADOLC" == "Y" ] || [ "$ANSWER_PYADOLC" == "y" ]; then
-		install_pyadolc
-    fi
-else
-	echo -e -n "${COLOR_QUES}Do you want to install pyadolc? [y/N]: ${COLOR_RESET}"
-	read ANSWER_PYADOLC
-	if [ "$ANSWER_PYADOLC" == "Y" ] || [ "$ANSWER_PYADOLC" == "y" ]; then
-		install_pyadolc
+	##---------------------------------------------------------------##
+	##--------------------- Installing CMA-ES -----------------------##
+	##---------------------------------------------------------------##
+	echo ""
+	echo -e "${COLOR_BOLD}Installing libcmaes ...${COLOR_RESET}"
+	if [ -d "$INSTALL_DEPS_PREFIX/include/libcmaes" ] || [ -d "$COMMON_INSTALL_PREFIX/include/yaml-cpp" ]; then
+		# Control will enter here if $DIRECTORY exists.
+		echo -e -n "${COLOR_QUES}Do you want to re-install libcmaes 0.9.5? [y/N]: ${COLOR_RESET}"
+		read ANSWER_LIBCMAES
+		if [ "$ANSWER_LIBCMAES" == "Y" ] || [ "$ANSWER_LIBCMAES" == "y" ]; then
+			install_libcmaes
+	    fi
+	else
+		echo -e -n "${COLOR_QUES}Do you want to install libcmaes 0.9.5? [y/N]: ${COLOR_RESET}"
+		read ANSWER_LIBCMAES
+		if [ "$ANSWER_LIBCMAES" == "Y" ] || [ "$ANSWER_LIBCMAES" == "y" ]; then
+			install_libcmaes
+		fi
 	fi
-fi
 
 
-##---------------------------------------------------------------##
-##--------------------- Installing Octomap ----------------------##
-##---------------------------------------------------------------##
-#echo ""
-#echo -e "${COLOR_BOLD}Installing Octomap ...${COLOR_RESET}"
-#if [ -d "/usr/local/include/octomap" ]; then
-#	echo -e -n "${COLOR_QUES}Do you want to re-install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
-#	read ANSWER_OCTOMAP
-#	if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
-#		install_octomap
-#    fi
-#else
-#	echo -e -n "${COLOR_QUES}Do you want to install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
-#	read ANSWER_OCTOMAP
-#	if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
-#		install_octomap
+	##---------------------------------------------------------------##
+	##-------------------- Installing PyADOLC -----------------------##
+	##---------------------------------------------------------------##
+	echo ""
+	echo -e "${COLOR_BOLD}Installing pyadolc ...${COLOR_RESET}"
+	if [ -d "/usr/local/lib/python2.7/dist-packages/adolc" ]; then
+		# Control will enter here if $DIRECTORY exists.
+		echo -e -n "${COLOR_QUES}Do you want to re-install pyadolc? [y/N]: ${COLOR_RESET}"
+		read ANSWER_PYADOLC
+		if [ "$ANSWER_PYADOLC" == "Y" ] || [ "$ANSWER_PYADOLC" == "y" ]; then
+			install_pyadolc
+	    fi
+	else
+		echo -e -n "${COLOR_QUES}Do you want to install pyadolc? [y/N]: ${COLOR_RESET}"
+		read ANSWER_PYADOLC
+		if [ "$ANSWER_PYADOLC" == "Y" ] || [ "$ANSWER_PYADOLC" == "y" ]; then
+			install_pyadolc
+		fi
+	fi
+
+
+	##---------------------------------------------------------------##
+	##--------------------- Installing Octomap ----------------------##
+	##---------------------------------------------------------------##
+#	echo ""
+#	echo -e "${COLOR_BOLD}Installing Octomap ...${COLOR_RESET}"
+#	if [ -d "/usr/local/include/octomap" ]; then
+#		echo -e -n "${COLOR_QUES}Do you want to re-install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
+#		read ANSWER_OCTOMAP
+#		if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
+#			install_octomap
+#		fi
+#	else
+#		echo -e -n "${COLOR_QUES}Do you want to install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
+#		read ANSWER_OCTOMAP
+#		if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
+#			install_octomap
+#		fi
 #	fi
-#fi
 
 
-##---------------------------------------------------------------##
-##-------------------- Installing gnuplot ----------------------##
-##---------------------------------------------------------------##
-#echo ""
-#echo -e "${COLOR_BOLD}Installing gnuplot ...${COLOR_RESET}"
-#if [ -x "/usr/local/bin/gnuplot" ]; then
-#	echo -e -n "${COLOR_QUES}Do you want to re-install gnuplot 5.0.3? [y/N]: ${COLOR_RESET}"
-#	read ANSWER_GNUPLOT
-#	if [ "$ANSWER_GNUPLOT" == "Y" ] || [ "$ANSWER_GNUPLOT" == "y" ]; then
-#		install_gnuplot
-#    fi
-#else
-#	echo -e -n "${COLOR_QUES}Do you want to install gnuplot 5.0.3? [y/N]: ${COLOR_RESET}"
-#	read ANSWER_GNUPLOT
-#	if [ "$ANSWER_GNUPLOT" == "Y" ] || [ "$ANSWER_GNUPLOT" == "y" ]; then
-#		install_gnuplot
+	##---------------------------------------------------------------##
+	##-------------------- Installing gnuplot ----------------------##
+	##---------------------------------------------------------------##
+#	echo ""
+#	echo -e "${COLOR_BOLD}Installing gnuplot ...${COLOR_RESET}"
+#	if [ -x "/usr/local/bin/gnuplot" ]; then
+#		echo -e -n "${COLOR_QUES}Do you want to re-install gnuplot 5.0.3? [y/N]: ${COLOR_RESET}"
+#		read ANSWER_GNUPLOT
+#		if [ "$ANSWER_GNUPLOT" == "Y" ] || [ "$ANSWER_GNUPLOT" == "y" ]; then
+#			install_gnuplot
+#		fi
+#	else
+#		echo -e -n "${COLOR_QUES}Do you want to install gnuplot 5.0.3? [y/N]: ${COLOR_RESET}"
+#		read ANSWER_GNUPLOT
+#		if [ "$ANSWER_GNUPLOT" == "Y" ] || [ "$ANSWER_GNUPLOT" == "y" ]; then
+#			install_gnuplot
+#		fi
 #	fi
-#fi
+fi
