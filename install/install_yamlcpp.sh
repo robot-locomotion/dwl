@@ -44,6 +44,8 @@ if [ "$CURRENT_OS" == "OSX" ]; then
 		make -j install
 	fi
 elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+	sudo apt-get install -qqy libboost-all-dev
+
 	# Getting the YAML-CPP 0.5.2
 	wget https://github.com/jbeder/yaml-cpp/archive/release-0.5.2.zip
 	unzip release-0.5.2.zip && rm -rf release-0.5.2.zip

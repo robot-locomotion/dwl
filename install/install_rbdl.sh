@@ -117,7 +117,6 @@ function install_urdfdom
 
 # Remove old folder (sanity procedure)
 cd $DWL_DIR/thirdparty
-sudo rm -rf rbdl
 if [[ $OWNER == 'root' ]]; then
 	sudo rm -rf rbdl
 else
@@ -140,6 +139,8 @@ if [ "$CURRENT_OS" == "OSX" ]; then
 		make -j install
 	fi
 elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+	sudo apt-get install -qqy liburdfdom-headers-dev liburdfdom-dev
+
 	# Getting RBDL 2.4.0
 	wget https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip
 	unzip v2.4.0.zip
