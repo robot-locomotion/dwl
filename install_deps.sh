@@ -76,7 +76,7 @@ cd ${CURRENT_DIR}/thirdparty
 
 # Added doxygen install. TODO moved from here and tested for other OS (i.e. Mac OSX)
 sudo apt-get install doxygen
-sudo python2.7-dev python-numpy
+sudo apt-get install python2.7-dev python-numpy
 sudo pip install --user numpy
 
 
