@@ -86,8 +86,9 @@ if [[ $1 == 'default' ]]; then
 	bash $CURRENT_DIR/install/install_swig.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
 	bash $CURRENT_DIR/install/install_ipopt.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
 	bash $CURRENT_DIR/install/install_qpoases.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
-##	bash $CURRENT_DIR/install/install_libcmaes.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
-##	bash $CURRENT_DIR/install/install_pyadolc.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
+	bash $CURRENT_DIR/install/install_libcmaes.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
+	bash $CURRENT_DIR/install/install_pyadolc.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
+	bash $CURRENT_DIR/install/install_octomap.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
 else
 	echo ""
 	read -s -p "Press enter to start the installation. " 
@@ -262,21 +263,21 @@ else
 	##---------------------------------------------------------------##
 	##--------------------- Installing Octomap ----------------------##
 	##---------------------------------------------------------------##
-#	echo ""
-#	echo -e "${COLOR_BOLD}Installing Octomap ...${COLOR_RESET}"
-#	if [ -d "/usr/local/include/octomap" ]; then
-#		echo -e -n "${COLOR_QUES}Do you want to re-install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
-#		read ANSWER_OCTOMAP
-#		if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
-#			bash $CURRENT_DIR/install/install_octomap.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
-#		fi
-#	else
-#		echo -e -n "${COLOR_QUES}Do you want to install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
-#		read ANSWER_OCTOMAP
-#		if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
-#			bash $CURRENT_DIR/install/install_octomap.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
-#		fi
-#	fi
+	echo ""
+	echo -e "${COLOR_BOLD}Installing Octomap ...${COLOR_RESET}"
+	if [ -d "/usr/local/include/octomap" ]; then
+		echo -e -n "${COLOR_QUES}Do you want to re-install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
+		read ANSWER_OCTOMAP
+		if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
+			bash $CURRENT_DIR/install/install_octomap.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
+		fi
+	else
+		echo -e -n "${COLOR_QUES}Do you want to install Octomap 1.6.8? [y/N]: ${COLOR_RESET}"
+		read ANSWER_OCTOMAP
+		if [ "$ANSWER_OCTOMAP" == "Y" ] || [ "$ANSWER_OCTOMAP" == "y" ]; then
+			bash $CURRENT_DIR/install/install_octomap.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
+		fi
+	fi
 
 
 	##---------------------------------------------------------------##
