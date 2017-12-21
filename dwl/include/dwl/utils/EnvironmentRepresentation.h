@@ -5,7 +5,7 @@
 #include <memory>
 #include <Eigen/Dense>
 #include <dwl/utils/GraphSearching.h>
-#include <octomap/octomap.h>
+
 
 
 namespace dwl
