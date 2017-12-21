@@ -19,6 +19,9 @@ The source code is released under a [BSD 3-Clause license](LICENSE).
 **Author: Carlos Mastalli, carlos.mastalli@laas.fr<br />
 With support from the Dynamic Legged Systems lab at Istituto Italiano di Tecnologia<br />**
 
+
+
+[![License BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg?style=flat)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29#fulltext)
 [![Build Status](https://api.travis-ci.org/robot-locomotion/dwl.svg?branch=master)](https://api.travis-ci.org/repositories/robot-locomotion/dwl.svg)
 
 
