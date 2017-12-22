@@ -4,7 +4,6 @@ python:
 sudo: required
 dist: trusty
 before_install:
-- pip uninstall numpy -y
 - ./install_deps.sh default
 install:
 - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/openrobots -DINSTALL_DEPS_PREFIX=$HOME/openrobots -DDWL_WITH_BENCHMARK=TRUE -DDWL_WITH_DOC=TRUE -DDWL_WITH_PYTHON=TRUE -DDWL_WITH_SAMPLE=TRUE -DDWL_WITH_UNIT_TEST=TRUE -DCMAKE_RULE_MESSAGES:BOOL=OFF . 
