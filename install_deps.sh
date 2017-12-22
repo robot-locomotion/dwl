@@ -74,6 +74,13 @@ mkdir -p ${CURRENT_DIR}/thirdparty
 cd ${CURRENT_DIR}/thirdparty
 
 
+# Added doxygen install. TODO moved from here and tested for other OS (i.e. Mac OSX)
+sudo apt-get install doxygen
+sudo apt-get install python2.7-dev python-numpy
+sudo pip install --user numpy
+sudo apt-get -qq install graphviz
+
+
 # Installing the dwl dependencies
 if [[ $1 == 'default' ]]; then
 	INSTALL_DEPS_PREFIX=$HOME/openrobots
@@ -107,10 +114,6 @@ else
 	PERM=${INFO[0]}
 	GROUP=${INFO[1]}
 	OWNER=${INFO[2]}
-
-	# Added doxygen install. TODO moved from here and tested for other OS (i.e. Mac OSX)
-	sudo apt-get install doxygen
-
 
 	##---------------------------------------------------------------##
 	##---------------------- Installing Eigen -----------------------##
