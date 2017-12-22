@@ -64,6 +64,7 @@ elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 	sudo apt-get install autoconf automake libtool libgoogle-glog-dev libgflags-dev libgtest-dev
 
 	# Compiling and installing Google unit test framework
+	locate gtest
 	cd /usr/src/gtest
 	sudo mkdir -p build
 	cd build
