@@ -74,8 +74,9 @@ fi
 cd $DWL_DIR/thirdparty
 sudo rm -rf pyadolc
 
-# Clone pyadolc
-git clone git@github.com:robot-locomotion/pyadolc.git
+# Downloading pyadolc
+wget https://github.com/robot-locomotion/pyadolc/archive/master.zip
+unzip master.zip -d pyadolc && rm master.zip
 cd pyadolc
 
 export BOOST_DIR=$INSTALL_DEPS_PREFIX
