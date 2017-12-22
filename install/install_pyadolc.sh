@@ -79,6 +79,7 @@ wget https://github.com/robot-locomotion/pyadolc/archive/master.zip
 unzip master.zip -d pyadolc && rm master.zip
 cd pyadolc
 mv pyadolc-master/* . && rm -rf pyadolc-master
+sed -i 's/raw_input/#raw_input/' setup.py # Do not asking for checking
 
 export BOOST_DIR=$INSTALL_DEPS_PREFIX
 export ADOLC_DIR=$INSTALL_DEPS_PREFIX
