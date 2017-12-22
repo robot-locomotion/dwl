@@ -1,6 +1,8 @@
 The Dynamic Whole-body Locomotion library (DWL)
 ===============================================
 
+<img align="left" height="240" src="https://imgur.com/SkeMizm.png"/> 
+
 ## <img align="center" height="20" src="https://i.imgur.com/vAYeCzC.png"/> Introduction
 
 The *Dynamic Whole-body Locomotion* library (DWL) implements a set of functionalities to develop, design, and deploy motion planning, control and perception algorithms for legged locomotion. DWL has different modules such as: kinematics, dynamics, solvers (tree-search, optimization, etc), and environment descriptions. All these tools are designed for both fast prototyping and deployment thanks to its c++ implementation and Python bindings. The DWL toolbox can be used in various software frameworks such as ROS and LCM, and for real-time control and planning.
