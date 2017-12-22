@@ -78,6 +78,7 @@ cd ${CURRENT_DIR}/thirdparty
 sudo apt-get install doxygen
 sudo apt-get install python2.7-dev python-numpy
 sudo pip install --user numpy
+sudo apt-get -qq install graphviz
 
 
 # Installing the dwl dependencies
