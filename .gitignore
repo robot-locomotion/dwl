@@ -2,6 +2,7 @@ bin
 build
 lib
 thirdparty
+.vscode
 .project
 .cproject
 .pydevproject
