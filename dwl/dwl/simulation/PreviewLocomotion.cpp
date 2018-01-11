@@ -466,8 +466,8 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 		if (terrain_.isTerrainInformation()) {
 			// Getting the terminal CoM position in the horizontal frame
 			Eigen::Vector3d terminal_com_pos_H =
-					frame_tf_.fromWorldToHorizontalFrame(terminal_state.getCoMPosition_W(),
-														 terminal_state.getRPY_W());
+					frame_tf_.fromWorldToHorizontalFrame(terminal_state.getCoMPosition(),
+														 terminal_state.getRPY());
 
 			// Adding the terrain height given the terrain height-map
 			Eigen::Vector2d foothold_2d = foothold.head<2>();
@@ -480,13 +480,13 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 					height + (terminal_state.com_pos - actual_state_.com_pos);
 			double nominal_com_height =
 					frame_tf_.fromWorldToHorizontalFrame(nominal_com_pos,
-														 terminal_state.getRPY_W())(rbd::Z);
+														 terminal_state.getRPY())(rbd::Z);
 			footshift_H(rbd::Z) = -(nominal_com_height + stance_H(rbd::Z));
 		}
 
 		swing_shift_B[name] =
 				frame_tf_.fromHorizontalToBaseFrame(footshift_H,
-													terminal_state.getRPY_W());
+													terminal_state.getRPY());
 	}
 
 	// Adding the swing pattern expressed in the CoM frame
@@ -509,7 +509,7 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 			Eigen::Vector3d stance_pos_H = stance_posture_H_.find(name)->second.head<3>();
 			Eigen::Vector3d stance_pos_B =
 					frame_tf_.fromHorizontalToBaseFrame(stance_pos_H,
-														terminal_state.getRPY_W());
+														terminal_state.getRPY());
 			Eigen::Vector3d target_pos_B = stance_pos_B + footshift_B;
 
 			// Initializing the foot pattern generator
@@ -563,7 +563,7 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 			// Adding the foot states w.r.t. the CoM frame
 			Eigen::Vector3d com_disp_W = com_pos - phase_state_.com_pos;
 			Eigen::Vector3d com_disp_H =
-					frame_tf_.fromWorldToHorizontalFrame(com_disp_W, state.getRPY_W());
+					frame_tf_.fromWorldToHorizontalFrame(com_disp_W, state.getRPY());
 			state.setFootPosition_H(name, actual_pos_H - com_disp_H);
 			state.setFootVelocity_H(name, -com_vel);
 			state.setFootAcceleration_H(name, -com_acc);

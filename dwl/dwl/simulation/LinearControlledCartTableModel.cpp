@@ -56,15 +56,15 @@ void LinearControlledCartTableModel::initCoMResponse(const ReducedBodyState& sta
 	params_W_.duration = params_H.duration;
 	params_W_.cop_shift =
 			frame_tf_.fromHorizontalToWorldFrame(params_H.cop_shift,
-												 initial_state_.getRPY_W());
+												 initial_state_.getRPY());
 
 	// Computing the coefficients of the cart-table response
-	height_ = initial_state_.getCoMPosition_W()(rbd::Z) -
+	height_ = initial_state_.getCoMPosition()(rbd::Z) -
 			  initial_state_.getCoPPosition_W()(rbd::Z);
 	omega_ = sqrt(properties_.gravity / height_);
 	double alpha = 2 * omega_ * params_W_.duration;
 	Eigen::Vector2d hor_proj =
-			(initial_state_.getCoMPosition_W() - initial_state_.getCoPPosition_W()).head<2>();
+			(initial_state_.getCoMPosition() - initial_state_.getCoPPosition_W()).head<2>();
 	Eigen::Vector2d hor_disp =
 			initial_state_.getCoMVelocity_W().head<2>() * params_W_.duration;
 	beta_1_ = hor_proj / 2 +
@@ -101,8 +101,8 @@ void LinearControlledCartTableModel::initAttitudeResponse(const ReducedBodyState
 	support_rpy_ = math::getRPY(support_orientation);
 
 	// Computing the require roll and pitch velocities
-	double roll_delta = support_rpy_(0) - initial_state_.getRPY_W()(0);
-	double pitch_delta = support_rpy_(1) - initial_state_.getRPY_W()(1);
+	double roll_delta = support_rpy_(0) - initial_state_.getRPY()(0);
+	double pitch_delta = support_rpy_(1) - initial_state_.getRPY()(1);
 	double roll_vel = roll_delta / params_W_.duration;
 	double pitch_vel = pitch_delta / params_W_.duration;
 	Eigen::Vector3d initial_rpyd = initial_state_.getRPYVelocity_W();
@@ -112,7 +112,7 @@ void LinearControlledCartTableModel::initAttitudeResponse(const ReducedBodyState
 	// reach maximum velocity
 	double max_roll_vel = 0.1;
 	double max_pitch_vel = 0.1;
-	math::Spline::Point start_roll(initial_state_.getRPY_W()(0),
+	math::Spline::Point start_roll(initial_state_.getRPY()(0),
 								   initial_rpyd(0),
 								   initial_rpydd(0));
 	math::Spline::Point end_roll;
@@ -120,13 +120,13 @@ void LinearControlledCartTableModel::initAttitudeResponse(const ReducedBodyState
 		double final_roll;
 		if (roll_vel >= 0.) {
 			final_roll =
-					initial_state_.getRPY_W()(0) + max_roll_vel * params_W_.duration;
+					initial_state_.getRPY()(0) + max_roll_vel * params_W_.duration;
 			end_roll = math::Spline::Point(final_roll,
 										   max_roll_vel,
 										   max_roll_vel / params_W_.duration);
 		} else {
 			final_roll =
-					initial_state_.getRPY_W()(0) - max_roll_vel * params_W_.duration;
+					initial_state_.getRPY()(0) - max_roll_vel * params_W_.duration;
 			end_roll = math::Spline::Point(final_roll,
 										   -max_roll_vel,
 										   -max_roll_vel / params_W_.duration);
@@ -137,7 +137,7 @@ void LinearControlledCartTableModel::initAttitudeResponse(const ReducedBodyState
 									   roll_vel / params_W_.duration);
 	}
 
-	math::Spline::Point start_pitch(initial_state_.getRPY_W()(1),
+	math::Spline::Point start_pitch(initial_state_.getRPY()(1),
 									initial_rpyd(1),
 									initial_rpydd(1));
 	math::Spline::Point end_pitch;
@@ -145,13 +145,13 @@ void LinearControlledCartTableModel::initAttitudeResponse(const ReducedBodyState
 		double final_pitch;
 		if (pitch_vel >= 0.) {
 			final_pitch =
-					initial_state_.getRPY_W()(1) + max_pitch_vel * params_W_.duration;
+					initial_state_.getRPY()(1) + max_pitch_vel * params_W_.duration;
 			end_pitch = math::Spline::Point(final_pitch,
 											max_pitch_vel,
 											max_pitch_vel / params_W_.duration);
 		} else {
 			final_pitch =
-					initial_state_.getRPY_W()(1) - max_pitch_vel * params_W_.duration;
+					initial_state_.getRPY()(1) - max_pitch_vel * params_W_.duration;
 			end_pitch = math::Spline::Point(final_pitch,
 											-max_pitch_vel,
 											-max_pitch_vel / params_W_.duration);
@@ -254,7 +254,7 @@ void LinearControlledCartTableModel::computeAttitudeResponse(ReducedBodyState& s
 	Eigen::Vector3d rpy(roll.x, pitch.x, yaw.x);
 	Eigen::Vector3d rpy_vel(roll.xd, pitch.xd, yaw.xd);
 	Eigen::Vector3d rpy_acc(roll.xdd, pitch.xdd, yaw.xdd);
-	state.setRPY_W(rpy);
+	state.setRPY(rpy);
 	state.setRPYVelocity_W(rpy_vel);
 	state.setRPYAcceleration_W(rpy_acc);
 }

@@ -158,10 +158,10 @@
 		std::stringstream buffer;
 		buffer << "ReducedBodyState:" << std::endl;
 		buffer << "\ttime: " << $self->time << std::endl;
-		buffer << "\tcom_pos: " << $self->getCoMPosition_W().transpose() << std::endl;
+		buffer << "\tcom_pos: " << $self->getCoMPosition().transpose() << std::endl;
 		buffer << "\tcom_vel: " << $self->getCoMVelocity_W().transpose() << std::endl;
 		buffer << "\tcom_acc: " << $self->getCoMAcceleration_W().transpose() << std::endl;
-		buffer << "\tangular_pos: " << $self->getRPY_W().transpose() << std::endl;
+		buffer << "\tangular_pos: " << $self->getRPY().transpose() << std::endl;
 		buffer << "\tangular_vel: " << $self->getAngularVelocity_W().transpose() << std::endl;
 		buffer << "\tangular_acc: " << $self->getAngularAcceleration_W().transpose() << std::endl;
 		buffer << "\tcop: " << $self->getCoPPosition_W().transpose() << std::endl;
