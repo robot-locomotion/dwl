@@ -17,8 +17,8 @@ BOOST_AUTO_TEST_CASE(base_linear) // specify a test case for base linear states
 
 	// Testing the base position
 	old_base_state = Eigen::Vector3d(0.1, 0.2, 0.6);
-	ws.setBasePosition_W(old_base_state);
-	new_base_state = ws.getBasePosition_W();
+	ws.setBasePosition(old_base_state);
+	new_base_state = ws.getBasePosition();
 	for (unsigned int i = 0; i < 2; i++)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
@@ -65,17 +65,17 @@ BOOST_AUTO_TEST_CASE(base_angular) // specify a test case for base angular state
 	Eigen::Quaterniond q;
 
 	// Testing RPY
-	ws.setBaseRPY_W(Eigen::Vector3d(0., M_PI_4, M_PI_4));
-	ws.setBaseOrientation_W(ws.getBaseOrientation_W());
-	rpy = ws.getBaseRPY_W();
+	ws.setBaseRPY(Eigen::Vector3d(0., M_PI_4, M_PI_4));
+	ws.setBaseOrientation(ws.getBaseOrientation());
+	rpy = ws.getBaseRPY();
 	BOOST_CHECK_SMALL((double) rpy(0) - 0., epsilon);
 	BOOST_CHECK_SMALL((double) rpy(1) - M_PI_4, epsilon);
 	BOOST_CHECK_SMALL((double) rpy(2) - M_PI_4, epsilon);
 
 
 	// Testing quaternion in the world frame
-	ws.setBaseRPY_W(Eigen::Vector3d(0., 0., M_PI));
-	q = ws.getBaseOrientation_W();
+	ws.setBaseRPY(Eigen::Vector3d(0., 0., M_PI));
+	q = ws.getBaseOrientation();
 	BOOST_CHECK_SMALL(q.x() - 0., epsilon);
 	BOOST_CHECK_SMALL(q.y() - 0., epsilon);
 	BOOST_CHECK_SMALL(q.z() - 1., epsilon);
@@ -83,24 +83,16 @@ BOOST_AUTO_TEST_CASE(base_angular) // specify a test case for base angular state
 
 
 	// Testing another quaternion in the world frame
-	ws.setBaseRPY_W(Eigen::Vector3d(0., M_PI_4, M_PI));
-	q = ws.getBaseOrientation_W();
+	ws.setBaseRPY(Eigen::Vector3d(0., M_PI_4, M_PI));
+	q = ws.getBaseOrientation();
 	BOOST_CHECK_SMALL(q.x() + 0.382683, epsilon);
 	BOOST_CHECK_SMALL(q.y() - 0., epsilon);
 	BOOST_CHECK_SMALL(q.z() - 0.92388, epsilon);
 	BOOST_CHECK_SMALL(q.w() - 0., epsilon);
 
 
-	// Testing another quaternion in the horizontal frame
-	q = ws.getBaseOrientation_H();
-	BOOST_CHECK_SMALL(q.x() - 0., epsilon);
-	BOOST_CHECK_SMALL(q.y() - 0., epsilon);
-	BOOST_CHECK_SMALL(q.z() - 1., epsilon);
-	BOOST_CHECK_SMALL(q.w() - 0., epsilon);
-
-
 	// Testing the base angular velocity
-	ws.setBaseRPY_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseRPY(Eigen::Vector3d(0., 0., 0.));
 	old_base_state = Eigen::Vector3d(0.5, 0.7, 0.);
 	ws.setBaseAngularVelocity_W(old_base_state);
 	new_base_state = ws.getBaseAngularVelocity_W();
