@@ -1,6 +1,7 @@
 from __future__ import print_function
 # This lets us use the python3-style print() function even in python2. It should have no effect if you're already running python3.
 
+import os
 import dwl
 import numpy as np
 
@@ -11,7 +12,8 @@ fbs = dwl.FloatingBaseSystem()
 wkin = dwl.WholeBodyKinematics()
 
 # Resetting the system from the hyq urdf file
-wkin.modelFromURDFFile("../hyq.urdf", "../../config/hyq.yarf")
+fpath = os.path.dirname(os.path.abspath(__file__))
+wkin.modelFromURDFFile(fpath + "/../hyq.urdf", fpath + "/../../config/hyq.yarf")
 fbs = wkin.getFloatingBaseSystem()
 
 # Define the DoF after initializing the robot model
@@ -19,8 +21,8 @@ ws.setJointDoF(fbs.getJointDoF())
 
 
 # The robot state
-ws.setBasePosition_W(np.array([0., 0., 0.]))
-ws.setBaseRPY_W(np.array([0., 0., 0.]))
+ws.setBasePosition(np.array([0., 0., 0.]))
+ws.setBaseRPY(np.array([0., 0., 0.]))
 ws.setBaseVelocity_W(np.array([0., 0., 0.]))
 ws.setBaseRPYVelocity_W(np.array([0., 0., 0.]))
 ws.setBaseAcceleration_W(np.array([0., 0., 0.]))

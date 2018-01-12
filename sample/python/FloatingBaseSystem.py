@@ -1,6 +1,7 @@
 from __future__ import print_function
 # This lets us use the python3-style print() function even in python2. It should have no effect if you're already running python3.
 
+import os
 import dwl
 import numpy as np
 
@@ -9,7 +10,8 @@ fbs = dwl.FloatingBaseSystem()
 ws = dwl.WholeBodyState()
 
 # Initializing the URDF model and whole-body state
-fbs.resetFromURDFFile("../hyq.urdf", "../../config/hyq.yarf")
+fpath = os.path.dirname(os.path.abspath(__file__))
+fbs.resetFromURDFFile(fpath + "/../hyq.urdf", fpath + "/../../config/hyq.yarf")
 ws.setJointDoF(fbs.getJointDoF())
 
 # Getting the total mass of the system. Note that you could also get the mass of a specific
