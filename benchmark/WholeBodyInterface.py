@@ -1,23 +1,24 @@
 from __future__ import print_function
 # This lets us use the python3-style print() function even in python2. It should have no effect if you're already running python3.
 
-
-import subprocess
-
-# Running the C++ benchmark
-print("C++ benchmark:")
-args = ("../bin/wif_benchmark")
-popen = subprocess.call(args, stdin=None, stdout=None, stderr=None, shell=True)
-
-
-
-print("Python benchmark:")
-# Running the python benchmark
+import os
 import dwl
 import numpy as np
 import time
+import subprocess
 
+
+fpath = os.path.dirname(os.path.abspath(__file__))
+
+# Running the C++ benchmark
+print("C++ benchmark:")
+args = (fpath + "/../bin/wif_benchmark")
+popen = subprocess.call(args, stdin=None, stdout=None, stderr=None, shell=True)
+
+
+# Running the python benchmark
 # Number of iterations
+print("Python benchmark:")
 N = 100000
 
 # Construct an instance of the WholeBodyDynamics class, which wraps the C++ class.
@@ -27,7 +28,7 @@ wkin = dwl.WholeBodyKinematics()
 wdyn = dwl.WholeBodyDynamics()
 
 # Resetting the system from the hyq urdf file
-wdyn.modelFromURDFFile("../sample/hyq.urdf", "../config/hyq.yarf")
+wdyn.modelFromURDFFile(fpath + "/../sample/hyq.urdf", fpath + "/../config/hyq.yarf")
 fbs = wdyn.getFloatingBaseSystem()
 wkin = wdyn.getWholeBodyKinematics()
 
@@ -37,8 +38,8 @@ ws.setJointDoF(fbs.getJointDoF())
 
 
 # The robot state
-ws.setBasePosition_W(np.array([0., 0., 0.]))
-ws.setBaseRPY_W(np.array([0., 0., 0.]))
+ws.setBasePosition(np.array([0., 0., 0.]))
+ws.setBaseRPY(np.array([0., 0., 0.]))
 ws.setBaseVelocity_W(np.array([0., 0., 0.]))
 ws.setBaseRPYVelocity_W(np.array([0., 0., 0.]))
 ws.setBaseAcceleration_W(np.array([0., 0., 0.]))
