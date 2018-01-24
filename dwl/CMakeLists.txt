@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 2.8.3)
 
 # Finding dependencies
 find_package(PkgConfig)
-pkg_check_modules(EIGEN3 eigen3>=3.2.10 REQUIRED)
+pkg_check_modules(EIGEN3 eigen3>=3.2 REQUIRED)
 find_package(RBDL REQUIRED)
 find_package(URDF REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(QPOASES)
-pkg_check_modules(IPOPT ipopt)
-pkg_check_modules(LIBCMAES libcmaes)
+pkg_check_modules(IPOPT ipopt>=3.12.4)
+pkg_check_modules(LIBCMAES libcmaes>=0.9.5)
 find_package(octomap)
 
 # Setting the thirdparties directories and libraries

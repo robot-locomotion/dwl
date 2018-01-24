@@ -28,6 +28,9 @@ else
 	rm -rf libcmaes
 fi
 
+# In case that eigen is installed through install_eigen.sh
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:${INSTALL_DEPS_PREFIX}/lib/pkgconfig
+
 if [ "$CURRENT_OS" == "OSX" ]; then
 	echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
 
@@ -52,7 +55,7 @@ if [ "$CURRENT_OS" == "OSX" ]; then
 	rm -rf 0.9.5.tar.gz
 	cd libcmaes
 	./autogen.sh
-	./configure --enable-gglog --prefix=$INSTALL_DEPS_PREFIX --with-eigen3-include=$INSTALL_DEPS_PREFIX/include/eigen3
+	./configure --enable-gglog --prefix=$INSTALL_DEPS_PREFIX #--with-eigen3-include=$INSTALL_DEPS_PREFIX/include/eigen3
 	make -j4
 	if [[ $OWNER == 'root' ]]; then
 		sudo make -j install
@@ -85,7 +88,7 @@ elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 	rm -rf 0.9.5.tar.gz
 	cd libcmaes
 	./autogen.sh
-	./configure --enable-gglog --prefix=$INSTALL_DEPS_PREFIX --with-eigen3-include=$INSTALL_DEPS_PREFIX/include/eigen3
+	./configure --enable-gglog --prefix=$INSTALL_DEPS_PREFIX #--with-eigen3-include=$INSTALL_DEPS_PREFIX/include/eigen3
 	make -j4
 	if [[ $OWNER == 'root' ]]; then
 		sudo make -j install
