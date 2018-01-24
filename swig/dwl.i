@@ -17,6 +17,9 @@
 #include <dwl/solver/OptimizationSolver.h>
 #include <dwl/solver/IpoptNLP.h>
 #include <dwl/solver/cmaesSOFamily.h>
+
+// Yaml parser
+#include <dwl/utils/YamlWrapper.h>
 %}
 
 
@@ -62,6 +65,7 @@
 // Eigen::Dynamic, Eigen::Dynamic>. Not totally sure why that is.
 //%eigen_typemaps(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>)
 
+%template(double_List) std::vector<double>;
 %template(string_List) std::vector<std::string>;
 %template(string_uint) std::map<std::string,unsigned int>;
 %template(string_jointLimits) std::map<std::string,urdf::JointLimits>;
@@ -282,3 +286,79 @@
 %include <dwl/solver/IpoptNLP.h>
 %include <dwl/solver/cmaesSOFamily.h>
 %template(cmaesSO) dwl::solver::cmaesSOFamily<>;
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////// Yaml parser functions ///////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+%apply bool &OUTPUT { bool& data };
+%apply int &OUTPUT { int& data };
+%apply double &OUTPUT { double& data };
+%apply std::string &OUTPUT { std::string& data };
+%apply std::vector<double> &OUTPUT { std::vector<double>& data };
+%apply std::vector<std::string> &OUTPUT { std::vector<std::string>& data };
+%ignore read(bool &,std::string const &);
+%rename(readBool)
+		read(bool& data,
+			 const std::string&,
+			 const YamlNamespace& ns);
+%ignore read(int &,std::string const &);
+%ignore read(int &,std::string const &,YAML::Node const &);
+%rename(readInt)
+		read(int& data,
+			 const std::string& field,
+			 const YamlNamespace& ns);
+%ignore read(double &,std::string const &);
+%ignore read(double &,std::string const &,YAML::Node const &);
+%rename(readDouble)
+		read(double& data,
+			 const std::string& field,
+			 const YamlNamespace& ns);
+%ignore read(std::string &,std::string const &);
+%ignore read(std::string &,std::string const &,YAML::Node const &);
+%rename(readString)
+		read(std::string& data,
+			 const std::string& field,
+			 const YamlNamespace& ns);
+%ignore read(std::vector<double> &,std::string const &);
+%ignore read(std::vector<double> &,std::string const &,YAML::Node const &);
+%rename(readDoubleList)
+		read(std::vector<double>& data,
+			const std::string& field,
+			const YamlNamespace& ns);
+%ignore read(std::vector<std::string> &,std::string const &);
+%ignore read(std::vector<std::string> &,std::string const &,YAML::Node const &);
+%rename(readStringList)
+		read(std::vector<std::string>& data,
+			const std::string& field,
+			const YamlNamespace& ns);
+%ignore read(Eigen::Vector2d &,std::string const &);
+%ignore read(Eigen::Vector2d &,std::string const &,YAML::Node const &);
+%rename(readArray2d) read(Eigen::Vector2d& data,
+				  const std::string& field,
+				  const YamlNamespace& ns);
+%ignore read(Eigen::Vector3d &,std::string const &);
+%ignore read(Eigen::Vector3d &,std::string const &,YAML::Node const &);
+%rename(readArray3d) read(Eigen::Vector3d& data,
+				  const std::string& field,
+				  const YamlNamespace& ns);
+%ignore read(Eigen::Quaterniond &,std::string const &);
+%ignore read(Eigen::Quaterniond &,std::string const &,YAML::Node const &);
+%ignore read(Pose &,std::string const &);
+%ignore read(Pose &,std::string const &,YAML::Node const &);
+%ignore read(Pose &,std::string const &,YamlNamespace const &);
+%ignore read(Pose3d &,std::string const &);
+%ignore read(Pose3d &,std::string const &,YAML::Node const &);
+%ignore read(Pose3d &,std::string const &,YamlNamespace const &);
+%ignore read(Action3d &,std::string const &);
+%ignore read(Action3d &,std::string const &,YAML::Node const &);
+%ignore read(Action3d &,std::string const &,YamlNamespace const &);
+%ignore read(SearchArea &,std::string const &);
+%ignore read(SearchArea &,std::string const &,YAML::Node const &);
+%ignore read(SearchArea &,std::string const &,YamlNamespace const &);
+%ignore getNode(YAML::Node &,YamlNamespace const &);
+%ignore operator<<(YAML::Emitter&,Eigen::Vector2d const &);
+%ignore operator<<(YAML::Emitter&,Eigen::Vector3d const &);
+
+%include <dwl/utils/YamlWrapper.h>
