@@ -26,3 +26,9 @@ set_target_properties(dyn_sample  PROPERTIES
 
 add_executable(cd_sample  CollectDataSample.cpp)
 target_link_libraries(cd_sample ${PROJECT_NAME})
+
+add_executable(yaml_sample  YamlWrapperSample.cpp)
+target_link_libraries(yaml_sample ${PROJECT_NAME})
+set_target_properties(yaml_sample  PROPERTIES
+                                   COMPILE_DEFINITIONS
+                                   DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
