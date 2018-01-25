@@ -29,8 +29,8 @@ int main(int argc, char **argv)
 
 
 	// The robot state
-	ws.setBasePosition_W(Eigen::Vector3d(0., 0., 0.));
-	ws.setBaseRPY_W(Eigen::Vector3d(0., 0., 0.));
+	ws.setBasePosition(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseRPY(Eigen::Vector3d(0., 0., 0.));
 	ws.setBaseVelocity_W(Eigen::Vector3d(0., 0., 0.));
 	ws.setBaseRPYVelocity_W(Eigen::Vector3d(0., 0., 0.));
 	ws.setBaseAcceleration_W(Eigen::Vector3d(0., 0., 0.));

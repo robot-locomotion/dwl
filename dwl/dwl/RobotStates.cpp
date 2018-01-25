@@ -50,12 +50,12 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 	// CoM states assuming that CoM is fixed-point in the base
 	Eigen::Vector3d com_pos_W =
 			frame_tf_.fromBaseToWorldFrame(com_pos_B_,
-										   state.getRPY_W());
-	ws_.setBasePosition_W(state.getCoMPosition_W() - com_pos_W);
+										   state.getRPY());
+	ws_.setBasePosition(state.getCoMPosition() - com_pos_W);
 	ws_.setBaseVelocity_W(computeBaseVelocity_W(state, com_pos_W));
 	ws_.setBaseAcceleration_W(computeBaseAcceleration_W(state, com_pos_W));
 
-	ws_.setBaseRPY_W(state.getRPY_W());
+	ws_.setBaseRPY(state.getRPY());
 	ws_.setBaseAngularVelocity_W(state.getAngularVelocity_W());
 	ws_.setBaseAngularAcceleration_W(state.getAngularAcceleration_W());
 
@@ -121,19 +121,19 @@ const ReducedBodyState& RobotStates::getReducedBodyState(const WholeBodyState& s
 	rs_.time = state.time;
 
 	// Getting the world to base transformation
-	Eigen::Vector3d base_traslation = state.getBasePosition_W();
-	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(state.getBaseRPY_W());
+	Eigen::Vector3d base_traslation = state.getBasePosition();
+	Eigen::Matrix3d W_rot_B = frame_tf_.getBaseToWorldRotation(state.getBaseRPY());
 
 	// Computing the CoM position, velocity and acceleration
 	// Neglecting the joint accelerations components
-	rs_.setCoMPosition_W(state.getBasePosition_W() + W_rot_B * com_pos_B_);
+	rs_.setCoMPosition(state.getBasePosition() + W_rot_B * com_pos_B_);
 	rs_.setCoMVelocity_W(fbs_.getSystemCoMRate(state.base_pos,
 											   state.joint_pos,
 											   state.base_vel,
 											   state.joint_vel));
 	rs_.setCoMAcceleration_W(state.getBaseAcceleration_W());
 
-	rs_.setRPY_W(state.getBaseRPY_W());
+	rs_.setRPY(state.getBaseRPY());
 	rs_.setAngularVelocity_W(state.getBaseAngularVelocity_W());
 	rs_.setAngularAcceleration_W(state.getBaseAngularAcceleration_W());
 

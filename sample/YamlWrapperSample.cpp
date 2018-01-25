@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	dwl::SearchArea search_area;
 
 	// Yaml reader
-	dwl::YamlWrapper yaml_reader("../tests/test.yaml");
+	dwl::YamlWrapper yaml_reader(DWL_SOURCE_DIR"/sample/example.yaml");
 
 	// Reading and parsing the yaml document
 	cout << "Reading from global_ns/variable_ns namespace" << endl;

@@ -23,6 +23,3 @@ endif()
 
 add_executable(support_utest  SupportPolygonConstraintTest.cpp)
 target_link_libraries(support_utest ${PROJECT_NAME})
-
-add_executable(yaml_utest  YamlWrapperTest.cpp)
-target_link_libraries(yaml_utest ${PROJECT_NAME})

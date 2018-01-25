@@ -43,6 +43,7 @@ if [ "$CURRENT_OS" == "OSX" ]; then
 		make -j install
 	fi
 elif [ "$CURRENT_OS" == "UBUNTU" ]; then
+#	sudo apt-get install libeigen3-dev
 	# Getting Eigen 3.2.10
 	wget http://www.bitbucket.org/eigen/eigen/get/3.2.10.tar.bz2
 	mkdir eigen && tar jxf 3.2.10.tar.bz2 -C eigen --strip-components 1

@@ -238,7 +238,7 @@ struct PreviewState
 
 		Eigen::Vector3d com_disp_W = state.com_pos - state.cop;
 		Eigen::Vector3d com_disp_H =
-				tf.fromWorldToHorizontalFrame(com_disp_W, state.getRPY_W());
+				tf.fromWorldToHorizontalFrame(com_disp_W, state.getRPY());
 
 		height = com_disp_H(rbd::Z);
 		com_pos = (Eigen::Vector2d) com_disp_H.head<2>();

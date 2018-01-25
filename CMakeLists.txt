@@ -16,12 +16,14 @@ set(CATKIN_CALL "${CATKIN_DEVEL_PREFIX}")
 if(CATKIN_CALL)
 	message("Compiling DWL library as a Catkin project")
 	find_package(catkin REQUIRED)
+	set(WITH_CATKIN ON)
 else()
 	message("Compiling DWL library as a CMake project")
 	# Setting the output directories for libraries and executables
 	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/lib)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/bin)
+	set(WITH_CATKIN OFF)
 endif()
 
 # Set a default build type to 'Release' if none was specified
@@ -33,8 +35,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Setting flags for optimization
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -march=native -mno-avx -mtune=native -D EIGEN_NO_DEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++11")
 
 # Appending the thirdparty path for CMake and package config variables
 set(CMAKE_LIBRARY_PATH ${INSTALL_DEPS_PREFIX}/lib ${CMAKE_LIBRARY_PATH})

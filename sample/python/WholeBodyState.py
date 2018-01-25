@@ -14,12 +14,12 @@ print("The number of DoFs is ", ws.getJointDoF())
 
 
 # Setting up the base states
-ws.setBasePosition_W(np.array([1., 2., 3.]))
-ws.setBaseRPY_W(np.array([0.5, 0., 0.]))
+ws.setBasePosition(np.array([1., 2., 3.]))
+ws.setBaseRPY(np.array([0.5, 0., 0.]))
 ws.setBaseVelocity_W(np.array([1., 1., 1.]))
 print("Base states:")
-print("	base_pos: ", ws.getBasePosition_W().transpose())
-print("	base_RPY: ", ws.getBaseRPY_W().transpose())
+print("	base_pos: ", ws.getBasePosition().transpose())
+print("	base_RPY: ", ws.getBaseRPY().transpose())
 #print("The base orientation is ", ws.getBaseOrientation_W().transpose()) TODO it doesn't work yet
 print("	base_vel_W: ", ws.getBaseVelocity_W().transpose())
 print("	base_vel_B: ", ws.getBaseVelocity_B().transpose())

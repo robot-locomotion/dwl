@@ -28,6 +28,9 @@ else
 	rm -rf libcmaes
 fi
 
+# In case that eigen is installed through install_eigen.sh
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:${INSTALL_DEPS_PREFIX}/lib/pkgconfig
+
 if [ "$CURRENT_OS" == "OSX" ]; then
 	echo -e "${COLOR_WARN}Mac OSX installation not support yet${COLOR_RESET}"
 
@@ -39,14 +42,10 @@ if [ "$CURRENT_OS" == "OSX" ]; then
 	cd build
 	cmake -D BUILD_SHARED_LIBS:bool=ON CMAKE_BUILD_TYPE=Release $VERBOSITY ../
 	make -j
-	if [[ $OWNER == 'root' ]]; then
-		sudo make -j install
-	else
-		make -j install
-	fi
-	cd $CURRENT_DIR/thirdparty
+	sudo make -j install
 
 	# Getting the libcmaes 0.9.5
+	cd $DWL_DIR/thirdparty
 	wget https://github.com/beniz/libcmaes/archive/0.9.5.tar.gz
 	mkdir libcmaes && tar zxf 0.9.5.tar.gz -C libcmaes --strip-components 1
 	rm -rf 0.9.5.tar.gz
@@ -70,13 +69,9 @@ elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 	cd gtest
 	mkdir -p build
 	cd build
-	cmake -D BUILD_SHARED_LIBS:bool=ON CMAKE_BUILD_TYPE=Release $VERBOSITY ../
+	cmake -D BUILD_SHARED_LIBS:bool=ON CMAKE_BUILD_TYPE=Release $VERBOSITY ../ 
 	make -j
-	if [[ $OWNER == 'root' ]]; then
-		sudo make -j install
-	else
-		make -j install
-	fi
+	sudo make -j install
 
 	# Getting the libcmaes 0.9.5
 	cd $DWL_DIR/thirdparty

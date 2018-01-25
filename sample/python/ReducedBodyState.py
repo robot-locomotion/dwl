@@ -9,12 +9,12 @@ rs = dwl.ReducedBodyState()
 
 
 # Setting up the CoM states
-rs.setCoMPosition_W(np.array([1., 2., 3.]))
-rs.setRPY_W(np.array([0.5, 0., 0.]))
+rs.setCoMPosition(np.array([1., 2., 3.]))
+rs.setRPY(np.array([0.5, 0., 0.]))
 rs.setCoMVelocity_W(np.array([1., 1., 1.]))
 print("CoM states:")
-print("    com_pos: ", rs.getCoMPosition_W().transpose())
-print("    base_RPY: ", rs.getRPY_W().transpose())
+print("    com_pos: ", rs.getCoMPosition().transpose())
+print("    base_RPY: ", rs.getRPY().transpose())
 #print("The base orientation is ", rs.getOrientation_W().transpose()) TODO it doesn't work yet
 print("    com_vel_W: ", rs.getCoMVelocity_W().transpose())
 print("    com_vel_B: ", rs.getCoMVelocity_B().transpose())
