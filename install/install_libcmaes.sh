@@ -51,7 +51,7 @@ if [ "$CURRENT_OS" == "OSX" ]; then
 	rm -rf 0.9.5.tar.gz
 	cd libcmaes
 	./autogen.sh
-	./configure --enable-gglog --prefix=$INSTALL_DEPS_PREFIX
+	./configure --enable-gglog --prefix=$INSTALL_DEPS_PREFIX --with-eigen3-include=$INSTALL_DEPS_PREFIX/include/eigen3
 	make -j4
 	if [[ $OWNER == 'root' ]]; then
 		sudo make -j install
@@ -69,7 +69,7 @@ elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 	cd gtest
 	mkdir -p build
 	cd build
-	cmake -D BUILD_SHARED_LIBS:bool=ON CMAKE_BUILD_TYPE=Release $VERBOSITY ../
+	cmake -D BUILD_SHARED_LIBS:bool=ON CMAKE_BUILD_TYPE=Release $VERBOSITY ../ 
 	make -j
 	sudo make -j install
 
@@ -80,7 +80,7 @@ elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 	rm -rf 0.9.5.tar.gz
 	cd libcmaes
 	./autogen.sh
-	./configure --enable-gglog --prefix=$INSTALL_DEPS_PREFIX
+	./configure --enable-gglog --prefix=$INSTALL_DEPS_PREFIX --with-eigen3-include=$INSTALL_DEPS_PREFIX/include/eigen3
 	make -j4
 	if [[ $OWNER == 'root' ]]; then
 		sudo make -j install
