@@ -1,59 +1,45 @@
-/** \mainpage DWL API Documentation
+/** \mainpage Dynamic Whole-body Locomotion (DWL) toolbox - API Documentation
 
-<h1>Overview</h1>
+<img align="left" height="240" src="https://imgur.com/SkeMizm.png"/> 
 
-The <b>Dynamic Whole-body Locomotion (DWL)</b> is a <b>large scale, open project</b>[1]
-for point cloud processing. The PCL framework contains numerous state-of-the
-art algorithms including filtering, feature estimation, surface reconstruction,
-registration, model fitting and segmentation. These algorithms can be used, for
-example, to filter outliers from noisy data, stitch 3D point clouds together,
-segment relevant parts of a scene, extract keypoints and compute descriptors to
-recognize objects in the world based on their geometric appearance, and create
-surfaces from point clouds and visualize them -- to name a few.
+<h1>Introduction</h1>
 
-PCL is released under the terms of the <a
+The <b>Dynamic Whole-body Locomotion (DWL)</b> toolbox implements a set of
+functionalities to develop, design, and deploy motion planning, control and
+perception algorithms for legged locomotion. DWL has different modules such
+as: kinematics, dynamics, solvers (tree-search, optimization, etc), and
+environment descriptions. All these tools are designed for both fast
+prototyping and deployment thanks to its c++ implementation and Python bindings.
+The DWL toolbox can be used in various software frameworks such as ROS and LCM,
+and for real-time control and planning.
+
+DWL was developed by Carlos Mastalli at
+[Dynamic Legged Systems lab (DLS)](http://www.iit.it/en/advr-labs/dynamic-legged-systems.html),
+Istituto Italiano di Tecnologia, Italy. The DWL is core toolbox used along of
+various software of the DLS lab at IIT.
+
+DWL is released under the terms of the <a
 href="http://en.wikipedia.org/wiki/BSD_licenses#3-clause_license_.28.22New_BSD_License.22_or_.22Modified_BSD_License.22.29">
 BSD license</a> and is open source software. <b>It is free for commercial and
 research use.</b>
 
-\image html http://www.pointclouds.org/assets/images/contents/logos/pointcloudlibrary_logo.png
-
-PCL is cross-platform, and has been successfully compiled and deployed on
-Linux, MacOS, Windows, and Android. To simplify development, PCL is split into
-a series of smaller code libraries, that can be compiled separately. This
-modularity is important for distributing PCL on platforms with reduced
-computational or size constraints.
-
-Please visit http://www.pointclouds.org for more information.
-
 <h1>Quick Links</h1>
 <ul>
-  <li>Main website: http://www.pointclouds.org</li>
-  <li>Developer Zone: https://github.com/PointCloudLibrary</li>
-  <li>Build farm: https://travis-ci.org/PointCloudLibrary/pcl</li>
+  <li>Main website: TODO</li>
+  <li>Developer Zone: https://github.com/robot-locomotion/dwl</li>
+  <li>Build farm: https://travis-ci.org/robot-locomotion/dwl</li>
 </ul>
 
-<h1>References</h1>
 
-[1] For more information, including a scientific citation (more to be added soon), please see:
-<pre>
-@@InProceedings{Rusu_ICRA2011_PCL,
-  author = {Radu Bogdan Rusu and Steve Cousins},
-  title = {{3D is here: Point Cloud Library (PCL)}},
-  booktitle = {{IEEE International Conference on Robotics and Automation (ICRA)}},
-  month = {May 9-13},
-  year = {2011},
-  address = {Shanghai, China}
-}
-</pre>
-<a href="http://www.pointclouds.org/assets/pdf/pcl_icra2011.pdf">Download PDF here</a>.
+If you are using DWL in your work, please do <a
+href="mailto:carlos.mastalli@laas.fr">contact us</a>. We're trying to
+gather a list of publications that use DWL, and present it here. It will give
+your work visibility, and it would help us understand what parts of DWL we should
+work on. Thank you.
 
-If you are referencing PCL in your work, please do <a
-href="http://www.pointclouds.org/contact.html">contact us</a>. We're trying to
-gather a list of publications that use PCL, and present it here. That will give
-your work visibility, and it would help us understand what parts of PCL should
-we be working on. Thank you.
+<img align="left" height="200" src="https://i.imgur.com/4kKhryj.gif"/> 
+<img align="left" height="200" src="https://i.imgur.com/RKe3sNo.gif"/> 
 
-
+\copyright 2014-2018 Carlos Mastalli
 
 */
