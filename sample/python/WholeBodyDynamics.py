@@ -11,12 +11,13 @@ np.set_printoptions(suppress=True)
 # Construct an instance of the WholeBodyDynamics class, which wraps the C++ class.
 ws = dwl.WholeBodyState()
 fbs = dwl.FloatingBaseSystem()
+wkin = dwl.WholeBodyKinematics()
 wdyn = dwl.WholeBodyDynamics()
 
 # Resetting the system from the hyq urdf file
 fpath = os.path.dirname(os.path.abspath(__file__))
-wdyn.modelFromURDFFile(fpath + "/../hyq.urdf", fpath + "/../../config/hyq.yarf")
-fbs = wdyn.getFloatingBaseSystem()
+fbs.resetFromURDFFile(fpath + "/../hyq.urdf", fpath + "/../../config/hyq.yarf")
+wdyn.reset(fbs, wkin)
 
 # Define the DoF after initializing the robot model
 ws.setJointDoF(fbs.getJointDoF())

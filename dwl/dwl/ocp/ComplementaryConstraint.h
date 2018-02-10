@@ -19,6 +19,14 @@ class ComplementaryConstraint : public Constraint<WholeBodyState>
 		/** @brief Destructor function */
 		virtual ~ComplementaryConstraint();
 
+		/** @brief Resets the robot dynamics
+		 * @param[in] fbs Floating-base model
+		 * @param[in] wdyn Whole-body dynamics
+		 **/
+		void reset(model::FloatingBaseSystem& fbs,
+				   model::WholeBodyKinematics& wkin,
+				   model::WholeBodyDynamics& wdyn);
+
 		/**
 		 * @brief Initializes the complementary constraint properties given an URDF model (xml)
 		 * @param std::string URDF model
@@ -63,6 +71,15 @@ class ComplementaryConstraint : public Constraint<WholeBodyState>
 	protected:
 		/** @brief Dimension of the complementary constraints */
 		unsigned int complementary_dimension_;
+
+		/** @brief Floating-base system */
+		std::shared_ptr<model::FloatingBaseSystem> fbs_;
+
+		/** @brief Whole-body kinematics */
+		std::shared_ptr<model::WholeBodyKinematics> wkin_;
+
+		/** @brief Whole-body dynamics */
+		std::shared_ptr<model::WholeBodyDynamics> wdyn_;
 };
 
 } //@namespace ocp

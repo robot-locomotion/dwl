@@ -47,6 +47,14 @@ class DynamicalSystem : public Constraint<WholeBodyState>
 		/** @brief Destructor function */
 		virtual ~DynamicalSystem();
 
+		/** @brief Resets the robot dynamics
+		 * @param[in] fbs Floating-base model
+		 * @param[in] wdyn Whole-body dynamics
+		 **/
+		void reset(model::FloatingBaseSystem& fbs,
+				   model::WholeBodyKinematics& wkin,
+				   model::WholeBodyDynamics& wdyn);
+
 		/**
 		 * @brief Initializes the dynamical system constraint given an URDF model (xml)
 		 * @param Print model information
@@ -154,11 +162,14 @@ class DynamicalSystem : public Constraint<WholeBodyState>
 		 */
 		void setStepIntegrationTime(const double& step_time);
 
+		/** @brief Gets the floating-base system information */
+		std::shared_ptr<model::FloatingBaseSystem> getFloatingBaseSystem();
+
 		/** @brief Gets the kinematics of the system */
-		model::WholeBodyKinematics& getKinematics();
+		std::shared_ptr<model::WholeBodyKinematics> getKinematics();
 
 		/** @brief Gets the dynamics of the system */
-		model::WholeBodyDynamics& getDynamics();
+		std::shared_ptr<model::WholeBodyDynamics> getDynamics();
 
 		/**
 		 * @brief Gets the lower and upper state bounds
@@ -179,9 +190,6 @@ class DynamicalSystem : public Constraint<WholeBodyState>
 
 		/** @brief Gets the dimension of the terminal constraint */
 		unsigned int getTerminalConstraintDimension();
-
-		/** @brief Gets the floating-base system information */
-		model::FloatingBaseSystem& getFloatingBaseSystem();
 
 		/** @brief Gets the fixed-step time of integration */
 		const double& getFixedStepTime();
@@ -219,6 +227,15 @@ class DynamicalSystem : public Constraint<WholeBodyState>
 
 		/** @brief Dimension of the terminal constraint */
 		unsigned int terminal_constraint_dimension_;
+
+		/** @brief Floating-base system */
+		std::shared_ptr<model::FloatingBaseSystem> fbs_;
+
+		/** @brief Whole-body kinematics */
+		std::shared_ptr<model::WholeBodyKinematics> wkin_;
+
+		/** @brief Whole-body dynamics */
+		std::shared_ptr<model::WholeBodyDynamics> wdyn_;
 
 		/** @brief Initial whole-body state */
 		WholeBodyState initial_state_;

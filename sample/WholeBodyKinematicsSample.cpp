@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 	std::string urdf_file = DWL_SOURCE_DIR"/sample/hyq.urdf";
 	std::string yarf_file = DWL_SOURCE_DIR"/config/hyq.yarf";
 	fbs.resetFromURDFFile(urdf_file, yarf_file);
-	wkin.modelFromURDFFile(urdf_file, yarf_file);
+	wkin.reset(fbs);
 
 	// Define the DoF after initializing the robot model
 	ws.setJointDoF(fbs.getJointDoF());

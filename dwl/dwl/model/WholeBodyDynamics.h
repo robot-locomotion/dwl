@@ -27,24 +27,13 @@ class WholeBodyDynamics
 		~WholeBodyDynamics();
 
 		/**
-		 * @brief Builds the model rigid-body system from an URDF file
-		 * @param std::string URDF filename
-		 * @param std::string Semantic system description filename
-		 * @param Print model information
+		 * @brief Set the floating-base model and the whole-body kinematics
+		 * of the rigid-body system
+		 * @param[in] fbs Floating-base model
+		 * @param[in] wkin Whole-body kinematics
 		 */
-		void modelFromURDFFile(const std::string& urdf_file,
-							   const std::string& system_file = std::string(),
-							   bool info = false);
-
-		/**
-		 * @brief Builds the model rigid-body system from an URDF model (xml)
-		 * @param std::string URDF model
-		 * @param std::string Semantic system description filename
-		 * @param Print model information
-		 */
-		void modelFromURDFModel(const std::string& urdf_model,
-								const std::string& system_file = std::string(),
-								bool info = false);
+		void reset(FloatingBaseSystem& fbs,
+				   WholeBodyKinematics& wkin);
 
 		/**
 		 * @brief Computes the whole-body inverse dynamics, assuming a fully
@@ -349,10 +338,10 @@ class WholeBodyDynamics
 									double force_threshold);
 
 		/** @brief Gets the floating-base system information */
-		const FloatingBaseSystem& getFloatingBaseSystem() const;
+		std::shared_ptr<FloatingBaseSystem> getFloatingBaseSystem();
 
 		/** @brief Gets the whole-body kinematics */
-		const WholeBodyKinematics& getWholeBodyKinematics() const;
+		std::shared_ptr<WholeBodyKinematics> getWholeBodyKinematics();
 
 		/**
 		 * @brief Detects the active contacts
@@ -406,10 +395,10 @@ class WholeBodyDynamics
 		rbd::BodyID body_id_;
 
 		/** @brief Kinematic model */
-		WholeBodyKinematics kinematics_;
+		std::shared_ptr<WholeBodyKinematics> wkin_;
 
 		/** @brief A floating-base system information */
-		FloatingBaseSystem system_;
+		std::shared_ptr<FloatingBaseSystem> fbs_;
 
 		/** @brief Gravitational wrench */
 		rbd::Vector6d grav_wrench_;

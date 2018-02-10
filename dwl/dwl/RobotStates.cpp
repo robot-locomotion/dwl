@@ -16,21 +16,26 @@ RobotStates::~RobotStates()
 }
 
 
-void RobotStates::reset(const model::WholeBodyDynamics& dynamics)
+void RobotStates::reset(model::FloatingBaseSystem& fbs,
+						model::WholeBodyKinematics& wkin,
+				        model::WholeBodyDynamics& wdyn)
 {
-	// Resetting the dynamics, kinematics and system
-	wdyn_ = dynamics;
-	fbs_ = wdyn_.getFloatingBaseSystem();
-	wkin_ = wdyn_.getWholeBodyKinematics();
+	// Creating the floating-base system and whole-body kinematics shared pointers
+	fbs_ = std::make_shared<model::FloatingBaseSystem>(fbs);
+	wkin_ = std::make_shared<model::WholeBodyKinematics>(wkin);
+	wdyn_ = std::make_shared<model::WholeBodyDynamics>(wdyn);
+
+	// Setting the whole-body dynamics from floating-base model
+	wdyn_->reset(fbs, wkin);
 
 	// Getting some system properties
-	num_joints_ = fbs_.getJointDoF();
-	num_feet_ = fbs_.getNumberOfEndEffectors(model::FOOT);
-	feet_ = fbs_.getEndEffectorNames(model::FOOT);
+	num_joints_ = fbs_->getJointDoF();
+	num_feet_ = fbs_->getNumberOfEndEffectors(model::FOOT);
+	feet_ = fbs_->getEndEffectorNames(model::FOOT);
 
 	// Getting the default position of the CoM system w.r.t. the base frame
-	Eigen::VectorXd q0 = fbs_.getDefaultPosture();
-	com_pos_B_ = fbs_.getSystemCoM(rbd::Vector6d::Zero(), q0);
+	Eigen::VectorXd q0 = fbs_->getDefaultPosture();
+	com_pos_B_ = fbs_->getSystemCoM(rbd::Vector6d::Zero(), q0);
 }
 
 
@@ -91,21 +96,21 @@ const WholeBodyState& RobotStates::getWholeBodyState(const ReducedBodyState& sta
 	ws_.setJointAcceleration(Eigen::VectorXd::Zero(num_joints_));
 
 	// Computing the joint positions
-	wkin_.computeJointPosition(ws_.joint_pos,
-							   feet_pos);
+	wkin_->computeJointPosition(ws_.joint_pos,
+								feet_pos);
 
 	// Computing the joint velocities
-	wkin_.computeJointVelocity(ws_.joint_vel,
-							   ws_.joint_pos,
-							   ws_.contact_vel,
-							   feet_);
+	wkin_->computeJointVelocity(ws_.joint_vel,
+								ws_.joint_pos,
+								ws_.contact_vel,
+								feet_);
 
 	// Computing the joint accelerations
-	wkin_.computeJointAcceleration(ws_.joint_acc,
-								   ws_.joint_pos,
-								   ws_.joint_vel,
-								   ws_.contact_vel,
-								   feet_);
+	wkin_->computeJointAcceleration(ws_.joint_acc,
+									ws_.joint_pos,
+									ws_.joint_vel,
+									ws_.contact_vel,
+									feet_);
 
 	// Setting up the desired joint efforts equals to zero
 	ws_.joint_eff = Eigen::VectorXd::Zero(num_joints_);
@@ -127,10 +132,10 @@ const ReducedBodyState& RobotStates::getReducedBodyState(const WholeBodyState& s
 	// Computing the CoM position, velocity and acceleration
 	// Neglecting the joint accelerations components
 	rs_.setCoMPosition(state.getBasePosition() + W_rot_B * com_pos_B_);
-	rs_.setCoMVelocity_W(fbs_.getSystemCoMRate(state.base_pos,
-											   state.joint_pos,
-											   state.base_vel,
-											   state.joint_vel));
+	rs_.setCoMVelocity_W(fbs_->getSystemCoMRate(state.base_pos,
+												state.joint_pos,
+												state.base_vel,
+												state.joint_vel));
 	rs_.setCoMAcceleration_W(state.getBaseAcceleration_W());
 
 	rs_.setRPY(state.getBaseRPY());
@@ -139,19 +144,19 @@ const ReducedBodyState& RobotStates::getReducedBodyState(const WholeBodyState& s
 
 	// Computing the CoP in the world frame
 	Eigen::Vector3d cop_B;
-	wdyn_.computeCenterOfPressure(cop_B,
-								  state.contact_eff,
-								  state.contact_pos);
+	wdyn_->computeCenterOfPressure(cop_B,
+								   state.contact_eff,
+								   state.contact_pos);
 	rs_.setCoPPosition_W(base_traslation + W_rot_B * cop_B);
 
 	// Getting the support region w.r.t the world frame. The support region
 	// is defined by the active contacts
 	rbd::BodySelector active_contacts;
-	wdyn_.getActiveContacts(active_contacts,
-							state.contact_eff,
-							force_threshold_);
+	wdyn_->getActiveContacts(active_contacts,
+							 state.contact_eff,
+							 force_threshold_);
 	rs_.support_region.clear();
-	for (unsigned int i = 0; i < active_contacts.size(); i++) {
+	for (unsigned int i = 0; i < active_contacts.size(); ++i) {
 		std::string name = active_contacts[i];
 
 		rs_.support_region[name] = base_traslation +
@@ -187,7 +192,7 @@ const WholeBodyTrajectory& RobotStates::getWholeBodyTrajectory(const ReducedBody
 	wt_.resize(num_points);
 
 	// Getting the full trajectory
-	for (unsigned int k = 0; k < num_points; k++)
+	for (unsigned int k = 0; k < num_points; ++k)
 		wt_[k] = getWholeBodyState(trajectory[k]);
 
 	return wt_;
@@ -205,7 +210,7 @@ const ReducedBodyTrajectory& RobotStates::getReducedBodyTrajectory(const WholeBo
 
 	// Getting the reduced trajectory
 
-	for (unsigned int k = 0; k < num_points; k++)
+	for (unsigned int k = 0; k < num_points; ++k)
 		rt_[k] = getReducedBodyState(trajectory[k]);
 
 	return rt_;

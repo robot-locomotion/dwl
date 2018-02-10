@@ -30,7 +30,7 @@ void FullDynamicalSystem::initDynamicalSystem()
 {
 	// Getting the end-effector names
 	end_effector_names_.clear();
-	urdf_model::LinkID end_effector = system_.getEndEffectors();
+	urdf_model::LinkID end_effector = fbs_->getEndEffectors();
 	for (urdf_model::LinkID::const_iterator endeffector_it = end_effector.begin();
 			endeffector_it != end_effector.end(); endeffector_it++) {
 		// Getting and setting the end-effector names
@@ -44,7 +44,7 @@ void FullDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint
 													 const WholeBodyState& state)
 {
 	// Resizing the constraint vector
-	constraint.resize(system_.getSystemDoF());
+	constraint.resize(fbs_->getSystemDoF());
 
 	// Computing the step time
 	double step_time = state.time - state_buffer_[0].time;
@@ -58,20 +58,20 @@ void FullDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint
 	// to null vector. TODO Another implementation could be posed as floating-base inverse dynamics
 	rbd::Vector6d estimated_base_wrench;
 	Eigen::VectorXd estimated_joint_forces;
-	dynamics_.computeInverseDynamics(estimated_base_wrench, estimated_joint_forces,
-									 state.base_pos, state.joint_pos,
-									 state.base_vel, state.joint_vel,
-									 base_acc, joint_acc, state.contact_eff);
-	constraint = system_.toGeneralizedJointState(estimated_base_wrench - state.base_eff,
-												 estimated_joint_forces - state.joint_eff);
+	wdyn_->computeInverseDynamics(estimated_base_wrench, estimated_joint_forces,
+								  state.base_pos, state.joint_pos,
+								  state.base_vel, state.joint_vel,
+								  base_acc, joint_acc, state.contact_eff);
+	constraint = fbs_->toGeneralizedJointState(estimated_base_wrench - state.base_eff,
+											   estimated_joint_forces - state.joint_eff);
 }
 
 
 void FullDynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
 											 Eigen::VectorXd& upper_bound)
 {
-	lower_bound = Eigen::VectorXd::Zero(system_.getSystemDoF());
-	upper_bound = Eigen::VectorXd::Zero(system_.getSystemDoF());
+	lower_bound = Eigen::VectorXd::Zero(fbs_->getSystemDoF());
+	upper_bound = Eigen::VectorXd::Zero(fbs_->getSystemDoF());
 }
 
 } //@namespace ocp

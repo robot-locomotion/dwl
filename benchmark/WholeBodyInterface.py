@@ -28,9 +28,9 @@ wkin = dwl.WholeBodyKinematics()
 wdyn = dwl.WholeBodyDynamics()
 
 # Resetting the system from the hyq urdf file
-wdyn.modelFromURDFFile(fpath + "/../sample/hyq.urdf", fpath + "/../config/hyq.yarf")
-fbs = wdyn.getFloatingBaseSystem()
-wkin = wdyn.getWholeBodyKinematics()
+fbs.resetFromURDFFile(fpath + "/../sample/hyq.urdf", fpath + "/../config/hyq.yarf")
+wkin.reset(fbs)
+wdyn.reset(fbs, wkin)
 
 
 # Define the DoF after initializing the robot model

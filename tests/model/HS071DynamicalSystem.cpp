@@ -15,13 +15,17 @@ class HS071DynamicalSystem : public ocp::DynamicalSystem
 	public:
 		HS071DynamicalSystem()
 		{
+			fbs_.reset(new model::FloatingBaseSystem());
+			wkin_.reset(new model::WholeBodyKinematics());
+			wdyn_.reset(new model::WholeBodyDynamics());
+
 			name_ = "HS071";
 			state_dimension_ = 4;
 			constraint_dimension_ = 2;
 			system_variables_.position = true;
-			system_.setJointDoF(state_dimension_);
-			system_.setSystemDoF(state_dimension_);
-			system_.setTypeOfDynamicSystem(FixedBase);
+			fbs_->setJointDoF(state_dimension_);
+			fbs_->setSystemDoF(state_dimension_);
+			fbs_->setTypeOfDynamicSystem(FixedBase);
 
 			WholeBodyState starting_state(state_dimension_);
 			starting_state.joint_pos(0) = 1.0;

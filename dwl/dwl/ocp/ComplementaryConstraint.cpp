@@ -19,6 +19,20 @@ ComplementaryConstraint::~ComplementaryConstraint()
 }
 
 
+void ComplementaryConstraint::reset(model::FloatingBaseSystem& fbs,
+									model::WholeBodyKinematics& wkin,
+				        			model::WholeBodyDynamics& wdyn)
+{
+	// Creating the floating-base system and whole-body kinematics shared pointers
+	fbs_ = std::make_shared<model::FloatingBaseSystem>(fbs);
+	wkin_ = std::make_shared<model::WholeBodyKinematics>(wkin);
+	wdyn_ = std::make_shared<model::WholeBodyDynamics>(wdyn);
+
+	// Setting the whole-body dynamics from floating-base model
+	wdyn_->reset(fbs, wkin);
+}
+
+
 void ComplementaryConstraint::init(std::string urdf_model,
 								   bool info)
 {

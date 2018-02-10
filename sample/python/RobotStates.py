@@ -1,6 +1,7 @@
 from __future__ import print_function
 # This lets us use the python3-style print() function even in python2. It should have no effect if you're already running python3.
 
+import os
 import dwl
 import numpy as np
 
@@ -8,20 +9,23 @@ import numpy as np
 # Construct an instance of the WholeBodyState and ReducedBodyState classes, which wraps the C++ classes.
 ws = dwl.WholeBodyState()
 rs = dwl.ReducedBodyState()
+fbs = dwl.FloatingBaseSystem()
+wkin = dwl.WholeBodyKinematics()
+wdyn = dwl.WholeBodyDynamics()
 
 # Construct an instance of the RobotStates class
 rob = dwl.RobotStates()
 
 # Creating the whole-body dynamics model
-wdyn = dwl.WholeBodyDynamics()
-wdyn.modelFromURDFFile("../hyq.urdf", "../../config/hyq.yarf")
-fbs = wdyn.getFloatingBaseSystem()
+fpath = os.path.dirname(os.path.abspath(__file__))
+fbs.resetFromURDFFile(fpath + "/../hyq.urdf", fpath + "/../../config/hyq.yarf")
+wdyn.reset(fbs, wkin)
 
 # Define the DoF after initializing the robot model
 ws.setJointDoF(fbs.getJointDoF())
 
 # Reseting the model of the RobotStates class
-rob.reset(wdyn)
+rob.reset(fbs, wkin, wdyn)
 rob.setForceThreshold(50) # Nm
 
 

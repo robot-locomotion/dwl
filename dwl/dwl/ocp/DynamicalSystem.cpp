@@ -21,6 +21,20 @@ DynamicalSystem::~DynamicalSystem()
 }
 
 
+void DynamicalSystem::reset(model::FloatingBaseSystem& fbs,
+							model::WholeBodyKinematics& wkin,
+				        	model::WholeBodyDynamics& wdyn)
+{
+	// Creating the floating-base system and whole-body kinematics shared pointers
+	fbs_ = std::make_shared<model::FloatingBaseSystem>(fbs);
+	wkin_ = std::make_shared<model::WholeBodyKinematics>(wkin);
+	wdyn_ = std::make_shared<model::WholeBodyDynamics>(wdyn);
+
+	// Setting the whole-body dynamics from floating-base model
+	wdyn_->reset(fbs, wkin);
+}
+
+
 void DynamicalSystem::init(bool info)
 {
 	// Computing the state dimension of the dynamical system constraint
@@ -37,8 +51,8 @@ void DynamicalSystem::init(bool info)
 
 	if (info) {
 		printf("The state dimension is %i\n", state_dimension_);
-		printf("The full DOF of floating-base system is %i\n", system_.getSystemDoF());
-		printf("The joint DOF of floating-base system is %i\n", system_.getJointDoF());
+		printf("The full DOF of floating-base system is %i\n", fbs_->getSystemDoF());
+		printf("The joint DOF of floating-base system is %i\n", fbs_->getJointDoF());
 	}
 }
 
@@ -52,7 +66,7 @@ void DynamicalSystem::initDynamicalSystem()
 void DynamicalSystem::jointLimitsFromURDF()
 {
 	// Initializing the joint limits
-	unsigned int num_joints = system_.getJointDoF();
+	unsigned int num_joints = fbs_->getJointDoF();
 	Eigen::VectorXd lower_joint_pos, upper_joint_pos, joint_vel, joint_eff;
 	lower_joint_pos = -NO_BOUND * Eigen::VectorXd::Ones(num_joints);
 	upper_joint_pos = NO_BOUND * Eigen::VectorXd::Ones(num_joints);
@@ -60,8 +74,8 @@ void DynamicalSystem::jointLimitsFromURDF()
 	joint_eff = NO_BOUND * Eigen::VectorXd::Ones(num_joints);
 
 	// Reading the joint limits
-	dwl::urdf_model::JointLimits joint_limits = system_.getJointLimits();
-	dwl::urdf_model::JointID joint_ids = system_.getJoints();
+	dwl::urdf_model::JointLimits joint_limits = fbs_->getJointLimits();
+	dwl::urdf_model::JointID joint_ids = fbs_->getJoints();
 	for (dwl::urdf_model::JointLimits::iterator jnt_it = joint_limits.begin();
 			jnt_it != joint_limits.end(); ++jnt_it) {
 		std::string joint_name = jnt_it->first;
@@ -89,9 +103,9 @@ void DynamicalSystem::compute(Eigen::VectorXd& constraint,
 
 	// Adding both constraints
 	unsigned int dynamical_dim = dynamical_constraint.size();
-	constraint.resize(system_.getSystemDoF() + dynamical_dim);
-	constraint.segment(0, system_.getSystemDoF()) = time_constraint;
-	constraint.segment(system_.getSystemDoF(), dynamical_dim) = dynamical_constraint;
+	constraint.resize(fbs_->getSystemDoF() + dynamical_dim);
+	constraint.segment(0, fbs_->getSystemDoF()) = time_constraint;
+	constraint.segment(fbs_->getSystemDoF(), dynamical_dim) = dynamical_constraint;
 }
 
 
@@ -106,15 +120,15 @@ void DynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& constraint,
 void DynamicalSystem::computeTerminalConstraint(Eigen::VectorXd& constraint,
 												const WholeBodyState& state)
 {
-	constraint.resize(system_.getFloatingBaseDoF());
+	constraint.resize(fbs_->getFloatingBaseDoF());
 
 	// Computing the position error
 	Eigen::VectorXd position_error =
-			system_.toGeneralizedJointState(terminal_state_.base_pos, terminal_state_.joint_pos) -
-			system_.toGeneralizedJointState(state.base_pos, state.joint_pos);
+			fbs_->toGeneralizedJointState(terminal_state_.base_pos, terminal_state_.joint_pos) -
+			fbs_->toGeneralizedJointState(state.base_pos, state.joint_pos);
 
 	// Adding the terminal constraint
-	constraint = position_error.head(system_.getFloatingBaseDoF());
+	constraint = position_error.head(fbs_->getFloatingBaseDoF());
 }
 
 
@@ -122,7 +136,7 @@ void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
 										   const WholeBodyState& state)
 {
 	// Resizing the constraint vector
-	constraint.resize(system_.getSystemDoF());
+	constraint.resize(fbs_->getSystemDoF());
 
 	// Transcription of the constrained inverse dynamic equation using Euler-backward integration.
 	// This integration method adds numerical stability
@@ -130,14 +144,14 @@ void DynamicalSystem::numericalIntegration(Eigen::VectorXd& constraint,
 	Eigen::VectorXd joint_int = state_buffer_[0].joint_pos - state.joint_pos + state.duration * state.joint_vel;
 
 	// Adding the time integration constraint
-	constraint = system_.toGeneralizedJointState(base_int, joint_int);
+	constraint = fbs_->toGeneralizedJointState(base_int, joint_int);
 }
 
 
 void DynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
 								Eigen::VectorXd& upper_bound)
 {
-	Eigen::VectorXd time_bound = Eigen::VectorXd::Zero(system_.getSystemDoF());
+	Eigen::VectorXd time_bound = Eigen::VectorXd::Zero(fbs_->getSystemDoF());
 
 	// Getting the dynamical bounds
 	Eigen::VectorXd dynamical_lower_bound, dynamical_upper_bound;
@@ -145,12 +159,12 @@ void DynamicalSystem::getBounds(Eigen::VectorXd& lower_bound,
 
 	// Adding both bounds
 	unsigned int dynamical_dim = dynamical_lower_bound.size();
-	lower_bound.resize(system_.getSystemDoF() + dynamical_dim);
-	upper_bound.resize(system_.getSystemDoF() + dynamical_dim);
-	lower_bound.segment(0, system_.getSystemDoF()) = time_bound;
-	lower_bound.segment(system_.getSystemDoF(), dynamical_dim) = dynamical_lower_bound;
-	upper_bound.segment(0, system_.getSystemDoF()) = time_bound;
-	upper_bound.segment(system_.getSystemDoF(), dynamical_dim) = dynamical_upper_bound;
+	lower_bound.resize(fbs_->getSystemDoF() + dynamical_dim);
+	upper_bound.resize(fbs_->getSystemDoF() + dynamical_dim);
+	lower_bound.segment(0, fbs_->getSystemDoF()) = time_bound;
+	lower_bound.segment(fbs_->getSystemDoF(), dynamical_dim) = dynamical_lower_bound;
+	upper_bound.segment(0, fbs_->getSystemDoF()) = time_bound;
+	upper_bound.segment(fbs_->getSystemDoF(), dynamical_dim) = dynamical_upper_bound;
 }
 
 
@@ -165,8 +179,8 @@ void DynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
 void DynamicalSystem::getTerminalBounds(Eigen::VectorXd& lower_bound,
 										Eigen::VectorXd& upper_bound)
 {
-	lower_bound = Eigen::VectorXd::Zero(system_.getFloatingBaseDoF());
-	upper_bound = Eigen::VectorXd::Zero(system_.getFloatingBaseDoF());
+	lower_bound = Eigen::VectorXd::Zero(fbs_->getFloatingBaseDoF());
+	upper_bound = Eigen::VectorXd::Zero(fbs_->getFloatingBaseDoF());
 }
 
 
@@ -189,15 +203,21 @@ void DynamicalSystem::setStepIntegrationTime(const double& step_time)
 }
 
 
-model::WholeBodyKinematics& DynamicalSystem::getKinematics()
+std::shared_ptr<model::FloatingBaseSystem> DynamicalSystem::getFloatingBaseSystem()
 {
-	return kinematics_;
+	return fbs_;
 }
 
 
-model::WholeBodyDynamics& DynamicalSystem::getDynamics()
+std::shared_ptr<model::WholeBodyKinematics> DynamicalSystem::getKinematics()
 {
-	return dynamics_;
+	return wkin_;
+}
+
+
+std::shared_ptr<model::WholeBodyDynamics> DynamicalSystem::getDynamics()
+{
+	return wdyn_;
 }
 
 
@@ -253,12 +273,6 @@ unsigned int DynamicalSystem::getTerminalConstraintDimension()
 }
 
 
-model::FloatingBaseSystem& DynamicalSystem::getFloatingBaseSystem()
-{
-	return system_;
-}
-
-
 const double& DynamicalSystem::getFixedStepTime()
 {
 	return step_time_;
@@ -275,10 +289,10 @@ void DynamicalSystem::toWholeBodyState(WholeBodyState& system_state,
 									   const Eigen::VectorXd& generalized_state)
 {
 	// Resizing the joint dimensions
-	system_state.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
-	system_state.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
-	system_state.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
-	system_state.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
+	system_state.joint_pos = Eigen::VectorXd::Zero(fbs_->getJointDoF());
+	system_state.joint_vel = Eigen::VectorXd::Zero(fbs_->getJointDoF());
+	system_state.joint_acc = Eigen::VectorXd::Zero(fbs_->getJointDoF());
+	system_state.joint_eff = Eigen::VectorXd::Zero(fbs_->getJointDoF());
 
 	// Converting the generalized state vector to locomotion state
 	unsigned int idx = 0;
@@ -287,34 +301,34 @@ void DynamicalSystem::toWholeBodyState(WholeBodyState& system_state,
 		++idx;
 	}
 	if (system_variables_.position) {
-		system_.fromGeneralizedJointState(system_state.base_pos,
+		fbs_->fromGeneralizedJointState(system_state.base_pos,
 										  system_state.joint_pos,
-										  (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()));
-		idx += system_.getSystemDoF();
+										  (Eigen::VectorXd) generalized_state.segment(idx, fbs_->getSystemDoF()));
+		idx += fbs_->getSystemDoF();
 	}
 	if (system_variables_.velocity) {
-		system_.fromGeneralizedJointState(system_state.base_vel,
+		fbs_->fromGeneralizedJointState(system_state.base_vel,
 										  system_state.joint_vel,
-										  (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()));
-		idx += system_.getSystemDoF();
+										  (Eigen::VectorXd) generalized_state.segment(idx, fbs_->getSystemDoF()));
+		idx += fbs_->getSystemDoF();
 	}
 	if (system_variables_.acceleration) {
-		system_.fromGeneralizedJointState(system_state.base_acc,
+		fbs_->fromGeneralizedJointState(system_state.base_acc,
 										  system_state.joint_acc,
-										  (Eigen::VectorXd) generalized_state.segment(idx, system_.getSystemDoF()));
-		idx += system_.getSystemDoF();
+										  (Eigen::VectorXd) generalized_state.segment(idx, fbs_->getSystemDoF()));
+		idx += fbs_->getSystemDoF();
 	}
 	if (system_variables_.effort) {
 		// Defining a fake floating-base system (fixed-base) for converting only joint effort
-		model::FloatingBaseSystem fake_system(false, system_.getJointDoF());
+		model::FloatingBaseSystem fake_system(false, fbs_->getJointDoF());
 		fake_system.fromGeneralizedJointState(system_state.base_eff,
 											  system_state.joint_eff,
-											  (Eigen::VectorXd) generalized_state.segment(idx, system_.getJointDoF()));
-		idx += system_.getJointDoF();
+											  (Eigen::VectorXd) generalized_state.segment(idx, fbs_->getJointDoF()));
+		idx += fbs_->getJointDoF();
 	}
 	if (system_variables_.contact_pos || system_variables_.contact_vel ||
 			system_variables_.contact_acc || system_variables_.contact_for) {
-		urdf_model::LinkID contact_links = system_.getEndEffectors();
+		urdf_model::LinkID contact_links = fbs_->getEndEffectors();
 		for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
 				contact_it != contact_links.end(); contact_it++) {
 			std::string name = contact_it->first;
@@ -353,34 +367,34 @@ void DynamicalSystem::fromWholeBodyState(Eigen::VectorXd& generalized_state,
 		++idx;
 	}
 	if (system_variables_.position) {
-		generalized_state.segment(idx, system_.getSystemDoF()) =
-				system_.toGeneralizedJointState(system_state.base_pos,
+		generalized_state.segment(idx, fbs_->getSystemDoF()) =
+				fbs_->toGeneralizedJointState(system_state.base_pos,
 												system_state.joint_pos);
-		idx += system_.getSystemDoF();
+		idx += fbs_->getSystemDoF();
 	}
 	if (system_variables_.velocity) {
-		generalized_state.segment(idx, system_.getSystemDoF()) =
-				system_.toGeneralizedJointState(system_state.base_vel,
+		generalized_state.segment(idx, fbs_->getSystemDoF()) =
+				fbs_->toGeneralizedJointState(system_state.base_vel,
 												system_state.joint_vel);
-		idx += system_.getSystemDoF();
+		idx += fbs_->getSystemDoF();
 	}
 	if (system_variables_.acceleration) {
-		generalized_state.segment(idx, system_.getSystemDoF()) =
-				system_.toGeneralizedJointState(system_state.base_acc,
+		generalized_state.segment(idx, fbs_->getSystemDoF()) =
+				fbs_->toGeneralizedJointState(system_state.base_acc,
 												system_state.joint_acc);
-		idx += system_.getSystemDoF();
+		idx += fbs_->getSystemDoF();
 	}
 	if (system_variables_.effort) {
 		// Defining a fake floating-base system (fixed-base) for converting only joint effort
-		model::FloatingBaseSystem fake_system(false, system_.getJointDoF());
-		generalized_state.segment(idx, system_.getJointDoF()) =
+		model::FloatingBaseSystem fake_system(false, fbs_->getJointDoF());
+		generalized_state.segment(idx, fbs_->getJointDoF()) =
 				fake_system.toGeneralizedJointState(system_state.base_eff,
 											 	 	system_state.joint_eff);
-		idx += system_.getJointDoF();
+		idx += fbs_->getJointDoF();
 	}
 	if (system_variables_.contact_pos || system_variables_.contact_vel ||
 			system_variables_.contact_acc || system_variables_.contact_for) {
-		urdf_model::LinkID contact_links = system_.getEndEffectors();
+		urdf_model::LinkID contact_links = fbs_->getEndEffectors();
 		for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
 				contact_it != contact_links.end(); contact_it++) {
 			std::string name = contact_it->first;
@@ -422,39 +436,39 @@ void DynamicalSystem::computeStateDimension()
 {
 	// Computing the state dimension give the locomotion variables
 	state_dimension_ = system_variables_.time + (system_variables_.position +
-			system_variables_.velocity + system_variables_.acceleration) * system_.getSystemDoF()
-			+ system_variables_.effort * system_.getJointDoF() + 3 *
+			system_variables_.velocity + system_variables_.acceleration) * fbs_->getSystemDoF()
+			+ system_variables_.effort * fbs_->getJointDoF() + 3 *
 			(system_variables_.contact_pos + system_variables_.contact_vel +
 					system_variables_.contact_acc + system_variables_.contact_for) *
-					system_.getNumberOfEndEffectors();
+					fbs_->getNumberOfEndEffectors();
 }
 
 
 void DynamicalSystem::initialConditions()
 {
 	// Setting the terminal constraint dimension
-	terminal_constraint_dimension_ = system_.getFloatingBaseDoF();
+	terminal_constraint_dimension_ = fbs_->getFloatingBaseDoF();
 
 	// No-bound limit by default
 	lower_state_bound_.duration = 0.05;
 	lower_state_bound_.base_pos = -NO_BOUND * rbd::Vector6d::Ones();
-	lower_state_bound_.joint_pos = -NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
+	lower_state_bound_.joint_pos = -NO_BOUND * Eigen::VectorXd::Ones(fbs_->getJointDoF());
 	lower_state_bound_.base_vel = -NO_BOUND * rbd::Vector6d::Ones();
-	lower_state_bound_.joint_vel = -NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
+	lower_state_bound_.joint_vel = -NO_BOUND * Eigen::VectorXd::Ones(fbs_->getJointDoF());
 	lower_state_bound_.base_acc = -NO_BOUND * rbd::Vector6d::Ones();
-	lower_state_bound_.joint_acc = -NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
+	lower_state_bound_.joint_acc = -NO_BOUND * Eigen::VectorXd::Ones(fbs_->getJointDoF());
 	lower_state_bound_.base_eff = -NO_BOUND * rbd::Vector6d::Ones();
-	lower_state_bound_.joint_eff = -NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
+	lower_state_bound_.joint_eff = -NO_BOUND * Eigen::VectorXd::Ones(fbs_->getJointDoF());
 	upper_state_bound_.duration = 0.5;//NO_BOUND;
 	upper_state_bound_.base_pos = NO_BOUND * rbd::Vector6d::Ones();
-	upper_state_bound_.joint_pos = NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
+	upper_state_bound_.joint_pos = NO_BOUND * Eigen::VectorXd::Ones(fbs_->getJointDoF());
 	upper_state_bound_.base_vel = NO_BOUND * rbd::Vector6d::Ones();
-	upper_state_bound_.joint_vel = NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
+	upper_state_bound_.joint_vel = NO_BOUND * Eigen::VectorXd::Ones(fbs_->getJointDoF());
 	upper_state_bound_.base_acc = NO_BOUND * rbd::Vector6d::Ones();
-	upper_state_bound_.joint_acc = NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
+	upper_state_bound_.joint_acc = NO_BOUND * Eigen::VectorXd::Ones(fbs_->getJointDoF());
 	upper_state_bound_.base_eff = NO_BOUND * rbd::Vector6d::Ones();
-	upper_state_bound_.joint_eff = NO_BOUND * Eigen::VectorXd::Ones(system_.getJointDoF());
-	urdf_model::LinkID contact_links = system_.getEndEffectors();
+	upper_state_bound_.joint_eff = NO_BOUND * Eigen::VectorXd::Ones(fbs_->getJointDoF());
+	urdf_model::LinkID contact_links = fbs_->getEndEffectors();
 	for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
 			contact_it != contact_links.end(); contact_it++) {
 		std::string name = contact_it->first;
@@ -470,10 +484,10 @@ void DynamicalSystem::initialConditions()
 	}
 
 	// Initial state
-	initial_state_.joint_pos = Eigen::VectorXd::Zero(system_.getJointDoF());
-	initial_state_.joint_vel = Eigen::VectorXd::Zero(system_.getJointDoF());
-	initial_state_.joint_acc = Eigen::VectorXd::Zero(system_.getJointDoF());
-	initial_state_.joint_eff = Eigen::VectorXd::Zero(system_.getJointDoF());
+	initial_state_.joint_pos = Eigen::VectorXd::Zero(fbs_->getJointDoF());
+	initial_state_.joint_vel = Eigen::VectorXd::Zero(fbs_->getJointDoF());
+	initial_state_.joint_acc = Eigen::VectorXd::Zero(fbs_->getJointDoF());
+	initial_state_.joint_eff = Eigen::VectorXd::Zero(fbs_->getJointDoF());
 	for (urdf_model::LinkID::const_iterator contact_it = contact_links.begin();
 			contact_it != contact_links.end(); contact_it++) {
 		std::string name = contact_it->first;

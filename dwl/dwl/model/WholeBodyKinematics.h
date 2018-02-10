@@ -26,24 +26,10 @@ class WholeBodyKinematics
 		~WholeBodyKinematics();
 
 		/**
-		 * @brief Build the model rigid-body system from an URDF file
-		 * @param const std::string& URDF filename
-		 * @param const std::string& Semantic system description filename
-		 * @param Print model information
+		 * @brief Set the floating-base model of the rigid-body system
+		 * @param[in] fbs Floating-base model
 		 */
-		void modelFromURDFFile(const std::string& urdf_file,
-							   const std::string& system_file = std::string(),
-							   bool info = false);
-
-		/**
-		 * @brief Build the model rigid-body system from an URDF model (xml)
-		 * @param const std::string& URDF model
-		 * @param const std::string& Semantic system description filename
-		 * @param Print model information
-		 */
-		void modelFromURDFModel(const std::string& urdf_model,
-								const std::string& system_file = std::string(),
-								bool info = false);
+		void reset(FloatingBaseSystem& fbs);
 
 		/**
 		 * @brief Sets the Ik solver properties
@@ -286,7 +272,7 @@ class WholeBodyKinematics
 												 enum rbd::Component component = rbd::Full);
 
 		/** @brief Gets the floating-base system information */
-		const FloatingBaseSystem& getFloatingBaseSystem() const;
+		std::shared_ptr<FloatingBaseSystem> getFloatingBaseSystem();
 
 		/**
 		 * @brief Gets the number of active end-effectors
@@ -300,7 +286,7 @@ class WholeBodyKinematics
 		rbd::BodyID body_id_;
 
 		/** @brief A floating-base system definition */
-		FloatingBaseSystem system_;
+		std::shared_ptr<FloatingBaseSystem> fbs_;
 
 		/** @brief Middle joint position */
 		Eigen::VectorXd joint_pos_middle_;

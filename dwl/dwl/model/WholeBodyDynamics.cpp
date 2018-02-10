@@ -19,33 +19,21 @@ WholeBodyDynamics::~WholeBodyDynamics()
 }
 
 
-void WholeBodyDynamics::modelFromURDFFile(const std::string& urdf_file,
-										  const std::string& system_file,
-										  bool info)
+void WholeBodyDynamics::reset(FloatingBaseSystem& fbs,
+							  WholeBodyKinematics& wkin)
 {
-	modelFromURDFModel(urdf_model::fileToXml(urdf_file), system_file, info);
-}
-
-
-void WholeBodyDynamics::modelFromURDFModel(const std::string& urdf_model,
-										   const std::string& system_file,
-										   bool info)
-{
-	// Reseting the floating-base system information given an URDF model
-	system_.resetFromURDFModel(urdf_model, system_file);
+	// Creating the floating-base system and whole-body kinematics shared pointers
+	fbs_ = std::make_shared<FloatingBaseSystem>(fbs);
+	wkin_ = std::make_shared<WholeBodyKinematics>(wkin);
 
 	// Setting the kinematic model from URDF model
-	kinematics_.modelFromURDFModel(urdf_model.c_str(), system_file, false);
+	wkin_->reset(fbs);
 
 	// Getting the list of movable and fixed bodies
-	rbd::getListOfBodies(body_id_, system_.getRBDModel());
-
-	// Printing the information of the rigid-body system
-	if (info)
-		rbd::printModelInfo(system_.getRBDModel());
+	rbd::getListOfBodies(body_id_, fbs_->getRBDModel());
 
 	// Setting up the size of the joint space inertia matrix
-	joint_inertia_mat_.resize(system_.getSystemDoF(), system_.getSystemDoF());
+	joint_inertia_mat_.resize(fbs_->getSystemDoF(), fbs_->getSystemDoF());
 	joint_inertia_mat_.setZero();
 }
 
@@ -61,24 +49,24 @@ void WholeBodyDynamics::computeInverseDynamics(rbd::Vector6d& base_wrench,
 											   const rbd::BodyVector6d& ext_force)
 {
 	// Setting the size of the joint forces vector
-	joint_forces.resize(system_.getJointDoF());
+	joint_forces.resize(fbs_->getJointDoF());
 
 	// Converting base and joint states to generalized joint states
-	Eigen::VectorXd q = system_.toGeneralizedJointState(base_pos, joint_pos);
-	Eigen::VectorXd q_dot = system_.toGeneralizedJointState(base_vel, joint_vel);
-	Eigen::VectorXd q_ddot = system_.toGeneralizedJointState(base_acc, joint_acc);
-	Eigen::VectorXd tau = Eigen::VectorXd::Zero(system_.getSystemDoF());
+	Eigen::VectorXd q = fbs_->toGeneralizedJointState(base_pos, joint_pos);
+	Eigen::VectorXd q_dot = fbs_->toGeneralizedJointState(base_vel, joint_vel);
+	Eigen::VectorXd q_ddot = fbs_->toGeneralizedJointState(base_acc, joint_acc);
+	Eigen::VectorXd tau = Eigen::VectorXd::Zero(fbs_->getSystemDoF());
 
 	// Computing the applied external spatial forces for every body
 	std::vector<SpatialVector_t> fext;
 	convertAppliedExternalForces(fext, ext_force, q);
 
 	// Computing the inverse dynamics with Recursive Newton-Euler Algorithm (RNEA)
-	RigidBodyDynamics::InverseDynamics(system_.getRBDModel(), q, q_dot, q_ddot, tau, &fext);
+	RigidBodyDynamics::InverseDynamics(fbs_->getRBDModel(), q, q_dot, q_ddot, tau, &fext);
 
 	// Converting the generalized joint forces to base wrench and joint forces
 	base_wrench.setZero();
-	system_.fromGeneralizedJointState(base_wrench, joint_forces, tau);
+	fbs_->fromGeneralizedJointState(base_wrench, joint_forces, tau);
 }
 
 
@@ -92,38 +80,38 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 														   const rbd::BodyVector6d& ext_force)
 {//TODO test floating-base ID, and develops the virtual floating-base ID (general hybrid dynamics?)
 	// Setting the size of the joint forces vector
-	joint_forces.resize(system_.getJointDoF());
+	joint_forces.resize(fbs_->getJointDoF());
 
 	// Converting base and joint states to generalized joint states
-	Eigen::VectorXd q = system_.toGeneralizedJointState(base_pos, joint_pos);
-	Eigen::VectorXd q_dot = system_.toGeneralizedJointState(base_vel, joint_vel);
-	Eigen::VectorXd q_ddot = system_.toGeneralizedJointState(base_acc, joint_acc);
-	Eigen::VectorXd tau = Eigen::VectorXd::Zero(system_.getSystemDoF());
+	Eigen::VectorXd q = fbs_->toGeneralizedJointState(base_pos, joint_pos);
+	Eigen::VectorXd q_dot = fbs_->toGeneralizedJointState(base_vel, joint_vel);
+	Eigen::VectorXd q_ddot = fbs_->toGeneralizedJointState(base_acc, joint_acc);
+	Eigen::VectorXd tau = Eigen::VectorXd::Zero(fbs_->getSystemDoF());
 
 	// Computing the applied external spatial forces for every body
 	std::vector<SpatialVector_t> fext;
 	convertAppliedExternalForces(fext, ext_force, q);
 
 	// Computing the inverse dynamics with Recursive Newton-Euler Algorithm (RNEA)
-	if (system_.isFullyFloatingBase()) {
+	if (fbs_->isFullyFloatingBase()) {
 		RigidBodyDynamics::Math::SpatialVector base_ddot =
 				RigidBodyDynamics::Math::SpatialVector(base_acc);
-		rbd::FloatingBaseInverseDynamics(system_.getRBDModel(),
+		rbd::FloatingBaseInverseDynamics(fbs_->getRBDModel(),
 										 q, q_dot, q_ddot, base_ddot, tau, &fext);
 
 		// Converting the base acceleration
 		base_acc = base_ddot;
 	} else {
-		if (system_.isVirtualFloatingBaseRobot()) {
+		if (fbs_->isVirtualFloatingBaseRobot()) {
 			RigidBodyDynamics::Math::SpatialVector base_ddot =
 					RigidBodyDynamics::Math::SpatialVector(base_acc);
-			rbd::FloatingBaseInverseDynamics(system_.getRBDModel(), 1,
+			rbd::FloatingBaseInverseDynamics(fbs_->getRBDModel(), 1,
 											q, q_dot, q_ddot, base_ddot,
 											tau, &fext);
 			base_acc = base_ddot;
-//			RigidBodyDynamics::InverseDynamics(system_.getRBDModel(), q, q_dot, q_ddot, tau, &fext);
+//			RigidBodyDynamics::InverseDynamics(fbs_->getRBDModel(), q, q_dot, q_ddot, tau, &fext);
 //			tau(0) = 0;
-//			RigidBodyDynamics::ForwardDynamics(system_.getRBDModel(), q, q_dot, tau, q_ddot, &fext);
+//			RigidBodyDynamics::ForwardDynamics(fbs_->getRBDModel(), q, q_dot, tau, q_ddot, &fext);
 //			base_acc(rbd::LZ) = q_ddot(0);
 		} else
 			printf(YELLOW "WARNING: this is not a floating-base system\n" COLOR_RESET);
@@ -131,7 +119,7 @@ void WholeBodyDynamics::computeFloatingBaseInverseDynamics(rbd::Vector6d& base_a
 
 	// Converting the generalized joint forces to base wrench and joint forces
 	rbd::Vector6d base_wrench;
-	system_.fromGeneralizedJointState(base_wrench, joint_forces, tau);
+	fbs_->fromGeneralizedJointState(base_wrench, joint_forces, tau);
 }
 
 
@@ -145,7 +133,7 @@ void WholeBodyDynamics::computeConstrainedFloatingBaseInverseDynamics(Eigen::Vec
 																	  const rbd::BodySelector& contacts)
 {
 	// Setting the size of the joint forces vector
-	joint_forces.resize(system_.getJointDoF());
+	joint_forces.resize(fbs_->getJointDoF());
 
 	// Computing the contact forces that generates the desired base wrench. A
 	// floating-base system can be described as floating-base with or without
@@ -177,16 +165,16 @@ const Eigen::MatrixXd& WholeBodyDynamics::computeJointSpaceInertiaMatrix(const r
 																		 const Eigen::VectorXd& joint_pos)
 {
 	// Converting base and joint states to generalized joint states
-	Eigen::VectorXd q = system_.toGeneralizedJointState(base_pos, joint_pos);
+	Eigen::VectorXd q = fbs_->toGeneralizedJointState(base_pos, joint_pos);
 
 	// Computing the joint space inertia matrix using the Composite
 	// Rigid Body Algorithm
-	RigidBodyDynamics::CompositeRigidBodyAlgorithm(system_.getRBDModel(),
+	RigidBodyDynamics::CompositeRigidBodyAlgorithm(fbs_->getRBDModel(),
 												   q, joint_inertia_mat_, true);
 
 	// Changing the floating-base inertia matrix component to the order
 	// [Angular, Linear]
-	if (system_.isFullyFloatingBase()) {
+	if (fbs_->isFullyFloatingBase()) {
 		Eigen::MatrixXd base_lin_mat = joint_inertia_mat_.block<3,6>(0,0);
 		Eigen::MatrixXd base_ang_mat = joint_inertia_mat_.block<3,6>(3,0);
 
@@ -210,7 +198,7 @@ const rbd::Matrix6d& WholeBodyDynamics::computeCentroidalInertiaMatrix(const rbd
 	Eigen::MatrixXd I_base = computeJointSpaceInertiaMatrix(base_pos, joint_pos);
 	
 	// Getting the spatial transform from CoM to base frame
-	Eigen::Vector3d com_pos = system_.getSystemCoM(base_pos, joint_pos);
+	Eigen::Vector3d com_pos = fbs_->getSystemCoM(base_pos, joint_pos);
 	RigidBodyDynamics::Math::SpatialTransform base_X_com(Eigen::Matrix3d::Identity(), -com_pos);
 	com_inertia_mat_ = base_X_com.toMatrixTranspose() * I_base * base_X_com.toMatrix();
 
@@ -224,7 +212,7 @@ const rbd::Vector6d& WholeBodyDynamics::computeGravitoWrench(const Eigen::Vector
 	Eigen::Vector3d weight_vec;
 	weight_vec.setZero();
 	weight_vec(rbd::Z) =
-			-system_.getTotalMass() * system_.getGravityAcceleration();
+			-fbs_->getTotalMass() * fbs_->getGravityAcceleration();
 
 	// Mapping the gravitational wrench in the world frame
 	grav_wrench_.topRows<3>() = com_pos.cross(weight_vec);
@@ -245,13 +233,13 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 											 const rbd::BodySelector& contacts)
 {
 	// Setting the size of the joint forces vector
-	joint_forces.resize(system_.getJointDoF());
+	joint_forces.resize(fbs_->getJointDoF());
 
 	// Computing the fixed-base jacobian and base contact jacobian. These
 	// jacobians are used for computing a consistent joint acceleration, and
 	// for mapping desired base wrench to joint forces
 	Eigen::MatrixXd full_jac;
-	kinematics_.computeJacobian(full_jac,
+	wkin_->computeJacobian(full_jac,
 								base_pos, joint_pos,
 								contacts, rbd::Linear);
 
@@ -259,7 +247,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 	// acceleration and contact definition. We assume that contacts are static,
 	// which it allows us to computed a consistent joint accelerations.
 	rbd::Vector6d base_feas_acc = rbd::Vector6d::Zero();
-	Eigen::VectorXd joint_feas_acc(system_.getJointDoF());
+	Eigen::VectorXd joint_feas_acc(fbs_->getJointDoF());
 	computeConstrainedConsistentAcceleration(base_feas_acc, joint_feas_acc,
 											 base_pos, joint_pos,
 											 base_vel, joint_vel,
@@ -280,24 +268,24 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 
 	// Computing the base contribution of contact jacobian
 	Eigen::MatrixXd base_contact_jac;
-	kinematics_.getFloatingBaseJacobian(base_contact_jac, full_jac);
+	wkin_->getFloatingBaseJacobian(base_contact_jac, full_jac);
 
 	// Computing the contact forces that generates the desired base wrench. A
 	// floating-base system can be described as floating-base with or without
 	// physical constraints or virtual floating-base. Note that with a virtual
 	// floating-base we can describe a n-dimensional floating-base, witch n
 	// less than 6
-	if (system_.isFullyFloatingBase()) {
+	if (fbs_->isFullyFloatingBase()) {
 		// This approach builds an augmented jacobian matrix as [base contact
 		// jacobian; base constraint jacobian]. Therefore, we compute
 		// constrained reaction forces in the base.
-		if (system_.isConstrainedFloatingBaseRobot()) {
+		if (fbs_->isConstrainedFloatingBaseRobot()) {
 			// Computing the base constraint contribution to the jacobian
 			Eigen::MatrixXd base_constraint_jac = Eigen::MatrixXd::Zero(6,6);
 			for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
 				rbd::Coords6d base_coord = rbd::Coords6d(base_idx);
 				FloatingBaseJoint base_joint =
-						system_.getFloatingBaseJoint(base_coord);
+						fbs_->getFloatingBaseJoint(base_coord);
 
 				base_constraint_jac(base_coord, base_coord) = !base_joint.constrained;
 			}
@@ -316,7 +304,7 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 					math::pseudoInverse((Eigen::MatrixXd) augmented_jac.transpose()) * base_wrench;
 
 			// Adding the base reaction forces in the set of external forces
-			contact_forces[system_.getRBDModel().GetBodyName(6)] =
+			contact_forces[fbs_->getRBDModel().GetBodyName(6)] =
 					augmented_forces.tail<6>();
 
 			// Adding the contact forces in the set of external forces
@@ -335,14 +323,14 @@ void WholeBodyDynamics::computeContactForces(rbd::BodyVector6d& contact_forces,
 			for (unsigned int i = 0; i < num_active_contacts; i++)
 				contact_forces[contacts[i]] << 0., 0., 0., endeffector_forces.segment<3>(3 * i);
 		}
-	} else if (system_.isVirtualFloatingBaseRobot()) {
+	} else if (fbs_->isVirtualFloatingBaseRobot()) {
 		// This is n-dimensional floating-base system. So, we need to compute
 		// a virtual base wrench
 		Eigen::VectorXd virtual_base_wrench =
-				Eigen::VectorXd::Zero(system_.getFloatingBaseDoF());
+				Eigen::VectorXd::Zero(fbs_->getFloatingBaseDoF());
 		for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
 			rbd::Coords6d base_coord = rbd::Coords6d(base_idx);
-			FloatingBaseJoint base_joint = system_.getFloatingBaseJoint(base_coord);
+			FloatingBaseJoint base_joint = fbs_->getFloatingBaseJoint(base_coord);
 
 			if (base_joint.active)
 				virtual_base_wrench(base_joint.id) = base_wrench(base_coord);
@@ -394,13 +382,13 @@ void WholeBodyDynamics::estimateContactForces(rbd::BodyVector6d& contact_forces,
 		rbd::BodySelector body(contact_iter, contact_iter + 1);
 
 		Eigen::MatrixXd fixed_jac;
-		kinematics_.computeFixedJacobian(fixed_jac,
+		wkin_->computeFixedJacobian(fixed_jac,
 										 joint_pos,
 										 body_name, rbd::Linear);
 
 		Eigen::Vector3d force =
 				math::pseudoInverse((Eigen::MatrixXd) fixed_jac.transpose()) *
-				system_.getBranchState(joint_force_error, body_name);
+				fbs_->getBranchState(joint_force_error, body_name);
 
 		contact_forces[body_name] << 0, 0, 0, force;
 	}
@@ -417,7 +405,7 @@ void WholeBodyDynamics::computeCenterOfPressure(Eigen::Vector3d& cop_pos,
 	double sum = 0.;
 
 	// Getting the names of the feet
-	rbd::BodySelector ground_contacts = system_.getEndEffectorNames(model::FOOT);
+	rbd::BodySelector ground_contacts = fbs_->getEndEffectorNames(model::FOOT);
 
 	// Sanity check: checking if there are contact information and the size
 	if ((contact_for.size() == 0) || (contact_pos.size() == 0) ||
@@ -476,7 +464,7 @@ void WholeBodyDynamics::computeZeroMomentPoint(Eigen::Vector3d& zmp_pos,
 		printf(YELLOW "Warning: the height should be a positive value\n" COLOR_RESET);
 	}
 
-	double omega = sqrt(system_.getGravityAcceleration() / height);
+	double omega = sqrt(fbs_->getGravityAcceleration() / height);
 	zmp_pos = com_pos -	com_acc / omega;
 	zmp_pos(rbd::Z) = com_pos(rbd::Z) - height;
 }
@@ -491,7 +479,7 @@ void WholeBodyDynamics::computeInstantaneousCapturePoint(Eigen::Vector3d& icp_po
 		printf(YELLOW "Warning: the height should be a positive value\n" COLOR_RESET);
 	}
 
-	double omega = sqrt(system_.getGravityAcceleration() / height);
+	double omega = sqrt(fbs_->getGravityAcceleration() / height);
 	icp_pos = com_pos + com_vel / omega;
 	icp_pos(rbd::Z) = com_pos(rbd::Z) - height;
 }
@@ -507,7 +495,7 @@ void WholeBodyDynamics::computeCentroidalMomentPivot(Eigen::Vector3d& cmp_pos,
 	}
 
 	// Getting the names of the feet
-	rbd::BodySelector ground_contacts = system_.getEndEffectorNames(model::FOOT);
+	rbd::BodySelector ground_contacts = fbs_->getEndEffectorNames(model::FOOT);
 
 	// The Centroidal Momentum Pivot (CMP) is computed given the GRFs
 	double grf_x = 0., grf_y = 0., grf_z = 0.;
@@ -545,7 +533,7 @@ void WholeBodyDynamics::computeCoMTorque(Eigen::Vector3d& torque,
 										 const rbd::BodyVector6d& contact_for)
 {
 	// Getting the names of the feet
-	rbd::BodySelector ground_contacts = system_.getEndEffectorNames(model::FOOT);
+	rbd::BodySelector ground_contacts = fbs_->getEndEffectorNames(model::FOOT);
 
 	// The Centroidal Momentum Pivot (CMP) is computed given the GRFs
 	double grf_z = 0.;
@@ -610,7 +598,7 @@ void WholeBodyDynamics::estimateGroundReactionForces(rbd::BodyVector6d& contact_
 	}
 
 	// Computing the normal contact forces
-	double weight = system_.getTotalMass() * system_.getGravityAcceleration();
+	double weight = fbs_->getTotalMass() * fbs_->getGravityAcceleration();
 	Eigen::VectorXd norm_for = math::pseudoInverse(contact_mat) * cop_pos * weight;
 
 	// Filling the contact forces vector
@@ -674,15 +662,15 @@ void WholeBodyDynamics::estimateActiveContacts(rbd::BodySelector& active_contact
 }
 
 
-const FloatingBaseSystem& WholeBodyDynamics::getFloatingBaseSystem() const
+std::shared_ptr<FloatingBaseSystem> WholeBodyDynamics::getFloatingBaseSystem()
 {
-	return system_;
+	return fbs_;
 }
 
 
-const WholeBodyKinematics& WholeBodyDynamics::getWholeBodyKinematics() const
+std::shared_ptr<WholeBodyKinematics> WholeBodyDynamics::getWholeBodyKinematics()
 {
-	return kinematics_;
+	return wkin_;
 }
 
 
@@ -707,18 +695,18 @@ void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynami
 													 const Eigen::VectorXd& q)
 {
 	// Computing the applied external spatial forces for every body
-	fext.resize(system_.getRBDModel().mBodies.size());
+	fext.resize(fbs_->getRBDModel().mBodies.size());
 	// Searching over the movable bodies
 	for (unsigned int body_id = 0;
-			body_id < system_.getRBDModel().mBodies.size(); body_id++) {
-		std::string body_name = system_.getRBDModel().GetBodyName(body_id);
+			body_id < fbs_->getRBDModel().mBodies.size(); body_id++) {
+		std::string body_name = fbs_->getRBDModel().GetBodyName(body_id);
 
 		if (ext_force.count(body_name) > 0) {
 			// Converting the applied force to spatial force vector in
 			// base coordinates
 			rbd::Vector6d force = ext_force.at(body_name);
 			Eigen::Vector3d force_point =
-					CalcBodyToBaseCoordinates(system_.getRBDModel(),
+					CalcBodyToBaseCoordinates(fbs_->getRBDModel(),
 											  q, body_id,
 											  Eigen::Vector3d::Zero(), true);
 			rbd::Vector6d spatial_force =
@@ -730,22 +718,22 @@ void WholeBodyDynamics::convertAppliedExternalForces(std::vector<RigidBodyDynami
 	}
 
 	// Searching over the fixed bodies
-	for (unsigned int it = 0; it < system_.getRBDModel().mFixedBodies.size(); it++) {
-		unsigned int body_id = it + system_.getRBDModel().fixed_body_discriminator;
-		std::string body_name = system_.getRBDModel().GetBodyName(body_id);
+	for (unsigned int it = 0; it < fbs_->getRBDModel().mFixedBodies.size(); it++) {
+		unsigned int body_id = it + fbs_->getRBDModel().fixed_body_discriminator;
+		std::string body_name = fbs_->getRBDModel().GetBodyName(body_id);
 
 		if (ext_force.count(body_name) > 0) {
 			// Converting the applied force to spatial force vector in
 			// base coordinates
 			rbd::Vector6d force = ext_force.at(body_name);
 			Eigen::Vector3d force_point =
-					CalcBodyToBaseCoordinates(system_.getRBDModel(),
+					CalcBodyToBaseCoordinates(fbs_->getRBDModel(),
 											  q, body_id,
 											  Eigen::Vector3d::Zero(), true);
 			rbd::Vector6d spatial_force =
 					rbd::convertPointForceToSpatialForce(force, force_point);
 
-			unsigned parent_id = system_.getRBDModel().mFixedBodies[it].mMovableParent;
+			unsigned parent_id = fbs_->getRBDModel().mFixedBodies[it].mMovableParent;
 			fext.at(parent_id) += spatial_force;
 		}
 	}
@@ -781,10 +769,10 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 	// Computing contact linear positions and the J_d*q_d component, which
 	// are used for computing the joint accelerations
 	rbd::BodyVectorXd op_pos, jacd_qd;
-	kinematics_.computeForwardKinematics(op_pos,
+	wkin_->computeForwardKinematics(op_pos,
 										 base_pos, joint_pos,
 										 contacts, rbd::Linear);
-	kinematics_.computeJdotQdot(jacd_qd,
+	wkin_->computeJdotQdot(jacd_qd,
 								base_pos, joint_pos,
 								base_vel, joint_vel,
 								contacts, rbd::Linear);
@@ -807,7 +795,7 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 
 			// Computing the fixed-base jacobian
 			Eigen::MatrixXd fixed_jac;
-			kinematics_.computeFixedJacobian(fixed_jac,
+			wkin_->computeFixedJacobian(fixed_jac,
 											 joint_pos,
 											 contact_name, rbd::Linear);
 
@@ -817,7 +805,7 @@ void WholeBodyDynamics::computeConstrainedConsistentAcceleration(rbd::Vector6d& 
 					math::pseudoInverse(fixed_jac) * (contact_acc - jacd_qd[contact_name]);
 
 			// Setting up the branch joint acceleration
-			system_.setBranchState(joint_feas_acc, q_dd, contact_name);
+			fbs_->setBranchState(joint_feas_acc, q_dd, contact_name);
 		}
 	}
 }

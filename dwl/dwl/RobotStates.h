@@ -21,9 +21,12 @@ class RobotStates
 		~RobotStates();
 
 		/** @brief Resets the robot dynamics
-		 * @param const model::WholeBodyDynamics& Whole-body dynamics
+		 * @param[in] fbs Floating-base model
+		 * @param[in] wdyn Whole-body dynamics
 		 **/
-		void reset(const model::WholeBodyDynamics& dynamics);
+		void reset(model::FloatingBaseSystem& fbs,
+				   model::WholeBodyKinematics& wkin,
+				   model::WholeBodyDynamics& wdyn);
 
 		/** @brief Set the force threshold for getting active contacts */
 		void setForceThreshold(double force_threshold);
@@ -85,13 +88,13 @@ class RobotStates
 		ReducedBodyTrajectory rt_;
 
 		/** @brief Floating-base system */
-		model::FloatingBaseSystem fbs_;
+		std::shared_ptr<model::FloatingBaseSystem> fbs_;
 
 		/** @brief Whole-body kinematics */
-		model::WholeBodyKinematics wkin_;
+		std::shared_ptr<model::WholeBodyKinematics> wkin_;
 
 		/** @brief Whole-body dynamics */
-		model::WholeBodyDynamics wdyn_;
+		std::shared_ptr<model::WholeBodyDynamics> wdyn_;
 
 		/** @brief Frame transformer */
 		math::FrameTF frame_tf_;

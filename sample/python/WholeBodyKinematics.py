@@ -15,8 +15,8 @@ wkin = dwl.WholeBodyKinematics()
 
 # Resetting the system from the hyq urdf file
 fpath = os.path.dirname(os.path.abspath(__file__))
-wkin.modelFromURDFFile(fpath + "/../hyq.urdf", fpath + "/../../config/hyq.yarf")
-fbs = wkin.getFloatingBaseSystem()
+fbs.resetFromURDFFile(fpath + "/../hyq.urdf", fpath + "/../../config/hyq.yarf")
+wkin.reset(fbs)
 
 # Define the DoF after initializing the robot model
 ws.setJointDoF(fbs.getJointDoF())

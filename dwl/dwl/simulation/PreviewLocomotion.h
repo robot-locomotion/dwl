@@ -295,22 +295,13 @@ class PreviewLocomotion
 		/** @brief Destructor function */
 		~PreviewLocomotion();
 
-		/**
-		 * @brief Resets the system information from an URDF file
-		 * @param std::string URDF filename
-		 * @param std::string Semantic system description filename
-		 */
-		void resetFromURDFFile(std::string urdf_file,
-							   std::string system_file = std::string());
-
-		/**
-		 * @brief Resets the system information from URDF model
-		 * @param std::string URDF model
-		 * @param std::string Semantic system description filename
-		 */
-		void resetFromURDFModel(std::string urdf_model,
-								std::string system_file = std::string());
-
+		/** @brief Resets the robot dynamics
+		 * @param[in] fbs Floating-base model
+		 * @param[in] wdyn Whole-body dynamics
+		 **/
+		void reset(model::FloatingBaseSystem& fbs,
+				   model::WholeBodyKinematics& wkin,
+				   model::WholeBodyDynamics& wdyn);
 
 		/**
 		 * @brief Reads the entire preview sequence from a Yaml file
@@ -418,10 +409,10 @@ class PreviewLocomotion
 						   double time);
 
 		/** @brief Returns the floating-base system pointer */
-		model::FloatingBaseSystem* getFloatingBaseSystem();
+		std::shared_ptr<model::FloatingBaseSystem> getFloatingBaseSystem();
 
 		/** @brief Returns the whole-body dynamics pointer */
-		model::WholeBodyDynamics* getWholeBodyDynamics();
+		std::shared_ptr<model::WholeBodyDynamics> getWholeBodyDynamics();
 
 		/** @brief Returns the terrain map pointer */
 		environment::TerrainMap* getTerrainMap();
@@ -463,14 +454,14 @@ class PreviewLocomotion
 		SwingParams swing_params_;
 		ReducedBodyState phase_state_;
 
-		/** @brief Floating-base system information */
-		model::FloatingBaseSystem fbs_;
-
-		/** @brief Whole-body dynamics */
-		model::WholeBodyDynamics wdyn_;
+		/** @brief Floating-base system */
+		std::shared_ptr<model::FloatingBaseSystem> fbs_;
 
 		/** @brief Whole-body kinematics */
-		model::WholeBodyKinematics wkin_;
+		std::shared_ptr<model::WholeBodyKinematics> wkin_;
+
+		/** @brief Whole-body dynamics */
+		std::shared_ptr<model::WholeBodyDynamics> wdyn_;
 
 		/** @brief Robot state converter */
 		RobotStates state_tf_;

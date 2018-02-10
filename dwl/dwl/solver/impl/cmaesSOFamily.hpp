@@ -341,9 +341,9 @@ bool cmaesSOFamily<TScaling>::compute(double allocated_time_secs)
 												TScaling>>(fitness_, *cmaes_params_,
 														libcmaes::CMAStrategy<libcmaes::CovarianceUpdate,
 																			  libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,TScaling>>::_defaultPFunc,
-														 grad_fitness_);
+														 					  grad_fitness_);
 	else
-		cmasols = cmasols = libcmaes::cmaes<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
+		cmasols = libcmaes::cmaes<libcmaes::GenoPheno<libcmaes::pwqBoundStrategy,
 														TScaling>>(fitness_, *cmaes_params_);
 
 	// Prints the solution in the terminal

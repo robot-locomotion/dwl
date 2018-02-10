@@ -21,48 +21,45 @@ PreviewLocomotion::~PreviewLocomotion()
 }
 
 
-void PreviewLocomotion::resetFromURDFFile(std::string urdf_file,
-										  std::string system_file)
+void PreviewLocomotion::reset(model::FloatingBaseSystem& fbs,
+							  model::WholeBodyKinematics& wkin,
+				    		  model::WholeBodyDynamics& wdyn)
 {
-	resetFromURDFModel(urdf_model::fileToXml(urdf_file), system_file);
-}
+	// Creating the floating-base system and whole-body kinematics shared pointers
+	fbs_ = std::make_shared<model::FloatingBaseSystem>(fbs);
+	wkin_ = std::make_shared<model::WholeBodyKinematics>(wkin);
+	wdyn_ = std::make_shared<model::WholeBodyDynamics>(wdyn);
 
-
-void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
-										   std::string system_file)
-{
-	// Initializing the dynamics, kinematics and system from the URDF model
-	wdyn_.modelFromURDFModel(urdf_model, system_file);
-	wkin_ = wdyn_.getWholeBodyKinematics();
-	fbs_ = wdyn_.getFloatingBaseSystem();
+	// Setting the whole-body dynamics from floating-base model
+	wdyn_->reset(fbs, wkin);
 
 	// Resetting the states converter
-	state_tf_.reset(wdyn_);
+	state_tf_.reset(fbs, wkin, wdyn);
 
 	// Getting the gravity magnitude from the rigid-body dynamic model
-	gravity_ = fbs_.getRBDModel().gravity.norm();
+	gravity_ = fbs_->getRBDModel().gravity.norm();
 
 	// Getting the total mass of the system
-	mass_ = fbs_.getTotalMass();
+	mass_ = fbs_->getTotalMass();
 
 	// Getting the number of feet
-	num_feet_ = fbs_.getNumberOfEndEffectors(model::FOOT);
+	num_feet_ = fbs_->getNumberOfEndEffectors(model::FOOT);
 
 	// Getting the feet names
-	feet_names_ = fbs_.getEndEffectorNames(model::FOOT);
+	feet_names_ = fbs_->getEndEffectorNames(model::FOOT);
 
 	// Getting the default joint position
-	Eigen::VectorXd q0 = fbs_.getDefaultPosture();
+	Eigen::VectorXd q0 = fbs_->getDefaultPosture();
 
 	// Getting the default position of the CoM system w.r.t. the base frame
 //	Eigen::Vector3d com_pos_B = fbs_.getSystemCoM(rbd::Vector6d::Zero(), q0);
 
 	// Computing the stance posture using the default position
-	wkin_.computeForwardKinematics(stance_posture_H_,
-								   rbd::Vector6d::Zero(),
-								   q0,
-								   feet_names_,
-								   rbd::Linear);
+	wkin_->computeForwardKinematics(stance_posture_H_,
+									rbd::Vector6d::Zero(),
+									q0,
+									feet_names_,
+									rbd::Linear);
 
 	// Converting to the CoM frame //TODO remove for testing
 //	for (rbd::BodyVectorXd::iterator feet_it = stance_posture_C_.begin();
@@ -78,6 +75,7 @@ void PreviewLocomotion::resetFromURDFModel(std::string urdf_model,
 	cart_table_.setModelProperties(model);
 
 	robot_model_ = true;
+
 }
 
 
@@ -572,15 +570,15 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 }
 
 
-model::FloatingBaseSystem* PreviewLocomotion::getFloatingBaseSystem()
+std::shared_ptr<model::FloatingBaseSystem> PreviewLocomotion::getFloatingBaseSystem()
 {
-	return &fbs_;
+	return fbs_;
 }
 
 
-model::WholeBodyDynamics* PreviewLocomotion::getWholeBodyDynamics()
+std::shared_ptr<model::WholeBodyDynamics> PreviewLocomotion::getWholeBodyDynamics()
 {
-	return &wdyn_;
+	return wdyn_;
 }
 
 

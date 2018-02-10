@@ -29,10 +29,10 @@ CentroidalDynamicalSystem::~CentroidalDynamicalSystem()
 void CentroidalDynamicalSystem::initDynamicalSystem()
 {
 	// Getting the end-effector names
-	end_effector_names_ = system_.getEndEffectorNames();
+	end_effector_names_ = fbs_->getEndEffectorNames();
 
 	// Getting the total mass
-	total_mass_ = system_.getTotalMass();
+	total_mass_ = fbs_->getTotalMass();
 }
 
 
@@ -40,7 +40,7 @@ void CentroidalDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& cons
 														   const WholeBodyState& state)
 {
 	// Resizing the constraint vector
-	constraint.resize(4 * system_.getNumberOfEndEffectors());//(1+3)
+	constraint.resize(4 * fbs_->getNumberOfEndEffectors());//(1+3)
 
 	// Computing the step time
 	double step_time = state.time - state_buffer_[0].time;
@@ -56,7 +56,7 @@ void CentroidalDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& cons
 	for (rbd::BodyVector6d::const_iterator contact_it = state.contact_eff.begin();
 			contact_it != state.contact_eff.end(); contact_it++) {
 		estimated_com_acc += contact_it->second.segment<3>(rbd::LX) / total_mass_;
-		estimated_com_acc += system_.getRBDModel().gravity;
+		estimated_com_acc += fbs_->getRBDModel().gravity;
 	}
 	constraint(0) = estimated_com_acc(rbd::Z) - base_acc(rbd::LZ);
 
@@ -65,10 +65,10 @@ void CentroidalDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& cons
 
 	// Computing the contact position
 	rbd::BodyVectorXd contact_pos;
-	kinematics_.computeForwardKinematics(contact_pos,
-										 state.base_pos, state.joint_pos,
-										 end_effector_names_, rbd::Linear);
-	for (unsigned int k = 0; k < system_.getNumberOfEndEffectors(); k++)
+	wkin_->computeForwardKinematics(contact_pos,
+									state.base_pos, state.joint_pos,
+									end_effector_names_, rbd::Linear);
+	for (unsigned int k = 0; k < fbs_->getNumberOfEndEffectors(); ++k)
 		constraint.segment<3>(3 * k + 1) = contact_pos.at(end_effector_names_[k]) -
 			state.contact_pos.at(end_effector_names_[k]);
 }
@@ -77,8 +77,8 @@ void CentroidalDynamicalSystem::computeDynamicalConstraint(Eigen::VectorXd& cons
 void CentroidalDynamicalSystem::getDynamicalBounds(Eigen::VectorXd& lower_bound,
 												   Eigen::VectorXd& upper_bound)
 {
-	lower_bound = Eigen::VectorXd::Zero(4 * system_.getNumberOfEndEffectors());
-	upper_bound = Eigen::VectorXd::Zero(4 * system_.getNumberOfEndEffectors());
+	lower_bound = Eigen::VectorXd::Zero(4 * fbs_->getNumberOfEndEffectors());
+	upper_bound = Eigen::VectorXd::Zero(4 * fbs_->getNumberOfEndEffectors());
 }
 
 } //@namespace ocp

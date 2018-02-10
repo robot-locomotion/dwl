@@ -7,13 +7,14 @@ int main(int argc, char **argv)
 {
 	dwl::WholeBodyState ws;
 	dwl::model::FloatingBaseSystem fbs;
+	dwl::model::WholeBodyKinematics wkin;
 	dwl::model::WholeBodyDynamics wdyn;
 
 	// Resetting the system from the hyq urdf file
 	std::string urdf_file = DWL_SOURCE_DIR"/sample/hyq.urdf";
 	std::string yarf_file = DWL_SOURCE_DIR"/config/hyq.yarf";
 	fbs.resetFromURDFFile(urdf_file, yarf_file);
-	wdyn.modelFromURDFFile(urdf_file, yarf_file);
+	wdyn.reset(fbs, wkin);
 
 	// Define the DoF after initializing the robot model
 	ws.setJointDoF(fbs.getJointDoF());

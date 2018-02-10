@@ -22,12 +22,12 @@ OptimalControl::~OptimalControl()
 	typedef std::vector<Constraint<WholeBodyState>*>::iterator ConstraintItr;
 	typedef std::vector<Cost*>::iterator CostItr;
 	if (is_added_constraint_) {
-		for (ConstraintItr i = constraints_.begin(); i != constraints_.end(); i++)
+		for (ConstraintItr i = constraints_.begin(); i != constraints_.end(); ++i)
 			delete *i;
 	}
 
 	if (is_added_cost_) {
-		for (CostItr i = costs_.begin(); i != costs_.end(); i++)
+		for (CostItr i = costs_.begin(); i != costs_.end(); ++i)
 			delete *i;
 	}
 }
@@ -44,7 +44,7 @@ void OptimalControl::init(bool only_soft_constraints)
 		if (!dynamical_system_->isSoftConstraint())
 			constraint_dimension_ += dynamical_system_->getConstraintDimension();
 		if (is_added_constraint_) {
-			for (unsigned int i = 0; i < constraints_.size(); i++) {
+			for (unsigned int i = 0; i < constraints_.size(); ++i) {
 				if (!constraints_[i]->isSoftConstraint())
 					constraint_dimension_ += constraints_[i]->getConstraintDimension();
 			}
@@ -57,7 +57,7 @@ void OptimalControl::init(bool only_soft_constraints)
 		dynamical_system_->defineAsSoftConstraint();
 
 		// Defining the all constraints as soft
-		for (unsigned int i = 0; i < constraints_.size(); i++)
+		for (unsigned int i = 0; i < constraints_.size(); ++i)
 			constraints_[i]->defineAsSoftConstraint();
 	}
 }
@@ -81,7 +81,7 @@ void OptimalControl::getStartingPoint(double* decision, int decision_dim)
 		WholeBodyState ending_system_state = dynamical_system_->getTerminalState();
 
 		// Defining splines //TODO for the time being only cubic interpolation is OK
-		unsigned int num_joints = dynamical_system_->getFloatingBaseSystem().getJointDoF();
+		unsigned int num_joints = dynamical_system_->getFloatingBaseSystem()->getJointDoF();
 		std::vector<math::CubicSpline> base_spline, joint_spline;
 		base_spline.resize(6);
 		joint_spline.resize(num_joints);
@@ -90,11 +90,11 @@ void OptimalControl::getStartingPoint(double* decision, int decision_dim)
 		WholeBodyState current_system_state = starting_system_state;
 		math::Spline::Point current_point;
 		current_system_state.duration = 1. / horizon_;
-		for (unsigned int k = 0; k < horizon_; k++) {
+		for (unsigned int k = 0; k < horizon_; ++k) {
 			current_system_state.time = k * current_system_state.duration;
 
 			// Base interpolation
-			for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
+			for (unsigned int base_idx = 0; base_idx < 6; ++base_idx) {
 				if (k == 0) {
 					// Initialization of the base spline
 					math::Spline::Point starting_base(starting_system_state.base_pos(base_idx));
@@ -108,7 +108,7 @@ void OptimalControl::getStartingPoint(double* decision, int decision_dim)
 			}
 
 			// Joint interpolations
-			for (unsigned int joint_idx = 0; joint_idx < num_joints; joint_idx++) {
+			for (unsigned int joint_idx = 0; joint_idx < num_joints; ++joint_idx) {
 				if (k == 0) {
 					// Initialization of the joint spline
 					math::Spline::Point starting_joint(starting_system_state.joint_pos(joint_idx));
@@ -205,7 +205,7 @@ void OptimalControl::evaluateBounds(double* decision_lbound, int decision_dim1,
 		}
 
 		// Setting the full-constraint lower and upper bounds for the predefined horizon
-		for (unsigned int k = 0; k < horizon_; k++) {
+		for (unsigned int k = 0; k < horizon_; ++k) {
 			// Setting dynamic system bounds
 			full_constraint_lower_bound.segment(k * constraint_dimension_,
 												constraint_dimension_) = constraint_lower_bound;
@@ -215,7 +215,7 @@ void OptimalControl::evaluateBounds(double* decision_lbound, int decision_dim1,
 	}
 
 	// Setting the full-state lower and upper bounds for the predefined horizon
-	for (unsigned int k = 0; k < horizon_; k++) {
+	for (unsigned int k = 0; k < horizon_; ++k) {
 		// Setting state bounds
 		full_state_lower_bound.segment(k * state_dimension_, state_dimension_) = state_lower_bound;
 		full_state_upper_bound.segment(k * state_dimension_, state_dimension_) = state_upper_bound;
@@ -260,7 +260,7 @@ void OptimalControl::evaluateConstraints(double* constraint, int constraint_dim,
 
 	// Setting the initial state
 	unsigned int num_constraints = constraints_.size();
-	for (unsigned int j = 0; j < num_constraints + 1; j++) {
+	for (unsigned int j = 0; j < num_constraints + 1; ++j) {
 		if (j == 0) // dynamic system constraint
 			dynamical_system_->setLastState(locomotion_initial_cond);
 		else
@@ -268,10 +268,10 @@ void OptimalControl::evaluateConstraints(double* constraint, int constraint_dim,
 	}
 
 	// Computing the active and inactive constraints for a predefined horizon
-	WholeBodyState system_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
+	WholeBodyState system_state(dynamical_system_->getFloatingBaseSystem()->getJointDoF());
 	Eigen::VectorXd decision_state = Eigen::VectorXd::Zero(state_dimension_);
 	unsigned int index = 0;
-	for (unsigned int k = 0; k < horizon_; k++) {
+	for (unsigned int k = 0; k < horizon_; ++k) {
 		// Converting the decision variable for a certain time to a robot state
 		decision_state = decision_var.segment(k * state_dimension_, state_dimension_);
 		dynamical_system_->toWholeBodyState(system_state, decision_state);
@@ -366,7 +366,7 @@ void OptimalControl::evaluateCosts(double& cost,
 
 	// Setting the initial state
 	unsigned int num_constraints = constraints_.size();
-	for (unsigned int j = 0; j < num_constraints + 1; j++) {
+	for (unsigned int j = 0; j < num_constraints + 1; ++j) {
 		if (j == 0) // dynamic system constraint
 			dynamical_system_->setLastState(locomotion_initial_cond);
 		else
@@ -374,8 +374,8 @@ void OptimalControl::evaluateCosts(double& cost,
 	}
 
 	// Computing the cost for predefined horizon
-	WholeBodyState system_state(dynamical_system_->getFloatingBaseSystem().getJointDoF());
-	for (unsigned int k = 0; k < horizon_; k++) {
+	WholeBodyState system_state(dynamical_system_->getFloatingBaseSystem()->getJointDoF());
+	for (unsigned int k = 0; k < horizon_; ++k) {
 		// Converting the decision variable for a certain time to a robot state
 		Eigen::VectorXd decision_state = decision_var.segment(k * state_dimension_, state_dimension_);
 		dynamical_system_->toWholeBodyState(system_state, decision_state);
@@ -388,13 +388,13 @@ void OptimalControl::evaluateCosts(double& cost,
 		// Computing the cost function for a certain time
 		double simple_cost;
 		unsigned int num_cost_functions = costs_.size();
-		for (unsigned int j = 0; j < num_cost_functions; j++) {
+		for (unsigned int j = 0; j < num_cost_functions; ++j) {
 			costs_[j]->compute(simple_cost, system_state);
 			cost += simple_cost;
 		}
 
 		// Computing the soft-constraints for a certain time
-		for (unsigned int j = 0; j < num_constraints + 1; j++) {
+		for (unsigned int j = 0; j < num_constraints + 1; ++j) {
 			if (j == 0) {// dynamic system constraint
 				if (dynamical_system_->isSoftConstraint()) {
 					dynamical_system_->computeSoft(simple_cost, system_state);
@@ -462,8 +462,8 @@ WholeBodyTrajectory& OptimalControl::evaluateSolution(const Eigen::Ref<const Eig
 
 
 		// Setting the contact information in cases where time is not a decision variable
-		urdf_model::LinkID contacts = dynamical_system_->getFloatingBaseSystem().getEndEffectors();
-		rbd::BodySelector contact_names = dynamical_system_->getFloatingBaseSystem().getEndEffectorNames();
+		urdf_model::LinkID contacts = dynamical_system_->getFloatingBaseSystem()->getEndEffectors();
+		rbd::BodySelector contact_names = dynamical_system_->getFloatingBaseSystem()->getEndEffectorNames();
 		for (urdf_model::LinkID::const_iterator contact_it = contacts.begin();
 				contact_it != contacts.end(); contact_it++) {
 			std::string name = contact_it->first;
@@ -479,25 +479,25 @@ WholeBodyTrajectory& OptimalControl::evaluateSolution(const Eigen::Ref<const Eig
 			eff_it = system_state.contact_eff.find(name);
 			if (pos_it != system_state.contact_pos.end()) {
 				if (system_state.contact_pos[name].isZero()) {
-					dynamical_system_->getKinematics().computeForwardKinematics(system_state.contact_pos,
-																				system_state.base_pos,
-																				system_state.joint_pos,
-																				contact_names, rbd::Linear);
+					dynamical_system_->getKinematics()->computeForwardKinematics(system_state.contact_pos,
+																				 system_state.base_pos,
+																				 system_state.joint_pos,
+																				 contact_names, rbd::Linear);
 				}
 			}
 			if (vel_it != system_state.contact_vel.end()) {
 				if (system_state.contact_vel[name].isZero()) {
-					dynamical_system_->getKinematics().computeVelocity(system_state.contact_vel,
-															   	   	   system_state.base_pos,
-																	   system_state.joint_pos,
-																	   system_state.base_vel,
-																	   system_state.joint_vel,
-																	   contact_names, rbd::Linear);
+					dynamical_system_->getKinematics()->computeVelocity(system_state.contact_vel,
+																		system_state.base_pos,
+																		system_state.joint_pos,
+																		system_state.base_vel,
+																		system_state.joint_vel,
+																		contact_names, rbd::Linear);
 				}
 			}
 			if (acc_it != system_state.contact_acc.end()) {
 				if (system_state.contact_acc[name].isZero()) {
-					dynamical_system_->getKinematics().computeAcceleration(system_state.contact_acc,
+					dynamical_system_->getKinematics()->computeAcceleration(system_state.contact_acc,
 															   	   	   	   system_state.base_pos,
 																		   system_state.joint_pos,
 																		   system_state.base_vel,

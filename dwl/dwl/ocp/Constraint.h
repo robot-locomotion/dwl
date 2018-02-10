@@ -53,26 +53,6 @@ class Constraint
 		/** @brief Destructor function */
 		virtual ~Constraint();
 
-		/**
-		 * @brief Build the model rigid-body system from an URDF file
-		 * @param std::string URDF file
-		 * @param std::string Semantic system description filename
-		 * @param Print model information
-		 */
-		void modelFromURDFFile(std::string urdf_file,
-							   std::string system_file = std::string(),
-							   bool info = false);
-
-		/**
-		 * @brief Build the model rigid-body system from an URDF model (xml)
-		 * @param std::string URDF model
-		 * @param std::string Semantic system description filename
-		 * @param Print model information
-		 */
-		void modelFromURDFModel(std::string urdf_model,
-								std::string system_file = std::string(),
-								bool info = false);
-
 		/** @brief Sets the constraint as soft constraint, i.e. inside the
 		 * cost function */
 		void defineAsSoftConstraint();
@@ -155,15 +135,6 @@ class Constraint
 
 		/** @brief Sets the last state */
 		boost::circular_buffer<TState> state_buffer_;
-
-		/** @brief A floating-base system definition */
-		model::FloatingBaseSystem system_;
-
-		/** @brief Whole-body kinematical model */
-		model::WholeBodyKinematics kinematics_;
-
-		/** @brief Whole-body dynamical model */
-		model::WholeBodyDynamics dynamics_;
 };
 
 } //@namespace ocp

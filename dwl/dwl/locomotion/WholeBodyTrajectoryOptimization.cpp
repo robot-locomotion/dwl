@@ -18,6 +18,7 @@ WholeBodyTrajectoryOptimization::~WholeBodyTrajectoryOptimization()
 
 }
 
+
 void WholeBodyTrajectoryOptimization::init(solver::OptimizationSolver* solver,
 										   std::string config_filename)
 {
@@ -123,8 +124,8 @@ const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhole
 	WholeBodyTrajectory trajectory = getWholeBodyTrajectory();
 
 	// Getting the number of joints and end-effectors
-	unsigned int num_joints = getDynamicalSystem()->getFloatingBaseSystem().getJointDoF();
-	unsigned int num_contacts = getDynamicalSystem()->getFloatingBaseSystem().getNumberOfEndEffectors();
+	unsigned int num_joints = getDynamicalSystem()->getFloatingBaseSystem()->getJointDoF();
+	unsigned int num_contacts = getDynamicalSystem()->getFloatingBaseSystem()->getNumberOfEndEffectors();
 
 	// Defining splines //TODO for the time being only cubic interpolation is OK
 	std::vector<math::CubicSpline> base_spline, joint_spline, control_spline;
@@ -204,40 +205,40 @@ const WholeBodyTrajectory& WholeBodyTrajectoryOptimization::getInterpolatedWhole
 
 			// Compute the contact information
 			// Computing the contact positions
-			rbd::BodySelector end_effector_names = getDynamicalSystem()->getFloatingBaseSystem().getEndEffectorNames();
-			getDynamicalSystem()->getKinematics().computeForwardKinematics(current_state.contact_pos,
-																		   current_state.base_pos,
-																		   current_state.joint_pos,
-																		   end_effector_names,
-																		   dwl::rbd::Linear);
+			rbd::BodySelector end_effector_names = getDynamicalSystem()->getFloatingBaseSystem()->getEndEffectorNames();
+			getDynamicalSystem()->getKinematics()->computeForwardKinematics(current_state.contact_pos,
+																			current_state.base_pos,
+																			current_state.joint_pos,
+																			end_effector_names,
+																			dwl::rbd::Linear);
 			// Computing the contact velocities
-			getDynamicalSystem()->getKinematics().computeVelocity(current_state.contact_vel,
-																  current_state.base_pos,
-																  current_state.joint_pos,
-																  current_state.base_vel,
-																  current_state.joint_vel,
-																  end_effector_names,
-																  dwl::rbd::Linear);
+			getDynamicalSystem()->getKinematics()->computeVelocity(current_state.contact_vel,
+																   current_state.base_pos,
+																   current_state.joint_pos,
+																   current_state.base_vel,
+																   current_state.joint_vel,
+																   end_effector_names,
+																   dwl::rbd::Linear);
 			// Computing the contact accelerations
-			getDynamicalSystem()->getKinematics().computeAcceleration(current_state.contact_acc,
-																	  current_state.base_pos,
-																	  current_state.joint_pos,
-																	  current_state.base_vel,
-																	  current_state.joint_vel,
-																	  current_state.base_acc,
-																	  current_state.joint_acc,
-																	  end_effector_names,
-																	  dwl::rbd::Linear);
+			getDynamicalSystem()->getKinematics()->computeAcceleration(current_state.contact_acc,
+																	   current_state.base_pos,
+																	   current_state.joint_pos,
+																	   current_state.base_vel,
+																	   current_state.joint_vel,
+																	   current_state.base_acc,
+																	   current_state.joint_acc,
+																	   end_effector_names,
+																	   dwl::rbd::Linear);
 			// Computing the contact forces
-			getDynamicalSystem()->getDynamics().estimateContactForces(current_state.contact_eff,
-																	 current_state.base_pos,
-																	 current_state.joint_pos,
-																	 current_state.base_vel,
-																	 current_state.joint_vel,
-																	 current_state.base_acc,
-																	 current_state.joint_acc,
-																	 current_state.joint_eff,
-																	 end_effector_names);
+			getDynamicalSystem()->getDynamics()->estimateContactForces(current_state.contact_eff,
+																	   current_state.base_pos,
+																	   current_state.joint_pos,
+																	   current_state.base_vel,
+																	   current_state.joint_vel,
+																	   current_state.base_acc,
+																	   current_state.joint_acc,
+																	   current_state.joint_eff,
+																	   end_effector_names);
 
 			// Adding the current state
 			if (t != 0) {
