@@ -26,8 +26,8 @@ rob.setForceThreshold(50) # Nm
 
 
 # The whole-body state
-ws.setBasePosition_W(np.array([0., 0., 0.]))
-ws.setBaseRPY_W(np.array([0., 0., 0.]))
+ws.setBasePosition(np.array([0., 0., 0.]))
+ws.setBaseRPY(np.array([0., 0., 0.]))
 ws.setBaseVelocity_W(np.array([0., 0., 0.]))
 ws.setBaseRPYVelocity_W(np.array([0., 0., 0.]))
 ws.setBaseAcceleration_W(np.array([0., 0., 0.]))
