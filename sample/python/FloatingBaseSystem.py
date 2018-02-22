@@ -17,6 +17,23 @@ fpath = os.path.dirname(os.path.abspath(__file__))
 fbs.resetFromURDFFile(fpath + "/../hyq.urdf", fpath + "/../../config/hyq.yarf")
 ws.setJointDoF(fbs.getJointDoF())
 
+# The robot state
+ws.setBasePosition(np.array([0., 0., 0.]))
+ws.setBaseRPY(np.array([0., 0., 0.]))
+ws.setBaseVelocity_W(np.array([0., 0., 0.]))
+ws.setBaseRPYVelocity_W(np.array([0., 0., 0.]))
+ws.setBaseAcceleration_W(np.array([0., 0., 0.]))
+ws.setBaseRPYAcceleration_W(np.array([0., 0., 0.]))
+ws.setJointPosition(0.75, fbs.getJointId("lf_hfe_joint"))
+ws.setJointPosition(-1.5, fbs.getJointId("lf_kfe_joint"))
+ws.setJointPosition(-0.75, fbs.getJointId("lh_hfe_joint"))
+ws.setJointPosition(1.5, fbs.getJointId("lh_kfe_joint"))
+ws.setJointPosition(0.75, fbs.getJointId("rf_hfe_joint"))
+ws.setJointPosition(-1.5, fbs.getJointId("rf_kfe_joint"))
+ws.setJointPosition(-0.75, fbs.getJointId("rh_hfe_joint"))
+ws.setJointPosition(1.5, fbs.getJointId("rh_kfe_joint"))
+
+
 # Getting the total mass of the system. Note that you could also get the mass of a specific
 # body (e.g. sys.getBodyMass(body_name))
 print("Total mass: ", fbs.getTotalMass())
