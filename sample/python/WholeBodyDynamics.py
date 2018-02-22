@@ -5,6 +5,8 @@ import os
 import dwl
 import numpy as np
 
+# Configure the printing
+np.set_printoptions(suppress=True)
 
 # Construct an instance of the WholeBodyDynamics class, which wraps the C++ class.
 ws = dwl.WholeBodyState()

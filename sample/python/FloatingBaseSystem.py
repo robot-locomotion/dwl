@@ -5,6 +5,9 @@ import os
 import dwl
 import numpy as np
 
+# Configure the printing
+np.set_printoptions(suppress=True)
+
 # Construct an instance of the FloatingBaseSystem class, which wraps the C++ class.
 fbs = dwl.FloatingBaseSystem()
 ws = dwl.WholeBodyState()
