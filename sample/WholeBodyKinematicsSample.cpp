@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 	wkin.computeVelocity(contact_vel_W,
 						 ws.base_pos, ws.joint_pos,
 						 ws.base_vel, ws.joint_vel,
-						 fbs.getEndEffectorNames(), dwl::rbd::Full);
+						 fbs.getEndEffectorNames(), dwl::rbd::Linear);
 	ws.setContactVelocity_W(contact_vel_W);
 	std::cout << "------------------- Contact velocities --------------------" << std::endl;
 	for (unsigned int c = 0; c < fbs.getNumberOfEndEffectors(); ++c) {
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 							 ws.base_pos, ws.joint_pos,
 							 ws.base_vel, ws.joint_vel,
 							 ws.base_acc, ws.joint_acc,
-							 fbs.getEndEffectorNames(), dwl::rbd::Full);
+							 fbs.getEndEffectorNames(), dwl::rbd::Linear);
 	ws.setContactAcceleration_W(contact_acc_W);
 	std::cout << "------------------- Contact accelerations --------------------" << std::endl;
 	for (unsigned int c = 0; c < fbs.getNumberOfEndEffectors(); ++c) {
