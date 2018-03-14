@@ -149,15 +149,16 @@ if(WITH_CATKIN)
 		         ${DEPENDENCIES_INCLUDE_DIRS})
 else()
 	# Creating a dwl-config.cmake file for the use from the build tree
-	set(DWL_INCLUDE_DIRS  ${INCLUDE_DIRS}
+	set(DWL_INCLUDE_DIRS  ${INSTALL_INCLUDE_PREFIX}
 						  ${INSTALL_INCLUDE_PREFIX}
 						  ${DEPENDENCIES_INCLUDE_DIRS})
-	set(DWL_LIBRARY_DIRS  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+	set(DWL_LIBRARY_DIRS  ${INSTALL_LIB_PREFIX}
 						  ${DEPENDENCIES_LIBRARY_DIRS})
 	set(DWL_LIBRARIES  ${INSTALL_LIB_PREFIX}/libdwl${CMAKE_SHARED_LIBRARY_SUFFIX}
 					   ${DEPENDENCIES_LIBRARIES})
 	configure_file(../dwl-config.cmake.in
-		"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake" @ONLY)
+				   "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/cmake/dwl/dwl-config.cmake"
+				   DESTINATION ${INSTALL_CMAKE_PREFIX})
 
     # Installing catkin package.xml and dwl-config.cmake for dwl as pure cmake project
     install(FILES ../package.xml DESTINATION ${INSTALL_LIB_PREFIX}/share/dwl)
