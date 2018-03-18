@@ -455,6 +455,15 @@ const std::string& FloatingBaseSystem::getFloatingBaseName() const
 	return floating_body_name_;
 }
 
+bool FloatingBaseSystem::existJoint(const std::string& joint_name) const
+{
+	urdf_model::JointID::const_iterator it = joints_.find(joint_name);
+	if (it == joints_.end())
+		return false;
+	else
+		return true;
+}
+
 
 const unsigned int& FloatingBaseSystem::getJointId(const std::string& joint_name) const
 {
@@ -531,6 +540,12 @@ const double& FloatingBaseSystem::getEffortLimit(const urdf::JointLimits& joint)
 const rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames() const
 {
 	return floating_joint_names_;
+}
+
+
+const std::string& FloatingBaseSystem::getJointName(const unsigned int& id) const
+{
+	return joint_names_[id];
 }
 
 
@@ -720,7 +735,7 @@ void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 }
 
 
-Eigen::VectorXd FloatingBaseSystem::getBranchState(Eigen::VectorXd& joint_state,
+Eigen::VectorXd FloatingBaseSystem::getBranchState(const Eigen::VectorXd& joint_state,
 												   const std::string& body_name)
 {
 	// Getting the branch properties

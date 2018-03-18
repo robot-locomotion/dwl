@@ -58,127 +58,133 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Resets the system information from an URDF file
-		 * @param const std::string& URDF filename
-		 * @param const std::string& Semantic system description filename
+		 * @param[in] urdf URDF filename
+		 * @param[in] yarf Semantic system description filename
 		 */
-		void resetFromURDFFile(const std::string& urdf_file,
-							   const std::string& system_file = std::string());
+		void resetFromURDFFile(const std::string& urdf,
+							   const std::string& yarf = std::string());
 
 		/**
 		 * @brief Resets the system information from URDF model
-		 * @param const std::string& URDF model
-		 * @param const std::string& Semantic system description filename
+		 * @param[in] urdf URDF model
+		 * @param[in] yarf Semantic system description filename
 		 */
-		void resetFromURDFModel(const std::string& urdf_model,
-								const std::string& system_file = std::string());
+		void resetFromURDFModel(const std::string& urdf,
+								const std::string& yarf = std::string());
 
 		/**
 		 * @brief Resets the system semantic description from yaml file
-		 * @param std::string Semantic system description filename
+		 * @param[in] filename Semantic system description filename
 		 */
 		void resetSystemDescription(const std::string& filename);
 
 		/**
 		 * @brief Sets the 6d floating-base joint information
-		 * @param const FloatingBaseJoint& Floating-base joint information
+		 * @param[in] joint Floating-base joint information
 		 **/
 		void setFloatingBaseJoint(const FloatingBaseJoint& joint);
 
 		/**
 		 * @brief Sets the floating-base joint information
-		 * @param const FloatingBaseJoint& Floating-base joint information
-		 * @param rbd::Coords6d Joint coordinate
+		 * @param[in] joint Floating-base joint information
+		 * @param[in] joint_coord Joint coordinate
 		 **/
 		void setFloatingBaseJoint(const FloatingBaseJoint& joint,
 								  rbd::Coords6d joint_coord);
 
 		/**
 		 * @brief Sets the actuated joint information
-		 * @param const Joint& Joint information
+		 * @param[in] joint Joint information
 		 */
 		void setJoint(const Joint& joint);
 
 		/**
 		 * @brief Sets the floating-base constraint information
-		 * @param rbd::Coords6d Joint coordinate
+		 * @param[in] id Joint coordinate
 		 */
-		void setFloatingBaseConstraint(rbd::Coords6d joint_id);
+		void setFloatingBaseConstraint(rbd::Coords6d id);
 
 		/**
 		 * @brief Sets the type of floating-base system
-		 * @param enum TypeOfSystem Type of floating-base system
+		 * @param[in] type Type of floating-base system
 		 */
-		void setTypeOfDynamicSystem(enum TypeOfSystem _type_of_system);
+		void setTypeOfDynamicSystem(enum TypeOfSystem type);
 
 
 		/**
 		 * @brief Sets the system DoF
-		 * @param unsigned int Number of DoF
+		 * @param[in] ndof Number of DoF
 		 */
-		void setSystemDoF(unsigned int _num_dof);
+		void setSystemDoF(unsigned int ndof);
 
 		/**
 		 * @brief Sets the actuated joint DoF
-		 * @param unsigned int Number of joints
+		 * @param[in] njoints int Number of joints
 		 */
-		void setJointDoF(unsigned int _num_joints);
+		void setJointDoF(unsigned int njoints);
 
 		/**
 		 * @brief Gets the URDF model
-		 * @return const std::string& URDF model
+		 * @return The URDF model
 		 */
 		const std::string& getURDFModel() const;
 
 		/**
 		 * @brief Gets the YARF model
-		 * @return const std::string& YARF model
+		 * @return The YARF model
 		 */
 		const std::string& getYARFModel() const;
 
 		/**
 		 * @brief Gets the rigid body dynamic model
-		 * @return const RigidBodyDynamics::Model& Rigid body dynamics model
+		 * @return The rigid body dynamics model
 		 */
 		RigidBodyDynamics::Model& getRBDModel();
 
 		/**
 		 * @brief Gets the total mass of the rigid body system
-		 * @return double The total mass of the rigid body system
+		 * @return The total mass of the rigid body system
 		 */
 		double getTotalMass();
 
 		/**
 		 * @brief Gets the body mass
-		 * @param const std::string& The body name
-		 * @return const double& The mass of the body
+		 * @param[in] name The body name
+		 * @return The mass of the body
 		 */
-		const double& getBodyMass(const std::string& body_name) const;
+		const double& getBodyMass(const std::string& name) const;
 
-		/** @brief Gets the gravity vector of the rigid body system */
+		/** @brief Gets the gravity vector of the rigid body system
+		 * @return The gravity vector
+		 */
 		const Eigen::Vector3d& getGravityVector() const;
 
-		/** @brief Gets the gravity acceleration of the rigid body system */
+		/** @brief Gets the gravity acceleration of the rigid body system 
+		 * @return The gravity acceleration
+		*/
 		const double& getGravityAcceleration() const;
 
-		/** @brief Gets the gravity direction of the rigid body system */
+		/** @brief Gets the gravity direction of the rigid body system
+		 * @return The gravity direction
+		 */
 		const Eigen::Vector3d& getGravityDirection() const;
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of the floating-base system
-		 * @param const rbd::Vector6d& Base position
-		 * @param const Eigen::VectorXd& Joint position
-		 * @return const Eigen::Vector3d& The CoM of the floating-base system
+		 * @param[in] base_pos Base position
+		 * @param[in] joint_pos Joint position
+		 * @return The CoM of the floating-base system
 		 */
 		const Eigen::Vector3d& getSystemCoM(const rbd::Vector6d& base_pos,
 											const Eigen::VectorXd& joint_pos);
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) rate of the floating-base system
-		 * @param const rbd::Vector6d& Base position
-		 * @param const Eigen::VectorXd& Joint position
-		 * @param const rbd::Vector6d& Base velocity
-		 * @param const Eigen::VectorXd& Joint velocity
-		 * @return const Eigen::Vector3d& The CoM rate of the floating-base system
+		 * @param[in] base_pos Base position
+		 * @param[in] joint_pos Joint position
+		 * @param[in] base_vel Base velocity
+		 * @param[in] joint_vel Joint velocity
+		 * @return The CoM rate of the floating-base system
 		 */
 		const Eigen::Vector3d& getSystemCoMRate(const rbd::Vector6d& base_pos,
 												const Eigen::VectorXd& joint_pos,
@@ -187,46 +193,46 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of floating-base
-		 * @return double The CoM of the floating-base
+		 * @return The CoM of the floating-base
 		 */
 		const Eigen::Vector3d& getFloatingBaseCoM() const;
 
 		/**
 		 * @brief Gets the Center of Mass (CoM) of a specific body
-		 * @param const std::string& Body name
-		 * @return double The CoM of the body
+		 * @param[in] name Body name
+		 * @return The CoM of the body
 		 */
-		const Eigen::Vector3d& getBodyCoM(const std::string& body_name) const;
+		const Eigen::Vector3d& getBodyCoM(const std::string& name) const;
 
 		/**
 		 * @brief Gets the floating-base system DoF
-		 * @return const unsigned int& Number of DoF of the floating-base system
+		 * @return Number of DoF of the floating-base system
 		 */
 		const unsigned int& getSystemDoF() const;
 
 		/**
 		 * @brief Gets the floating-base DoF
-		 * @return const unsigned int& Number of floating-base DoF
+		 * @return Number of floating-base DoF
 		 */
 		const unsigned int& getFloatingBaseDoF() const;
 
 		/**
 		 * @brief Gets the actuated joint DoF
-		 * @return const unsigned int& Number of joint DoF
+		 * @return Number of joint DoF
 		 */
 		const unsigned int& getJointDoF() const;
 
 		/**
 		 * @brief Gets the floating-base joint
-		 * @param rbd::Coords6d Floating-base joint coordinate
-		 * return const FloatingBaseJoint& Floating-base joint information
+		 * @param[in] joint Floating-base joint coordinate
+		 * return Floating-base joint information
 		 */
 		const FloatingBaseJoint& getFloatingBaseJoint(rbd::Coords6d joint) const;
 
 		/**
 		 * @brief Gets the floating-base joint coordinate given an Id
-		 * @param unsigned int Floating-base joint Id
-		 * @return unsigned int Floating-base joint coordinate
+		 * @param[in] id Floating-base joint Id
+		 * @return Floating-base joint coordinate
 		 */
 		unsigned int getFloatingBaseJointCoordinate(unsigned int id);
 
@@ -237,94 +243,140 @@ class FloatingBaseSystem
 		const std::string& getFloatingBaseName() const;
 
 		/**
+		 * @brief Checks if the joint exist
+		 * @return True if the joint exist, false otherwise
+		 */
+		bool existJoint(const std::string& joint_name) const;
+
+		/**
 		 * @brief Gets the joint id given the name
-		 * @param const std::string& Joint name
+		 * @param[in] name Joint name
 		 * @return Returns the joint id
 		 */
-		const unsigned int& getJointId(const std::string& joint_name) const;
+		const unsigned int& getJointId(const std::string& name) const;
 
 		/**
 		 * @brief Gets actuated joint information
-		 * @return const urdf_model::JointID& Joint names and Ids
+		 * @return Joint names and Ids
 		 */
 		const urdf_model::JointID& getJoints() const;
 
 		/**
 		 * @brief Gets actuated joint limits
-		 * @return const urdf_model::JointLimits& Joint names and limits
+		 * @return Joint names and limits
 		 */
 		const urdf_model::JointLimits& getJointLimits() const;
 
 		/**
 		 * @brief Gets the joint limits given its name
-		 * @return const urdf::JointLimits& The joint limits
+		 * @param[in] name Joint name
+		 * @return The joint limits
 		 */
 		const urdf::JointLimits& getJointLimit(const std::string& name) const;
 
-		/** @brief Gets the lower joint limit */
+		/** @brief Gets the lower joint limit
+		 * @param[in] name Joint name
+		 * @return The lower joint position limit
+		 */
 		const double& getLowerLimit(const std::string& name) const;
+
+		/** @brief Gets the lower joint limit
+		 * @param[in] joint Joint limits
+		 * @return The lower joint position limit
+		 */
 		const double& getLowerLimit(const urdf::JointLimits& joint) const;
 
-		/** @brief Gets the upper joint limit */
+		/** @brief Gets the upper joint limit
+		 * @param[in] name Joint name
+		 * @return The upper joint position limit
+		 */
 		const double& getUpperLimit(const std::string& name) const;
+
+		/** @brief Gets the upper joint limit
+		 * @param[in] joint Joint limits
+		 * @return The upper joint position limit
+		 */
 		const double& getUpperLimit(const urdf::JointLimits& joint) const;
 
-		/** @brief Gets the velocity joint limit */
+		/** @brief Gets the velocity joint limit
+		 * @param[in] name Joint name
+		 * @return The velocity joint position limit
+		 */
 		const double& getVelocityLimit(const std::string& name) const;
+
+		/** @brief Gets the velocity joint limit
+		 * @param[in] name Joint limits
+		 * @return The velocity joint position limit
+		 */
 		const double& getVelocityLimit(const urdf::JointLimits& joint) const;
 
-		/** @brief Gets the effort joint limit */
+		/** @brief Gets the effort joint limit
+		 * @param[in] name Joint name
+		 * @return The effort joint position limit
+		 */
 		const double& getEffortLimit(const std::string& name) const;
+
+		/** @brief Gets the effort joint limit
+		 * @param[in] name Joint limits
+		 * @return The effort joint position limit
+		 */
 		const double& getEffortLimit(const urdf::JointLimits& joint) const;
 
 		/**
 		 * @brief Gets the floating-base joint names list
-		 * @return const rbd::BodySelector& Joint names list
+		 * @return Joint names list
 		 */
 		const rbd::BodySelector& getFloatingJointNames() const;
 
 		/**
+		 * @brief Gets the joint name given its id
+		 * @return id Joint id
+		 * @return Joint name
+		 */
+		const std::string& getJointName(const unsigned int& id) const;
+
+		/**
 		 * @brief Gets the joint names list
-		 * @return const rbd::BodySelector& Joint names list
+		 * @return Joint names list
 		 */
 		const rbd::BodySelector& getJointNames() const;
 
 		/**
 		 * @brief Gets the body name of the floating-base
-		 * @return const std::string& Floating-base body
+		 * @return Floating-base body
 		 */
 		const std::string& getFloatingBaseBody() const;
 
 		/**
 		 * @brief Gets the type of floating-base system
-		 * @return enum TypeOfSystem Type of floating-base system
+		 * @return Type of floating-base system
 		 */
 		const enum TypeOfSystem& getTypeOfDynamicSystem() const;
 
 		/**
 		 * @brief Gets the number of end-effectors
-		 * @param enum TypeOfEndEffector Type of end-effector
-		 * @return const unsigned int& Number of end-effectors
+		 * @param[in] type Type of end-effector
+		 * @return Number of end-effectors
 		 */
 		const unsigned int& getNumberOfEndEffectors(enum TypeOfEndEffector type = ALL) const;
 
 		/**
 		 * @brief Gets the end-effector id given the name
-		 * @param std::string End-effector name
+		 * @param[in] name End-effector name
 		 * @return Returns the end-effector id
 		 */
-		const unsigned int& getEndEffectorId(const std::string& contact_name) const;
+		const unsigned int& getEndEffectorId(const std::string& name) const;
 
 		/**
 		 * @brief Gets the end-effectors names
-		 * @return const urdf_model::LinkID& Names and ids of the end-effectors
+		 * @return Names and ids of the end-effectors
 		 */
 		const urdf_model::LinkID& getEndEffectors(enum TypeOfEndEffector type = ALL) const;
 
 		/**
 		 * @brief Gets the end-effector names list
-		 * @param enum TypeOfEndEffector Type of end-effector
-		 * @return const rbd::BodySelector& End-effector names list
+		 * @param[in] type Type of end-effector
+		 * @return End-effector names list
 		 */
 		const rbd::BodySelector& getEndEffectorNames(enum TypeOfEndEffector type = ALL) const;
 
@@ -342,55 +394,55 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Converts the base and joint states to a generalized joint state
-		 * @param const Vector6d& Base state
-		 * @param const Eigen::VectorXd& Joint state
-		 * @return Eigen::VectorXd& Generalized joint state
+		 * @param[in] base_state Base state
+		 * @param[in] joint_state Joint state
+		 * @return Generalized joint state
 		 */
 		const Eigen::VectorXd& toGeneralizedJointState(const rbd::Vector6d& base_state,
 													   const Eigen::VectorXd& joint_state);
 
 		/**
 		 * @brief Converts the generalized joint state to base and joint states
-		 * @param Vector6d& Base state
-		 * @param Eigen::VectorXd& Joint state
-		 * @param const Eigen::VectorXd Generalized joint state
+		 * @param[out] base_state Base state
+		 * @param[in] joint_state Joint state
+		 * @param[in] gen_state Generalized joint state
 		 */
 		void fromGeneralizedJointState(rbd::Vector6d& base_state,
 									   Eigen::VectorXd& joint_state,
-									   const Eigen::VectorXd& generalized_state);
+									   const Eigen::VectorXd& gen_state);
 
 		/**
 		 * @brief Sets the joint state given a branch values
-		 * @param Eigen::VectorXd& Joint state vector
-		 * @param cons Eigen::VectorXd& Branch state
-		 * @param std::string Body name
+		 * @param[out] new_joint_state Joint state vector
+		 * @param[in] branch_state Branch state
+		 * @param[in] name Body name
 		 */
 		void setBranchState(Eigen::VectorXd& new_joint_state,
 							const Eigen::VectorXd& branch_state,
-							std::string body_name);
+							std::string name);
 
 		/**
 		 * @brief Gets the branch values given a joint state
-		 * @param Eigen::VectorXd& Joint state vector
-		 * @param cons Eigen::VectorXd& Branch state
-		 * @param const std::string& Body name
+		 * @param[in] joint_name Joint state vector
+		 * @param[in] body_name Body name
+		 * @return The branch states
 		 */
-		Eigen::VectorXd getBranchState(Eigen::VectorXd& joint_state,
+		Eigen::VectorXd getBranchState(const Eigen::VectorXd& joint_state,
 									   const std::string& body_name);
 
 		/**
 		 * @brief Gets the position index and number of DOF of certain branch
-		 * @param unsigned int& Position index of the body branch
-		 * @param unsigned int& Degrees of freedom of the body branch
-		 * @param const std::string& Name of the body branch (end-effector name)
+		 * @param[in] pos_idx Position index of the body branch
+		 * @param[in] num_dof Degrees of freedom of the body branch
+		 * @param[in] name Name of the body branch (end-effector name)
 		 */
 		void getBranch(unsigned int& pos_idx,
 					   unsigned int& num_dof,
-					   const std::string& body_name);
+					   const std::string& name);
 
 		/**
 		 * @brief Gets the default posture defined in the system file
-		 * @return const Eigen::VectorXd& Default joint position
+		 * @return Default joint position
 		 */
 		const Eigen::VectorXd& getDefaultPosture() const;
 
