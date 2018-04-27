@@ -38,44 +38,53 @@ const double& WholeBodyState::getTime() const
 
 Eigen::Vector3d WholeBodyState::getBasePosition() const
 {
-	return base_pos.segment<3>(rbd::LX);
+	return base_pos.segment<3>(rbd::LX_Q);
 }
 
 
-Eigen::Quaterniond WholeBodyState::getBaseOrientation() const
+Eigen::Vector4d WholeBodyState::getBaseOrientation() const
 {
-	return math::getQuaternion(getBaseRPY());
+	return base_pos.segment<4>(rbd::AX_Q);
 }
 
 
 Eigen::Vector3d WholeBodyState::getBaseRPY() const
 {
-	return base_pos.segment<3>(rbd::AX);
+	return math::getRPY(Eigen::Quaterniond(base_pos(rbd::AW_Q),
+									base_pos(rbd::AX_Q),
+									base_pos(rbd::AY_Q),
+									base_pos(rbd::AZ_Q)));
 }
 
 
-Eigen::Quaterniond WholeBodyState::getHorizontalOrientation() const
+Eigen::Vector4d WholeBodyState::getHorizontalOrientation() const
 {
-	return Eigen::Quaterniond(math::getRotationMatrix(getHorizontalRPY()));
+	Eigen::Quaterniond q(math::getRotationMatrix(getHorizontalRPY()));
+	return Eigen::Vector4d(q.x(), q.y(), q.z(), q.w());
 }
 
 
 Eigen::Vector3d WholeBodyState::getHorizontalRPY() const
 {
-	return Eigen::Vector3d(0., 0., base_pos(rbd::AZ));
+	Eigen::Vector3d rpy = getBaseRPY();
+	return Eigen::Vector3d(0., 0., rpy(rbd::Z));
 }
 
 
 Eigen::Vector3d WholeBodyState::getBaseVelocity_W() const
 {
-	return base_vel.segment<3>(rbd::LX);
+	return base_vel.segment<3>(rbd::LX_V);
 }
 
 
 Eigen::Vector3d WholeBodyState::getBaseVelocity_B() const
 {
-	return frame_tf_.fromWorldToBaseFrame(getBaseVelocity_W(),
-										  getBaseOrientation());
+	return frame_tf_.fromWorldToBaseFrame(
+		getBaseVelocity_W(),
+		Eigen::Quaterniond(base_pos(rbd::AW_Q),
+						   base_pos(rbd::AX_Q),
+						   base_pos(rbd::AY_Q),
+						   base_pos(rbd::AZ_Q)));
 }
 
 
@@ -88,14 +97,18 @@ Eigen::Vector3d WholeBodyState::getBaseVelocity_H() const
 
 Eigen::Vector3d WholeBodyState::getBaseAngularVelocity_W() const
 {
-	return base_vel.segment<3>(rbd::AX);
+	return base_vel.segment<3>(rbd::AX_V);
 }
 
 
 Eigen::Vector3d WholeBodyState::getBaseAngularVelocity_B() const
 {
-	return frame_tf_.fromWorldToBaseFrame(getBaseAngularVelocity_W(),
-										  getBaseOrientation());
+	return frame_tf_.fromWorldToBaseFrame(
+		getBaseAngularVelocity_W(),
+		Eigen::Quaterniond(base_pos(rbd::AW_Q),
+						   base_pos(rbd::AX_Q),
+						   base_pos(rbd::AY_Q),
+						   base_pos(rbd::AZ_Q)));
 }
 
 
@@ -116,14 +129,18 @@ Eigen::Vector3d WholeBodyState::getBaseRPYVelocity_W() const
 
 Eigen::Vector3d WholeBodyState::getBaseAcceleration_W() const
 {
-	return base_acc.segment<3>(rbd::LX);
+	return base_acc.segment<3>(rbd::LX_V);
 }
 
 
 Eigen::Vector3d WholeBodyState::getBaseAcceleration_B() const
 {
-	return frame_tf_.fromWorldToBaseFrame(getBaseAcceleration_W(),
-										  getBaseOrientation());
+	return frame_tf_.fromWorldToBaseFrame(
+		getBaseAcceleration_W(),
+		Eigen::Quaterniond(base_pos(rbd::AW_Q),
+						   base_pos(rbd::AX_Q),
+						   base_pos(rbd::AY_Q),
+						   base_pos(rbd::AZ_Q)));
 }
 
 
@@ -136,14 +153,18 @@ Eigen::Vector3d WholeBodyState::getBaseAcceleration_H() const
 
 Eigen::Vector3d WholeBodyState::getBaseAngularAcceleration_W() const
 {
-	return base_acc.segment<3>(rbd::AX);
+	return base_acc.segment<3>(rbd::AX_V);
 }
 
 
 Eigen::Vector3d WholeBodyState::getBaseAngularAcceleration_B() const
 {
-	return frame_tf_.fromWorldToBaseFrame(getBaseAngularAcceleration_W(),
-										  getBaseOrientation());
+	return frame_tf_.fromWorldToBaseFrame(
+		getBaseAngularAcceleration_W(),
+		Eigen::Quaterniond(base_pos(rbd::AW_Q),
+						   base_pos(rbd::AX_Q),
+						   base_pos(rbd::AY_Q),
+						   base_pos(rbd::AZ_Q)));
 }
 
 
@@ -266,9 +287,9 @@ Eigen::VectorXd WholeBodyState::getContactPosition_W(const std::string& name) co
 }
 
 
-rbd::BodyVectorXd WholeBodyState::getContactPosition_W() const
+Eigen::VectorXdMap WholeBodyState::getContactPosition_W() const
 {
-	rbd::BodyVectorXd contact_pos_W;
+	Eigen::VectorXdMap contact_pos_W;
 	for (ContactIterator contact_it = getContactPosition_B().begin();
 			contact_it != getContactPosition_B().end(); contact_it++) {
 		std::string name = contact_it->first;
@@ -295,7 +316,7 @@ const Eigen::VectorXd& WholeBodyState::getContactPosition_B(const std::string& n
 }
 
 
-const rbd::BodyVectorXd& WholeBodyState::getContactPosition_B() const
+const Eigen::VectorXdMap& WholeBodyState::getContactPosition_B() const
 {
 	return contact_pos;
 }
@@ -317,9 +338,9 @@ Eigen::VectorXd WholeBodyState::getContactPosition_H(const std::string& name) co
 }
 
 
-rbd::BodyVectorXd WholeBodyState::getContactPosition_H() const
+Eigen::VectorXdMap WholeBodyState::getContactPosition_H() const
 {
-	rbd::BodyVectorXd contact_pos_H;
+	Eigen::VectorXdMap contact_pos_H;
 	for (ContactIterator contact_it = getContactPosition_B().begin();
 			contact_it != getContactPosition_B().end(); contact_it++) {
 		std::string name = contact_it->first;
@@ -353,9 +374,9 @@ Eigen::VectorXd WholeBodyState::getContactVelocity_W(const std::string& name) co
 }
 
 
-rbd::BodyVectorXd WholeBodyState::getContactVelocity_W() const
+Eigen::VectorXdMap WholeBodyState::getContactVelocity_W() const
 {
-	rbd::BodyVectorXd contact_vel_W;
+	Eigen::VectorXdMap contact_vel_W;
 	for (ContactIterator contact_it = getContactVelocity_B().begin();
 			contact_it != getContactVelocity_B().end(); contact_it++) {
 		std::string name = contact_it->first;
@@ -382,7 +403,7 @@ const Eigen::VectorXd& WholeBodyState::getContactVelocity_B(const std::string& n
 }
 
 
-const rbd::BodyVectorXd& WholeBodyState::getContactVelocity_B() const
+const Eigen::VectorXdMap& WholeBodyState::getContactVelocity_B() const
 {
 	return contact_vel;
 }
@@ -417,9 +438,9 @@ Eigen::VectorXd WholeBodyState::getContactVelocity_H(const std::string& name) co
 }
 
 
-rbd::BodyVectorXd WholeBodyState::getContactVelocity_H() const
+Eigen::VectorXdMap WholeBodyState::getContactVelocity_H() const
 {
-	rbd::BodyVectorXd contact_vel_H;
+	Eigen::VectorXdMap contact_vel_H;
 	for (ContactIterator contact_it = getContactVelocity_B().begin();
 			contact_it != getContactVelocity_B().end(); contact_it++) {
 		std::string name = contact_it->first;
@@ -461,9 +482,9 @@ Eigen::VectorXd WholeBodyState::getContactAcceleration_W(const std::string& name
 }
 
 
-rbd::BodyVectorXd WholeBodyState::getContactAcceleration_W() const
+Eigen::VectorXdMap WholeBodyState::getContactAcceleration_W() const
 {
-	rbd::BodyVectorXd contact_acc_W;
+	Eigen::VectorXdMap contact_acc_W;
 	for (ContactIterator contact_it = getContactAcceleration_B().begin();
 			contact_it != getContactAcceleration_B().end(); contact_it++) {
 		std::string name = contact_it->first;
@@ -490,7 +511,7 @@ const Eigen::VectorXd& WholeBodyState::getContactAcceleration_B(const std::strin
 }
 
 
-const rbd::BodyVectorXd& WholeBodyState::getContactAcceleration_B() const
+const Eigen::VectorXdMap& WholeBodyState::getContactAcceleration_B() const
 {
 	return contact_acc;
 }
@@ -546,9 +567,9 @@ Eigen::VectorXd WholeBodyState::getContactAcceleration_H(const std::string& name
 }
 
 
-rbd::BodyVectorXd WholeBodyState::getContactAcceleration_H() const
+Eigen::VectorXdMap WholeBodyState::getContactAcceleration_H() const
 {
-	rbd::BodyVectorXd contact_acc_H;
+	Eigen::VectorXdMap contact_acc_H;
 	for (ContactIterator contact_it = getContactAcceleration_B().begin();
 			contact_it != getContactAcceleration_B().end(); contact_it++) {
 		std::string name = contact_it->first;
@@ -559,15 +580,15 @@ rbd::BodyVectorXd WholeBodyState::getContactAcceleration_H() const
 }
 
 
-const rbd::BodyVector6d& WholeBodyState::getContactWrench_B() const
+const Eigen::Vector6dMap& WholeBodyState::getContactWrench_B() const
 {
 	return contact_eff;
 }
 
 
-const rbd::Vector6d& WholeBodyState::getContactWrench_B(const std::string& name) const
+const Eigen::Vector6d& WholeBodyState::getContactWrench_B(const std::string& name) const
 {
-	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
+	Eigen::Vector6dMap::const_iterator it = contact_eff.find(name);
 	if (it == contact_eff.end())
 		return null_6dvector_;
 	else
@@ -579,7 +600,7 @@ bool WholeBodyState::getContactCondition(const std::string& name,
 										 const double& force_threshold) const
 {
 	// Returns inactive in case that the contact wrench is not defined
-	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
+	Eigen::Vector6dMap::const_iterator it = contact_eff.find(name);
 	if (it == contact_eff.end())
 		return false;
 
@@ -593,7 +614,7 @@ bool WholeBodyState::getContactCondition(const std::string& name,
 bool WholeBodyState::getContactCondition(const std::string& name) const
 {
 	// Returns inactive in case that the contact wrench is not defined
-	rbd::BodyVector6d::const_iterator it = contact_eff.find(name);
+	Eigen::Vector6dMap::const_iterator it = contact_eff.find(name);
 	if (it == contact_eff.end())
 		return false;
 
@@ -616,15 +637,16 @@ void WholeBodyState::setBasePosition(const Eigen::Vector3d& pos)
 }
 
 
-void WholeBodyState::setBaseOrientation(const Eigen::Quaterniond& orient)
+void WholeBodyState::setBaseOrientation(const Eigen::Vector4d& orient)
 {
-	base_pos.topRows<3>() = math::getRPY(orient);
+	base_pos.topRows<4>() = orient;
 }
 
 
 void WholeBodyState::setBaseRPY(const Eigen::Vector3d& rpy)
 {
-	base_pos.topRows<3>() = rpy;
+	Eigen::Quaterniond q = math::getQuaternion(rpy);
+	base_pos.topRows<4>() << q.x(), q.y(), q.z(), q.w();
 }
 
 
@@ -637,7 +659,11 @@ void WholeBodyState::setBaseVelocity_W(const Eigen::Vector3d& vel_W)
 void WholeBodyState::setBaseVelocity_B(const Eigen::Vector3d& vel_B)
 {
 	base_vel.topRows<3>() =
-			frame_tf_.fromBaseToWorldFrame(vel_B, getBaseOrientation());
+			frame_tf_.fromBaseToWorldFrame(vel_B,
+					Eigen::Quaterniond(base_pos(rbd::AW_Q),
+						   base_pos(rbd::AX_Q),
+						   base_pos(rbd::AY_Q),
+						   base_pos(rbd::AZ_Q)));
 }
 
 
@@ -657,7 +683,11 @@ void WholeBodyState::setBaseAngularVelocity_W(const Eigen::Vector3d& rate_W)
 void WholeBodyState::setBaseAngularVelocity_B(const Eigen::Vector3d& rate_B)
 {
 	base_vel.topRows<3>() =
-			frame_tf_.fromBaseToWorldFrame(rate_B, getBaseOrientation());
+			frame_tf_.fromBaseToWorldFrame(rate_B,
+			Eigen::Quaterniond(base_pos(rbd::AW_Q),
+						   base_pos(rbd::AX_Q),
+						   base_pos(rbd::AY_Q),
+						   base_pos(rbd::AZ_Q)));
 }
 
 
@@ -684,7 +714,11 @@ void WholeBodyState::setBaseAcceleration_W(const Eigen::Vector3d& acc_W)
 void WholeBodyState::setBaseAcceleration_B(const Eigen::Vector3d& acc_B)
 {
 	base_acc.bottomRows<3>() =
-			frame_tf_.fromBaseToWorldFrame(acc_B, getBaseOrientation());
+			frame_tf_.fromBaseToWorldFrame(acc_B,
+					Eigen::Quaterniond(base_pos(rbd::AW_Q),
+						   base_pos(rbd::AX_Q),
+						   base_pos(rbd::AY_Q),
+						   base_pos(rbd::AZ_Q)));
 }
 
 
@@ -704,7 +738,11 @@ void WholeBodyState::setBaseAngularAcceleration_W(const Eigen::Vector3d& rotacc_
 void WholeBodyState::setBaseAngularAcceleration_B(const Eigen::Vector3d& rotacc_B)
 {
 	base_acc.topRows<3>() =
-			frame_tf_.fromBaseToWorldFrame(rotacc_B, getBaseOrientation());
+			frame_tf_.fromBaseToWorldFrame(rotacc_B,
+					Eigen::Quaterniond(base_pos(rbd::AW_Q),
+						   base_pos(rbd::AX_Q),
+						   base_pos(rbd::AY_Q),
+						   base_pos(rbd::AZ_Q)));
 }
 
 
@@ -831,7 +869,7 @@ void WholeBodyState::setContactPosition_W(const std::string& name,
 }
 
 
-void WholeBodyState::setContactPosition_W(const rbd::BodyVectorXd& pos_W)
+void WholeBodyState::setContactPosition_W(const Eigen::VectorXdMap& pos_W)
 {
 	for (ContactIterator contact_it = pos_W.begin();
 			contact_it != pos_W.end(); contact_it++)
@@ -852,7 +890,7 @@ void WholeBodyState::setContactPosition_B(const std::string& name,
 }
 
 
-void WholeBodyState::setContactPosition_B(const rbd::BodyVectorXd& pos_B)
+void WholeBodyState::setContactPosition_B(const Eigen::VectorXdMap& pos_B)
 {
 	contact_pos = pos_B;
 }
@@ -872,7 +910,7 @@ void WholeBodyState::setContactPosition_H(const std::string& name,
 }
 
 
-void WholeBodyState::setContactPosition_H(const rbd::BodyVectorXd& pos_H)
+void WholeBodyState::setContactPosition_H(const Eigen::VectorXdMap& pos_H)
 {
 	for (ContactIterator contact_it = pos_H.begin();
 			contact_it != pos_H.end(); contact_it++)
@@ -902,7 +940,7 @@ void WholeBodyState::setContactVelocity_W(const std::string& name,
 }
 
 
-void WholeBodyState::setContactVelocity_W(const rbd::BodyVectorXd& vel_W)
+void WholeBodyState::setContactVelocity_W(const Eigen::VectorXdMap& vel_W)
 {
 	for (ContactIterator contact_it = vel_W.begin();
 			contact_it != vel_W.end(); contact_it++)
@@ -923,7 +961,7 @@ void WholeBodyState::setContactVelocity_B(const std::string& name,
 }
 
 
-void WholeBodyState::setContactVelocity_B(const rbd::BodyVectorXd& vel_B)
+void WholeBodyState::setContactVelocity_B(const Eigen::VectorXdMap& vel_B)
 {
 	contact_vel = vel_B;
 }
@@ -960,7 +998,7 @@ void WholeBodyState::setContactVelocity_H(const std::string& name,
 }
 
 
-void WholeBodyState::setContactVelocity_H(const rbd::BodyVectorXd& vel_H)
+void WholeBodyState::setContactVelocity_H(const Eigen::VectorXdMap& vel_H)
 {
 	for (ContactIterator contact_it = vel_H.begin();
 			contact_it != vel_H.end(); contact_it++)
@@ -999,7 +1037,7 @@ void WholeBodyState::setContactAcceleration_W(const std::string& name,
 }
 
 
-void WholeBodyState::setContactAcceleration_W(const rbd::BodyVectorXd& acc_W)
+void WholeBodyState::setContactAcceleration_W(const Eigen::VectorXdMap& acc_W)
 {
 	for (ContactIterator acc_it = acc_W.begin();
 			acc_it != acc_W.end(); acc_it++) {
@@ -1021,7 +1059,7 @@ void WholeBodyState::setContactAcceleration_B(const std::string& name,
 }
 
 
-void WholeBodyState::setContactAcceleration_B(const rbd::BodyVectorXd& acc_B)
+void WholeBodyState::setContactAcceleration_B(const Eigen::VectorXdMap& acc_B)
 {
 	contact_acc = acc_B;
 }
@@ -1079,7 +1117,7 @@ void WholeBodyState::setContactAcceleration_H(const std::string& name,
 }
 
 
-void WholeBodyState::setContactAcceleration_H(const rbd::BodyVectorXd& acc_H)
+void WholeBodyState::setContactAcceleration_H(const Eigen::VectorXdMap& acc_H)
 {
 	for (ContactIterator acc_it = acc_H.begin();
 			acc_it != acc_H.end(); acc_it++) {
@@ -1088,14 +1126,14 @@ void WholeBodyState::setContactAcceleration_H(const rbd::BodyVectorXd& acc_H)
 }
 
 
-void WholeBodyState::setContactWrench_B(const rbd::BodyVector6d& eff)
+void WholeBodyState::setContactWrench_B(const Eigen::Vector6dMap& eff)
 {
 	contact_eff = eff;
 }
 
 
 void WholeBodyState::setContactWrench_B(const std::string& name,
-									    const rbd::Vector6d& eff)
+									    const Eigen::Vector6d& eff)
 {
 	contact_eff[name] = eff;
 }

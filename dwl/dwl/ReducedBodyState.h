@@ -12,7 +12,7 @@
 namespace dwl
 {
 
-typedef rbd::BodyVector3d::const_iterator FootIterator;
+typedef Eigen::Vector3dMap::const_iterator FootIterator;
 
 /**
  * @brief The ReducedBodyState class
@@ -186,7 +186,7 @@ class ReducedBodyState
 		/** @brief Gets all foot positions expressed the world frame
 		 * @return All foot positions expressed in the world frame
 		 */
-		rbd::BodyVector3d getFootPosition_W() const;
+		Eigen::Vector3dMap getFootPosition_W() const;
 
 		/** @brief Gets the foot position expressed the CoM frame
 		 * @param[in] pos_it The foot position iterator
@@ -203,7 +203,7 @@ class ReducedBodyState
 		/** @brief Gets all foot positions expressed the world frame
 		 * @return All foot positions expressed in the world frame
 		 */
-		const rbd::BodyVector3d& getFootPosition_B() const;
+		const Eigen::Vector3dMap& getFootPosition_B() const;
 
 		/** @brief Gets the foot position expressed the horizontal frame
 		 * @param[in] pos_it The foot position iterator
@@ -220,7 +220,7 @@ class ReducedBodyState
 		/** @brief Gets all foot positions expressed the horizontal frame
 		 * @return All foot positions expressed in the horizontal frame
 		 */
-		rbd::BodyVector3d getFootPosition_H() const;
+		Eigen::Vector3dMap getFootPosition_H() const;
 
 		/** @brief Gets the foot velocity expressed the world frame
 		 * @param[in] vel_it The foot velocity iterator
@@ -237,7 +237,7 @@ class ReducedBodyState
 		/** @brief Gets all foot velocities expressed the world frame
 		 * @return All foot velocities expressed in the world frame
 		 */
-		rbd::BodyVector3d getFootVelocity_W() const;
+		Eigen::Vector3dMap getFootVelocity_W() const;
 
 		/** @brief Gets the foot velocity expressed the base frame
 		 * @param[in] vel_it The foot velocity iterator
@@ -254,7 +254,7 @@ class ReducedBodyState
 		/** @brief Gets all foot velocities expressed the base frame
 		 * @return All foot velocities expressed in the base frame
 		 */
-		const rbd::BodyVector3d& getFootVelocity_B() const;
+		const Eigen::Vector3dMap& getFootVelocity_B() const;
 
 		/** @brief Gets the foot velocity expressed the horizontal frame
 		 * @param[in] vel_it The foot velocity iterator
@@ -271,7 +271,7 @@ class ReducedBodyState
 		/** @brief Gets all foot velocities expressed the horizontal frame
 		 * @return All foot velocities expressed in the horizontal frame
 		 */
-		rbd::BodyVector3d getFootVelocity_H() const;
+		Eigen::Vector3dMap getFootVelocity_H() const;
 
 		/** @brief Gets the foot acceleration expressed the world frame
 		 * @param[in] acc_it The foot acceleration iterator
@@ -288,7 +288,7 @@ class ReducedBodyState
 		/** @brief Gets all foot accelerations expressed the world frame
 		 * @return All foot accelerations expressed in the world frame
 		 */
-		rbd::BodyVector3d getFootAcceleration_W() const;
+		Eigen::Vector3dMap getFootAcceleration_W() const;
 
 		/** @brief Gets the foot acceleration expressed the base frame
 		 * @param[in] acc_it The foot acceleration iterator
@@ -305,7 +305,7 @@ class ReducedBodyState
 		/** @brief Gets all foot accelerations expressed the base frame
 		 * @return All foot accelerations expressed in the base frame
 		 */
-		const rbd::BodyVector3d& getFootAcceleration_B() const;
+		const Eigen::Vector3dMap& getFootAcceleration_B() const;
 
 		/** @brief Gets the foot acceleration expressed the horizontal frame
 		 * @param[in] acc_it The foot acceleration iterator
@@ -322,7 +322,7 @@ class ReducedBodyState
 		/** @brief Gets all foot accelerations expressed the horizontal frame
 		 * @return All foot accelerations expressed in the horizontal frame
 		 */
-		rbd::BodyVector3d getFootAcceleration_H() const;
+		Eigen::Vector3dMap getFootAcceleration_H() const;
 
 
 		// Time setter function
@@ -441,7 +441,7 @@ class ReducedBodyState
 		/** @brief Sets all foot positions expressed in the world frame
 		 * @param[in] pos_W All foot positions iterator
 		 */
-		void setFootPosition_W(const rbd::BodyVector3d& pos_W);
+		void setFootPosition_W(const Eigen::Vector3dMap& pos_W);
 
 		/** @brief Sets the foot position expressed in the CoM frame
 		 * @param[in] pos_it Foot position iterator
@@ -458,7 +458,7 @@ class ReducedBodyState
 		/** @brief Sets all foot positions expressed in the CoM frame
 		 * @param[in] pos_B All foot positions iterator
 		 */
-		void setFootPosition_B(const rbd::BodyVector3d& pos_B);
+		void setFootPosition_B(const Eigen::Vector3dMap& pos_B);
 
 		/** @brief Sets the foot position expressed in the horizontal frame
 		 * @param[in] pos_it Foot position iterator
@@ -475,7 +475,7 @@ class ReducedBodyState
 		/** @brief Sets all foot positions expressed in the horizontal frame
 		 * @param[in] pos_H All foot positions iterator
 		 */
-		void setFootPosition_H(const rbd::BodyVector3d& pos_H);
+		void setFootPosition_H(const Eigen::Vector3dMap& pos_H);
 
 		/** @brief Sets the foot velocity expressed in the world frame
 		 * @param[in] vel_it Foot velocity iterator
@@ -492,7 +492,7 @@ class ReducedBodyState
 		/** @brief Sets all foot velocities expressed in the world frame
 		 * @param[in] vel_W All foot velocities iterator
 		 */
-		void setFootVelocity_W(const rbd::BodyVector3d& vel_W);
+		void setFootVelocity_W(const Eigen::Vector3dMap& vel_W);
 
 		/** @brief Sets the foot velocity expressed in the base frame
 		 * @param[in] vel_it Foot velocity iterator
@@ -509,7 +509,7 @@ class ReducedBodyState
 		/** @brief Sets all foot velocities expressed in the base frame
 		 * @param[in] vel_B All foot velocities iterator
 		 */
-		void setFootVelocity_B(const rbd::BodyVector3d& vel_B);
+		void setFootVelocity_B(const Eigen::Vector3dMap& vel_B);
 
 		/** @brief Sets the foot velocity expressed in the horizontal frame
 		 * @param[in] vel_it Foot velocity iterator
@@ -526,7 +526,7 @@ class ReducedBodyState
 		/** @brief Sets all foot velocities expressed in the horizontal frame
 		 * @param[in] vel_H All foot velocities iterator
 		 */
-		void setFootVelocity_H(const rbd::BodyVector3d& vel_H);
+		void setFootVelocity_H(const Eigen::Vector3dMap& vel_H);
 
 		/** @brief Sets the foot acceleration expressed in the world frame
 		 * @param[in] acc_it Foot acceleration iterator
@@ -543,7 +543,7 @@ class ReducedBodyState
 		/** @brief Sets all foot accelerations expressed in the world frame
 		 * @param[in] acc_W All foot accelerations iterator
 		 */
-		void setFootAcceleration_W(const rbd::BodyVector3d& acc_W);
+		void setFootAcceleration_W(const Eigen::Vector3dMap& acc_W);
 
 		/** @brief Sets the foot acceleration expressed in the base frame
 		 * @param[in] acc_it Foot acceleration iterator
@@ -560,7 +560,7 @@ class ReducedBodyState
 		/** @brief Sets all foot accelerations expressed in the base frame
 		 * @param[in] acc_B All foot accelerations iterator
 		 */
-		void setFootAcceleration_B(const rbd::BodyVector3d& acc_B);
+		void setFootAcceleration_B(const Eigen::Vector3dMap& acc_B);
 
 		/** @brief Sets the foot acceleration expressed in the horizontal frame
 		 * @param[in] acc_it Foot acceleration iterator
@@ -577,7 +577,7 @@ class ReducedBodyState
 		/** @brief Sets all foot accelerations expressed in the horizontal frame
 		 * @param[in] acc_H All foot accelerations iterator
 		 */
-		void setFootAcceleration_H(const rbd::BodyVector3d& acc_H);
+		void setFootAcceleration_H(const Eigen::Vector3dMap& acc_H);
 
 
 		double time;
@@ -588,10 +588,10 @@ class ReducedBodyState
 		Eigen::Vector3d com_acc;
 		Eigen::Vector3d angular_acc;
 		Eigen::Vector3d cop;
-		rbd::BodyVector3d support_region;
-		rbd::BodyVector3d foot_pos;
-		rbd::BodyVector3d foot_vel;
-		rbd::BodyVector3d foot_acc;
+		Eigen::Vector3dMap support_region;
+		Eigen::Vector3dMap foot_pos;
+		Eigen::Vector3dMap foot_vel;
+		Eigen::Vector3dMap foot_acc;
 
 
 	private:

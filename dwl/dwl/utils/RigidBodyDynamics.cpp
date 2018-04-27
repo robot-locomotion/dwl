@@ -18,22 +18,45 @@ std::string coord3dToName(enum Coords3d coord)
 
 std::string coord6dToName(enum Coords6d coord)
 {
-	const char* Coord6dNames[6] = {"AX", "AY", "AZ", "LX", "LY", "LZ"};
+	const char* Coord6dNames[6] = {"AX_V", "AY_V", "AZ_V",
+								   "LX_V", "LY_V", "LZ_V"};
 
 	std::string coord_name(Coord6dNames[coord]);
 	return coord_name;
 }
 
 
-Eigen::Vector3d angularPart(Vector6d& vector)
+std::string coord7dToName(enum Coords7d coord)
 {
-	return vector.topRows<3>();
+	const char* Coord7dNames[7] = {"AX_Q", "AY_Q", "AZ_Q", "AW_Q",
+								   "LX_Q", "LY_Q", "LZ_Q"};
+
+	std::string coord_name(Coord7dNames[coord]);
+	return coord_name;
 }
 
 
-Eigen::Vector3d linearPart(Vector6d& vector)
+Eigen::Vector3d angularPart(Eigen::Vector6d& vector)
 {
-	return vector.bottomRows<3>();
+	return vector.topRows<LX_V>();
+}
+
+
+Eigen::Vector4d angularPart(Eigen::Vector7d& vector)
+{
+	return vector.topRows<LX_Q>();
+}
+
+
+Eigen::Vector3d linearPart(Eigen::Vector6d& vector)
+{
+	return vector.bottomRows<LX_V>();
+}
+
+
+Eigen::Vector3d linearPart(Eigen::Vector7d& vector)
+{
+	return vector.bottomRows<AW_Q>();
 }
 
 

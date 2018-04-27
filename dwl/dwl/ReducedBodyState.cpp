@@ -168,9 +168,9 @@ Eigen::Vector3d ReducedBodyState::getFootPosition_W(const std::string& name) con
 }
 
 
-rbd::BodyVector3d ReducedBodyState::getFootPosition_W() const
+Eigen::Vector3dMap ReducedBodyState::getFootPosition_W() const
 {
-	rbd::BodyVector3d foot_pos_W;
+	Eigen::Vector3dMap foot_pos_W;
 	for (FootIterator foot_it = getFootPosition_B().begin();
 			foot_it != getFootPosition_B().end(); foot_it++) {
 		std::string name = foot_it->first;
@@ -194,7 +194,7 @@ const Eigen::Vector3d& ReducedBodyState::getFootPosition_B(const std::string& na
 }
 
 
-const rbd::BodyVector3d& ReducedBodyState::getFootPosition_B() const
+const Eigen::Vector3dMap& ReducedBodyState::getFootPosition_B() const
 {
 	return foot_pos;
 }
@@ -214,9 +214,9 @@ Eigen::Vector3d ReducedBodyState::getFootPosition_H(const std::string& name) con
 }
 
 
-rbd::BodyVector3d ReducedBodyState::getFootPosition_H() const
+Eigen::Vector3dMap ReducedBodyState::getFootPosition_H() const
 {
-	rbd::BodyVector3d foot_pos_H;
+	Eigen::Vector3dMap foot_pos_H;
 	for (FootIterator foot_it = getFootPosition_B().begin();
 			foot_it != getFootPosition_B().end(); foot_it++) {
 		std::string name = foot_it->first;
@@ -247,9 +247,9 @@ Eigen::Vector3d ReducedBodyState::getFootVelocity_W(const std::string& name) con
 }
 
 
-rbd::BodyVector3d ReducedBodyState::getFootVelocity_W() const
+Eigen::Vector3dMap ReducedBodyState::getFootVelocity_W() const
 {
-	rbd::BodyVector3d foot_vel_W;
+	Eigen::Vector3dMap foot_vel_W;
 	for (FootIterator foot_it = getFootVelocity_B().begin();
 			foot_it != getFootVelocity_B().end(); foot_it++) {
 		std::string name = foot_it->first;
@@ -273,7 +273,7 @@ const Eigen::Vector3d& ReducedBodyState::getFootVelocity_B(const std::string& na
 }
 
 
-const rbd::BodyVector3d& ReducedBodyState::getFootVelocity_B() const
+const Eigen::Vector3dMap& ReducedBodyState::getFootVelocity_B() const
 {
 	return foot_vel;
 }
@@ -308,9 +308,9 @@ Eigen::Vector3d ReducedBodyState::getFootVelocity_H(const std::string& name) con
 }
 
 
-rbd::BodyVector3d ReducedBodyState::getFootVelocity_H() const
+Eigen::Vector3dMap ReducedBodyState::getFootVelocity_H() const
 {
-	rbd::BodyVector3d foot_vel_H;
+	Eigen::Vector3dMap foot_vel_H;
 	for (FootIterator foot_it = getFootVelocity_B().begin();
 			foot_it != getFootVelocity_B().end(); foot_it++) {
 		std::string name = foot_it->first;
@@ -349,9 +349,9 @@ Eigen::Vector3d ReducedBodyState::getFootAcceleration_W(const std::string& name)
 }
 
 
-rbd::BodyVector3d ReducedBodyState::getFootAcceleration_W() const
+Eigen::Vector3dMap ReducedBodyState::getFootAcceleration_W() const
 {
-	rbd::BodyVector3d foot_acc_W;
+	Eigen::Vector3dMap foot_acc_W;
 	for (FootIterator foot_it = getFootAcceleration_B().begin();
 			foot_it != getFootAcceleration_B().end(); foot_it++) {
 		std::string name = foot_it->first;
@@ -375,7 +375,7 @@ const Eigen::Vector3d& ReducedBodyState::getFootAcceleration_B(const std::string
 }
 
 
-const rbd::BodyVector3d& ReducedBodyState::getFootAcceleration_B() const
+const Eigen::Vector3dMap& ReducedBodyState::getFootAcceleration_B() const
 {
 	return foot_acc;
 }
@@ -428,9 +428,9 @@ Eigen::Vector3d ReducedBodyState::getFootAcceleration_H(const std::string& name)
 }
 
 
-rbd::BodyVector3d ReducedBodyState::getFootAcceleration_H() const
+Eigen::Vector3dMap ReducedBodyState::getFootAcceleration_H() const
 {
-	rbd::BodyVector3d foot_acc_H;
+	Eigen::Vector3dMap foot_acc_H;
 	for (FootIterator foot_it = getFootAcceleration_B().begin();
 			foot_it != getFootAcceleration_B().end(); foot_it++) {
 		std::string name = foot_it->first;
@@ -574,7 +574,7 @@ void ReducedBodyState::setFootPosition_W(const std::string& name,
 }
 
 
-void ReducedBodyState::setFootPosition_W(const rbd::BodyVector3d& pos_W)
+void ReducedBodyState::setFootPosition_W(const Eigen::Vector3dMap& pos_W)
 {
 	for (FootIterator foot_it = pos_W.begin();
 			foot_it != pos_W.end(); foot_it++)
@@ -595,7 +595,7 @@ void ReducedBodyState::setFootPosition_B(const std::string& name,
 }
 
 
-void ReducedBodyState::setFootPosition_B(const rbd::BodyVector3d& pos_B)
+void ReducedBodyState::setFootPosition_B(const Eigen::Vector3dMap& pos_B)
 {
 	foot_pos = pos_B;
 }
@@ -616,7 +616,7 @@ void ReducedBodyState::setFootPosition_H(const std::string& name,
 }
 
 
-void ReducedBodyState::setFootPosition_H(const rbd::BodyVector3d& pos_H)
+void ReducedBodyState::setFootPosition_H(const Eigen::Vector3dMap& pos_H)
 {
 	for (FootIterator foot_it = pos_H.begin();
 			foot_it != pos_H.end(); foot_it++)
@@ -646,7 +646,7 @@ void ReducedBodyState::setFootVelocity_W(const std::string& name,
 }
 
 
-void ReducedBodyState::setFootVelocity_W(const rbd::BodyVector3d& vel_W)
+void ReducedBodyState::setFootVelocity_W(const Eigen::Vector3dMap& vel_W)
 {
 	for (FootIterator foot_it = vel_W.begin();
 			foot_it != vel_W.end(); foot_it++)
@@ -667,7 +667,7 @@ void ReducedBodyState::setFootVelocity_B(const std::string& name,
 }
 
 
-void ReducedBodyState::setFootVelocity_B(const rbd::BodyVector3d& vel_B)
+void ReducedBodyState::setFootVelocity_B(const Eigen::Vector3dMap& vel_B)
 {
 	foot_vel = vel_B;
 }
@@ -704,7 +704,7 @@ void ReducedBodyState::setFootVelocity_H(const std::string& name,
 }
 
 
-void ReducedBodyState::setFootVelocity_H(const rbd::BodyVector3d& vel_H)
+void ReducedBodyState::setFootVelocity_H(const Eigen::Vector3dMap& vel_H)
 {
 	for (FootIterator foot_it = vel_H.begin();
 			foot_it != vel_H.end(); foot_it++)
@@ -743,7 +743,7 @@ void ReducedBodyState::setFootAcceleration_W(const std::string& name,
 }
 
 
-void ReducedBodyState::setFootAcceleration_W(const rbd::BodyVector3d& acc_W)
+void ReducedBodyState::setFootAcceleration_W(const Eigen::Vector3dMap& acc_W)
 {
 	for (FootIterator acc_it = acc_W.begin();
 			acc_it != acc_W.end(); acc_it++) {
@@ -765,7 +765,7 @@ void ReducedBodyState::setFootAcceleration_B(const std::string& name,
 }
 
 
-void ReducedBodyState::setFootAcceleration_B(const rbd::BodyVector3d& acc_B)
+void ReducedBodyState::setFootAcceleration_B(const Eigen::Vector3dMap& acc_B)
 {
 	foot_acc = acc_B;
 }
@@ -823,7 +823,7 @@ void ReducedBodyState::setFootAcceleration_H(const std::string& name,
 }
 
 
-void ReducedBodyState::setFootAcceleration_H(const rbd::BodyVector3d& acc_H)
+void ReducedBodyState::setFootAcceleration_H(const Eigen::Vector3dMap& acc_H)
 {
 	for (FootIterator acc_it = acc_H.begin();
 			acc_it != acc_H.end(); acc_it++) {

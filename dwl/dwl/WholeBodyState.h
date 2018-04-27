@@ -1,16 +1,16 @@
 #ifndef DWL__WHOLE_BODY_STATE__H
 #define DWL__WHOLE_BODY_STATE__H
 
-#include <Eigen/Dense>
 #include <map>
 #include <vector>
 
 #include <dwl/utils/FrameTF.h>
+#include <dwl/utils/EigenExtra.h>
 #include <dwl/utils/RigidBodyDynamics.h>
 
 
-#define NO_WRENCH dwl::rbd::Vector6d::Zero()
-#define MAX_WRENCH 2e19 * dwl::rbd::Vector6d::Ones()
+#define NO_WRENCH Eigen::Vector6d::Zero()
+#define MAX_WRENCH 2e19 * Eigen::Vector6d::Ones()
 #define INACTIVE_CONTACT NO_WRENCH
 #define ACTIVE_CONTACT MAX_WRENCH
 
@@ -50,7 +50,7 @@ namespace dwl
  * getter and setter routines. Note that the states are:
  * <ul>
  *   <li>time in seconds</li>
- * 	 <li>base_pos [roll, pitch, yaw, x, y, z] expressed in the world frame </li>
+ * 	 <li>base_pos [qx, qy, qz, qw, x, y, z] expressed in the world frame </li>
  * 	 <li>base_vel [rate_x, rate_y, rate_z, x, y, z] expressed in the world frame </li>
  * 	 <li>base_acc [rotacc_x, rotacc_y, rotacc_y, x, y, z] expressed in the world frame </li>
  * 	 <li>joint_pos [q_0, ..., q_N]</li>
@@ -72,7 +72,7 @@ namespace dwl
 class WholeBodyState
 {
 	public:
-		typedef rbd::BodyVectorXd::const_iterator ContactIterator;
+		typedef Eigen::VectorXdMap::const_iterator ContactIterator;
 
 		/** @brief Constructor function */
 		WholeBodyState(unsigned int num_joints = 0);
@@ -95,7 +95,7 @@ class WholeBodyState
 		/** @brief Gets the base quaternion
 		 * @return The base quaternion
 		 */
-		Eigen::Quaterniond getBaseOrientation() const;
+		Eigen::Vector4d getBaseOrientation() const;
 
 		/** @brief Gets the base RPY angles
 		 * @return The base RPY angles
@@ -105,7 +105,7 @@ class WholeBodyState
 		/** @brief Gets the quaternion of the horizontal frame
 		 * @return The quaternion of the horizontal frame
 		 */
-		Eigen::Quaterniond getHorizontalOrientation() const;
+		Eigen::Vector4d getHorizontalOrientation() const;
 
 		/** @brief Gets the RPY angles of the horizontal frame
 		 * @return the RPY angles of the horizontal frame
@@ -250,7 +250,7 @@ class WholeBodyState
 		/** @brief Gets all contact positions expressed the world frame
 		 * @return All contact positions expressed in the world frame
 		 */
-		rbd::BodyVectorXd getContactPosition_W() const;
+		Eigen::VectorXdMap getContactPosition_W() const;
 
 		/** @brief Gets the contact position expressed the base frame
 		 * @param[in] pos_it The contact position iterator
@@ -267,7 +267,7 @@ class WholeBodyState
 		/** @brief Gets all contact positions expressed the world frame
 		 * @return All contact positions expressed in the world frame
 		 */
-		const rbd::BodyVectorXd& getContactPosition_B() const;
+		const Eigen::VectorXdMap& getContactPosition_B() const;
 
 		/** @brief Gets the contact position expressed the horizontal frame
 		 * @param[in] pos_it The contact position iterator
@@ -284,7 +284,7 @@ class WholeBodyState
 		/** @brief Gets all contact positions expressed the horizontal frame
 		 * @return All contact positions expressed in the horizontal frame
 		 */
-		rbd::BodyVectorXd getContactPosition_H() const;
+		Eigen::VectorXdMap getContactPosition_H() const;
 
 		/** @brief Gets the contact velocity expressed the world frame
 		 * @param[in] vel_it The contact velocity iterator
@@ -301,7 +301,7 @@ class WholeBodyState
 		/** @brief Gets all contact velocities expressed the world frame
 		 * @return All contact velocities expressed in the world frame
 		 */
-		rbd::BodyVectorXd getContactVelocity_W() const;
+		Eigen::VectorXdMap getContactVelocity_W() const;
 
 		/** @brief Gets the contact velocity expressed the base frame
 		 * @param[in] vel_it The contact velocity iterator
@@ -318,7 +318,7 @@ class WholeBodyState
 		/** @brief Gets all contact velocities expressed the base frame
 		 * @return All contact velocity expressed in the base frame
 		 */
-		const rbd::BodyVectorXd& getContactVelocity_B() const;
+		const Eigen::VectorXdMap& getContactVelocity_B() const;
 
 		/** @brief Gets the contact velocity expressed the horizontal frame
 		 * @param[in] vel_it The contact velocity iterator
@@ -335,7 +335,7 @@ class WholeBodyState
 		/** @brief Gets all contact velocity expressed the horizontal frame
 		 * @return All contact velocity expressed in the horizontal frame
 		 */
-		rbd::BodyVectorXd getContactVelocity_H() const;
+		Eigen::VectorXdMap getContactVelocity_H() const;
 
 		/** @brief Gets the contact acceleration expressed the world frame
 		 * @param[in] acc_it The contact acceleration iterator
@@ -352,7 +352,7 @@ class WholeBodyState
 		/** @brief Gets all contact accelerations expressed the world frame
 		 * @return All contact accelerations expressed in the world frame
 		 */
-		rbd::BodyVectorXd getContactAcceleration_W() const;
+		Eigen::VectorXdMap getContactAcceleration_W() const;
 
 		/** @brief Gets the contact acceleration expressed the base frame
 		 * @param[in] acc_it The contact acceleration iterator
@@ -369,7 +369,7 @@ class WholeBodyState
 		/** @brief Gets all contact acceleration expressed the base frame
 		 * @return All contact accelerations expressed in the base frame
 		 */
-		const rbd::BodyVectorXd& getContactAcceleration_B() const;
+		const Eigen::VectorXdMap& getContactAcceleration_B() const;
 
 		/** @brief Gets the contact acceleration expressed the horizontal frame
 		 * @param[in] acc_it The contact acceleration iterator
@@ -386,18 +386,18 @@ class WholeBodyState
 		/** @brief Gets the contact acceleration expressed the horizontal frame
 		 * @return All contact accelerations expressed in the horizontal frame
 		 */
-		rbd::BodyVectorXd getContactAcceleration_H() const;
+		Eigen::VectorXdMap getContactAcceleration_H() const;
 
 		/** @brief Gets the contact wrench expressed the base frame
 		 * @param[in] name The contact name
 		 * @return The contact wrench expressed in the base frame
 		 */
-		const rbd::Vector6d& getContactWrench_B(const std::string& name) const;		
+		const Eigen::Vector6d& getContactWrench_B(const std::string& name) const;		
 
 		/** @brief Gets all contact wrenches expressed the base frame
 		 * @return All contact wrenches expressed in the base frame
 		 */
-		const rbd::BodyVector6d& getContactWrench_B() const;
+		const Eigen::Vector6dMap& getContactWrench_B() const;
 
 		/** @brief Gets the contact condition (active or inactive)
 		 * @param[in] name The contact name
@@ -427,7 +427,7 @@ class WholeBodyState
 		/** @brief Sets the base quaternion expressed the world frame
 		 * @param[in] q The base quaternion expressed in the world frame
 		 */
-		void setBaseOrientation(const Eigen::Quaterniond& q);
+		void setBaseOrientation(const Eigen::Vector4d& q);
 
 		/** @brief Sets the base RPY angles expressed the world frame
 		 * @param[in] rpy The base RPY angles expressed in the world frame
@@ -576,7 +576,7 @@ class WholeBodyState
 		/** @brief Sets all contact positions expressed the world frame
 		 * @param[in] pos_W All contact positions
 		 */
-		void setContactPosition_W(const rbd::BodyVectorXd& pos_W);
+		void setContactPosition_W(const Eigen::VectorXdMap& pos_W);
 		
 		/** @brief Sets the contact position expressed the base frame
 		 * @param[in] pos_it The contact position iterator
@@ -593,7 +593,7 @@ class WholeBodyState
 		/** @brief Sets all contact positions expressed the base frame
 		 * @param[in] pos_B All contact positions
 		 */
-		void setContactPosition_B(const rbd::BodyVectorXd& pos_B);
+		void setContactPosition_B(const Eigen::VectorXdMap& pos_B);
 		
 		/** @brief Sets the contact position expressed the horizontal frame
 		 * @param[in] pos_it The contact position iterator
@@ -610,7 +610,7 @@ class WholeBodyState
 		/** @brief Sets the contact positions expressed the horizontal frame
 		 * @param[in] pos_H All contact positions
 		 */
-		void setContactPosition_H(const rbd::BodyVectorXd& pos_H);
+		void setContactPosition_H(const Eigen::VectorXdMap& pos_H);
 		
 		/** @brief Sets the contact velocity expressed the world frame
 		 * @param[in] vel_it The contact velocity iterator
@@ -627,7 +627,7 @@ class WholeBodyState
 		/** @brief Sets the contact velocities expressed the world frame
 		 * @param[in] vel_W All contact velocities
 		 */
-		void setContactVelocity_W(const rbd::BodyVectorXd& vel_W);
+		void setContactVelocity_W(const Eigen::VectorXdMap& vel_W);
 
 		/** @brief Sets the contact velocity expressed the base frame
 		 * @param[in] vel_it The contact velocity
@@ -644,7 +644,7 @@ class WholeBodyState
 		/** @brief Sets all contact velocities expressed the base frame
 		 * @param[in] vel_B All contact velocities
 		 */
-		void setContactVelocity_B(const rbd::BodyVectorXd& vel_B);
+		void setContactVelocity_B(const Eigen::VectorXdMap& vel_B);
 
 		/** @brief Sets the contact velocity expressed the horizontal frame
 		 * @param[in] vel_it The contact velocity
@@ -661,7 +661,7 @@ class WholeBodyState
 		/** @brief Sets all contact velocities expressed the horizontal frame
 		 * @param[in] vel_H All contact velocities
 		 */
-		void setContactVelocity_H(const rbd::BodyVectorXd& vel_H);
+		void setContactVelocity_H(const Eigen::VectorXdMap& vel_H);
 		
 		/** @brief Sets the contact acceleration expressed the world frame
 		 * @param[in] acc_W The contact acceleration
@@ -678,7 +678,7 @@ class WholeBodyState
 		/** @brief Sets all contact accelerations expressed the world frame
 		 * @param[in] acc_W All contact accelerations
 		 */
-		void setContactAcceleration_W(const rbd::BodyVectorXd& acc_W);
+		void setContactAcceleration_W(const Eigen::VectorXdMap& acc_W);
 
 		/** @brief Sets the contact acceleration expressed the base frame
 		 * @param[in] acc_it The contact acceleration iterator
@@ -695,7 +695,7 @@ class WholeBodyState
 		/** @brief Sets all contact accelerations expressed the base frame
 		 * @param[in] acc_B All contact accelerations
 		 */
-		void setContactAcceleration_B(const rbd::BodyVectorXd& acc_B);
+		void setContactAcceleration_B(const Eigen::VectorXdMap& acc_B);
 
 		/** @brief Sets the contact acceleration expressed the horizontal frame
 		 * @param[in] acc_it The contact acceleration iterator
@@ -712,19 +712,19 @@ class WholeBodyState
 		/** @brief Sets all contact accelerations expressed the horizontal frame
 		 * @param[in] acc_H All contact accelerations
 		 */
-		void setContactAcceleration_H(const rbd::BodyVectorXd& acc_H);
+		void setContactAcceleration_H(const Eigen::VectorXdMap& acc_H);
 
 		/** @brief Sets the contact wrench expressed the base frame
 		 * @param[in] name The contact name
 		 * @param[in] eff_B The contact wrench
 		 */
 		void setContactWrench_B(const std::string& name,
-							    const rbd::Vector6d& eff);
+							    const Eigen::Vector6d& eff);
 
 		/** @brief Sets all contact wrenches expressed the base frame
 		 * @param[in] eff_B All contact wrenches
 		 */
-		void setContactWrench_B(const rbd::BodyVector6d& eff_B);
+		void setContactWrench_B(const Eigen::Vector6dMap& eff_B);
 
 		/** @brief Sets the contact condition (active or inactive)
 		 * @param name The contact name
@@ -737,18 +737,18 @@ class WholeBodyState
 		 * above mentioned convention */
 		double time;
 		double duration;
-		rbd::Vector6d base_pos;
-		rbd::Vector6d base_vel;
-		rbd::Vector6d base_acc;
-		rbd::Vector6d base_eff;
+		Eigen::Vector7d base_pos;
+		Eigen::Vector6d base_vel;
+		Eigen::Vector6d base_acc;
+		Eigen::Vector6d base_eff;
 		Eigen::VectorXd joint_pos;
 		Eigen::VectorXd joint_vel;
 		Eigen::VectorXd joint_acc;
 		Eigen::VectorXd joint_eff;
-		rbd::BodyVectorXd contact_pos;
-		rbd::BodyVectorXd contact_vel;
-		rbd::BodyVectorXd contact_acc;
-		rbd::BodyVector6d contact_eff;
+		Eigen::VectorXdMap contact_pos;
+		Eigen::VectorXdMap contact_vel;
+		Eigen::VectorXdMap contact_acc;
+		Eigen::Vector6dMap contact_eff;
 
 
 	private:
@@ -763,7 +763,7 @@ class WholeBodyState
 
 		/** @brief Null vectors for missed contact states */
 		Eigen::VectorXd null_3dvector_;
-		rbd::Vector6d null_6dvector_;
+		Eigen::Vector6d null_6dvector_;
 };
 
 /** @brief Defines a whole-body trajectory */

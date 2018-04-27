@@ -14,13 +14,7 @@ namespace rbd
 
 enum Component {Linear, Angular, Full};
 
-typedef Eigen::Matrix<double,6,1> Vector6d;
-typedef Eigen::Matrix<double,6,6> Matrix6d;
-typedef std::vector<std::string> BodySelector;
 typedef std::map<std::string,unsigned int> BodyID;
-typedef std::map<std::string,Eigen::Vector3d> BodyVector3d;
-typedef std::map<std::string,Eigen::VectorXd> BodyVectorXd;
-typedef std::map<std::string,Vector6d> BodyVector6d;
 
 /**
  * @brief Vector coordinates
@@ -28,21 +22,35 @@ typedef std::map<std::string,Vector6d> BodyVector6d;
  */
 enum Coords3d {X = 0, Y, Z};
 std::string coord3dToName(enum Coords3d coord);
-enum Coords6d {AX = 0, AY, AZ, LX, LY, LZ};
+enum Coords6d {AX_V = 0, AY_V, AZ_V, LX_V, LY_V, LZ_V};
 std::string coord6dToName(enum Coords6d coord);
-
-
-/**
- * @brief The 3-coordinate vector with the angular components (angular velocity or torque) of the
- * given spatial vector
- */
-Eigen::Vector3d angularPart(Vector6d& vector);
+enum Coords7d {AX_Q = 0, AY_Q, AZ_Q, AW_Q, LX_Q, LY_Q, LZ_Q};
+std::string coord7dToName(enum Coords7d coord);
 
 /**
- * @brief The 3-coordinate vector with the linear components (linear
- * velocity or force) of the given spatial vector.
+ * @brief The 3-coordinate vector with the angular components of a
+ * given configuration vector of SE(3)
  */
-Eigen::Vector3d linearPart(Vector6d& vector);
+Eigen::Vector3d angularPart(Eigen::Vector6d& vector);
+
+/**
+ * @brief The 4-coordinate vector with the angular components of a
+ * given tangent vector of SE(3)
+ */
+Eigen::Vector4d angularPart(Eigen::Vector7d& vector);
+
+/**
+ * @brief The 3-coordinate vector with the linear components of a
+ * given configuration vector of SE(3).
+ */
+Eigen::Vector3d linearPart(Eigen::Vector6d& vector);
+
+/**
+ * @brief The 3-coordinate vector with the linear components of a
+ * given configuration vector of SE(3).
+ */
+Eigen::Vector3d linearPart(Eigen::Vector7d& vector);
+
 
 /** @brief The translation vector of a homogeneous transform */
 Eigen::Vector3d translationVector(Eigen::Matrix4d& hom_transform);
