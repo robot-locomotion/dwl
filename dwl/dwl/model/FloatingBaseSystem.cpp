@@ -7,12 +7,10 @@ namespace dwl
 namespace model
 {
 
-FloatingBaseSystem::FloatingBaseSystem(bool full, unsigned int _num_joints) :
-		num_system_joints_(0), num_floating_joints_(6 * full),
-		num_joints_(_num_joints), floating_ax_(full), floating_ay_(full),
-		floating_az_(full), floating_lx_(full), floating_ly_(full),
-		floating_lz_(full), type_of_system_(FixedBase), num_end_effectors_(0),
-		num_feet_(0), grav_acc_(0.)
+FloatingBaseSystem::FloatingBaseSystem():
+		data_ptr_(NULL), root_joint_(FREE_FLYER),
+		n_base_joints_(0), n_joints_(0),
+		num_end_effectors_(0), num_feet_(0), grav_acc_(0.)
 {
 
 }
@@ -34,96 +32,92 @@ void FloatingBaseSystem::resetFromURDFFile(const std::string& urdf_file,
 void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 											const std::string& system_file)
 {
-	// Getting the RBDL model from URDF model
-	RigidBodyDynamics::Model rbd;
-	RigidBodyDynamics::Addons::URDFReadFromString(urdf_model.c_str(), &rbd, false);
-	rbd_model_ = rbd;
+	// Yaml reader
+	YamlWrapper yaml_reader(system_file);
+
+	// Parsing the configuration file
+	YamlNamespace robot_ns = {"robot"};
+
+	// Reading the root joint
+	int root;
+	if (!yaml_reader.read(root, "root_joint", robot_ns)) {
+		printf("Error: the root joint was not found\n");
+		return;
+	}
+	root_joint_ = (RootJoint) root;
+
+	// Getting the Pinocchio model from URDF
 	urdf_ = urdf_model;
 	yarf_ = system_file;
 
-	// Getting information about the floating-base joints
-	urdf_model::JointID floating_joint_names;
-	urdf_model::getJointNames(floating_joint_names, urdf_model, urdf_model::floating);
-	num_floating_joints_ = floating_joint_names.size();
-
-	urdf_model::JointID floating_joint_motions;
-	if (num_floating_joints_ > 0) {
-		urdf_model::getFloatingBaseJointMotion(floating_joint_motions, urdf_model);
-		for (urdf_model::JointID::iterator jnt_it = floating_joint_motions.begin();
-				jnt_it != floating_joint_motions.end(); jnt_it++) {
-			std::string joint_name = jnt_it->first;
-			unsigned int joint_motion = jnt_it->second;
-			unsigned int joint_id = floating_joint_names.find(joint_name)->second;
-
-			// Setting the floating-base joint names
-			floating_joint_names_.push_back(joint_name);
-
-			// Setting the floating joint information
-			FloatingBaseJoint joint(true, joint_id, joint_name);
-			if (joint_motion == 6) {
-				setFloatingBaseJoint(joint);
-			} else {
-				rbd::Coords6d joint_motion_coord = rbd::Coords6d(joint_motion);
-				setFloatingBaseJoint(joint, joint_motion_coord);
-			}
-		}
+	// Defining the root joint
+	bool floating = false;
+	if (root_joint_ == FREE_FLYER) {
+		se3::urdf::buildModelFromXML(urdf_, se3::JointModelFreeFlyer(), model_);
+		floating = true;
+	} else if (root_joint_ == PLANAR) {
+		se3::urdf::buildModelFromXML(urdf_, se3::JointModelPlanar(), model_);
+		floating = true;
+	} else if (root_joint_ == NO)
+		se3::urdf::buildModelFromXML(urdf_, model_);
+	else {
+		se3::urdf::buildModelFromXML(urdf_, se3::JointModelFreeFlyer(), model_);
+		floating = true;
+	}
+	data_ptr_ = new se3::Data(model_);
+		
+	// Getting the number of joints
+	if (floating) {
+		floating_joint_name_ = model_.names[1];
+		n_base_joints_ = 1;
+		n_joints_ = model_.njoints - 2;
+	} else {
+		n_base_joints_ = 0;
+		n_joints_ = model_.njoints - 1;	
 	}
 
-	// Getting the floating-base body name
-	unsigned int base_id = 0;
-	if (isFullyFloatingBase())
-		base_id = 6;
-	else
-		base_id = getFloatingBaseDoF();
-	floating_body_name_ = rbd_model_.GetBodyName(base_id);
+	// Resetting the dimension of the configuration and tangent vectors
+	q_ = Eigen::VectorXd::Zero(model_.nq);
+	v_ = Eigen::VectorXd::Zero(model_.nv);
 
-	// Getting the information about the actuated joints
-	urdf_model::JointID free_joint_names;
-	urdf_model::getJointNames(free_joint_names, urdf_model, urdf_model::free);
-	urdf_model::getJointLimits(joint_limits_, urdf_model);
-	unsigned int num_free_joints = free_joint_names.size();
-	num_joints_ = num_free_joints - num_floating_joints_;
-	for (urdf_model::JointID::iterator jnt_it = free_joint_names.begin();
-			jnt_it != free_joint_names.end(); jnt_it++) {
-		std::string joint_name = jnt_it->first;
-		unsigned int joint_id = jnt_it->second - num_floating_joints_;
 
-		// Checking if it's a virtual floating-base joint
-		if (num_floating_joints_ > 0) {
-			if (floating_joint_names.find(joint_name) == floating_joint_names.end()) {
-				// Setting the actuated joint information
-				Joint joint(joint_id, joint_name);
-				setJoint(joint);
-			}
-		} else if (num_floating_joints_ == 0) {
-			// Setting the actuated joint information
-			Joint joint(joint_id, joint_name);
-			setJoint(joint);
+	for (int f = 1; f < model_.nframes; ++f) {
+		se3::Frame frame = model_.frames[f];
+		unsigned int fparent = (unsigned int) frame.parent;
+
+		// Getting the joint id and name		
+		if (frame.type == se3::FrameType::JOINT &&
+				frame.name != "root_joint") {
+			if (floating)
+				joints_[frame.name] = fparent - 2;
+			else
+				joints_[frame.name] = fparent - 1;
+		}
+
+		// Getting the information of the body names and ids
+		if (frame.type == se3::FrameType::BODY) {
+			bodies_[frame.name] = fparent;
+			if (floating && fparent == 1)
+				floating_body_name_ = frame.name;
 		}
 	}
 
 	// Getting the joint name list
-	dwl::urdf_model::JointID joints = getJoints();
-	for (dwl::urdf_model::JointID::const_iterator joint_it = joints.begin();
-			joint_it != joints.end(); joint_it++) {
-		std::string joint_name = joint_it->first;
-		joint_names_.push_back(joint_name);
+	for (ElementId::const_iterator it = joints_.begin();
+			it != joints_.end(); ++it) {
+		std::string name = it->first;
+		joint_names_.push_back(name);
 	}
 
-	// Getting the floating-base system information
-	num_system_joints_ = num_floating_joints_ + num_joints_;
-	if (isFullyFloatingBase()) {
-		num_system_joints_ = 6 + num_joints_;
-		if (hasFloatingBaseConstraints())
-			type_of_system_ = ConstrainedFloatingBase;
-		else
-			type_of_system_ = FloatingBase;
-	} else if (num_floating_joints_ > 0)
-		type_of_system_ = VirtualFloatingBase;
-	else
-		type_of_system_ = FixedBase;
+	// Getting the body name list
+	for (ElementId::const_iterator it = bodies_.begin();
+			it != bodies_.end(); ++it) {
+		std::string name = it->first;
+		body_names_.push_back(name);
+	}
 
-	// Getting the end-effectors information
+
+	// // Getting the end-effectors information
 	urdf_model::getEndEffectors(end_effectors_, urdf_model);
 
 	// Getting the end-effector name list
@@ -134,9 +128,15 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 	}
 
 	// Resetting the system description
-	default_joint_pos_ = Eigen::VectorXd::Zero(num_joints_);
+	default_joint_pos_ = Eigen::VectorXd::Zero(n_joints_);
 	if (!system_file.empty())
 		resetSystemDescription(system_file);
+	
+	// Setting up the default posture in the pinocchio model
+	Eigen::VectorXd def_posture = toConfigurationState(Eigen::Vector7d::Zero(),
+													   default_joint_pos_);
+	model_.neutralConfiguration = def_posture;
+
 
 	// Defining the number of end-effectors
 	num_end_effectors_ = end_effectors_.size();
@@ -149,21 +149,9 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 		feet_ = end_effectors_;
 	}
 
-	// Resizing the state vectors
-	if (getTypeOfDynamicSystem() == FloatingBase ||
-			getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
-		full_state_.resize(6 + getJointDoF());
-	} else if (getTypeOfDynamicSystem() == VirtualFloatingBase) {
-		unsigned int base_dof = getFloatingBaseDoF();
-		full_state_.resize(base_dof + getJointDoF());
-	} else {
-		full_state_.resize(getJointDoF());
-	}
-	joint_state_.resize(getJointDoF());
-
 	// Getting gravity information
-	grav_acc_ = rbd_model_.gravity.norm();
-	grav_dir_ = rbd_model_.gravity / grav_acc_;
+	grav_acc_ = model_.gravity.linear().norm();
+	grav_dir_ = model_.gravity.linear() / grav_acc_;
 }
 
 
@@ -180,10 +168,10 @@ void FloatingBaseSystem::resetSystemDescription(const std::string& filename)
 	// Reading and setting up the foot names
 	if (yaml_reader.read(foot_names_, "feet", robot_ns)) {
 		// Ordering the foot names
-		using namespace std::placeholders;
 		std::sort(foot_names_.begin(),
 				  foot_names_.end(),
-				  std::bind(&FloatingBaseSystem::compareString, this, _1, _2)); 
+				  std::bind(&FloatingBaseSystem::compareString,
+				  			this, std::placeholders::_1, std::placeholders::_2)); 
 
 		// Getting the number of foot
 		num_feet_ = foot_names_.size();
@@ -200,7 +188,8 @@ void FloatingBaseSystem::resetSystemDescription(const std::string& filename)
 	}
 
 	// Reading the default posture of the robot
-	for (unsigned int j = 0; j < num_joints_; j++) {
+	default_joint_pos_ = Eigen::VectorXd::Zero(n_joints_);
+	for (unsigned int j = 0; j < n_joints_; j++) {
 		std::string name = joint_names_[j];
 
 		double joint_pos = 0.;
@@ -208,88 +197,6 @@ void FloatingBaseSystem::resetSystemDescription(const std::string& filename)
 			default_joint_pos_(j) = joint_pos;
 		}
 	}
-}
-
-
-void FloatingBaseSystem::setFloatingBaseJoint(const FloatingBaseJoint& joint)
-{
-	FloatingBaseJoint new_joint = joint;
-	new_joint.id = rbd::AX;
-	floating_ax_ = new_joint;
-
-	new_joint.id = rbd::AY;
-	floating_ay_ = new_joint;
-
-	new_joint.id = rbd::AZ;
-	floating_az_ = new_joint;
-
-	new_joint.id = rbd::LX;
-	floating_lx_ = new_joint;
-
-	new_joint.id = rbd::LY;
-	floating_ly_ = new_joint;
-
-	new_joint.id = rbd::LZ;
-	floating_lz_ = new_joint;
-}
-
-
-void FloatingBaseSystem::setFloatingBaseJoint(const FloatingBaseJoint& joint,
-											  rbd::Coords6d joint_coord)
-{
-	if (joint_coord == rbd::AX)
-		floating_ax_ = joint;
-	else if (joint_coord == rbd::AY)
-		floating_ay_ = joint;
-	else if (joint_coord == rbd::AZ)
-		floating_az_ = joint;
-	else if (joint_coord == rbd::LX)
-		floating_lx_ = joint;
-	else if (joint_coord == rbd::LY)
-		floating_ly_ = joint;
-	else
-		floating_lz_ = joint;
-}
-
-
-void FloatingBaseSystem::setJoint(const Joint& joint)
-{
-	joints_[joint.name] = joint.id;
-}
-
-
-void FloatingBaseSystem::setFloatingBaseConstraint(rbd::Coords6d joint_id)
-{
-	if (joint_id == rbd::AX)
-		floating_ax_.constrained = true;
-	else if (joint_id == rbd::AY)
-		floating_ay_.constrained = true;
-	else if (joint_id == rbd::AZ)
-		floating_az_.constrained = true;
-	else if (joint_id == rbd::LX)
-		floating_lx_.constrained = true;
-	else if (joint_id == rbd::LY)
-		floating_ly_.constrained = true;
-	else
-		floating_lz_.constrained = true;
-}
-
-
-void FloatingBaseSystem::setTypeOfDynamicSystem(enum TypeOfSystem type_of_system)
-{
-	type_of_system_ = type_of_system;
-}
-
-
-void FloatingBaseSystem::setSystemDoF(unsigned int num_dof)
-{
-	num_system_joints_ = num_dof;
-}
-
-
-void FloatingBaseSystem::setJointDoF(unsigned int num_joints)
-{
-	num_joints_ = num_joints;
 }
 
 
@@ -305,148 +212,27 @@ const std::string& FloatingBaseSystem::getYARFModel() const
 }
 
 
-RigidBodyDynamics::Model& FloatingBaseSystem::getRBDModel()
+se3::Model& FloatingBaseSystem::getModel()
 {
-	return rbd_model_;
+	return model_;
 }
 
 
-double FloatingBaseSystem::getTotalMass()
+se3::Data& FloatingBaseSystem::getData()
 {
-	double mass = 0.;
-	unsigned int num_bodies = rbd_model_.mBodies.size();
-	for (unsigned int i = 0; i < num_bodies; i++)
-		mass += rbd_model_.mBodies[i].mMass;
-
-	return mass;
+	return *data_ptr_;
 }
 
 
-const double& FloatingBaseSystem::getBodyMass(const std::string& body_name) const
+unsigned int FloatingBaseSystem::getConfigurationDim()
 {
-	unsigned int body_id = rbd_model_.GetBodyId(body_name.c_str());
-	return rbd_model_.mBodies[body_id].mMass;
+	return model_.nq;
 }
 
 
-const Eigen::Vector3d& FloatingBaseSystem::getGravityVector() const
+unsigned int FloatingBaseSystem::getTangentDim()
 {
-	return rbd_model_.gravity;
-}
-
-
-const double& FloatingBaseSystem::getGravityAcceleration() const
-{
-	return grav_acc_;
-}
-
-
-const Eigen::Vector3d& FloatingBaseSystem::getGravityDirection() const
-{
-	return grav_dir_;
-}
-
-
-const Eigen::Vector3d& FloatingBaseSystem::getSystemCoM(const rbd::Vector6d& base_pos,
-														const Eigen::VectorXd& joint_pos)
-{
-	Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
-	Eigen::VectorXd qd = Eigen::VectorXd::Zero(num_system_joints_);
-
-	double mass;
-	RigidBodyDynamics::Utils::CalcCenterOfMass(rbd_model_,
-											   q, qd, mass,
-											   com_system_);
-
-	return com_system_;
-}
-
-
-const Eigen::Vector3d& FloatingBaseSystem::getSystemCoMRate(const rbd::Vector6d& base_pos,
-															const Eigen::VectorXd& joint_pos,
-															const rbd::Vector6d& base_vel,
-															const Eigen::VectorXd& joint_vel)
-{
-	Eigen::VectorXd q = toGeneralizedJointState(base_pos, joint_pos);
-	Eigen::VectorXd qd = toGeneralizedJointState(base_vel, joint_vel);
-
-	double mass;
-	RigidBodyDynamics::Utils::CalcCenterOfMass(rbd_model_,
-											   q, qd, mass,
-											   com_system_, &comd_system_);
-
-	return comd_system_;
-}
-
-
-const Eigen::Vector3d& FloatingBaseSystem::getFloatingBaseCoM() const
-{
-	unsigned int body_id = rbd_model_.GetBodyId(floating_body_name_.c_str());
-	return rbd_model_.mBodies[body_id].mCenterOfMass;
-}
-
-
-const Eigen::Vector3d& FloatingBaseSystem::getBodyCoM(const std::string& body_name) const
-{
-	unsigned int body_id = rbd_model_.GetBodyId(body_name.c_str());
-	return rbd_model_.mBodies[body_id].mCenterOfMass;
-}
-
-
-const unsigned int& FloatingBaseSystem::getSystemDoF() const
-{
-	return num_system_joints_;
-}
-
-
-const unsigned int& FloatingBaseSystem::getFloatingBaseDoF() const
-{
-	return num_floating_joints_;
-}
-
-
-const unsigned int& FloatingBaseSystem::getJointDoF() const
-{
-	return num_joints_;
-}
-
-
-const FloatingBaseJoint& FloatingBaseSystem::getFloatingBaseJoint(rbd::Coords6d joint) const
-{
-	if (joint == rbd::AX)
-		return floating_ax_;
-	else if (joint == rbd::AY)
-		return floating_ay_;
-	else if (joint == rbd::AZ)
-		return floating_az_;
-	else if (joint == rbd::LX)
-		return floating_lx_;
-	else if (joint == rbd::LY)
-		return floating_ly_;
-	else
-		return floating_lz_;
-}
-
-
-unsigned int FloatingBaseSystem::getFloatingBaseJointCoordinate(unsigned int id)
-{
-	if (floating_ax_.active && floating_ax_.id == id)
-		return rbd::AX;
-	else if (floating_ay_.active && floating_ay_.id == id)
-		return rbd::AY;
-	else if (floating_az_.active && floating_az_.id == id)
-		return rbd::AZ;
-	else if (floating_lx_.active && floating_lx_.id == id)
-		return rbd::LX;
-	else if (floating_ly_.active && floating_ly_.id == id)
-		return rbd::LY;
-	else if (floating_lz_.active && floating_lz_.id == id)
-		return rbd::LZ;
-	else {
-		printf(RED "ERROR: the %i id doesn't bellow to floating-base joint\n"
-				COLOR_RESET, id);
-		return 0;
-	}
+	return model_.nv;
 }
 
 
@@ -455,91 +241,20 @@ const std::string& FloatingBaseSystem::getFloatingBaseName() const
 	return floating_body_name_;
 }
 
-bool FloatingBaseSystem::existJoint(const std::string& joint_name) const
+
+const unsigned int& FloatingBaseSystem::getJointDoF() const
 {
-	urdf_model::JointID::const_iterator it = joints_.find(joint_name);
-	if (it == joints_.end())
-		return false;
+	return n_joints_;
+}
+
+
+const unsigned int& FloatingBaseSystem::getJointId(const std::string& name) const
+{
+	ElementId::const_iterator it = joints_.find(name);
+	if (it != joints_.end())
+		return it->second;
 	else
-		return true;
-}
-
-
-const unsigned int& FloatingBaseSystem::getJointId(const std::string& joint_name) const
-{
-	return joints_.find(joint_name)->second;
-}
-
-
-const urdf_model::JointID& FloatingBaseSystem::getJoints() const
-{
-	return joints_;
-}
-
-
-const urdf_model::JointLimits& FloatingBaseSystem::getJointLimits() const
-{
-	return joint_limits_;
-}
-
-
-const urdf::JointLimits& FloatingBaseSystem::getJointLimit(const std::string& name) const
-{
-	return joint_limits_.find(name)->second;
-}
-
-
-const double& FloatingBaseSystem::getLowerLimit(const std::string& name) const
-{
-	return getJointLimit(name).lower;
-}
-
-
-const double& FloatingBaseSystem::getLowerLimit(const urdf::JointLimits& joint) const
-{
-	return joint.lower;
-}
-
-
-const double& FloatingBaseSystem::getUpperLimit(const std::string& name) const
-{
-	return getJointLimit(name).upper;
-}
-
-
-const double& FloatingBaseSystem::getUpperLimit(const urdf::JointLimits& joint) const
-{
-	return joint.upper;
-}
-
-
-const double& FloatingBaseSystem::getVelocityLimit(const std::string& name) const
-{
-	return getJointLimit(name).velocity;
-}
-
-
-const double& FloatingBaseSystem::getVelocityLimit(const urdf::JointLimits& joint) const
-{
-	return joint.velocity;
-}
-
-
-const double& FloatingBaseSystem::getEffortLimit(const std::string& name) const
-{
-	return getJointLimit(name).effort;
-}
-
-
-const double& FloatingBaseSystem::getEffortLimit(const urdf::JointLimits& joint) const
-{
-	return joint.effort;
-}
-
-
-const rbd::BodySelector& FloatingBaseSystem::getFloatingJointNames() const
-{
-	return floating_joint_names_;
+		return UNDEFINED_ID;
 }
 
 
@@ -549,21 +264,168 @@ const std::string& FloatingBaseSystem::getJointName(const unsigned int& id) cons
 }
 
 
-const rbd::BodySelector& FloatingBaseSystem::getJointNames() const
+const ElementList& FloatingBaseSystem::getJointNames() const
 {
 	return joint_names_;
 }
 
 
-const std::string& FloatingBaseSystem::getFloatingBaseBody() const
+const ElementId& FloatingBaseSystem::getJoints() const
 {
-	return floating_body_name_;
+	return joints_;
 }
 
 
-const enum TypeOfSystem& FloatingBaseSystem::getTypeOfDynamicSystem() const
+Eigen::VectorXd FloatingBaseSystem::getLowerLimits()
 {
-	return type_of_system_;
+	return model_.lowerPositionLimit.bottomRows(n_joints_);
+}
+
+
+double FloatingBaseSystem::getLowerLimit(const std::string& name)
+{
+	return getLowerLimits()(getJointId(name));
+}
+
+
+Eigen::VectorXd FloatingBaseSystem::getUpperLimits()
+{
+	return model_.upperPositionLimit.bottomRows(n_joints_);
+}
+
+
+double FloatingBaseSystem::getUpperLimit(const std::string& name)
+{
+	return getUpperLimits()(getJointId(name));
+}
+
+
+Eigen::VectorXd FloatingBaseSystem::getVelocityLimits()
+{
+	return model_.velocityLimit.bottomRows(n_joints_);
+}
+
+
+double FloatingBaseSystem::getVelocityLimit(const std::string& name)
+{
+	return getVelocityLimits()(getJointId(name));
+}
+
+
+Eigen::VectorXd FloatingBaseSystem::getEffortLimits()
+{
+	return model_.effortLimit.bottomRows(n_joints_);
+}
+
+
+double FloatingBaseSystem::getEffortLimit(const std::string& name)
+{
+	return getEffortLimits()(getJointId(name));
+}
+
+
+const Eigen::VectorXd& FloatingBaseSystem::getDefaultPosture() const
+{
+	return default_joint_pos_;
+}
+
+
+bool FloatingBaseSystem::existJoint(const std::string& name) const
+{
+	unsigned int id = getJointId(name);
+	if (id == UNDEFINED_ID)
+		return false;
+	else
+		return true;
+}
+
+
+const unsigned int& FloatingBaseSystem::getBodyId(const std::string& name) const
+{
+	ElementId::const_iterator it = bodies_.find(name);
+	if (it != bodies_.end())
+		return it->second;
+	else
+		return UNDEFINED_ID;
+}
+
+
+const std::string& FloatingBaseSystem::getBodyName(const unsigned int& id) const
+{
+	return body_names_[id];
+}
+
+
+const ElementId& FloatingBaseSystem::getBodies() const
+{
+	return bodies_;
+}
+
+
+double FloatingBaseSystem::getTotalMass()
+{
+	double mass = 0.;
+	for (int j = 1; j < model_.nbodies; ++j)
+		mass += model_.inertias[j].mass();
+	
+	return mass;
+}
+
+
+double FloatingBaseSystem::getFloatingBaseMass()
+{
+	if (root_joint_ != NO)
+		return model_.inertias[1].mass();
+	else
+		return model_.inertias[0].mass();
+}
+
+
+double FloatingBaseSystem::getBodyMass(const std::string& name)
+{
+	unsigned int id = getBodyId(name);
+	if (id == UNDEFINED_ID)
+		return std::numeric_limits<double>::quiet_NaN();
+	else
+		return model_.inertias[id].mass();
+}
+
+
+Eigen::Vector3d FloatingBaseSystem::getFloatingBaseCoM()
+{
+	if (root_joint_ != NO)
+		return model_.inertias[1].lever();
+	else
+		return model_.inertias[0].lever();
+}
+
+
+Eigen::Vector3d FloatingBaseSystem::getBodyCoM(const std::string& name)
+{
+	unsigned int id = getBodyId(name);
+	if (id == UNDEFINED_ID)
+		return std::numeric_limits<double>::quiet_NaN() * Eigen::Vector3d::Ones();
+	else
+		return model_.inertias[id].lever();
+}
+
+
+Eigen::Matrix3d FloatingBaseSystem::getFloatingBaseInertia()
+{
+	if (root_joint_ != NO)
+		return model_.inertias[1].inertia();
+	else
+		return model_.inertias[0].inertia(); // NaN values
+}
+
+
+Eigen::Matrix3d FloatingBaseSystem::getBodyInertia(const std::string& name)
+{
+	unsigned int id = getBodyId(name);
+	if (id == UNDEFINED_ID)
+		return std::numeric_limits<double>::quiet_NaN() * Eigen::Matrix3d::Ones();
+	else
+		model_.inertias[id].inertia();
 }
 
 
@@ -591,7 +453,7 @@ const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors(enum TypeOfEndEffe
 }
 
 
-const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames(enum TypeOfEndEffector type) const
+const ElementList& FloatingBaseSystem::getEndEffectorNames(enum TypeOfEndEffector type) const
 {
 	if (type == ALL)
 		return end_effector_names_;
@@ -600,131 +462,167 @@ const rbd::BodySelector& FloatingBaseSystem::getEndEffectorNames(enum TypeOfEndE
 }
 
 
-bool FloatingBaseSystem::isFullyFloatingBase()
+Eigen::Vector3d FloatingBaseSystem::getGravityVector()
 {
-	if (floating_ax_.active && floating_ay_.active &&
-			floating_az_.active	&& floating_lx_.active &&
-			floating_ly_.active && floating_lz_.active)
+	return model_.gravity.linear();
+}
+
+
+const double& FloatingBaseSystem::getGravityAcceleration() const
+{
+	return grav_acc_;
+}
+
+
+const Eigen::Vector3d& FloatingBaseSystem::getGravityDirection() const
+{
+	return grav_dir_;
+}
+
+
+bool FloatingBaseSystem::isFloatingBase()
+{
+	if (model_.joints[1].nv() == 6)
 		return true;
 	else
 		return false;
 }
 
 
-bool FloatingBaseSystem::isVirtualFloatingBaseRobot()
+bool FloatingBaseSystem::isFixedBase()
 {
-	if (type_of_system_ == VirtualFloatingBase)
+	if (model_.joints[1].nv() == 1)
 		return true;
 	else
 		return false;
 }
 
 
-bool FloatingBaseSystem::isConstrainedFloatingBaseRobot()
+bool FloatingBaseSystem::isConstrainedFloatingBase()
 {
-	if (type_of_system_ == ConstrainedFloatingBase)
+	if (model_.joints[1].nv() > 1 &&
+		model_.joints[1].nv() != 6)
 		return true;
 	else
 		return false;
 }
 
 
-bool FloatingBaseSystem::hasFloatingBaseConstraints()
-{
-	if (floating_ax_.constrained || floating_ay_.constrained ||
-			floating_az_.constrained ||	floating_lx_.constrained ||
-			floating_ly_.constrained || floating_lz_.constrained)
-		return true;
-	else
-		return false;
-}
-
-
-const Eigen::VectorXd& FloatingBaseSystem::toGeneralizedJointState(const rbd::Vector6d& base_state,
-																   const Eigen::VectorXd& joint_state)
+const Eigen::VectorXd& FloatingBaseSystem::toConfigurationState(const Eigen::Vector7d& base_state,
+																const Eigen::VectorXd& joint_state)
 {
 	// Getting the number of joints
 	assert(joint_state.size() == getJointDoF());
 
-	// Note that RBDL defines the floating base state as
+	// Note that pinocchio defines the floating base state as
 	// [linear states, angular states]
-	if (getTypeOfDynamicSystem() == FloatingBase ||
-			getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
-		rbd::Vector6d _base_state = base_state;
-		full_state_ << rbd::linearPart(_base_state),
-					   rbd::angularPart(_base_state),
-					   joint_state;
-	} else if (getTypeOfDynamicSystem() == VirtualFloatingBase) {
-		unsigned int base_dof = getFloatingBaseDoF();
-
-		Eigen::VectorXd virtual_base(base_dof);
-		if (floating_ax_.active)
-			virtual_base(floating_ax_.id) = base_state(rbd::AX);
-		if (floating_ay_.active)
-			virtual_base(floating_ay_.id) = base_state(rbd::AY);
-		if (floating_az_.active)
-			virtual_base(floating_az_.id) = base_state(rbd::AZ);
-		if (floating_lx_.active)
-			virtual_base(floating_lx_.id) = base_state(rbd::LX);
-		if (floating_ly_.active)
-			virtual_base(floating_ly_.id) = base_state(rbd::LY);
-		if (floating_lz_.active)
-			virtual_base(floating_lz_.id) = base_state(rbd::LZ);
-
-		full_state_ << virtual_base, joint_state;
+	if (root_joint_ == FREE_FLYER) {
+		Eigen::Vector7d _base_state = base_state;
+		q_ << rbd::linearPart(_base_state),
+		       rbd::angularPart(_base_state),
+			   joint_state;
+	} else if (root_joint_ == PLANAR) {
+		Eigen::VectorXd virtual_base(model_.joints[1].nq());
+		virtual_base(0) = base_state(rbd::AZ_Q);
+		virtual_base(1) = base_state(rbd::AW_Q);
+		virtual_base(2) = base_state(rbd::LX_Q);
+		virtual_base(3) = base_state(rbd::LY_Q);
+		q_ << virtual_base, joint_state;
 	} else {
-		full_state_ = joint_state;
+		q_ = joint_state;
 	}
 
-	return full_state_;
+	return q_;
 }
 
 
-void FloatingBaseSystem::fromGeneralizedJointState(rbd::Vector6d& base_state,
-												   Eigen::VectorXd& joint_state,
-												   const Eigen::VectorXd& generalized_state)
+const Eigen::VectorXd& FloatingBaseSystem::toTangentState(const Eigen::Vector6d& base_state,
+														  const Eigen::VectorXd& joint_state)
+{
+	// Getting the number of joints
+	assert(joint_state.size() == getJointDoF());
+
+	// Note that pinocchio defines the floating base state as
+	// [linear states, angular states]
+	if (root_joint_ == FREE_FLYER) {
+		Eigen::Vector6d _base_state = base_state;
+		v_ << rbd::linearPart(_base_state),
+		      rbd::angularPart(_base_state),
+			  joint_state;
+	} else if (root_joint_ == PLANAR) {
+		Eigen::VectorXd virtual_base(model_.joints[1].nv());
+		virtual_base(0) = base_state(rbd::AZ_V);
+		virtual_base(1) = base_state(rbd::LX_V);
+		virtual_base(2) = base_state(rbd::LY_V);
+		v_ << virtual_base, joint_state;
+	} else {
+		v_ = joint_state;
+	}
+
+	return v_;
+}
+
+
+void FloatingBaseSystem::fromConfigurationState(Eigen::Vector7d& base_state,
+											    Eigen::VectorXd& joint_state,
+											    const Eigen::VectorXd& generalized_state)
 {
 	// Resizing the joint state
 	joint_state.resize(getJointDoF());
 
-	// Note that RBDL defines the floating base state as
+	// Note that pinocchio defines the floating base state as
 	// [linear states, angular states]
-	if (getTypeOfDynamicSystem() == FloatingBase ||
-			getTypeOfDynamicSystem() == ConstrainedFloatingBase) {
-		base_state << generalized_state.segment<3>(rbd::LX),
-					  generalized_state.segment<3>(rbd::AX);
-		joint_state = generalized_state.segment(6, getJointDoF());
-	} else if (getTypeOfDynamicSystem() == VirtualFloatingBase) {
-		for (unsigned int base_idx = 0; base_idx < 6; base_idx++) {
-			rbd::Coords6d base_coord = rbd::Coords6d(base_idx);
-			FloatingBaseJoint joint = getFloatingBaseJoint(base_coord);
-
-			if (joint.active)
-				base_state(base_coord) = generalized_state(joint.id);
-		}
-
-		joint_state = generalized_state.segment(getFloatingBaseDoF(),
-												getJointDoF());
+	if (root_joint_ == FREE_FLYER) {
+		base_state << generalized_state.segment<4>(3),
+					  generalized_state.segment<3>(0);
+		joint_state = generalized_state.segment(7, getJointDoF());
+	} else if (root_joint_ == PLANAR) {
+		base_state.setZero();
+		base_state(rbd::AZ_Q) = generalized_state(0);
+		base_state(rbd::AW_Q) = generalized_state(1);
+		base_state(rbd::LX_Q) = generalized_state(2);
+		base_state(rbd::LY_Q) = generalized_state(3);
+		joint_state = generalized_state.segment(4, getJointDoF());
 	} else {
-		base_state = rbd::Vector6d::Zero();
-		joint_state = generalized_state;
+		base_state.setZero();
+		joint_state = joint_state;
+	}
+}
+
+
+void FloatingBaseSystem::fromTangentState(Eigen::Vector6d& base_state,
+										  Eigen::VectorXd& joint_state,
+										  const Eigen::VectorXd& generalized_state)
+{
+	// Resizing the joint state
+	joint_state.resize(getJointDoF());
+
+	// Note that pinocchio defines the floating base state as
+	// [linear states, angular states]
+	if (root_joint_ == FREE_FLYER) {
+		base_state << generalized_state.segment<3>(3),
+					  generalized_state.segment<3>(0);
+		joint_state = generalized_state.segment(6, getJointDoF());
+	} else if (root_joint_ == PLANAR) {
+		base_state.setZero();
+		base_state(rbd::AZ_V) = generalized_state(0);
+		base_state(rbd::LX_V) = generalized_state(1);
+		base_state(rbd::LY_V) = generalized_state(2);
+		joint_state = generalized_state.segment(3, getJointDoF());
+	} else {
+		base_state.setZero();
+		joint_state = joint_state;
 	}
 }
 
 
 void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 										const Eigen::VectorXd& branch_state,
-										std::string body_name)
+										std::string name)
 {
 	// Getting the branch properties
 	unsigned int q_index, num_dof;
-	getBranch(q_index, num_dof, body_name);
-
-	// Removing the base index
-	if (isFullyFloatingBase())
-		q_index -= 6;
-	else
-		q_index -= getFloatingBaseDoF();
+	getBranch(q_index, num_dof, name);
 
 	if (branch_state.size() != num_dof) {
 		printf(RED "FATAL: the branch state dimension is not consistent\n" COLOR_RESET);
@@ -736,65 +634,38 @@ void FloatingBaseSystem::setBranchState(Eigen::VectorXd& new_joint_state,
 
 
 Eigen::VectorXd FloatingBaseSystem::getBranchState(const Eigen::VectorXd& joint_state,
-												   const std::string& body_name)
+												   const std::string& name)
 {
 	// Getting the branch properties
 	unsigned int q_index, num_dof;
-	getBranch(q_index, num_dof, body_name);
+	getBranch(q_index, num_dof, name);
 
-	// Removing the base index
-	if (isFullyFloatingBase())
-		q_index -= 6;
-	else
-		q_index -= getFloatingBaseDoF();
-
-	Eigen::VectorXd branch_state(num_dof);
-	branch_state = joint_state.segment(q_index, num_dof);
-
-	return branch_state;
+	return joint_state.segment(q_index, num_dof);
 }
 
 
 void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 		   	   	   	   	   	   	   unsigned int& num_dof,
-								   const std::string& body_name)
+								   const std::string& name)
 {
 	// Getting the body id
-	unsigned int body_id = rbd_model_.GetBodyId(body_name.c_str());
+	unsigned int body_id = getBodyId(name);
 
 	// Getting the base joint id. Note that the floating-base starts the
 	// kinematic-tree
-	unsigned int base_id = 0;
-	if (isFullyFloatingBase()) {
-		base_id = 6;
-	} else {
-		base_id = getFloatingBaseDoF();
-	}
+	unsigned int root_id = 0;
+	if (root_joint_ == FREE_FLYER || root_joint_ == PLANAR)
+		root_id = 1;
 
-	// Setting the state values of a specific branch to the joint state
-	unsigned int parent_id = body_id;
-	if (rbd_model_.IsFixedBodyId(body_id)) {
-		unsigned int fixed_idx = rbd_model_.fixed_body_discriminator;
-		parent_id = rbd_model_.mFixedBodies[body_id - fixed_idx].mMovableParent;
-	}
-
-	// Adding the branch state to the joint state. Two safety checking are done;
-	// checking that this branch has at least one joint, and checking the size
-	// of the new branch state
+	// The starts of the branch is detected when its parent frame is
+	// equals to the root frame
 	num_dof = 0;
-	if (parent_id != base_id) {
-		do {
-			pos_idx = rbd_model_.mJoints[parent_id].q_index;
-			parent_id = rbd_model_.lambda[parent_id];
-			++num_dof;
-		} while (parent_id != base_id);
-	}
-}
-
-
-const Eigen::VectorXd& FloatingBaseSystem::getDefaultPosture() const
-{
-	return default_joint_pos_;
+	unsigned int parent_id = body_id;
+	do {
+		pos_idx = parent_id - root_id - 1;
+		parent_id = model_.parents[parent_id];
+		++num_dof;
+	} while (parent_id != root_id);
 }
 
 

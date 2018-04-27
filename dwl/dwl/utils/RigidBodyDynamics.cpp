@@ -72,40 +72,6 @@ Eigen::Matrix3d rotationMatrix(Eigen::MatrixBase<Eigen::Matrix4d>& hom_transform
 }
 
 
-void getListOfBodies(BodyID& list_body_id,
-					 const RigidBodyDynamics::Model& model)
-{
-	for (unsigned int it = 0; it < model.mBodies.size(); it++) {
-		unsigned int body_id = it;
-		std::string body_name = model.GetBodyName(body_id);
-
-		list_body_id[body_name] = body_id;
-	}
-
-	// Adding the fixed body in the body list
-	for (unsigned int it = 0; it < model.mFixedBodies.size(); it++) {
-		unsigned int body_id = it + model.fixed_body_discriminator;
-		std::string body_name = model.GetBodyName(body_id);
-
-		list_body_id[body_name] = body_id;
-	}
-}
-
-
-void printModelInfo(const RigidBodyDynamics::Model& model)
-{
-	std::cout << "Degree of freedom overview:" << std::endl;
-	std::cout << RigidBodyDynamics::Utils::GetModelDOFOverview(model);
-
-	std::cout << "Body origins overview:" << std::endl;
-	RigidBodyDynamics::Model copy_model = model;
-	std::cout << RigidBodyDynamics::Utils::GetNamedBodyOriginsOverview(copy_model);
-
-	std::cout << "Model Hierarchy:" << std::endl;
-	std::cout << RigidBodyDynamics::Utils::GetModelHierarchy(model);
-}
-
-
 Vector6d convertPointVelocityToSpatialVelocity(Vector6d& velocity,
 											   const Eigen::Vector3d& point)
 {

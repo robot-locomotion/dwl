@@ -1,7 +1,6 @@
 #ifndef DWL__RBD__RIGID_BODY_DYNAMICS__H
 #define DWL__RBD__RIGID_BODY_DYNAMICS__H
 
-#include <rbdl/rbdl.h>
 #include <dwl/utils/Math.h>
 
 
@@ -58,16 +57,6 @@ Eigen::Vector3d translationVector(Eigen::Matrix4d& hom_transform);
 /** @brief The rotation matrix of a homogeneous transform */
 Eigen::Matrix3d rotationMatrix(Eigen::MatrixBase<Eigen::Matrix4d>& hom_transform);
 
-/**
- * @brief Gets list of bodies (movable and fixed) of the rigid-body system
- * @param Body& Body ids
- * @param const RigidBodyDynamics::Model& Model of the rigid-body system
- */
-void getListOfBodies(BodyID& list_body_id,
-					 const RigidBodyDynamics::Model& model);
-
-/** @brief Print the model information */
-void printModelInfo(const RigidBodyDynamics::Model& model);
 
 /**
  * @brief Converts an applied velocity acting at a certain point to spatial velocity

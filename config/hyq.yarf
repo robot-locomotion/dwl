@@ -1,4 +1,9 @@
 robot:
+  # Type of root joints
+  #  0 Free flyer joint
+  #  1 Planar joint
+  #  2 No root joint
+  root_joint: 0
   # Names of the feet
   feet: [lf_foot, rf_foot, lh_foot, rh_foot]
   default_pose:

@@ -1,13 +1,10 @@
 #ifndef DWL__MODEL__FLOATING_BASE_SYSTEM__H
 #define DWL__MODEL__FLOATING_BASE_SYSTEM__H
 
-#include <rbdl/rbdl.h>
-#include <rbdl/addons/urdfreader/urdfreader.h>
-#include <dwl/utils/RigidBodyDynamics.h>
+#include <pinocchio/multibody/model.hpp>
+#include <pinocchio/parsers/urdf.hpp>
 #include <dwl/utils/URDF.h>
-#include <dwl/utils/Math.h>
 #include <dwl/utils/YamlWrapper.h>
-#include <fstream>
 
 
 namespace dwl
@@ -16,30 +13,12 @@ namespace dwl
 namespace model
 {
 
-enum TypeOfSystem {FixedBase, FloatingBase, ConstrainedFloatingBase, VirtualFloatingBase};
-
-/** @brief Defines a floating-base joint information */
-struct FloatingBaseJoint {
-	FloatingBaseJoint(bool status) : active(status), constrained(false), id(0) {}
-	FloatingBaseJoint(bool status,
-					  unsigned int _id,
-					  std::string _name) : active(status), constrained(false), id(_id), name(_name) {}
-	bool active;
-	bool constrained;
-	unsigned int id;
-	std::string name;
-};
-
-/** @brief Defines an actuated joint information */
-struct Joint {
-	Joint(unsigned int _id,
-		  std::string _name) : id(_id), name(_name) {}
-	unsigned int id;
-	std::string name;
-};
-
 /** @brief Defines the type of end-effectors */
 enum TypeOfEndEffector {ALL, FOOT};
+
+typedef std::map<std::string, unsigned int> ElementId;
+typedef std::vector<std::string> ElementList;
+enum RootJoint {FREE_FLYER = 0, PLANAR, NO};
 
 /**
  * @class FloatingBaseSystem
@@ -51,7 +30,7 @@ class FloatingBaseSystem
 {
 	public:
 		/** @brief Constructor function */
-		FloatingBaseSystem(bool full = false, unsigned int _num_joints = 0);
+		FloatingBaseSystem();
 
 		/** @brief Destructor function */
 		~FloatingBaseSystem();
@@ -79,51 +58,6 @@ class FloatingBaseSystem
 		void resetSystemDescription(const std::string& filename);
 
 		/**
-		 * @brief Sets the 6d floating-base joint information
-		 * @param[in] joint Floating-base joint information
-		 **/
-		void setFloatingBaseJoint(const FloatingBaseJoint& joint);
-
-		/**
-		 * @brief Sets the floating-base joint information
-		 * @param[in] joint Floating-base joint information
-		 * @param[in] joint_coord Joint coordinate
-		 **/
-		void setFloatingBaseJoint(const FloatingBaseJoint& joint,
-								  rbd::Coords6d joint_coord);
-
-		/**
-		 * @brief Sets the actuated joint information
-		 * @param[in] joint Joint information
-		 */
-		void setJoint(const Joint& joint);
-
-		/**
-		 * @brief Sets the floating-base constraint information
-		 * @param[in] id Joint coordinate
-		 */
-		void setFloatingBaseConstraint(rbd::Coords6d id);
-
-		/**
-		 * @brief Sets the type of floating-base system
-		 * @param[in] type Type of floating-base system
-		 */
-		void setTypeOfDynamicSystem(enum TypeOfSystem type);
-
-
-		/**
-		 * @brief Sets the system DoF
-		 * @param[in] ndof Number of DoF
-		 */
-		void setSystemDoF(unsigned int ndof);
-
-		/**
-		 * @brief Sets the actuated joint DoF
-		 * @param[in] njoints int Number of joints
-		 */
-		void setJointDoF(unsigned int njoints);
-
-		/**
 		 * @brief Gets the URDF model
 		 * @return The URDF model
 		 */
@@ -136,85 +70,34 @@ class FloatingBaseSystem
 		const std::string& getYARFModel() const;
 
 		/**
-		 * @brief Gets the rigid body dynamic model
-		 * @return The rigid body dynamics model
+		 * @brief Gets the pinocchio model
+		 * @return The pinocchio model
 		 */
-		RigidBodyDynamics::Model& getRBDModel();
+		se3::Model& getModel();
 
 		/**
-		 * @brief Gets the total mass of the rigid body system
-		 * @return The total mass of the rigid body system
+		 * @brief Gets the pinocchio data
+		 * @return The pinocchio data
 		 */
-		double getTotalMass();
+		se3::Data& getData();
 
 		/**
-		 * @brief Gets the body mass
-		 * @param[in] name The body name
-		 * @return The mass of the body
+		 * @brief Gets the configuration manifold dimension of the system
+		 * @return Dimension of the configuration manifold
 		 */
-		const double& getBodyMass(const std::string& name) const;
-
-		/** @brief Gets the gravity vector of the rigid body system
-		 * @return The gravity vector
-		 */
-		const Eigen::Vector3d& getGravityVector() const;
-
-		/** @brief Gets the gravity acceleration of the rigid body system 
-		 * @return The gravity acceleration
-		*/
-		const double& getGravityAcceleration() const;
-
-		/** @brief Gets the gravity direction of the rigid body system
-		 * @return The gravity direction
-		 */
-		const Eigen::Vector3d& getGravityDirection() const;
+		unsigned int getConfigurationDim();
 
 		/**
-		 * @brief Gets the Center of Mass (CoM) of the floating-base system
-		 * @param[in] base_pos Base position
-		 * @param[in] joint_pos Joint position
-		 * @return The CoM of the floating-base system
+		 * @brief Gets the tangent space dimension of the system
+		 * @return Dimension of the tangent space
 		 */
-		const Eigen::Vector3d& getSystemCoM(const rbd::Vector6d& base_pos,
-											const Eigen::VectorXd& joint_pos);
+		unsigned int getTangentDim();
 
 		/**
-		 * @brief Gets the Center of Mass (CoM) rate of the floating-base system
-		 * @param[in] base_pos Base position
-		 * @param[in] joint_pos Joint position
-		 * @param[in] base_vel Base velocity
-		 * @param[in] joint_vel Joint velocity
-		 * @return The CoM rate of the floating-base system
+		 * @brief Gets the body name of the floating-base
+		 * @return Floating-base body
 		 */
-		const Eigen::Vector3d& getSystemCoMRate(const rbd::Vector6d& base_pos,
-												const Eigen::VectorXd& joint_pos,
-												const rbd::Vector6d& base_vel,
-												const Eigen::VectorXd& joint_vel);
-
-		/**
-		 * @brief Gets the Center of Mass (CoM) of floating-base
-		 * @return The CoM of the floating-base
-		 */
-		const Eigen::Vector3d& getFloatingBaseCoM() const;
-
-		/**
-		 * @brief Gets the Center of Mass (CoM) of a specific body
-		 * @param[in] name Body name
-		 * @return The CoM of the body
-		 */
-		const Eigen::Vector3d& getBodyCoM(const std::string& name) const;
-
-		/**
-		 * @brief Gets the floating-base system DoF
-		 * @return Number of DoF of the floating-base system
-		 */
-		const unsigned int& getSystemDoF() const;
-
-		/**
-		 * @brief Gets the floating-base DoF
-		 * @return Number of floating-base DoF
-		 */
-		const unsigned int& getFloatingBaseDoF() const;
+		const std::string& getFloatingBaseName() const;
 
 		/**
 		 * @brief Gets the actuated joint DoF
@@ -223,110 +106,11 @@ class FloatingBaseSystem
 		const unsigned int& getJointDoF() const;
 
 		/**
-		 * @brief Gets the floating-base joint
-		 * @param[in] joint Floating-base joint coordinate
-		 * return Floating-base joint information
-		 */
-		const FloatingBaseJoint& getFloatingBaseJoint(rbd::Coords6d joint) const;
-
-		/**
-		 * @brief Gets the floating-base joint coordinate given an Id
-		 * @param[in] id Floating-base joint Id
-		 * @return Floating-base joint coordinate
-		 */
-		unsigned int getFloatingBaseJointCoordinate(unsigned int id);
-
-		/**
-		 * @brief Gets the name of the floating-base body
-		 * @return Returns the name of the floating-base body
-		 */
-		const std::string& getFloatingBaseName() const;
-
-		/**
-		 * @brief Checks if the joint exist
-		 * @return True if the joint exist, false otherwise
-		 */
-		bool existJoint(const std::string& joint_name) const;
-
-		/**
 		 * @brief Gets the joint id given the name
 		 * @param[in] name Joint name
 		 * @return Returns the joint id
 		 */
 		const unsigned int& getJointId(const std::string& name) const;
-
-		/**
-		 * @brief Gets actuated joint information
-		 * @return Joint names and Ids
-		 */
-		const urdf_model::JointID& getJoints() const;
-
-		/**
-		 * @brief Gets actuated joint limits
-		 * @return Joint names and limits
-		 */
-		const urdf_model::JointLimits& getJointLimits() const;
-
-		/**
-		 * @brief Gets the joint limits given its name
-		 * @param[in] name Joint name
-		 * @return The joint limits
-		 */
-		const urdf::JointLimits& getJointLimit(const std::string& name) const;
-
-		/** @brief Gets the lower joint limit
-		 * @param[in] name Joint name
-		 * @return The lower joint position limit
-		 */
-		const double& getLowerLimit(const std::string& name) const;
-
-		/** @brief Gets the lower joint limit
-		 * @param[in] joint Joint limits
-		 * @return The lower joint position limit
-		 */
-		const double& getLowerLimit(const urdf::JointLimits& joint) const;
-
-		/** @brief Gets the upper joint limit
-		 * @param[in] name Joint name
-		 * @return The upper joint position limit
-		 */
-		const double& getUpperLimit(const std::string& name) const;
-
-		/** @brief Gets the upper joint limit
-		 * @param[in] joint Joint limits
-		 * @return The upper joint position limit
-		 */
-		const double& getUpperLimit(const urdf::JointLimits& joint) const;
-
-		/** @brief Gets the velocity joint limit
-		 * @param[in] name Joint name
-		 * @return The velocity joint position limit
-		 */
-		const double& getVelocityLimit(const std::string& name) const;
-
-		/** @brief Gets the velocity joint limit
-		 * @param[in] name Joint limits
-		 * @return The velocity joint position limit
-		 */
-		const double& getVelocityLimit(const urdf::JointLimits& joint) const;
-
-		/** @brief Gets the effort joint limit
-		 * @param[in] name Joint name
-		 * @return The effort joint position limit
-		 */
-		const double& getEffortLimit(const std::string& name) const;
-
-		/** @brief Gets the effort joint limit
-		 * @param[in] name Joint limits
-		 * @return The effort joint position limit
-		 */
-		const double& getEffortLimit(const urdf::JointLimits& joint) const;
-
-		/**
-		 * @brief Gets the floating-base joint names list
-		 * @return Joint names list
-		 */
-		const rbd::BodySelector& getFloatingJointNames() const;
 
 		/**
 		 * @brief Gets the joint name given its id
@@ -339,19 +123,139 @@ class FloatingBaseSystem
 		 * @brief Gets the joint names list
 		 * @return Joint names list
 		 */
-		const rbd::BodySelector& getJointNames() const;
+		const ElementList& getJointNames() const;
 
 		/**
-		 * @brief Gets the body name of the floating-base
-		 * @return Floating-base body
+		 * @brief Gets actuated joint information
+		 * @return Joint names and Ids
 		 */
-		const std::string& getFloatingBaseBody() const;
+		const ElementId& getJoints() const;
 
 		/**
-		 * @brief Gets the type of floating-base system
-		 * @return Type of floating-base system
+		 * @brief Gets actuated lower joint limits
+		 * @return Lower joint limits
 		 */
-		const enum TypeOfSystem& getTypeOfDynamicSystem() const;
+		Eigen::VectorXd getLowerLimits();
+
+		/** @brief Gets the lower joint limit
+		 * @param[in] name Joint name
+		 * @return The lower joint position limit
+		 */
+		double getLowerLimit(const std::string& name);
+
+		/**
+		 * @brief Gets actuated lower joint limits
+		 * @return Lower joint limits
+		 */
+		Eigen::VectorXd getUpperLimits();
+
+		/** @brief Gets the upper joint limit
+		 * @param[in] name Joint name
+		 * @return The upper joint position limit
+		 */
+		double getUpperLimit(const std::string& name);
+
+		/**
+		 * @brief Gets actuated velocity joint limits
+		 * @return Velocity joint limits
+		 */
+		Eigen::VectorXd getVelocityLimits();
+
+		/** @brief Gets the velocity joint limit
+		 * @param[in] name Joint name
+		 * @return The velocity joint position limit
+		 */
+		double getVelocityLimit(const std::string& name);
+
+		/**
+		 * @brief Gets actuated effort joint limits
+		 * @return Effort joint limits
+		 */
+		Eigen::VectorXd getEffortLimits();
+
+		/** @brief Gets the effort joint limit
+		 * @param[in] name Joint name
+		 * @return The effort joint position limit
+		 */
+		double getEffortLimit(const std::string& name);
+
+		/**
+		 * @brief Gets the default posture defined in the system file
+		 * @return Default joint position
+		 */
+		const Eigen::VectorXd& getDefaultPosture() const;
+
+		/**
+		 * @brief Checks if the joint exist
+		 * @param[in] name Joint name
+		 * @return True if the joint exist, false otherwise
+		 */
+		bool existJoint(const std::string& name) const;
+
+		/**
+		 * @brief Gets the body id given the name
+		 * @param[in] name Body name
+		 * @return Returns the body id
+		 */
+		const unsigned int& getBodyId(const std::string& name) const;
+
+		/**
+		 * @brief Gets the body name given its id
+		 * @return id Body id
+		 * @return Body name
+		 */
+		const std::string& getBodyName(const unsigned int& id) const;
+
+		/**
+		 * @brief Gets body information
+		 * @return Body names and Ids
+		 */
+		const ElementId& getBodies() const;
+
+		/**
+		 * @brief Gets the total mass of the rigid body system
+		 * @return The total mass of the rigid body system
+		 */
+		double getTotalMass();
+
+		/**
+		 * @brief Gets the floating-base mass
+		 * @return The mass of the body
+		 */
+		double getFloatingBaseMass();
+
+		/**
+		 * @brief Gets the body mass
+		 * @param[in] name The body name
+		 * @return The mass of the body
+		 */
+		double getBodyMass(const std::string& name);
+
+		/**
+		 * @brief Gets the Center of Mass (CoM) of floating-base
+		 * @return The CoM of the floating-base
+		 */
+		Eigen::Vector3d getFloatingBaseCoM();
+
+		/**
+		 * @brief Gets the Center of Mass (CoM) of a specific body
+		 * @param[in] name Body name
+		 * @return The CoM of the body
+		 */
+		Eigen::Vector3d getBodyCoM(const std::string& name);
+
+		/**
+		 * @brief Gets the inertia matrix of floating-base
+		 * @return The inertia matrix of the floating-base
+		 */
+		Eigen::Matrix3d getFloatingBaseInertia();
+
+		/**
+		 * @brief Gets the inertia matrix of a specific body
+		 * @param[in] name Body name
+		 * @return The inertia matrix of the body
+		 */
+		Eigen::Matrix3d getBodyInertia(const std::string& name);
 
 		/**
 		 * @brief Gets the number of end-effectors
@@ -371,45 +275,79 @@ class FloatingBaseSystem
 		 * @brief Gets the end-effectors names
 		 * @return Names and ids of the end-effectors
 		 */
-		const urdf_model::LinkID& getEndEffectors(enum TypeOfEndEffector type = ALL) const;
+		const ElementId& getEndEffectors(enum TypeOfEndEffector type = ALL) const;
 
 		/**
 		 * @brief Gets the end-effector names list
 		 * @param[in] type Type of end-effector
 		 * @return End-effector names list
 		 */
-		const rbd::BodySelector& getEndEffectorNames(enum TypeOfEndEffector type = ALL) const;
+		const ElementList& getEndEffectorNames(enum TypeOfEndEffector type = ALL) const;
 
-		/** @brief Returns true if the system has fully floating-base */
-		bool isFullyFloatingBase();
+		/** @brief Gets the gravity vector of the rigid body system
+		 * @return The gravity vector
+		 */
+		Eigen::Vector3d getGravityVector();
 
-		/** @brief Returns true if the system has a virtual floating-base */
-		bool isVirtualFloatingBaseRobot();
+		/** @brief Gets the gravity acceleration of the rigid body system 
+		 * @return The gravity acceleration
+		*/
+		const double& getGravityAcceleration() const;
 
-		/** @brief Returns true if the system has a physical constraint with a fully floating-base */
-		bool isConstrainedFloatingBaseRobot();
+		/** @brief Gets the gravity direction of the rigid body system
+		 * @return The gravity direction
+		 */
+		const Eigen::Vector3d& getGravityDirection() const;
 
-		/** @brief Returns true if there are a physical constraint in the floating-base */
-		bool hasFloatingBaseConstraints();
+		/** @brief Returns true if the system has a floating base */
+		bool isFloatingBase();
+
+		/** @brief Returns true if the system is has a fixed base */
+		bool isFixedBase();
+
+		/** @brief Returns true if the system has a physical constraint
+		 *  in the floating base */
+		bool isConstrainedFloatingBase();
 
 		/**
-		 * @brief Converts the base and joint states to a generalized joint state
-		 * @param[in] base_state Base state
-		 * @param[in] joint_state Joint state
-		 * @return Generalized joint state
+		 * @brief Converts the base and joint configurations to a
+		 * generalized configuration state
+		 * @param[in] base_state Base configuration
+		 * @param[in] joint_state Joint configuration
+		 * @return Generalized configuration state
 		 */
-		const Eigen::VectorXd& toGeneralizedJointState(const rbd::Vector6d& base_state,
-													   const Eigen::VectorXd& joint_state);
+		const Eigen::VectorXd& toConfigurationState(const Eigen::Vector7d& base_state,
+													const Eigen::VectorXd& joint_state);
 
 		/**
-		 * @brief Converts the generalized joint state to base and joint states
-		 * @param[out] base_state Base state
-		 * @param[in] joint_state Joint state
-		 * @param[in] gen_state Generalized joint state
+		 * @brief Converts the base and joint tangent states to a
+		 * generalized tangent state
+		 * @param[in] base_state Base tangent state
+		 * @param[in] joint_state Joint tangent state
+		 * @return Generalized tangent state
 		 */
-		void fromGeneralizedJointState(rbd::Vector6d& base_state,
-									   Eigen::VectorXd& joint_state,
-									   const Eigen::VectorXd& gen_state);
+		const Eigen::VectorXd& toTangentState(const Eigen::Vector6d& base_state,
+											  const Eigen::VectorXd& joint_state);
+
+		/**
+		 * @brief Converts the generalized configuration state to base and joint states
+		 * @param[out] base_state Base configuration
+		 * @param[in] joint_state Joint configuration
+		 * @param[in] gen_state Generalized configuration state
+		 */
+		void fromConfigurationState(Eigen::Vector7d& base_state,
+									Eigen::VectorXd& joint_state,
+									const Eigen::VectorXd& gen_state);
+
+		/**
+		 * @brief Converts the generalized tangent state to base and joint states
+		 * @param[out] base_state Base tangent vector
+		 * @param[in] joint_state Joint tangent vector
+		 * @param[in] gen_state Generalized tangent state
+		 */
+		void fromTangentState(Eigen::Vector6d& base_state,
+							  Eigen::VectorXd& joint_state,
+							  const Eigen::VectorXd& gen_state);
 
 		/**
 		 * @brief Sets the joint state given a branch values
@@ -423,12 +361,12 @@ class FloatingBaseSystem
 
 		/**
 		 * @brief Gets the branch values given a joint state
-		 * @param[in] joint_name Joint state vector
-		 * @param[in] body_name Body name
+		 * @param[in] joint_state Joint state vector
+		 * @param[in] name Body name
 		 * @return The branch states
 		 */
 		Eigen::VectorXd getBranchState(const Eigen::VectorXd& joint_state,
-									   const std::string& body_name);
+									   const std::string& name);
 
 		/**
 		 * @brief Gets the position index and number of DOF of certain branch
@@ -440,11 +378,8 @@ class FloatingBaseSystem
 					   unsigned int& num_dof,
 					   const std::string& name);
 
-		/**
-		 * @brief Gets the default posture defined in the system file
-		 * @return Default joint position
-		 */
-		const Eigen::VectorXd& getDefaultPosture() const;
+		/** Constant variable for undefined elements (joints or bodies) **/
+		const unsigned int UNDEFINED_ID = std::numeric_limits<unsigned int>::max();
 
 
 	private:
@@ -455,49 +390,35 @@ class FloatingBaseSystem
 		std::string urdf_;
 		std::string yarf_;
 
-		/** @brief Rigid-body dynamic model */
-		RigidBodyDynamics::Model rbd_model_;
-		RigidBodyDynamics::Math::Vector3d com_system_;
-		RigidBodyDynamics::Math::Vector3d comd_system_;
+		/** @brief Pinocchio model and data */
+		se3::Model model_;
+		se3::Data *data_ptr_;
 
-		/** @brief System name */
-		std::string system_name_;
+		/** @brief Joint information */
+		RootJoint root_joint_;
+		unsigned int n_base_joints_;
+		unsigned int n_joints_;
+		ElementId joints_;
+		ElementList joint_names_;
+		std::string floating_joint_name_;
 
-		/** @brief Number of DoFs */
-		unsigned int num_system_joints_;
-		unsigned int num_floating_joints_;
-		unsigned int num_joints_;
-
-		/** @brief System joints */
-		FloatingBaseJoint floating_ax_;
-		FloatingBaseJoint floating_ay_;
-		FloatingBaseJoint floating_az_;
-		FloatingBaseJoint floating_lx_;
-		FloatingBaseJoint floating_ly_;
-		FloatingBaseJoint floating_lz_;
-		rbd::BodySelector floating_joint_names_;
-		urdf_model::JointID joints_;
-		urdf_model::JointLimits joint_limits_;
-		rbd::BodySelector joint_names_;
-		Eigen::VectorXd default_joint_pos_;
-		Eigen::VectorXd full_state_;
-		rbd::Vector6d base_state_;
-		Eigen::VectorXd joint_state_;
-
-		/** @brief System bodies */
+		/** @brief Body information */
+		ElementId bodies_;
+		ElementList body_names_;
 		std::string floating_body_name_;
 
-		/** @brief Type of system */
-		enum TypeOfSystem type_of_system_;
-
 		/** @brief End-effector information */
-		urdf_model::LinkID end_effectors_;
+		ElementId end_effectors_;
+		ElementId feet_;
+		ElementList end_effector_names_;		
+		ElementList foot_names_;
 		unsigned int num_end_effectors_;
-		rbd::BodySelector end_effector_names_;
-
-		urdf_model::LinkID feet_;
 		unsigned int num_feet_;
-		rbd::BodySelector foot_names_;
+
+		/** @brief Vectors **/
+		Eigen::VectorXd q_;
+		Eigen::VectorXd v_;
+		Eigen::VectorXd default_joint_pos_;
 
 		/** @brief Gravity information */
 		double grav_acc_;
