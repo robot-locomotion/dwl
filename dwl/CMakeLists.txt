@@ -3,9 +3,8 @@ cmake_minimum_required(VERSION 2.8.3)
 
 # Finding dependencies
 find_package(PkgConfig)
-pkg_check_modules(EIGEN3 eigen3>=3.2 REQUIRED)
-find_package(RBDL REQUIRED)
-find_package(URDF REQUIRED)
+# Note that pinocchio includes the path of Eigen and URDF
+pkg_check_modules(PINOCCHIO pinocchio>=1.2.7 REQUIRED)
 find_package(YAMLCPP REQUIRED)
 find_package(QPOASES)
 pkg_check_modules(IPOPT ipopt>=3.12.4)
@@ -13,16 +12,20 @@ pkg_check_modules(LIBCMAES libcmaes>=0.9.5)
 find_package(octomap)
 
 # Setting the thirdparties directories and libraries
-set(DEPENDENCIES_INCLUDE_DIRS  ${EIGEN3_INCLUDE_DIRS} ${URDF_INCLUDE_DIRS} ${RBDL_INCLUDE_DIRS} CACHE INTERNAL "")
-set(DEPENDENCIES_LIBRARIES  ${RBDL_LIBRARIES} ${URDF_LIBRARIES} ${YAMLCPP_LIBRARIES} CACHE INTERNAL "")
-set(DEPENDENCIES_LIBRARY_DIRS  ${RBDL_LIBRARY_DIRS} CACHE INTERNAL "")
+set(DEPENDENCIES_INCLUDE_DIRS ${PINOCCHIO_INCLUDE_DIRS}
+							   CACHE INTERNAL "")
+set(DEPENDENCIES_LIBRARIES	${PINOCCHIO_LIBRARIES}
+							${PINOCCHIO_LDFLAGS}
+							${YAMLCPP_LIBRARIES}
+							CACHE INTERNAL "")
+set(DEPENDENCIES_LIBRARY_DIRS  ${PINOCCHIO_LIBRARY_DIRS}
+							   CACHE INTERNAL "")
 
 
 # Including directories
 set(INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${INCLUDE_DIRS})
-include_directories(${EIGEN3_INCLUDE_DIRS})
-include_directories(${RBDL_INCLUDE_DIRS})
+include_directories(${PINOCCHIO_INCLUDE_DIRS})
 include_directories(${YAMLCPP_INCLUDE_DIRS})
 
 
@@ -132,6 +135,7 @@ target_link_libraries(${PROJECT_NAME} ${DEPENDENCIES_LIBRARIES})
 set(EXPORT_INCLUDE_DIRS  ${INCLUDE_DIRS}
 						 ${INSTALL_INCLUDE_PREFIX}
 						 ${DEPENDENCIES_INCLUDE_DIRS}
+						 ${DEPENDENCIES_LIBRARY_DIRS}
 						 PARENT_SCOPE)
 
 
