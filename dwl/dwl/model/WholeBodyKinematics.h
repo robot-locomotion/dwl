@@ -1,8 +1,14 @@
 #ifndef DWL__MODEL__WHOLE_BODY_KINEMATICS__H
 #define DWL__MODEL__WHOLE_BODY_KINEMATICS__H
 
+
 #include <dwl/model/FloatingBaseSystem.h>
+#include <pinocchio/algorithm/frames.hpp>
+#include <pinocchio/algorithm/center-of-mass.hpp>
+// #include <pinocchio/algorithm/finite-differences.hpp>
+#include <pinocchio/algorithm/joint-configuration.hpp> // integrate
 #include <dwl/utils/utils.h>
+
 
 
 namespace dwl
@@ -12,9 +18,21 @@ namespace model
 {
 
 /**
- * @class WholeBodyKinematics
- * @brief WholeBodyKinematics class implements the kinematics methods for a
- * floating-base robot
+ * @brief WholeBodyKinematics class
+ * This class implements various helpful methods for computing whole-body kinematics
+ * quantities such as: CoM states, stack-of-Jacobians, frame and joint positions,
+ * velocities and accelerations. Before using this class, you need to provide the
+ * floating-base system description by passing this object in the reset function.
+ * For improving code efficient, the kinematic quantities can be computed by updating
+ * the joint states or no. In fact, it's possible to update the joint states only ones,
+ * and not in each desired computation.
+ * 
+ * An important remark is that DWL defines SE(3) groups through 7d vector in which the first
+ * 4 rows containts the quaternion and the next 3 the position (i.e. [q_wxyz, position]).
+ * Additionally, the tangent of the SE(3) group is described as 6d vector ordered by
+ * angular and linear components (i.e. [angular, linear]).
+ * @author Carlos Mastalli
+ * @copyright BSD 3-Clause License
  */
 class WholeBodyKinematics
 {
@@ -26,279 +44,349 @@ class WholeBodyKinematics
 		~WholeBodyKinematics();
 
 		/**
-		 * @brief Set the floating-base model of the rigid-body system
+		 * @brief Sets the floating-base model of the rigid-body system
+		 * 
 		 * @param[in] fbs Floating-base model
 		 */
 		void reset(FloatingBaseSystem& fbs);
 
 		/**
-		 * @brief Sets the Ik solver properties
-		 * @param double Step tolerance
-		 * @param double Lambda value for singularities
-		 * @param unsigned int Maximum number of iterations
+		 * @brief Sets the Ik solver properties.
+		 * 
+		 * @param[in] step_tol Step tolerance
+		 * @param[in] max_iter Maximum number of iterations
 		 */
 		void setIKSolver(double step_tol,
-						 double lambda,
 						 unsigned int max_iter);
 
 		/**
-		 * @brief Computes the forward kinematics for a predefined set of bodies
-		 * @param rbd::BodyVector& Operational position of bodies
-		 * @param const rbd::Vector6d& Base position
-		 * @param const Eigen::VectorXd& Joint position
-		 * @param const rbd::BodySelector& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important
-		 * kind of jacobian such as: linear, angular and full
-		 * @param enum TypeOfOrientation Desired type of orientation
+		 * @brief Updates the kinematics needed for computing the frame
+		 * states (e.g. for calling getFramePosition).
+		 * 
+		 * @param[in] base_pos Base configuration [quaternion, position]
+		 * @param[in] joint_pos Joint position
+		 * @param[in] base_vel Base velocity [angular, linear]
+		 * @param[in] joint_vel Joint velocity
+		 * @param[in] base_acc Base acceleration [angular, linear]
+		 * @param[in] joint_acc Joint acceleration
 		 */
-		void computeForwardKinematics(rbd::BodyVectorXd& op_pos,
-									  const rbd::Vector6d& base_pos,
-									  const Eigen::VectorXd& joint_pos,
-									  const rbd::BodySelector& body_set,
-									  enum rbd::Component component = rbd::Full,
-									  enum TypeOfOrientation type = RollPitchYaw);
-		const rbd::BodyVectorXd& computePosition(const rbd::Vector6d& base_pos,
-												 const Eigen::VectorXd& joint_pos,
-												 const rbd::BodySelector& body_set,
-												 enum rbd::Component component = rbd::Full,
-												 enum TypeOfOrientation type = RollPitchYaw);
+		void updateKinematics(const Eigen::Vector7d& base_pos,
+							  const Eigen::VectorXd& joint_pos);
+		void updateKinematics(const Eigen::Vector7d& base_pos,
+							  const Eigen::VectorXd& joint_pos,
+							  const Eigen::Vector6d& base_vel,
+							  const Eigen::VectorXd& joint_vel);
+		void updateKinematics(const Eigen::Vector7d& base_pos,
+							  const Eigen::VectorXd& joint_pos,
+							  const Eigen::Vector6d& base_vel,
+							  const Eigen::VectorXd& joint_vel,
+							  const Eigen::Vector6d& base_acc,
+							  const Eigen::VectorXd& joint_acc);
+
+		/**
+		 * @brief Updated the Jacobians and frame kinematics needed for
+		 * computed the frame Jacobians (e.g. for calling getJointVelocity).
+		 * 
+		 * @param[in] base_pos Base configuration [quaternion, position]
+		 * @param[in] joint_pos Joint position
+		 */
+		void updateJacobians(const Eigen::Vector7d& base_pos,
+							 const Eigen::VectorXd& joint_pos);
+
+		/**
+		 * @brief Computes the whole-body Center of Mass (CoM)
+		 * 
+		 * @param[in] base_pos Base configuration [quaternion, position]
+		 * @param[in] joint_pos Joint position
+		 * @return Whole-body CoM
+		 */
+		const Eigen::Vector3d& computeCoM(const Eigen::Vector7d& base_pos,
+										  const Eigen::VectorXd& joint_pos);
+
+		/**
+		 * @brief Computes the whole-body Center of Mass (CoM) and its velocity
+		 * 
+		 * @param[out] com CoM position
+		 * @param[out] com_d CoM velocity
+		 * @param[in] base_pos Base configuration [quaternion, position]
+		 * @param[in] joint_pos Joint position
+		 * @param[in] base_vel Base velocity [angular, linear]
+		 * @param[in] joint_vel Joint velocity
+		 * @return CoM rate of the floating-base system
+		 */
+		void computeCoMRate(Eigen::Vector3d& com,
+							Eigen::Vector3d& com_d,
+							const Eigen::Vector7d& base_pos,
+							const Eigen::VectorXd& joint_pos,
+							const Eigen::Vector6d& base_vel,
+							const Eigen::VectorXd& joint_vel);
+
+		/**
+		 * @brief Computes the operational position (i.e. SE3 group)
+		 * for a predefined set of frames
+		 * 
+		 * @param[in] base_pos Base configuration [quaternion, position]
+		 * @param[in] joint_pos Joint position
+		 * @param[in] frames Names of frames
+		 * @return Configuration for each frame
+		 */
+		Eigen::Vector7dMap
+		computePosition(const Eigen::Vector7d& base_pos,
+						const Eigen::VectorXd& joint_pos,
+						const ElementList& frames);
+
+		/**
+		 * @brief Gets the frame configuration.
+		 * 
+		 * @param[out] name Frame name
+		 * @return Frame configuration [quaternion, position]
+		 * 
+		 * @warning You have to run first updateKinematics.
+		 */
+		const Eigen::Vector7d&
+		getFramePosition(const std::string& name);
+
+		/**
+		 * @brief Computes the operational velocity (i.e. tangent of
+		 * configuration space) for a predefined set of frames
+		 * 
+		 * @param[in] base_pos Base configuration [quaternion, position]
+		 * @param[in] joint_pos Joint position
+		 * @param[in] base_vel Base velocity [angular, linear]
+		 * @param[in] joint_vel Joint velocity
+		 * @param[in] frames Names of frames
+		 * @return Operational velocity for each frame
+		 */
+		Eigen::Vector6dMap
+		computeVelocity(const Eigen::Vector7d& base_pos,
+						const Eigen::VectorXd& joint_pos,
+						const Eigen::Vector6d& base_vel,
+						const Eigen::VectorXd& joint_vel,
+						const ElementList& frames);
+
+		/**
+		 * @brief Gets the frame velocity.
+		 * 
+		 * @param[out] name Frame name
+		 * @return Frame velocity [angular, linear]
+		 * 
+		 * @warning You have to run first updateKinematics with the joint velocities.
+		 */
+		const Eigen::Vector6d&
+		getFrameVelocity(const std::string& name);
+
+		/**
+		 * @brief Computes the operational acceleration for a predefined set
+		 * of frames
+		 * 
+		 * @param[in] base_pos Base configuration [quaternion, position]
+		 * @param[in] joint_pos Joint position
+		 * @param[in] base_vel Base velocity [angular, linear]
+		 * @param[in] joint_vel Joint velocity
+		 * @param[in] base_acc Base acceleration [angular, linear]
+		 * @param[in] joint_acc Joint acceleration
+		 * @param[in] frames Names of frames
+		 * @return Operational acceleration for each frame
+		 */
+		Eigen::Vector6dMap
+		computeAcceleration(const Eigen::Vector7d& base_pos,
+							const Eigen::VectorXd& joint_pos,
+							const Eigen::Vector6d& base_vel,
+							const Eigen::VectorXd& joint_vel,
+							const Eigen::Vector6d& base_acc,
+							const Eigen::VectorXd& joint_acc,
+							const ElementList& frames);
+
+		/**
+		 * @brief Gets the frame acceleration.
+		 * 
+		 * @param[out] name Frame name
+		 * @return Frame acceleration [angular, linear]
+		 * 
+		 * @warning You have to run first updateKinematics with the joint accelerations.
+		 */
+		const Eigen::Vector6d&
+		getFrameAcceleration(const std::string& name);
 
 
 		/**
-		 * @brief Computes the inverse kinematics for a predefined set of
-		 * bodies positions.
-		 * This inverse kinematics algorithm uses an operational position which
-		 * consists of the desired 3d position for the base and each body
-		 * @param const rbd::Vector6d& Base position
-		 * @param const Eigen::VectorXd& Joint position
-		 * @param const rbd::BodyPosition& Operational position of bodies
-		 * @param const rbd::Vector6d& Initial base position for the iteration
-		 * @param const Eigen::VectorXd& Initial joint position for the iteration
-		 * @return True on success, false otherwise
+		 * @brief Computes the operational acceleration contribution from the
+		 * joint velocity for a predefined set of frames, i.e. J_d * q_d
+		 * 
+		 * @param[in] base_pos Base configuration [quaternion, position]
+		 * @param[in] joint_pos Joint position
+		 * @param[in] base_vel Base velocity [angular, linear]
+		 * @param[in] joint_vel Joint velocity
+		 * @param[in] frames Names of frames
+		 * @return Jdot * qdot term for each frame
 		 */
-		bool computeInverseKinematics(rbd::Vector6d& base_pos,
-									  Eigen::VectorXd& joint_pos,
-									  const rbd::BodyVector3d& op_pos);
-		bool computeInverseKinematics(rbd::Vector6d& base_pos,
-									  Eigen::VectorXd& joint_pos,
-									  const rbd::BodyVector3d& op_pos,
-									  const rbd::Vector6d& base_pos_init,
-									  const Eigen::VectorXd& joint_pos_init);
+		Eigen::Vector6dMap
+		computeJdQd(const Eigen::Vector7d& base_pos,
+					const Eigen::VectorXd& joint_pos,
+					const Eigen::Vector6d& base_vel,
+					const Eigen::VectorXd& joint_vel,
+					const ElementList& frames);
 
 		/**
-		 * @brief Computes the joint position from a predefined set of
-		 * body positions w.r.t the base.
-		 * This inverse kinematics algorithm uses an operational position which
-		 * consists of the desired 3d position for each body
-		 * @param const Eigen::VectorXd& Joint position
-		 * @param const rbd::BodyPosition& Operational position of bodies
-		 * @param const Eigen::VectorXd& Initial joint position for the iteration
+		 * @brief Gets the Jdot * qdot term.
+		 * 
+		 * @param[out] name Frame name
+		 * @return Jdot * qdot term [angular, linear]
+		 * 
+		 * @warning You have to run first updateKinematics with the joint velocities.
+		 */
+		const Eigen::Vector6d&
+		getFrameJdQd(const std::string& name);
+
+		//TODO: implement the whole-body IK
+		// /**
+		//  * @brief Computes the whole-body inverse kinematics for a predefined set of
+		//  * frame configurations, e.g. base and feet configurations, etc.
+		//  * @param[out] base_pos Base position
+		//  * @param[out] joint_pos Joint position
+		//  * @param[in] op_pos Configuration of bodies
+		//  * @param[in] base_pos_init Warm-start base position to the solver
+		//  * @param[in] joint_pos_init Warm-start joint position to the solver
+		//  * @return True on success, false otherwise
+		//  */
+		// bool computeInverseKinematics(Eigen::Vector7d& base_pos,
+		// 							  Eigen::VectorXd& joint_pos,
+		// 							  const Eigen::Vector7dMap op_pos);
+		// bool computeInverseKinematics(Eigen::Vector7d& base_pos,
+		// 							  Eigen::VectorXd& joint_pos,
+		// 							  const Eigen::Vector7dMap& op_pos,
+		// 							  const Eigen::Vector7d& base_pos_init,
+		// 							  const Eigen::VectorXd& joint_pos_init);
+
+		/**
+		 * @brief Computes the joint position from a predefined set of frame
+		 * configurations expressed in the base frame. The IK problem is solved
+		 * through a Gauss-Newton descent method. You can set the solver parameters
+		 * with setIKSolver function.
+		 * 
+		 * This IK algorithm uses the entired desired configuration (i.e. SE3 group) or
+		 * only the desired 3d position for a general cases or 3-DoF branches, respetively.
+		 * 
+		 * @param[out] joint_pos Joint position
+		 * @param[in] frame_pos Frame configuration expressed in the base frame
+		 * @param[in] joint_pos0 Warm-start joint position
 		 * @return True on success, false otherwise
 		 */
 		bool computeJointPosition(Eigen::VectorXd& joint_pos,
-								  const rbd::BodyVector3d& op_pos);
+								  const Eigen::Vector7dMap& frame_pos);
 		bool computeJointPosition(Eigen::VectorXd& joint_pos,
-								  const rbd::BodyVector3d& op_pos,
-								  const Eigen::VectorXd& joint_pos_init);
+								  const Eigen::Vector7dMap& frame_pos,
+								  const Eigen::VectorXd& joint_pos0);
 
 		/**
-		 * @brief Computes the joint velocity for a predefined set of body
-		 * velocities (q_d = J^-1 * x_d)
-		 * @param Eigen::VectorXd& Joint velocities
-		 * @param const Eigen::VectorXd& Joint positions
-		 * @param const rbd::BodyVector& Operational velocities of bodies
-		 * @param const rbd::BodySelector& A predefined set of bodies
+		 * @brief Computes the joint velocity for a predefined set of frame
+		 * velocities (q_d = J^-1 * x_d) expressed in the base frame.
+		 * 
+		 * @param[out] joint_vel Joint velocities
+		 * @param[in] joint_pos Joint positions
+		 * @param[in] frame_vel Frame velocities expressed in the base frame
 		 */
 		void computeJointVelocity(Eigen::VectorXd& joint_vel,
 								  const Eigen::VectorXd& joint_pos,
-								  const rbd::BodyVectorXd& op_vel,
-								  const rbd::BodySelector& body_set);
+								  const Eigen::Vector6dMap& frame_vel);
 
 		/**
-		 * @brief Computes the joint acceleration for a predefined set of
-		 * body (q_dd = J^-1 * [x_dd - J_d * q_d])
-		 * @param Eigen::VectorXd& Joint accelerations
-		 * @param const Eigen::VectorXd& joint positions
-		 * @param const Eigen::VectorXd& joint velocities
-		 * @param const rbd::BodyVector& Operational accelerations of bodies
-		 * @param const rbd::BodySelector& A predefined set of bodies
+		 * @brief Gets the joint velocity.
+		 * 
+		 * @param[out] joint_vel Joint velocity
+		 * @return Frame velocity [angular, linear]
+		 * 
+		 * @warning You have to run first updateJacobians.
+		 */
+		void getJointVelocity(Eigen::VectorXd& joint_vel,
+							  const Eigen::Vector6dMap& frame_vel);
+
+		/**
+		 * @brief Computes the joint acceleration for a predefined set of frame
+		 * accelerations (q_dd = J^-1 * [x_dd - J_d * q_d]) expressed in the base frame.
+		 * 
+		 * @param[out] joint_acc Joint accelerations
+		 * @param[in] joint_pos Joint positions
+		 * @param[in] joint_vel Joint velocities
+		 * @param[in] frame_acc Frame accelerations expressed in the base frame
 		 */
 		void computeJointAcceleration(Eigen::VectorXd& joint_acc,
 									  const Eigen::VectorXd& joint_pos,
 									  const Eigen::VectorXd& joint_vel,
-									  const rbd::BodyVectorXd& op_acc,
-									  const rbd::BodySelector& body_set);
+									  const Eigen::Vector6dMap& frame_acc);
 
 		/**
-		 * @brief Computes the whole-body jacobian for a predefined set of
-		 * bodies. A whole-body jacobian is defined as end-effector (body)
-		 * jacobian with respect to the inertial frame of the robot.
-		 * Additionally, the whole-body jacobian represents a stack of
-		 * floating-base effector jacobians in which there are base and
-		 * end-effector (body) contributions
-		 * @param Eigen::MatrixXd& Whole-body jacobian
-		 * @param const rbd::Vector6d& Base position
-		 * @param const Eigen::VectorXd& Joint position
-		 * @param const rbd::BodySelector& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important kind
-		 * of jacobian such as: linear, angular and full
+		 * @brief Gets the joint acceleration.
+		 * 
+		 * @param[out] joint_acc Joint acceleration
+		 * @return Frame acceleration [angular, linear]
+		 * 
+		 * @warning You have to run first updateKinematics and updateJacobians.
 		 */
-		void computeJacobian(Eigen::MatrixXd& jacobian,
-							 const rbd::Vector6d& base_pos,
-							 const Eigen::VectorXd& joint_pos,
-							 const rbd::BodySelector& body_set,
-							 enum rbd::Component component = rbd::Full);
+		void getJointAcceleration(Eigen::VectorXd& joint_acc,
+								  const Eigen::Vector6dMap& frame_acc);
 
 		/**
-		 * @brief Computes the fixed jacobian, without the floating-base
-		 * component, for a certain body.
-		 * @param Eigen::MatrixXd& Fixed jacobian
-		 * @param const Eigen::VectorXd& Joint position
-		 * @param const std::string& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important kind
-		 * of jacobian such as: linear, angular and full
+		 * @brief Computes the whole-body Jacobians for a predefined set of
+		 * frames. The whole-body Jacobians are defined as frame Jacobian w.r.t
+		 * the inertial frame of the robot (i.e. world frame). The whole-body
+		 * Jacobian represents a stack of frame Jacobians indexe by its frame name.
+		 * 
+		 * @param[in] base_pos Base configuration [quaternion, position]
+		 * @param[in] joint_pos Joint position
+		 * @param[in] frames Frame names
+		 * @return Whole-body Jacobian for each frame
 		 */
-		void computeFixedJacobian(Eigen::MatrixXd& jacobian,
-							 	  const Eigen::VectorXd& joint_pos,
-							 	  const std::string& body_name,
-							 	  enum rbd::Component component = rbd::Full);
+		Eigen::Matrix6xMap
+		computeJacobian(const Eigen::Vector7d& base_pos,
+						const Eigen::VectorXd& joint_pos,
+						const ElementList& frames);
+
+		/**
+		 * @brief Gets the frame Jacobian expressed in the world frame.
+		 * 
+		 * @param[in] name Frame name
+		 * @return Frame Jacobian [angular, linear]
+		 * 
+		 * @warning You have to run first updateJacobians.
+		 */
+		Eigen::Matrix6x
+		getFrameJacobian(const std::string& name);
 
 		/**
 		 * @brief Gets the floating-base contribution of a given whole-body
-		 * jacobian
-		 * @param Eigen::MatrixXd& Floating-base jacobian
-		 * @param const Eigen::MatrixXd& Whole-body jacobian
-		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not
-		 * fully floating-base, i.e. a floating-base with physical constraints
+		 * Jacobian. This belongs to the unactuated part of the robot. For
+		 * fixed-base system returns a 6x6 matrix with zeros.		 * 
+		 * 
+		 * @param[out] Floating-base jacobian
+		 * @param[in] Whole-body jacobian
 		 */
-		void getFloatingBaseJacobian(Eigen::MatrixXd& jacobian,
+		void getFloatingBaseJacobian(Eigen::Matrix6d& jacobian,
 									 const Eigen::MatrixXd& full_jacobian);
 
 		/**
 		 * @brief Gets the fixed-base jacobian contribution of a given
-		 * whole-body jacobian
-		 * @param Eigen::MatrixXd& Fixed-base jacobian
-		 * @param const Eigen::MatrixXd& Whole-body jacobian
-		 * @param struct rbd::ReducedFloatingBase* Defined only when it's not
-		 * fully floating-base, i.e. a floating-base with physical constraints
+		 * whole-body Jacobian. This belongs to the actuated part of the robot.
+		 * 
+		 * @param[out] jac Fixed-base jacobian
+		 * @param[in] full_jac Whole-body jacobian
 		 */
-		void getFixedBaseJacobian(Eigen::MatrixXd& jacobian,
-								  const Eigen::MatrixXd& full_jacobian);
-
-		/**
-		 * @brief Computes the operational velocity from the joint space for a
-		 * predefined set of bodies of the robot
-		 * @param rbd::BodyVector& Operational velocity
-		 * @param const rbd::Vector6d& Base position
-		 * @param const Eigen::VectorXd& Joint position
-		 * @param const rbd::Vector6d& Base velocity
-		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param const rbd::BodySelector& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important kind
-		 * of jacobian such as: linear, angular and full
-		 */
-		void computeVelocity(rbd::BodyVectorXd& op_vel,
-							 const rbd::Vector6d& base_pos,
-							 const Eigen::VectorXd& joint_pos,
-							 const rbd::Vector6d& base_vel,
-							 const Eigen::VectorXd& joint_vel,
-							 const rbd::BodySelector& body_set,
-							 enum rbd::Component component = rbd::Full);
-		const rbd::BodyVectorXd& computeVelocity(const rbd::Vector6d& base_pos,
-												 const Eigen::VectorXd& joint_pos,
-												 const rbd::Vector6d& base_vel,
-												 const Eigen::VectorXd& joint_vel,
-												 const rbd::BodySelector& body_set,
-												 enum rbd::Component component = rbd::Full);
-
-		/**
-		 * @brief Computes the operational acceleration from the joint space
-		 * for a predefined set of bodies of the robot
-		 * @param rbd::BodyVector& Operational acceleration
-		 * @param const rbd::Vector6d& Base position
-		 * @param const Eigen::VectorXd& Joint position
-		 * @param const rbd::Vector6d& Base velocity
-		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param const rbd::Vector6d& Base acceleration
-		 * @param const Eigen::VectorXd& Joint acceleration
-		 * @param const rbd::BodySelector& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important kind
-		 * of jacobian such as: linear, angular and full
-		 */
-		void computeAcceleration(rbd::BodyVectorXd& op_acc,
-								 const rbd::Vector6d& base_pos,
-								 const Eigen::VectorXd& joint_pos,
-								 const rbd::Vector6d& base_vel,
-								 const Eigen::VectorXd& joint_vel,
-								 const rbd::Vector6d& base_acc,
-								 const Eigen::VectorXd& joint_acc,
-								 const rbd::BodySelector& body_set,
-								 enum rbd::Component component = rbd::Full);
-		const rbd::BodyVectorXd& computeAcceleration(const rbd::Vector6d& base_pos,
-								 	 	 	 	 	 const Eigen::VectorXd& joint_pos,
-													 const rbd::Vector6d& base_vel,
-													 const Eigen::VectorXd& joint_vel,
-													 const rbd::Vector6d& base_acc,
-													 const Eigen::VectorXd& joint_acc,
-													 const rbd::BodySelector& body_set,
-													 enum rbd::Component component = rbd::Full);
-
-		/**
-		 * @brief Computes the operational acceleration contribution from the
-		 * joint velocity for a predefined set of bodies of the robot, i.e.
-		 * Jac_d * q_d
-		 * @param rbd::BodyVector& Operational acceleration contribution from
-		 * joint velocity
-		 * @param const rbd::Vector6d& Base position
-		 * @param const Eigen::VectorXd& Joint position
-		 * @param const rbd::Vector6d& Base velocity
-		 * @param const Eigen::VectorXd& Joint velocity
-		 * @param const rbd::BodySelector& A predefined set of bodies
-		 * @param enum rbd::Component There are three different important kind
-		 * of jacobian such as: linear, angular and full
-		 */
-		void computeJdotQdot(rbd::BodyVectorXd& jacd_qd,
-							 const rbd::Vector6d& base_pos,
-							 const Eigen::VectorXd& joint_pos,
-							 const rbd::Vector6d& base_vel,
-							 const Eigen::VectorXd& joint_vel,
-							 const rbd::BodySelector& body_set,
-							 enum rbd::Component component = rbd::Full);
-		const rbd::BodyVectorXd& computeJdotQdot(const rbd::Vector6d& base_pos,
-												 const Eigen::VectorXd& joint_pos,
-												 const rbd::Vector6d& base_vel,
-												 const Eigen::VectorXd& joint_vel,
-												 const rbd::BodySelector& body_set,
-												 enum rbd::Component component = rbd::Full);
-
-		/** @brief Gets the floating-base system information */
-		std::shared_ptr<FloatingBaseSystem> getFloatingBaseSystem();
-
-		/**
-		 * @brief Gets the number of active end-effectors
-		 * @param cons rbd::EndEffectorSelector& End-effector set
-		 */
-		int getNumberOfActiveEndEffectors(const rbd::BodySelector& effector_set);
+		void getFixedBaseJacobian(Eigen::Matrix6x& jac,
+								  const Eigen::Matrix6x& full_jac);
 
 
 	private:
-		/** @brief Fixed body ids */
-		rbd::BodyID body_id_;
-
 		/** @brief A floating-base system definition */
 		std::shared_ptr<FloatingBaseSystem> fbs_;
 
 		/** @brief Middle joint position */
 		Eigen::VectorXd joint_pos_middle_;
 
-		rbd::BodyVectorXd body_pos_;
-		rbd::BodyVectorXd body_vel_;
-		rbd::BodyVectorXd body_acc_;
-		rbd::BodyVectorXd jdot_qdot_;
+		Eigen::Vector7d config_vec_;
+		Eigen::Vector6d tangent_vec_;
 
 		/** @brief IK solver */
 		double step_tol_;
-		double lambda_;
 		unsigned int max_iter_;
 };
 
@@ -306,3 +394,4 @@ class WholeBodyKinematics
 } //@namespace dwl
 
 #endif
+

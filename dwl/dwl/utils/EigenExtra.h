@@ -17,6 +17,7 @@ typedef std::map<std::string,Eigen::Vector3d> Vector3dMap;
 typedef std::map<std::string,Eigen::Vector6d> Vector6dMap;
 typedef std::map<std::string,Eigen::Vector7d> Vector7dMap;
 typedef std::map<std::string,Eigen::VectorXd> VectorXdMap;
+typedef std::map<std::string,Eigen::Matrix6x> Matrix6xMap;
 
 }
 
