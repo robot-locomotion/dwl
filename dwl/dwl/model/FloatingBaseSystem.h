@@ -381,6 +381,12 @@ class FloatingBaseSystem
 		/** Constant variable for undefined elements (joints or bodies) **/
 		const unsigned int UNDEFINED_ID = std::numeric_limits<unsigned int>::max();
 
+		/**
+		 * @brief Get the type of root Joint
+		 * @return Root joint type
+		 */
+		enum RootJoint getRootJoint();
+
 
 	private:
 		/** @brief Compared string function */

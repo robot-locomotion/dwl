@@ -669,6 +669,12 @@ void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 }
 
 
+enum RootJoint FloatingBaseSystem::getRootJoint()
+{
+	return root_joint_;	
+}
+
+
 bool FloatingBaseSystem::compareString(std::string a, std::string b)
 {
 	return a < b;
