@@ -5,7 +5,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 message("-- Building unit testing")
 
 # Adding unit test executables
-add_executable(ws_utest  WholeBodyStateUTest.cpp)
+add_executable(ws_utest  WholeBodyState.cpp)
 target_link_libraries(ws_utest ${PROJECT_NAME})
 if(IPOPT_FOUND)
 	add_executable(ipopt_utest  IpoptDWLTest.cpp

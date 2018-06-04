@@ -129,7 +129,7 @@ endif()
 
 # Adding the test executables
 if(DWL_WITH_UNIT_TEST)
-	add_subdirectory(tests)
+	add_subdirectory(unittest)
 endif()
 
 # Adding the benchmark executables
