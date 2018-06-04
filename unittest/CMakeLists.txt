@@ -20,6 +20,11 @@ if(LIBCMAES_FOUND)
 								model/HS071Cost.cpp)
 	target_link_libraries(cmaes_utest ${PROJECT_NAME})
 endif()
+add_executable(fbs_utest  FloatingBaseSystem.cpp)
+target_link_libraries(fbs_utest ${PROJECT_NAME})
+set_target_properties(fbs_utest  PROPERTIES
+                                 COMPILE_DEFINITIONS
+                                 DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
 add_executable(support_utest  SupportPolygonConstraintTest.cpp)
 target_link_libraries(support_utest ${PROJECT_NAME})
