@@ -6,7 +6,7 @@
 double epsilon = 0.00001;
 
 
-BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for base linear states
+BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
 {
     // Floating-base system
     std::string model_file = DWL_SOURCE_DIR"/models/hyq.urdf";
