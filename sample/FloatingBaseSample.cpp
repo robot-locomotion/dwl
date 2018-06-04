@@ -10,8 +10,8 @@ int main(int argc, char **argv)
 	dwl::model::FloatingBaseSystem fbs;
 
 	// Resetting the system from the hyq urdf file
-	string model_file = DWL_SOURCE_DIR"/sample/hyq.urdf";
-	string robot_file = DWL_SOURCE_DIR"/config/hyq.yarf";
+	string model_file = DWL_SOURCE_DIR"/models/hyq.urdf";
+	string robot_file = DWL_SOURCE_DIR"/models/hyq.yarf";
 	fbs.resetFromURDFFile(model_file, robot_file);
 
 	// Getting the number of system DoF, floating-base Dof, joints and end-effectors

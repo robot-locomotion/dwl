@@ -10,8 +10,8 @@ int main(int argc, char **argv)
 	dwl::model::WholeBodyKinematics wkin;
 
 	// Resetting the system from the hyq urdf file
-	std::string urdf_file = DWL_SOURCE_DIR"/sample/hyq.urdf";
-	std::string yarf_file = DWL_SOURCE_DIR"/config/hyq.yarf";
+	std::string urdf_file = DWL_SOURCE_DIR"/models/hyq.urdf";
+	std::string yarf_file = DWL_SOURCE_DIR"/models/hyq.yarf";
 	fbs.resetFromURDFFile(urdf_file, yarf_file);
 	wkin.reset(fbs);
 
