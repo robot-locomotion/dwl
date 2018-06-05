@@ -408,19 +408,21 @@ void WholeBodyKinematics::getJointVelocity(Eigen::VectorXd& joint_vel,
 		v_frame << rbd::linearPart(v_frame), rbd::angularPart(v_frame);
 		unsigned int id = fbs_->getModel().getFrameId(name);
 		
-		// Getting the base to world transformation
+		// Computing the transformation between the local to base coordinates of the frame
+		const se3::SE3 &w_X_f = se3::SE3(fbs_->getData().oMf[id].rotation(),
+										 Eigen::Vector3d::Zero());
 		Eigen::Matrix4d b_H_f =
-			w_X_b.toHomogeneousMatrix().inverse() * fbs_->getData().oMf[id].toHomogeneousMatrix();
-		const se3::SE3 &b_X_f =
-			se3::SE3(b_H_f.block<3,3>(0,0), b_H_f.block<3,1>(0,3));
+			w_X_b.toHomogeneousMatrix().inverse() * w_X_f.toHomogeneousMatrix();
+		const se3::SE3 &b_X_f = 
+			se3::SE3(b_H_f.block<3,3>(0,0), b_H_f.block<3,1>(0,3)); // (R,t)
 
 		// Computing the frame Jacobian (actuated part) in the base frame
-		Eigen::Matrix6x full_jac(6,fbs_->getModel().nv);
-		Eigen::Matrix6x fixed_jac(6,fbs_->getModel().nv);
+		Eigen::Matrix6x full_jac(6, fbs_->getTangentDim());
+		Eigen::Matrix6x fixed_jac(6, fbs_->getTangentDim());
 		full_jac.setZero();
 		se3::getFrameJacobian(fbs_->getModel(), fbs_->getData(), id, full_jac);
 		getFixedBaseJacobian(fixed_jac, full_jac);
-		fixed_jac = b_X_f.toDualActionMatrix() * fixed_jac;
+		fixed_jac = b_X_f.toActionMatrix() * fixed_jac;
 
 		// Computing the branch joint velocity
 		Eigen::VectorXd branch_joint_vel =
@@ -475,11 +477,13 @@ void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 		a_frame << rbd::linearPart(a_frame), rbd::angularPart(a_frame);
 		unsigned int id = fbs_->getModel().getFrameId(name);
 
-		// Getting the base to world transformation
+		// Computing the transformation between the local to base coordinates of the frame
+		const se3::SE3 &w_X_f = se3::SE3(fbs_->getData().oMf[id].rotation(),
+										 Eigen::Vector3d::Zero());
 		Eigen::Matrix4d b_H_f =
-			w_X_b.toHomogeneousMatrix().inverse() * fbs_->getData().oMf[id].toHomogeneousMatrix();
-		const se3::SE3 &b_X_f =
-			se3::SE3(b_H_f.block<3,3>(0,0), b_H_f.block<3,1>(0,3));
+			w_X_b.toHomogeneousMatrix().inverse() * w_X_f.toHomogeneousMatrix();
+		const se3::SE3 &b_X_f = 
+			se3::SE3(b_H_f.block<3,3>(0,0), b_H_f.block<3,1>(0,3)); // (R,t)
 
 		// Computing the frame Jacobian (actuated part) in the base frame
 		Eigen::Matrix6x full_jac(6,fbs_->getModel().nv);
@@ -487,10 +491,12 @@ void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 		full_jac.setZero();
 		se3::getFrameJacobian(fbs_->getModel(), fbs_->getData(), id, full_jac);
 		getFixedBaseJacobian(fixed_jac, full_jac);
-		fixed_jac = b_X_f.toDualActionMatrix() * fixed_jac;
+		fixed_jac = b_X_f.toActionMatrix() * fixed_jac;
 
 		// Computing the Jd*qd term expressed in the base frame
-		Eigen::Vector6d jd_qd = getFrameJdQd(name) - base_acc;
+		Eigen::Vector6d jd_qd = getFrameJdQd(name);
+		jd_qd << rbd::linearPart(jd_qd), rbd::angularPart(jd_qd);
+		jd_qd -= base_acc;
 
 		// Computing the branch joint acceleration
 		Eigen::VectorXd branch_joint_acc =
