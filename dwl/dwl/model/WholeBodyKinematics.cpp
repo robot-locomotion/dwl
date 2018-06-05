@@ -170,11 +170,16 @@ WholeBodyKinematics::getFrameVelocity(const std::string& name)
 	unsigned int id = fbs_->getModel().getFrameId(name);
 	const se3::Frame &f = fbs_->getModel().frames[id];
 	
-	// Compute the world to frame transformationbody_set
+	// Computing the transformation between world to local coordinates of the frame
 	const se3::SE3 &f_X_w = 
 		se3::SE3(fbs_->getData().oMi[f.parent].rotation().transpose(),
 				 f.placement.translation());
 
+	// Converting the frame velocity in local coordinate to world coordinate
+	// Note that this is equivalent to convert the body spatial velocity into
+	// the local coordinates of the frame (i.e. f_v_l = f.placement.actInv(data.v))
+	// and the then apply the rotation between the world and frame (i.e. w_R_f) but
+	// more efficient because it's needed only 1 motion transform
 	const se3::Motion &vel = f_X_w.actInv(fbs_->getData().v[f.parent]);
 	tangent_vec_ << vel.angular(), vel.linear();
 
@@ -211,13 +216,18 @@ WholeBodyKinematics::getFrameAcceleration(const std::string& name)
 	unsigned int id = fbs_->getModel().getFrameId(name);
 	const se3::Frame &f = fbs_->getModel().frames[id];
 	
-	// Compute the world to frame transformation
+	// Computing the transformation between world to local coordinates of the frame
 	const se3::SE3 &f_X_w = 
 		se3::SE3(fbs_->getData().oMi[f.parent].rotation().transpose(),
 				 f.placement.translation());
 
-	// Compute the frame velocity and acceleration w.r.t. the world
+	// Converting the frame velocity in local coordinate to world coordinate
 	const se3::Motion &vel = f_X_w.actInv(fbs_->getData().v[f.parent]);
+	// Converting the frame acceleration in local coordinate to world coordinate
+	// Note that this is equivalent to convert the body spatial acceleration into
+	// the local coordinates of the frame (i.e. f_v_l = f.placement.actInv(data.a))
+	// and the then apply the rotation between the world and frame (i.e. w_R_f) but
+	// more efficient because it's needed only 1 motion transform
 	const se3::Motion &acc_dash =
 		se3::Motion(vel.angular().cross(vel.linear()), Eigen::Vector3d::Zero());
 	const se3::Motion &acc = f_X_w.actInv(fbs_->getData().a[f.parent]) + acc_dash;
@@ -503,7 +513,6 @@ WholeBodyKinematics::computeJacobian(const Eigen::Vector7d& base_pos,
 	for (ElementList::const_iterator it = frames.begin();
 		it != frames.end(); ++it) {
 		std::string name = *it;
-		std::cout << name << std::endl;
 		Eigen::Matrix6x jac = getFrameJacobian(name);
 
 		// Pinocchio defines floating joints as (linear, angular)^T which is
@@ -531,7 +540,7 @@ WholeBodyKinematics::getFrameJacobian(const std::string& name)
 {
 	unsigned int id = fbs_->getModel().getFrameId(name);
 
-	// Compute the frame to world transformation
+	// Computing the transformation between the local to world coordinates of the frame
 	const se3::SE3 &w_X_f = se3::SE3(fbs_->getData().oMf[id].rotation(),
 									 Eigen::Vector3d::Zero());
 	
