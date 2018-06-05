@@ -28,3 +28,8 @@ set_target_properties(fbs_utest  PROPERTIES
 
 add_executable(support_utest  SupportPolygonConstraintTest.cpp)
 target_link_libraries(support_utest ${PROJECT_NAME})
+add_executable(wkin_utest  WholeBodyKinematics.cpp)
+target_link_libraries(wkin_utest ${PROJECT_NAME})
+set_target_properties(wkin_utest  PROPERTIES
+								  COMPILE_DEFINITIONS
+								  DWL_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
