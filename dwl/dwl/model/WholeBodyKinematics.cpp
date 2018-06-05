@@ -393,6 +393,9 @@ void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
 void WholeBodyKinematics::getJointVelocity(Eigen::VectorXd& joint_vel,
 										   const Eigen::Vector6dMap& frame_vel)
 {
+	// Resizing the vector
+	joint_vel = Eigen::VectorXd::Zero(fbs_->getJointDoF());
+
 	// Getting the world to base transform
 	unsigned int base_id = fbs_->getModel().getFrameId(fbs_->getFloatingBaseName());
 	const se3::SE3 &w_X_b = fbs_->getData().oMf[base_id];
@@ -443,7 +446,7 @@ void WholeBodyKinematics::computeJointAcceleration(Eigen::VectorXd& joint_acc,
 
 	// Updating the frame Jacobians and kinematics
 	updateJacobians(base_pos0, joint_pos);
-
+	
 	// Getting the joint acceleration
 	getJointAcceleration(joint_acc, frame_acc);
 }
@@ -452,6 +455,9 @@ void WholeBodyKinematics::computeJointAcceleration(Eigen::VectorXd& joint_acc,
 void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 											   const Eigen::Vector6dMap& frame_acc)
 {
+	// Resizing the vector
+	joint_acc = Eigen::VectorXd::Zero(fbs_->getJointDoF());
+
 	// Getting the world to base transform
 	unsigned int base_id = fbs_->getModel().getFrameId(fbs_->getFloatingBaseName());
 	const se3::SE3 &w_X_b = fbs_->getData().oMf[base_id];
@@ -544,7 +550,7 @@ WholeBodyKinematics::getFrameJacobian(const std::string& name)
 	const se3::SE3 &w_X_f = se3::SE3(fbs_->getData().oMf[id].rotation(),
 									 Eigen::Vector3d::Zero());
 	
-	Eigen::Matrix6x J(6,fbs_->getModel().nv);
+	Eigen::Matrix6x J(6, fbs_->getTangentDim());
 	J.setZero();
 	se3::getFrameJacobian(fbs_->getModel(), fbs_->getData(), id, J);
 
