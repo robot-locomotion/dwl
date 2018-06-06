@@ -650,6 +650,13 @@ void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 {
 	// Getting the body id
 	unsigned int body_id = getBodyId(name);
+	num_dof = 0;
+	pos_idx = 0;
+
+	if (body_id == UNDEFINED_ID) {
+		printf(YELLOW "Warning: undefined branch %s\n" COLOR_RESET, name.c_str());
+		return;
+	}
 
 	// Getting the base joint id. Note that the floating-base starts the
 	// kinematic-tree
@@ -659,7 +666,6 @@ void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 
 	// The starts of the branch is detected when its parent frame is
 	// equals to the root frame
-	num_dof = 0;
 	unsigned int parent_id = body_id;
 	do {
 		pos_idx = parent_id - root_id - 1;
