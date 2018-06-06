@@ -307,8 +307,8 @@ bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 			const se3::SE3 &b_X_f = fbs_->getData().oMf[id];
 
 			// Computing the frame Jacobian (of actuation part) in the base frame
-			Eigen::Matrix6x full_jac(6,fbs_->getModel().nv);
-			Eigen::Matrix6x fixed_jac(6,fbs_->getModel().nv);
+			Eigen::Matrix6x full_jac(6,fbs_->getTangentDim());
+			Eigen::Matrix6x fixed_jac(6,fbs_->getTangentDim());
 			full_jac.setZero();
 			se3::getFrameJacobian(fbs_->getModel(), fbs_->getData(), id, full_jac);
 			getFixedBaseJacobian(fixed_jac, full_jac);
@@ -316,9 +316,9 @@ bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 
 			// Compute the Gauss-Newton direction, the residual error is computed
 			// according the current-branch DoF
-			Eigen::VectorXd qdot;
 			unsigned int pos_idx, n_dof;
 			fbs_->getBranch(pos_idx, n_dof, name);
+			Eigen::VectorXd qdot;
 			if (n_dof <= 3) {// only position error
 				Eigen::Vector3d e = b_X_f.translation() - rbd::linearPart(x_des);
 
