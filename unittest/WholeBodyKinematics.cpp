@@ -3,8 +3,6 @@
 #include <boost/test/included/unit_test.hpp>
 
 
-// Tolerance
-double epsilon = 1e-3;
 
 BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
 {
@@ -32,7 +30,7 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
     wkin.computeCoMRate(x, xd,
 						base_pos, joint_pos,
 						base_vel, joint_vel);
-    BOOST_CHECK( x.isApprox(Eigen::Vector3d(-0.000278458, 0., -0.0460617), epsilon) );
+    BOOST_CHECK( x.isApprox(Eigen::Vector3d(-0.000278458, 0., -0.0460617), 1e-3) );
     BOOST_CHECK( xd.isApprox(Eigen::Vector3d(1., 0., 0.)) );
 
 
@@ -42,7 +40,7 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
                              fbs.getEndEffectorNames());
     Eigen::Vector7d lf_pos;
     lf_pos << 0.0928958, -0.364443, -0.0365662, 0.925859, 0.370773, 0.324067, -0.57751;
-    BOOST_CHECK( pos_W.find("lf_foot")->second.isApprox(lf_pos, epsilon) );
+    BOOST_CHECK( pos_W.find("lf_foot")->second.isApprox(lf_pos, 1e-3) );
 
 
     // Checking the LF foot velocity
@@ -52,7 +50,7 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
                              fbs.getEndEffectorNames());
     Eigen::Vector6d lf_vel;
     lf_vel << 0., 0., 0., 1., 0., 0.;
-    BOOST_CHECK( vel_W.find("lf_foot")->second.isApprox(lf_vel, epsilon) );
+    BOOST_CHECK( vel_W.find("lf_foot")->second.isApprox(lf_vel, 1e-12) );
 
 
     // Checking the LF foot acceleration
@@ -63,14 +61,14 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
                                  fbs.getEndEffectorNames());
     Eigen::Vector6d lf_acc;
     lf_acc << 0., 1., 0., -0.57751, 0., -0.370773;
-    BOOST_CHECK( acc_W.find("lf_foot")->second.isApprox(lf_acc, epsilon) );
+    BOOST_CHECK( acc_W.find("lf_foot")->second.isApprox(lf_acc, 1e-3) );
 
 
     // Checking the fixed-based IK
     Eigen::VectorXd new_joint_pos;
     Eigen::Vector7dMap pos_B = pos_W; // Note that we didn't move the base configuration
     wkin.computeJointPosition(new_joint_pos, pos_B);
-    BOOST_CHECK( new_joint_pos.isApprox(joint_pos) );
+    BOOST_CHECK( new_joint_pos.isApprox(joint_pos, 1e-12) );
 
 
     // Checking the joint velocity computation
@@ -81,7 +79,7 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
                              Eigen::Vector6d::Zero(), joint_vel,
                              fbs.getEndEffectorNames());
 	wkin.computeJointVelocity(new_joint_vel, joint_pos, vel_B);
-    BOOST_CHECK( new_joint_vel.isApprox(joint_vel) );
+    BOOST_CHECK( new_joint_vel.isApprox(joint_vel, 1e-12) );
 
 
     // Checking the joint velocity computation
@@ -93,12 +91,6 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
                                  Eigen::Vector6d::Zero(), joint_acc,
                                  fbs.getEndEffectorNames());
 	wkin.computeJointAcceleration(new_joint_acc, joint_pos, joint_vel, acc_B);
-    BOOST_CHECK( new_joint_acc.isApprox(joint_acc) );
-//     std::cout << joint_acc.transpose() << std::endl;
-//     std::cout << new_joint_acc.transpose() << std::endl;
-
-// std::cout << std::endl;
-// std::cout << acc_B.find("lf_foot")->second.transpose() << std::endl;
-// std::cout << wkin.getFrameJdQd("lf_foot").transpose() << std::endl;
+    BOOST_CHECK( new_joint_acc.isApprox(joint_acc, 1e-12) );
 
 }
