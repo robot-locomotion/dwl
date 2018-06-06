@@ -2,6 +2,7 @@
 #include <dwl/model/WholeBodyKinematics.h>
 
 
+using namespace std;
 
 int main(int argc, char **argv)
 {
@@ -35,114 +36,122 @@ int main(int argc, char **argv)
 	ws.setJointPosition(-0.75, fbs.getJointId("rh_hfe_joint"));
 	ws.setJointPosition(1.5, fbs.getJointId("rh_kfe_joint"));
 
+	ws.setJointAcceleration(1., fbs.getJointId("lf_hfe_joint"));
+
+	
+	// Computing the CoM position and velocity
+	Eigen::Vector3d x, xd;
+	wkin.computeCoMRate(x, xd,
+						ws.base_pos, ws.joint_pos,
+						ws.base_vel, ws.joint_vel);
+	cout << "x = " << x.transpose() << endl;
+	cout << "xd = " << xd.transpose() << endl << endl;
+
+	// Computing the Cartesian position of a set of frames
+	Eigen::Vector7dMap pos_W =
+		wkin.computePosition(ws.base_pos, ws.joint_pos,
+							 fbs.getEndEffectorNames());
+	cout << "Frame position:" << endl;
+	for (Eigen::Vector7dMap::iterator it = pos_W.begin();
+		it != pos_W.end(); ++it)
+			cout << "  " << it->first << " = " << it->second.transpose() << endl;
+	cout << endl;
+	// ws.setContactPosition_W(pos_W);
+
+
+	// Computing the Cartesian velocity of a set of frames. A frame is a fixed-point
+	// in a body
+	Eigen::Vector6dMap vel_W = 
+		wkin.computeVelocity(ws.base_pos, ws.joint_pos,
+							 ws.base_vel, ws.joint_vel,
+							 fbs.getEndEffectorNames());
+	cout << "Frame velocity:" << endl;
+	for (Eigen::Vector6dMap::iterator it = vel_W.begin();
+		it != vel_W.end(); ++it)
+			cout << "  " << it->first << " = " << it->second.transpose() << endl;
+	cout << endl;
+	// ws.setContactVelocity_W(pos_W);
+	
+
+	// Computing the Cartesian acceleration of a set of frames
+	Eigen::Vector6dMap acc_W = 
+		wkin.computeAcceleration(ws.base_pos, ws.joint_pos,
+								 ws.base_vel, ws.joint_vel,
+								 ws.base_acc, ws.joint_acc,
+								 fbs.getEndEffectorNames());
+	cout << "Frame acceleration:" << endl;
+	for (Eigen::Vector6dMap::iterator it = acc_W.begin();
+		it != acc_W.end(); ++it)
+			cout << "  " << it->first << " = " << it->second.transpose() << endl;
+	cout << endl;
+	// ws.setContactAcceleration_W(pos_W);
+	
+	
+	// Computing the contact Jacd*Qd
+	Eigen::Vector6dMap jd_qd_W =
+		wkin.computeJdQd(ws.base_pos, ws.joint_pos,
+						 ws.base_vel, ws.joint_vel,
+						 fbs.getEndEffectorNames());
+	cout << "Frame Jd*qd term:" << endl;
+	for (Eigen::Vector6dMap::iterator it = jd_qd_W.begin();
+			it != jd_qd_W.end(); ++it)
+		cout << "  " << it->first << " = " << it->second.transpose() << endl;
+	cout << endl;
 
 	// Computing the jacobians
 	Eigen::MatrixXd jacobian, fixed_jac, floating_jac;
-	wkin.computeJacobian(jacobian,
-						 ws.base_pos, ws.joint_pos,
-						 fbs.getEndEffectorNames(),
-						 dwl::rbd::Full);
-	std::cout << "---------------------------------------" << std::endl;
-	std::cout << jacobian << " = jacobian" << std::endl;
-	wkin.getFixedBaseJacobian(fixed_jac, jacobian);
-	std::cout << "---------------------------------------" << std::endl;
-	std::cout << fixed_jac << " = fixed jacobian" << std::endl;
-	wkin.getFloatingBaseJacobian(floating_jac, jacobian);
-	std::cout << "---------------------------------------" << std::endl;
-	std::cout << floating_jac << " = floating jacobian" << std::endl << std::endl;
-
-
-	// Computing contact positions w.r.t to the world frame
-	dwl::rbd::BodyVectorXd contact_pos_W;
-	wkin.computeForwardKinematics(contact_pos_W,
-								  ws.base_pos, ws.joint_pos,
-								  fbs.getEndEffectorNames(), // it uses all the end-effector of the system
-								  dwl::rbd::Linear, dwl::RollPitchYaw);
-	ws.setContactPosition_W(contact_pos_W);
-	std::cout << "------------------- Contact positions --------------------" << std::endl;
-	for (unsigned int c = 0; c < fbs.getNumberOfEndEffectors(); ++c) {
-		std::string name = fbs.getEndEffectorNames()[c];
-		Eigen::VectorXd position = ws.getContactPosition_W(name);
-		std::cout << name << " = " << position.transpose() << std::endl << std::endl;
+	Eigen::Matrix6xMap jac = 
+		wkin.computeJacobian(ws.base_pos, ws.joint_pos,
+							 fbs.getEndEffectorNames());
+	cout << "Frame Jacobian:" << endl;
+	for (Eigen::Matrix6xMap::iterator it = jac.begin();
+		it != jac.end(); ++it) {
+			cout << it->first << ":" << endl;
+			cout << it->second << endl;
+			cout << "---" << endl;
+			Eigen::Matrix6d floating_jac;
+			Eigen::Matrix6x fixed_jac;
+			wkin.getFloatingBaseJacobian(floating_jac, it->second);
+			wkin.getFixedBaseJacobian(fixed_jac, it->second);
+			cout << floating_jac << " = Floating-base Jacobian" << endl;
+			cout << "---" << endl;
+			cout << fixed_jac << " = Fixed-base Jacobian" << endl;
+			cout << endl;
 	}
+	cout << endl;
+	cout << "---------------------------------------" << endl;
 
 
-	// Computing the contact velocities w.r.t to the world frame
-	dwl::rbd::BodyVectorXd contact_vel_W;
-	wkin.computeVelocity(contact_vel_W,
-						 ws.base_pos, ws.joint_pos,
-						 ws.base_vel, ws.joint_vel,
-						 fbs.getEndEffectorNames(), dwl::rbd::Linear);
-	ws.setContactVelocity_W(contact_vel_W);
-	std::cout << "------------------- Contact velocities --------------------" << std::endl;
-	for (unsigned int c = 0; c < fbs.getNumberOfEndEffectors(); ++c) {
-		std::string name = fbs.getEndEffectorNames()[c];
-		Eigen::VectorXd velocity = ws.getContactVelocity_W(name);
-		std::cout << name << " = " << velocity.transpose() << std::endl << std::endl;
-	}
 
-
-	// Computing the contact accelerations w.r.t to the world frame
-	dwl::rbd::BodyVectorXd contact_acc_W;
-	wkin.computeAcceleration(contact_acc_W,
-							 ws.base_pos, ws.joint_pos,
-							 ws.base_vel, ws.joint_vel,
-							 ws.base_acc, ws.joint_acc,
-							 fbs.getEndEffectorNames(), dwl::rbd::Linear);
-	ws.setContactAcceleration_W(contact_acc_W);
-	std::cout << "------------------- Contact accelerations --------------------" << std::endl;
-	for (unsigned int c = 0; c < fbs.getNumberOfEndEffectors(); ++c) {
-		std::string name = fbs.getEndEffectorNames()[c];
-		Eigen::VectorXd acceleration = ws.getContactAcceleration_W(name);
-		std::cout << name << " = " << acceleration.transpose() << std::endl << std::endl;
-	}
-
-
-	// Computing IK
-	wkin.setIKSolver( 1.0e-12, 0.01, 50);
-	dwl::rbd::BodyVector3d ik_pos;
-	ik_pos[fbs.getFloatingBaseName()] = Eigen::Vector3d::Zero();
-	ik_pos["lf_foot"] = ws.getContactPosition_W("lf_foot").tail(3);
-	ik_pos["rf_foot"] = ws.getContactPosition_W("rf_foot").tail(3);
-	ik_pos["lh_foot"] = ws.getContactPosition_W("lh_foot").tail(3);
-	ik_pos["rh_foot"] = ws.getContactPosition_W("rh_foot").tail(3);
-	dwl::rbd::Vector6d base_pos_init = dwl::rbd::Vector6d::Zero();
-	Eigen::VectorXd joint_pos_init(12);
-	joint_pos_init << 0., 0.5, -1., 0., -0.5, 1., 0., 0.5, -1., 0., -0.5, 1.;
-	std::cout << "------------------ WB-IK ---------------------" << std::endl;
-	if (wkin.computeInverseKinematics(ws.base_pos, ws.joint_pos,
-									  ik_pos,
-								 	  base_pos_init, joint_pos_init)) {
-		std::cout << "Base position = " << ws.base_pos.transpose() << std::endl;
-		std::cout << "Joint position = "<< ws.joint_pos.transpose() << std::endl << std::endl;
-	} else {
-		std::cout << "The WB-IK problem could not be solved" << std::endl;
-	}
-
-	std::cout << "------------------ IK ---------------------" << std::endl;
+	// // Computing IK
+	Eigen::Vector7dMap frame_pos;// = pos_W;
+	frame_pos["lf_foot"] = pos_W.find("lf_foot")->second;
+	frame_pos["lh_foot"] = pos_W.find("lh_foot")->second;
+	// wkin.setIKSolver( 1.0e-12, 0.01, 50);
+	Eigen::VectorXd joint_pos0(12);
+	joint_pos0 << 0., 0.5, -1., 0., -0.5, 1., 0., 0.5, -1., 0., -0.5, 1.;
 	if (wkin.computeJointPosition(ws.joint_pos,
-								  ik_pos,
-								  joint_pos_init)) {
-		std::cout << "Joint position = "<< ws.joint_pos.transpose() << std::endl << std::endl;
+								  frame_pos,
+								  joint_pos0)) {
+		cout << "Joint position = "<< ws.joint_pos.transpose() << endl << endl;
 	} else {
-		std::cout << "The IK problem could not be solved" << std::endl;
+		cout << "The IK problem could not be solved" << endl;
 	}
 
+	Eigen::Vector6dMap frame_vel;
+	frame_vel["lf_foot"] << 0., 0., 0., 1., 0., 0.;
+	frame_vel["lh_foot"] << 0., 0., 0., 0., 1., 0.;
+	frame_vel["rf_foot"] << 0., 0., 0., 0., 0., 1.;
+	wkin.computeJointVelocity(ws.joint_vel, ws.joint_pos, frame_vel);
+	cout << "Joint velocity = " << ws.joint_vel.transpose() << endl << endl;
 
-	// Computing the contact Jacd*Qd
-	dwl::rbd::BodyVectorXd contact_jacd_qd;
-	wkin.computeJdotQdot(contact_jacd_qd,
-						 ws.base_pos, ws.joint_pos,
-						 ws.base_vel, ws.joint_vel,
-						 fbs.getEndEffectorNames(), dwl::rbd::Full);
-	std::cout << "------------------- Contact Jdot*Qdot --------------------" << std::endl;
-	for (dwl::rbd::BodyVectorXd::iterator it = contact_jacd_qd.begin();
-			it != contact_jacd_qd.end(); ++it) {
-		std::string name = it->first;
-		Eigen::VectorXd jacd_qd = it->second;
 
-		std::cout << name << " = " << jacd_qd.transpose() << std::endl << std::endl;
-	}
+	Eigen::Vector6dMap frame_acc;
+	frame_acc["lf_foot"] << 0., 0., 0., 1., 0., 0.;
+	frame_acc["lh_foot"] << 0., 0., 0., 0., 1., 0.;
+	frame_acc["rf_foot"] << 0., 0., 0., 0., 0., 1.;
+	wkin.computeJointAcceleration(ws.joint_acc, ws.joint_pos, 0.*ws.joint_vel, frame_acc);
+	cout << "Joint acceleration = " << ws.joint_acc.transpose() << endl << endl;
 
 
     return 0;
