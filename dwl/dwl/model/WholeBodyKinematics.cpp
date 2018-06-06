@@ -386,10 +386,6 @@ void WholeBodyKinematics::getJointVelocity(Eigen::VectorXd& joint_vel,
 	// Resizing the vector
 	joint_vel = Eigen::VectorXd::Zero(fbs_->getJointDoF());
 
-	// Getting the world to base transform
-	unsigned int base_id = fbs_->getModel().getFrameId(fbs_->getFloatingBaseName());
-	const se3::SE3 &w_X_b = fbs_->getData().oMf[base_id];
-
 	for (Eigen::Vector6dMap::const_iterator it = frame_vel.begin();
 		it != frame_vel.end(); ++it) {
 		// Getting the frame information
@@ -398,13 +394,9 @@ void WholeBodyKinematics::getJointVelocity(Eigen::VectorXd& joint_vel,
 		v_frame << rbd::linearPart(v_frame), rbd::angularPart(v_frame);
 		unsigned int id = fbs_->getModel().getFrameId(name);
 		
-		// Computing the transformation between the local to base coordinates of the frame
+		// Computing the transformation between the local to world coordinates of the frame
 		const se3::SE3 &w_X_f = se3::SE3(fbs_->getData().oMf[id].rotation(),
 										 Eigen::Vector3d::Zero());
-		Eigen::Matrix4d b_H_f =
-			w_X_b.toHomogeneousMatrix().inverse() * w_X_f.toHomogeneousMatrix();
-		const se3::SE3 &b_X_f = 
-			se3::SE3(b_H_f.block<3,3>(0,0), b_H_f.block<3,1>(0,3)); // (R,t)
 
 		// Computing the frame Jacobian (actuated part) in the base frame
 		Eigen::Matrix6x full_jac(6, fbs_->getTangentDim());
@@ -412,7 +404,7 @@ void WholeBodyKinematics::getJointVelocity(Eigen::VectorXd& joint_vel,
 		full_jac.setZero();
 		se3::getFrameJacobian(fbs_->getModel(), fbs_->getData(), id, full_jac);
 		getFixedBaseJacobian(fixed_jac, full_jac);
-		fixed_jac = b_X_f.toActionMatrix() * fixed_jac;
+		fixed_jac = w_X_f.toActionMatrix() * fixed_jac;
 
 		// Computing the branch joint velocity
 		Eigen::VectorXd branch_joint_vel =
@@ -450,15 +442,6 @@ void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 	// Resizing the vector
 	joint_acc = Eigen::VectorXd::Zero(fbs_->getJointDoF());
 
-	// Getting the world to base transform
-	unsigned int base_id = fbs_->getModel().getFrameId(fbs_->getFloatingBaseName());
-	const se3::SE3 &w_X_b = fbs_->getData().oMf[base_id];
-
-	// Getting the base acceleration
-	Eigen::Vector6d base_acc;
-	base_acc << fbs_->getData().a[base_id].angular(),
-				fbs_->getData().a[base_id].linear();
-
 	for (Eigen::Vector6dMap::const_iterator it = frame_acc.begin();
 		it != frame_acc.end(); ++it) {
 		// Getting the frame information
@@ -467,13 +450,9 @@ void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 		a_frame << rbd::linearPart(a_frame), rbd::angularPart(a_frame);
 		unsigned int id = fbs_->getModel().getFrameId(name);
 
-		// Computing the transformation between the local to base coordinates of the frame
+		// Computing the transformation between the local to world coordinates of the frame
 		const se3::SE3 &w_X_f = se3::SE3(fbs_->getData().oMf[id].rotation(),
 										 Eigen::Vector3d::Zero());
-		Eigen::Matrix4d b_H_f =
-			w_X_b.toHomogeneousMatrix().inverse() * w_X_f.toHomogeneousMatrix();
-		const se3::SE3 &b_X_f = 
-			se3::SE3(b_H_f.block<3,3>(0,0), b_H_f.block<3,1>(0,3)); // (R,t)
 
 		// Computing the frame Jacobian (actuated part) in the base frame
 		Eigen::Matrix6x full_jac(6,fbs_->getModel().nv);
@@ -481,7 +460,7 @@ void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 		full_jac.setZero();
 		se3::getFrameJacobian(fbs_->getModel(), fbs_->getData(), id, full_jac);
 		getFixedBaseJacobian(fixed_jac, full_jac);
-		fixed_jac = b_X_f.toActionMatrix() * fixed_jac;
+		fixed_jac = w_X_f.toActionMatrix() * fixed_jac;
 
 		// Computing the Jd*qd term expressed in the base frame
 		// Since we set up the acceleration vector null, then the Jdot * qdot term
