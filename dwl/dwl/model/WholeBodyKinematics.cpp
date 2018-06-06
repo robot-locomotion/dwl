@@ -406,9 +406,20 @@ void WholeBodyKinematics::getJointVelocity(Eigen::VectorXd& joint_vel,
 		getFixedBaseJacobian(fixed_jac, full_jac);
 		fixed_jac = w_X_f.toActionMatrix() * fixed_jac;
 
+		// Getting the branch Jacobian		
+		unsigned int pos_idx, n_dof;
+		fbs_->getBranch(pos_idx, n_dof, name);
+		Eigen::Matrix6x branch_jac = fixed_jac.block(0, pos_idx, 6, n_dof);
+
 		// Computing the branch joint velocity
-		Eigen::VectorXd branch_joint_vel =
-			fbs_->getBranchState(math::pseudoInverse(fixed_jac) * v_frame, name);
+		Eigen::VectorXd branch_joint_vel;
+		if (n_dof <= 3) {// only cartesian velocity
+			branch_joint_vel =
+				math::pseudoInverse(branch_jac.topRows<3>()) * v_frame.head<3>();
+		} else { // 6d velocity
+			branch_joint_vel =
+				math::pseudoInverse(branch_jac) * v_frame;
+		}
 
 		// Setting up the branch joint velocity
 		fbs_->setBranchState(joint_vel, branch_joint_vel, name);
@@ -455,12 +466,17 @@ void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 										 Eigen::Vector3d::Zero());
 
 		// Computing the frame Jacobian (actuated part) in the base frame
-		Eigen::Matrix6x full_jac(6,fbs_->getModel().nv);
-		Eigen::Matrix6x fixed_jac(6,fbs_->getModel().nv);
+		Eigen::Matrix6x full_jac(6, fbs_->getTangentDim());
+		Eigen::Matrix6x fixed_jac(6, fbs_->getTangentDim());
 		full_jac.setZero();
 		se3::getFrameJacobian(fbs_->getModel(), fbs_->getData(), id, full_jac);
 		getFixedBaseJacobian(fixed_jac, full_jac);
 		fixed_jac = w_X_f.toActionMatrix() * fixed_jac;
+
+		// Getting the branch Jacobian		
+		unsigned int pos_idx, n_dof;
+		fbs_->getBranch(pos_idx, n_dof, name);
+		Eigen::Matrix6x branch_jac = fixed_jac.block(0, pos_idx, 6, n_dof);
 
 		// Computing the Jd*qd term expressed in the base frame
 		// Since we set up the acceleration vector null, then the Jdot * qdot term
@@ -468,10 +484,15 @@ void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 		Eigen::Vector6d jd_qd = getFrameAcceleration(name); 
 		jd_qd << rbd::linearPart(jd_qd), rbd::angularPart(jd_qd);
 
-		// Computing the branch joint acceleration
-		Eigen::VectorXd branch_joint_acc =
-			fbs_->getBranchState(math::pseudoInverse(fixed_jac) * (a_frame - jd_qd),
-								 name);
+		// Computing the branch joint velocity
+		Eigen::VectorXd branch_joint_acc;
+		if (n_dof <= 3) {// only cartesian velocity
+			branch_joint_acc =
+				math::pseudoInverse(branch_jac.topRows<3>()) * (a_frame - jd_qd).head<3>();
+		} else { // 6d velocity
+			branch_joint_acc =
+				math::pseudoInverse(branch_jac) * (a_frame - jd_qd);
+		}
 
 		// Setting up the branch joint acceleration
 		fbs_->setBranchState(joint_acc, branch_joint_acc, name);

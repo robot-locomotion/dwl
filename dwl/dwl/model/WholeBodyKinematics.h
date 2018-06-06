@@ -271,6 +271,9 @@ class WholeBodyKinematics
 		 * @brief Computes the joint velocity for a predefined set of frame
 		 * velocities (q_d = J^-1 * x_d) expressed in the base frame.
 		 * 
+		 * To compute the joint velocity is used the entired 6d velocity or only the desired
+		 * linear velocity for a general cases or 3-DoF branches, respetively.
+		 * 
 		 * @param[out] joint_vel Joint velocities
 		 * @param[in] joint_pos Joint positions
 		 * @param[in] frame_vel Frame velocities expressed in the base frame
@@ -281,6 +284,9 @@ class WholeBodyKinematics
 
 		/**
 		 * @brief Gets the joint velocity.
+		 * 
+		 * To compute the joint velocity is used the entired 6d velocity or only the desired
+		 * linear velocity for a general cases or 3-DoF branches, respetively.
 		 * 
 		 * @param[out] joint_vel Joint velocity
 		 * @return Frame velocity [angular, linear]
@@ -294,6 +300,9 @@ class WholeBodyKinematics
 		 * @brief Computes the joint acceleration for a predefined set of frame
 		 * accelerations (q_dd = J^-1 * [x_dd - J_d * q_d]) expressed in the base frame.
 		 * 
+		 * To compute the joint acceleration is used the entired 6d acceleration or only 
+		 * the desired* linear acceleration for a general cases or 3-DoF branches, respetively.
+		 * 
 		 * @param[out] joint_acc Joint accelerations
 		 * @param[in] joint_pos Joint positions
 		 * @param[in] joint_vel Joint velocities
@@ -306,6 +315,9 @@ class WholeBodyKinematics
 
 		/**
 		 * @brief Gets the joint acceleration.
+		 * 
+		 * To compute the joint acceleration is used the entired 6d acceleration or only 
+		 * the desired* linear acceleration for a general cases or 3-DoF branches, respetively.
 		 * 
 		 * @param[out] joint_acc Joint acceleration
 		 * @return Frame acceleration [angular, linear]
