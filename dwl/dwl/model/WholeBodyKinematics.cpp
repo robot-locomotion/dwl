@@ -223,6 +223,7 @@ WholeBodyKinematics::getFrameAcceleration(const std::string& name)
 
 	// Converting the frame velocity in local coordinate to world coordinate
 	const se3::Motion &vel = f_X_w.actInv(fbs_->getData().v[f.parent]);
+
 	// Converting the frame acceleration in local coordinate to world coordinate
 	// Note that this is equivalent to convert the body spatial acceleration into
 	// the local coordinates of the frame (i.e. f_v_l = f.placement.actInv(data.a))
@@ -245,34 +246,21 @@ WholeBodyKinematics::computeJdQd(const Eigen::Vector7d& base_pos,
 								 const ElementList& frames)
 {
 	// Update the kinematics
-	Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
-	Eigen::VectorXd qd = fbs_->toTangentState(base_vel, joint_vel);
-	Eigen::VectorXd qdd = Eigen::VectorXd::Zero(fbs_->getModel().nv);
-	se3::forwardKinematics(fbs_->getModel(), fbs_->getData(), q, qd, qdd);
+	updateKinematics(base_pos, joint_pos,
+					 base_vel, joint_vel,
+					 Eigen::Vector6d::Zero(), Eigen::VectorXd::Zero(fbs_->getJointDoF()));
+
 
 	Eigen::Vector6dMap frame_jdqd;
 	for (ElementList::const_iterator it = frames.begin();
 		it != frames.end(); ++it) {
 		std::string name = *it;
-		frame_jdqd[name] = getFrameJdQd(name);
+		// Since we set up the acceleration vector null, then the Jdot * qdot term
+		// is equals to the accelerations
+		frame_jdqd[name] = getFrameAcceleration(name); //TODO create own method
 	}
 
 	return frame_jdqd;
-}
-
-
-const Eigen::Vector6d&
-WholeBodyKinematics::getFrameJdQd(const std::string& name)
-{
-	Eigen::Vector6d vel = getFrameVelocity(name);
-	Eigen::Vector6d acc = getFrameAcceleration(name);
-	
-	// Computing the frame Jdot * qdot term
-	tangent_vec_ << rbd::angularPart(acc),
-					rbd::linearPart(acc) +
-					rbd::angularPart(vel).cross(rbd::linearPart(vel));
-
-	return tangent_vec_;
 }
 
 
@@ -332,7 +320,7 @@ bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 			unsigned int pos_idx, n_dof;
 			fbs_->getBranch(pos_idx, n_dof, name);
 			if (n_dof <= 3) {// only position error
-				Eigen::VectorXd e = b_X_f.translation() - rbd::linearPart(x_des);
+				Eigen::Vector3d e = b_X_f.translation() - rbd::linearPart(x_des);
 
 				// Note that the jacobian in Pinocchio is organized as [linear, angular], and
 				// the base component isn't considered
@@ -383,7 +371,9 @@ void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
 	// Getting the configuration vector and updating the frame Jacobians and kinematics
 	Eigen::Vector7d base_pos0 = Eigen::Vector7d::Zero();
 	base_pos0(rbd::AW_Q) = 1.;
-	updateJacobians(base_pos0, joint_pos);
+	updateKinematics(base_pos0, joint_pos,
+					 Eigen::Vector6d::Zero(), joint_vel,
+					 Eigen::Vector6d::Zero(), Eigen::VectorXd::Zero(fbs_->getJointDoF()));
 
 	// Getting the joint velocities
 	getJointVelocity(joint_vel, frame_vel);
@@ -494,9 +484,10 @@ void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 		fixed_jac = b_X_f.toActionMatrix() * fixed_jac;
 
 		// Computing the Jd*qd term expressed in the base frame
-		Eigen::Vector6d jd_qd = getFrameJdQd(name);
+		// Since we set up the acceleration vector null, then the Jdot * qdot term
+		// is equals to the accelerations
+		Eigen::Vector6d jd_qd = getFrameAcceleration(name); 
 		jd_qd << rbd::linearPart(jd_qd), rbd::angularPart(jd_qd);
-		jd_qd -= base_acc;
 
 		// Computing the branch joint acceleration
 		Eigen::VectorXd branch_joint_acc =

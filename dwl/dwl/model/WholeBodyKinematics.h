@@ -227,17 +227,6 @@ class WholeBodyKinematics
 					const Eigen::VectorXd& joint_vel,
 					const ElementList& frames);
 
-		/**
-		 * @brief Gets the Jdot * qdot term.
-		 * 
-		 * @param[out] name Frame name
-		 * @return Jdot * qdot term [angular, linear]
-		 * 
-		 * @warning You have to run first updateKinematics with the joint velocities.
-		 */
-		const Eigen::Vector6d&
-		getFrameJdQd(const std::string& name);
-
 		//TODO: implement the whole-body IK
 		// /**
 		//  * @brief Computes the whole-body inverse kinematics for a predefined set of
