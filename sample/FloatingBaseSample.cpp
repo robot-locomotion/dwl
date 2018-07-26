@@ -98,7 +98,8 @@ int main(int argc, char **argv)
 	fbs.setBranchState(joint_pos, lf_branch_pos, "lf_foot");
 	cout << "Setting up lf_foot branch position = " << lf_branch_pos.transpose() << endl;
 	cout << "Joint position = " << joint_pos.transpose() << endl;
-	cout << "Getting the lf_foot branch position = " << fbs.getBranchState(joint_pos, "lf_foot").transpose() << endl << endl;
+	cout << "Getting the lf_foot branch position = ";
+	cout << fbs.getBranchState(joint_pos, "lf_foot").transpose() << endl << endl;
 
 	return 0;
 }

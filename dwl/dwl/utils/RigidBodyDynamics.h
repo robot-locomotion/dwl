@@ -21,9 +21,9 @@ typedef std::map<std::string,unsigned int> BodyID;
  */
 enum Coords3d {X = 0, Y, Z};
 std::string coord3dToName(enum Coords3d coord);
-enum Coords6d {AX_V = 0, AY_V, AZ_V, LX_V, LY_V, LZ_V};
+enum Coords6d {LX_V = 0, LY_V, LZ_V, AX_V, AY_V, AZ_V};
 std::string coord6dToName(enum Coords6d coord);
-enum Coords7d {AX_Q = 0, AY_Q, AZ_Q, AW_Q, LX_Q, LY_Q, LZ_Q};
+enum Coords7d {LX_Q = 0, LY_Q, LZ_Q, AX_Q, AY_Q, AZ_Q, AW_Q};
 std::string coord7dToName(enum Coords7d coord);
 
 /**

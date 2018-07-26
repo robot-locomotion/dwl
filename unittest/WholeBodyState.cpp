@@ -9,73 +9,77 @@
 // Tolerance
 double epsilon = 0.00001;
 
-BOOST_AUTO_TEST_CASE(base_linear) // specify a test case for base linear states
+BOOST_AUTO_TEST_CASE(test_base_linear) // specify a test case for base linear states
 {
 	dwl::WholeBodyState ws;
 	Eigen::Vector3d old_base_state;
 	Eigen::Vector3d new_base_state;
+	Eigen::Vector3d zero_state = Eigen::Vector3d::Zero();
 
 	// Testing the base position
 	old_base_state = Eigen::Vector3d(0.1, 0.2, 0.6);
-	ws.setBasePosition(old_base_state);
-	new_base_state = ws.getBasePosition();
-	for (unsigned int i = 0; i < 2; i++)
+	ws.setBaseSE3(dwl::SE3(old_base_state, zero_state));
+	new_base_state = ws.getBaseSE3().getTranslation();
+	for (unsigned int i = 0; i < 2; ++i)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
 
 	// Testing the base velocity
 	old_base_state = Eigen::Vector3d(0.5, 0.7, 0.);
-	ws.setBaseVelocity_W(old_base_state);
-	new_base_state = ws.getBaseVelocity_W();
-	for (unsigned int i = 0; i < 2; i++)
+	ws.setBaseVelocity_W(dwl::Motion(old_base_state, Eigen::Vector3d::Zero()));
+	new_base_state = ws.getBaseVelocity_W().getLinear();
+	for (unsigned int i = 0; i < 2; ++i)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
-	new_base_state = ws.getBaseVelocity_B();
-	for (unsigned int i = 0; i < 2; i++)
+	new_base_state = ws.getBaseVelocity_B().getLinear();
+	for (unsigned int i = 0; i < 2; ++i)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
-	new_base_state = ws.getBaseVelocity_H();
-	for (unsigned int i = 0; i < 2; i++)
+	new_base_state = ws.getBaseVelocity_H().getLinear();
+	for (unsigned int i = 0; i < 2; ++i)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
 
 	// Testing the base acceleration
 	old_base_state = Eigen::Vector3d(0.8, 0.9, -9.8);
-	ws.setBaseAcceleration_W(old_base_state);
-	new_base_state = ws.getBaseAcceleration_W();
-	for (unsigned int i = 0; i < 2; i++)
+	ws.setBaseAcceleration_W(dwl::Motion(old_base_state, Eigen::Vector3d::Zero()));
+	new_base_state = ws.getBaseAcceleration_W().getLinear();
+	for (unsigned int i = 0; i < 2; ++i)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
-	new_base_state = ws.getBaseAcceleration_B();
-	for (unsigned int i = 0; i < 2; i++)
+	new_base_state = ws.getBaseAcceleration_B().getLinear();
+	for (unsigned int i = 0; i < 2; ++i)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 
-	new_base_state = ws.getBaseAcceleration_H();
-	for (unsigned int i = 0; i < 2; i++)
+	new_base_state = ws.getBaseAcceleration_H().getLinear();
+	for (unsigned int i = 0; i < 2; ++i)
 		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
 }
 
 
-BOOST_AUTO_TEST_CASE(base_angular) // specify a test case for base angular states
+BOOST_AUTO_TEST_CASE(test_base_angular) // specify a test case for base angular states
 {
 	dwl::WholeBodyState ws;
 	Eigen::Vector3d old_base_state;
 	Eigen::Vector3d new_base_state;
 	Eigen::Vector3d rpy;
 	Eigen::Quaterniond q;
+	Eigen::Vector3d zero_state = Eigen::Vector3d::Zero();
 
 	// Testing RPY
-	ws.setBaseRPY(Eigen::Vector3d(0., M_PI_4, M_PI_4));
-	ws.setBaseOrientation(ws.getBaseOrientation());
-	rpy = ws.getBaseRPY();
+	old_base_state = Eigen::Vector3d(0., M_PI_4, M_PI_4);
+	ws.setBaseSE3(dwl::SE3(zero_state, old_base_state));
+	ws.setBaseSE3(ws.getBaseSE3());
+	rpy = ws.base_pos.getRPY();
 	BOOST_CHECK_SMALL((double) rpy(0) - 0., epsilon);
 	BOOST_CHECK_SMALL((double) rpy(1) - M_PI_4, epsilon);
 	BOOST_CHECK_SMALL((double) rpy(2) - M_PI_4, epsilon);
 
 
 	// Testing quaternion in the world frame
-	ws.setBaseRPY(Eigen::Vector3d(0., 0., M_PI));
-	q = ws.getBaseOrientation();
+	old_base_state = Eigen::Vector3d(0., 0., M_PI);
+	ws.setBaseSE3(dwl::SE3(zero_state, old_base_state));
+	q = ws.base_pos.getQuaternion();
 	BOOST_CHECK_SMALL(q.x() - 0., epsilon);
 	BOOST_CHECK_SMALL(q.y() - 0., epsilon);
 	BOOST_CHECK_SMALL(q.z() - 1., epsilon);
@@ -83,8 +87,9 @@ BOOST_AUTO_TEST_CASE(base_angular) // specify a test case for base angular state
 
 
 	// Testing another quaternion in the world frame
-	ws.setBaseRPY(Eigen::Vector3d(0., M_PI_4, M_PI));
-	q = ws.getBaseOrientation();
+	old_base_state = Eigen::Vector3d(0., M_PI_4, M_PI);
+	ws.setBaseSE3(dwl::SE3(zero_state, old_base_state));
+	q = ws.base_pos.getQuaternion();
 	BOOST_CHECK_SMALL(q.x() + 0.382683, epsilon);
 	BOOST_CHECK_SMALL(q.y() - 0., epsilon);
 	BOOST_CHECK_SMALL(q.z() - 0.92388, epsilon);
@@ -92,36 +97,30 @@ BOOST_AUTO_TEST_CASE(base_angular) // specify a test case for base angular state
 
 
 	// Testing the base angular velocity
-	ws.setBaseRPY(Eigen::Vector3d(0., 0., 0.));
+	ws.setBaseSE3(dwl::SE3(zero_state, zero_state));
 	old_base_state = Eigen::Vector3d(0.5, 0.7, 0.);
-	ws.setBaseAngularVelocity_W(old_base_state);
-	new_base_state = ws.getBaseAngularVelocity_W();
-	for (unsigned int i = 0; i < 2; i++)
-		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
+	ws.setBaseVelocity_W(dwl::Motion(zero_state, old_base_state));
+	new_base_state = ws.getBaseVelocity_W().getAngular();
+	BOOST_CHECK( old_base_state.isApprox(new_base_state) );
 
-	new_base_state = ws.getBaseAngularVelocity_B();
-	for (unsigned int i = 0; i < 2; i++)
-		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
+	new_base_state = ws.getBaseVelocity_B().getAngular();
+	BOOST_CHECK( old_base_state.isApprox(new_base_state) );
 
-	new_base_state = ws.getBaseAngularVelocity_H();
-	for (unsigned int i = 0; i < 2; i++)
-		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
+	new_base_state = ws.getBaseVelocity_H().getAngular();
+	BOOST_CHECK( old_base_state.isApprox(new_base_state) );
 
 
 	// Testing the base acceleration
 	old_base_state = Eigen::Vector3d(0.8, 0.9, -9.8);
-	ws.setBaseAngularAcceleration_W(old_base_state);
-	new_base_state = ws.getBaseAngularAcceleration_W();
-	for (unsigned int i = 0; i < 2; i++)
-		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
+	ws.setBaseAcceleration_W(dwl::Motion(zero_state, old_base_state));
+	new_base_state = ws.getBaseAcceleration_W().getAngular();
+	BOOST_CHECK( old_base_state.isApprox(new_base_state) );
 
-	new_base_state = ws.getBaseAngularAcceleration_B();
-	for (unsigned int i = 0; i < 2; i++)
-		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
+	new_base_state = ws.getBaseAcceleration_B().getAngular();
+	BOOST_CHECK( old_base_state.isApprox(new_base_state) );
 
-	new_base_state = ws.getBaseAngularAcceleration_H();
-	for (unsigned int i = 0; i < 2; i++)
-		BOOST_CHECK_SMALL((double) (new_base_state(i) - old_base_state(i)), epsilon);
+	new_base_state = ws.getBaseAcceleration_H().getAngular();
+	BOOST_CHECK( old_base_state.isApprox(new_base_state) );
 }
 
 

@@ -4,15 +4,13 @@
 #include <map>
 #include <vector>
 
-#include <dwl/utils/FrameTF.h>
-#include <dwl/utils/EigenExtra.h>
+#include <dwl/utils/LieGroup.h>
 #include <dwl/utils/RigidBodyDynamics.h>
 
-
-#define NO_WRENCH Eigen::Vector6d::Zero()
-#define MAX_WRENCH 2e19 * Eigen::Vector6d::Ones()
-#define INACTIVE_CONTACT NO_WRENCH
-#define ACTIVE_CONTACT MAX_WRENCH
+#define ZERO_VECTOR3D Eigen::Vector3d::Zero()
+#define MAX_VECTOR3D 2e19 * Eigen::Vector3d::Ones()
+#define INACTIVE_CONTACT ZERO_VECTOR3D
+#define ACTIVE_CONTACT MAX_VECTOR3D
 
 
 namespace dwl
@@ -23,17 +21,14 @@ namespace dwl
  * This class describes the whole-body state of the robot, including:
  * <ul>
  *    <li>time, in seconds</li>
- *    <li>Base position, expressed in the world frame</li>
- *    <li>Base orientation, expressed in a world frame</li>
+ *    <li>Base SE3 configuration, expressed in the world frame</li>
  *    <li>Base velocity, expressed in the world frame</li>
- *    <li>Base angular velocity (rotation rate), expressed in the world frame</li><li>
  *    <li>Base acceleration, expressed in the world frame</li>
- *    <li>Base angular acceleration, expressed in the world frame</li>
  *    <li>Joint positions, expressed with the urdf order</li>
  *    <li>Joint velocities, expressed with the urdf order</li>
  *    <li>Joint accelerations, expressed with the urdf order</li>
  *    <li>Joint efforts, expressed with the urdf order</li>
- *    <li>Contact positions, expressed in the base frame</li>
+ *    <li>Contact SE3 configurations, expressed in the base frame</li>
  *    <li>Contact velocities, expressed in the base frame</li>
  *    <li>Contact accelerations, expressed in the base frame</li>
  *    <li>Contact efforts, expressed in the base frame</li>
@@ -50,9 +45,9 @@ namespace dwl
  * getter and setter routines. Note that the states are:
  * <ul>
  *   <li>time in seconds</li>
- * 	 <li>base_pos [qx, qy, qz, qw, x, y, z] expressed in the world frame </li>
- * 	 <li>base_vel [rate_x, rate_y, rate_z, x, y, z] expressed in the world frame </li>
- * 	 <li>base_acc [rotacc_x, rotacc_y, rotacc_y, x, y, z] expressed in the world frame </li>
+ * 	 <li>base_pos [x, y, z, qx, qy, qz, qw] expressed in the world frame </li>
+ * 	 <li>base_vel [x, y, z, wx, wy, wz,] expressed in the world frame </li>
+ * 	 <li>base_acc [x, y, z, wx, wy, wz] expressed in the world frame </li>
  * 	 <li>joint_pos [q_0, ..., q_N]</li>
  * 	 <li>joint_vel [qd_0, ..., qd_N]</li>
  * 	 <li>joint_acc [qdd_0, ..., qdd_N]</li>
@@ -73,6 +68,9 @@ class WholeBodyState
 {
 	public:
 		typedef Eigen::VectorXdMap::const_iterator ContactIterator;
+		typedef dwl::SE3Map::const_iterator SE3Iterator;
+		typedef dwl::MotionMap::const_iterator MotionIterator;
+		typedef dwl::ForceMap::const_iterator ForceIterator;
 
 		/** @brief Constructor function */
 		WholeBodyState(unsigned int num_joints = 0);
@@ -82,149 +80,107 @@ class WholeBodyState
 
 		// Time getter function
 		/** @brief Gets the time value
-		 * @return The time value
+		 * @return Time
 		 */
 		const double& getTime() const;
 
+
 		// Base state getter functions
-		/** @brief Gets the base position
-		 * @return The base position
+		/**
+		 * @brief Gets the base SE3
+		 * @return Base SE3
 		 */
-		Eigen::Vector3d getBasePosition() const;
+		const dwl::SE3& getBaseSE3() const;
 
-		/** @brief Gets the base quaternion
-		 * @return The base quaternion
+		/**
+		 * @brief Gets the base SE3 of the horizontal frame
+		 * @return Base SE3 of the horizontal frame
 		 */
-		Eigen::Vector4d getBaseOrientation() const;
-
-		/** @brief Gets the base RPY angles
-		 * @return The base RPY angles
-		 */
-		Eigen::Vector3d getBaseRPY() const;
-
-		/** @brief Gets the quaternion of the horizontal frame
-		 * @return The quaternion of the horizontal frame
-		 */
-		Eigen::Vector4d getHorizontalOrientation() const;
-
-		/** @brief Gets the RPY angles of the horizontal frame
-		 * @return the RPY angles of the horizontal frame
-		 */
-		Eigen::Vector3d getHorizontalRPY() const;
+		const dwl::SE3& getBaseSE3_H();
 
 		/** @brief Gets the base velocity expressed in the world frame
-		 * @return The base velocity expressed in the world frame
+		 * @return Base velocity expressed in the world frame
 		 */
-		Eigen::Vector3d getBaseVelocity_W() const;
+		const dwl::Motion& getBaseVelocity_W() const;
 
 		/** @brief Gets the base velocity of the base frame
-		 * @return The base velocity of the horizontal frame
+		 * @return Base velocity of the horizontal frame
 		 */
-		Eigen::Vector3d getBaseVelocity_B() const;
+		const dwl::Motion& getBaseVelocity_B();
 
 		/** @brief Gets the base velocity expressed in the horizontal frame
-		 * @return The base velocity expressed in the horizontal frame
+		 * @return Base velocity expressed in the horizontal frame
 		 */
-		Eigen::Vector3d getBaseVelocity_H() const;
-
-		/** @brief Gets the base angular velocity expressed in the world frame
-		 * @return The base angular velocity expressed in the world frame
-		 */
-		Eigen::Vector3d getBaseAngularVelocity_W() const;
-
-		/** @brief Gets the base angular velocity expressed in the base frame
-		 * @return The base angular velocity expressed in the base frame
-		 */
-		Eigen::Vector3d getBaseAngularVelocity_B() const;
-
-		/** @brief Gets the base angular velocity expressed in the horizontal frame
-		 * @return The base angular velocity expressed in the horizontal frame
-		 */
-		Eigen::Vector3d getBaseAngularVelocity_H() const;
+		const dwl::Motion& getBaseVelocity_H();
 
 		/** @brief Gets the base RPY velocity expressed in the world frame
-		 * @return The base RPY velocity expressed in the world frame
+		 * @return Base RPY velocity expressed in the world frame
 		 */
-		Eigen::Vector3d getBaseRPYVelocity_W() const;
+		const Eigen::Vector3d& getBaseRPYVelocity_W();
 
 		/** @brief Gets the base acceleration expressed in the world frame
-		 * @return The base acceleration expressed in the world frame
+		 * @return Base acceleration expressed in the world frame
 		 */
-		Eigen::Vector3d getBaseAcceleration_W() const;
+		const dwl::Motion& getBaseAcceleration_W() const;
 
 		/** @brief Gets the base acceleration expressed in the base frame
-		 * @return The base acceleration expressed in the base frame
+		 * @return Base acceleration expressed in the base frame
 		 */
-		Eigen::Vector3d getBaseAcceleration_B() const;
+		const dwl::Motion& getBaseAcceleration_B();
 
 		/** @brief Gets the base acceleration expressed in the horizontal frame
-		 * @return The base acceleration expressed in the horizontal frame
+		 * @return Base acceleration expressed in the horizontal frame
 		 */
-		Eigen::Vector3d getBaseAcceleration_H() const;
-
-		/** @brief Gets the base angular acceleration expressed in the world frame
-		 * @return The base angular acceleration expressed in the world frame
-		 */
-		Eigen::Vector3d getBaseAngularAcceleration_W() const;
-
-		/** @brief Gets the base angular acceleration expressed in the base frame
-		 * @return The base angular acceleration expressed in the base frame
-		 */
-		Eigen::Vector3d getBaseAngularAcceleration_B() const;
-
-		/** @brief Gets the base angular acceleration expressed in the horizontal frame
-		 * @return The base angular acceleration expressed in the horizontal frame
-		 */
-		Eigen::Vector3d getBaseAngularAcceleration_H() const;
+		const dwl::Motion& getBaseAcceleration_H();
 
 		/** @brief Gets the base RPY acceleration expressed in the world frame
-		 * @return The base RPY acceleration expressed in the world frame
+		 * @return Base RPY acceleration expressed in the world frame
 		 */
-		Eigen::Vector3d getBaseRPYAcceleration_W() const;
+		const Eigen::Vector3d& getBaseRPYAcceleration_W();
 
 
 		// Joint state getter functions
 		/** @brief Gets the joint positions
-		 * @return The joint positions
+		 * @return Joint positions
 		 */
 		const Eigen::VectorXd& getJointPosition() const;
 
 		/** @brief Gets the joint position given its index
-		 * @param[in] index The joint index
-		 * @return The joint position
+		 * @param[in] index Joint index
+		 * @return Joint position
 		 */
 		const double& getJointPosition(const unsigned int& index) const;
 
 		/** @brief Gets the joint velocities
-		 * @return The joint velocities
+		 * @return Joint velocities
 		 */
 		const Eigen::VectorXd& getJointVelocity() const;
 
 		/** @brief Gets the joint velocity given its index
-		 * @param[in] index The joint index
-		 * @return The joint velocity
+		 * @param[in] index Joint index
+		 * @return Joint velocity
 		 */
 		const double& getJointVelocity(const unsigned int& index) const;
 
 		/** @brief Gets the joint accelerations
-		 * @return The joint accelerations
+		 * @return Joint accelerations
 		 */
 		const Eigen::VectorXd& getJointAcceleration() const;
 
 		/** @brief Gets the joint acceleration given its index
-		 * @param[in] index The joint index
-		 * @return The joint acceleration
+		 * @param[in] index Joint index
+		 * @return Joint acceleration
 		 */
 		const double& getJointAcceleration(const unsigned int& index) const;
 
 		/** @brief Gets the joint efforts
-		 * @return The joint efforts
+		 * @return Joint efforts
 		 */
 		const Eigen::VectorXd& getJointEffort() const;
 
 		/** @brief Gets the joint effort given its index
-		 * @param[in] index The joint index
-		 * @return The joint effort
+		 * @param[in] index Joint index
+		 * @return Joint effort
 		 */
 		const double& getJointEffort(const unsigned int& index) const;
 
@@ -235,183 +191,177 @@ class WholeBodyState
 
 
 		// Contact state getter functions
-		/** @brief Gets the contact position expressed the world frame
-		 * @param[in] pos_it The contact position iterator
-		 * @return The contact position expressed in the world frame
+		/** @brief Gets the contact SE3 expressed the world frame
+		 * @param[in] it Contact SE3 iterator
+		 * @return Contact SE3 expressed in the world frame
 		 */
-		Eigen::VectorXd getContactPosition_W(ContactIterator pos_it) const;
+		const dwl::SE3& getContactSE3_W(SE3Iterator it);
 
-		/** @brief Gets the contact position expressed the world frame
-		 * @param[in] The contact name
-		 * @return The contact position expressed in the world frame
+		/** @brief Gets the contact SE3 expressed the world frame
+		 * @param[in] Contact name
+		 * @return Contact SE3 expressed in the world frame
 		 */
-		Eigen::VectorXd getContactPosition_W(const std::string& name) const;
-
-		/** @brief Gets all contact positions expressed the world frame
-		 * @return All contact positions expressed in the world frame
-		 */
-		Eigen::VectorXdMap getContactPosition_W() const;
-
-		/** @brief Gets the contact position expressed the base frame
-		 * @param[in] pos_it The contact position iterator
-		 * @return The contact position expressed in the base frame
-		 */
-		const Eigen::VectorXd& getContactPosition_B(ContactIterator pos_it) const;
-
-		/** @brief Gets the contact position expressed the base frame
-		 * @param[in] The contact name
-		 * @return The contact position expressed in the base frame
-		 */
-		const Eigen::VectorXd& getContactPosition_B(const std::string& name) const;
+		const dwl::SE3& getContactSE3_W(const std::string& name);
 
 		/** @brief Gets all contact positions expressed the world frame
 		 * @return All contact positions expressed in the world frame
 		 */
-		const Eigen::VectorXdMap& getContactPosition_B() const;
+		dwl::SE3Map getContactSE3_W();
+
+		/** @brief Gets the contact SE3 expressed the base frame
+		 * @param[in] it Contact SE3 iterator
+		 * @return Contact SE3 expressed in the base frame
+		 */
+		const dwl::SE3& getContactSE3_B(SE3Iterator it) const;
+
+		/** @brief Gets the contact SE3 expressed the base frame
+		 * @param[in] Contact name
+		 * @return Contact SE3 expressed in the base frame
+		 */
+		const dwl::SE3& getContactSE3_B(const std::string& name) const;
+
+		/** @brief Gets all contact SE3s expressed the world frame
+		 * @return All contact positions expressed in the world frame
+		 */
+		const dwl::SE3Map& getContactSE3_B() const;
 
 		/** @brief Gets the contact position expressed the horizontal frame
-		 * @param[in] pos_it The contact position iterator
+		 * @param[in] it Contact SE3 iterator
 		 * @return The contact position expressed in the horizontal frame
 		 */
-		Eigen::VectorXd getContactPosition_H(ContactIterator pos_it) const;
+		const dwl::SE3& getContactSE3_H(SE3Iterator it);
 
 		/** @brief Gets the contact position expressed the horizontal frame
-		 * @param[in] name The contact name
-		 * @return The contact position expressed in the horizontal frame
+		 * @param[in] name Contact name
+		 * @return Contact SE3 expressed in the horizontal frame
 		 */
-		Eigen::VectorXd getContactPosition_H(const std::string& name) const;
+		const dwl::SE3& getContactSE3_H(const std::string& name);
 
 		/** @brief Gets all contact positions expressed the horizontal frame
-		 * @return All contact positions expressed in the horizontal frame
+		 * @return All contact SE3s expressed in the horizontal frame
 		 */
-		Eigen::VectorXdMap getContactPosition_H() const;
+		dwl::SE3Map getContactSE3_H();
 
 		/** @brief Gets the contact velocity expressed the world frame
-		 * @param[in] vel_it The contact velocity iterator
-		 * @return The contact velocity expressed in the world frame
+		 * @param[in] it Contact velocity iterator
+		 * @return Contact velocity expressed in the world frame
 		 */
-		Eigen::VectorXd getContactVelocity_W(ContactIterator vel_it) const;
+		const dwl::Motion& getContactVelocity_W(MotionIterator it);
 
 		/** @brief Gets the contact velocity expressed the world frame
-		 * @param[in] name The contact name
-		 * @return The contact velocity expressed in the world frame
+		 * @param[in] name Contact name
+		 * @return Contact velocity expressed in the world frame
 		 */
-		Eigen::VectorXd getContactVelocity_W(const std::string& name) const;
+		const dwl::Motion& getContactVelocity_W(const std::string& name);
 
 		/** @brief Gets all contact velocities expressed the world frame
 		 * @return All contact velocities expressed in the world frame
 		 */
-		Eigen::VectorXdMap getContactVelocity_W() const;
+		dwl::MotionMap getContactVelocity_W();
 
 		/** @brief Gets the contact velocity expressed the base frame
-		 * @param[in] vel_it The contact velocity iterator
-		 * @return The contact velocity expressed in the base frame
+		 * @param[in] it Contact velocity iterator
+		 * @return Contact velocity expressed in the base frame
 		 */
-		const Eigen::VectorXd& getContactVelocity_B(ContactIterator vel_it) const;
+		const dwl::Motion& getContactVelocity_B(MotionIterator it) const;
 
 		/** @brief Gets the contact velocity expressed the base frame
-		 * @param[in] name The contact name
-		 * @return The contact velocity expressed in the base frame
+		 * @param[in] name Contact name
+		 * @return Contact velocity expressed in the base frame
 		 */
-		const Eigen::VectorXd& getContactVelocity_B(const std::string& name) const;
+		const dwl::Motion& getContactVelocity_B(const std::string& name) const;
 
 		/** @brief Gets all contact velocities expressed the base frame
 		 * @return All contact velocity expressed in the base frame
 		 */
-		const Eigen::VectorXdMap& getContactVelocity_B() const;
+		const dwl::MotionMap& getContactVelocity_B() const;
 
 		/** @brief Gets the contact velocity expressed the horizontal frame
-		 * @param[in] vel_it The contact velocity iterator
-		 * @return The contact velocity expressed in the horizontal frame
+		 * @param[in] it Contact velocity iterator
+		 * @return Contact velocity expressed in the horizontal frame
 		 */
-		Eigen::VectorXd getContactVelocity_H(ContactIterator vel_it) const;
+		const dwl::Motion& getContactVelocity_H(MotionIterator it);
 
 		/** @brief Gets the contact velocity expressed the horizontal frame
-		 * @param[in] name The contact name
-		 * @return The contact velocity expressed in the horizontal frame
+		 * @param[in] name Contact name
+		 * @return Contact velocity expressed in the horizontal frame
 		 */
-		Eigen::VectorXd getContactVelocity_H(const std::string& name) const;
+		const dwl::Motion& getContactVelocity_H(const std::string& name);
 
 		/** @brief Gets all contact velocity expressed the horizontal frame
 		 * @return All contact velocity expressed in the horizontal frame
 		 */
-		Eigen::VectorXdMap getContactVelocity_H() const;
+		dwl::MotionMap getContactVelocity_H();
 
 		/** @brief Gets the contact acceleration expressed the world frame
-		 * @param[in] acc_it The contact acceleration iterator
-		 * @return The contact acceleration expressed in the world frame
+		 * @param[in] it Contact acceleration iterator
+		 * @return Contact acceleration expressed in the world frame
 		 */
-		Eigen::VectorXd getContactAcceleration_W(ContactIterator acc_it) const;
+		const dwl::Motion& getContactAcceleration_W(MotionIterator it);
 
 		/** @brief Gets the contact acceleration expressed the world frame
-		 * @param[in] name The contact name
-		 * @return The contact acceleration expressed in the world frame
+		 * @param[in] name Contact name
+		 * @return Contact acceleration expressed in the world frame
 		 */
-		Eigen::VectorXd getContactAcceleration_W(const std::string& name) const;
+		const dwl::Motion& getContactAcceleration_W(const std::string& name);
 
 		/** @brief Gets all contact accelerations expressed the world frame
 		 * @return All contact accelerations expressed in the world frame
 		 */
-		Eigen::VectorXdMap getContactAcceleration_W() const;
+		dwl::MotionMap getContactAcceleration_W();
 
 		/** @brief Gets the contact acceleration expressed the base frame
-		 * @param[in] acc_it The contact acceleration iterator
-		 * @return The contact acceleration expressed in the base frame
+		 * @param[in] it The contact acceleration iterator
+		 * @return Contact acceleration expressed in the base frame
 		 */
-		const Eigen::VectorXd& getContactAcceleration_B(ContactIterator acc_it) const;
+		const dwl::Motion& getContactAcceleration_B(MotionIterator it) const;
 
 		/** @brief Gets the contact acceleration expressed the base frame
-		 * @param[in] name The contact name
-		 * @return The contact acceleration expressed in the base frame
+		 * @param[in] name Contact name
+		 * @return Contact acceleration expressed in the base frame
 		 */
-		const Eigen::VectorXd& getContactAcceleration_B(const std::string& name) const;
+		const dwl::Motion& getContactAcceleration_B(const std::string& name) const;
 
 		/** @brief Gets all contact acceleration expressed the base frame
 		 * @return All contact accelerations expressed in the base frame
 		 */
-		const Eigen::VectorXdMap& getContactAcceleration_B() const;
+		const dwl::MotionMap& getContactAcceleration_B() const;
 
 		/** @brief Gets the contact acceleration expressed the horizontal frame
-		 * @param[in] acc_it The contact acceleration iterator
-		 * @return The contact acceleration expressed in the horizontal frame
+		 * @param[in] it Contact acceleration iterator
+		 * @return Contact acceleration expressed in the horizontal frame
 		 */
-		Eigen::VectorXd getContactAcceleration_H(ContactIterator acc_it) const;
+		const dwl::Motion& getContactAcceleration_H(MotionIterator it);
 
 		/** @brief Gets the contact acceleration expressed the horizontal frame
-		 * @param[in] name The contact name
-		 * @return The contact acceleration expressed in the horizontal frame
+		 * @param[in] name Contact name
+		 * @return Contact acceleration expressed in the horizontal frame
 		 */
-		Eigen::VectorXd getContactAcceleration_H(const std::string& name) const;
+		const dwl::Motion& getContactAcceleration_H(const std::string& name);
 
 		/** @brief Gets the contact acceleration expressed the horizontal frame
 		 * @return All contact accelerations expressed in the horizontal frame
 		 */
-		Eigen::VectorXdMap getContactAcceleration_H() const;
+		dwl::MotionMap getContactAcceleration_H();
 
 		/** @brief Gets the contact wrench expressed the base frame
-		 * @param[in] name The contact name
-		 * @return The contact wrench expressed in the base frame
+		 * @param[in] name Contact name
+		 * @return Contact wrench expressed in the base frame
 		 */
-		const Eigen::Vector6d& getContactWrench_B(const std::string& name) const;		
+		const dwl::Force& getContactWrench_B(const std::string& name) const;
 
 		/** @brief Gets all contact wrenches expressed the base frame
 		 * @return All contact wrenches expressed in the base frame
 		 */
-		const Eigen::Vector6dMap& getContactWrench_B() const;
+		const dwl::ForceMap& getContactWrench_B() const;
 
 		/** @brief Gets the contact condition (active or inactive)
-		 * @param[in] name The contact name
-		 * @param[in] threshold Force threshold for detecting contact condition
+		 * @param[in] name Contact name
+		 * @param[in] f_th Force threshold for detecting contact condition
 		 * @return True for active contact conditions, false for inactive ones
 		 */
 		bool getContactCondition(const std::string& name,
-								 const double& force_threshold) const;
-
-		/** @brief Gets the contact condition (active or inactive)
-		 * @param[in] name The contact name
-		 * @return True for active contact conditions, false for inactive ones
-		 */
-		bool getContactCondition(const std::string& name) const;
+								 const double& f_th = 0.) const;
 
 		/** @brief Sets the time value
 		 * @param[in] time The time value
@@ -419,137 +369,97 @@ class WholeBodyState
 		void setTime(const double& time);
 
 		// Base state setter functions
-		/** @brief Sets the base position expressed the world frame
-		 * @param[in] pos The base position expressed in the world frame
+		/** @brief Sets the base SE3 expressed the world frame
+		 * @param[in] pos Base SE3 expressed in the world frame
 		 */
-		void setBasePosition(const Eigen::Vector3d& pos);
-
-		/** @brief Sets the base quaternion expressed the world frame
-		 * @param[in] q The base quaternion expressed in the world frame
-		 */
-		void setBaseOrientation(const Eigen::Vector4d& q);
-
-		/** @brief Sets the base RPY angles expressed the world frame
-		 * @param[in] rpy The base RPY angles expressed in the world frame
-		 */
-		void setBaseRPY(const Eigen::Vector3d& rpy);
+		void setBaseSE3(const dwl::SE3& pos);
 
 		/** @brief Sets the base velocity expressed the world frame
-		 * @param[in] vel_W The base velocity expressed in the world frame
+		 * @param[in] vel Base velocity expressed in the world frame
 		 */
-		void setBaseVelocity_W(const Eigen::Vector3d& vel_W);
+		void setBaseVelocity_W(const dwl::Motion& vel);
 
 		/** @brief Sets the base velocity expressed the base frame
-		 * @param[in] vel_B The base velocity expressed in the base frame
+		 * @param[in] vel Base velocity expressed in the base frame
 		 */
-		void setBaseVelocity_B(const Eigen::Vector3d& vel_B);
+		void setBaseVelocity_B(const dwl::Motion& vel);
 
 		/** @brief Sets the base velocity expressed the horizontal frame
-		 * @param[in] vel_H The base velocity expressed in the horizontal frame
+		 * @param[in] vel Base velocity expressed in the horizontal frame
 		 */
-		void setBaseVelocity_H(const Eigen::Vector3d& vel_H);
-
-		/** @brief Sets the base angular velocity expressed the world frame
-		 * @param[in] rate_W The base angular velocity expressed in the world frame
-		 */
-		void setBaseAngularVelocity_W(const Eigen::Vector3d& rate_W);
-
-		/** @brief Sets the base angular velocity expressed the base frame
-		 * @param[in] rate_B The base angular velocity expressed in the base frame
-		 */
-		void setBaseAngularVelocity_B(const Eigen::Vector3d& rate_B);
-
-		/** @brief Sets the base angular velocity expressed the horizontal frame
-		 * @param[in] rate_H The base angular velocity expressed in the horizontal frame
-		 */
-		void setBaseAngularVelocity_H(const Eigen::Vector3d& rate_H);
+		void setBaseVelocity_H(const dwl::Motion& vel);
 
 		/** @brief Sets the base RPY velocity expressed the world frame
-		 * @param[in] rpy_rate The base RPY velocity expressed in the world frame
+		 * @param[in] rpy_rate Base RPY velocity expressed in the world frame
 		 */
 		void setBaseRPYVelocity_W(const Eigen::Vector3d& rpy_rate);
 
 		/** @brief Sets the base acceleration expressed the world frame
-		 * @param[in] acc_W The base acceleration expressed in the world frame
+		 * @param[in] acc Base acceleration expressed in the world frame
 		 */
-		void setBaseAcceleration_W(const Eigen::Vector3d& acc_W);
+		void setBaseAcceleration_W(const dwl::Motion& acc);
 
 		/** @brief Sets the base acceleration expressed the base frame
-		 * @param[in] acc_B The base acceleration expressed in the base frame
+		 * @param[in] acc Base acceleration expressed in the base frame
 		 */
-		void setBaseAcceleration_B(const Eigen::Vector3d& acc_B);
+		void setBaseAcceleration_B(const dwl::Motion& acc);
 
 		/** @brief Sets the base acceleration expressed the horizontal frame
-		 * @param[in] acc_H The base acceleration expressed in the horizontal frame
+		 * @param[in] acc Base acceleration expressed in the horizontal frame
 		 */
-		void setBaseAcceleration_H(const Eigen::Vector3d& acc_H);
-
-		/** @brief Sets the base angular acceleration expressed the world frame
-		 * @param[in] rotacc_W The base angular acceleration expressed in the world frame
-		 */
-		void setBaseAngularAcceleration_W(const Eigen::Vector3d& rotacc_W);
-
-		/** @brief Sets the base angular acceleration expressed the base frame
-		 * @param[in] rotacc_B The base angular acceleration expressed in the base frame
-		 */
-		void setBaseAngularAcceleration_B(const Eigen::Vector3d& rotacc_B);
-
-		/** @brief Sets the base angular acceleration expressed the horizontal frame
-		 * @param[in] rotacc_H The base angular acceleration expressed in the horizontal frame
-		 */
-		void setBaseAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
+		void setBaseAcceleration_H(const dwl::Motion& acc);
 
 		/** @brief Sets the base RPY acceleration expressed the world frame
-		 * @param[in] rpy_rate The base RPY acceleration expressed in the world frame
+		 * @param[in] rpy_rate Base RPY acceleration expressed in the world frame
 		 */
 		void setBaseRPYAcceleration_W(const Eigen::Vector3d& rpy_rate);
 
 
 		// Joint state setter functions
-		/** @brief Sets the joint positions
-		 * @param[in] pos The joint positions
+		/** @brief Sets Joint positions
+		 * @param[in] pos Joint positions
 		 */
 		void setJointPosition(const Eigen::VectorXd& pos);
 
 		/** @brief Sets the joint position given its index
-		 * @param[in] pos The joint position
-		 * @param[in] index The joint index
+		 * @param[in] pos Joint position
+		 * @param[in] index Joint index
 		 */
 		void setJointPosition(const double& pos,
 							  const unsigned int& index);
 
-		/** @brief Sets the joint velocites
-		 * @param[in] vel The joint velocities
+		/** @brief Sets the joint velocities
+		 * @param[in] vel Joint velocities
 		 */
 		void setJointVelocity(const Eigen::VectorXd& vel);
 
 		/** @brief Sets the joint velocity given its index
-		 * @param[in] vel The joint velocity
-		 * @param[in] index The joint index
+		 * @param[in] vel Joint velocity
+		 * @param[in] index Joint index
 		 */
 		void setJointVelocity(const double& vel,
 							  const unsigned int& index);
 
 		/** @brief Sets the joint accelerations
-		 * @param[in] acc The joint acceleration
+		 * @param[in] acc Joint acceleration
 		 */
 		void setJointAcceleration(const Eigen::VectorXd& acc);
 
 		/** @brief Sets the joint acceleration given its index
-		 * @param[in] acc The joint acceleration
-		 * @param[in] index The joint index
+		 * @param[in] acc Joint acceleration
+		 * @param[in] index Joint index
 		 */
 		void setJointAcceleration(const double& acc,
 								  const unsigned int& index);
 
 		/** @brief Sets the joint efforts
-		 * @param[in] eff The joint efforts
+		 * @param[in] eff Joint efforts
 		 */
 		void setJointEffort(const Eigen::VectorXd& eff);
 
 		/** @brief Sets the joint effort given its index
-		 * @param[in] eff The joint effort
-		 * @param[in] index The joint index
+		 * @param[in] eff Joint effort
+		 * @param[in] index Joint index
 		 */
 		void setJointEffort(const double& eff,
 							const unsigned int& index);
@@ -560,174 +470,174 @@ class WholeBodyState
 		void setJointDoF(const unsigned int& num_joints);
 
 
-		// Contact state setter functions		
-		/** @brief Sets the contact position expressed the world frame
-		 * @param[in] pos_it The contact position iterator
+		// Contact state setter functions
+		/** @brief Sets the contact SE3 expressed the world frame
+		 * @param[in] it Contact SE3 iterator
 		 */
-		void setContactPosition_W(ContactIterator pos_it);
+		void setContactSE3_W(SE3Iterator it);
 
-		/** @brief Sets the contact position expressed the world frame
-		 * @param[in] name The contact name
-		 * @param[in] pos_W The contact position
+		/** @brief Sets the contact SE3 expressed the world frame
+		 * @param[in] name Contact name
+		 * @param[in] pos Contact SE3
 		 */
-		void setContactPosition_W(const std::string& name,
-								  const Eigen::VectorXd& pos_W);
+		void setContactSE3_W(const std::string& name,
+							 const dwl::SE3& pos);
 
-		/** @brief Sets all contact positions expressed the world frame
-		 * @param[in] pos_W All contact positions
+		/** @brief Sets all contact SE3s expressed the world frame
+		 * @param[in] pos All contact SE3s
 		 */
-		void setContactPosition_W(const Eigen::VectorXdMap& pos_W);
-		
-		/** @brief Sets the contact position expressed the base frame
-		 * @param[in] pos_it The contact position iterator
-		 */
-		void setContactPosition_B(ContactIterator pos_it);
+		void setContactSE3_W(const dwl::SE3Map& pos);
 
-		/** @brief Sets the contact position expressed the base frame
-		 * @param[in] name The contact name
-		 * @param[in] pos_B The contact position
+		/** @brief Sets the contact SE3 expressed the base frame
+		 * @param[in] it Contact SE3 iterator
 		 */
-		void setContactPosition_B(const std::string& name,
-								  const Eigen::VectorXd& pos_B);
+		void setContactSE3_B(SE3Iterator it);
 
-		/** @brief Sets all contact positions expressed the base frame
-		 * @param[in] pos_B All contact positions
+		/** @brief Sets the contact SE3 expressed the base frame
+		 * @param[in] name Contact name
+		 * @param[in] pos Contact SE3
 		 */
-		void setContactPosition_B(const Eigen::VectorXdMap& pos_B);
-		
-		/** @brief Sets the contact position expressed the horizontal frame
-		 * @param[in] pos_it The contact position iterator
-		 */
-		void setContactPosition_H(ContactIterator pos_it);
+		void setContactSE3_B(const std::string& name,
+							 const dwl::SE3& pos);
 
-		/** @brief Sets the contact position expressed the horizontal frame
-		 * @param[in] name The contact name
-		 * @param[in] pos_H The contact position
+		/** @brief Sets all contact SE3s expressed the base frame
+		 * @param[in] pos All contact SE3s
 		 */
-		void setContactPosition_H(const std::string& name,
-								  const Eigen::VectorXd& pos_H);
+		void setContactSE3_B(const dwl::SE3Map& pos);
+
+		/** @brief Sets the contact SE3 expressed the horizontal frame
+		 * @param[in] it Contact SE3 iterator
+		 */
+		void setContactSE3_H(SE3Iterator it);
+
+		/** @brief Sets the contact SE3 expressed the horizontal frame
+		 * @param[in] name Contact name
+		 * @param[in] pos Contact SE3 expressed in the horizontal frame
+		 */
+		void setContactSE3_H(const std::string& name,
+							 const dwl::SE3& pos);
 
 		/** @brief Sets the contact positions expressed the horizontal frame
-		 * @param[in] pos_H All contact positions
+		 * @param[in] pos All contact SE3s
 		 */
-		void setContactPosition_H(const Eigen::VectorXdMap& pos_H);
-		
-		/** @brief Sets the contact velocity expressed the world frame
-		 * @param[in] vel_it The contact velocity iterator
-		 */
-		void setContactVelocity_W(ContactIterator vel_it);
+		void setContactSE3_H(const dwl::SE3Map& pos);
 
 		/** @brief Sets the contact velocity expressed the world frame
-		 * @param[in] name The contact name
-		 * @param[in] vel_W The contact velocity
+		 * @param[in] it Contact velocity iterator
+		 */
+		void setContactVelocity_W(MotionIterator it);
+
+		/** @brief Sets the contact velocity expressed the world frame
+		 * @param[in] name Contact name
+		 * @param[in] vel Contact velocity expressed in the world frame
 		 */
 		void setContactVelocity_W(const std::string& name,
-								  const Eigen::VectorXd& vel_W);
+								  const dwl::Motion& vel);
 
 		/** @brief Sets the contact velocities expressed the world frame
-		 * @param[in] vel_W All contact velocities
+		 * @param[in] vel All contact velocities
 		 */
-		void setContactVelocity_W(const Eigen::VectorXdMap& vel_W);
+		void setContactVelocity_W(const dwl::MotionMap& vel);
 
 		/** @brief Sets the contact velocity expressed the base frame
-		 * @param[in] vel_it The contact velocity
+		 * @param[in] it Contact velocity iterator
 		 */
-		void setContactVelocity_B(ContactIterator vel_it);
+		void setContactVelocity_B(MotionIterator it);
 
 		/** @brief Sets the contact velocity expressed the base frame
-		 * @param[in] name The contact name
-		 * @param[in] vel_B The contact velocity
+		 * @param[in] name Contact name
+		 * @param[in] vel Contact velocity expressed in the base frame
 		 */
 		void setContactVelocity_B(const std::string& name,
-								  const Eigen::VectorXd& vel_B);
+								  const dwl::Motion& vel);
 
 		/** @brief Sets all contact velocities expressed the base frame
-		 * @param[in] vel_B All contact velocities
+		 * @param[in] vel All contact velocities
 		 */
-		void setContactVelocity_B(const Eigen::VectorXdMap& vel_B);
+		void setContactVelocity_B(const dwl::MotionMap& vel);
 
 		/** @brief Sets the contact velocity expressed the horizontal frame
-		 * @param[in] vel_it The contact velocity
+		 * @param[in] it Contact velocity iterator
 		 */
-		void setContactVelocity_H(ContactIterator vel_it);
+		void setContactVelocity_H(MotionIterator it);
 
 		/** @brief Sets the contact velocity expressed the horizontal frame
-		 * @param[in] name The contact name
-		 * @param[in] vel_H The contact velocity
+		 * @param[in] name Contact name
+		 * @param[in] vel Contact velocity expressed in the horizontal frame
 		 */
 		void setContactVelocity_H(const std::string& name,
-								  const Eigen::VectorXd& vel_H);
+								  const dwl::Motion& vel);
 
 		/** @brief Sets all contact velocities expressed the horizontal frame
 		 * @param[in] vel_H All contact velocities
 		 */
-		void setContactVelocity_H(const Eigen::VectorXdMap& vel_H);
-		
-		/** @brief Sets the contact acceleration expressed the world frame
-		 * @param[in] acc_W The contact acceleration
-		 */
-		void setContactAcceleration_W(ContactIterator acc_it);
+		void setContactVelocity_H(const dwl::MotionMap& vel);
 
 		/** @brief Sets the contact acceleration expressed the world frame
-		 * @param[in] name The contact name
-		 * @param[in] acc_W The contact acceleration
+		 * @param[in] it Contact acceleration iterator
+		 */
+		void setContactAcceleration_W(MotionIterator it);
+
+		/** @brief Sets the contact acceleration expressed the world frame
+		 * @param[in] name Contact name
+		 * @param[in] acc_W Contact acceleration expressed in the world frame
 		 */
 		void setContactAcceleration_W(const std::string& name,
-									  const Eigen::VectorXd& acc_W);
+									  const dwl::Motion& acc_W);
 
 		/** @brief Sets all contact accelerations expressed the world frame
 		 * @param[in] acc_W All contact accelerations
 		 */
-		void setContactAcceleration_W(const Eigen::VectorXdMap& acc_W);
+		void setContactAcceleration_W(const dwl::MotionMap& acc_W);
 
 		/** @brief Sets the contact acceleration expressed the base frame
-		 * @param[in] acc_it The contact acceleration iterator
+		 * @param[in] it Contact acceleration iterator
 		 */
-		void setContactAcceleration_B(ContactIterator acc_it);
+		void setContactAcceleration_B(MotionIterator it);
 
 		/** @brief Sets the contact acceleration expressed the base frame
-		 * @param[in] name The contact name
-		 * @param[in] acc_B The contact acceleration
+		 * @param[in] name Contact name
+		 * @param[in] acc Contact acceleration expressed in the base frame
 		 */
 		void setContactAcceleration_B(const std::string& name,
-									  const Eigen::VectorXd& acc_B);
+									  const dwl::Motion& acc_B);
 
 		/** @brief Sets all contact accelerations expressed the base frame
-		 * @param[in] acc_B All contact accelerations
+		 * @param[in] acc All contact accelerations expressed in the base frame
 		 */
-		void setContactAcceleration_B(const Eigen::VectorXdMap& acc_B);
+		void setContactAcceleration_B(const dwl::MotionMap& acc);
 
 		/** @brief Sets the contact acceleration expressed the horizontal frame
-		 * @param[in] acc_it The contact acceleration iterator
+		 * @param[in] it Contact acceleration iterator
 		 */
-		void setContactAcceleration_H(ContactIterator acc_it);
+		void setContactAcceleration_H(MotionIterator it);
 
 		/** @brief Sets the contact acceleration expressed the horizontal frame
-		 * @param[in] name The contact name
-		 * @param[in] acc_H The contact acceleration
+		 * @param[in] name Contact name
+		 * @param[in] acc_H Contact acceleration expressed in the horizontal frame
 		 */
 		void setContactAcceleration_H(const std::string& name,
-									  const Eigen::VectorXd& acc_H);
+									  const dwl::Motion& acc_H);
 
 		/** @brief Sets all contact accelerations expressed the horizontal frame
 		 * @param[in] acc_H All contact accelerations
 		 */
-		void setContactAcceleration_H(const Eigen::VectorXdMap& acc_H);
+		void setContactAcceleration_H(const dwl::MotionMap& acc_H);
 
 		/** @brief Sets the contact wrench expressed the base frame
-		 * @param[in] name The contact name
-		 * @param[in] eff_B The contact wrench
+		 * @param[in] name Contact name
+		 * @param[in] f_B Contact wrench expressed in the base frame
 		 */
 		void setContactWrench_B(const std::string& name,
-							    const Eigen::Vector6d& eff);
+							    const dwl::Force& f_B);
 
 		/** @brief Sets all contact wrenches expressed the base frame
-		 * @param[in] eff_B All contact wrenches
+		 * @param[in] f_B All contact wrenches
 		 */
-		void setContactWrench_B(const Eigen::Vector6dMap& eff_B);
+		void setContactWrench_B(const dwl::ForceMap& f_B);
 
 		/** @brief Sets the contact condition (active or inactive)
-		 * @param name The contact name
+		 * @param name Contact name
 		 * @param condition True for active conditions, and false for inactive
 		 */
 		void setContactCondition(const std::string& name,
@@ -737,33 +647,36 @@ class WholeBodyState
 		 * above mentioned convention */
 		double time;
 		double duration;
-		Eigen::Vector7d base_pos;
-		Eigen::Vector6d base_vel;
-		Eigen::Vector6d base_acc;
-		Eigen::Vector6d base_eff;
+		dwl::SE3 base_pos;
+		dwl::Motion base_vel;
+		dwl::Motion base_acc;
+		dwl::Motion base_eff;
 		Eigen::VectorXd joint_pos;
 		Eigen::VectorXd joint_vel;
 		Eigen::VectorXd joint_acc;
 		Eigen::VectorXd joint_eff;
-		Eigen::VectorXdMap contact_pos;
-		Eigen::VectorXdMap contact_vel;
-		Eigen::VectorXdMap contact_acc;
-		Eigen::Vector6dMap contact_eff;
+		dwl::SE3Map contact_pos;
+		dwl::MotionMap contact_vel;
+		dwl::MotionMap contact_acc;
+		dwl::ForceMap contact_eff;
 
 
 	private:
+		/** @brief Internal data to avoid dynamic memory allocation **/
+		dwl::SE3 se3_;
+		dwl::Motion motion_;
+		Eigen::Vector3d vec3_;
+
 		/** @brief Number of joints */
 		unsigned int num_joints_;
-
-		/** @brief Frame transformations */
-		math::FrameTF frame_tf_;
 
 		/** @brief Default value for joint states that don't exist */
 		double default_joint_value_;
 
 		/** @brief Null vectors for missed contact states */
-		Eigen::VectorXd null_3dvector_;
-		Eigen::Vector6d null_6dvector_;
+		dwl::SE3 null_se3_;
+		dwl::Motion null_motion_;
+		dwl::Force null_force_;
 };
 
 /** @brief Defines a whole-body trajectory */

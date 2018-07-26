@@ -316,7 +316,7 @@ class FloatingBaseSystem
 		 * @param[in] joint_state Joint configuration
 		 * @return Generalized configuration state
 		 */
-		const Eigen::VectorXd& toConfigurationState(const Eigen::Vector7d& base_state,
+		const Eigen::VectorXd& toConfigurationState(dwl::SE3& base_state,
 													const Eigen::VectorXd& joint_state);
 
 		/**
@@ -326,7 +326,7 @@ class FloatingBaseSystem
 		 * @param[in] joint_state Joint tangent state
 		 * @return Generalized tangent state
 		 */
-		const Eigen::VectorXd& toTangentState(const Eigen::Vector6d& base_state,
+		const Eigen::VectorXd& toTangentState(const dwl::Motion& base_state,
 											  const Eigen::VectorXd& joint_state);
 
 		/**
@@ -335,7 +335,7 @@ class FloatingBaseSystem
 		 * @param[in] joint_state Joint configuration
 		 * @param[in] gen_state Generalized configuration state
 		 */
-		void fromConfigurationState(Eigen::Vector7d& base_state,
+		void fromConfigurationState(dwl::SE3& base_state,
 									Eigen::VectorXd& joint_state,
 									const Eigen::VectorXd& gen_state);
 
@@ -345,7 +345,7 @@ class FloatingBaseSystem
 		 * @param[in] joint_state Joint tangent vector
 		 * @param[in] gen_state Generalized tangent state
 		 */
-		void fromTangentState(Eigen::Vector6d& base_state,
+		void fromTangentState(dwl::Motion& base_state,
 							  Eigen::VectorXd& joint_state,
 							  const Eigen::VectorXd& gen_state);
 

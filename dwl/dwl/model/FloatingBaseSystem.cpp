@@ -133,7 +133,8 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 		resetSystemDescription(system_file);
 	
 	// Setting up the default posture in the pinocchio model
-	Eigen::VectorXd def_posture = toConfigurationState(Eigen::Vector7d::Zero(),
+	dwl::SE3 origin;
+	Eigen::VectorXd def_posture = toConfigurationState(origin,
 													   default_joint_pos_);
 	model_.neutralConfiguration = def_posture;
 
@@ -425,7 +426,7 @@ Eigen::Matrix3d FloatingBaseSystem::getBodyInertia(const std::string& name)
 	if (id == UNDEFINED_ID)
 		return std::numeric_limits<double>::quiet_NaN() * Eigen::Matrix3d::Ones();
 	else
-		model_.inertias[id].inertia();
+		return model_.inertias[id].inertia();
 }
 
 
@@ -508,7 +509,7 @@ bool FloatingBaseSystem::isConstrainedFloatingBase()
 }
 
 
-const Eigen::VectorXd& FloatingBaseSystem::toConfigurationState(const Eigen::Vector7d& base_state,
+const Eigen::VectorXd& FloatingBaseSystem::toConfigurationState(dwl::SE3& base_state,
 																const Eigen::VectorXd& joint_state)
 {
 	// Getting the number of joints
@@ -517,16 +518,14 @@ const Eigen::VectorXd& FloatingBaseSystem::toConfigurationState(const Eigen::Vec
 	// Note that pinocchio defines the floating base state as
 	// [linear states, angular states]
 	if (root_joint_ == FREE_FLYER) {
-		Eigen::Vector7d _base_state = base_state;
-		q_ << rbd::linearPart(_base_state),
-		       rbd::angularPart(_base_state),
-			   joint_state;
+		q_ << base_state.toVector(), joint_state;
 	} else if (root_joint_ == PLANAR) {
 		Eigen::VectorXd virtual_base(model_.joints[1].nq());
-		virtual_base(0) = base_state(rbd::AZ_Q);
-		virtual_base(1) = base_state(rbd::AW_Q);
-		virtual_base(2) = base_state(rbd::LX_Q);
-		virtual_base(3) = base_state(rbd::LY_Q);
+		Eigen::Vector7d x = base_state.toVector();
+		virtual_base(1) = x(rbd::LX_Q);
+		virtual_base(2) = x(rbd::LY_Q);
+		virtual_base(3) = x(rbd::AZ_Q);
+		virtual_base(4) = x(rbd::AW_Q);
 		q_ << virtual_base, joint_state;
 	} else {
 		q_ = joint_state;
@@ -536,7 +535,7 @@ const Eigen::VectorXd& FloatingBaseSystem::toConfigurationState(const Eigen::Vec
 }
 
 
-const Eigen::VectorXd& FloatingBaseSystem::toTangentState(const Eigen::Vector6d& base_state,
+const Eigen::VectorXd& FloatingBaseSystem::toTangentState(const dwl::Motion& base_state,
 														  const Eigen::VectorXd& joint_state)
 {
 	// Getting the number of joints
@@ -545,15 +544,13 @@ const Eigen::VectorXd& FloatingBaseSystem::toTangentState(const Eigen::Vector6d&
 	// Note that pinocchio defines the floating base state as
 	// [linear states, angular states]
 	if (root_joint_ == FREE_FLYER) {
-		Eigen::Vector6d _base_state = base_state;
-		v_ << rbd::linearPart(_base_state),
-		      rbd::angularPart(_base_state),
-			  joint_state;
+		v_ << base_state.toVector(), joint_state;
 	} else if (root_joint_ == PLANAR) {
 		Eigen::VectorXd virtual_base(model_.joints[1].nv());
-		virtual_base(0) = base_state(rbd::AZ_V);
-		virtual_base(1) = base_state(rbd::LX_V);
-		virtual_base(2) = base_state(rbd::LY_V);
+		Eigen::Vector6d vr = base_state.toVector();
+		virtual_base(0) = vr(rbd::LX_V);
+		virtual_base(1) = vr(rbd::LY_V);
+		virtual_base(2) = vr(rbd::AZ_V);
 		v_ << virtual_base, joint_state;
 	} else {
 		v_ = joint_state;
@@ -563,7 +560,7 @@ const Eigen::VectorXd& FloatingBaseSystem::toTangentState(const Eigen::Vector6d&
 }
 
 
-void FloatingBaseSystem::fromConfigurationState(Eigen::Vector7d& base_state,
+void FloatingBaseSystem::fromConfigurationState(dwl::SE3& base_state,
 											    Eigen::VectorXd& joint_state,
 											    const Eigen::VectorXd& generalized_state)
 {
@@ -573,24 +570,25 @@ void FloatingBaseSystem::fromConfigurationState(Eigen::Vector7d& base_state,
 	// Note that pinocchio defines the floating base state as
 	// [linear states, angular states]
 	if (root_joint_ == FREE_FLYER) {
-		base_state << generalized_state.segment<4>(3),
-					  generalized_state.segment<3>(0);
+		base_state.setTranslation(generalized_state.segment<3>(rbd::LX_Q));
+		base_state.setQuaternion(generalized_state.segment<4>(rbd::AX_Q));
 		joint_state = generalized_state.segment(7, getJointDoF());
 	} else if (root_joint_ == PLANAR) {
-		base_state.setZero();
-		base_state(rbd::AZ_Q) = generalized_state(0);
-		base_state(rbd::AW_Q) = generalized_state(1);
-		base_state(rbd::LX_Q) = generalized_state(2);
-		base_state(rbd::LY_Q) = generalized_state(3);
+		base_state.setTranslation(Eigen::Vector3d(generalized_state(0),
+												  generalized_state(1),
+												  0.));
+		base_state.setQuaternion(Eigen::Vector4d(0., 0.,
+												generalized_state(2),
+												generalized_state(3)));
 		joint_state = generalized_state.segment(4, getJointDoF());
 	} else {
-		base_state.setZero();
-		joint_state = joint_state;
+		base_state = dwl::SE3();
+		joint_state = generalized_state;
 	}
 }
 
 
-void FloatingBaseSystem::fromTangentState(Eigen::Vector6d& base_state,
+void FloatingBaseSystem::fromTangentState(dwl::Motion& base_state,
 										  Eigen::VectorXd& joint_state,
 										  const Eigen::VectorXd& generalized_state)
 {
@@ -600,18 +598,19 @@ void FloatingBaseSystem::fromTangentState(Eigen::Vector6d& base_state,
 	// Note that pinocchio defines the floating base state as
 	// [linear states, angular states]
 	if (root_joint_ == FREE_FLYER) {
-		base_state << generalized_state.segment<3>(3),
-					  generalized_state.segment<3>(0);
+		base_state.setLinear(generalized_state.segment<3>(rbd::LX_V));
+		base_state.setAngular(generalized_state.segment<3>(rbd::AX_V));
 		joint_state = generalized_state.segment(6, getJointDoF());
 	} else if (root_joint_ == PLANAR) {
-		base_state.setZero();
-		base_state(rbd::AZ_V) = generalized_state(0);
-		base_state(rbd::LX_V) = generalized_state(1);
-		base_state(rbd::LY_V) = generalized_state(2);
+		base_state.setLinear(Eigen::Vector3d(generalized_state(0),
+											 generalized_state(1), 0.));
+		base_state.setLinear(Eigen::Vector3d(0., 0., generalized_state(2)));
+		base_state.setAngular(Eigen::Vector3d::Zero());
 		joint_state = generalized_state.segment(3, getJointDoF());
 	} else {
-		base_state.setZero();
-		joint_state = joint_state;
+		base_state.setLinear(Eigen::Vector3d::Zero());
+		base_state.setAngular(Eigen::Vector3d::Zero());
+		joint_state = generalized_state;
 	}
 }
 

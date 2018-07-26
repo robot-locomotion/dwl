@@ -89,26 +89,28 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
 
     
     // Checking conversion between configuration states
-    Eigen::Vector7d base_se3, base_pos;
-    base_se3 << 0., 0., 0., 1., 0.2, 0.3, -0.6; // base_se3 = [base_quat, base_pos]
+    dwl::SE3 base_se3, base_pos;
+    base_se3.setTranslation(Eigen::Vector3d(0.2, 0.3, -0.6));
     Eigen::VectorXd joint_pos = Eigen::VectorXd::Zero(fbs.getJointDoF());
     Eigen::VectorXd q0 = Eigen::VectorXd::Zero(fbs.getConfigurationDim());
     q0 << 0.2, 0.3, -0.6, 0., 0., 0., 1., joint_posture; // q = [base_pos, base_quat, joint_pos]
     BOOST_CHECK( fbs.toConfigurationState(base_se3, joint_posture).isApprox(q0) );
     fbs.fromConfigurationState(base_pos, joint_pos, q0);
-    BOOST_CHECK( base_pos.isApprox(base_se3) );
+    BOOST_CHECK( base_pos.getTranslation().isApprox(base_se3.getTranslation()) );
     BOOST_CHECK( joint_pos.isApprox(joint_posture) );
     
     
     // Checking conversion between tangent states
-    Eigen::Vector6d base_se3_vel, base_vel;
-    base_se3_vel << 0.8, 0.3, -0.6, 0.2, 0.3, -0.6; // base_se3_vel = [base_ang_vel, base_lin_vel]
+    dwl::Motion base_motion, base_vel;
+    base_motion.setLinear(Eigen::Vector3d(0.2, 0.3, -0.6));
+    base_motion.setAngular(Eigen::Vector3d(0.8, 0.3, -0.6));
     Eigen::VectorXd joint_vel = Eigen::VectorXd::Zero(fbs.getJointDoF());
     Eigen::VectorXd qd0 = Eigen::VectorXd::Zero(fbs.getTangentDim());
     qd0 << 0.2, 0.3, -0.6, 0.8, 0.3, -0.6, 0.01 * joint_posture; // qd = [base_lin_vel, base_ang_vel, joint_vel]
-    BOOST_CHECK( fbs.toTangentState(base_se3_vel, 0.01 * joint_posture).isApprox(qd0) );
+    BOOST_CHECK( fbs.toTangentState(base_motion, 0.01 * joint_posture).isApprox(qd0) );
     fbs.fromTangentState(base_vel, joint_vel, qd0);
-    BOOST_CHECK( base_vel.isApprox(base_se3_vel) );
+    BOOST_CHECK( base_vel.getLinear().isApprox(base_motion.getLinear()) );
+    BOOST_CHECK( base_vel.getAngular().isApprox(base_motion.getAngular()) );
     BOOST_CHECK( joint_vel.isApprox(0.01 * joint_posture) );
 
 

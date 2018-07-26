@@ -41,23 +41,30 @@
 %include <eigen.i>
 
 
-%template(Matrix3d_List) std::vector<Eigen::Matrix3d>;
-%template(Matrix4d_List) std::vector<Eigen::Matrix4d>;
-%template(MatrixXd_List) std::vector<Eigen::MatrixXd>;
-%template(Vector2d_List) std::vector<Eigen::Vector2d>;
-%template(Vector3d_List) std::vector<Eigen::Vector3d>;
-%template(VectorXd_List) std::vector<Eigen::VectorXd>;
+%template(Vector2dList) std::vector<Eigen::Vector2d>;
+%template(Vector3dList) std::vector<Eigen::Vector3d>;
+%template(Vector4dList) std::vector<Eigen::Vector4d>;
+%template(Vector6dList) std::vector<Eigen::Vector6d>;
+%template(Vector7dList) std::vector<Eigen::Vector7d>;
+%template(VectorXdList) std::vector<Eigen::VectorXd>;
+%template(Matrix3dList) std::vector<Eigen::Matrix3d>;
+%template(Matrix4dList) std::vector<Eigen::Matrix4d>;
+%template(Matrix6dList) std::vector<Eigen::Matrix6d>;
+%template(Matrix6xList) std::vector<Eigen::Matrix6x>;
+%template(MatrixXdList) std::vector<Eigen::MatrixXd>;
 
 // Since Eigen uses templates, we have to declare exactly which types we'd
 // like to generate mappings for.
 %eigen_typemaps(Eigen::Vector2d)
 %eigen_typemaps(Eigen::Vector3d)
-%eigen_typemaps(dwl::rbd::Vector6d)
+%eigen_typemaps(Eigen::Vector4d)
+%eigen_typemaps(Eigen::Vector6d)
 %eigen_typemaps(Eigen::VectorXd)
 %eigen_typemaps(Eigen::Matrix3d)
 %eigen_typemaps(Eigen::Matrix4d)
 %eigen_typemaps(Eigen::MatrixXd)
-%eigen_typemaps(dwl::rbd::Matrix6d)
+%eigen_typemaps(Eigen::Matrix6d)
+%eigen_typemaps(Eigen::Matrix6x)
 //%eigen_typemaps(Eigen::Quaterniond) TODO it doesn't work yet
 // Even though Eigen::MatrixXd is just a typedef for Eigen::Matrix<double,
 // Eigen::Dynamic, Eigen::Dynamic>, our templatedInverse function doesn't
@@ -65,10 +72,13 @@
 // Eigen::Dynamic, Eigen::Dynamic>. Not totally sure why that is.
 //%eigen_typemaps(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>)
 
-%template(double_List) std::vector<double>;
-%template(string_List) std::vector<std::string>;
-%template(string_uint) std::map<std::string,unsigned int>;
-%template(string_jointLimits) std::map<std::string,urdf::JointLimits>;
+%template(doubleList) std::vector<double>;
+%template(stringList) std::vector<std::string>;
+%template(uintMap) std::map<std::string,unsigned int>;
+%template(JointLimitsMap) std::map<std::string,urdf::JointLimits>;
+%template(SE3Map) std::map<std::string,dwl::SE3>;
+%template(MotionMap) std::map<std::string,dwl::Motion>;
+%template(ForceMap) std::map<std::string,dwl::Force>;
 
 
 // Renaming orientation methods to get rid of the ambiguity
@@ -90,17 +100,11 @@
 		getEulerAnglesRatesMatrix(const Eigen::Quaterniond&);
 
 
-// Renaming few functions of the WholeBodyState class to get rid of the ambiguity
-%rename(setContactPositionDict_W) setContactPosition_W(const rbd::BodyVectorXd&);
-%rename(setContactPositionDict_B) setContactPosition_B(const rbd::BodyVectorXd&);
-%rename(setContactPositionDict_H) setContactPosition_H(const rbd::BodyVectorXd&);
-%rename(setContactVelocityDict_W) setContactVelocity_W(const rbd::BodyVectorXd&);
-%rename(setContactVelocityDict_B) setContactVelocity_B(const rbd::BodyVectorXd&);
-%rename(setContactVelocityDict_H) setContactVelocity_H(const rbd::BodyVectorXd&);
-%rename(setContactAccelerationDict_W) setContactAcceleration_W(const rbd::BodyVectorXd&);
-%rename(setContactAccelerationDict_B) setContactAcceleration_B(const rbd::BodyVectorXd&);
-%rename(setContactAccelerationDict_H) setContactAcceleration_H(const rbd::BodyVectorXd&);
-%rename(setContactWrenchDict_B) setContactWrench_B(const rbd::BodyVector6d&);
+// Renaming few functions of the Lie group to get rid of the ambiguity
+%rename(SE3_RPY) 
+		SE3(const Eigen::Vector3d&, const Eigen::Vector3d&);
+%rename(SE3_Q) 
+		SE3(const Eigen::Vector3d&, const Eigen::Vector4d&);
 
 
 // Renaming few functions of the ReducedBodyState class to get rid of the ambiguity
@@ -113,14 +117,6 @@
 %rename(setFootAccelerationDict_W) setFootAcceleration_W(const rbd::BodyVectorXd&);
 %rename(setFootAccelerationDict_B) setFootAcceleration_B(const rbd::BodyVectorXd&);
 %rename(setFootAccelerationDict_H) setFootAcceleration_H(const rbd::BodyVectorXd&);
-
-// Ignoring two methods of the WholeBodyKinematic class that generate
-// ambiguity
-%ignore computeJointPosition(Eigen::VectorXd&,
-							 const rbd::BodyVector3d&);
-%ignore computeInverseKinematics(rbd::Vector6d&,
-								 Eigen::VectorXd&,
-								 const rbd::BodyVector3d&);
 
 
 // Renaming some functions that generate ambiguity in the WholeBodyDynamic class
@@ -146,6 +142,7 @@
 %rename(urdf_Pose) urdf::Pose;
 %include <dwl/utils/RigidBodyDynamics.h>
 %include <dwl/ReducedBodyState.h>
+%include <dwl/utils/LieGroup.h>
 %include <dwl/WholeBodyState.h>
 %include <urdf_model/pose.h>
 %include <urdf_model/joint.h>
@@ -157,8 +154,49 @@
 %include <dwl/RobotStates.h>
 
 // Extending the C++ class by adding printing methods in python
-%extend dwl::ReducedBodyState {
-	char *__str__() {
+%extend dwl::SE3 {
+	char *__repr__() {
+		std::stringstream buffer;
+		buffer << "\tt: " << $self->getTranslation().transpose() << std::endl;
+		buffer << "\tR: " << $self->getRotation().row(0) << std::endl;
+		buffer << "\t   " << $self->getRotation().row(1) << std::endl;
+		buffer << "\t   " << $self->getRotation().row(2);
+		std::string str = buffer.str();
+		char * writable = new char[str.size() + 1];
+		std::copy(str.begin(), str.end(), writable);
+		writable[str.size()] = '\0';
+		
+		return writable;
+	}	
+}
+%extend dwl::Motion {
+	char *__repr__() {
+		std::stringstream buffer;
+		buffer << "\tv: " << $self->getLinear().transpose() << std::endl;
+		buffer << "\tw: " << $self->getAngular().transpose();
+		std::string str = buffer.str();
+		char * writable = new char[str.size() + 1];
+		std::copy(str.begin(), str.end(), writable);
+		writable[str.size()] = '\0';
+		
+		return writable;
+	}
+}
+%extend dwl::Force {
+	char *__repr__() {
+		std::stringstream buffer;
+		buffer << "\tf: " << $self->getLinear().transpose() << std::endl;
+		buffer << "\tn: " << $self->getAngular().transpose();
+		std::string str = buffer.str();
+		char * writable = new char[str.size() + 1];
+		std::copy(str.begin(), str.end(), writable);
+		writable[str.size()] = '\0';
+		
+		return writable;
+	}
+}
+/*%extend dwl::ReducedBodyState {
+	char *__repr__() {
 		std::stringstream buffer;
 		buffer << "ReducedBodyState:" << std::endl;
 		buffer << "\ttime: " << $self->time << std::endl;
@@ -199,36 +237,54 @@
 };
 
 %extend dwl::WholeBodyState {
-	char *__str__() {
+	char *__repr__() {
 		std::stringstream buffer;
 		buffer << "WholeBodyState:" << std::endl;
 		buffer << "\ttime: " << $self->time << std::endl;
-		buffer << "\tbase_pos: " << $self->base_pos.transpose() << std::endl;
-		buffer << "\tbase_vel: " << $self->base_vel.transpose() << std::endl;
-		buffer << "\tbase_acc: " << $self->base_acc.transpose() << std::endl;
+		buffer << "\tbase_pos:" << std::endl;
+		buffer << "\t\tt: " << $self->getBaseSE3().getTranslation().transpose() << std::endl;
+		buffer << "\t\tR: " << $self->getBaseSE3().getRotation().row(0) << std::endl;
+		buffer << "\t\t   " << $self->getBaseSE3().getRotation().row(1) << std::endl;
+		buffer << "\t\t   " << $self->getBaseSE3().getRotation().row(2) << std::endl;
+		buffer << "\tbase_vel:" << std::endl;
+		buffer << "\t\tv: " << $self->getBaseVelocity_B().getLinear().transpose() << std::endl;
+		buffer << "\t\tw: " << $self->getBaseVelocity_B().getAngular().transpose() << std::endl;
+		buffer << "\tbase_acc:" << std::endl;
+		buffer << "\t\tvd: " << $self->getBaseAcceleration_B().getLinear().transpose() << std::endl;
+		buffer << "\t\twd: " << $self->getBaseAcceleration_B().getAngular().transpose() << std::endl;
 		buffer << "\tjoint_pos: " << $self->getJointPosition().transpose() << std::endl;
 		buffer << "\tjoint_vel: " << $self->getJointVelocity().transpose() << std::endl;
 		buffer << "\tjoint_acc: " << $self->getJointAcceleration().transpose() << std::endl;
 		buffer << "\tjoint_eff: " << $self->getJointEffort().transpose() << std::endl;
 		buffer << "\tcontact_pos_B: " << std::endl;
-		for (dwl::rbd::BodyVectorXd::const_iterator it = $self->getContactPosition_B().begin();
-				it != $self->getContactPosition_B().end(); ++it) {
-			buffer << "\t\t" << it->first << ": " << it->second.transpose() << std::endl;
+		for (dwl::SE3Map::const_iterator it = $self->getContactSE3_B().begin();
+				it != $self->getContactSE3_B().end(); ++it) {
+			buffer << "\t\t" << it->first << ":" << std::endl;
+			buffer << "\t\t\tt: " << it->second.getTranslation().transpose() << std::endl;
+			buffer << "\t\t\tR: " << it->second.getRotation().row(0) << std::endl;
+			buffer << "\t\t\t   " << it->second.getRotation().row(1) << std::endl;
+			buffer << "\t\t\t   " << it->second.getRotation().row(2) << std::endl;
 		}
 		buffer << "\tcontact_vel_B: " << std::endl;
-		for (dwl::rbd::BodyVectorXd::const_iterator it = $self->getContactVelocity_B().begin();
+		for (dwl::MotionMap::const_iterator it = $self->getContactVelocity_B().begin();
 				it != $self->getContactVelocity_B().end(); ++it) {
-			buffer << "\t\t" << it->first << ": " << it->second.transpose() << std::endl;
+			buffer << "\t\t" << it->first << ":" << std::endl;
+			buffer << "\t\t\tv: " << it->second.getLinear().transpose() << std::endl;
+			buffer << "\t\t\tw: " << it->second.getAngular().transpose() << std::endl;
 		}
 		buffer << "\tcontact_acc_B: " << std::endl;
-		for (dwl::rbd::BodyVectorXd::const_iterator it = $self->getContactAcceleration_B().begin();
+		for (dwl::MotionMap::const_iterator it = $self->getContactAcceleration_B().begin();
 				it != $self->getContactAcceleration_B().end(); ++it) {
-			buffer << "\t\t" << it->first << ": " << it->second.transpose() << std::endl;
+			buffer << "\t\t" << it->first << ":" << std::endl;
+			buffer << "\t\t\tv: " << it->second.getLinear().transpose() << std::endl;
+			buffer << "\t\t\tw: " << it->second.getAngular().transpose() << std::endl;
 		}
 		buffer << "\tcontact_eff_B: " << std::endl;
-		for (dwl::rbd::BodyVector6d::const_iterator it = $self->getContactWrench_B().begin();
+		for (dwl::ForceMap::const_iterator it = $self->getContactWrench_B().begin();
 				it != $self->getContactWrench_B().end(); ++it) {
-			buffer << "\t\t" << it->first << ": " << it->second.transpose() << std::endl;
+			buffer << "\t\t" << it->first << ":" << std::endl;
+			buffer << "\t\t\tv: " << it->second.getLinear().transpose() << std::endl;
+			buffer << "\t\t\tw: " << it->second.getAngular().transpose() << std::endl;
 		}
 		std::string str = buffer.str();
 		char * writable = new char[str.size() + 1];

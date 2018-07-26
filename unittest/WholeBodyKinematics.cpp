@@ -15,11 +15,10 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
 
 
     // Creating an initial state for testing
-    Eigen::Vector7d base_pos;
-    Eigen::Vector6d base_vel, base_acc;
-    base_pos << 0., 0., 0., 1., 0., 0., 0.;
-    base_vel << 0., 0., 0., 1., 0., 0.;
-    base_acc << 0., 1., 0., 0., 0., 0.;
+    dwl::SE3 base_pos;
+    dwl::Motion base_vel, base_acc;
+    base_vel.setLinear(Eigen::Vector3d(1., 0., 0.));
+    base_acc.setAngular(Eigen::Vector3d(0., 1., 0.));
     Eigen::VectorXd joint_pos = fbs.getDefaultPosture();
     Eigen::VectorXd joint_vel = Eigen::VectorXd::Zero(fbs.getJointDoF());
     Eigen::VectorXd joint_acc = Eigen::VectorXd::Zero(fbs.getJointDoF());
@@ -35,62 +34,64 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
 
 
     // Checking the forward kinematics for the LF foot
-    Eigen::Vector7dMap pos_W =
+    dwl::SE3Map pos_W =
         wkin.computePosition(base_pos, joint_pos,
                              fbs.getEndEffectorNames());
-    Eigen::Vector7d lf_pos;
-    lf_pos << 0.0928958, -0.364443, -0.0365662, 0.925859, 0.370773, 0.324067, -0.57751;
-    BOOST_CHECK( pos_W.find("lf_foot")->second.isApprox(lf_pos, 1e-3) );
+    dwl::SE3 lf_pos(Eigen::Vector3d(0.370773, 0.324067, -0.57751),
+    				Eigen::Vector4d(0.0928958, -0.364443, -0.0365662, 0.925859));
+    BOOST_CHECK( pos_W.find("lf_foot")->second.getTranslation().isApprox(lf_pos.getTranslation(), 1e-3) );
+    BOOST_CHECK( pos_W.find("lf_foot")->second.getQuaternion().isApprox(lf_pos.getQuaternion(), 1e-3) );
 
 
     // Checking the LF foot velocity
-    Eigen::Vector6dMap vel_W = 
+    dwl::MotionMap vel_W =
         wkin.computeVelocity(base_pos, joint_pos,
                              base_vel, joint_vel,
                              fbs.getEndEffectorNames());
-    Eigen::Vector6d lf_vel;
-    lf_vel << 0., 0., 0., 1., 0., 0.;
-    BOOST_CHECK( vel_W.find("lf_foot")->second.isApprox(lf_vel, 1e-12) );
+    dwl::Motion lf_vel(Eigen::Vector3d(1., 0., 0.), Eigen::Vector3d(0., 0., 0.));
+    BOOST_CHECK( vel_W.find("lf_foot")->second.getLinear().isApprox(lf_vel.getLinear(), 1e-12) );
+    BOOST_CHECK( vel_W.find("lf_foot")->second.getAngular().isApprox(lf_vel.getAngular(), 1e-12) );
 
 
     // Checking the LF foot acceleration
-    Eigen::Vector6dMap acc_W = 
+    dwl::MotionMap acc_W =
         wkin.computeAcceleration(base_pos, joint_pos,
-                                 base_vel, 0.*joint_vel,
+                                 base_vel, joint_vel,
                                  base_acc, joint_acc,
                                  fbs.getEndEffectorNames());
-    Eigen::Vector6d lf_acc;
-    lf_acc << 0., 1., 0., -0.57751, 0., -0.370773;
-    BOOST_CHECK( acc_W.find("lf_foot")->second.isApprox(lf_acc, 1e-3) );
+    dwl::Motion lf_acc(Eigen::Vector3d(-0.94828, 0., 0.206736), Eigen::Vector3d(0., 1., 0.));
+    BOOST_CHECK( acc_W.find("lf_foot")->second.getLinear().isApprox(lf_acc.getLinear(), 1e-3) );
+    BOOST_CHECK( acc_W.find("lf_foot")->second.getAngular().isApprox(lf_acc.getAngular(), 1e-3) );
 
 
     // Checking the fixed-based IK
-    Eigen::VectorXd new_joint_pos;
-    Eigen::Vector7dMap pos_B = pos_W; // Note that we didn't move the base configuration
+    Eigen::VectorXd new_joint_pos = Eigen::VectorXd::Zero(fbs.getJointDoF());
+    dwl::SE3Map pos_B = pos_W; // Note that we didn't move the base configuration
     wkin.computeJointPosition(new_joint_pos, pos_B);
     BOOST_CHECK( new_joint_pos.isApprox(joint_pos, 1e-12) );
 
 
     // Checking the joint velocity computation
-    Eigen::VectorXd new_joint_vel;
+    Eigen::VectorXd new_joint_vel = Eigen::VectorXd::Zero(fbs.getJointDoF());
     joint_vel.setRandom();
-    Eigen::Vector6dMap vel_B = 
+    dwl::MotionMap vel_B =
         wkin.computeVelocity(base_pos, joint_pos,
-                             Eigen::Vector6d::Zero(), joint_vel,
+                             dwl::Motion(), joint_vel,
                              fbs.getEndEffectorNames());
 	wkin.computeJointVelocity(new_joint_vel, joint_pos, vel_B);
     BOOST_CHECK( new_joint_vel.isApprox(joint_vel, 1e-12) );
 
 
     // Checking the joint velocity computation
-    Eigen::VectorXd new_joint_acc;
+    Eigen::VectorXd new_joint_acc = Eigen::VectorXd::Zero(fbs.getJointDoF());
     joint_acc.setRandom();
-    Eigen::Vector6dMap acc_B = 
+    dwl::MotionMap acc_B =
         wkin.computeAcceleration(base_pos, joint_pos,
-                                 Eigen::Vector6d::Zero(), joint_vel,
-                                 Eigen::Vector6d::Zero(), joint_acc,
+                                 dwl::Motion(), joint_vel,
+                                 dwl::Motion(), joint_acc,
                                  fbs.getEndEffectorNames());
 	wkin.computeJointAcceleration(new_joint_acc, joint_pos, joint_vel, acc_B);
     BOOST_CHECK( new_joint_acc.isApprox(joint_acc, 1e-12) );
-
+std::cout << joint_acc.transpose() << std::endl;
+std::cout << new_joint_acc.transpose() << std::endl;
 }

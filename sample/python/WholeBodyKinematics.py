@@ -14,8 +14,8 @@ fbs = dwl.FloatingBaseSystem()
 wkin = dwl.WholeBodyKinematics()
 
 # Resetting the system from the hyq urdf file
-fpath = os.path.dirname(os.path.abspath(__file__))
-fbs.resetFromURDFFile(fpath + "/../hyq.urdf", fpath + "/../../config/hyq.yarf")
+fpath = str(os.path.dirname(os.path.abspath(__file__)))
+fbs.resetFromURDFFile(fpath + "/../../models/hyq.urdf", fpath + "/../../models/hyq.yarf")
 wkin.reset(fbs)
 
 # Define the DoF after initializing the robot model
@@ -23,12 +23,12 @@ ws.setJointDoF(fbs.getJointDoF())
 
 
 # The robot state
-ws.setBasePosition(np.array([0., 0., 0.]))
-ws.setBaseRPY(np.array([0., 0., 0.]))
-ws.setBaseVelocity_W(np.array([0., 0., 0.]))
-ws.setBaseRPYVelocity_W(np.array([0., 0., 0.]))
-ws.setBaseAcceleration_W(np.array([0., 0., 0.]))
-ws.setBaseRPYAcceleration_W(np.array([0., 0., 0.]))
+ws.setBaseSE3(dwl.SE3_RPY(np.zeros(3),
+                          np.array([0., 0., 0.])))
+ws.setBaseVelocity_W(dwl.Motion(np.array([0., 0., 0.]),
+                                np.array([0., 0., 0.])))
+ws.setBaseAcceleration_W(dwl.Motion(np.array([0., 0., 0.]),
+                                    np.array([0., 0., 0.])))
 ws.setJointPosition(0.75, fbs.getJointId("lf_hfe_joint"))
 ws.setJointPosition(-1.5, fbs.getJointId("lf_kfe_joint"))
 ws.setJointPosition(-0.75, fbs.getJointId("lh_hfe_joint"))
@@ -39,76 +39,121 @@ ws.setJointPosition(-0.75, fbs.getJointId("rh_hfe_joint"))
 ws.setJointPosition(1.5, fbs.getJointId("rh_kfe_joint"))
 
 
+ws.setJointVelocity(0.2, fbs.getJointId("lf_haa_joint"))
+ws.setJointVelocity(0.75, fbs.getJointId("lf_hfe_joint"))
+ws.setJointVelocity(1., fbs.getJointId("lf_kfe_joint"))
+
+ws.setJointAcceleration(0.2, fbs.getJointId("lf_haa_joint"))
+ws.setJointAcceleration(0.75, fbs.getJointId("lf_hfe_joint"))
+ws.setJointAcceleration(1., fbs.getJointId("lf_kfe_joint"))
+
+
 # Computing the jacobians
-jacobian = np.zeros([3 * fbs.getNumberOfEndEffectors(dwl.FOOT), 6 + fbs.getJointDoF()])
-fixed_jac = np.zeros([3 * fbs.getNumberOfEndEffectors(dwl.FOOT), fbs.getJointDoF()])
-floating_jac = np.zeros([3 * fbs.getNumberOfEndEffectors(dwl.FOOT), 6])
-base_pos = ws.base_pos
-joint_pos = ws.joint_pos
-base_vel = ws.base_vel
-joint_vel = ws.joint_vel
-base_acc = ws.base_acc
-joint_acc = ws.joint_acc
-wkin.computeJacobian(jacobian,
-                     base_pos, joint_pos,
-                     fbs.getEndEffectorNames(dwl.FOOT),
-                     dwl.Linear)
-print(jacobian, " = Full Jacobian")
+print()
+print('Stack of Jacobians:')
+jacobian = wkin.computeJacobian(ws.getBaseSE3(), ws.getJointPosition(),
+                                fbs.getEndEffectorNames(dwl.FOOT))
+print(' ', jacobian)
 
-wkin.getFixedBaseJacobian(fixed_jac, jacobian);
-print(fixed_jac, " = Fixed Jacobian")
+print()
+print('Floating-base Jacobian (LF foot):')
+floating_jac = np.zeros([6, 6])
+wkin.getFloatingBaseJacobian(floating_jac, jacobian['lf_foot']);
+print(' ', floating_jac)
 
-wkin.getFloatingBaseJacobian(floating_jac, jacobian);
-print(floating_jac, " =  Floating-based Jacobian")
+print()
+print('Fixed Jacobian (LF foot):')
+fixed_jac = np.zeros([6, fbs.getJointDoF()]) 
+wkin.getFixedBaseJacobian(fixed_jac, jacobian['lf_foot']);
+print(' ', fixed_jac)
+
+
 
 
 # Computing the contact positions
-contact_pos_W = wkin.computePosition(base_pos, joint_pos,
-                                     fbs.getEndEffectorNames(dwl.FOOT),
-                                     dwl.Linear)
-print("The contact position:", contact_pos_W)
+print()
+print('Contact SE3:')
+contact_pos_W = wkin.computePosition(ws.getBaseSE3(), ws.getJointPosition(),
+                                     fbs.getEndEffectorNames(dwl.FOOT))
+print(' ',contact_pos_W.asdict()['lf_foot'])
+ws.setContactSE3_W(contact_pos_W)
 
 
 # Computing the contact velocities
-contact_vel_W = wkin.computeVelocity(base_pos, joint_pos,
-                                     base_vel, joint_vel,
-                                     fbs.getEndEffectorNames(dwl.FOOT),
-                                     dwl.Linear)
-print("The contact velocity:", contact_vel_W)
-
-
+print()
+print('Contact velocity:')
+contact_vel_W = wkin.computeVelocity(ws.getBaseSE3(), ws.getJointPosition(),
+                                     ws.getBaseVelocity_W(), ws.getJointVelocity(),
+                                     fbs.getEndEffectorNames(dwl.FOOT))
+print(' ',contact_vel_W.asdict()['lf_foot'])
+ws.setContactVelocity_W(contact_vel_W);
+ 
+ 
 # Computing the contact accelerations
-contact_acc_W = wkin.computeAcceleration(base_pos, joint_pos,
-                                         base_vel, joint_vel,
-                                         base_acc, joint_acc,
-                                         fbs.getEndEffectorNames(dwl.FOOT),
-                                         dwl.Linear)
-print("The contact accelerations:", contact_acc_W)
-
-
+print()
+print('Contact acceleration:')
+contact_acc_W = wkin.computeAcceleration(ws.getBaseSE3(), ws.getJointPosition(),
+                                         ws.getBaseVelocity_W(), ws.getJointVelocity(),
+                                         ws.getBaseAcceleration_W(), ws.getJointAcceleration(),
+                                         fbs.getEndEffectorNames(dwl.FOOT))
+print(' ', contact_acc_W.asdict()['lf_foot'])
+ 
+ 
 # Computing the Jdot *qdot of the contacts
-contact_jdqd_W = wkin.computeJdotQdot(base_pos, joint_pos,
-                                      base_vel, joint_vel,
-                                      fbs.getEndEffectorNames(dwl.FOOT),
-                                      dwl.Linear)
-print("The Jdot*qdot:", contact_jdqd_W)
-
-
+print()
+print('Contact Jd*qd:')
+contact_jdqd_W = wkin.computeJdQd(ws.getBaseSE3(), ws.getJointPosition(),
+                                  ws.getBaseVelocity_W(), ws.getJointVelocity(),
+                                  fbs.getEndEffectorNames(dwl.FOOT))
+print(' ', contact_jdqd_W.asdict())
+ 
+ 
 # Computing the joint positions
-wkin.setIKSolver(1.0e-12, 0.01, 50)
-joint_pos_init = fbs.getDefaultPosture();
-contact_pos_B = { 'lh_foot' : np.array([-0.371,0.207,-0.589]),
-                  'rh_foot' : np.array([-0.371,-0.207,-0.589]) }
-if wkin.computeJointPosition(joint_pos, contact_pos_B, joint_pos_init):
-    print("The joint positions:", joint_pos.transpose())
+wkin.setIKSolver(1.0e-12, 50)
+joint_pos_init = fbs.getDefaultPosture()
+joint_pos = np.zeros(fbs.getJointDoF())
+contact_pos_B = dwl.SE3Map()
+contact_pos_B['lf_foot'] = dwl.SE3(np.array([0.371,0.207,-0.589]), np.eye(3))
+contact_pos_B['lh_foot'] = dwl.SE3(np.array([-0.371,0.207,-0.589]), np.eye(3))
+print()
+print('Joint position:')
+if wkin.computeJointPosition(joint_pos,
+                             contact_pos_B,
+                             joint_pos_init):
+    print(' ', joint_pos.transpose())
 else:
-    print("The IK problem could not be solved")
+    print(' The IK problem could not be solved')
+
+# Computing the joint velocities. Note that you can create and dwl.MotioMap()
+# object, similar as before
+joint_vel = np.zeros(fbs.getJointDoF())
+print()
+print('Joint velocity:')
+wkin.computeJointVelocity(joint_vel,
+                          ws.getJointPosition(),
+                          contact_vel_W)
+print(' ', joint_vel.transpose())
 
 
-# Computing the whole-body inverse kinematics
-base_pos_init = np.zeros(6);
-if wkin.computeInverseKinematics(base_pos, joint_pos, contact_pos_B, base_pos_init, joint_pos_init):
-    print("The base position:", base_pos.transpose())
-    print("The joint positions:", joint_pos.transpose())
-else:
-    print("The WB-IK problem could not be solved")
+# Computing the joint accelerations
+joint_acc = np.zeros(fbs.getJointDoF())
+print()
+print('Joint acceleration:')
+wkin.computeJointAcceleration(joint_acc,
+                              ws.getJointPosition(),
+                              ws.getJointVelocity(),
+                              contact_acc_W)
+print(' ', joint_acc.transpose())
+
+
+# Comuting the CoM position and velocity
+print()
+print('CoM position:')
+print(' ', wkin.computeCoM(ws.getBaseSE3(), ws.getJointPosition()).transpose())
+print('CoM velocity:')
+c_pos = np.zeros(3)
+c_vel = np.zeros(3)
+wkin.computeCoMRate(c_pos, c_vel,
+                    ws.getBaseSE3(), ws.getJointPosition(),
+                    ws.getBaseVelocity_W(), ws.getJointVelocity())
+print(' ', c_vel)
