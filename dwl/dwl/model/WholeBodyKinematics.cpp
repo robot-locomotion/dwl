@@ -80,8 +80,8 @@ void WholeBodyKinematics::updateJacobians(dwl::SE3& base_pos,
 										  const Eigen::VectorXd& joint_pos)
 {
 	const Eigen::VectorXd& q = fbs_->toConfigurationState(base_pos, joint_pos);
-	computeJacobians(fbs_->getModel(), fbs_->getData(), q);
-	framesForwardKinematics(fbs_->getModel(), fbs_->getData());
+	se3::computeJointJacobians(fbs_->getModel(), fbs_->getData(), q);
+	se3::framesForwardKinematics(fbs_->getModel(), fbs_->getData());
 }
 
 
@@ -318,8 +318,8 @@ bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 	// number of iterations
 	for (unsigned int k = 0; k < max_iter_; ++k) {
 		// Updating the Jacobians and frame kinematics
-		computeJacobians(fbs_->getModel(), fbs_->getData(), q);
-		framesForwardKinematics(fbs_->getModel(), fbs_->getData());
+		se3::computeJointJacobians(fbs_->getModel(), fbs_->getData(), q);
+		se3::framesForwardKinematics(fbs_->getModel(), fbs_->getData());
 
 		for (auto it = frame_list.cbegin(), next_it = frame_list.cbegin();
 				it != frame_list.cend(); it = next_it) {

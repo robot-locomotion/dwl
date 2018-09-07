@@ -4,9 +4,9 @@
 
 #include <dwl/model/FloatingBaseSystem.h>
 #include <pinocchio/algorithm/frames.hpp>
+#include <pinocchio/algorithm/jacobian.hpp>
 #include <pinocchio/algorithm/center-of-mass.hpp>
-// #include <pinocchio/algorithm/finite-differences.hpp>
-#include <pinocchio/algorithm/joint-configuration.hpp> // integrate
+#include <pinocchio/algorithm/joint-configuration.hpp>
 #include <dwl/utils/utils.h>
 
 

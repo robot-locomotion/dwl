@@ -1,6 +1,7 @@
 #ifndef DWL__MODEL__FLOATING_BASE_SYSTEM__H
 #define DWL__MODEL__FLOATING_BASE_SYSTEM__H
 
+#include <pinocchio/multibody/data.hpp>
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/parsers/urdf.hpp>
 #include <dwl/utils/URDF.h>
