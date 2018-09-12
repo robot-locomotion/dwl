@@ -46,7 +46,7 @@ void WholeBodyKinematics::setIKSolver(double step_tol,
 void WholeBodyKinematics::updateKinematics(dwl::SE3& base_pos,
 										   const Eigen::VectorXd& joint_pos)
 {
-	const Eigen::VectorXd& q = fbs_->toConfigurationState(base_pos, joint_pos);
+	const Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
 	se3::forwardKinematics(fbs_->getModel(), fbs_->getData(), q);
 }
 
@@ -56,8 +56,8 @@ void WholeBodyKinematics::updateKinematics(dwl::SE3& base_pos,
 										   const dwl::Motion& base_vel,
 										   const Eigen::VectorXd& joint_vel)
 {
-	const Eigen::VectorXd& q = fbs_->toConfigurationState(base_pos, joint_pos);
-	const Eigen::VectorXd& qd = fbs_->toTangentState(base_vel, joint_vel);
+	const Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
+	const Eigen::VectorXd qd = fbs_->toTangentState(base_vel, joint_vel);
 	se3::forwardKinematics(fbs_->getModel(), fbs_->getData(), q, qd);
 }
 
@@ -69,9 +69,9 @@ void WholeBodyKinematics::updateKinematics(dwl::SE3& base_pos,
 										   const dwl::Motion& base_acc,
 										   const Eigen::VectorXd& joint_acc)
 {
-	const Eigen::VectorXd& q = fbs_->toConfigurationState(base_pos, joint_pos);
-	const Eigen::VectorXd& qd = fbs_->toTangentState(base_vel, joint_vel);
-	const Eigen::VectorXd& qdd = fbs_->toTangentState(base_acc, joint_acc);
+	const Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
+	const Eigen::VectorXd qd = fbs_->toTangentState(base_vel, joint_vel);
+	const Eigen::VectorXd qdd = fbs_->toTangentState(base_acc, joint_acc);
 	se3::forwardKinematics(fbs_->getModel(), fbs_->getData(), q, qd, qdd);
 }
 
@@ -79,7 +79,7 @@ void WholeBodyKinematics::updateKinematics(dwl::SE3& base_pos,
 void WholeBodyKinematics::updateJacobians(dwl::SE3& base_pos,
 										  const Eigen::VectorXd& joint_pos)
 {
-	const Eigen::VectorXd& q = fbs_->toConfigurationState(base_pos, joint_pos);
+	const Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
 	se3::computeJointJacobians(fbs_->getModel(), fbs_->getData(), q);
 	se3::framesForwardKinematics(fbs_->getModel(), fbs_->getData());
 }
@@ -89,7 +89,7 @@ const Eigen::Vector3d&
 WholeBodyKinematics::computeCoM(dwl::SE3& base_pos,
 								const Eigen::VectorXd& joint_pos)
 {
-	const Eigen::VectorXd& q = fbs_->toConfigurationState(base_pos, joint_pos);
+	const Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
 	return se3::centerOfMass(fbs_->getModel(), fbs_->getData(), q);
 }
 
@@ -101,8 +101,8 @@ void WholeBodyKinematics::computeCoMRate(Eigen::Vector3d& com,
 										 const dwl::Motion& base_vel,
 										 const Eigen::VectorXd& joint_vel)
 {
-	const Eigen::VectorXd& q = fbs_->toConfigurationState(base_pos, joint_pos);
-	const Eigen::VectorXd& qd = fbs_->toTangentState(base_vel, joint_vel);
+	const Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
+	const Eigen::VectorXd qd = fbs_->toTangentState(base_vel, joint_vel);
 	se3::centerOfMass(fbs_->getModel(), fbs_->getData(), q, qd);
 
 	com = fbs_->getData().com[0];
@@ -271,12 +271,13 @@ WholeBodyKinematics::getFrameJdQd(const std::string& name)
 
 	// Converting the frame velocity in local coordinate to world coordinate
 	const se3::Motion &vel = f_X_w.actInv(fbs_->getData().v[f.parent]);
+	const se3::Motion &acc =
+			f_X_w.actInv(fbs_->getData().a[f.parent]) +
+			se3::Motion(vel.angular().cross(vel.linear()),
+						Eigen::Vector3d::Zero());
 
-	//TODO This method needs to be tested
-	motion_.data = se3::Motion(vel.angular().cross(vel.linear()),
-							   Eigen::Vector3d::Zero());
-//	motion_.data = f_X_w.actInv(fbs_->getData().a[f.parent]);
-//	motion_.data.linear() += 2.*vel.angular().cross(vel.linear());
+	motion_.data.linear() = acc.angular();
+	motion_.data.angular() = acc.linear() + vel.angular().cross(vel.linear());
 
 	return motion_;
 }
@@ -293,9 +294,6 @@ bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 											   const dwl::SE3Map& frame_pos,
 											   const Eigen::VectorXd& joint_pos0)
 {
-	// Checks vector dimension
-	assert(joint_pos.resize() == fbs_->getJointDoF());
-
 	// Indicates if we manage to solve the IK problem
 	bool success = false;
 
@@ -398,7 +396,7 @@ void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
 	dwl::SE3 se3_origin;
 	dwl::Motion zero_motion;
 	updateKinematics(se3_origin, joint_pos,
-					 zero_motion, joint_vel,
+					 zero_motion, Eigen::VectorXd::Zero(fbs_->getJointDoF()),
 					 zero_motion, Eigen::VectorXd::Zero(fbs_->getJointDoF()));
 
 	// Getting the joint velocities
@@ -409,8 +407,8 @@ void WholeBodyKinematics::computeJointVelocity(Eigen::VectorXd& joint_vel,
 void WholeBodyKinematics::getJointVelocity(Eigen::VectorXd& joint_vel,
 										   const dwl::MotionMap& frame_vel)
 {
-	// Resizing the vector
-	joint_vel = Eigen::VectorXd::Zero(fbs_->getJointDoF());
+	// Checks vector dimension
+	assert(joint_vel.size() == fbs_->getJointDoF());
 
 	for (dwl::MotionMap::const_iterator it = frame_vel.begin();
 		it != frame_vel.end(); ++it) {
@@ -476,8 +474,8 @@ void WholeBodyKinematics::computeJointAcceleration(Eigen::VectorXd& joint_acc,
 void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 											   const dwl::MotionMap& frame_acc)
 {
-	// Resizing the vector
-	joint_acc = Eigen::VectorXd::Zero(fbs_->getJointDoF());
+	// Checks vector dimension
+	assert(joint_acc.size() == fbs_->getJointDoF());
 
 	for (dwl::MotionMap::const_iterator it = frame_acc.begin();
 		it != frame_acc.end(); ++it) {
@@ -555,7 +553,8 @@ WholeBodyKinematics::getFrameJacobian(const std::string& name)
 {
 	unsigned int id = fbs_->getModel().getFrameId(name);
 
-	// Computing the transformation between the local to world coordinates of the frame
+	// Computing the transformation between the local to world coordinates of
+	// the frame
 	const se3::SE3 &w_X_f = se3::SE3(fbs_->getData().oMf[id].rotation(),
 									 Eigen::Vector3d::Zero());
 
