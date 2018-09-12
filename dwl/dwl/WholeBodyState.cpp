@@ -121,6 +121,10 @@ const Eigen::Vector3d& WholeBodyState::getBaseRPYAcceleration_W()
 	return vec3_;
 }
 
+const dwl::Force& WholeBodyState::getBaseWrench_W()
+{
+	return base_eff;
+}
 
 const Eigen::VectorXd& WholeBodyState::getJointPosition() const
 {
