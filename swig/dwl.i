@@ -154,6 +154,24 @@
 %include <dwl/RobotStates.h>
 
 // Extending the C++ class by adding printing methods in python
+%extend std::vector<std::string> {
+	char *__repr__() {
+		std::stringstream buffer;
+		buffer << "['";
+		for (unsigned int i = 0; i < $self->size(); ++i) {
+			if (i == $self->size() - 1)
+				buffer << $self->at(i) << "']" << std::endl;
+			else
+				buffer << $self->at(i) << "', '";
+		}
+		std::string str = buffer.str();
+		char * writable = new char[str.size() + 1];
+		std::copy(str.begin(), str.end(), writable);
+		writable[str.size()] = '\0';
+		
+		return writable;
+	}
+}
 %extend dwl::SE3 {
 	char *__repr__() {
 		std::stringstream buffer;
