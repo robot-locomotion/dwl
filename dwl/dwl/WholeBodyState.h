@@ -138,6 +138,11 @@ class WholeBodyState
 		 */
 		const Eigen::Vector3d& getBaseRPYAcceleration_W();
 
+		/** @brief Gets the base wrench expressed in the world frame
+		 * @return Base wrench expressed in the world frame
+		 */
+		const dwl::Force& getBaseWrench_W();
+
 
 		// Joint state getter functions
 		/** @brief Gets the joint positions
@@ -650,7 +655,7 @@ class WholeBodyState
 		dwl::SE3 base_pos;
 		dwl::Motion base_vel;
 		dwl::Motion base_acc;
-		dwl::Motion base_eff;
+		dwl::Force base_eff;
 		Eigen::VectorXd joint_pos;
 		Eigen::VectorXd joint_vel;
 		Eigen::VectorXd joint_acc;
