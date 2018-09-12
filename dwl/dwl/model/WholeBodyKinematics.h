@@ -345,6 +345,46 @@ class WholeBodyKinematics
 		void getJointAcceleration(Eigen::VectorXd& joint_acc,
 								  const dwl::MotionMap& frame_acc);
 
+
+		/**
+		 * @brief Computes a consistent acceleration for a defined constrained
+		 * contact.
+		 *
+		 * We compute the acceleration by imposing the contacts as holonomic
+		 * constraints, i.e. q_dd = J^-1(x_dd - J_d*q_d).
+		 * @param[out] joint_acc Consistent joint acceleration
+		 * @param[in] base_pos Base SE3 configuration
+		 * @param[in] joint_pos Joint position
+		 * @param[in] base_vel Base velocity
+		 * @param[in] joint_vel Joint velocity
+		 * @param[in] base_acc Base acceleration with respect to a gravity field
+		 * @param[in] contacts Constrained frames
+		 */
+		void computeConstrainedJointAcceleration(Eigen::VectorXd& joint_acc,
+												 dwl::SE3& base_pos,
+												 const Eigen::VectorXd& joint_pos,
+												 const dwl::Motion& base_vel,
+												 const Eigen::VectorXd& joint_vel,
+												 const dwl::Motion& base_acc,
+												 const ElementList& contacts);
+
+		/**
+		 * @brief Gets a consistent acceleration for a defined constrained
+		 * contact.
+		 *
+		 * We compute the acceleration by imposing the contacts as holonomic
+		 * constraints, i.e. q_dd = J^-1(x_dd - J_d*q_d).
+		 * @warning You have to run first updateKinematics and updateJacobians.
+		 * @param[out] joint_acc Consistent joint acceleration
+		 * @param[in] base_vel Base velocity
+		 * @param[in] base_acc Base acceleration with respect to a gravity field
+		 * @param[in] contacts Constrained frames
+		 */
+		void getConstrainedJointAcceleration(Eigen::VectorXd& joint_acc,
+											 const dwl::Motion& base_vel,
+											 const dwl::Motion& base_acc,
+											 const ElementList& contacts);
+
 		/**
 		 * @brief Computes the whole-body Jacobians for a predefined set of
 		 * frames. The whole-body Jacobians are defined as frame Jacobian w.r.t

@@ -525,6 +525,85 @@ void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 }
 
 
+void WholeBodyKinematics::computeConstrainedJointAcceleration(Eigen::VectorXd& joint_acc,
+															  dwl::SE3& base_pos,
+															  const Eigen::VectorXd& joint_pos,
+															  const dwl::Motion& base_vel,
+															  const Eigen::VectorXd& joint_vel,
+															  const dwl::Motion& base_acc,
+															  const ElementList& contacts)
+{
+	// Updating the frame Jacobians and kinematics
+	updateKinematics(base_pos, joint_pos,
+					 base_vel, joint_vel);
+	updateJacobians(base_pos, joint_pos);
+
+	// Getting the constrained joint acceleration
+	getConstrainedJointAcceleration(joint_acc, base_vel, base_acc, contacts);
+}
+
+
+void WholeBodyKinematics::getConstrainedJointAcceleration(Eigen::VectorXd& joint_acc,
+														  const dwl::Motion& base_vel,
+														  const dwl::Motion& base_acc,
+														  const ElementList& contacts)
+{
+	// Checks vector dimension
+	assert(joint_acc.size() == fbs_->getJointDoF());
+
+	// At the first step, we compute the angular and linear floating-base
+	// velocity and acceleration
+	const Eigen::Vector3d x_d = base_vel.getLinear();
+	const Eigen::Vector3d omega = base_vel.getAngular();
+	const Eigen::Vector3d x_dd = base_acc.getLinear();
+	const Eigen::Vector3d omega_d = base_acc.getAngular();
+
+	// Computing the consistent joint accelerations given a desired base
+	// motion and contact definition. We assume that contacts are static,
+	// which it allows us to computed a consistent joint accelerations.
+	dwl::SE3 r;
+	dwl::Motion rd, rdd;
+	Eigen::Matrix6x fixed_jac;
+	for (ElementList::const_iterator it = contacts.begin();
+			it != contacts.end(); ++it) {
+		std::string name = *it;
+
+		// Getting the fixed Jacobian and Jd*qd term
+		getFixedBaseJacobian(fixed_jac, getFrameJacobian(name));
+		const dwl::Motion Jdqd = getFrameJdQd(name);
+
+		// Computing the desired contact acceleration w.r.t. the base frame
+		r = getFramePosition(name);
+		rd.setLinear(-x_d - omega.cross(r.getTranslation()));
+		rd.setAngular(-omega);
+		rdd.setLinear(-x_dd
+					  -omega_d.cross(r.getTranslation())
+					  -omega.cross(r.getTranslation())
+					  -2 * omega.cross(rd.getLinear()));
+		rdd.setAngular(-omega_d);
+
+		// Get the branch properties
+		unsigned int pos_idx, n_dof;
+		fbs_->getBranch(pos_idx, n_dof, name);
+
+		// Computing the join acceleration from r_dd = J*q_dd + J_d*q_d
+		// since we are doing computation in the base frame
+		Eigen::VectorXd q_dd;
+		if (n_dof <= 3) {// only position error
+			Eigen::Matrix3d J_branch = fixed_jac.block<3,3>(0, pos_idx);
+			q_dd =
+				math::pseudoInverse(J_branch) * (rdd.getLinear() - Jdqd.getLinear());
+		} else {
+			Eigen::Matrix6d J_branch = fixed_jac.block<6,6>(0, pos_idx);
+			q_dd =
+				math::pseudoInverse(J_branch) * (rdd.toVector() - Jdqd.toVector());
+		}
+		// Setting up the branch joint acceleration
+		fbs_->setBranchState(joint_acc, q_dd, name);
+	}
+}
+
+
 Eigen::Matrix6xMap
 WholeBodyKinematics::computeJacobian(dwl::SE3& base_pos,
 									 const Eigen::VectorXd& joint_pos,
