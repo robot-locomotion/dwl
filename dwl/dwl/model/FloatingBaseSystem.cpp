@@ -541,7 +541,32 @@ const Eigen::VectorXd& FloatingBaseSystem::toTangentState(const dwl::Motion& bas
 	// Getting the number of joints
 	assert(joint_state.size() == getJointDoF());
 
-	// Note that pinocchio defines the floating base state as
+	// Note that Pinocchio defines the floating base state as
+	// [linear states, angular states]
+	if (root_joint_ == FREE_FLYER) {
+		v_ << base_state.toVector(), joint_state;
+	} else if (root_joint_ == PLANAR) {
+		Eigen::VectorXd virtual_base(model_.joints[1].nv());
+		Eigen::Vector6d vr = base_state.toVector();
+		virtual_base(0) = vr(rbd::LX_V);
+		virtual_base(1) = vr(rbd::LY_V);
+		virtual_base(2) = vr(rbd::AZ_V);
+		v_ << virtual_base, joint_state;
+	} else {
+		v_ = joint_state;
+	}
+
+	return v_;
+}
+
+
+const Eigen::VectorXd& FloatingBaseSystem::toCotangentState(const dwl::Force& base_state,
+															const Eigen::VectorXd& joint_state)
+{
+	// Getting the number of joints
+	assert(joint_state.size() == getJointDoF());
+
+	// Note that Pinocchio defines the floating base state as
 	// [linear states, angular states]
 	if (root_joint_ == FREE_FLYER) {
 		v_ << base_state.toVector(), joint_state;
@@ -591,6 +616,33 @@ void FloatingBaseSystem::fromConfigurationState(dwl::SE3& base_state,
 void FloatingBaseSystem::fromTangentState(dwl::Motion& base_state,
 										  Eigen::VectorXd& joint_state,
 										  const Eigen::VectorXd& generalized_state)
+{
+	// Resizing the joint state
+	joint_state.resize(getJointDoF());
+
+	// Note that pinocchio defines the floating base state as
+	// [linear states, angular states]
+	if (root_joint_ == FREE_FLYER) {
+		base_state.setLinear(generalized_state.segment<3>(rbd::LX_V));
+		base_state.setAngular(generalized_state.segment<3>(rbd::AX_V));
+		joint_state = generalized_state.segment(6, getJointDoF());
+	} else if (root_joint_ == PLANAR) {
+		base_state.setLinear(Eigen::Vector3d(generalized_state(0),
+											 generalized_state(1), 0.));
+		base_state.setLinear(Eigen::Vector3d(0., 0., generalized_state(2)));
+		base_state.setAngular(Eigen::Vector3d::Zero());
+		joint_state = generalized_state.segment(3, getJointDoF());
+	} else {
+		base_state.setLinear(Eigen::Vector3d::Zero());
+		base_state.setAngular(Eigen::Vector3d::Zero());
+		joint_state = generalized_state;
+	}
+}
+
+
+void FloatingBaseSystem::fromCotangentState(dwl::Force& base_state,
+											Eigen::VectorXd& joint_state,
+											const Eigen::VectorXd& generalized_state)
 {
 	// Resizing the joint state
 	joint_state.resize(getJointDoF());

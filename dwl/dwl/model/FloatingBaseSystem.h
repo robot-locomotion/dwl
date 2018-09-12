@@ -331,6 +331,16 @@ class FloatingBaseSystem
 											  const Eigen::VectorXd& joint_state);
 
 		/**
+		 * @brief Converts the base and joint tangent states to a
+		 * generalized tangent state
+		 * @param[in] base_state Base cotangent state
+		 * @param[in] joint_state Joint tangent state
+		 * @return Generalized cotangent state
+		 */
+		const Eigen::VectorXd& toCotangentState(const dwl::Force& base_state,
+											  const Eigen::VectorXd& joint_state);
+
+		/**
 		 * @brief Converts the generalized configuration state to base and joint states
 		 * @param[out] base_state Base configuration
 		 * @param[in] joint_state Joint configuration
@@ -349,6 +359,16 @@ class FloatingBaseSystem
 		void fromTangentState(dwl::Motion& base_state,
 							  Eigen::VectorXd& joint_state,
 							  const Eigen::VectorXd& gen_state);
+
+		/**
+		 * @brief Converts the generalized cotangent state to base and joint states
+		 * @param[out] base_state Base cotangent vector
+		 * @param[in] joint_state Joint cotangent vector
+		 * @param[in] gen_state Generalized cotangent state
+		 */
+		void fromCotangentState(dwl::Force& base_state,
+								Eigen::VectorXd& joint_state,
+								const Eigen::VectorXd& gen_state);
 
 		/**
 		 * @brief Sets the joint state given a branch values
