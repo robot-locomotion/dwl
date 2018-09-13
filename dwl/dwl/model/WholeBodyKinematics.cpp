@@ -96,17 +96,23 @@ WholeBodyKinematics::computeCoM(dwl::SE3& base_pos,
 
 void WholeBodyKinematics::computeCoMRate(Eigen::Vector3d& com,
 										 Eigen::Vector3d& com_d,
+										 Eigen::Vector3d& com_dd,
 										 dwl::SE3& base_pos,
 										 const Eigen::VectorXd& joint_pos,
 										 const dwl::Motion& base_vel,
-										 const Eigen::VectorXd& joint_vel)
+										 const Eigen::VectorXd& joint_vel,
+										 const dwl::Motion& base_acc,
+										 const Eigen::VectorXd& joint_acc)
 {
 	const Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
 	const Eigen::VectorXd qd = fbs_->toTangentState(base_vel, joint_vel);
-	se3::centerOfMass(fbs_->getModel(), fbs_->getData(), q, qd);
+	const Eigen::VectorXd qdd = fbs_->toTangentState(base_acc, joint_acc);
+
+	se3::centerOfMass(fbs_->getModel(), fbs_->getData(), q, qd, qdd);
 
 	com = fbs_->getData().com[0];
 	com_d = fbs_->getData().vcom[0];
+	com_dd = fbs_->getData().acom[0];
 }
 
 

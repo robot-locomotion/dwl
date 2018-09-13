@@ -108,18 +108,24 @@ class WholeBodyKinematics
 		 *
 		 * @param[out] com CoM position
 		 * @param[out] com_d CoM velocity
+		 * @param[out] com_d CoM acceleratin
 		 * @param[in] base_pos Base SE3 configuration
 		 * @param[in] joint_pos Joint position
 		 * @param[in] base_vel Base velocity [angular, linear]
 		 * @param[in] joint_vel Joint velocity
+		 * @param[in] base_acc Base acceleration [angular, linear]
+		 * @param[in] joint_acc Joint acceleration
 		 * @return CoM rate of the floating-base system
 		 */
 		void computeCoMRate(Eigen::Vector3d& com,
 							Eigen::Vector3d& com_d,
+							Eigen::Vector3d& com_dd,
 							dwl::SE3& base_pos,
 							const Eigen::VectorXd& joint_pos,
 							const dwl::Motion& base_vel,
-							const Eigen::VectorXd& joint_vel);
+							const Eigen::VectorXd& joint_vel,
+							const dwl::Motion& base_acc,
+							const Eigen::VectorXd& joint_acc);
 
 		/**
 		 * @brief Computes the operational position (i.e. SE3 group)
