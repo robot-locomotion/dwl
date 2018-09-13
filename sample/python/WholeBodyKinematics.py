@@ -169,13 +169,16 @@ print(' ', joint_acc.transpose())
 print()
 print('CoM position:')
 print(' ', wkin.computeCoM(ws.getBaseSE3(), ws.getJointPosition()).transpose())
-print('CoM velocity:')
 c_pos = np.zeros(3)
 c_vel = np.zeros(3)
-wkin.computeCoMRate(c_pos, c_vel,
+c_acc = np.zeros(3)
+wkin.computeCoMRate(c_pos, c_vel, c_acc,
                     ws.getBaseSE3(), ws.getJointPosition(),
                     ws.getBaseVelocity_W(), ws.getJointVelocity())
+print('CoM velocity:')
 print(' ', c_vel)
+print('CoM acceleration:')
+print(' ', c_acc)
 
 
 
