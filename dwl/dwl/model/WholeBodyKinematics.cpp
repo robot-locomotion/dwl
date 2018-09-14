@@ -174,7 +174,8 @@ WholeBodyKinematics::getFrameVelocity(const std::string& name)
 	unsigned int id = fbs_->getModel().getFrameId(name);
 	const se3::Frame &f = fbs_->getModel().frames[id];
 
-	// Computing the transformation between world to local coordinates of the frame
+	// Computing the transformation between world to local coordinates of the
+	// frame
 	const se3::SE3 &f_X_w =
 		se3::SE3(fbs_->getData().oMi[f.parent].rotation().transpose(),
 				 f.placement.translation());
@@ -199,7 +200,9 @@ WholeBodyKinematics::computeAcceleration(dwl::SE3& base_pos,
 										 const ElementList& frames)
 {
 	// Update the kinematics
-	updateKinematics(base_pos, joint_pos, base_vel, joint_vel, base_acc, joint_acc);
+	updateKinematics(base_pos, joint_pos,
+					 base_vel, joint_vel,
+					 base_acc, joint_acc);
 
 	dwl::MotionMap frame_acc;
 	for (ElementList::const_iterator it = frames.begin();
@@ -218,7 +221,8 @@ WholeBodyKinematics::getFrameAcceleration(const std::string& name)
 	unsigned int id = fbs_->getModel().getFrameId(name);
 	const se3::Frame &f = fbs_->getModel().frames[id];
 
-	// Computing the transformation between world to local coordinates of the frame
+	// Computing the transformation between world to local coordinates of the
+	// frame
 	const se3::SE3 &f_X_w =
 		se3::SE3(fbs_->getData().oMi[f.parent].rotation().transpose(),
 				 f.placement.translation());
