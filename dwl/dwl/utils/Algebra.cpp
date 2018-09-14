@@ -33,11 +33,13 @@ Eigen::MatrixXd pseudoInverse(const Eigen::MatrixXd& A, double tolerance)
 	svd.compute(A, Eigen::ComputeThinU | Eigen::ComputeThinV);
 
 	// Build a diagonal matrix with the Inverted Singular values
-	// The pseudo inverted singular matrix is easy to compute: is formed by replacing every nonzero
-	// entry by its reciprocal (inverting).
-	Eigen::Matrix<double, Eigen::Dynamic, 1> singular_values(svd.matrixV().cols(),1);
+	// The pseudo inverted singular matrix is easy to compute: is formed by
+	// replacing every nonzero entry by its reciprocal (inverting).
+	Eigen::Matrix<double,Eigen::Dynamic,1> singular_values(svd.matrixV().cols(),1);
 
-	singular_values = (svd.singularValues().array()>tolerance).select(svd.singularValues().array().inverse(), 0);
+	singular_values =
+			(svd.singularValues().array()>tolerance).select(
+					svd.singularValues().array().inverse(), 0);
 
 	// Pseudo-Inversion : V * S * U'
 	pinvA = (svd.matrixV() * singular_values.asDiagonal() * svd.matrixU().transpose());

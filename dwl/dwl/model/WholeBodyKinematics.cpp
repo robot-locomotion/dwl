@@ -314,9 +314,9 @@ bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 
 	// Getting the offset in the joint vector in case of floating-base systems
 	unsigned int n_ff_q = 0, n_ff_v = 0;
-	if (fbs_->isFloatingBase()) {
-		n_ff_q = 7;
-		n_ff_v = 6;
+	if (fbs_->isFloatingBase() || fbs_->isConstrainedFloatingBase()) {
+		n_ff_q = fbs_->getModel().joints[1].nq();
+		n_ff_v = fbs_->getModel().joints[1].nv();
 	}
 
 	// Created an internal copy of the frame positions
@@ -341,27 +341,45 @@ bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 			// systems world and frame are aligned
 			const se3::SE3 &b_X_f = fbs_->getData().oMf[id];
 
-			// Computing the frame Jacobian (of actuation part) in the base frame
-			Eigen::Matrix6x full_jac(6,fbs_->getTangentDim());
-			Eigen::Matrix6x fixed_jac(6,fbs_->getTangentDim());
-			full_jac.setZero();
-			se3::getFrameJacobian(fbs_->getModel(), fbs_->getData(), id, full_jac);
-			getFixedBaseJacobian(fixed_jac, full_jac);
-			fixed_jac = b_X_f.toDualActionMatrix() * fixed_jac;
+			// Computing the frame Jacobian in the base frame
+			Eigen::Matrix6x J = getFrameJacobian(name);
 
-			// Compute the Gauss-Newton direction, the residual error is computed
-			// according the current-branch DoF
+			// Compute the Gauss-Newton direction, the residual error is
+			// computed according the current-branch DoF
 			unsigned int pos_idx, n_dof;
 			fbs_->getBranch(pos_idx, n_dof, name);
-			Eigen::VectorXd qdot;
-			if (n_dof <= 3) {// only position error
+			Eigen::VectorXd qdot = Eigen::VectorXd::Zero(fbs_->getTangentDim());
+			if (n_dof == 3) {// only position error
+				// Computing translational error
 				Eigen::Vector3d e = b_X_f.translation() - X_des.getTranslation();
-				qdot = fbs_->toTangentState(zero_motion,
-											-math::pseudoInverse(fixed_jac.topRows<3>()) * e);
-			} else {// SE3 error
+
+				// Getting the linear Jacobian of the branch
+				Eigen::Matrix3d Jb = J.block<3,3>(0, n_ff_v + pos_idx);
+
+				// Computing the branch joint velocities. This function selects
+				// autovalues than aren't equals zero
+				Eigen::Vector3d qd_b = -math::pseudoInverse(Jb) * e;
+
+				// Updating the generalized velocities
+				qdot.segment(n_ff_v + pos_idx, n_dof) = qd_b;
+			} else if (n_dof == 6) {// SE3 error
+				// Computing SE3 error
 				Eigen::Vector6d e = se3::log6(X_des.data.inverse() * b_X_f);
-				qdot = fbs_->toTangentState(zero_motion,
-											-math::pseudoInverse(fixed_jac * e));
+
+				// Getting the Jacobian of the branch
+				Eigen::Matrix6d Jb = J.block<6,6>(0, n_ff_v + pos_idx);
+
+				// Computing the branch joint velocities. This function selects
+				// autovalues than aren't equals zero
+				Eigen::Vector6d qd_b = -math::pseudoInverse(Jb) * e;
+
+				// Updating the generalized velocities
+				qdot.segment(n_ff_v + pos_idx, n_dof) = qd_b.head(n_dof);
+			} else {
+				printf(YELLOW "Warning: it doesn't handle branches with DoFs "
+						"different of 3 or 6\n" COLOR_RESET);
+				frame_list.erase(it);
+				continue;
 			}
 
 			// Integrate the exp integration in SE3
