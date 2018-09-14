@@ -394,8 +394,9 @@ class FloatingBaseSystem
 		 * @param[in] pos_idx Position index of the body branch
 		 * @param[in] num_dof Degrees of freedom of the body branch
 		 * @param[in] name Name of the body branch (end-effector name)
+		 * @return False if it doesn't exist this branch
 		 */
-		void getBranch(unsigned int& pos_idx,
+		bool getBranch(unsigned int& pos_idx,
 					   unsigned int& num_dof,
 					   const std::string& name);
 

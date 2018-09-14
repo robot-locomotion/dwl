@@ -695,7 +695,7 @@ Eigen::VectorXd FloatingBaseSystem::getBranchState(const Eigen::VectorXd& joint_
 }
 
 
-void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
+bool FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 		   	   	   	   	   	   	   unsigned int& num_dof,
 								   const std::string& name)
 {
@@ -706,7 +706,7 @@ void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 
 	if (body_id == UNDEFINED_ID) {
 		printf(YELLOW "Warning: undefined branch %s\n" COLOR_RESET, name.c_str());
-		return;
+		return false;
 	}
 
 	// Getting the base joint id. Note that the floating-base starts the
@@ -723,6 +723,7 @@ void FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 		parent_id = model_.parents[parent_id];
 		++num_dof;
 	} while (parent_id != root_id);
+	return true;
 }
 
 
