@@ -636,18 +636,36 @@ WholeBodyKinematics::computeJacobian(dwl::SE3& base_pos,
 Eigen::Matrix6x
 WholeBodyKinematics::getFrameJacobian(const std::string& name)
 {
+	// Getting frame and its joint properties
 	unsigned int id = fbs_->getModel().getFrameId(name);
+    const se3::Frame &frame = fbs_->getModel().frames[id];
+    const se3::Model::JointIndex &joint_id = frame.parent;
 
-	// Computing the transformation between the local to world coordinates of
-	// the frame
-	const se3::SE3 &w_X_f = se3::SE3(fbs_->getData().oMf[id].rotation(),
-									 Eigen::Vector3d::Zero());
-
+	// Getting the body Jacobian
 	Eigen::Matrix6x J(6, fbs_->getTangentDim());
 	J.setZero();
-	se3::getFrameJacobian(fbs_->getModel(), fbs_->getData(), id, J);
+	se3::getFrameJacobian<se3::WORLD>(fbs_->getModel(), fbs_->getData(), id, J);
 
-	return w_X_f.toActionMatrix() * J;
+	// Transforming the body Jacobian into the frame Jacobian in local
+	// coordinates is equivalent to f^J = T^-1*i^J where T = [R , [p]x*R; 0 R].
+	// Furthermore expressing the frame Jacobian in world frame requires the
+	// following transformation o^J = [R, 0; 0, R]*f^J. And it can be shown
+	// easily that o^J = M*i^J where M = [I, -[p]x; 0, I]. Note that M
+	// can be compute using coordinate transform for SE3(I, -p).
+	const se3::SE3 &w_X_f = se3::SE3(Eigen::Matrix3d::Identity(),
+									  -fbs_->getData().oMf[id].translation());
+
+	// Sparse computation of the M*i^J. Given a frame (or its joint), we find
+	// its joint index and move recursively using the sparsity pattern defined
+	// by parents_fromRow()
+	int j_idx = se3::nv(fbs_->getModel().joints[joint_id]) +
+			se3::idx_v(fbs_->getModel().joints[joint_id]) - 1;
+    for (int j = j_idx; j >= 0;
+    		j = fbs_->getData().parents_fromRow[(size_t) j]) {
+    	J.col(j) = w_X_f.act(se3::Motion(J.col(j))).toVector();
+    }
+
+    return J;
 }
 
 
