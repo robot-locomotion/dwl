@@ -208,10 +208,56 @@ class FloatingBaseSystem
 		const std::string& getBodyName(const unsigned int& id) const;
 
 		/**
+		 * @brief Gets the body names list
+		 * @return Body names list
+		 */
+		const ElementList& getBodyList() const;
+
+		/**
 		 * @brief Gets body information
 		 * @return Body names and Ids
 		 */
 		const ElementId& getBodies() const;
+
+		/**
+		 * @brief Checks if the body exist
+		 * @param[in] name Body name
+		 * @return True if the body exist, false otherwise
+		 */
+		bool existBody(const std::string& name) const;
+
+		/**
+		 * @brief Gets the frame id given the name
+		 * @param[in] name Frame name
+		 * @return Returns the frame id
+		 */
+		const unsigned int& getFrameId(const std::string& name) const;
+
+		/**
+		 * @brief Gets the frame name given its id
+		 * @return id Frame id
+		 * @return Frame name
+		 */
+		const std::string& getFrameName(const unsigned int& id) const;
+
+		/**
+		 * @brief Gets the frame names list
+		 * @return Frame names list
+		 */
+		const ElementList& getFrameList() const;
+
+		/**
+		 * @brief Gets frame information
+		 * @return Frame names and Ids
+		 */
+		const ElementId& getFrames() const;
+
+		/**
+		 * @brief Checks if the frame exist
+		 * @param[in] name Frame name
+		 * @return True if the frame exist, false otherwise
+		 */
+		bool existFrame(const std::string& name) const;
 
 		/**
 		 * @brief Gets the total mass of the rigid body system
@@ -434,6 +480,10 @@ class FloatingBaseSystem
 		ElementId bodies_;
 		ElementList body_names_;
 		std::string floating_body_name_;
+
+		/** @brief Frame information */
+		ElementId frames_;
+		ElementList frame_names_;
 
 		/** @brief End-effector information */
 		ElementId end_effectors_;

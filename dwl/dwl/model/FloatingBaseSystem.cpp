@@ -50,6 +50,14 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 	urdf_ = urdf_model;
 	yarf_ = system_file;
 
+	// Clear content
+	joints_.clear();
+	joint_names_.clear();
+	bodies_.clear();
+	body_names_.clear();
+	frames_.clear();
+	frame_names_.clear();
+
 	// Defining the root joint
 	bool floating = false;
 	if (root_joint_ == FREE_FLYER) {
@@ -80,7 +88,6 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 	q_ = Eigen::VectorXd::Zero(model_.nq);
 	v_ = Eigen::VectorXd::Zero(model_.nv);
 
-
 	for (int f = 1; f < model_.nframes; ++f) {
 		se3::Frame frame = model_.frames[f];
 		unsigned int fparent = (unsigned int) frame.parent;
@@ -100,6 +107,10 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 			if (floating && fparent == 1)
 				floating_body_name_ = frame.name;
 		}
+
+		// Getting the frame information
+		frames_[frame.name] = f;
+		frame_names_.push_back(frame.name);
 	}
 
 	// Getting the joint name list
@@ -357,9 +368,63 @@ const std::string& FloatingBaseSystem::getBodyName(const unsigned int& id) const
 }
 
 
+const ElementList& FloatingBaseSystem::getBodyList() const
+{
+	return body_names_;
+}
+
+
 const ElementId& FloatingBaseSystem::getBodies() const
 {
 	return bodies_;
+}
+
+
+bool FloatingBaseSystem::existBody(const std::string& name) const
+{
+	unsigned int id = getBodyId(name);
+	if (id == UNDEFINED_ID)
+		return false;
+	else
+		return true;
+}
+
+
+const unsigned int& FloatingBaseSystem::getFrameId(const std::string& name) const
+{
+	ElementId::const_iterator it = frames_.find(name);
+	if (it != frames_.end())
+		return it->second;
+	else
+		return UNDEFINED_ID;
+}
+
+
+const std::string& FloatingBaseSystem::getFrameName(const unsigned int& id) const
+{
+	return frame_names_[id];
+}
+
+
+const ElementList& FloatingBaseSystem::getFrameList() const
+{
+	return frame_names_;
+}
+
+
+const ElementId& FloatingBaseSystem::getFrames() const
+{
+	return frames_;
+}
+
+
+bool FloatingBaseSystem::existFrame(const std::string& name) const
+{
+	unsigned int id = getFrameId(name);
+	if (id == UNDEFINED_ID)
+		return false;
+	else
+		return true;
 }
 
 
