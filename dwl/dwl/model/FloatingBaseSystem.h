@@ -124,7 +124,7 @@ class FloatingBaseSystem
 		 * @brief Gets the joint names list
 		 * @return Joint names list
 		 */
-		const ElementList& getJointNames() const;
+		const ElementList& getJointList() const;
 
 		/**
 		 * @brief Gets actuated joint information
@@ -283,7 +283,7 @@ class FloatingBaseSystem
 		 * @param[in] type Type of end-effector
 		 * @return End-effector names list
 		 */
-		const ElementList& getEndEffectorNames(enum TypeOfEndEffector type = ALL) const;
+		const ElementList& getEndEffectorList(enum TypeOfEndEffector type = ALL) const;
 
 		/** @brief Gets the gravity vector of the rigid body system
 		 * @return The gravity vector

@@ -265,7 +265,7 @@ const std::string& FloatingBaseSystem::getJointName(const unsigned int& id) cons
 }
 
 
-const ElementList& FloatingBaseSystem::getJointNames() const
+const ElementList& FloatingBaseSystem::getJointList() const
 {
 	return joint_names_;
 }
@@ -454,7 +454,7 @@ const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors(enum TypeOfEndEffe
 }
 
 
-const ElementList& FloatingBaseSystem::getEndEffectorNames(enum TypeOfEndEffector type) const
+const ElementList& FloatingBaseSystem::getEndEffectorList(enum TypeOfEndEffector type) const
 {
 	if (type == ALL)
 		return end_effector_names_;
