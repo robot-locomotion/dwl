@@ -765,11 +765,13 @@ bool FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 								   const std::string& name)
 {
 	// Getting the body id
-	unsigned int body_id = getBodyId(name);
+	unsigned int frame_id = getFrameId(name);
+	const se3::Frame &frame = model_.frames[frame_id];
+	const se3::Model::JointIndex &joint_id = frame.parent;
 	num_dof = 0;
 	pos_idx = 0;
 
-	if (body_id == UNDEFINED_ID) {
+	if (frame_id == UNDEFINED_ID) {
 		printf(YELLOW "Warning: undefined branch %s\n" COLOR_RESET, name.c_str());
 		return false;
 	}
@@ -782,7 +784,7 @@ bool FloatingBaseSystem::getBranch(unsigned int& pos_idx,
 
 	// The starts of the branch is detected when its parent frame is
 	// equals to the root frame
-	unsigned int parent_id = body_id;
+	unsigned int parent_id = joint_id;
 	do {
 		pos_idx = parent_id - root_id - 1;
 		parent_id = model_.parents[parent_id];
