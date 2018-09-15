@@ -334,14 +334,14 @@ bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 			next_it = it; ++next_it;
 			// Getting the frame information
 			std::string name = it->first;
-			const dwl::SE3& X_des = it->second;
 			unsigned int id = fbs_->getModel().getFrameId(name);
 
-			// Compute the frame to base transformation. Note that the reference
-			// systems world and frame are aligned
+			// Compute the frame to base transformation (actual and desired).
+			// Note that the reference systems world and frame are aligned
+			const se3::SE3 &b_Xd_f = it->second.data;
 			const se3::SE3 &b_X_f = fbs_->getData().oMf[id];
 
-			// Computing the frame Jacobian in the base frame
+			// Getting the frame Jacobian in the base frame
 			Eigen::Matrix6x J = getFrameJacobian(name);
 
 			// Compute the Gauss-Newton direction, the residual error is
@@ -351,30 +351,30 @@ bool WholeBodyKinematics::computeJointPosition(Eigen::VectorXd& joint_pos,
 			Eigen::VectorXd qdot = Eigen::VectorXd::Zero(fbs_->getTangentDim());
 			if (n_dof == 3) {// only position error
 				// Computing translational error
-				Eigen::Vector3d e = b_X_f.translation() - X_des.getTranslation();
+				Eigen::Vector3d e = b_X_f.translation() - b_Xd_f.translation();
 
 				// Getting the linear Jacobian of the branch
 				Eigen::Matrix3d Jb = J.block<3,3>(0, n_ff_v + pos_idx);
 
 				// Computing the branch joint velocities. This function selects
-				// autovalues than aren't equals zero
+				// eigenvalues than aren't equals zero
 				Eigen::Vector3d qd_b = -math::pseudoInverse(Jb) * e;
 
 				// Updating the generalized velocities
-				qdot.segment(n_ff_v + pos_idx, n_dof) = qd_b;
+				qdot.segment<3>(n_ff_v + pos_idx) = qd_b;
 			} else if (n_dof == 6) {// SE3 error
 				// Computing SE3 error
-				Eigen::Vector6d e = se3::log6(X_des.data.inverse() * b_X_f);
+				Eigen::Vector6d e = se3::log6(b_Xd_f.inverse() * b_X_f);
 
 				// Getting the Jacobian of the branch
 				Eigen::Matrix6d Jb = J.block<6,6>(0, n_ff_v + pos_idx);
 
 				// Computing the branch joint velocities. This function selects
-				// autovalues than aren't equals zero
+				// eigenvalues than aren't equals zero
 				Eigen::Vector6d qd_b = -math::pseudoInverse(Jb) * e;
 
 				// Updating the generalized velocities
-				qdot.segment(n_ff_v + pos_idx, n_dof) = qd_b.head(n_dof);
+				qdot.segment<6>(n_ff_v + pos_idx) = qd_b;
 			} else {
 				printf(YELLOW "Warning: it doesn't handle branches with DoFs "
 						"different of 3 or 6\n" COLOR_RESET);
