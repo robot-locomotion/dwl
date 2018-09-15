@@ -23,14 +23,15 @@ namespace model
  * kinematics quantities such as: CoM states, stack-of-Jacobians, frame and
  * joint positions, velocities and accelerations. Before using this class, you
  * need to provide the floating-base system description by passing this object
- * in the reset function. For improving code efficient, the kinematic quantities
- * can be computed by updating the joint states or no. In fact, it's possible
- * to update the joint states only ones, and not in each desired computation.
+ * in the reset function. For improving code efficient, the kinematics
+ * quantities can be computed by updating the joint states or no. In fact, it's
+ * possible to update the joint states only ones, and not in each desired
+ * computation.
  * 
- * An important remark is that DWL defines SE(3) groups through 7d vector in which the first
- * 4 rows contains the quaternion and the next 3 the position (i.e. [q_wxyz, position]).
- * Additionally, the tangent of the SE(3) group is described as 6d vector ordered by
- * angular and linear components (i.e. [angular, linear]).
+ * An important remark is that DWL defines SE(3) groups through a rotation
+ * matrix and a 3d translation vecto. Additionally, the tangent of the SE(3)
+ * group is described as 6d vector ordered by linear and angular components
+ * (i.e. [linear, angular]).
  * @author Carlos Mastalli
  * @copyright BSD 3-Clause License
  */
@@ -44,7 +45,7 @@ class WholeBodyKinematics
 		~WholeBodyKinematics();
 
 		/**
-		 * @brief Sets the floating-base model of the rigid-body system
+		 * @brief Sets the floating-base model of the rigid-body system.
 		 * 
 		 * @param[in] fbs Floating-base model
 		 */
@@ -94,21 +95,21 @@ class WholeBodyKinematics
 							 const Eigen::VectorXd& joint_pos);
 
 		/**
-		 * @brief Computes the whole-body Center of Mass (CoM)
+		 * @brief Computes the whole-body Center of Mass (CoM).
 		 *
 		 * @param[in] base_pos Base SE3 configuration
 		 * @param[in] joint_pos Joint position
-		 * @return Whole-body CoM
+		 * @return Whole-body CoM position
 		 */
 		const Eigen::Vector3d& computeCoM(dwl::SE3& base_pos,
 										  const Eigen::VectorXd& joint_pos);
 
 		/**
-		 * @brief Computes the whole-body Center of Mass (CoM) and its velocity
+		 * @brief Computes the whole-body Center of Mass (CoM) and its velocity.
 		 *
 		 * @param[out] com CoM position
 		 * @param[out] com_d CoM velocity
-		 * @param[out] com_d CoM acceleratin
+		 * @param[out] com_d CoM acceleration
 		 * @param[in] base_pos Base SE3 configuration
 		 * @param[in] joint_pos Joint position
 		 * @param[in] base_vel Base velocity [angular, linear]
@@ -128,13 +129,13 @@ class WholeBodyKinematics
 							const Eigen::VectorXd& joint_acc);
 
 		/**
-		 * @brief Computes the operational position (i.e. SE3 group)
-		 * for a predefined set of frames
+		 * @brief Computes the SE3 configuration point expressed in the world
+		 * frame for a predefined set of frames.
 		 * 
 		 * @param[in] base_pos Base SE3 configuration
 		 * @param[in] joint_pos Joint position
 		 * @param[in] frames Names of frames
-		 * @return Configuration for each frame
+		 * @return Configuration for each frame expressed in the world frame
 		 */
 		dwl::SE3Map
 		computePosition(dwl::SE3& base_pos,
@@ -142,26 +143,25 @@ class WholeBodyKinematics
 						const ElementList& frames);
 
 		/**
-		 * @brief Gets the frame configuration.
+		 * @brief Gets the frame configuration expressed in the world frame.
 		 * 
-		 * @param[out] name Frame name
-		 * @return Frame SE3 configuration
-		 * 
+		 * @param[in] name Frame name
+		 * @return Frame SE3 configuration expressed in the world frame
 		 * @warning You have to run first updateKinematics.
 		 */
 		const dwl::SE3&
 		getFramePosition(const std::string& name);
 
 		/**
-		 * @brief Computes the operational velocity (i.e. tangent of
-		 * configuration space) for a predefined set of frames
+		 * @brief Computes the frame velocity expressed in the world frame for
+		 * a predefined set of frames.
 		 *
 		 * @param[in] base_pos Base SE3 configuration
 		 * @param[in] joint_pos Joint position
 		 * @param[in] base_vel Base velocity [linear, angular]
 		 * @param[in] joint_vel Joint velocity
 		 * @param[in] frames Names of frames
-		 * @return Operational velocity for each frame
+		 * @return Velocity for each frame expressed in the world frame
 		 */
 		dwl::MotionMap
 		computeVelocity(dwl::SE3& base_pos,
@@ -171,19 +171,19 @@ class WholeBodyKinematics
 						const ElementList& frames);
 
 		/**
-		 * @brief Gets the frame velocity.
+		 * @brief Gets the frame velocity expressed in the world frame.
 		 *
-		 * @param[out] name Frame name
-		 * @return Frame velocity [angular, linear]
-		 *
-		 * @warning You have to run first updateKinematics with the joint velocities.
+		 * @param[in] name Frame name
+		 * @return Frame velocity [angular, linear] expressed in the world frame
+		 * @warning You have to run first updateKinematics with the joint
+		 * velocities.
 		 */
 		const dwl::Motion&
 		getFrameVelocity(const std::string& name);
 
 		/**
-		 * @brief Computes the operational acceleration for a predefined set
-		 * of frames
+		 * @brief Computes the frame acceleration expressed in the world
+		 * frame for a predefined set of frames
 		 *
 		 * @param[in] base_pos Base SE3 configuration
 		 * @param[in] joint_pos Joint position
@@ -192,7 +192,7 @@ class WholeBodyKinematics
 		 * @param[in] base_acc Base acceleration [linear, angular]
 		 * @param[in] joint_acc Joint acceleration
 		 * @param[in] frames Names of frames
-		 * @return Operational acceleration for each frame
+		 * @return Acceleration for each frame expressed in the world frame
 		 */
 		dwl::MotionMap
 		computeAcceleration(dwl::SE3& base_pos,
@@ -204,11 +204,11 @@ class WholeBodyKinematics
 							const ElementList& frames);
 
 		/**
-		 * @brief Gets the frame acceleration.
+		 * @brief Gets the frame acceleration expressed in the world frame.
 		 *
-		 * @param[out] name Frame name
-		 * @return Frame acceleration [linear, angular]
-		 *
+		 * @param[in] name Frame name
+		 * @return Frame acceleration [linear, angular] expressed in the world
+		 * frame
 		 * @warning You have to run first updateKinematics with the joint
 		 * accelerations.
 		 */
@@ -218,14 +218,15 @@ class WholeBodyKinematics
 
 		/**
 		 * @brief Computes the operational acceleration contribution from the
-		 * joint velocity for a predefined set of frames, i.e. J_d * q_d
+		 * joint velocity (i.e. J_d * q_d) expressed in the world frame for a
+		 * predefined set of frames.
 		 *
 		 * @param[in] base_pos Base SE3 configuration
 		 * @param[in] joint_pos Joint position
 		 * @param[in] base_vel Base velocity
 		 * @param[in] joint_vel Joint velocity
 		 * @param[in] frames Names of frames
-		 * @return Jdot * qdot term for each frame
+		 * @return Jdot * qdot term for each frame expressed in the world frame
 		 */
 		dwl::MotionMap
 		computeJdQd(dwl::SE3& base_pos,
@@ -235,47 +236,26 @@ class WholeBodyKinematics
 					const ElementList& frames);
 
 		/**
-		 * @brief Gets the frame Jd * qd term.
+		 * @brief Gets the frame Jd * qd term expressed in the world frame.
 		 *
-		 * @param[out] name Frame name
-		 * @return Frame Jd * qd term [linear, angular]
-		 *
+		 * @param[in] name Frame name
+		 * @return Frame Jd * qd term [linear, angular]  expressed in the world
+		 * frame
 		 * @warning You have to run first updateKinematics with the joint
 		 * accelerations.
 		 */
 		const dwl::Motion&
 		getFrameJdQd(const std::string& name);
 
-
-		//TODO: implement the whole-body IK
-		// /**
-		//  * @brief Computes the whole-body inverse kinematics for a predefined set of
-		//  * frame configurations, e.g. base and feet configurations, etc.
-		//  * @param[out] base_pos Base position
-		//  * @param[out] joint_pos Joint position
-		//  * @param[in] op_pos Configuration of bodies
-		//  * @param[in] base_pos_init Warm-start base position to the solver
-		//  * @param[in] joint_pos_init Warm-start joint position to the solver
-		//  * @return True on success, false otherwise
-		//  */
-		// bool computeInverseKinematics(Eigen::Vector7d& base_pos,
-		// 							  Eigen::VectorXd& joint_pos,
-		// 							  const dwl::SE3Map op_pos);
-		// bool computeInverseKinematics(Eigen::Vector7d& base_pos,
-		// 							  Eigen::VectorXd& joint_pos,
-		// 							  const dwl::SE3Map& op_pos,
-		// 							  dwl::SE3& base_pos_init,
-		// 							  const Eigen::VectorXd& joint_pos_init);
-
 		/**
 		 * @brief Computes the joint position from a predefined set of frame
-		 * configurations expressed in the base frame. The IK problem is solved
-		 * through a Gauss-Newton descent method. You can set the solver parameters
-		 * with setIKSolver function.
+		 * configurations expressed in the base frame.
 		 *
-		 * This IK algorithm uses the entired desired configuration (i.e. SE3 group) or
-		 * only the desired 3d position for a general cases or 3-DoF branches, respetively.
-		 *
+		 * The IK problem is solved through a Gauss-Newton descent method. You
+		 * can set the solver parameters with setIKSolver function. This IK
+		 * algorithm uses the entire desired configuration (i.e. SE3 group) or
+		 * only the desired 3d translation for a 6-DoF or 3-DoF branches,
+		 * respectively.
 		 * @param[out] joint_pos Joint position
 		 * @param[in] frame_pos Frame configuration expressed in the base frame
 		 * @param[in] joint_pos0 Warm-start joint position
@@ -292,9 +272,8 @@ class WholeBodyKinematics
 		 * velocities (q_d = J^-1 * x_d) expressed in the base frame.
 		 *
 		 * To compute the joint velocity is used the entire 6d velocity or only
-		 * the desired linear velocity for a general cases or 3-DoF branches,
+		 * the desired linear velocity for a 6-DoF or 3-DoF branches,
 		 * respectively.
-		 *
 		 * @param[out] joint_vel Joint velocities
 		 * @param[in] joint_pos Joint positions
 		 * @param[in] frame_vel Frame velocities expressed in the base frame
@@ -309,10 +288,8 @@ class WholeBodyKinematics
 		 * To compute the joint velocity is used the entire 6d velocity or only
 		 * the desired linear velocity for a general cases or 3-DoF branches,
 		 * respectively.
-		 *
 		 * @param[out] joint_vel Joint velocity
-		 * @return Frame velocity
-		 *
+		 * @param[in] frame_vel Frame velocity expressed in the base frame
 		 * @warning You have to run first updateJacobians.
 		 */
 		void getJointVelocity(Eigen::VectorXd& joint_vel,
@@ -320,7 +297,8 @@ class WholeBodyKinematics
 
 		/**
 		 * @brief Computes the joint acceleration for a predefined set of frame
-		 * accelerations (q_dd = J^-1 * [x_dd - J_d * q_d]) expressed in the base frame.
+		 * accelerations (q_dd = J^-1 * [x_dd - J_d * q_d]) expressed in the
+		 * base frame.
 		 *
 		 * To compute the joint acceleration is used the entire 6d acceleration
 		 * or only the desired linear acceleration for a general cases or 3-DoF
@@ -340,12 +318,11 @@ class WholeBodyKinematics
 		 * @brief Gets the joint acceleration.
 		 *
 		 * To compute the joint acceleration is used the entire 6d acceleration
-		 * or only the desired linear acceleration for a general cases or 3-DoF
+		 * or only the desired linear acceleration for a 6-DoF or 3-DoF
 		 * branches, respectively.
 		 *
 		 * @param[out] joint_acc Joint acceleration
-		 * @return Frame acceleration
-		 *
+		 * @param[in] frame_acc Frame acceleration  expressed in the base frame
 		 * @warning You have to run first updateKinematics and updateJacobians.
 		 */
 		void getJointAcceleration(Eigen::VectorXd& joint_acc,
@@ -392,15 +369,15 @@ class WholeBodyKinematics
 											 const ElementList& contacts);
 
 		/**
-		 * @brief Computes the whole-body Jacobians for a predefined set of
-		 * frames. The whole-body Jacobians are defined as frame Jacobian w.r.t
-		 * the inertial frame of the robot (i.e. world frame). The whole-body
-		 * Jacobian represents a stack of frame Jacobians index by its frame name.
+		 * @brief Computes the stack of Jacobians for a predefined set of
+		 * frames expressed in the world frame.
 		 *
+		 * These Jacobians map the joint velocity into frame velocities
+		 * expressed in the world frame, i.e. w^xd = J*qd
 		 * @param[in] base_pos Base SE3 configuration
 		 * @param[in] joint_pos Joint position
 		 * @param[in] frames Frame names
-		 * @return Whole-body Jacobian for each frame
+		 * @return stack of Jacobians for each frame expressed in the world frame
 		 */
 		std::map<std::string, Eigen::Matrix6x>
 		computeJacobian(dwl::SE3& base_pos,
@@ -410,9 +387,10 @@ class WholeBodyKinematics
 		/**
 		 * @brief Gets the frame Jacobian expressed in the world frame.
 		 *
+		 * This Jacobian maps joint velocities into the frame velocity
+		 * expressed in the world frame, i.e. w^xd = J*qd
 		 * @param[in] name Frame name
-		 * @return Frame Jacobian [linear, angular]
-		 *
+		 * @return Frame Jacobian [linear, angular] expressed in the world frame
 		 * @warning You have to run first updateJacobians.
 		 */
 		Eigen::Matrix6x
@@ -421,23 +399,23 @@ class WholeBodyKinematics
 		/**
 		 * @brief Gets the floating-base contribution of a given whole-body
 		 * Jacobian. This belongs to the under-actuated part of the robot. For
-		 * fixed-base system returns a 6x6 matrix with zeros.		 *
+		 * fixed-base system returns a 6x(nv) matrix with zeros.
 		 *
-		 * @param[out] Floating-base Jacobian
-		 * @param[in] Frame Jacobian
+		 * @param[out] floating_jac Floating-base Jacobian
+		 * @param[in] frame_jac Frame Jacobian
 		 */
-		void getFloatingBaseJacobian(Eigen::Matrix6d& Jacobian,
-									 const Eigen::Matrix6x& full_Jacobian);
+		void getFloatingBaseJacobian(Eigen::Matrix6d& floating_jac,
+									 const Eigen::Matrix6x& frame_jac);
 
 		/**
 		 * @brief Gets the fixed-base Jacobian contribution of a given
 		 * whole-body Jacobian. This belongs to the actuated part of the robot.
 		 *
-		 * @param[out] jac Fixed-base Jacobian
-		 * @param[in] full_jac Frame Jacobian
+		 * @param[out] fixed_jac Fixed-base Jacobian
+		 * @param[in] frame_jac Frame Jacobian
 		 */
-		void getFixedBaseJacobian(Eigen::Matrix6x& jac,
-								  const Eigen::Matrix6x& full_jac);
+		void getFixedBaseJacobian(Eigen::Matrix6x& fixed_jac,
+								  const Eigen::Matrix6x& frame_jac);
 
 
 	private:
