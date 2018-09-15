@@ -438,43 +438,51 @@ void WholeBodyKinematics::getJointVelocity(Eigen::VectorXd& joint_vel,
 	// Checks vector dimension
 	assert(joint_vel.size() == fbs_->getJointDoF());
 
+	// Getting the offset in the joint vector in case of floating-base systems
+	unsigned int n_ff_v = 0;
+	if (fbs_->isFloatingBase() || fbs_->isConstrainedFloatingBase()) {
+		n_ff_v = fbs_->getModel().joints[1].nv();
+	}
+
 	for (dwl::MotionMap::const_iterator it = frame_vel.begin();
 		it != frame_vel.end(); ++it) {
 		// Getting the frame information
 		std::string name = it->first;
-		const dwl::Motion& v_frame = it->second;
+		const dwl::Motion& b_v_f = it->second;
 		unsigned int id = fbs_->getModel().getFrameId(name);
-
-		// Computing the transformation between the local to world coordinates
-		// of the frame
-		const se3::SE3 &w_X_f = se3::SE3(fbs_->getData().oMf[id].rotation(),
-										 Eigen::Vector3d::Zero());
-
-		// Computing the frame Jacobian (actuated part) in the base frame
-		Eigen::Matrix6x full_jac(6, fbs_->getTangentDim());
-		Eigen::Matrix6x fixed_jac(6, fbs_->getTangentDim());
-		full_jac.setZero();
-		se3::getFrameJacobian(fbs_->getModel(), fbs_->getData(), id, full_jac);
-		getFixedBaseJacobian(fixed_jac, full_jac);
-		fixed_jac = w_X_f.toActionMatrix() * fixed_jac;
 
 		// Getting the branch Jacobian
 		unsigned int pos_idx, n_dof;
 		fbs_->getBranch(pos_idx, n_dof, name);
-		Eigen::Matrix6x branch_jac = fixed_jac.block(0, pos_idx, 6, n_dof);
+
+		// Getting the frame Jacobian in the world frame
+		Eigen::Matrix6x J = getFrameJacobian(name);
 
 		// Computing the branch joint velocity
-		Eigen::VectorXd branch_joint_vel;
-		if (n_dof <= 3) {// only cartesian velocity
-			branch_joint_vel =
-				math::pseudoInverse(branch_jac.topRows<3>()) * v_frame.getLinear();
-		} else { // 6d velocity
-			branch_joint_vel =
-				math::pseudoInverse(branch_jac) * v_frame.toVector();
-		}
+		if (n_dof == 3) {// only cartesian velocity
+			// Getting the linear Jacobian of the branch
+			Eigen::Matrix3d Jb = J.block<3,3>(0, n_ff_v + pos_idx);
 
-		// Setting up the branch joint velocity
-		fbs_->setBranchState(joint_vel, branch_joint_vel, name);
+			// Computing the branch joint velocities. This function selects
+			// eigenvalues than aren't equals zero
+			Eigen::Vector3d qd_b = math::pseudoInverse(Jb) * b_v_f.getLinear();
+
+			// Updating the generalized velocities
+			joint_vel.segment<3>(pos_idx) = qd_b;
+		} else if (n_dof == 6) { // 6d velocity
+			// Getting the Jacobian of the branch
+			Eigen::Matrix6d Jb = J.block<6,6>(0, n_ff_v + pos_idx);
+
+			// Computing the branch joint velocities. This function selects
+			// eigenvalues than aren't equals zero
+			Eigen::Vector6d qd_b = math::pseudoInverse(Jb) * b_v_f.toVector();
+
+			// Updating the generalized velocities
+			joint_vel.segment<6>(pos_idx) = qd_b;
+		} else {
+			printf(YELLOW "Warning: it doesn't handle branches with DoFs "
+					"different of 3 or 6\n" COLOR_RESET);
+		}
 	}
 }
 
