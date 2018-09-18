@@ -39,7 +39,6 @@ ws.setJointPosition(-1.5, fbs.getJointId("rf_kfe_joint"))
 ws.setJointPosition(-0.75, fbs.getJointId("rh_hfe_joint"))
 ws.setJointPosition(1.5, fbs.getJointId("rh_kfe_joint"))
 
-
 ws.setJointVelocity(0.2, fbs.getJointId("lf_haa_joint"))
 ws.setJointVelocity(0.75, fbs.getJointId("lf_hfe_joint"))
 ws.setJointVelocity(1., fbs.getJointId("lf_kfe_joint"))
@@ -125,12 +124,11 @@ print(' ', contact_jdqd_W.asdict())
  
 # Computing the joint positions
 wkin.setIKSolver(1.0e-12, 50)
-joint_pos_init = fbs.getDefaultPosture()
 joint_pos = np.zeros(fbs.getJointDoF())
 contact_pos_B = dwl.SE3Map()
 contact_pos_B['lf_foot'] = dwl.SE3(np.array([0.371,0.207,-0.589]), np.eye(3))
 contact_pos_B['lh_foot'] = dwl.SE3(np.array([-0.371,0.207,-0.589]), np.eye(3))
-contact_pos_B['rf_hfe_joint'] = dwl.SE3(np.array([-0.371,0.207,-0.589]), np.eye(3))
+joint_pos_init = fbs.getDefaultPosture()
 print()
 print('Joint position:')
 if wkin.computeJointPosition(joint_pos,
@@ -148,7 +146,10 @@ else:
 joint_vel = np.zeros(fbs.getJointDoF())
 print()
 print('Joint velocity:')
-contact_vel_B = contact_vel_W
+contact_vel_B = dwl.MotionMap()
+contact_vel_B['lf_foot'] = dwl.Motion(np.zeros((3,1)), np.matrix([ [1.],[0.],[0.] ]))
+contact_vel_B['lh_foot'] = dwl.Motion(np.zeros((3,1)), np.matrix([ [0.],[1.],[0.] ]))
+contact_vel_B['rf_foot'] = dwl.Motion(np.zeros((3,1)), np.matrix([ [0.],[0.],[1.] ]))
 wkin.computeJointVelocity(joint_vel,
                           ws.getJointPosition(),
                           contact_vel_B)
@@ -171,7 +172,7 @@ print(' ', joint_acc.transpose())
  
  
  
-# Comuting the CoM position and velocity
+# Computing the CoM position, velocity and acceleration
 print()
 print('CoM position:')
 print(' ', wkin.computeCoM(ws.getBaseSE3(), ws.getJointPosition()).transpose())

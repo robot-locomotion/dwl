@@ -36,29 +36,52 @@ int main(int argc, char **argv)
 	ws.setJointPosition(-0.75, fbs.getJointId("rh_hfe_joint"));
 	ws.setJointPosition(1.5, fbs.getJointId("rh_kfe_joint"));
 
-	ws.setJointAcceleration(1., fbs.getJointId("lf_hfe_joint"));
+	ws.setJointVelocity(0.2, fbs.getJointId("lf_haa_joint"));
+	ws.setJointVelocity(0.75, fbs.getJointId("lf_hfe_joint"));
+	ws.setJointVelocity(1., fbs.getJointId("lf_kfe_joint"));
+
+	ws.setJointAcceleration(0.2, fbs.getJointId("lf_haa_joint"));
+	ws.setJointAcceleration(0.75, fbs.getJointId("lf_hfe_joint"));
+	ws.setJointAcceleration(1., fbs.getJointId("lf_kfe_joint"));
 
 	
-	// Computing the CoM position and velocity
-	Eigen::Vector3d x, xd;
-	wkin.computeCoMRate(x, xd,
-						ws.base_pos, ws.joint_pos,
-						ws.base_vel, ws.joint_vel);
-	cout << "x = " << x.transpose() << endl;
-	cout << "xd = " << xd.transpose() << endl << endl;
+	// Computing the Jacobians
+	Eigen::Matrix6xMap jacobian =
+		wkin.computeJacobian(ws.getBaseSE3(), ws.getJointPosition(),
+							 fbs.getEndEffectorList(dwl::model::FOOT));
+	cout << "Stack of Jacobians:" << endl;
+	for (Eigen::Matrix6xMap::iterator it = jacobian.begin();
+		it != jacobian.end(); ++it) {
+			cout << it->first << ":" << endl;
+			cout << it->second << endl;
+			cout << "---" << endl;
+	}
+	cout << endl << endl;
+
+
+	// Getting the floating-base jacobian (LF foot)
+	Eigen::Matrix6d floating_jac;
+	wkin.getFloatingBaseJacobian(floating_jac, jacobian["lf_foot"]);
+	cout << "Floating-base Jacobian (LF foot):" << endl;
+	cout << floating_jac << endl;
+
+
+	// Getting the fixed-base jacobian (LF foot)
+	Eigen::Matrix6x fixed_jac;
+	wkin.getFixedBaseJacobian(fixed_jac, jacobian["lf_foot"]);
+	cout << "Fixed-base Jacobian (LF foot):" << endl;
+	cout << fixed_jac << endl << endl;
+
 
 	// Computing the Cartesian position of a set of frames
-	dwl::SE3Map pos_W =
-		wkin.computePosition(ws.base_pos, ws.joint_pos,
-							 fbs.getEndEffectorNames());
-	cout << "Frame position:" << endl;
-	for (dwl::SE3Map::iterator it = pos_W.begin();
-		it != pos_W.end(); ++it) {
-			cout << "  " << it->first;
-			cout << "  t = " << it->second.getTranslation().transpose() << endl;
-			cout << "  R = " << it->second.getRotation().row(0) << endl;
-			cout << "      " << it->second.getRotation().row(1) << endl;
-			cout << "      " << it->second.getRotation().row(2);
+	dwl::SE3Map contact_pos_W =
+		wkin.computePosition(ws.getBaseSE3(), ws.getJointPosition(),
+							 fbs.getEndEffectorList());
+	cout << "Contact SE3:" << endl;
+	for (dwl::SE3Map::iterator it = contact_pos_W.begin();
+		it != contact_pos_W.end(); ++it) {
+			cout << it->first << ":" << endl;
+			cout << it->second.data << endl;
 	}
 	cout << endl;
 	// ws.setContactPosition_W(pos_W);
@@ -66,112 +89,124 @@ int main(int argc, char **argv)
 
 	// Computing the Cartesian velocity of a set of frames. A frame is a fixed-point
 	// in a body
-	dwl::MotionMap vel_W =
-		wkin.computeVelocity(ws.base_pos, ws.joint_pos,
-							 ws.base_vel, ws.joint_vel,
-							 fbs.getEndEffectorNames());
-	cout << "Frame velocity:" << endl;
-	for (dwl::MotionMap::iterator it = vel_W.begin();
-		it != vel_W.end(); ++it) {
-			cout << "  " << it->first;
-			cout << "  v = " << it->second.getLinear().transpose() << endl;
-			cout << "  w = " << it->second.getAngular().transpose() << endl;
+	dwl::MotionMap contact_vel_W =
+		wkin.computeVelocity(ws.getBaseSE3(), ws.getJointPosition(),
+							 ws.getBaseVelocity_W(), ws.getJointVelocity(),
+							 fbs.getEndEffectorList(dwl::model::FOOT));
+	cout << "Contact velocity:" << endl;
+	for (dwl::MotionMap::iterator it = contact_vel_W.begin();
+		it != contact_vel_W.end(); ++it) {
+			cout << it->first << ":" << endl;
+			cout << it->second.data << endl;
 	}
 	cout << endl;
 	// ws.setContactVelocity_W(pos_W);
-	
+
 
 	// Computing the Cartesian acceleration of a set of frames
-	dwl::MotionMap acc_W =
-		wkin.computeAcceleration(ws.base_pos, ws.joint_pos,
-								 ws.base_vel, ws.joint_vel,
-								 ws.base_acc, ws.joint_acc,
-								 fbs.getEndEffectorNames());
-	cout << "Frame acceleration:" << endl;
-	for (dwl::MotionMap::iterator it = acc_W.begin();
-		it != acc_W.end(); ++it) {
-			cout << "  " << it->first;
-			cout << "  v = " << it->second.getLinear().transpose() << endl;
-			cout << "  w = " << it->second.getAngular().transpose() << endl;
+	dwl::MotionMap contact_acc_W =
+		wkin.computeAcceleration(ws.getBaseSE3(), ws.getJointPosition(),
+								 ws.getBaseVelocity_W(), ws.getJointVelocity(),
+								 ws.getBaseAcceleration_W(), ws.getJointAcceleration(),
+								 fbs.getEndEffectorList(dwl::model::FOOT));
+	cout << "Contact acceleration:" << endl;
+	for (dwl::MotionMap::iterator it = contact_acc_W.begin();
+		it != contact_acc_W.end(); ++it) {
+			cout << it->first << ":" << endl;
+			cout << it->second.data << endl;
 	}
 	cout << endl;
 	// ws.setContactAcceleration_W(pos_W);
-	
-	
+
+
 	// Computing the contact Jacd*Qd
-	dwl::MotionMap jd_qd_W =
-		wkin.computeJdQd(ws.base_pos, ws.joint_pos,
-						 ws.base_vel, ws.joint_vel,
-						 fbs.getEndEffectorNames());
-	cout << "Frame Jd*qd term:" << endl;
-	for (dwl::MotionMap::iterator it = jd_qd_W.begin();
-		it != jd_qd_W.end(); ++it) {
-			cout << "  " << it->first;
-			cout << "  v = " << it->second.getLinear().transpose() << endl;
-			cout << "  w = " << it->second.getAngular().transpose() << endl;
-	}
-	cout << endl;
-
-	// Computing the Jacobians
-	Eigen::MatrixXd jacobian, fixed_jac, floating_jac;
-	Eigen::Matrix6xMap jac = 
-		wkin.computeJacobian(ws.base_pos, ws.joint_pos,
-							 fbs.getEndEffectorNames());
-	cout << "Frame Jacobian:" << endl;
-	for (Eigen::Matrix6xMap::iterator it = jac.begin();
-		it != jac.end(); ++it) {
+	dwl::MotionMap contact_jdqd_W =
+		wkin.computeJdQd(ws.getBaseSE3(), ws.getJointPosition(),
+						 ws.getBaseVelocity_W(), ws.getJointVelocity(),
+						 fbs.getEndEffectorList(dwl::model::FOOT));
+	cout << "Contact Jd*qd term:" << endl;
+	for (dwl::MotionMap::iterator it = contact_jdqd_W.begin();
+		it != contact_jdqd_W.end(); ++it) {
 			cout << it->first << ":" << endl;
-			cout << it->second << endl;
-			cout << "---" << endl;
-			Eigen::Matrix6d floating_jac;
-			Eigen::Matrix6x fixed_jac;
-			wkin.getFloatingBaseJacobian(floating_jac, it->second);
-			wkin.getFixedBaseJacobian(fixed_jac, it->second);
-			cout << floating_jac << " = Floating-base Jacobian" << endl;
-			cout << "---" << endl;
-			cout << fixed_jac << " = Fixed-base Jacobian" << endl;
-			cout << endl;
+			cout << it->second.data << endl;
 	}
 	cout << endl;
-	cout << "---------------------------------------" << endl;
 
 
 
-	// Computing IK
-	dwl::SE3Map frame_pos;// = pos_W;
-	frame_pos["lf_foot"] = pos_W.find("lf_foot")->second;
-	frame_pos["lh_foot"] = pos_W.find("lh_foot")->second;
-	wkin.setIKSolver( 1.0e-12, 50);
-	Eigen::VectorXd joint_pos0(12);
-	joint_pos0 << 0., 0.5, -1., 0., -0.5, 1., 0., 0.5, -1., 0., -0.5, 1.;
-	if (wkin.computeJointPosition(ws.joint_pos,
-								  frame_pos,
-								  joint_pos0)) {
+	// Computing the joint positions
+	wkin.setIKSolver(1.0e-12, 50);
+	Eigen::VectorXd joint_pos = Eigen::VectorXd::Zero(fbs.getJointDoF());
+	dwl::SE3Map contact_pos_B;
+	contact_pos_B["lf_foot"] =
+			dwl::SE3(Eigen::Vector3d(0.371, 0.207, -0.589),
+					(Eigen::Matrix3d) Eigen::Matrix3d::Identity());
+	contact_pos_B["lh_foot"] =
+			dwl::SE3(Eigen::Vector3d(0.371, 0.207, -0.589),
+					(Eigen::Matrix3d) Eigen::Matrix3d::Identity());
+	Eigen::VectorXd joint_pos_init = fbs.getDefaultPosture();
+	if (wkin.computeJointPosition(joint_pos,
+								  contact_pos_B,
+								  joint_pos_init)) {
 		cout << "Joint position = "<< ws.joint_pos.transpose() << endl << endl;
 	} else {
 		cout << "The IK problem could not be solved" << endl;
 	}
 
-	dwl::MotionMap frame_vel;
-	frame_vel["lf_foot"] = dwl::Motion(Eigen::Vector3d::Zero(),
+
+	// Computing the joint velocities. Note that you can create and dwl::MotioMap()
+	// object, similar as before
+	Eigen::VectorXd joint_vel = Eigen::VectorXd::Zero(fbs.getJointDoF());
+	dwl::MotionMap contact_vel_B;
+	contact_vel_B["lf_foot"] = dwl::Motion(Eigen::Vector3d::Zero(),
 									   Eigen::Vector3d(1., 0., 0.));
-	frame_vel["lh_foot"] = dwl::Motion(Eigen::Vector3d::Zero(),
+	contact_vel_B["lh_foot"] = dwl::Motion(Eigen::Vector3d::Zero(),
 									   Eigen::Vector3d(0., 1., 0.));
-	frame_vel["rf_foot"] = dwl::Motion(Eigen::Vector3d::Zero(),
+	contact_vel_B["rf_foot"] = dwl::Motion(Eigen::Vector3d::Zero(),
 									   Eigen::Vector3d(0., 0., 1.));
-	wkin.computeJointVelocity(ws.joint_vel, ws.joint_pos, frame_vel);
-	cout << "Joint velocity = " << ws.joint_vel.transpose() << endl << endl;
+	wkin.computeJointVelocity(joint_vel,
+							  ws.getJointPosition(),
+							  contact_vel_B);
+	cout << "Joint velocity = " << joint_vel.transpose() << endl << endl;
 
 
-	dwl::MotionMap frame_acc;
-	frame_acc["lf_foot"] = dwl::Motion(Eigen::Vector3d::Zero(),
-									   Eigen::Vector3d(1., 0., 0.));
-	frame_acc["lh_foot"] = dwl::Motion(Eigen::Vector3d::Zero(),
-									   Eigen::Vector3d(0., 1., 0.));
-	frame_acc["rf_foot"] = dwl::Motion(Eigen::Vector3d::Zero(),
-									   Eigen::Vector3d(0., 0., 1.));
-	wkin.computeJointAcceleration(ws.joint_acc, ws.joint_pos, ws.joint_vel, frame_acc);
-	cout << "Joint acceleration = " << ws.joint_acc.transpose() << endl << endl;
+	// Computing the joint accelerations
+	Eigen::VectorXd joint_acc = Eigen::VectorXd::Zero(fbs.getJointDoF());
+	dwl::MotionMap contact_acc_B = contact_acc_W;
+	wkin.computeJointAcceleration(joint_acc,
+								  ws.getJointPosition(),
+								  ws.getJointVelocity(),
+								  contact_acc_B);
+	cout << "Joint acceleration = " << joint_acc.transpose() << endl << endl;
+
+
+	// Computing the CoM position, velocity and acceleration
+	cout << "CoM position = " <<
+			wkin.computeCoM(ws.getBaseSE3(),
+							ws.getJointPosition()).transpose() << endl << endl;
+
+
+	// Computing the CoM position and velocity
+	Eigen::Vector3d x, xd, xdd;
+	wkin.computeCoMRate(x, xd, xdd,
+						ws.getBaseSE3(), ws.getJointPosition(),
+						ws.getBaseVelocity_W(), ws.getJointVelocity(),
+						ws.getBaseAcceleration_W(), ws.getJointAcceleration());
+	cout << "CoM velocity = " << x.transpose() << endl << endl;
+	cout << "CoM acceleration = " << xd.transpose() << endl << endl;
+
+
+	// Computing the constrained acceleration
+	ws.setBaseAcceleration_W(
+			dwl::Motion(Eigen::Vector3d(1., 0., 0.),
+						Eigen::Vector3d::Zero()));
+	Eigen::VectorXd joint_facc = Eigen::VectorXd::Zero(fbs.getJointDoF());
+	wkin.computeConstrainedJointAcceleration(joint_facc,
+	                                         ws.getBaseSE3(), ws.getJointPosition(),
+	                                         ws.getBaseVelocity_W(), ws.getJointVelocity(),
+	                                         ws.getBaseAcceleration_W(),
+	                                         fbs.getEndEffectorList(dwl::model::FOOT));
+	cout << "joint acceleration = " << joint_facc.transpose() << endl;
 
 
     return 0;
