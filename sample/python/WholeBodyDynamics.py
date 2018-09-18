@@ -53,13 +53,12 @@ ws.setJointAcceleration(1., fbs.getJointId("lf_kfe_joint"))
 
 print()
 print('Inverse dynamics')
+base_eff = ws.getBaseWrench_W()
+joint_eff = ws.getJointEffort()
 grfs = { 'lf_foot': dwl.Force(np.matrix([ [0.],[0.],[190.778] ]), np.zeros((3,1))),
          'lh_foot': dwl.Force(np.matrix([ [0.],[0.],[190.778] ]), np.zeros((3,1))),
          'rf_foot': dwl.Force(np.matrix([ [0.],[0.],[190.778] ]), np.zeros((3,1))),
          'rh_foot': dwl.Force(np.matrix([ [0.],[0.],[190.778] ]), np.zeros((3,1))) };
-base_eff = ws.getBaseWrench_W()
-joint_eff = ws.getJointEffort()
-# noforce = dict()
 wdyn.computeInverseDynamics(base_eff, joint_eff,
                             ws.getBaseSE3(), ws.getJointPosition(),
                             ws.getBaseVelocity_W(), ws.getJointVelocity(),
@@ -75,11 +74,11 @@ print('  ', joint_eff.transpose())
 
 print()
 print('Constrained inverse dynamics')
-ws.setBaseAcceleration_W(dwl.Motion(np.matrix([ [1.],[0.],[0.] ]),
-                                    np.matrix([ [0.],[0.],[0.] ])))
 joint_forces = np.zeros((fbs.getJointDoF(),1))
 joint_acc = np.zeros((fbs.getJointDoF(),1))
 contact_forces = dwl.ForceMap()
+ws.setBaseAcceleration_W(dwl.Motion(np.matrix([ [1.],[0.],[0.] ]),
+                                    np.matrix([ [0.],[0.],[0.] ])))
 wdyn.computeConstrainedInverseDynamics(joint_forces, joint_acc, contact_forces,
                                        ws.getBaseSE3(), ws.getJointPosition(),
                                        ws.getBaseVelocity_W(), ws.getJointVelocity(),
@@ -148,7 +147,7 @@ wdyn.estimateContactForces(est_forces,
                            ws.getBaseSE3(), ws.getJointPosition(),
                            ws.getBaseVelocity_W(), ws.getJointVelocity(),
                            ws.getBaseAcceleration_W(), ws.getJointAcceleration(),
-                           ws.getJointEffort(), fbs.getEndEffectorList(dwl.FOOT));
+                           ws.getJointEffort(), fbs.getEndEffectorList(dwl.FOOT))
 print('', est_forces.asdict())
 
 
@@ -162,7 +161,7 @@ contact_pos = wkin.computePosition(ws.getBaseSE3(), ws.getJointPosition(),
                                      fbs.getEndEffectorList(dwl.FOOT))
 wdyn.estimateGroundReactionForces(grfs,
                                   cop_pos, contact_pos,
-                                  fbs.getEndEffectorList(dwl.FOOT));
+                                  fbs.getEndEffectorList(dwl.FOOT))
 print('', grfs.asdict())
 
 
@@ -179,7 +178,7 @@ wdyn.estimateActiveContactsAndForces(active_contacts, est_forces,
                                      ws.getBaseVelocity_W(), ws.getJointVelocity(),
                                      ws.getBaseAcceleration_W(), ws.getJointAcceleration(),
                                      ws.getJointEffort(), fbs.getEndEffectorList(dwl.FOOT), # it uses all the end-effector of the system
-                                     force_threshold);
+                                     force_threshold)
 print(' contacts:', active_contacts)
 print(' forces:')
 print('  ', est_forces.asdict())
@@ -241,7 +240,7 @@ print('Instantaneous Capture Point:')
 icp_pos = np.zeros((3,1))
 wdyn.computeInstantaneousCapturePoint(icp_pos,
                                       c_pos, c_vel,
-                                      height);
+                                      height)
 print(' ', icp_pos.transpose())
 
 
@@ -252,7 +251,7 @@ print('Centroidal Moment Pivot:')
 cmp_pos = np.zeros((3,1))
 wdyn.computeCentroidalMomentPivot(cmp_pos,
                                   c_pos, height,
-                                  contact_forces);
+                                  contact_forces)
 print(' ', cmp_pos.transpose())
 
 
@@ -263,5 +262,5 @@ print('CoM torque:')
 com_torque = np.zeros((3,1))
 wdyn.computeCoMTorque(com_torque,
                       c_pos, cmp_pos,
-                      contact_forces);
+                      contact_forces)
 print(' ', com_torque.transpose())
