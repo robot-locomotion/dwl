@@ -43,7 +43,7 @@ void WholeBodyKinematics::setIKSolver(double step_tol,
 }
 
 
-void WholeBodyKinematics::updateKinematics(dwl::SE3& base_pos,
+void WholeBodyKinematics::updateKinematics(const dwl::SE3& base_pos,
 										   const Eigen::VectorXd& joint_pos)
 {
 	const Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
@@ -51,7 +51,7 @@ void WholeBodyKinematics::updateKinematics(dwl::SE3& base_pos,
 }
 
 
-void WholeBodyKinematics::updateKinematics(dwl::SE3& base_pos,
+void WholeBodyKinematics::updateKinematics(const dwl::SE3& base_pos,
 										   const Eigen::VectorXd& joint_pos,
 										   const dwl::Motion& base_vel,
 										   const Eigen::VectorXd& joint_vel)
@@ -62,7 +62,7 @@ void WholeBodyKinematics::updateKinematics(dwl::SE3& base_pos,
 }
 
 
-void WholeBodyKinematics::updateKinematics(dwl::SE3& base_pos,
+void WholeBodyKinematics::updateKinematics(const dwl::SE3& base_pos,
 										   const Eigen::VectorXd& joint_pos,
 										   const dwl::Motion& base_vel,
 										   const Eigen::VectorXd& joint_vel,
@@ -76,7 +76,7 @@ void WholeBodyKinematics::updateKinematics(dwl::SE3& base_pos,
 }
 
 
-void WholeBodyKinematics::updateJacobians(dwl::SE3& base_pos,
+void WholeBodyKinematics::updateJacobians(const dwl::SE3& base_pos,
 										  const Eigen::VectorXd& joint_pos)
 {
 	const Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
@@ -86,7 +86,7 @@ void WholeBodyKinematics::updateJacobians(dwl::SE3& base_pos,
 
 
 const Eigen::Vector3d&
-WholeBodyKinematics::computeCoM(dwl::SE3& base_pos,
+WholeBodyKinematics::computeCoM(const dwl::SE3& base_pos,
 								const Eigen::VectorXd& joint_pos)
 {
 	const Eigen::VectorXd q = fbs_->toConfigurationState(base_pos, joint_pos);
@@ -97,7 +97,7 @@ WholeBodyKinematics::computeCoM(dwl::SE3& base_pos,
 void WholeBodyKinematics::computeCoMRate(Eigen::Vector3d& com,
 										 Eigen::Vector3d& com_d,
 										 Eigen::Vector3d& com_dd,
-										 dwl::SE3& base_pos,
+										 const dwl::SE3& base_pos,
 										 const Eigen::VectorXd& joint_pos,
 										 const dwl::Motion& base_vel,
 										 const Eigen::VectorXd& joint_vel,
@@ -117,7 +117,7 @@ void WholeBodyKinematics::computeCoMRate(Eigen::Vector3d& com,
 
 
 dwl::SE3Map
-WholeBodyKinematics::computePosition(dwl::SE3& base_pos,
+WholeBodyKinematics::computePosition(const dwl::SE3& base_pos,
 									 const Eigen::VectorXd& joint_pos,
 									 const ElementList& frames)
 {
@@ -148,7 +148,7 @@ WholeBodyKinematics::getFramePosition(const std::string& name)
 
 
 dwl::MotionMap
-WholeBodyKinematics::computeVelocity(dwl::SE3& base_pos,
+WholeBodyKinematics::computeVelocity(const dwl::SE3& base_pos,
 									 const Eigen::VectorXd& joint_pos,
 									 const dwl::Motion& base_vel,
 									 const Eigen::VectorXd& joint_vel,
@@ -191,7 +191,7 @@ WholeBodyKinematics::getFrameVelocity(const std::string& name)
 
 
 dwl::MotionMap
-WholeBodyKinematics::computeAcceleration(dwl::SE3& base_pos,
+WholeBodyKinematics::computeAcceleration(const dwl::SE3& base_pos,
 										 const Eigen::VectorXd& joint_pos,
 										 const dwl::Motion& base_vel,
 										 const Eigen::VectorXd& joint_vel,
@@ -243,7 +243,7 @@ WholeBodyKinematics::getFrameAcceleration(const std::string& name)
 
 
 dwl::MotionMap
-WholeBodyKinematics::computeJdQd(dwl::SE3& base_pos,
+WholeBodyKinematics::computeJdQd(const dwl::SE3& base_pos,
 								 const Eigen::VectorXd& joint_pos,
 								 const dwl::Motion& base_vel,
 								 const Eigen::VectorXd& joint_vel,
@@ -572,7 +572,7 @@ void WholeBodyKinematics::getJointAcceleration(Eigen::VectorXd& joint_acc,
 
 
 void WholeBodyKinematics::computeConstrainedJointAcceleration(Eigen::VectorXd& joint_acc,
-															  dwl::SE3& base_pos,
+															  const dwl::SE3& base_pos,
 															  const Eigen::VectorXd& joint_pos,
 															  const dwl::Motion& base_vel,
 															  const Eigen::VectorXd& joint_vel,
@@ -651,7 +651,7 @@ void WholeBodyKinematics::getConstrainedJointAcceleration(Eigen::VectorXd& joint
 
 
 Eigen::Matrix6xMap
-WholeBodyKinematics::computeJacobian(dwl::SE3& base_pos,
+WholeBodyKinematics::computeJacobian(const dwl::SE3& base_pos,
 									 const Eigen::VectorXd& joint_pos,
 									 const ElementList& frames)
 {

@@ -363,7 +363,7 @@ class FloatingBaseSystem
 		 * @param[in] joint_state Joint configuration
 		 * @return Generalized configuration state
 		 */
-		const Eigen::VectorXd& toConfigurationState(dwl::SE3& base_state,
+		const Eigen::VectorXd& toConfigurationState(const dwl::SE3& base_state,
 													const Eigen::VectorXd& joint_state);
 
 		/**
@@ -384,7 +384,7 @@ class FloatingBaseSystem
 		 * @return Generalized cotangent state
 		 */
 		const Eigen::VectorXd& toCotangentState(const dwl::Force& base_state,
-											  const Eigen::VectorXd& joint_state);
+											    const Eigen::VectorXd& joint_state);
 
 		/**
 		 * @brief Converts the generalized configuration state to base and joint states

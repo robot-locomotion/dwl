@@ -36,7 +36,7 @@ void WholeBodyDynamics::reset(FloatingBaseSystem& fbs,
 
 void WholeBodyDynamics::computeInverseDynamics(dwl::Force& base_wrench,
 											   Eigen::VectorXd& joint_forces,
-											   dwl::SE3& base_pos,
+											   const dwl::SE3& base_pos,
 											   const Eigen::VectorXd& joint_pos,
 											   const dwl::Motion& base_vel,
 											   const Eigen::VectorXd& joint_vel,
@@ -69,7 +69,7 @@ void WholeBodyDynamics::computeInverseDynamics(dwl::Force& base_wrench,
 void WholeBodyDynamics::computeConstrainedInverseDynamics(Eigen::VectorXd& joint_forces,
 														  Eigen::VectorXd& joint_acc,
 														  dwl::ForceMap& contact_forces,
-														  dwl::SE3& base_pos,
+														  const dwl::SE3& base_pos,
 														  const Eigen::VectorXd& joint_pos,
 														  const dwl::Motion& base_vel,
 														  const Eigen::VectorXd& joint_vel,
@@ -101,7 +101,7 @@ void WholeBodyDynamics::computeConstrainedInverseDynamics(Eigen::VectorXd& joint
 
 void WholeBodyDynamics::computeContactForces(dwl::ForceMap& contact_forces,
 											 Eigen::VectorXd& joint_acc,
-											 dwl::SE3& base_pos,
+											 const dwl::SE3& base_pos,
 											 const Eigen::VectorXd& joint_pos,
 											 const dwl::Motion& base_vel,
 											 const Eigen::VectorXd& joint_vel,
@@ -169,7 +169,7 @@ void WholeBodyDynamics::computeContactForces(dwl::ForceMap& contact_forces,
 
 
 const Eigen::MatrixXd&
-WholeBodyDynamics::computeJointSpaceInertiaMatrix(dwl::SE3& base_pos,
+WholeBodyDynamics::computeJointSpaceInertiaMatrix(const dwl::SE3& base_pos,
 												  const Eigen::VectorXd& joint_pos)
 {
 	// Converting base and joint states to generalized joint states
@@ -183,7 +183,7 @@ WholeBodyDynamics::computeJointSpaceInertiaMatrix(dwl::SE3& base_pos,
 
 
 const Eigen::Matrix6d&
-WholeBodyDynamics::computeCentroidalInertiaMatrix(dwl::SE3& base_pos,
+WholeBodyDynamics::computeCentroidalInertiaMatrix(const dwl::SE3& base_pos,
 												  const Eigen::VectorXd& joint_pos,
 												  const dwl::Motion& base_vel,
 												  const Eigen::VectorXd& joint_vel)
@@ -203,7 +203,7 @@ WholeBodyDynamics::computeCentroidalInertiaMatrix(dwl::SE3& base_pos,
 
 
 const Eigen::Matrix6x&
-WholeBodyDynamics::computeCentroidalMomentumMatrix(dwl::SE3& base_pos,
+WholeBodyDynamics::computeCentroidalMomentumMatrix(const dwl::SE3& base_pos,
 												   const Eigen::VectorXd& joint_pos,
 												   const dwl::Motion& base_vel,
 												   const Eigen::VectorXd& joint_vel)
@@ -219,7 +219,7 @@ WholeBodyDynamics::computeCentroidalMomentumMatrix(dwl::SE3& base_pos,
 
 
 const dwl::Force&
-WholeBodyDynamics::computeGravitoWrench(dwl::SE3& base_pos,
+WholeBodyDynamics::computeGravitoWrench(const dwl::SE3& base_pos,
 		   	   	   	   	   	   	   	    const Eigen::VectorXd& joint_pos)
 {
 	// Computing the CoM position
@@ -248,7 +248,7 @@ WholeBodyDynamics::getGravitoWrench(const Eigen::Vector3d& com_pos)
 
 
 void WholeBodyDynamics::estimateContactForces(dwl::ForceMap& contact_forces,
-											  dwl::SE3& base_pos,
+											  const dwl::SE3& base_pos,
 											  const Eigen::VectorXd& joint_pos,
 											  const dwl::Motion& base_vel,
 											  const Eigen::VectorXd& joint_vel,
@@ -363,7 +363,7 @@ void WholeBodyDynamics::estimateGroundReactionForces(dwl::ForceMap& grfs,
 
 void WholeBodyDynamics::estimateActiveContactsAndForces(ElementList& active_contacts,
 														dwl::ForceMap& contact_forces,
-														dwl::SE3& base_pos,
+														const dwl::SE3& base_pos,
 														const Eigen::VectorXd& joint_pos,
 														const dwl::Motion& base_vel,
 														const Eigen::VectorXd& joint_vel,
@@ -388,7 +388,7 @@ void WholeBodyDynamics::estimateActiveContactsAndForces(ElementList& active_cont
 
 
 void WholeBodyDynamics::estimateActiveContacts(ElementList& active_contacts,
-											   dwl::SE3& base_pos,
+											   const dwl::SE3& base_pos,
 											   const Eigen::VectorXd& joint_pos,
 											   const dwl::Motion& base_vel,
 											   const Eigen::VectorXd& joint_vel,

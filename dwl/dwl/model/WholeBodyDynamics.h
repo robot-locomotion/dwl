@@ -63,7 +63,7 @@ class WholeBodyDynamics
 		 */
 		void computeInverseDynamics(dwl::Force& base_wrench,
 									Eigen::VectorXd& joint_forces,
-									dwl::SE3& base_pos,
+									const dwl::SE3& base_pos,
 									const Eigen::VectorXd& joint_pos,
 									const dwl::Motion& base_vel,
 									const Eigen::VectorXd& joint_vel,
@@ -91,7 +91,7 @@ class WholeBodyDynamics
 		void computeConstrainedInverseDynamics(Eigen::VectorXd& joint_forces,
 											   Eigen::VectorXd& joint_acc,
 											   dwl::ForceMap& contact_forces,
-											   dwl::SE3& base_pos,
+											   const dwl::SE3& base_pos,
 											   const Eigen::VectorXd& joint_pos,
 											   const dwl::Motion& base_vel,
 											   const Eigen::VectorXd& joint_vel,
@@ -117,7 +117,7 @@ class WholeBodyDynamics
 		 */
 		void computeContactForces(dwl::ForceMap& contact_forces,
 								  Eigen::VectorXd& joint_acc,
-								  dwl::SE3& base_pos,
+								  const dwl::SE3& base_pos,
 								  const Eigen::VectorXd& joint_pos,
 								  const dwl::Motion& base_vel,
 								  const Eigen::VectorXd& joint_vel,
@@ -132,7 +132,7 @@ class WholeBodyDynamics
 		 * @return Joint-space inertia matrix
 		 */
 		const Eigen::MatrixXd&
-		computeJointSpaceInertiaMatrix(dwl::SE3& base_pos,
+		computeJointSpaceInertiaMatrix(const dwl::SE3& base_pos,
 									   const Eigen::VectorXd& joint_pos);
 
 		/**
@@ -147,7 +147,7 @@ class WholeBodyDynamics
 		 * @return Centroidal inertia matrix
 		 */
 		const Eigen::Matrix6d&
-		computeCentroidalInertiaMatrix(dwl::SE3& base_pos,
+		computeCentroidalInertiaMatrix(const dwl::SE3& base_pos,
 									   const Eigen::VectorXd& joint_pos,
 									   const dwl::Motion& base_vel,
 									   const Eigen::VectorXd& joint_vel);
@@ -164,7 +164,7 @@ class WholeBodyDynamics
 		 * @return Centroidal momentum matrix
 		 */
 		const Eigen::Matrix6x&
-		computeCentroidalMomentumMatrix(dwl::SE3& base_pos,
+		computeCentroidalMomentumMatrix(const dwl::SE3& base_pos,
 										const Eigen::VectorXd& joint_pos,
 										const dwl::Motion& base_vel,
 										const Eigen::VectorXd& joint_vel);
@@ -176,7 +176,7 @@ class WholeBodyDynamics
 		 * @return Gravitational wrench
 		 */
 		const dwl::Force&
-		computeGravitoWrench(dwl::SE3& base_pos,
+		computeGravitoWrench(const dwl::SE3& base_pos,
 							 const Eigen::VectorXd& joint_pos);
 
 		/**
@@ -203,7 +203,7 @@ class WholeBodyDynamics
 		 * @param[in] contacts Selected set of end-effectors (bodies)
 		 */
 		void estimateContactForces(dwl::ForceMap& contact_forces,
-								   dwl::SE3& base_pos,
+								   const dwl::SE3& base_pos,
 								   const Eigen::VectorXd& joint_pos,
 								   const dwl::Motion& base_vel,
 								   const Eigen::VectorXd& joint_vel,
@@ -242,7 +242,7 @@ class WholeBodyDynamics
 		 */
 		void estimateActiveContactsAndForces(ElementList& active_contacts,
 											 dwl::ForceMap& contact_forces,
-											 dwl::SE3& base_pos,
+											 const dwl::SE3& base_pos,
 											 const Eigen::VectorXd& joint_pos,
 											 const dwl::Motion& base_vel,
 											 const Eigen::VectorXd& joint_vel,
@@ -267,7 +267,7 @@ class WholeBodyDynamics
 		 * @param[in] force_threshold Force threshold
 		 */
 		void estimateActiveContacts(ElementList& active_contacts,
-									dwl::SE3& base_pos,
+									const dwl::SE3& base_pos,
 									const Eigen::VectorXd& joint_pos,
 									const dwl::Motion& base_vel,
 									const Eigen::VectorXd& joint_vel,

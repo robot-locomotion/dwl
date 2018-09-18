@@ -71,13 +71,13 @@ class WholeBodyKinematics
 		 * @param[in] base_acc Base acceleration [linear, angular]
 		 * @param[in] joint_acc Joint acceleration
 		 */
-		void updateKinematics(dwl::SE3& base_pos,
+		void updateKinematics(const dwl::SE3& base_pos,
 							  const Eigen::VectorXd& joint_pos);
-		void updateKinematics(dwl::SE3& base_pos,
+		void updateKinematics(const dwl::SE3& base_pos,
 							  const Eigen::VectorXd& joint_pos,
 							  const dwl::Motion& base_vel,
 							  const Eigen::VectorXd& joint_vel);
-		void updateKinematics(dwl::SE3& base_pos,
+		void updateKinematics(const dwl::SE3& base_pos,
 							  const Eigen::VectorXd& joint_pos,
 							  const dwl::Motion& base_vel,
 							  const Eigen::VectorXd& joint_vel,
@@ -91,7 +91,7 @@ class WholeBodyKinematics
 		 * @param[in] base_pos Base SE3 configuration
 		 * @param[in] joint_pos Joint position
 		 */
-		void updateJacobians(dwl::SE3& base_pos,
+		void updateJacobians(const dwl::SE3& base_pos,
 							 const Eigen::VectorXd& joint_pos);
 
 		/**
@@ -101,7 +101,7 @@ class WholeBodyKinematics
 		 * @param[in] joint_pos Joint position
 		 * @return Whole-body CoM position
 		 */
-		const Eigen::Vector3d& computeCoM(dwl::SE3& base_pos,
+		const Eigen::Vector3d& computeCoM(const dwl::SE3& base_pos,
 										  const Eigen::VectorXd& joint_pos);
 
 		/**
@@ -121,7 +121,7 @@ class WholeBodyKinematics
 		void computeCoMRate(Eigen::Vector3d& com,
 							Eigen::Vector3d& com_d,
 							Eigen::Vector3d& com_dd,
-							dwl::SE3& base_pos,
+							const dwl::SE3& base_pos,
 							const Eigen::VectorXd& joint_pos,
 							const dwl::Motion& base_vel,
 							const Eigen::VectorXd& joint_vel,
@@ -138,7 +138,7 @@ class WholeBodyKinematics
 		 * @return Configuration for each frame expressed in the world frame
 		 */
 		dwl::SE3Map
-		computePosition(dwl::SE3& base_pos,
+		computePosition(const dwl::SE3& base_pos,
 						const Eigen::VectorXd& joint_pos,
 						const ElementList& frames);
 
@@ -164,7 +164,7 @@ class WholeBodyKinematics
 		 * @return Velocity for each frame expressed in the world frame
 		 */
 		dwl::MotionMap
-		computeVelocity(dwl::SE3& base_pos,
+		computeVelocity(const dwl::SE3& base_pos,
 						const Eigen::VectorXd& joint_pos,
 						const dwl::Motion& base_vel,
 						const Eigen::VectorXd& joint_vel,
@@ -195,7 +195,7 @@ class WholeBodyKinematics
 		 * @return Acceleration for each frame expressed in the world frame
 		 */
 		dwl::MotionMap
-		computeAcceleration(dwl::SE3& base_pos,
+		computeAcceleration(const dwl::SE3& base_pos,
 							const Eigen::VectorXd& joint_pos,
 							const dwl::Motion& base_vel,
 							const Eigen::VectorXd& joint_vel,
@@ -229,7 +229,7 @@ class WholeBodyKinematics
 		 * @return Jdot * qdot term for each frame expressed in the world frame
 		 */
 		dwl::MotionMap
-		computeJdQd(dwl::SE3& base_pos,
+		computeJdQd(const dwl::SE3& base_pos,
 					const Eigen::VectorXd& joint_pos,
 					const dwl::Motion& base_vel,
 					const Eigen::VectorXd& joint_vel,
@@ -344,7 +344,7 @@ class WholeBodyKinematics
 		 * @param[in] contacts Constrained frames
 		 */
 		void computeConstrainedJointAcceleration(Eigen::VectorXd& joint_acc,
-												 dwl::SE3& base_pos,
+												 const dwl::SE3& base_pos,
 												 const Eigen::VectorXd& joint_pos,
 												 const dwl::Motion& base_vel,
 												 const Eigen::VectorXd& joint_vel,
@@ -380,7 +380,7 @@ class WholeBodyKinematics
 		 * @return stack of Jacobians for each frame expressed in the world frame
 		 */
 		std::map<std::string, Eigen::Matrix6x>
-		computeJacobian(dwl::SE3& base_pos,
+		computeJacobian(const dwl::SE3& base_pos,
 						const Eigen::VectorXd& joint_pos,
 						const ElementList& frames);
 

@@ -574,13 +574,13 @@ bool FloatingBaseSystem::isConstrainedFloatingBase()
 }
 
 
-const Eigen::VectorXd& FloatingBaseSystem::toConfigurationState(dwl::SE3& base_state,
+const Eigen::VectorXd& FloatingBaseSystem::toConfigurationState(const dwl::SE3& base_state,
 																const Eigen::VectorXd& joint_state)
 {
 	// Getting the number of joints
 	assert(joint_state.size() == getJointDoF());
 
-	// Note that pinocchio defines the floating base state as
+	// Note that Pinocchio defines the floating base state as
 	// [linear states, angular states]
 	if (root_joint_ == FREE_FLYER) {
 		q_ << base_state.toVector(), joint_state;
