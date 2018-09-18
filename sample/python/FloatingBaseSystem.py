@@ -58,7 +58,7 @@ print('lf_upperleg CoM:', fbs.getBodyCoM('lf_upperleg').transpose())
 print()
 print('NQ:', fbs.getConfigurationDim())
 print('NV:', fbs.getTangentDim())
-print('number of joint:', fbs.getJointDoF())
+print('number of joints:', fbs.getJointDoF())
 print('number of end-effectors:', fbs.getNumberOfEndEffectors())
 print('floating-base body name:', fbs.getFloatingBaseName())
 
@@ -129,14 +129,24 @@ print('nominal joint positions =', joint_pos0.transpose())
 
 
 
-# Converting between whole-body state to generalized state, and viceverse
+# Getting the body iner
+print()
+print('floating-base inertia')
+print(' ', fbs.getFloatingBaseInertia())
+print('lf_hipassembly inertia')
+print(' ', fbs.getBodyInertia("lf_hipassembly"))
+
+
+
+
+# Conversion between whole-body state to generalized state, and viceverse
 print()
 base_state = np.zeros(6)
 joint_state = joint_pos0
 generalized_state = fbs.toConfigurationState(ws.getBaseSE3(), ws.getJointPosition())
 print('Converting the whole-body pose to a configuration vector')
-print('base state =', ws.getBaseSE3())
-print('joint state =', ws.getJointPosition().transpose())
+print('base position =', ws.getBaseSE3())
+print('joint position =', ws.getJointPosition().transpose())
 print('configuration vector =', generalized_state.transpose())
 
 
@@ -149,5 +159,5 @@ lf_branch_pos = np.array([0.5, 0.75, 1.5]);
 fbs.setBranchState(joint_pos, lf_branch_pos, 'lf_foot')
 ws.setJointPosition(joint_pos)
 print('Setting up the lf_foot branch position =', lf_branch_pos.transpose())
-print('joint_position =', ws.getJointPosition().transpose())
-print('lf_foot branch position =', fbs.getBranchState(ws.getJointPosition(), 'lf_foot').transpose())
+print('joint position =', ws.getJointPosition().transpose())
+print('Getting the lf_foot branch position =', fbs.getBranchState(ws.getJointPosition(), 'lf_foot').transpose())
