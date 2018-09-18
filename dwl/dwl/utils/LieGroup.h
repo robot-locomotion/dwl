@@ -29,7 +29,12 @@ namespace dwl
 struct SE3
 {
 	/** @brief Constructs the SE(3) in its origin */
-	SE3() : data(1) {}
+	SE3() : data(1) {
+		rpy = math::getRPY(getRotation());
+		q1 = math::getQuaternion(getRotation());
+		q2 << q1.x(), q1.y(), q1.z(), q1.w();
+		vec << getTranslation(), getQuaternion();
+	}
 
 	/**
 	 * @brief Constructs the SE(3) given (t,R)
@@ -38,7 +43,12 @@ struct SE3
 	 * @param[in] R Rotation matrix
 	 */
 	SE3(const Eigen::Vector3d& t,
-		const Eigen::Matrix3d& R) : data(R, t) {}
+		const Eigen::Matrix3d& R) : data(R, t) {
+		rpy = math::getRPY(getRotation());
+		q1 = math::getQuaternion(getRotation());
+		q2 << q1.x(), q1.y(), q1.z(), q1.w();
+		vec << getTranslation(), getQuaternion();
+	}
 
 	/**
 	 * @brief Constructs the SE(3) using the quaternion representation
@@ -47,9 +57,10 @@ struct SE3
 	 * @param[in] q Quaternion
 	 */
 	SE3(const Eigen::Vector3d& t,
-		const Eigen::Vector4d& q) {
+		const Eigen::Vector4d& q) : q2(q) {
 		setTranslation(t);
-		setQuaternion(q);
+		rpy = math::getRPY(getRotation());
+		vec << getTranslation(), getQuaternion();
 	}
 
 	/**
@@ -59,9 +70,11 @@ struct SE3
 	 * @param[in] rpy RPY angles
 	 */
 	SE3(const Eigen::Vector3d& t,
-		const Eigen::Vector3d& rpy) {
+		const Eigen::Vector3d& rpy) : rpy(rpy) {
 		setTranslation(t);
-		setRPY(rpy);
+		q1 = math::getQuaternion(getRotation());
+		q2 << q1.x(), q1.y(), q1.z(), q1.w();
+		vec << getTranslation(), getQuaternion();
 	}
 
 	/**
@@ -71,8 +84,7 @@ struct SE3
 	 *
 	 * @return [Translation, Quaternion]
 	 */
-	const Eigen::Vector7d& toVector() {
-		vec << getTranslation(), getQuaternion();
+	const Eigen::Vector7d& toVector() const {
 		return vec;
 	}
 
@@ -99,9 +111,7 @@ struct SE3
 	 *
 	 * @return Quaternion [x,y,z,w]
 	 */
-	const Eigen::Vector4d& getQuaternion() {
-		q1 = math::getQuaternion(getRotation());
-		q2 << q1.x(), q1.y(), q1.z(), q1.w();
+	const Eigen::Vector4d& getQuaternion() const {
 		return q2;
 	}
 
@@ -110,8 +120,7 @@ struct SE3
 	 *
 	 * @return RPY angles
 	 */
-	const Eigen::Vector3d& getRPY() {
-		rpy = math::getRPY(getRotation());
+	const Eigen::Vector3d& getRPY() const {
 		return rpy;
 	}
 
@@ -122,6 +131,7 @@ struct SE3
 	 */
 	void setTranslation(const Eigen::Vector3d& t) {
 		data.translation(t);
+		vec.head(3) = t;
 	}
 
 	/**
@@ -131,6 +141,10 @@ struct SE3
 	 */
 	void setRotation(const Eigen::Matrix3d& R) {
 		data.rotation(R);
+		rpy = math::getRPY(getRotation());
+		q1 = math::getQuaternion(getRotation());
+		q2 << q1.x(), q1.y(), q1.z(), q1.w();
+		vec.tail(4) = getQuaternion();
 	}
 
 	/**
@@ -142,6 +156,9 @@ struct SE3
 		 // Note that DWL convention is XYZW, instead Eigen WXYZ
 		q1 = Eigen::Quaterniond(q[3], q[0], q[1], q[2]);
 		data.rotation(math::getRotationMatrix(q1));
+		q2 << q1.x(), q1.y(), q1.z(), q1.w();
+		rpy = math::getRPY(getRotation());
+		vec.tail(4) = getQuaternion();
 	}
 
 	/**
@@ -151,15 +168,19 @@ struct SE3
 	 */
 	void setRPY(const Eigen::Vector3d& rpy) {
 		data.rotation(math::getRotationMatrix(rpy));
+		this->rpy = rpy;
+		q1 = math::getQuaternion(getRotation());
+		q2 << q1.x(), q1.y(), q1.z(), q1.w();
+		vec.tail(4) = getQuaternion();
 	}
 
 	se3::SE3 data;
 
 private:
-	Eigen::Vector7d vec;
+	Eigen::Vector3d rpy;
 	Eigen::Quaterniond q1;
 	Eigen::Vector4d q2;
-	Eigen::Vector3d rpy;
+	Eigen::Vector7d vec;
 };
 
 
