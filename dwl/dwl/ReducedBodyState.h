@@ -5,14 +5,13 @@
 #include <map>
 #include <vector>
 
+#include <dwl/utils/LieGroup.h>
 #include <dwl/utils/FrameTF.h>
 #include <dwl/utils/RigidBodyDynamics.h>
 
 
 namespace dwl
 {
-
-typedef Eigen::Vector3dMap::const_iterator FootIterator;
 
 /**
  * @brief The ReducedBodyState class
@@ -64,6 +63,9 @@ typedef Eigen::Vector3dMap::const_iterator FootIterator;
 class ReducedBodyState
 {
 	public:
+		typedef dwl::SE3Map::const_iterator SE3Iterator;
+		typedef dwl::MotionMap::const_iterator MotionIterator;
+
 		/** @brief Constructor function */
 		ReducedBodyState();
 
@@ -77,90 +79,57 @@ class ReducedBodyState
 		const double& getTime() const;
 
 		// CoM state getter functions
-		/** @brief Gets the CoM position expressed in the world frame
+		/**
+		 * @brief Gets the CoM SE3 expressed in the world frame
 		 * @return The CoM position
 		 */
-		const Eigen::Vector3d& getCoMPosition() const;
+		const dwl::SE3& getCoMSE3() const;
 
-		/** @brief Gets the quaternion of the CoM frame expressed in the world frame
-		 * @return The quaternion of the CoM frame
+		/**
+		 * @brief Gets the base SE3 of the horizontal frame
+		 * @return Base SE3 of the horizontal frame
 		 */
-		Eigen::Quaterniond getOrientation() const;
-
-		/** @brief Gets the RPY angles of the CoM frame expressed in the world frame
-		 * @return The RPY angles of the CoM frame
-		 */
-		const Eigen::Vector3d& getRPY() const;
+		const dwl::SE3& getCoMSE3_H();
 
 		/** @brief Gets the CoM velocity expressed in the world frame
 		 * @return The CoM velocity expressed in the world frame
 		 */
-		const Eigen::Vector3d& getCoMVelocity_W() const;
+		const dwl::Motion& getCoMVelocity_W() const;
 
 		/** @brief Gets the CoM velocity expressed in the base frame
 		 * @return The CoM velocity expressed in the base frame
 		 */
-		Eigen::Vector3d getCoMVelocity_B() const;
+		const dwl::Motion& getCoMVelocity_B();
 
 		/** @brief Gets the CoM velocity expressed in the horizontal frame
 		 * @return The CoM velocity expressed in the horizontal frame
 		 */
-		Eigen::Vector3d getCoMVelocity_H() const;
-
-		/** @brief Gets the angular velocity of the CoM frame expressed in the world frame
-		 * @return The angular velocity of the CoM frame
-		 */
-		const Eigen::Vector3d& getAngularVelocity_W() const;
-
-		/** @brief Gets the CoM angular velocity of the CoM frame expressed in the base frame
-		 * @return The angular velocity of the CoM frame
-		 */
-		Eigen::Vector3d getAngularVelocity_B() const;
-
-		/** @brief Gets the CoM angular velocity expressed in the horizontal frame
-		 * @return The angular velocity of the CoM frame
-		 */
-		Eigen::Vector3d getAngularVelocity_H() const;
+		const dwl::Motion& getCoMVelocity_H();
 
 		/** @brief Gets the RPY velocity of the CoM frame expressed in the world frame
 		 * @return The RPY velocity of the CoM frame
 		 */
-		Eigen::Vector3d getRPYVelocity_W() const;
+		const Eigen::Vector3d& getRPYVelocity_W();
 
 		/** @brief Gets the CoM acceleration expressed in the world frame
 		 * @return The CoM acceleration
 		 */
-		const Eigen::Vector3d& getCoMAcceleration_W() const;
+		const dwl::Motion& getCoMAcceleration_W() const;
 
 		/** @brief Gets the CoM acceleration expressed in the base frame
 		 * @return The CoM acceleration
 		 */
-		Eigen::Vector3d getCoMAcceleration_B() const;
+		const dwl::Motion& getCoMAcceleration_B();
 
 		/** @brief Gets the CoM acceleration expressed in the horizontal frame
 		 * @return The CoM acceleration
 		 */
-		Eigen::Vector3d getCoMAcceleration_H() const;
-
-		/** @brief Gets the angular acceleration of the CoM frame expressed in the world frame
-		 * @return The angular acceleration of the CoM frame
-		 */
-		const Eigen::Vector3d& getAngularAcceleration_W() const;
-
-		/** @brief Gets the angular acceleration of the CoM frame expressed in the base frame
-		 * @return The angular acceleration of the CoM frame
-		 */
-		Eigen::Vector3d getAngularAcceleration_B() const;
-
-		/** @brief Gets the angular acceleration of the CoM frame expressed in the horizontal frame
-		 * @return The angular acceleration of the CoM frame
-		 */
-		Eigen::Vector3d getAngularAcceleration_H() const;
+		const dwl::Motion& getCoMAcceleration_H();
 
 		/** @brief Gets the RPY acceleration of the CoM frame expressed in the world frame
 		 * @return The RPY acceleration of the CoM frame
 		 */
-		Eigen::Vector3d getRPYAcceleration_W() const;
+		Eigen::Vector3d getRPYAcceleration_W();
 
 
 		// CoP state getter functions
@@ -172,157 +141,164 @@ class ReducedBodyState
 
 		// Foot state getter functions
 		/** @brief Gets the foot position expressed the world frame
-		 * @param[in] pos_it The foot position iterator
+		 * @param[in] it The foot position iterator
 		 * @return The foot position expressed in the world frame
 		 */
-		Eigen::Vector3d getFootPosition_W(FootIterator pos_it) const;
+		const dwl::SE3& getFootSE3_W(SE3Iterator it);
 
 		/** @brief Gets the foot position expressed the world frame
 		 * @param[in] name The foot name
 		 * @return The foot position expressed in the world frame
 		 */
-		Eigen::Vector3d getFootPosition_W(const std::string& name) const;
+		const dwl::SE3& getFootSE3_W(const std::string& name);
 
 		/** @brief Gets all foot positions expressed the world frame
 		 * @return All foot positions expressed in the world frame
 		 */
-		Eigen::Vector3dMap getFootPosition_W() const;
+		dwl::SE3Map getFootSE3_W();
 
 		/** @brief Gets the foot position expressed the CoM frame
-		 * @param[in] pos_it The foot position iterator
+		 * @param[in] it The foot position iterator
 		 * @return The foot position expressed in the CoM frame
 		 */
-		const Eigen::Vector3d& getFootPosition_B(FootIterator pos_it) const;
+		const dwl::SE3& getFootSE3_B(SE3Iterator it) const;
 
 		/** @brief Gets the foot position expressed the CoM frame
 		 * @param[in] name The foot name
 		 * @return The foot position expressed in the CoM frame
 		 */
-		const Eigen::Vector3d& getFootPosition_B(const std::string& name) const;
+		const dwl::SE3& getFootSE3_B(const std::string& name) const;
 
 		/** @brief Gets all foot positions expressed the world frame
 		 * @return All foot positions expressed in the world frame
 		 */
-		const Eigen::Vector3dMap& getFootPosition_B() const;
+		const dwl::SE3Map& getFootSE3_B() const;
 
 		/** @brief Gets the foot position expressed the horizontal frame
-		 * @param[in] pos_it The foot position iterator
+		 * @param[in] it The foot position iterator
 		 * @return The foot position expressed in the horizontal frame
 		 */
-		Eigen::Vector3d getFootPosition_H(FootIterator pos_it) const;
+		const dwl::SE3& getFootSE3_H(SE3Iterator it);
 
 		/** @brief Gets the foot position expressed the horizontal frame
 		 * @param[in] name The foot name
 		 * @return The foot position expressed in the horizontal frame
 		 */
-		Eigen::Vector3d getFootPosition_H(const std::string& name) const;
+		const dwl::SE3& getFootSE3_H(const std::string& name);
 
 		/** @brief Gets all foot positions expressed the horizontal frame
 		 * @return All foot positions expressed in the horizontal frame
 		 */
-		Eigen::Vector3dMap getFootPosition_H() const;
+		dwl::SE3Map getFootSE3_H();
 
 		/** @brief Gets the foot velocity expressed the world frame
-		 * @param[in] vel_it The foot velocity iterator
+		 * @param[in] it The foot velocity iterator
 		 * @return The foot velocity expressed in the world frame
 		 */
-		Eigen::Vector3d getFootVelocity_W(FootIterator vel_it) const;
+		const dwl::Motion& getFootVelocity_W(MotionIterator it);
 
 		/** @brief Gets the foot velocity expressed the world frame
 		 * @param[in] name The foot name
 		 * @return The foot velocity expressed in the world frame
 		 */
-		Eigen::Vector3d getFootVelocity_W(const std::string& name) const;
+		const dwl::Motion& getFootVelocity_W(const std::string& name);
 
 		/** @brief Gets all foot velocities expressed the world frame
 		 * @return All foot velocities expressed in the world frame
 		 */
-		Eigen::Vector3dMap getFootVelocity_W() const;
+		dwl::MotionMap getFootVelocity_W();
 
 		/** @brief Gets the foot velocity expressed the base frame
 		 * @param[in] vel_it The foot velocity iterator
 		 * @return The foot velocity expressed in the base frame
 		 */
-		const Eigen::Vector3d& getFootVelocity_B(FootIterator vel_it) const;
+		const dwl::Motion& getFootVelocity_B(MotionIterator vel_it) const;
 
 		/** @brief Gets the foot velocity expressed the base frame
 		 * @param[in] name The foot name
 		 * @return The foot velocity expressed in the base frame
 		 */
-		const Eigen::Vector3d& getFootVelocity_B(const std::string& name) const;
+		const dwl::Motion& getFootVelocity_B(const std::string& name) const;
 
 		/** @brief Gets all foot velocities expressed the base frame
 		 * @return All foot velocities expressed in the base frame
 		 */
-		const Eigen::Vector3dMap& getFootVelocity_B() const;
+		const dwl::MotionMap& getFootVelocity_B() const;
 
 		/** @brief Gets the foot velocity expressed the horizontal frame
-		 * @param[in] vel_it The foot velocity iterator
+		 * @param[in] it The foot velocity iterator
 		 * @return The foot velocity expressed in the horizontal frame
 		 */
-		Eigen::Vector3d getFootVelocity_H(FootIterator vel_it) const;
+		const dwl::Motion& getFootVelocity_H(MotionIterator it);
 
 		/** @brief Gets the foot velocity expressed the horizontal frame
 		 * @param[in] name The foot name
 		 * @return The foot velocity expressed in the horizontal frame
 		 */
-		Eigen::Vector3d getFootVelocity_H(const std::string& name) const;
+		const dwl::Motion& getFootVelocity_H(const std::string& name);
 
 		/** @brief Gets all foot velocities expressed the horizontal frame
 		 * @return All foot velocities expressed in the horizontal frame
 		 */
-		Eigen::Vector3dMap getFootVelocity_H() const;
+		dwl::MotionMap getFootVelocity_H();
 
 		/** @brief Gets the foot acceleration expressed the world frame
-		 * @param[in] acc_it The foot acceleration iterator
+		 * @param[in] it The foot acceleration iterator
 		 * @return The foot acceleration expressed in the world frame
 		 */
-		Eigen::Vector3d getFootAcceleration_W(FootIterator acc_it) const;
+		const dwl::Motion& getFootAcceleration_W(MotionIterator it);
 
 		/** @brief Gets the foot acceleration expressed the world frame
 		 * @param[in] name The foot name
 		 * @return The foot acceleration expressed in the world frame
 		 */
-		Eigen::Vector3d getFootAcceleration_W(const std::string& name) const;
+		const dwl::Motion& getFootAcceleration_W(const std::string& name);
 
 		/** @brief Gets all foot accelerations expressed the world frame
 		 * @return All foot accelerations expressed in the world frame
 		 */
-		Eigen::Vector3dMap getFootAcceleration_W() const;
+		dwl::MotionMap getFootAcceleration_W();
 
 		/** @brief Gets the foot acceleration expressed the base frame
-		 * @param[in] acc_it The foot acceleration iterator
+		 * @param[in] it The foot acceleration iterator
 		 * @return The foot acceleration expressed in the base frame
 		 */
-		const Eigen::Vector3d& getFootAcceleration_B(FootIterator acc_it) const;
+		const dwl::Motion& getFootAcceleration_B(MotionIterator it) const;
 
 		/** @brief Gets the foot acceleration expressed the base frame
 		 * @param[in] name The foot name
 		 * @return The foot acceleration expressed in the base frame
 		 */
-		const Eigen::Vector3d& getFootAcceleration_B(const std::string& name) const;
+		const dwl::Motion& getFootAcceleration_B(const std::string& name) const;
 
 		/** @brief Gets all foot accelerations expressed the base frame
 		 * @return All foot accelerations expressed in the base frame
 		 */
-		const Eigen::Vector3dMap& getFootAcceleration_B() const;
+		const dwl::MotionMap& getFootAcceleration_B() const;
 
 		/** @brief Gets the foot acceleration expressed the horizontal frame
-		 * @param[in] acc_it The foot acceleration iterator
+		 * @param[in] it The foot acceleration iterator
 		 * @return The foot acceleration expressed in the horizontal frame
 		 */
-		Eigen::Vector3d getFootAcceleration_H(FootIterator acc_it) const;
+		const dwl::Motion& getFootAcceleration_H(MotionIterator it);
 
 		/** @brief Gets the foot acceleration expressed the horizontal frame
 		 * @param[in] name The foot name
 		 * @return The foot acceleration expressed in the horizontal frame
 		 */
-		Eigen::Vector3d getFootAcceleration_H(const std::string& name) const;
+		const dwl::Motion& getFootAcceleration_H(const std::string& name);
 
 		/** @brief Gets all foot accelerations expressed the horizontal frame
 		 * @return All foot accelerations expressed in the horizontal frame
 		 */
-		Eigen::Vector3dMap getFootAcceleration_H() const;
+		dwl::MotionMap getFootAcceleration_H();
+
+
+		// Support region getter functions
+		/** @brief Gets all foot in contacts and them positions
+		 * @return All foot in contacts and them positions
+		 */
+		const dwl::SE3Map& getSupportRegion() const;
 
 
 		// Time setter function
@@ -333,49 +309,24 @@ class ReducedBodyState
 
 		// CoM state setter functions
 		/** @brief Sets the CoM position expressed in the world frame
-		 * @param[in] pos CoM position
+		 * @param[in] pos CoM SE3
 		 */
-		void setCoMPosition(const Eigen::Vector3d& pos);
-
-		/** @brief Sets the quaternion of the CoM frame
-		 * @param[in] q Quaternion of the CoM frame
-		 */
-		void setOrientation(const Eigen::Quaterniond& q);
-
-		/** @brief Sets the RPY angles of the CoM frame
-		 * @param[in] rpy RPY angle of the CoM frame
-		 */
-		void setRPY(const Eigen::Vector3d& rpy);
+		void setCoMSE3(const dwl::SE3& pos);
 
 		/** @brief Sets the CoM velocity expressed in the world frame
 		 * @param[in] vel_W CoM velocity expressed in the world frame
 		 */
-		void setCoMVelocity_W(const Eigen::Vector3d& vel_W);
+		void setCoMVelocity_W(const dwl::Motion& vel_W);
 
 		/** @brief Sets the CoM velocity expressed in the base frame
 		 * @param[in] vel_B CoM velocity expressed in the base frame
 		 */
-		void setCoMVelocity_B(const Eigen::Vector3d& vel_B);
+		void setCoMVelocity_B(const dwl::Motion& vel_B);
 
 		/** @brief Sets the CoM velocity expressed in the horizontal frame
 		 * @param[in] vel_H CoM velocity expressed in the horizontal frame
 		 */
-		void setCoMVelocity_H(const Eigen::Vector3d& vel_H);
-
-		/** @brief Sets the angular velocity expressed in the world frame
-		 * @param[in] rate_W Angular velocity of CoM frame
-		 */
-		void setAngularVelocity_W(const Eigen::Vector3d& rate_W);
-
-		/** @brief Sets the angular velocity expressed in the base frame
-		 * @param[in] rate_B Angular velocity of CoM frame
-		 */
-		void setAngularVelocity_B(const Eigen::Vector3d& rate_B);
-
-		/** @brief Sets the angular velocity expressed in the horizontal frame
-		 * @param[in] rate_H Angular velocity of CoM frame
-		 */
-		void setAngularVelocity_H(const Eigen::Vector3d& rate_H);
+		void setCoMVelocity_H(const dwl::Motion& vel_H);
 
 		/** @brief Sets the RPY velocity of the CoM frame expressed in the world frame
 		 * @param[in] rpy_rate Angular velocity of CoM frame
@@ -385,32 +336,17 @@ class ReducedBodyState
 		/** @brief Sets the CoM acceleration expressed in the world frame
 		 * @param[in] acc_W CoM acceleration expressed in the world frame
 		 */
-		void setCoMAcceleration_W(const Eigen::Vector3d& acc_W);
+		void setCoMAcceleration_W(const dwl::Motion& acc_W);
 
 		/** @brief Sets the CoM acceleration expressed in the base frame
 		 * @param[in] acc_B CoM acceleration expressed in the base frame
 		 */
-		void setCoMAcceleration_B(const Eigen::Vector3d& acc_B);
+		void setCoMAcceleration_B(const dwl::Motion& acc_B);
 
 		/** @brief Sets the CoM acceleration expressed in the horizontal frame
 		 * @param[in] acc_H CoM acceleration expressed in the horizontal frame
 		 */
-		void setCoMAcceleration_H(const Eigen::Vector3d& acc_H);
-
-		/** @brief Sets the angular acceleration of the CoM frame expressed in the world frame
-		 * @param[in] rotacc_W Angular acceleration of the CoM frame
-		 */
-		void setAngularAcceleration_W(const Eigen::Vector3d& rotacc_W);
-
-		/** @brief Sets the angular acceleration of the CoM frame expressed in the base frame
-		 * @param[in] rotacc_B Angular acceleration of the CoM frame
-		 */
-		void setAngularAcceleration_B(const Eigen::Vector3d& rotacc_B);
-
-		/** @brief Sets the angular acceleration of the CoM frame expressed in the horizontal frame
-		 * @param[in] rotacc_H Angular acceleration of the CoM frame
-		 */
-		void setAngularAcceleration_H(const Eigen::Vector3d& rotacc_H);
+		void setCoMAcceleration_H(const dwl::Motion& acc_H);
 
 		/** @brief Sets the RPY acceleration of the CoM frame expressed in the world frame
 		 * @param[in] rpy_rate RPY acceleration of the CoM frame
@@ -429,174 +365,187 @@ class ReducedBodyState
 		/** @brief Sets the foot position expressed in the world frame
 		 * @param[in] pos_it Foot position iterator
 		 */
-		void setFootPosition_W(FootIterator pos_it);
+		void setFootSE3_W(SE3Iterator pos_it);
 
 		/** @brief Sets the foot position expressed in the world frame
 		 * @param[in] name Foot name
 		 * @param[in] pos_W Foot position iterator
 		 */
-		void setFootPosition_W(const std::string& name,
-							   const Eigen::Vector3d& pos_W);
+		void setFootSE3_W(const std::string& name,
+						  const dwl::SE3& pos_W);
 
 		/** @brief Sets all foot positions expressed in the world frame
 		 * @param[in] pos_W All foot positions iterator
 		 */
-		void setFootPosition_W(const Eigen::Vector3dMap& pos_W);
+		void setFootSE3_W(const dwl::SE3Map& pos_W);
 
 		/** @brief Sets the foot position expressed in the CoM frame
 		 * @param[in] pos_it Foot position iterator
 		 */
-		void setFootPosition_B(FootIterator pos_it);
+		void setFootSE3_B(SE3Iterator pos_it);
 
 		/** @brief Sets the foot position expressed in the CoM frame
 		 * @param[in] name Foot name
 		 * @param[in] pos_B Foot position iterator
 		 */
-		void setFootPosition_B(const std::string& name,
-							   const Eigen::Vector3d& pos_B);
+		void setFootSE3_B(const std::string& name,
+						  const dwl::SE3& pos_B);
 
 		/** @brief Sets all foot positions expressed in the CoM frame
 		 * @param[in] pos_B All foot positions iterator
 		 */
-		void setFootPosition_B(const Eigen::Vector3dMap& pos_B);
+		void setFootSE3_B(const dwl::SE3Map& pos_B);
 
 		/** @brief Sets the foot position expressed in the horizontal frame
 		 * @param[in] pos_it Foot position iterator
 		 */
-		void setFootPosition_H(FootIterator pos_it);
+		void setFootSE3_H(SE3Iterator pos_it);
 
 		/** @brief Sets the foot position expressed in the horizontal frame
 		 * @param[in] name Foot name
 		 * @param[in] pos_H Foot position iterator
 		 */
-		void setFootPosition_H(const std::string& name,
-							   const Eigen::Vector3d& pos_H);
+		void setFootSE3_H(const std::string& name,
+						  const dwl::SE3& pos_H);
 
 		/** @brief Sets all foot positions expressed in the horizontal frame
 		 * @param[in] pos_H All foot positions iterator
 		 */
-		void setFootPosition_H(const Eigen::Vector3dMap& pos_H);
+		void setFootSE3_H(const dwl::SE3Map& pos_H);
 
 		/** @brief Sets the foot velocity expressed in the world frame
 		 * @param[in] vel_it Foot velocity iterator
 		 */
-		void setFootVelocity_W(FootIterator it);
+		void setFootVelocity_W(MotionIterator it);
 
 		/** @brief Sets the foot velocity expressed in the world frame
 		 * @param[in] name Foot name
 		 * @param[in] vel_W Foot velocity iterator
 		 */
 		void setFootVelocity_W(const std::string& name,
-							   const Eigen::Vector3d& vel_W);
+							   const dwl::Motion& vel_W);
 
 		/** @brief Sets all foot velocities expressed in the world frame
 		 * @param[in] vel_W All foot velocities iterator
 		 */
-		void setFootVelocity_W(const Eigen::Vector3dMap& vel_W);
+		void setFootVelocity_W(const dwl::MotionMap& vel_W);
 
 		/** @brief Sets the foot velocity expressed in the base frame
 		 * @param[in] vel_it Foot velocity iterator
 		 */
-		void setFootVelocity_B(FootIterator vel_it);
+		void setFootVelocity_B(MotionIterator vel_it);
 
 		/** @brief Sets the foot velocity expressed in the base frame
 		 * @param[in] name Foot name
 		 * @param[in] vel_W Foot velocity iterator
 		 */
 		void setFootVelocity_B(const std::string& name,
-							   const Eigen::Vector3d& vel_B);
+							   const dwl::Motion& vel_B);
 
 		/** @brief Sets all foot velocities expressed in the base frame
 		 * @param[in] vel_B All foot velocities iterator
 		 */
-		void setFootVelocity_B(const Eigen::Vector3dMap& vel_B);
+		void setFootVelocity_B(const dwl::MotionMap& vel_B);
 
 		/** @brief Sets the foot velocity expressed in the horizontal frame
 		 * @param[in] vel_it Foot velocity iterator
 		 */
-		void setFootVelocity_H(FootIterator vel_it);
+		void setFootVelocity_H(MotionIterator vel_it);
 
 		/** @brief Sets the foot velocity expressed in the horizontal frame
 		 * @param[in] name Foot name
 		 * @param[in] vel_W Foot velocity iterator
 		 */
 		void setFootVelocity_H(const std::string& name,
-							   const Eigen::Vector3d& vel_H);
+							   const dwl::Motion& vel_H);
 
 		/** @brief Sets all foot velocities expressed in the horizontal frame
 		 * @param[in] vel_H All foot velocities iterator
 		 */
-		void setFootVelocity_H(const Eigen::Vector3dMap& vel_H);
+		void setFootVelocity_H(const dwl::MotionMap& vel_H);
 
 		/** @brief Sets the foot acceleration expressed in the world frame
 		 * @param[in] acc_it Foot acceleration iterator
 		 */
-		void setFootAcceleration_W(FootIterator acc_it);
+		void setFootAcceleration_W(MotionIterator acc_it);
 
 		/** @brief Sets the foot acceleration expressed in the world frame
 		 * @param[in] name Foot name
 		 * @param[in] vel_W Foot acceleration iterator
 		 */
 		void setFootAcceleration_W(const std::string& name,
-								   const Eigen::Vector3d& acc_W);
+								   const dwl::Motion& acc_W);
 
 		/** @brief Sets all foot accelerations expressed in the world frame
 		 * @param[in] acc_W All foot accelerations iterator
 		 */
-		void setFootAcceleration_W(const Eigen::Vector3dMap& acc_W);
+		void setFootAcceleration_W(const dwl::MotionMap& acc_W);
 
 		/** @brief Sets the foot acceleration expressed in the base frame
 		 * @param[in] acc_it Foot acceleration iterator
 		 */
-		void setFootAcceleration_B(FootIterator acc_it);
+		void setFootAcceleration_B(MotionIterator acc_it);
 
 		/** @brief Sets the foot acceleration expressed in the base frame
 		 * @param[in] name Foot name
 		 * @param[in] vel_W Foot acceleration iterator
 		 */
 		void setFootAcceleration_B(const std::string& name,
-								   const Eigen::Vector3d& acc_B);
+								   const dwl::Motion& acc_B);
 
 		/** @brief Sets all foot accelerations expressed in the base frame
 		 * @param[in] acc_B All foot accelerations iterator
 		 */
-		void setFootAcceleration_B(const Eigen::Vector3dMap& acc_B);
+		void setFootAcceleration_B(const dwl::MotionMap& acc_B);
 
 		/** @brief Sets the foot acceleration expressed in the horizontal frame
 		 * @param[in] acc_it Foot acceleration iterator
 		 */
-		void setFootAcceleration_H(FootIterator acc_it);
+		void setFootAcceleration_H(MotionIterator acc_it);
 
 		/** @brief Sets the foot acceleration expressed in the horizontal frame
 		 * @param[in] name Foot name
 		 * @param[in] vel_W Foot acceleration iterator
 		 */
 		void setFootAcceleration_H(const std::string& name,
-								   const Eigen::Vector3d& acc_H);
+								   const dwl::Motion& acc_H);
 
 		/** @brief Sets all foot accelerations expressed in the horizontal frame
 		 * @param[in] acc_H All foot accelerations iterator
 		 */
-		void setFootAcceleration_H(const Eigen::Vector3dMap& acc_H);
+		void setFootAcceleration_H(const dwl::MotionMap& acc_H);
+
+		// Support region setter functions
+		/** @brief Sets all foot in contacts and them positions
+		 * @return All foot in contacts and them positions
+		 */
+		void setSupportRegion(const dwl::SE3Map& support);
 
 
 		double time;
-		Eigen::Vector3d com_pos;
-		Eigen::Vector3d angular_pos;
-		Eigen::Vector3d com_vel;
-		Eigen::Vector3d angular_vel;
-		Eigen::Vector3d com_acc;
-		Eigen::Vector3d angular_acc;
+		dwl::SE3 com_pos;
+		dwl::Motion com_vel;
+		dwl::Motion com_acc;
 		Eigen::Vector3d cop;
-		Eigen::Vector3dMap support_region;
-		Eigen::Vector3dMap foot_pos;
-		Eigen::Vector3dMap foot_vel;
-		Eigen::Vector3dMap foot_acc;
+		dwl::SE3Map support_region;
+		dwl::SE3Map foot_pos;
+		dwl::MotionMap foot_vel;
+		dwl::MotionMap foot_acc;
 
 
 	private:
 		/** @brief Frame transformations */
 		math::FrameTF frame_tf_;
+
+		/** @brief Internal data to avoid dynamic memory allocation **/
+		dwl::SE3 se3_;
+		dwl::Motion motion_;
+		Eigen::Vector3d vec3_;
+
+		/** @brief Null vectors for missed contact states */
+		dwl::SE3 null_se3_;
+		dwl::Motion null_motion_;
+		dwl::Force null_force_;
 };
 
 /** @brief Defines a reduced-body trajectory */
