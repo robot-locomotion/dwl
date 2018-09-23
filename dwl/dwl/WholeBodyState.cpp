@@ -353,7 +353,7 @@ const dwl::MotionMap& WholeBodyState::getContactVelocity_B() const
 const dwl::Motion& WholeBodyState::getContactVelocity_H(MotionIterator it)
 {
 	const se3::SE3& h_X_b = getBaseSE3_H().data;
-	motion_.data = getBaseVelocity_H().data + it->second.data.se3Action(h_X_b);
+	motion_.data = it->second.data.se3Action(h_X_b);
 	return motion_;
 }
 
@@ -380,7 +380,6 @@ dwl::MotionMap WholeBodyState::getContactVelocity_H()
 
 const dwl::Motion& WholeBodyState::getContactAcceleration_W(MotionIterator it)
 {
-	// TODO I'm totally sure if this method is OK
 	const se3::SE3& w_X_b = base_pos.data;
 	const se3::Motion& v = getContactVelocity_W(it->first).data;
 	motion_.data = base_acc.data + it->second.data.se3Action(w_X_b);
@@ -436,10 +435,9 @@ const dwl::MotionMap& WholeBodyState::getContactAcceleration_B() const
 
 const dwl::Motion& WholeBodyState::getContactAcceleration_H(MotionIterator it)
 {
-	// TODO I'm totally sure if this method is OK
 	const se3::SE3& w_X_h = getBaseSE3_H().data;
 	const se3::Motion& v = getContactVelocity_W(it->first).data;
-	motion_.data = base_acc.data + it->second.data.se3Action(w_X_h);
+	motion_.data = it->second.data.se3Action(w_X_h);
 	motion_.data.linear() += v.angular().cross(v.linear());
 	return motion_;
 }
@@ -740,7 +738,8 @@ void WholeBodyState::setContactVelocity_W(const std::string& name,
 										  const dwl::Motion& vel_W)
 {
 	const se3::SE3& w_X_b = base_pos.data;
-	contact_vel[name].data = vel_W.data.se3ActionInverse(w_X_b) - base_vel.data;
+	contact_vel[name].data =
+			(vel_W.data - base_vel.data).se3ActionInverse(w_X_b);
 }
 
 
@@ -781,8 +780,7 @@ void WholeBodyState::setContactVelocity_H(const std::string& name,
 										  const dwl::Motion& vel_H)
 {
 	const se3::SE3& w_X_h = getBaseSE3_H().data;
-	contact_vel[name].data = vel_H.data.se3ActionInverse(w_X_h)
-			- getBaseVelocity_H().data;
+	contact_vel[name].data = vel_H.data.se3ActionInverse(w_X_h);
 }
 
 
@@ -804,14 +802,8 @@ void WholeBodyState::setContactAcceleration_W(const std::string& name,
 											  const dwl::Motion& acc_W)
 {
 	const se3::SE3& w_X_b = base_pos.data;
-	contact_acc[name].data = acc_W.data.se3ActionInverse(w_X_b) - base_acc.data;
-
-//	// TODO I'm totally sure if this method is OK
-//	const se3::SE3& w_X_b = base_pos.data;
-//	const se3::Motion& v = getContactVelocity_W(it->first).data;
-//	motion_.data = base_acc.data + it->second.data.se3Action(w_X_b);
-//	motion_.data.linear() += v.angular().cross(v.linear());
-//	return motion_;
+	contact_acc[name].data =
+			(acc_W.data - base_acc.data).se3ActionInverse(w_X_b);
 }
 
 
@@ -853,15 +845,7 @@ void WholeBodyState::setContactAcceleration_H(const std::string& name,
 											  const dwl::Motion& acc_H)
 {
 	const se3::SE3& w_X_h = getBaseSE3_H().data;
-	contact_acc[name].data = acc_H.data.se3ActionInverse(w_X_h)
-			- getBaseAcceleration_H().data;
-
-//	// TODO I'm totally sure if this method is OK
-//	const se3::SE3& w_X_b = base_pos.data;
-//	const se3::Motion& v = getContactVelocity_W(it->first).data;
-//	motion_.data = base_acc.data + it->second.data.se3Action(w_X_b);
-//	motion_.data.linear() += v.angular().cross(v.linear());
-//	return motion_;
+	contact_acc[name].data = acc_H.data.se3ActionInverse(w_X_h);
 }
 
 

@@ -67,7 +67,6 @@ namespace dwl
 class WholeBodyState
 {
 	public:
-		typedef Eigen::VectorXdMap::const_iterator ContactIterator;
 		typedef dwl::SE3Map::const_iterator SE3Iterator;
 		typedef dwl::MotionMap::const_iterator MotionIterator;
 		typedef dwl::ForceMap::const_iterator ForceIterator;
