@@ -57,8 +57,9 @@ struct SE3
 	 * @param[in] q Quaternion
 	 */
 	SE3(const Eigen::Vector3d& t,
-		const Eigen::Vector4d& q) : q2(q) {
+		const Eigen::Vector4d& q) : q1(q(3), q(0), q(1), q(2)), q2(q) {
 		setTranslation(t);
+		data.rotation() = math::getRotationMatrix(q1);
 		rpy = math::getRPY(getRotation());
 		vec << getTranslation(), getQuaternion();
 	}
@@ -72,6 +73,7 @@ struct SE3
 	SE3(const Eigen::Vector3d& t,
 		const Eigen::Vector3d& rpy) : rpy(rpy) {
 		setTranslation(t);
+		data.rotation() = math::getRotationMatrix(rpy);
 		q1 = math::getQuaternion(getRotation());
 		q2 << q1.x(), q1.y(), q1.z(), q1.w();
 		vec << getTranslation(), getQuaternion();
