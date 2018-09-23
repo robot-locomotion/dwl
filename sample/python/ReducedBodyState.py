@@ -1,45 +1,93 @@
-from __future__ import print_function
-# This lets us use the python3-style print() function even in python2. It should have no effect if you're already running python3.
-
+from __future__ import print_function # python3-style print()
 import dwl
 import numpy as np
+
 
 # Construct an instance of the ReducedBodyState class, which wraps the C++ class.
 rs = dwl.ReducedBodyState()
 
+# Setting up the reduce state
+rs.setCoMSE3(dwl.SE3_RPY(np.array([1., 2., 3.]),
+                         np.array([0.5, 0., 0.5])))
+rs.setCoMVelocity_W(dwl.Motion(np.array([1., 1., 1.]),
+                               np.array([0., 0., 0.])))
+rs.setCoMAcceleration_W(dwl.Motion(np.array([1., 1., 1.]),
+                               np.array([0., 0., 0.])))
+rs.setFootSE3_B('lf_foot', dwl.SE3(np.array([0.5, 0.4, -0.6]),
+                                   np.eye(3)))
+rs.setFootVelocity_B('lf_foot', dwl.Motion(np.array([0.1, 0., -0.6]),
+                                           np.array([0., 0., 0.])))
+rs.setFootAcceleration_B('lf_foot', dwl.Motion(np.array([0.1, 0., 0]),
+                                           np.array([0., 0., 0.])))
 
-# Setting up the CoM states
-rs.setCoMPosition(np.array([1., 2., 3.]))
-rs.setRPY(np.array([0.5, 0., 0.]))
-rs.setCoMVelocity_W(np.array([1., 1., 1.]))
-print("CoM states:")
-print("    com_pos: ", rs.getCoMPosition().transpose())
-print("    base_RPY: ", rs.getRPY().transpose())
-#print("The base orientation is ", rs.getOrientation_W().transpose()) TODO it doesn't work yet
-print("    com_vel_W: ", rs.getCoMVelocity_W().transpose())
-print("    com_vel_B: ", rs.getCoMVelocity_B().transpose())
-print("    com_vel_H: ", rs.getCoMVelocity_H().transpose())
 
 
-# Setting up the feet states
-rs.setFootPosition_B("lf_foot", np.array([0.5, 0.4, -0.6]))
-rs.setFootPosition_B("lh_foot", np.array([0.5, -0.4, -0.6]))
-rs.setFootVelocity_B("lf_foot", np.array([0.1, 0., -0.6]))
-rs.setFootVelocity_B("lh_foot", np.array([0.5, -0.4, -0.6]))
+# Getting the CoM states
+print('CoM states:')
+print('  CoM position:')
+print(rs.getCoMSE3())
+print('  CoM position (HF):')
+print(rs.getCoMSE3_H())
+
+print('  CoM velocity (WF):')
+print(rs.getCoMVelocity_W())
+print('  CoM velocity (BF):')
+print(rs.getCoMVelocity_B())
+print('  CoM velocity (HF):')
+print(rs.getCoMVelocity_H())
+
+
+
+
+# Getting the feet states
+print()
 print("Feet states:")
-print("    lf_foot_pos_B: ", rs.getFootPosition_B("lf_foot").transpose())
-print("    lf_foot_pos_W: ", rs.getFootPosition_W("lf_foot").transpose())
-print("    lf_foot_vel_B: ", rs.getFootVelocity_B("lf_foot").transpose())
-print("    lf_foot_vel_W: ", rs.getFootVelocity_W("lf_foot").transpose())
-print("    contact_pos_B: ", rs.getFootPosition_B())
-print("    contact_pos_W: ", rs.getFootPosition_W())
-print("    contact_pos_H: ", rs.getFootPosition_H())
-print("    contact_vel_B: ", rs.getFootVelocity_B())
-print("    contact_vel_W: ", rs.getFootVelocity_W())
-print("    contact_vel_H: ", rs.getFootVelocity_H())
+print('  Foot position (BF):')
+print(rs.getFootSE3_B('lf_foot'))
+print('  Foot position (WF):')
+print(rs.getFootSE3_W('lf_foot'))
+print('  Foot velocity (BF)')
+print(rs.getFootVelocity_B('lf_foot'))
+print('  Foot velocity (WF)')
+print(rs.getFootVelocity_W('lf_foot'))
+print('  Foot velocity (HF)')
+print(rs.getFootVelocity_H('lf_foot'))
+print('  Foot acceleration (BF)')
+print(rs.getFootAcceleration_B('lf_foot'))
+print('  Foot acceleration (WF)')
+print(rs.getFootAcceleration_W('lf_foot'))
+print('  Foot acceleration (HF)')
+print(rs.getFootAcceleration_H('lf_foot'))
+
+print()
+print('  Feet positions (BF):')
+print(rs.getFootSE3_B().asdict())
+print('  Feet velocities (BF):')
+print(rs.getFootVelocity_B().asdict())
+print('  Feet accelerations (BF):')
+print(rs.getFootAcceleration_B().asdict())
+
+
 
 
 # Setting up the CoP Position
+print()
 rs.setCoPPosition_W(np.array([0., 0., -0.6]))
-print("CoP positions:")
-print("    cop_pos_W: ", rs.getCoPPosition_W().transpose())
+print('CoP position:', rs.getCoPPosition_W().transpose())
+
+
+
+
+# Setting up the support region
+print()
+support = dwl.SE3Map()
+support['lf_foot'] = dwl.SE3(np.array([1., 1., 0.]), np.eye(3))
+support['lh_foot'] = dwl.SE3(np.array([1., -1., 0.]), np.eye(3))
+support['rf_foot'] = dwl.SE3(np.array([-1., 1., 0.]), np.eye(3))
+rs.setSupportRegion(support)
+
+
+
+# Printing the reduced state
+print()
+print(rs)
