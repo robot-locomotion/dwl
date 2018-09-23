@@ -1,9 +1,8 @@
-from __future__ import print_function
-# This lets us use the python3-style print() function even in python2. It should have no effect if you're already running python3.
-
+from __future__ import print_function # python3-style print()
 import os
 import dwl
 import numpy as np
+
 
 # Configure the printing
 np.set_printoptions(suppress=True, linewidth=1000)
