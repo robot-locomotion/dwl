@@ -109,8 +109,8 @@ void getJointNames(JointID& joints,
 }
 
 
-void getEndEffectors(LinkID& end_effectors,
-					 const std::string& urdf_model)
+void getEndEffectorNames(LinkID& end_effectors,
+					 	 const std::string& urdf_model)
 {
 	// Parsing the URDF-XML
 	boost::shared_ptr<::urdf::ModelInterface> model = ::urdf::parseURDF(urdf_model);
@@ -149,125 +149,6 @@ void getEndEffectors(LinkID& end_effectors,
 			}
 
 			parent_link = parent_link->getParent();
-		}
-	}
-}
-
-
-void getJointLimits(JointLimits& joint_limits,
-					const std::string& urdf_model)
-{
-	// Parsing the URDF-XML
-	boost::shared_ptr<::urdf::ModelInterface> model = ::urdf::parseURDF(urdf_model);
-
-	// Getting the free joint names
-	JointID free_joints;
-	getJointNames(free_joints, urdf_model, free);
-
-	// Computing the number of actuated joints
-	unsigned num_joints = 0;
-	for (urdf::JointID::iterator jnt_it = free_joints.begin();
-			jnt_it != free_joints.end(); jnt_it++) {
-		std::string joint_name = jnt_it->first;
-		boost::shared_ptr<::urdf::Joint> current_joint = model->joints_[joint_name];
-
-		if (current_joint->type != ::urdf::Joint::FLOATING)
-			if (current_joint->limits->effort != 0) // Virtual floating-base joints
-				num_joints++;
-	}
-
-	// Searching the joint limits
-	for (urdf::JointID::iterator jnt_it = free_joints.begin();
-			jnt_it != free_joints.end(); jnt_it++) {
-		std::string joint_name = jnt_it->first;
-		boost::shared_ptr<::urdf::Joint> current_joint = model->joints_[joint_name];
-
-		if (current_joint->type != ::urdf::Joint::FLOATING) {
-			if (current_joint->limits->effort != 0) { // Virtual floating-base joints
-				joint_limits[joint_name].lower = current_joint->limits->lower;
-				joint_limits[joint_name].upper = current_joint->limits->upper;
-				joint_limits[joint_name].velocity = current_joint->limits->velocity;
-				joint_limits[joint_name].effort = current_joint->limits->effort;
-			}
-		}
-	}
-}
-
-
-void getJointAxis(JointAxis& joints,
-				  const std::string& urdf_model,
-				  enum JointType type)
-{
-	// Parsing the URDF-XML
-	boost::shared_ptr<::urdf::ModelInterface> model = ::urdf::parseURDF(urdf_model);
-
-	// Getting the joint names
-	JointID joint_ids;
-	getJointNames(joint_ids, urdf_model, type);
-
-	for (urdf::JointID::iterator jnt_it = joint_ids.begin();
-			jnt_it != joint_ids.end(); jnt_it++) {
-		std::string joint_name = jnt_it->first;
-		boost::shared_ptr<::urdf::Joint> current_joint = model->joints_[joint_name];
-
-		if (current_joint->type != ::urdf::Joint::FLOATING ||
-				current_joint->type != ::urdf::Joint::FIXED)
-			joints[joint_name] << current_joint->axis.x,
-								  current_joint->axis.y,
-								  current_joint->axis.z;
-		else
-			joints[joint_name] = Eigen::Vector3d::Zero();
-	}
-}
-
-
-void getFloatingBaseJointMotion(JointID& joints,
-								const std::string& urdf_model)
-{
-	// Parsing the URDF-XML
-	boost::shared_ptr<::urdf::ModelInterface> model = ::urdf::parseURDF(urdf_model);
-
-	// Getting the free joint names
-	JointAxis joint_axis;
-	getJointAxis(joint_axis, urdf_model, floating);
-
-	for (urdf::JointAxis::iterator jnt_it = joint_axis.begin();
-			jnt_it != joint_axis.end(); jnt_it++) {
-		std::string joint_name = jnt_it->first;
-		boost::shared_ptr<::urdf::Joint> current_joint = model->joints_[joint_name];
-
-		// Getting the kind of motion (prismatic or rotation)
-		if (current_joint->type == ::urdf::Joint::FLOATING)
-			joints[joint_name] = FULL;
-		else if (current_joint->type == ::urdf::Joint::REVOLUTE ||
-				current_joint->type == ::urdf::Joint::CONTINUOUS) {
-			// Getting the axis of movements
-			if (current_joint->axis.x != 0) {
-				joints[joint_name] = RX;
-				break;
-			}
-			if (current_joint->axis.y != 0) {
-				joints[joint_name] = RY;
-				break;
-			}
-			if (current_joint->axis.z != 0) {
-				joints[joint_name] = RZ;
-				break;
-			}
-		} else if (current_joint->type == ::urdf::Joint::PRISMATIC) {
-			// Getting the axis of movements
-			if (current_joint->axis.x != 0) {
-				joints[joint_name] = TX;
-				break;
-			}
-			if (current_joint->axis.y != 0) {
-				joints[joint_name] = TY;
-				break;
-			}
-			if (current_joint->axis.z != 0) {
-				joints[joint_name] = TZ;
-				break;
-			}
 		}
 	}
 }

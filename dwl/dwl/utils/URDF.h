@@ -44,38 +44,8 @@ void getJointNames(JointID& joints,
  * @param LinkID& End-effector link ids and names
  * @param const std::string& URDF model
  */
-void getEndEffectors(LinkID& end_effectors,
-					 const std::string& urdf_model);
-
-/**
- * @brief Get the joint limits from URDF model. Floating-base joint are not
- * considered as joints
- * @param JointLimits& Joint names and limits
- * @param const std::string& URDF model
- */
-void getJointLimits(JointLimits& joint_limits,
-					const std::string& urdf_model);
-
-/**
- * @brief Gets the joint axis from URDF model. By default free joints are get
- * but it's possible
- * to get free, fixed, floating or all joints
- * @param JointAxis& Joint axis and names
- * @param const std::string& URDF model
- */
-void getJointAxis(JointAxis& joints,
-				  const std::string& urdf_model,
-				  enum JointType type = free);
-
-/**
- * @brief Gets the joint type of motion from URDF model. By default free joints
- * are get but it's
- * possible to get free, fixed, floating or all joints
- * @param JointID& Joint type of motion
- * @param const std::string& URDF model
- */
-void getFloatingBaseJointMotion(JointID& joints,
-								const std::string& urdf_model);
+void getEndEffectorNames(LinkID& end_effectors,
+					 	 const std::string& urdf_model);
 
 } //@namespace urdf_model
 } //@namespace dwl

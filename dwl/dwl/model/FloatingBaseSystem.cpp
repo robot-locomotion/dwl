@@ -129,7 +129,7 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 
 
 	// // Getting the end-effectors information
-	dwl::urdf::getEndEffectors(end_effectors_, urdf_model);
+	dwl::urdf::getEndEffectorNames(end_effectors_, urdf_model);
 
 	// Getting the end-effector name list
 	for (ElementId::const_iterator ee_it = end_effectors_.begin();
