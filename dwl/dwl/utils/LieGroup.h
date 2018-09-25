@@ -37,6 +37,19 @@ struct SE3
 	}
 
 	/**
+	 * @brief Constructs the SE(3) given Pinocchio SE3
+	 *
+	 * @param[in] M SE3 point
+	 */
+	SE3(const se3::SE3& M) {
+		data = M;
+		rpy = math::getRPY(getRotation());
+		q1 = math::getQuaternion(getRotation());
+		q2 << q1.x(), q1.y(), q1.z(), q1.w();
+		vec << getTranslation(), getQuaternion();
+	}
+
+	/**
 	 * @brief Constructs the SE(3) given (t,R)
 	 *
 	 * @param[in] t Translation
@@ -201,6 +214,13 @@ struct Motion
 	}
 
 	/**
+	 * @brief Constructs the Motion group given Pinocchio Motion
+	 *
+	 * @param[in] data Motion
+	 */
+	Motion(const se3::Motion& data) : data(data) {}
+
+	/**
 	 * @brief Constructs the motion give (v,w)
 	 *
 	 * @param[in] v Linear component
@@ -271,6 +291,13 @@ struct Force
 	Force() {
 		data.setZero();
 	}
+
+	/**
+	 * @brief Constructs the Motion group given Pinocchio Force
+	 *
+	 * @param[in] data Motion
+	 */
+	Force(const se3::Force& data) : data(data) {}
 
 	/**
 	 * @brief Constructs the motion give (v,w)
