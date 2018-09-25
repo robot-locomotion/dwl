@@ -515,11 +515,19 @@ class ReducedBodyState
 		 */
 		void setFootAcceleration_H(const dwl::MotionMap& acc_H);
 
+
 		// Support region setter functions
 		/** @brief Sets all foot in contacts and them positions
 		 * @return All foot in contacts and them positions
 		 */
 		void setSupportRegion(const dwl::SE3Map& support);
+
+		/** @brief Sets the foot acceleration expressed in the horizontal frame
+		 * @param[in] name Active foot name
+		 * @param[in] point Active foot position
+		 */
+		void setSupportRegion(const std::string& name,
+							  const dwl::SE3& point);
 
 
 		double time;

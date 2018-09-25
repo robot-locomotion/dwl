@@ -481,7 +481,7 @@ void ReducedBodyState::setFootSE3_W(SE3Iterator it)
 
 
 void ReducedBodyState::setFootSE3_W(const std::string& name,
-										 const dwl::SE3& pos_W)
+									const dwl::SE3& pos_W)
 {
 	// Mapping the contact SE3 from the inertial to base frame
 	foot_pos[name].data = com_pos.data.actInv(pos_W.data);
@@ -669,6 +669,12 @@ void ReducedBodyState::setFootAcceleration_H(const dwl::MotionMap& acc_H)
 void ReducedBodyState::setSupportRegion(const dwl::SE3Map& support)
 {
 	support_region = support;
+}
+
+void ReducedBodyState::setSupportRegion(const std::string& name,
+										const dwl::SE3& point)
+{
+	support_region[name] = point;
 }
 
 } //@namespace dwl
