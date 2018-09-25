@@ -1,12 +1,11 @@
-from __future__ import print_function
-# This lets us use the python3-style print() function even in python2. It should have no effect if you're already running python3.
-
+from __future__ import print_function # python3-style print()
 import os
 import dwl
 import numpy as np
 
 
-# Construct an instance of the WholeBodyState and ReducedBodyState classes, which wraps the C++ classes.
+# Construct an instance of the WholeBodyState and ReducedBodyState classes,
+# which wraps the C++ classes.
 ws = dwl.WholeBodyState()
 rs = dwl.ReducedBodyState()
 fbs = dwl.FloatingBaseSystem()
@@ -17,9 +16,12 @@ wdyn = dwl.WholeBodyDynamics()
 rob = dwl.RobotStates()
 
 # Creating the whole-body dynamics model
-fpath = os.path.dirname(os.path.abspath(__file__))
-fbs.resetFromURDFFile(fpath + "/../hyq.urdf", fpath + "/../../config/hyq.yarf")
+fpath = str(os.path.dirname(os.path.abspath(__file__)))
+fbs.resetFromURDFFile(fpath + "/../../models/hyq.urdf",
+                      fpath + "/../../models/hyq.yarf")
+wkin.reset(fbs)
 wdyn.reset(fbs, wkin)
+
 
 # Define the DoF after initializing the robot model
 ws.setJointDoF(fbs.getJointDoF())
@@ -30,12 +32,12 @@ rob.setForceThreshold(50) # Nm
 
 
 # The whole-body state
-ws.setBasePosition(np.array([0., 0., 0.]))
-ws.setBaseRPY(np.array([0., 0., 0.]))
-ws.setBaseVelocity_W(np.array([0., 0., 0.]))
-ws.setBaseRPYVelocity_W(np.array([0., 0., 0.]))
-ws.setBaseAcceleration_W(np.array([0., 0., 0.]))
-ws.setBaseRPYAcceleration_W(np.array([0., 0., 0.]))
+ws.setBaseSE3(dwl.SE3_RPY(np.array([0., 0., 0.]),
+                          np.array([0.5, 0.5, 0.])))
+ws.setBaseVelocity_W(dwl.Motion(np.array([0., 0., 0.]),
+                                np.array([0., 0., 0.])))
+ws.setBaseAcceleration_W(dwl.Motion(np.array([0., 0., 0.]),
+                                    np.array([0., 0., 0.])))
 ws.setJointPosition(0.75, fbs.getJointId("lf_hfe_joint"))
 ws.setJointPosition(-1.5, fbs.getJointId("lf_kfe_joint"))
 ws.setJointPosition(-0.75, fbs.getJointId("lh_hfe_joint"))
@@ -44,26 +46,42 @@ ws.setJointPosition(0.75, fbs.getJointId("rf_hfe_joint"))
 ws.setJointPosition(-1.5, fbs.getJointId("rf_kfe_joint"))
 ws.setJointPosition(-0.75, fbs.getJointId("rh_hfe_joint"))
 ws.setJointPosition(1.5, fbs.getJointId("rh_kfe_joint"))
-ws.setContactPositionDict_B({ 'lf_foot' : np.array([0.371, 0.207, -0.589]),
-                              'lh_foot' : np.array([-0.371, 0.207, -0.589]),
-                              'rf_foot' : np.array([0.371, -0.207, -0.589]),
-                              'rh_foot' : np.array([-0.371, -0.207, -0.589]) })
-ws.setContactVelocityDict_B({ 'lf_foot' : np.array([0., 0., 0.]),
-                              'lh_foot' : np.array([0., 0., 0.]),
-                              'rf_foot' : np.array([0., 0., 0.]),
-                              'rh_foot' : np.array([0., 0., 0.]) })
-ws.setContactAccelerationDict_B({ 'lf_foot' : np.array([0., 0., 0.]),
-                                  'lh_foot' : np.array([0., 0., 0.]),
-                                  'rf_foot' : np.array([0., 0., 0.]),
-                                  'rh_foot' : np.array([0., 0., 0.]) })
-ws.setContactWrenchDict_B({ 'lf_foot' : np.array([0., 0., 0., 0., 0., 208.21]),
-                            'lh_foot' : np.array([0., 0., 0., 0., 0., 208.21]),
-                            'rf_foot' : np.array([0., 0., 0., 0., 0., 208.21]),
-                            'rh_foot' : np.array([0., 0., 0., 0., 0., 208.21]) })
+ws.setContactSE3_W(
+    wkin.computePosition(ws.getBaseSE3(), ws.getJointPosition(),
+                         fbs.getEndEffectorList(dwl.FOOT)))
+ws.setContactVelocity_B({ 'lf_foot' : dwl.Motion(),
+                          'lh_foot' : dwl.Motion(),
+                          'rf_foot' : dwl.Motion(),
+                          'rh_foot' : dwl.Motion() })
+ws.setContactAcceleration_B({ 'lf_foot' : dwl.Motion(),
+                              'lh_foot' : dwl.Motion(),
+                              'rf_foot' : dwl.Motion(),
+                              'rh_foot' : dwl.Motion() })
+force = dwl.Force(np.array([0.,0.,208.21]), np.zeros(3))
+ws.setContactWrench_B({ 'lf_foot' : force,
+                        'lh_foot' : force,
+                        'rf_foot' : force,
+                        'rh_foot' : force })
+print('Converting whole-body state to reduced-body state:')
+print(rob.getReducedBodyState(ws))
 
-rs = rob.getReducedBodyState(ws)
 
 
-print(rs)
 
-print(ws)
+# The reduced-body state
+rs.setCoMSE3(dwl.SE3_RPY(np.array([0., 0., 0.]),
+                         np.array([0.5, 0.5, 0.])))
+rs.setCoMVelocity_B(dwl.Motion(np.array([1., 0., 0.]),
+                               np.array([0., 0., 0.])))
+rs.setCoMAcceleration_B(dwl.Motion(np.array([1., 0., 0.]),
+                                   np.array([0., 0., 0.])))
+rs.setFootSE3_W(
+    wkin.computePosition(rs.getCoMSE3(), ws.getJointPosition(),
+                         fbs.getEndEffectorList(dwl.FOOT)))
+rs.setFootVelocity_B('lf_foot', dwl.Motion(np.array([1., 0., 0.]),
+                                           np.array([0., 0., 0.])))
+rs.setFootAcceleration_B('lf_foot', dwl.Motion(np.array([1., 0., 0.]),
+                                               np.array([0., 0., 0.])))
+print()
+print('Converting reduced-body state to whole-body state:')
+print(rob.getWholeBodyState(rs))
