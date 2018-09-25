@@ -11,12 +11,12 @@
 namespace dwl
 {
 
-namespace urdf_model
+namespace urdf
 {
 
 typedef std::map<std::string,unsigned int> JointID;
 typedef std::map<std::string,Eigen::Vector3d> JointAxis;
-typedef std::map<std::string,urdf::JointLimits> JointLimits;
+typedef std::map<std::string,::urdf::JointLimits> JointLimits;
 typedef std::map<std::string,unsigned int> LinkID;
 enum JointType {free = 0, fixed, floating, all};
 enum JointMotion {RX = 0, RY, RZ, TX, TY, TZ, FULL};

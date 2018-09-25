@@ -25,7 +25,7 @@ FloatingBaseSystem::~FloatingBaseSystem()
 void FloatingBaseSystem::resetFromURDFFile(const std::string& urdf_file,
 										   const std::string& system_file)
 {
-	resetFromURDFModel(urdf_model::fileToXml(urdf_file), system_file);
+	resetFromURDFModel(dwl::urdf::fileToXml(urdf_file), system_file);
 }
 
 
@@ -129,11 +129,11 @@ void FloatingBaseSystem::resetFromURDFModel(const std::string& urdf_model,
 
 
 	// // Getting the end-effectors information
-	urdf_model::getEndEffectors(end_effectors_, urdf_model);
+	dwl::urdf::getEndEffectors(end_effectors_, urdf_model);
 
 	// Getting the end-effector name list
-	for (dwl::urdf_model::LinkID::const_iterator ee_it = end_effectors_.begin();
-			ee_it != end_effectors_.end(); ee_it++) {
+	for (ElementId::const_iterator ee_it = end_effectors_.begin();
+			ee_it != end_effectors_.end(); ++ee_it) {
 		std::string name = ee_it->first;
 		end_effector_names_.push_back(name);
 	}
@@ -189,7 +189,7 @@ void FloatingBaseSystem::resetSystemDescription(const std::string& filename)
 		num_feet_ = foot_names_.size();
 
 		// Adding to the feet to the end-effector lists if it doesn't exist
-		for (unsigned int i = 0; i < foot_names_.size(); i++) {
+		for (unsigned int i = 0; i < foot_names_.size(); ++i) {
 			std::string name = foot_names_[i];
 			if (end_effectors_.count(name) == 0) {
 				unsigned int id = end_effectors_.size() + 1;
@@ -201,7 +201,7 @@ void FloatingBaseSystem::resetSystemDescription(const std::string& filename)
 
 	// Reading the default posture of the robot
 	default_joint_pos_ = Eigen::VectorXd::Zero(n_joints_);
-	for (unsigned int j = 0; j < n_joints_; j++) {
+	for (unsigned int j = 0; j < n_joints_; ++j) {
 		std::string name = joint_names_[j];
 
 		double joint_pos = 0.;
@@ -510,7 +510,7 @@ const unsigned int& FloatingBaseSystem::getEndEffectorId(const std::string& cont
 }
 
 
-const urdf_model::LinkID& FloatingBaseSystem::getEndEffectors(enum TypeOfEndEffector type) const
+const ElementId& FloatingBaseSystem::getEndEffectors(enum TypeOfEndEffector type) const
 {
 	if (type == ALL)
 		return end_effectors_;
