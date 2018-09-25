@@ -55,26 +55,6 @@ class RobotStates
 
 
 	private:
-		/**
-		 * @brief Computes the base velocity in the world frame from the
-		 * CoM acceleration
-		 * @param const ReducedBodyState& Reduced state
-		 * @param const Eigen::Vector3d& CoM fixed displacement expressed in
-		 * the world frame
-		 */
-		Eigen::Vector3d computeBaseVelocity_W(const ReducedBodyState& state,
-											  const Eigen::Vector3d& com_pos_W);
-
-		/**
-		 * @brief Computes the base acceleration in the world frame from the
-		 * CoM acceleration
-		 * @param const ReducedBodyState& Reduced state
-		 * @param const Eigen::Vector3d& CoM fixed displacement expressed in
-		 * the world frame
-		 */
-		Eigen::Vector3d computeBaseAcceleration_W(const ReducedBodyState& state,
-												  const Eigen::Vector3d& com_pos_W);
-
 		/** @brief Whole-body state */
 		WholeBodyState ws_;
 
@@ -103,7 +83,7 @@ class RobotStates
 		Eigen::Vector3d com_pos_B_;
 		unsigned int num_joints_;
 		unsigned int num_feet_;
-		rbd::BodySelector feet_;
+		dwl::model::ElementList feet_;
 
 		/** @brief Force threshold */
 		double force_threshold_;
