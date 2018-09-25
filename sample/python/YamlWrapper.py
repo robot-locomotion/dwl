@@ -5,7 +5,7 @@ import os
 
 # Construct an instance of the YamlWrapper class, which wraps the C++ class.
 yaml = dwl.YamlWrapper()
-fpath = os.path.dirname(os.path.abspath(__file__))
+fpath = str(os.path.dirname(os.path.abspath(__file__)))
 yaml.setFile(fpath + '/../example.yaml')
 
 
@@ -62,5 +62,4 @@ if read:
 array3d = np.array([0.,0.,0.])
 read = yaml.readArray3d(array3d,'vector_3d', ns)
 if read:
-  print '    array_2d:', array3d
-
+  print '    array_3d:', array3d
