@@ -141,8 +141,8 @@
 %rename(urdf_Joint) urdf::Joint;
 %rename(urdf_Pose) urdf::Pose;
 %include <dwl/utils/RigidBodyDynamics.h>
-%include <dwl/ReducedBodyState.h>
 %include <dwl/utils/LieGroup.h>
+%include <dwl/ReducedBodyState.h>
 %include <dwl/WholeBodyState.h>
 %include <urdf_model/pose.h>
 %include <urdf_model/joint.h>
@@ -213,37 +213,54 @@
 		return writable;
 	}
 }
-/*%extend dwl::ReducedBodyState {
+%extend dwl::ReducedBodyState {
 	char *__repr__() {
 		std::stringstream buffer;
 		buffer << "ReducedBodyState:" << std::endl;
 		buffer << "\ttime: " << $self->time << std::endl;
-		buffer << "\tcom_pos: " << $self->getCoMPosition().transpose() << std::endl;
-		buffer << "\tcom_vel: " << $self->getCoMVelocity_W().transpose() << std::endl;
-		buffer << "\tcom_acc: " << $self->getCoMAcceleration_W().transpose() << std::endl;
-		buffer << "\tangular_pos: " << $self->getRPY().transpose() << std::endl;
-		buffer << "\tangular_vel: " << $self->getAngularVelocity_W().transpose() << std::endl;
-		buffer << "\tangular_acc: " << $self->getAngularAcceleration_W().transpose() << std::endl;
+		buffer << "\tcom_pos:" << std::endl;
+		buffer << "\t\tt: " << $self->getCoMSE3().getTranslation().transpose() << std::endl;
+		buffer << "\t\tR: " << $self->getCoMSE3().getRotation().row(0) << std::endl;
+		buffer << "\t\t   " << $self->getCoMSE3().getRotation().row(1) << std::endl;
+		buffer << "\t\t   " << $self->getCoMSE3().getRotation().row(2) << std::endl;
+		buffer << "\tcom_vel:" << std::endl;
+		buffer << "\t\tv: " << $self->getCoMVelocity_B().getLinear().transpose() << std::endl;
+		buffer << "\t\tw: " << $self->getCoMVelocity_B().getAngular().transpose() << std::endl;
+		buffer << "\tcom_acc:" << std::endl;
+		buffer << "\t\tvd: " << $self->getCoMAcceleration_B().getLinear().transpose() << std::endl;
+		buffer << "\t\twd: " << $self->getCoMAcceleration_B().getAngular().transpose() << std::endl;
 		buffer << "\tcop: " << $self->getCoPPosition_W().transpose() << std::endl;
 		buffer << "\tfoot_pos_B: " << std::endl;
-		for (dwl::rbd::BodyVector3d::const_iterator it = $self->getFootPosition_B().begin();
-				it != $self->getFootPosition_B().end(); ++it) {
-			buffer << "\t\t" << it->first << ": " << it->second.transpose() << std::endl;
+		for (dwl::SE3Map::const_iterator it = $self->getFootSE3_B().begin();
+				it != $self->getFootSE3_B().end(); ++it) {
+			buffer << "\t\t" << it->first << ":" << std::endl;
+			buffer << "\t\t\tt: " << it->second.getTranslation().transpose() << std::endl;
+			buffer << "\t\t\tR: " << it->second.getRotation().row(0) << std::endl;
+			buffer << "\t\t\t   " << it->second.getRotation().row(1) << std::endl;
+			buffer << "\t\t\t   " << it->second.getRotation().row(2) << std::endl;
 		}
 		buffer << "\tfoot_vel_B: " << std::endl;
-		for (dwl::rbd::BodyVector3d::const_iterator it = $self->getFootVelocity_B().begin();
+		for (dwl::MotionMap::const_iterator it = $self->getFootVelocity_B().begin();
 				it != $self->getFootVelocity_B().end(); ++it) {
-			buffer << "\t\t" << it->first << ": " << it->second.transpose() << std::endl;
+			buffer << "\t\t" << it->first << ":" << std::endl;
+			buffer << "\t\t\tv: " << it->second.getLinear().transpose() << std::endl;
+			buffer << "\t\t\tw: " << it->second.getAngular().transpose() << std::endl;
 		}
 		buffer << "\tfoot_acc_B: " << std::endl;
-		for (dwl::rbd::BodyVector3d::const_iterator it = $self->getFootAcceleration_B().begin();
+		for (dwl::MotionMap::const_iterator it = $self->getFootAcceleration_B().begin();
 				it != $self->getFootAcceleration_B().end(); ++it) {
-			buffer << "\t\t" << it->first << ": " << it->second.transpose() << std::endl;
+			buffer << "\t\t" << it->first << ":" << std::endl;
+			buffer << "\t\t\tv: " << it->second.getLinear().transpose() << std::endl;
+			buffer << "\t\t\tw: " << it->second.getAngular().transpose() << std::endl;
 		}
 		buffer << "	support_region: " << std::endl;
-		for (dwl::rbd::BodyVector3d::const_iterator it = $self->support_region.begin();
+		for (dwl::SE3Map::const_iterator it = $self->support_region.begin();
 				it != $self->support_region.end(); ++it) {
-			buffer << "\t\t" << it->first << ": " << it->second.transpose() << std::endl;
+			buffer << "\t\t" << it->first << ":" << std::endl;
+			buffer << "\t\t\tt: " << it->second.getTranslation().transpose() << std::endl;
+			buffer << "\t\t\tR: " << it->second.getRotation().row(0) << std::endl;
+			buffer << "\t\t\t   " << it->second.getRotation().row(1) << std::endl;
+			buffer << "\t\t\t   " << it->second.getRotation().row(2) << std::endl;
 		}
 		std::string str = buffer.str();
 		char * writable = new char[str.size() + 1];
@@ -253,7 +270,6 @@
 		return writable;
 	}
 };
-
 %extend dwl::WholeBodyState {
 	char *__repr__() {
 		std::stringstream buffer;
