@@ -36,46 +36,52 @@ struct SoftConstraintProperties
 };
 
 /**
- * @class OptimizationModel
- * @brief A NLP problem requires information of constraints (dynamical, active or inactive) and
- * cost functions. Thus, OptimizationModelInterface is a class that allows us to implement
- * different optimization-based problems.
+ * @brief Functor struct requires for computing numerical differentiation
+ * (Jacobian computation) with Eigen
+ */
+template<typename _Scalar, int NX=Eigen::Dynamic, int NY=Eigen::Dynamic>
+struct Functor
+{
+	typedef _Scalar Scalar;
+	enum {
+		InputsAtCompileTime = NX,
+		ValuesAtCompileTime = NY
+	};
+	typedef Eigen::Matrix<Scalar,InputsAtCompileTime,1> InputType;
+	typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,1> ValueType;
+	typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,InputsAtCompileTime> JacobianType;
+
+	int m_inputs, m_values;
+
+	Functor() : m_inputs(InputsAtCompileTime), m_values(ValuesAtCompileTime) {}
+	Functor(int inputs, int values) : m_inputs(inputs), m_values(values) {}
+
+	int inputs() const { return m_inputs; }
+	int values() const { return m_values; }
+};
+
+/**
+ * @brief The OptimizationModel class
+ * It models NonLinear Programming (NLP) problem that can be solved with
+ * the different optimization solvers available in dwl. The information often
+ * needed are constraints (dynamical, active or inactive) and cost functions.
+ * Note that this class is an interface for solving easily different
+ * optimization-based problems. In case the derivatives are not provided, there
+ * is an optional NumDiff method that runs automatically.
+ * @author Carlos Mastalli
+ * @copyright BSD 3-Clause License
  */
 class OptimizationModel
 {
 	public:
-		/**
-		 * @brief Functor struct requires for computing numerical differentiation
-		 * (Jacobian computation) with Eigen
-		 */
-		template<typename _Scalar, int NX=Eigen::Dynamic, int NY=Eigen::Dynamic>
-		struct Functor
-		{
-			typedef _Scalar Scalar;
-			enum {
-				InputsAtCompileTime = NX,
-				ValuesAtCompileTime = NY
-			};
-			typedef Eigen::Matrix<Scalar,InputsAtCompileTime,1> InputType;
-			typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,1> ValueType;
-			typedef Eigen::Matrix<Scalar,ValuesAtCompileTime,InputsAtCompileTime> JacobianType;
-
-			int m_inputs, m_values;
-
-			Functor() : m_inputs(InputsAtCompileTime), m_values(ValuesAtCompileTime) {}
-			Functor(int inputs, int values) : m_inputs(inputs), m_values(values) {}
-
-			int inputs() const { return m_inputs; }
-			int values() const { return m_values; }
-		};
-
 		/**
 		 * @brief Describes the cost function requires for computing numerical
 		 * differentiation (gradient computation) with Eigen
 		 */
 		struct CostFunction : Functor<double>
 		{
-			CostFunction(OptimizationModel* model) : Functor<double>(0, 0), model_(model) {}
+			CostFunction(OptimizationModel* model) : Functor<double>(0, 0),
+					model_(model) {}
 			int operator() (const Eigen::VectorXd& x, Eigen::VectorXd& f) const
 			{
 				f.resize(1);
@@ -85,7 +91,6 @@ class OptimizationModel
 
 				return 0;
 			}
-
 			OptimizationModel* const model_;
 		};
 
@@ -95,11 +100,12 @@ class OptimizationModel
 		/** @brief Destructor function */
 		virtual ~OptimizationModel();
 
-		/** @brief Initializes the optimization model, i.e. the dimensions of the optimization
-		 * vectors */
+		/** @brief Initializes the optimization model, i.e. the dimensions of
+		 * the optimization vectors */
 		virtual void init(bool only_soft_constraints = false);
 
-		/** @brief Sets the dimension of the decision variables, here called state */
+		/** @brief Sets the dimension of the decision variables, here called
+		 * state */
 		void setDimensionOfState(unsigned int dim);
 
 		/** @brief Sets the dimension of the constraints variables */
@@ -124,19 +130,21 @@ class OptimizationModel
 
 		/**
 		 * @brief Gets the starting point of the problem
-		 * @param double* Initial values for the decision variables, $x$
-		 * @param int Number of the decision variables
+		 * @param[out] decision Initial values for the decision variables, $x$
+		 * @param[in] decision_dim Number of the decision variables
 		 */
 		virtual void getStartingPoint(double* decision, int decision_dim);
 
 		/**
 		 * @brief Abstract method for evaluating the bounds of the problem
-		 * @param double* Lower bounds $x^L$ for $x$
-		 * @param double* Upper bounds $x^L$ for $x$
-		 * @param int Number of decision variables (dimension of $x$)
-		 * @param double* Lower bounds of the constraints $g^L$ for $x$
-		 * @param double* Upper bounds of the constraints $g^L$ for $x$
-		 * @param int Number of constraints (dimension of $g(x)$)
+		 * @param[out] decision_lbound Lower bounds $x^L$ for $x$
+		 * @param[in] decision_dim1 Number of decision variables (dimension of $x$)
+		 * @param[out] decision_ubound Upper bounds $x^L$ for $x$
+		 * @param[in] decision_dim2 Number of decision variables (dimension of $x$)
+		 * @param[out] constraint_lbound Lower bounds of the constraints $g^L$ for $x$
+		 * @param[in] constraint_dim1 Number of constraints (dimension of $g(x)$)
+		 * @param[out] constraint_ubound Upper bounds of the constraints $g^L$ for $x$
+		 * @param[in] constraint_dim2 Number of constraints (dimension of $g(x)$)
 		 */
 		virtual void evaluateBounds(double* decision_lbound, int decision_dim1,
 									double* decision_ubound, int decision_dim2,
@@ -144,24 +152,25 @@ class OptimizationModel
 									double* constraint_ubound, int constraint_dim2);
 
 		/**
-		 * @brief Abstract method for evaluating the cost function given a current
-		 * decision state
-		 * @param double& Value of the objective function ($f(x)$).
-		 * @param const double* Array of the decision variables, $x$, at which the cost functions,
-		 * $f(x)$, is evaluated
-		 * @param int Number of decision variables (dimension of $x$)
+		 * @brief Abstract method for evaluating the cost function given a
+		 * current decision state
+		 * @param[out] cost Value of the objective function ($f(x)$).
+		 * @param[in] decision Array of the decision variables, $x$, at which
+		 * the cost functions, $f(x)$, is evaluated
+		 * @param[in] decision_dim Number of decision variables (dimension of $x$)
 		 */
 		virtual void evaluateCosts(double& cost,
 								   const double* decision, int decision_dim);
 
 		/**
-		 * @brief Abstract method for evaluating the gradient of the cost function given a
-		 * current decision state
-		 * @param double* Array of values for the gradient of the objective function ($\nabla f(x)$)
-		 * @param int Number of decision variables (dimension of $x$)
-		 * @param const double* Array for the decision variables, $x$, at which $\nabla f(x)$ is
-		 * evaluated
-		 * @param int Number of decision variables (dimension of $x$)
+		 * @brief Abstract method for evaluating the gradient of the cost
+		 * function given a current decision state
+		 * @param[out] gradient Array of values for the gradient of the
+		 * objective function ($\nabla f(x)$)
+		 * @param[in] grad_dim Number of decision variables (dimension of $x$)
+		 * @param[in] decision Array for the decision variables, $x$, at which
+		 * $\nabla f(x)$ is evaluated
+		 * @param[in] decision_dim Number of decision variables (dimension of $x$)
 		 */
 		virtual void evaluateCostGradient(double* gradient, int grad_dim,
 										  const double* decision, int decision_dim);
@@ -169,34 +178,45 @@ class OptimizationModel
 		/**
 		 * @brief Abstract method for evaluating the constraint function given a
 		 * current decision state
-		 * @param double* Array of constraint function values, $g(x)$
-		 * @param int Number of constraint variables (dimension of $g(x)$)
-		 * @param const double* Array of the decision variables, $x$, at which the constraint functions,
-		 * $g(x)$, are evaluated
-		 * @param int Number of decision variables (dimension of $x$)
+		 * @param[out] constraint Array of constraint function values, $g(x)$
+		 * @param[in] constraint_dim Number of constraint variables (dimension
+		 * of $g(x)$)
+		 * @param[in] decision Array of the decision variables, $x$, at which
+		 * the constraint functions, $g(x)$, are evaluated
+		 * @param[in] decision_dim Number of decision variables (dimension of $x$)
 		 */
 		virtual void evaluateConstraints(double* constraint, int constraint_dim,
 								 	 	 const double* decision, int decision_dim);
 
 		/**
-		 * @brief Abstract method for evaluating the constraint function as soft one
-		 * @param const double* Array of the decision variables, $x$, at which the constraint functions,
-		 * $g(x)$, are evaluated
-		 * @param int Number of decision variables (dimension of $x$)
+		 * @brief Abstract method for evaluating the constraint function as soft
+		 * one
+		 * @param[in] decision Array of the decision variables, $x$, at which
+		 * the constraint functions, $g(x)$, are evaluated
+		 * @param[in] decision_dim Number of decision variables (dimension of $x$)
 		 * @param return The soft-cost value
 		 */
 		virtual double evaluateAsSoftConstraints(const double* decision, int decision_dim);
 
 		/**
-		 * @brief Abstract method for evaluating the jacobian of the constraint function given a
-		 * current decision state
-		 * @param double* Values of the entries in the Jacobian of the constraints
-		 * @param double* Row indices of entries in the Jacobian of the constraints
-		 * @param double* Column indices of entries in the Jacobian of the constraints
-		 * @param int Number of nonzero elements in the Jacobian (dimension of row_entries,
-		 * col_entries, and values)
-		 * @param double* Array for the decision variables, $x$, at which $\nabla g(x)^T$ is evaluated
-		 * @param int Number of decision variables (dimension of $x$)
+		 * @brief Abstract method for evaluating the jacobian of the constraint
+		 * function given a current decision state
+		 * @param[out] jacobian Values of the entries in the Jacobian of the
+		 * constraints
+		 * @param[in] nonzero_dim1 Number of nonzero elements in the Jacobian
+		 * (dimension of row_entries, col_entries, and values)
+		 * @param[out] row_entries Row indices of entries in the Jacobian of
+		 * the constraints
+		 * @param[in] nonzero_dim2 Number of nonzero elements in the Jacobian
+		 * (dimension of row_entries, col_entries, and values)
+		 * @param[out] col_entries Column indices of entries in the Jacobian
+		 * of the constraints
+		 * @param[in] nonzero_dim3 Number of nonzero elements in the Jacobian
+		 * (dimension of row_entries, col_entries, and values)
+		 * @param[in] decision Array for the decision variables, $x$, at which
+		 * $\nabla g(x)^T$ is evaluated
+		 * @param[in] decision_dim Number of decision variables (dimension of $x$)
+		 * @param[in] flag Indicate when we have to compute the constraint
 		 */
 		virtual void evaluateConstraintJacobian(double* jacobian_values, int nonzero_dim1,
 												int* row_entries, int nonzero_dim2,
@@ -204,24 +224,25 @@ class OptimizationModel
 												const double* decision, int decision_dim, bool flag);
 
 		/**
-		 * @brief This method returns the structure of the Hessian of the Lagrangian (if "values" is
-		 *  NULL) and the values of the hessian of the Lagrangian (if "values" is not NULL)
-		 * @param Index Number of decision variables (dimension of $x$)
-		 * @param const Number* Values for the primal variables, $x$, at which the Hessian is to be
-		 * evaluated
-		 * @param bool False if any evaluation method was previously called with the same values
-		 * in $x$, true otherwise
-		 * @param Number Factor in front of the objective term in the Hessian, $\sigma_f$
-		 * @param Index Number of constraint variables (dimension of $g(x)$)
-		 * @param const Number* Values for the constraint multipliers, $\lambda$ , at which the
-		 * Hessian is to be evaluated
-		 * @param bool False if any evaluation method was previously called with the same values in
-		 * lambda, true otherwise
-		 * @param Index Number of nonzero elements in the Hessian (dimension of row_entries,
-		 * col_entries and values)
-		 * @param Index* Row indices of entries in the Hessian
-		 * @param Index* Column indices of entries in the Hessian
-		 * @param Number* Values of the entries in the Hessian
+		 * @brief This method returns the structure of the Hessian of the
+		 * Lagrangian (if "values" is  NULL) and the values of the Hessian of
+		 * the Lagrangian (if "values" is not NULL)
+		 * @param[out] hessian_values Values of the entries in the Hessian
+		 * @param[in] nonzero_dim1 Number of decision variables (dimension of $x$)
+		 * @param[out] row_entries Row indices of entries in the Hessian
+		 * @param[in] nonzero_dim2 Number of decision variables (dimension of $x$)
+		 * @param[out] col_entries Column indices of entries in the Hessian
+		 * @param[in] nonzero_dim3 Number of decision variables (dimension of $x$)
+		 * @param[in] obj_factor Factor in front of the objective term in the
+		 * Hessian, $\sigma_f$
+		 * @param[in] decision Values for the primal variables, $x$, at which
+		 * the Hessian is to be evaluated
+		 * @param[in] lagrange Values for the constraint multipliers, $\lambda$,
+		 * at which the Hessian is to be evaluated
+		 * @param[in] constraint_dim Number of constraint variables (dimension of
+		 * $g(x)$)
+		 * @param[in] False if any evaluation method was previously called with
+		 * the same values in $x$, true otherwise
 		 */
 		virtual void evaluateLagrangianHessian(double* hessian_values, int nonzero_dim1,
 											   int* row_entries, int nonzero_dim2,
