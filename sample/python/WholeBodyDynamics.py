@@ -62,7 +62,7 @@ wdyn.computeInverseDynamics(base_eff, joint_eff,
                             ws.getBaseSE3(), ws.getJointPosition(),
                             ws.getBaseVelocity_W(), ws.getJointVelocity(),
                             ws.getBaseAcceleration_W(), ws.getJointAcceleration(),
-                            grfs);
+                            grfs)
 print(' base wrench:')
 print('  ', base_eff)
 print(' joint forces:')
