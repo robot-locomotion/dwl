@@ -6,7 +6,6 @@
 #include <vector>
 
 #include <dwl/utils/LieGroup.h>
-#include <dwl/utils/FrameTF.h>
 #include <dwl/utils/RigidBodyDynamics.h>
 
 
@@ -89,7 +88,7 @@ class ReducedBodyState
 		 * @brief Gets the base SE3 of the horizontal frame
 		 * @return Base SE3 of the horizontal frame
 		 */
-		const dwl::SE3& getCoMSE3_H();
+		const dwl::SE3& getCoMSE3_H() const;
 
 		/** @brief Gets the CoM velocity expressed in the world frame
 		 * @return The CoM velocity expressed in the world frame
@@ -99,12 +98,12 @@ class ReducedBodyState
 		/** @brief Gets the CoM velocity expressed in the base frame
 		 * @return The CoM velocity expressed in the base frame
 		 */
-		const dwl::Motion& getCoMVelocity_B();
+		const dwl::Motion& getCoMVelocity_B() const;
 
 		/** @brief Gets the CoM velocity expressed in the horizontal frame
 		 * @return The CoM velocity expressed in the horizontal frame
 		 */
-		const dwl::Motion& getCoMVelocity_H();
+		const dwl::Motion& getCoMVelocity_H() const;
 
 		/** @brief Gets the RPY velocity of the CoM frame expressed in the world frame
 		 * @return The RPY velocity of the CoM frame
@@ -119,12 +118,12 @@ class ReducedBodyState
 		/** @brief Gets the CoM acceleration expressed in the base frame
 		 * @return The CoM acceleration
 		 */
-		const dwl::Motion& getCoMAcceleration_B();
+		const dwl::Motion& getCoMAcceleration_B() const;
 
 		/** @brief Gets the CoM acceleration expressed in the horizontal frame
 		 * @return The CoM acceleration
 		 */
-		const dwl::Motion& getCoMAcceleration_H();
+		const dwl::Motion& getCoMAcceleration_H() const;
 
 		/** @brief Gets the RPY acceleration of the CoM frame expressed in the world frame
 		 * @return The RPY acceleration of the CoM frame
@@ -141,27 +140,15 @@ class ReducedBodyState
 
 		// Foot state getter functions
 		/** @brief Gets the foot position expressed the world frame
-		 * @param[in] it The foot position iterator
-		 * @return The foot position expressed in the world frame
-		 */
-		const dwl::SE3& getFootSE3_W(SE3Iterator it);
-
-		/** @brief Gets the foot position expressed the world frame
 		 * @param[in] name The foot name
 		 * @return The foot position expressed in the world frame
 		 */
-		const dwl::SE3& getFootSE3_W(const std::string& name);
+		const dwl::SE3& getFootSE3_W(const std::string& name) const;
 
 		/** @brief Gets all foot positions expressed the world frame
 		 * @return All foot positions expressed in the world frame
 		 */
-		dwl::SE3Map getFootSE3_W();
-
-		/** @brief Gets the foot position expressed the CoM frame
-		 * @param[in] it The foot position iterator
-		 * @return The foot position expressed in the CoM frame
-		 */
-		const dwl::SE3& getFootSE3_B(SE3Iterator it) const;
+		const dwl::SE3Map& getFootSE3_W() const;
 
 		/** @brief Gets the foot position expressed the CoM frame
 		 * @param[in] name The foot name
@@ -175,44 +162,26 @@ class ReducedBodyState
 		const dwl::SE3Map& getFootSE3_B() const;
 
 		/** @brief Gets the foot position expressed the horizontal frame
-		 * @param[in] it The foot position iterator
-		 * @return The foot position expressed in the horizontal frame
-		 */
-		const dwl::SE3& getFootSE3_H(SE3Iterator it);
-
-		/** @brief Gets the foot position expressed the horizontal frame
 		 * @param[in] name The foot name
 		 * @return The foot position expressed in the horizontal frame
 		 */
-		const dwl::SE3& getFootSE3_H(const std::string& name);
+		const dwl::SE3& getFootSE3_H(const std::string& name) const;
 
 		/** @brief Gets all foot positions expressed the horizontal frame
 		 * @return All foot positions expressed in the horizontal frame
 		 */
-		dwl::SE3Map getFootSE3_H();
-
-		/** @brief Gets the foot velocity expressed the world frame
-		 * @param[in] it The foot velocity iterator
-		 * @return The foot velocity expressed in the world frame
-		 */
-		const dwl::Motion& getFootVelocity_W(MotionIterator it);
+		const dwl::SE3Map& getFootSE3_H() const;
 
 		/** @brief Gets the foot velocity expressed the world frame
 		 * @param[in] name The foot name
 		 * @return The foot velocity expressed in the world frame
 		 */
-		const dwl::Motion& getFootVelocity_W(const std::string& name);
+		const dwl::Motion& getFootVelocity_W(const std::string& name) const;
 
 		/** @brief Gets all foot velocities expressed the world frame
 		 * @return All foot velocities expressed in the world frame
 		 */
-		dwl::MotionMap getFootVelocity_W();
-
-		/** @brief Gets the foot velocity expressed the base frame
-		 * @param[in] vel_it The foot velocity iterator
-		 * @return The foot velocity expressed in the base frame
-		 */
-		const dwl::Motion& getFootVelocity_B(MotionIterator vel_it) const;
+		const dwl::MotionMap& getFootVelocity_W() const;
 
 		/** @brief Gets the foot velocity expressed the base frame
 		 * @param[in] name The foot name
@@ -226,44 +195,26 @@ class ReducedBodyState
 		const dwl::MotionMap& getFootVelocity_B() const;
 
 		/** @brief Gets the foot velocity expressed the horizontal frame
-		 * @param[in] it The foot velocity iterator
-		 * @return The foot velocity expressed in the horizontal frame
-		 */
-		const dwl::Motion& getFootVelocity_H(MotionIterator it);
-
-		/** @brief Gets the foot velocity expressed the horizontal frame
 		 * @param[in] name The foot name
 		 * @return The foot velocity expressed in the horizontal frame
 		 */
-		const dwl::Motion& getFootVelocity_H(const std::string& name);
+		const dwl::Motion& getFootVelocity_H(const std::string& name) const;
 
 		/** @brief Gets all foot velocities expressed the horizontal frame
 		 * @return All foot velocities expressed in the horizontal frame
 		 */
-		dwl::MotionMap getFootVelocity_H();
-
-		/** @brief Gets the foot acceleration expressed the world frame
-		 * @param[in] it The foot acceleration iterator
-		 * @return The foot acceleration expressed in the world frame
-		 */
-		const dwl::Motion& getFootAcceleration_W(MotionIterator it);
+		const dwl::MotionMap& getFootVelocity_H() const;
 
 		/** @brief Gets the foot acceleration expressed the world frame
 		 * @param[in] name The foot name
 		 * @return The foot acceleration expressed in the world frame
 		 */
-		const dwl::Motion& getFootAcceleration_W(const std::string& name);
+		const dwl::Motion& getFootAcceleration_W(const std::string& name) const;
 
 		/** @brief Gets all foot accelerations expressed the world frame
 		 * @return All foot accelerations expressed in the world frame
 		 */
-		dwl::MotionMap getFootAcceleration_W();
-
-		/** @brief Gets the foot acceleration expressed the base frame
-		 * @param[in] it The foot acceleration iterator
-		 * @return The foot acceleration expressed in the base frame
-		 */
-		const dwl::Motion& getFootAcceleration_B(MotionIterator it) const;
+		const dwl::MotionMap& getFootAcceleration_W() const;
 
 		/** @brief Gets the foot acceleration expressed the base frame
 		 * @param[in] name The foot name
@@ -277,21 +228,15 @@ class ReducedBodyState
 		const dwl::MotionMap& getFootAcceleration_B() const;
 
 		/** @brief Gets the foot acceleration expressed the horizontal frame
-		 * @param[in] it The foot acceleration iterator
-		 * @return The foot acceleration expressed in the horizontal frame
-		 */
-		const dwl::Motion& getFootAcceleration_H(MotionIterator it);
-
-		/** @brief Gets the foot acceleration expressed the horizontal frame
 		 * @param[in] name The foot name
 		 * @return The foot acceleration expressed in the horizontal frame
 		 */
-		const dwl::Motion& getFootAcceleration_H(const std::string& name);
+		const dwl::Motion& getFootAcceleration_H(const std::string& name) const;
 
 		/** @brief Gets all foot accelerations expressed the horizontal frame
 		 * @return All foot accelerations expressed in the horizontal frame
 		 */
-		dwl::MotionMap getFootAcceleration_H();
+		const dwl::MotionMap& getFootAcceleration_H() const;
 
 
 		// Support region getter functions
@@ -542,12 +487,15 @@ class ReducedBodyState
 
 
 	private:
-		/** @brief Frame transformations */
-		math::FrameTF frame_tf_;
-
 		/** @brief Internal data to avoid dynamic memory allocation **/
-		dwl::SE3 se3_;
-		dwl::Motion motion_;
+		se3::SE3 w_R_b;
+		se3::SE3 w_R_h;
+		dwl::SE3 com_pos_H;
+		dwl::Motion com_vel_B, com_vel_H;
+		dwl::Motion com_acc_B, com_acc_H;
+		dwl::SE3Map foot_pos_W, foot_pos_H;
+		dwl::MotionMap foot_vel_W, foot_vel_H;
+		dwl::MotionMap foot_acc_W, foot_acc_H;
 		Eigen::Vector3d vec3_;
 
 		/** @brief Null vectors for missed contact states */

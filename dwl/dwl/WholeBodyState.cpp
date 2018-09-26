@@ -34,17 +34,9 @@ const dwl::SE3& WholeBodyState::getBaseSE3() const
 }
 
 
-const dwl::SE3& WholeBodyState::getBaseSE3_H()
+const dwl::SE3& WholeBodyState::getBaseSE3_H() const
 {
-	// Getting the RPY vector of the horizontal frame
-	Eigen::Vector3d rpy = base_pos.getRPY();
-	rpy(rbd::X) *= 0.;
-	rpy(rbd::Y) *= 0.;
-
-	// Setting the new rotation matrix
-	se3_.setTranslation(base_pos.getTranslation());
-	se3_.setRotation(math::getRotationMatrix(rpy));
-	return se3_;
+	return base_pos_H;
 }
 
 
@@ -54,23 +46,15 @@ const dwl::Motion& WholeBodyState::getBaseVelocity_W() const
 }
 
 
-const dwl::Motion& WholeBodyState::getBaseVelocity_B()
+const dwl::Motion& WholeBodyState::getBaseVelocity_B() const
 {
-	// Mapping the velocity in the inertial frame to the base one
-	se3::SE3 w_R_b(base_pos.getRotation(),
-				   Eigen::Vector3d::Zero());
-	motion_.data = base_vel.data.se3ActionInverse(w_R_b);
-	return motion_;
+	return base_vel_B;
 }
 
 
-const dwl::Motion& WholeBodyState::getBaseVelocity_H()
+const dwl::Motion& WholeBodyState::getBaseVelocity_H() const
 {
-	// Mapping the velocity in the inertial frame to the horizontal one
-	se3::SE3 w_R_b(getBaseSE3_H().getRotation(),
-				   Eigen::Vector3d::Zero());
-	motion_.data = base_vel.data.se3ActionInverse(w_R_b);
-	return motion_;
+	return base_vel_H;
 }
 
 
@@ -89,22 +73,14 @@ const dwl::Motion& WholeBodyState::getBaseAcceleration_W() const
 }
 
 
-const dwl::Motion& WholeBodyState::getBaseAcceleration_B()
+const dwl::Motion& WholeBodyState::getBaseAcceleration_B() const
 {
-	// Mapping the acceleration in the inertial frame to the base one
-	se3::SE3 w_R_b(base_pos.getRotation(),
-				   Eigen::Vector3d::Zero());
-	motion_.data = base_acc.data.se3ActionInverse(w_R_b);
-	return motion_;
+	return base_acc_B;
 }
 
-const dwl::Motion& WholeBodyState::getBaseAcceleration_H()
+const dwl::Motion& WholeBodyState::getBaseAcceleration_H() const
 {
-	// Mapping the acceleration in the inertial frame to the horizontal one
-	se3::SE3 w_R_b(getBaseSE3_H().getRotation(),
-				   Eigen::Vector3d::Zero());
-	motion_.data = base_acc.data.se3ActionInverse(w_R_b);
-	return motion_;
+	return base_acc_H;
 }
 
 
@@ -121,7 +97,7 @@ const Eigen::Vector3d& WholeBodyState::getBaseRPYAcceleration_W()
 	return vec3_;
 }
 
-const dwl::Force& WholeBodyState::getBaseWrench_W()
+const dwl::Force& WholeBodyState::getBaseWrench_W() const
 {
 	return base_eff;
 }
@@ -208,41 +184,20 @@ const unsigned int WholeBodyState::getJointDoF() const
 }
 
 
-const dwl::SE3& WholeBodyState::getContactSE3_W(SE3Iterator it)
-{
-	// Mapping the contact SE3 expressed in the inertial frame to the base one
-	se3_.data = base_pos.data.act(it->second.data);
-	return se3_;
-}
-
-
-const dwl::SE3& WholeBodyState::getContactSE3_W(const std::string& name)
+const dwl::SE3& WholeBodyState::getContactSE3_W(const std::string& name) const
 {
 	// Getting the contact iterator
-	SE3Iterator it = contact_pos.find(name);
-	if (it == contact_pos.end())
+	SE3Iterator it = getContactSE3_W().find(name);
+	if (it == getContactSE3_W().end())
 		return null_se3_;
 
-	return getContactSE3_W(it);
-}
-
-
-dwl::SE3Map WholeBodyState::getContactSE3_W()
-{
-	dwl::SE3Map pos_W;
-	for (SE3Iterator it = contact_pos.begin();
-			it != contact_pos.end(); ++it) {
-		std::string name = it->first;
-		pos_W[name] = getContactSE3_W(it);
-	}
-
-	return pos_W;
-}
-
-
-const dwl::SE3& WholeBodyState::getContactSE3_B(SE3Iterator it) const
-{
 	return it->second;
+}
+
+
+const dwl::SE3Map& WholeBodyState::getContactSE3_W() const
+{
+	return contact_pos_W;
 }
 
 
@@ -250,10 +205,10 @@ const dwl::SE3& WholeBodyState::getContactSE3_B(const std::string& name) const
 {
 	// Getting the contact iterator
 	SE3Iterator it = getContactSE3_B().find(name);
-	if (it == contact_pos.end())
+	if (it == getContactSE3_B().end())
 		return null_se3_;
 
-	return getContactSE3_B(it);
+	return it->second;
 }
 
 
@@ -263,84 +218,48 @@ const dwl::SE3Map& WholeBodyState::getContactSE3_B() const
 }
 
 
-const dwl::SE3& WholeBodyState::getContactSE3_H(SE3Iterator it)
-{
-	// Mapping the contact SE3 expressed in the horizontal frame to the base one
-	se3_.data = getBaseSE3_H().data.act(it->second.data);
-	return se3_;
-}
-
-
-const dwl::SE3& WholeBodyState::getContactSE3_H(const std::string& name)
+const dwl::SE3& WholeBodyState::getContactSE3_H(const std::string& name) const
 {
 	// Getting the contact iterator
-	SE3Iterator it = getContactSE3_B().find(name);
-	if (it == contact_pos.end())
+	SE3Iterator it = getContactSE3_H().find(name);
+	if (it == getContactSE3_H().end())
 		return null_se3_;
 
-	return getContactSE3_H(it);
+	return it->second;
 }
 
 
-dwl::SE3Map WholeBodyState::getContactSE3_H()
+const dwl::SE3Map& WholeBodyState::getContactSE3_H() const
 {
-	dwl::SE3Map pos_H;
-	for (SE3Iterator it = getContactSE3_B().begin();
-			it != getContactSE3_B().end(); ++it) {
-		std::string name = it->first;
-		pos_H[name] = getContactSE3_H(it);
-	}
-
-	return pos_H;
+	return contact_pos_H;
 }
 
 
-const dwl::Motion& WholeBodyState::getContactVelocity_W(MotionIterator it)
-{
-	const se3::SE3& w_X_b = base_pos.data;
-	motion_.data = base_vel.data + it->second.data.se3Action(w_X_b);
-	return motion_;
-}
-
-
-const dwl::Motion& WholeBodyState::getContactVelocity_W(const std::string& name)
+const dwl::Motion& WholeBodyState::getContactVelocity_W(const std::string& name) const
 {
 	// Getting the contact iterator
-	MotionIterator it = getContactVelocity_B().find(name);
-	if (it == contact_vel.end())
+	MotionIterator it = getContactVelocity_W().find(name);
+	if (it == getContactVelocity_W().end())
 		return null_motion_;
 
-	return getContactVelocity_W(it);
-}
-
-
-dwl::MotionMap WholeBodyState::getContactVelocity_W()
-{
-	dwl::MotionMap vel_W;
-	for (MotionIterator it = getContactVelocity_B().begin();
-			it != getContactVelocity_B().end(); ++it) {
-		std::string name = it->first;
-		vel_W[name] = getContactVelocity_W(it);
-	}
-
-	return vel_W;
-}
-
-
-const dwl::Motion& WholeBodyState::getContactVelocity_B(MotionIterator it) const
-{
 	return it->second;
+}
+
+
+const dwl::MotionMap& WholeBodyState::getContactVelocity_W() const
+{
+	return contact_vel_W;
 }
 
 
 const dwl::Motion& WholeBodyState::getContactVelocity_B(const std::string& name) const
 {
 	// Getting the contact iterator
-	MotionIterator it = contact_vel.find(name);
-	if (it == contact_vel.end())
+	MotionIterator it = getContactVelocity_B().find(name);
+	if (it == getContactVelocity_B().end())
 		return null_motion_;
 
-	return getContactVelocity_B(it);
+	return it->second;
 }
 
 
@@ -350,80 +269,46 @@ const dwl::MotionMap& WholeBodyState::getContactVelocity_B() const
 }
 
 
-const dwl::Motion& WholeBodyState::getContactVelocity_H(MotionIterator it)
+const dwl::Motion& WholeBodyState::getContactVelocity_H(const std::string& name) const
 {
-	const se3::SE3& h_X_b = getBaseSE3_H().data;
-	motion_.data = it->second.data.se3Action(h_X_b);
-	return motion_;
-}
-
-
-const dwl::Motion& WholeBodyState::getContactVelocity_H(const std::string& name)
-{
-	MotionIterator it = getContactVelocity_B().find(name);
-	return getContactVelocity_H(it);
-}
-
-
-dwl::MotionMap WholeBodyState::getContactVelocity_H()
-{
-	dwl::MotionMap vel_H;
-	for (MotionIterator it = getContactVelocity_B().begin();
-			it != getContactVelocity_B().end(); ++it) {
-		std::string name = it->first;
-		vel_H[name] = getContactVelocity_H(it);
-	}
-
-	return vel_H;
-}
-
-
-const dwl::Motion& WholeBodyState::getContactAcceleration_W(MotionIterator it)
-{
-	const se3::SE3& w_X_b = base_pos.data;
-	const se3::Motion& v = getContactVelocity_W(it->first).data;
-	motion_.data = base_acc.data + it->second.data.se3Action(w_X_b);
-	motion_.data.linear() += v.angular().cross(v.linear());
-	return motion_;
-}
-
-
-const dwl::Motion& WholeBodyState::getContactAcceleration_W(const std::string& name)
-{
-	MotionIterator it = getContactAcceleration_B().find(name);
-	if (it == contact_acc.end())
+	// Getting the contact iterator
+	MotionIterator it = getContactVelocity_H().find(name);
+	if (it == getContactVelocity_H().end())
 		return null_motion_;
 
-	return getContactAcceleration_W(it);
-}
-
-
-dwl::MotionMap WholeBodyState::getContactAcceleration_W()
-{
-	dwl::MotionMap acc_W;
-	for (MotionIterator it = getContactAcceleration_B().begin();
-			it != getContactAcceleration_B().end(); ++it) {
-		std::string name = it->first;
-		acc_W[name] = getContactAcceleration_W(it);
-	}
-
-	return acc_W;
-}
-
-
-const dwl::Motion& WholeBodyState::getContactAcceleration_B(MotionIterator it) const
-{
 	return it->second;
+}
+
+
+const dwl::MotionMap& WholeBodyState::getContactVelocity_H() const
+{
+	return contact_vel_H;
+}
+
+
+const dwl::Motion& WholeBodyState::getContactAcceleration_W(const std::string& name) const
+{
+	MotionIterator it = getContactAcceleration_W().find(name);
+	if (it == getContactAcceleration_W().end())
+		return null_motion_;
+
+	return it->second;
+}
+
+
+const dwl::MotionMap& WholeBodyState::getContactAcceleration_W() const
+{
+	return contact_acc_W;
 }
 
 
 const dwl::Motion& WholeBodyState::getContactAcceleration_B(const std::string& name) const
 {
 	MotionIterator it = getContactAcceleration_B().find(name);
-	if (it == contact_acc.end())
+	if (it == getContactAcceleration_B().end())
 		return null_motion_;
 
-	return getContactAcceleration_B(it);
+	return it->second;
 }
 
 
@@ -433,36 +318,19 @@ const dwl::MotionMap& WholeBodyState::getContactAcceleration_B() const
 }
 
 
-const dwl::Motion& WholeBodyState::getContactAcceleration_H(MotionIterator it)
+const dwl::Motion& WholeBodyState::getContactAcceleration_H(const std::string& name) const
 {
-	const se3::SE3& w_X_h = getBaseSE3_H().data;
-	const se3::Motion& v = getContactVelocity_W(it->first).data;
-	motion_.data = it->second.data.se3Action(w_X_h);
-	motion_.data.linear() += v.angular().cross(v.linear());
-	return motion_;
-}
-
-
-const dwl::Motion& WholeBodyState::getContactAcceleration_H(const std::string& name)
-{
-	MotionIterator it = getContactAcceleration_B().find(name);
-	if (it == contact_acc.end())
+	MotionIterator it = getContactAcceleration_H().find(name);
+	if (it == getContactAcceleration_H().end())
 		return null_motion_;
 
-	return getContactAcceleration_H(it);
+	return it->second;
 }
 
 
-dwl::MotionMap WholeBodyState::getContactAcceleration_H()
+const dwl::MotionMap& WholeBodyState::getContactAcceleration_H() const
 {
-	dwl::MotionMap acc_H;
-	for (MotionIterator it = getContactAcceleration_B().begin();
-			it != getContactAcceleration_B().end(); ++it) {
-		std::string name = it->first;
-		acc_H[name] = getContactAcceleration_H(it);
-	}
-
-	return acc_H;
+	return contact_acc_H;
 }
 
 
@@ -506,61 +374,74 @@ void WholeBodyState::setTime(const double& _time)
 void WholeBodyState::setBaseSE3(const dwl::SE3& pos)
 {
 	base_pos = pos;
+
+	// Computing and setting up the CoM SE3 in the horizontal frame
+	Eigen::Vector3d rpy = base_pos.getRPY();
+	rpy(rbd::X) *= 0.;
+	rpy(rbd::Y) *= 0.;
+	base_pos_H.setTranslation(base_pos.getTranslation());
+	base_pos_H.setRotation(math::getRotationMatrix(rpy));
+
+	// Updating the rotation transformation between frames
+	w_R_b.rotation() = base_pos.getRotation();
+	w_R_b.translation() = Eigen::Vector3d::Zero();
+	w_R_h.rotation() = base_pos_H.getRotation();
+	w_R_h.translation() = Eigen::Vector3d::Zero();
 }
 
 
 void WholeBodyState::setBaseVelocity_W(const dwl::Motion& vel_W)
 {
 	base_vel = vel_W;
+	base_vel_B.data = base_vel.data.se3ActionInverse(w_R_b);
+	base_vel_H.data = base_vel.data.se3ActionInverse(w_R_h);
 }
 
 
 void WholeBodyState::setBaseVelocity_B(const dwl::Motion& vel_B)
 {
-	// Mapping the base velocity to the inertial frame
-	se3::SE3 w_R_b(base_pos.getRotation(),
-				   Eigen::Vector3d::Zero());
 	base_vel.data = vel_B.data.se3Action(w_R_b);
+	base_vel_B = vel_B;
+	base_vel_H.data = base_vel.data.se3ActionInverse(w_R_h);
 }
 
 
 void WholeBodyState::setBaseVelocity_H(const dwl::Motion& vel_H)
 {
-	// Mapping the base velocity to the inertial frame
-	se3::SE3 w_R_b(getBaseSE3_H().getRotation(),
-				   Eigen::Vector3d::Zero());
-	base_vel.data = vel_H.data.se3Action(w_R_b);
+	base_vel.data = vel_H.data.se3Action(w_R_h);
+	base_vel_B.data = vel_H.data.se3Action(w_R_b);
+	base_vel_H = vel_H;
 }
 
 void WholeBodyState::setBaseRPYVelocity_W(const Eigen::Vector3d& rpy_rate)
 {
 	// Mapping the RPY velocity to angular one
-	base_vel.setAngular(
-			math::getInverseEulerAnglesRatesMatrix(base_pos.getRotation()) * rpy_rate);
+	vec3_ = math::getInverseEulerAnglesRatesMatrix(base_pos.getRotation()) * rpy_rate;
+	setBaseVelocity_W(dwl::Motion(getBaseVelocity_W().getLinear(), vec3_));
 }
 
 
 void WholeBodyState::setBaseAcceleration_W(const dwl::Motion& acc_W)
 {
 	base_acc = acc_W;
+	base_acc_B.data = base_acc.data.se3ActionInverse(w_R_b);
+	base_acc_H.data = base_acc.data.se3ActionInverse(w_R_h);
 }
 
 
 void WholeBodyState::setBaseAcceleration_B(const dwl::Motion& acc_B)
 {
-	// Mapping the base acceleration to the inertial frame
-	se3::SE3 w_R_b(base_pos.getRotation(),
-				   Eigen::Vector3d::Zero());
 	base_acc.data = acc_B.data.se3Action(w_R_b);
+	base_acc_B = acc_B;
+	base_acc_H.data = base_acc.data.se3ActionInverse(w_R_h);
 }
 
 
 void WholeBodyState::setBaseAcceleration_H(const dwl::Motion& acc_H)
 {
-	// Mapping the base acceleration to the inertial frame
-	se3::SE3 w_R_b(getBaseSE3_H().getRotation(),
-				   Eigen::Vector3d::Zero());
-	base_acc.data = acc_H.data.se3Action(w_R_b);
+	base_acc.data = acc_H.data.se3Action(w_R_h);
+	base_acc_B.data = acc_H.data.se3Action(w_R_b);
+	base_acc_H = acc_H;
 }
 
 
@@ -569,9 +450,9 @@ void WholeBodyState::setBaseRPYAcceleration_W(const Eigen::Vector3d& rpy_acc)
 	// omega_dot = EAR * rpy_ddot + EAR_dot * rpy_dot
 	Eigen::Vector3d rpy = base_pos.getRPY();
 	Eigen::Vector3d rpy_vel = getBaseRPYVelocity_W();
-	base_acc.setAngular(
-			math::getInverseEulerAnglesRatesMatrix(rpy) * rpy_acc +
-			math::getInverseEulerAnglesRatesMatrix_dot(rpy, rpy_vel) * rpy_vel);
+	vec3_ = math::getInverseEulerAnglesRatesMatrix(rpy) * rpy_acc +
+			math::getInverseEulerAnglesRatesMatrix_dot(rpy, rpy_vel) * rpy_vel;
+	setBaseAcceleration_W(dwl::Motion(getBaseAcceleration_W().getLinear(), vec3_));
 }
 
 
@@ -674,8 +555,10 @@ void WholeBodyState::setContactSE3_W(SE3Iterator it)
 void WholeBodyState::setContactSE3_W(const std::string& name,
 									 const dwl::SE3& pos_W)
 {
-	// Mapping the contact SE3 from the inertial to base frame
-	contact_pos[name].data = base_pos.data.actInv(pos_W.data);
+	const se3::SE3& pos_B = getBaseSE3().data.actInv(pos_W.data);
+	contact_pos_W[name] = pos_W;
+	contact_pos[name].data = pos_B;
+	contact_pos_H[name].data = getBaseSE3_H().data.act(pos_B);
 }
 
 
@@ -696,13 +579,17 @@ void WholeBodyState::setContactSE3_B(SE3Iterator it)
 void WholeBodyState::setContactSE3_B(const std::string& name,
 									 const dwl::SE3& pos_B)
 {
+	contact_pos_W[name].data = getBaseSE3().data.act(pos_B.data);
 	contact_pos[name] = pos_B;
+	contact_pos_H[name].data = getBaseSE3_H().data.act(pos_B.data);
 }
 
 
 void WholeBodyState::setContactSE3_B(const dwl::SE3Map& pos_B)
 {
-	contact_pos = pos_B;
+	for (SE3Iterator it = pos_B.begin();
+			it != pos_B.end(); ++it)
+		setContactSE3_B(it);
 }
 
 
@@ -715,8 +602,10 @@ void WholeBodyState::setContactSE3_H(SE3Iterator it)
 void WholeBodyState::setContactSE3_H(const std::string& name,
 									 const dwl::SE3& pos_H)
 {
-	// Mapping the contact SE3 from the inertial to horizontal frame
-	contact_pos[name].data = getBaseSE3_H().data.actInv(pos_H.data);
+	const se3::SE3& pos_B = getBaseSE3_H().data.actInv(pos_H.data);
+	contact_pos_W[name].data = getBaseSE3().data.act(pos_B);
+	contact_pos[name].data = pos_B;
+	contact_pos_H[name] = pos_H;
 }
 
 
@@ -737,9 +626,11 @@ void WholeBodyState::setContactVelocity_W(MotionIterator it)
 void WholeBodyState::setContactVelocity_W(const std::string& name,
 										  const dwl::Motion& vel_W)
 {
-	const se3::SE3& w_X_b = base_pos.data;
-	contact_vel[name].data =
-			(vel_W.data - base_vel.data).se3ActionInverse(w_X_b);
+	const se3::Motion& vel_B =
+			(vel_W.data - base_vel.data).se3ActionInverse(getBaseSE3().data);
+	contact_vel_W[name] = vel_W;
+	contact_vel[name].data = vel_B;
+	contact_vel_H[name].data = vel_B.se3Action(getBaseSE3_H().data);
 }
 
 
@@ -760,13 +651,17 @@ void WholeBodyState::setContactVelocity_B(MotionIterator it)
 void WholeBodyState::setContactVelocity_B(const std::string& name,
 										  const dwl::Motion& vel_B)
 {
+	contact_vel[name].data = base_vel.data + vel_B.data.se3Action(getBaseSE3().data);
 	contact_vel[name] = vel_B;
+	contact_vel_H[name].data = vel_B.data.se3Action(getBaseSE3_H().data);
 }
 
 
 void WholeBodyState::setContactVelocity_B(const dwl::MotionMap& vel_B)
 {
-	contact_vel = vel_B;
+	for (MotionIterator it = vel_B.begin();
+			it != vel_B.end(); ++it)
+		setContactVelocity_B(it);
 }
 
 
@@ -779,8 +674,11 @@ void WholeBodyState::setContactVelocity_H(MotionIterator it)
 void WholeBodyState::setContactVelocity_H(const std::string& name,
 										  const dwl::Motion& vel_H)
 {
-	const se3::SE3& w_X_h = getBaseSE3_H().data;
-	contact_vel[name].data = vel_H.data.se3ActionInverse(w_X_h);
+	const se3::Motion& vel_B = vel_H.data.se3ActionInverse(getBaseSE3_H().data);
+	contact_vel_W[name].data =
+			base_vel.data + vel_B.se3Action(getBaseSE3().data);
+	contact_vel[name].data = vel_B;
+	contact_vel_H[name] = vel_H;
 }
 
 
@@ -801,9 +699,11 @@ void WholeBodyState::setContactAcceleration_W(MotionIterator it)
 void WholeBodyState::setContactAcceleration_W(const std::string& name,
 											  const dwl::Motion& acc_W)
 {
-	const se3::SE3& w_X_b = base_pos.data;
-	contact_acc[name].data =
-			(acc_W.data - base_acc.data).se3ActionInverse(w_X_b);
+	const se3::Motion& acc_B =
+			(acc_W.data - base_acc.data).se3ActionInverse(getBaseSE3().data);
+	contact_vel_W[name] = acc_W;
+	contact_vel[name].data = acc_B;
+	contact_vel_H[name].data = acc_B.se3Action(getBaseSE3_H().data);
 }
 
 
@@ -825,13 +725,18 @@ void WholeBodyState::setContactAcceleration_B(MotionIterator it)
 void WholeBodyState::setContactAcceleration_B(const std::string& name,
 											  const dwl::Motion& acc_B)
 {
+	contact_acc[name].data = base_acc.data + acc_B.data.se3Action(getBaseSE3().data);
 	contact_acc[name] = acc_B;
+	contact_acc_H[name].data = acc_B.data.se3Action(getBaseSE3_H().data);
 }
 
 
 void WholeBodyState::setContactAcceleration_B(const dwl::MotionMap& acc_B)
 {
-	contact_acc = acc_B;
+	for (MotionIterator it = acc_B.begin();
+			it != acc_B.end(); ++it) {
+		setContactAcceleration_B(it);
+	}
 }
 
 
@@ -844,8 +749,11 @@ void WholeBodyState::setContactAcceleration_H(MotionIterator it)
 void WholeBodyState::setContactAcceleration_H(const std::string& name,
 											  const dwl::Motion& acc_H)
 {
-	const se3::SE3& w_X_h = getBaseSE3_H().data;
-	contact_acc[name].data = acc_H.data.se3ActionInverse(w_X_h);
+	const se3::Motion& acc_B = acc_H.data.se3ActionInverse(getBaseSE3_H().data);
+	contact_acc_W[name].data =
+			base_acc.data + acc_B.se3Action(getBaseSE3().data);
+	contact_acc[name].data = acc_B;
+	contact_acc_H[name] = acc_H;
 }
 
 

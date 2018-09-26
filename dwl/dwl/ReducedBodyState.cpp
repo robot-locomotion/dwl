@@ -30,17 +30,9 @@ const dwl::SE3& ReducedBodyState::getCoMSE3() const
 }
 
 
-const dwl::SE3& ReducedBodyState::getCoMSE3_H()
+const dwl::SE3& ReducedBodyState::getCoMSE3_H() const
 {
-	// Getting the RPY vector of the horizontal frame
-	Eigen::Vector3d rpy = com_pos.getRPY();
-	rpy(rbd::X) *= 0.;
-	rpy(rbd::Y) *= 0.;
-
-	// Setting the new rotation matrix
-	se3_.setTranslation(com_pos.getTranslation());
-	se3_.setRotation(math::getRotationMatrix(rpy));
-	return se3_;
+	return com_pos_H;
 }
 
 
@@ -50,23 +42,15 @@ const dwl::Motion& ReducedBodyState::getCoMVelocity_W() const
 }
 
 
-const dwl::Motion& ReducedBodyState::getCoMVelocity_B()
+const dwl::Motion& ReducedBodyState::getCoMVelocity_B() const
 {
-	// Mapping the velocity in the inertial frame to the base one
-	se3::SE3 w_R_b(com_pos.getRotation(),
-				   Eigen::Vector3d::Zero());
-	motion_.data = com_vel.data.se3ActionInverse(w_R_b);
-	return motion_;
+	return com_vel_B;
 }
 
 
-const dwl::Motion& ReducedBodyState::getCoMVelocity_H()
+const dwl::Motion& ReducedBodyState::getCoMVelocity_H() const
 {
-	// Mapping the velocity in the inertial frame to the horizontal one
-	se3::SE3 w_R_b(getCoMSE3_H().getRotation(),
-				   Eigen::Vector3d::Zero());
-	motion_.data = com_vel.data.se3ActionInverse(w_R_b);
-	return motion_;
+	return com_vel_H;
 }
 
 
@@ -85,23 +69,15 @@ const dwl::Motion& ReducedBodyState::getCoMAcceleration_W() const
 }
 
 
-const dwl::Motion& ReducedBodyState::getCoMAcceleration_B()
+const dwl::Motion& ReducedBodyState::getCoMAcceleration_B() const
 {
-	// Mapping the acceleration in the inertial frame to the base one
-	se3::SE3 w_R_b(com_pos.getRotation(),
-				   Eigen::Vector3d::Zero());
-	motion_.data = com_acc.data.se3ActionInverse(w_R_b);
-	return motion_;
+	return com_acc_B;
 }
 
 
-const dwl::Motion& ReducedBodyState::getCoMAcceleration_H()
+const dwl::Motion& ReducedBodyState::getCoMAcceleration_H() const
 {
-	// Mapping the acceleration in the inertial frame to the horizontal one
-	se3::SE3 w_R_b(getCoMSE3_H().getRotation(),
-				   Eigen::Vector3d::Zero());
-	motion_.data = com_acc.data.se3ActionInverse(w_R_b);
-	return motion_;
+	return com_acc_H;
 }
 
 
@@ -125,41 +101,20 @@ const Eigen::Vector3d& ReducedBodyState::getCoPPosition_W() const
 }
 
 
-const dwl::SE3& ReducedBodyState::getFootSE3_W(SE3Iterator it)
-{
-	// Mapping the contact SE3 expressed in the inertial frame to the base one
-	se3_.data = com_pos.data.act(it->second.data);
-	return se3_;
-}
-
-
-const dwl::SE3& ReducedBodyState::getFootSE3_W(const std::string& name)
+const dwl::SE3& ReducedBodyState::getFootSE3_W(const std::string& name) const
 {
 	// Getting the contact iterator
-	SE3Iterator it = foot_pos.find(name);
-	if (it == foot_pos.end())
+	SE3Iterator it = getFootSE3_W().find(name);
+	if (it == getFootSE3_W().end())
 		return null_se3_;
 
-	return getFootSE3_W(it);
-}
-
-
-dwl::SE3Map ReducedBodyState::getFootSE3_W()
-{
-	dwl::SE3Map pos_W;
-	for (SE3Iterator it = foot_pos.begin();
-			it != foot_pos.end(); ++it) {
-		std::string name = it->first;
-		pos_W[name] = getFootSE3_W(it);
-	}
-
-	return pos_W;
-}
-
-
-const dwl::SE3& ReducedBodyState::getFootSE3_B(SE3Iterator it) const
-{
 	return it->second;
+}
+
+
+const dwl::SE3Map& ReducedBodyState::getFootSE3_W() const
+{
+	return foot_pos_W;
 }
 
 
@@ -167,10 +122,10 @@ const dwl::SE3& ReducedBodyState::getFootSE3_B(const std::string& name) const
 {
 	// Getting the contact iterator
 	SE3Iterator it = getFootSE3_B().find(name);
-	if (it == foot_pos.end())
+	if (it == getFootSE3_B().end())
 		return null_se3_;
 
-	return getFootSE3_B(it);
+	return it->second;
 }
 
 
@@ -180,84 +135,47 @@ const dwl::SE3Map& ReducedBodyState::getFootSE3_B() const
 }
 
 
-const dwl::SE3& ReducedBodyState::getFootSE3_H(SE3Iterator it)
+const dwl::SE3& ReducedBodyState::getFootSE3_H(const std::string& name) const
 {
-	// Mapping the contact SE3 expressed in the horizontal frame to the base one
-	se3_.data = getCoMSE3_H().data.act(it->second.data);
-	return se3_;
-}
-
-
-const dwl::SE3& ReducedBodyState::getFootSE3_H(const std::string& name)
-{
-	// Getting the contact iterator
-	SE3Iterator it = getFootSE3_B().find(name);
-	if (it == foot_pos.end())
+	SE3Iterator it = getFootSE3_H().find(name);
+	if (it == getFootSE3_H().end())
 		return null_se3_;
 
-	return getFootSE3_H(it);
+	return it->second;
 }
 
 
-dwl::SE3Map ReducedBodyState::getFootSE3_H()
+const dwl::SE3Map& ReducedBodyState::getFootSE3_H() const
 {
-	dwl::SE3Map pos_H;
-	for (SE3Iterator it = getFootSE3_B().begin();
-			it != getFootSE3_B().end(); ++it) {
-		std::string name = it->first;
-		pos_H[name] = getFootSE3_H(it);
-	}
-
-	return pos_H;
+	return foot_pos_H;
 }
 
 
-const dwl::Motion& ReducedBodyState::getFootVelocity_W(MotionIterator it)
-{
-	const se3::SE3& w_X_b = com_pos.data;
-	motion_.data = com_vel.data + it->second.data.se3Action(w_X_b);
-	return motion_;
-}
-
-
-const dwl::Motion& ReducedBodyState::getFootVelocity_W(const std::string& name)
+const dwl::Motion& ReducedBodyState::getFootVelocity_W(const std::string& name) const
 {
 	// Getting the contact iterator
-	MotionIterator it = getFootVelocity_B().find(name);
-	if (it == foot_vel.end())
+	MotionIterator it = getFootVelocity_W().find(name);
+	if (it == getFootVelocity_W().end())
 		return null_motion_;
 
-	return getFootVelocity_W(it);
-}
-
-
-dwl::MotionMap ReducedBodyState::getFootVelocity_W()
-{
-	dwl::MotionMap vel_W;
-	for (MotionIterator it = getFootVelocity_B().begin();
-			it != getFootVelocity_B().end(); ++it) {
-		std::string name = it->first;
-		vel_W[name] = getFootVelocity_W(it);
-	}
-
-	return vel_W;
-}
-
-
-const dwl::Motion& ReducedBodyState::getFootVelocity_B(MotionIterator it) const
-{
 	return it->second;
+}
+
+
+const dwl::MotionMap& ReducedBodyState::getFootVelocity_W() const
+{
+	return foot_vel_W;
 }
 
 
 const dwl::Motion& ReducedBodyState::getFootVelocity_B(const std::string& name) const
 {
 	// Getting the contact iterator
-	MotionIterator it = foot_vel.find(name);
-	if (it == foot_vel.end())
+	MotionIterator it = getFootVelocity_B().find(name);
+	if (it == getFootVelocity_B().end())
 		return null_motion_;
 
-	return getFootVelocity_B(it);
+	return it->second;
 }
 
 
@@ -267,80 +185,48 @@ const dwl::MotionMap& ReducedBodyState::getFootVelocity_B() const
 }
 
 
-const dwl::Motion& ReducedBodyState::getFootVelocity_H(MotionIterator it)
+const dwl::Motion& ReducedBodyState::getFootVelocity_H(const std::string& name) const
 {
-	const se3::SE3& h_X_b = getCoMSE3_H().data;
-	motion_.data = it->second.data.se3Action(h_X_b);
-	return motion_;
+	// Getting the contact iterator
+	MotionIterator it = getFootVelocity_H().find(name);
+	if (it == getFootVelocity_H().end())
+		return null_motion_;
+
+	return it->second;
 }
 
 
-const dwl::Motion& ReducedBodyState::getFootVelocity_H(const std::string& name)
+const dwl::MotionMap& ReducedBodyState::getFootVelocity_H() const
 {
-	MotionIterator it = getFootVelocity_B().find(name);
-	return getFootVelocity_H(it);
-}
-
-
-dwl::MotionMap ReducedBodyState::getFootVelocity_H()
-{
-	dwl::MotionMap foot_vel_H;
-	for (MotionIterator foot_it = getFootVelocity_B().begin();
-			foot_it != getFootVelocity_B().end(); ++foot_it) {
-		std::string name = foot_it->first;
-		foot_vel_H[name] = getFootVelocity_H(foot_it);
-	}
-
 	return foot_vel_H;
 }
 
 
-const dwl::Motion& ReducedBodyState::getFootAcceleration_W(MotionIterator it)
+const dwl::Motion& ReducedBodyState::getFootAcceleration_W(const std::string& name) const
 {
-	const se3::SE3& w_X_b = com_pos.data;
-	const se3::Motion& v = getFootVelocity_W(it->first).data;
-	motion_.data = com_acc.data + it->second.data.se3Action(w_X_b);
-	motion_.data.linear() += v.angular().cross(v.linear());
-	return motion_;
-}
-
-
-const dwl::Motion& ReducedBodyState::getFootAcceleration_W(const std::string& name)
-{
-	MotionIterator it = getFootAcceleration_B().find(name);
-	if (it == foot_acc.end())
+	// Getting the contact iterator
+	MotionIterator it = getFootAcceleration_W().find(name);
+	if (it == getFootAcceleration_W().end())
 		return null_motion_;
 
-	return getFootAcceleration_W(it);
-}
-
-
-dwl::MotionMap ReducedBodyState::getFootAcceleration_W()
-{
-	dwl::MotionMap acc_W;
-	for (MotionIterator it = getFootAcceleration_B().begin();
-			it != getFootAcceleration_B().end(); ++it) {
-		std::string name = it->first;
-		acc_W[name] = getFootAcceleration_W(it);
-	}
-
-	return acc_W;
-}
-
-
-const dwl::Motion& ReducedBodyState::getFootAcceleration_B(MotionIterator it) const
-{
 	return it->second;
+}
+
+
+const dwl::MotionMap& ReducedBodyState::getFootAcceleration_W() const
+{
+	return foot_acc_W;
 }
 
 
 const dwl::Motion& ReducedBodyState::getFootAcceleration_B(const std::string& name) const
 {
+	// Getting the contact iterator
 	MotionIterator it = getFootAcceleration_B().find(name);
-	if (it == foot_acc.end())
+	if (it == getFootAcceleration_B().end())
 		return null_motion_;
 
-	return getFootAcceleration_B(it);
+	return it->second;
 }
 
 
@@ -350,36 +236,20 @@ const dwl::MotionMap& ReducedBodyState::getFootAcceleration_B() const
 }
 
 
-const dwl::Motion& ReducedBodyState::getFootAcceleration_H(MotionIterator it)
+const dwl::Motion& ReducedBodyState::getFootAcceleration_H(const std::string& name) const
 {
-	const se3::SE3& w_X_h = getCoMSE3_H().data;
-	const se3::Motion& v = getFootVelocity_W(it->first).data;
-	motion_.data = it->second.data.se3Action(w_X_h);
-	motion_.data.linear() += v.angular().cross(v.linear());
-	return motion_;
-}
-
-
-const dwl::Motion& ReducedBodyState::getFootAcceleration_H(const std::string& name)
-{
-	MotionIterator it = getFootAcceleration_B().find(name);
-	if (it == foot_acc.end())
+	// Getting the contact iterator
+	MotionIterator it = getFootAcceleration_H().find(name);
+	if (it == getFootAcceleration_H().end())
 		return null_motion_;
 
-	return getFootAcceleration_H(it);
+	return it->second;
 }
 
 
-dwl::MotionMap ReducedBodyState::getFootAcceleration_H()
+const dwl::MotionMap& ReducedBodyState::getFootAcceleration_H() const
 {
-	dwl::MotionMap acc_H;
-	for (MotionIterator it = getFootAcceleration_B().begin();
-			it != getFootAcceleration_B().end(); ++it) {
-		std::string name = it->first;
-		acc_H[name] = getFootAcceleration_H(it);
-	}
-
-	return acc_H;
+	return foot_acc_H;
 }
 
 
@@ -398,62 +268,75 @@ void ReducedBodyState::setTime(const double& _time)
 void ReducedBodyState::setCoMSE3(const dwl::SE3& pos_W)
 {
 	com_pos = pos_W;
+
+	// Computing and setting up the CoM SE3 in the horizontal frame
+	Eigen::Vector3d rpy = com_pos.getRPY();
+	rpy(rbd::X) *= 0.;
+	rpy(rbd::Y) *= 0.;
+	com_pos_H.setTranslation(com_pos.getTranslation());
+	com_pos_H.setRotation(math::getRotationMatrix(rpy));
+
+	// Updating the rotation transformation between frames
+	w_R_b.rotation() = com_pos.getRotation();
+	w_R_b.translation() = Eigen::Vector3d::Zero();
+	w_R_h.rotation() = com_pos_H.getRotation();
+	w_R_h.translation() = Eigen::Vector3d::Zero();
 }
 
 
 void ReducedBodyState::setCoMVelocity_W(const dwl::Motion& vel_W)
 {
 	com_vel = vel_W;
+	com_vel_B.data = com_vel.data.se3ActionInverse(w_R_b);
+	com_vel_H.data = com_vel.data.se3ActionInverse(w_R_h);
 }
 
 
 void ReducedBodyState::setCoMVelocity_B(const dwl::Motion& vel_B)
 {
-	// Mapping the CoM velocity to the inertial frame
-	se3::SE3 w_R_b(com_pos.getRotation(),
-				   Eigen::Vector3d::Zero());
 	com_vel.data = vel_B.data.se3Action(w_R_b);
+	com_vel_B = vel_B;
+	com_vel_H.data = com_vel.data.se3ActionInverse(w_R_h);
 }
 
 
 void ReducedBodyState::setCoMVelocity_H(const dwl::Motion& vel_H)
 {
-	// Mapping the base velocity to the inertial frame
-	se3::SE3 w_R_b(getCoMSE3_H().getRotation(),
-				   Eigen::Vector3d::Zero());
-	com_vel.data = vel_H.data.se3Action(w_R_b);
+	com_vel.data = vel_H.data.se3Action(w_R_h);
+	com_vel_B.data = vel_H.data.se3Action(w_R_b);
+	com_vel_H = vel_H;
 }
 
 
 void ReducedBodyState::setRPYVelocity_W(const Eigen::Vector3d& rpy_rate)
 {
 	// Mapping the RPY velocity to angular one
-	com_vel.setAngular(
-			math::getInverseEulerAnglesRatesMatrix(com_pos.getRotation()) * rpy_rate);
+	vec3_ = math::getInverseEulerAnglesRatesMatrix(com_pos.getRotation()) * rpy_rate;
+	setCoMVelocity_W(dwl::Motion(getCoMVelocity_W().getLinear(), vec3_));
 }
 
 
 void ReducedBodyState::setCoMAcceleration_W(const dwl::Motion& acc_W)
 {
 	com_acc = acc_W;
+	com_acc_B.data = com_acc.data.se3ActionInverse(w_R_b);
+	com_acc_H.data = com_acc.data.se3ActionInverse(w_R_h);
 }
 
 
 void ReducedBodyState::setCoMAcceleration_B(const dwl::Motion& acc_B)
 {
-	// Mapping the base acceleration to the inertial frame
-	se3::SE3 w_R_b(com_pos.getRotation(),
-				   Eigen::Vector3d::Zero());
 	com_acc.data = acc_B.data.se3Action(w_R_b);
+	com_acc_B = acc_B;
+	com_acc_H.data = com_acc.data.se3ActionInverse(w_R_h);
 }
 
 
 void ReducedBodyState::setCoMAcceleration_H(const dwl::Motion& acc_H)
 {
-	// Mapping the base acceleration to the inertial frame
-	se3::SE3 w_R_b(getCoMSE3_H().getRotation(),
-				   Eigen::Vector3d::Zero());
-	com_acc.data = acc_H.data.se3Action(w_R_b);
+	com_acc.data = acc_H.data.se3Action(w_R_h);
+	com_acc_B.data = acc_H.data.se3Action(w_R_b);
+	com_acc_H = acc_H;
 }
 
 
@@ -462,9 +345,9 @@ void ReducedBodyState::setRPYAcceleration_W(const Eigen::Vector3d& rpy_acc)
 	// omega_dot = EAR * rpy_ddot + EAR_dot * rpy_dot
 	Eigen::Vector3d rpy = com_pos.getRPY();
 	Eigen::Vector3d rpy_vel = getRPYVelocity_W();
-	com_acc.setAngular(
-			math::getInverseEulerAnglesRatesMatrix(rpy) * rpy_acc +
-			math::getInverseEulerAnglesRatesMatrix_dot(rpy, rpy_vel) * rpy_vel);
+	vec3_ = math::getInverseEulerAnglesRatesMatrix(rpy) * rpy_acc +
+			math::getInverseEulerAnglesRatesMatrix_dot(rpy, rpy_vel) * rpy_vel;
+	setCoMAcceleration_W(dwl::Motion(getCoMAcceleration_W().getLinear(), vec3_));
 }
 
 
@@ -483,8 +366,10 @@ void ReducedBodyState::setFootSE3_W(SE3Iterator it)
 void ReducedBodyState::setFootSE3_W(const std::string& name,
 									const dwl::SE3& pos_W)
 {
-	// Mapping the contact SE3 from the inertial to base frame
-	foot_pos[name].data = com_pos.data.actInv(pos_W.data);
+	const se3::SE3& pos_B = getCoMSE3().data.actInv(pos_W.data);
+	foot_pos_W[name] = pos_W;
+	foot_pos[name].data = pos_B;
+	foot_pos_H[name].data = getCoMSE3_H().data.act(pos_B);
 }
 
 
@@ -505,13 +390,17 @@ void ReducedBodyState::setFootSE3_B(SE3Iterator it)
 void ReducedBodyState::setFootSE3_B(const std::string& name,
 									const dwl::SE3& pos_B)
 {
+	foot_pos_W[name].data = getCoMSE3().data.act(pos_B.data);
 	foot_pos[name] = pos_B;
+	foot_pos_H[name].data = getCoMSE3_H().data.act(pos_B.data);
 }
 
 
 void ReducedBodyState::setFootSE3_B(const dwl::SE3Map& pos_B)
 {
-	foot_pos = pos_B;
+	for (SE3Iterator it = pos_B.begin();
+			it != pos_B.end(); ++it)
+		setFootSE3_B(it);
 }
 
 
@@ -524,16 +413,18 @@ void ReducedBodyState::setFootSE3_H(SE3Iterator it)
 void ReducedBodyState::setFootSE3_H(const std::string& name,
 									const dwl::SE3& pos_H)
 {
-	// Mapping the contact SE3 from the inertial to horizontal frame
-	foot_pos[name].data = getCoMSE3_H().data.actInv(pos_H.data);
+	const se3::SE3& pos_B = getCoMSE3_H().data.actInv(pos_H.data);
+	foot_pos_W[name].data = getCoMSE3().data.act(pos_B);
+	foot_pos[name].data = pos_B;
+	foot_pos_H[name] = pos_H;
 }
 
 
 void ReducedBodyState::setFootSE3_H(const dwl::SE3Map& pos_H)
 {
-	for (SE3Iterator foot_it = pos_H.begin();
-			foot_it != pos_H.end(); foot_it++)
-		setFootSE3_H(foot_it);
+	for (SE3Iterator it = pos_H.begin();
+			it != pos_H.end(); ++it)
+		setFootSE3_H(it);
 }
 
 
@@ -546,17 +437,19 @@ void ReducedBodyState::setFootVelocity_W(MotionIterator it)
 void ReducedBodyState::setFootVelocity_W(const std::string& name,
 										 const dwl::Motion& vel_W)
 {
-	const se3::SE3& w_X_b = com_pos.data;
-	foot_vel[name].data =
-			(vel_W.data - com_vel.data).se3ActionInverse(w_X_b);
+	const se3::Motion& vel_B =
+			(vel_W.data - com_vel.data).se3ActionInverse(getCoMSE3().data);
+	foot_vel_W[name] = vel_W;
+	foot_vel[name].data = vel_B;
+	foot_vel_H[name].data = vel_B.se3Action(getCoMSE3_H().data);
 }
 
 
 void ReducedBodyState::setFootVelocity_W(const dwl::MotionMap& vel_W)
 {
-	for (MotionIterator foot_it = vel_W.begin();
-			foot_it != vel_W.end(); foot_it++)
-		setFootVelocity_W(foot_it);
+	for (MotionIterator it = vel_W.begin();
+			it != vel_W.end(); ++it)
+		setFootVelocity_W(it);
 }
 
 
@@ -569,13 +462,17 @@ void ReducedBodyState::setFootVelocity_B(MotionIterator it)
 void ReducedBodyState::setFootVelocity_B(const std::string& name,
 										 const dwl::Motion& vel_B)
 {
+	foot_vel[name].data = com_vel.data + vel_B.data.se3Action(getCoMSE3().data);
 	foot_vel[name] = vel_B;
+	foot_vel_H[name].data = vel_B.data.se3Action(getCoMSE3_H().data);
 }
 
 
 void ReducedBodyState::setFootVelocity_B(const dwl::MotionMap& vel_B)
 {
-	foot_vel = vel_B;
+	for (MotionIterator it = vel_B.begin();
+			it != vel_B.end(); ++it)
+		setFootVelocity_B(it);
 }
 
 
@@ -588,8 +485,11 @@ void ReducedBodyState::setFootVelocity_H(MotionIterator it)
 void ReducedBodyState::setFootVelocity_H(const std::string& name,
 										 const dwl::Motion& vel_H)
 {
-	const se3::SE3& w_X_h = getCoMSE3_H().data;
-	foot_vel[name].data = vel_H.data.se3ActionInverse(w_X_h);
+	const se3::Motion& vel_B = vel_H.data.se3ActionInverse(getCoMSE3_H().data);
+	foot_vel_W[name].data =
+			com_vel.data + vel_B.se3Action(getCoMSE3().data);
+	foot_vel[name].data = vel_B;
+	foot_vel_H[name] = vel_H;
 }
 
 
@@ -610,17 +510,19 @@ void ReducedBodyState::setFootAcceleration_W(MotionIterator it)
 void ReducedBodyState::setFootAcceleration_W(const std::string& name,
 											 const dwl::Motion& acc_W)
 {
-	const se3::SE3& w_X_b = com_pos.data;
-	foot_acc[name].data =
-			(acc_W.data - com_acc.data).se3ActionInverse(w_X_b);
+	const se3::Motion& acc_B =
+			(acc_W.data - com_acc.data).se3ActionInverse(getCoMSE3().data);
+	foot_vel_W[name] = acc_W;
+	foot_vel[name].data = acc_B;
+	foot_vel_H[name].data = acc_B.se3Action(getCoMSE3_H().data);
 }
 
 
 void ReducedBodyState::setFootAcceleration_W(const dwl::MotionMap& acc_W)
 {
-	for (MotionIterator acc_it = acc_W.begin();
-			acc_it != acc_W.end(); acc_it++) {
-		setFootAcceleration_W(acc_it);
+	for (MotionIterator it = acc_W.begin();
+			it != acc_W.end(); ++it) {
+		setFootAcceleration_W(it);
 	}
 }
 
@@ -634,13 +536,18 @@ void ReducedBodyState::setFootAcceleration_B(MotionIterator it)
 void ReducedBodyState::setFootAcceleration_B(const std::string& name,
 											 const dwl::Motion& acc_B)
 {
+	foot_acc[name].data = com_acc.data + acc_B.data.se3Action(getCoMSE3().data);
 	foot_acc[name] = acc_B;
+	foot_acc_H[name].data = acc_B.data.se3Action(getCoMSE3_H().data);
 }
 
 
 void ReducedBodyState::setFootAcceleration_B(const dwl::MotionMap& acc_B)
 {
-	foot_acc = acc_B;
+	for (MotionIterator it = acc_B.begin();
+			it != acc_B.end(); ++it) {
+		setFootAcceleration_B(it);
+	}
 }
 
 
@@ -653,16 +560,19 @@ void ReducedBodyState::setFootAcceleration_H(MotionIterator it)
 void ReducedBodyState::setFootAcceleration_H(const std::string& name,
 											 const dwl::Motion& acc_H)
 {
-	const se3::SE3& w_X_h = getCoMSE3_H().data;
-	foot_acc[name].data = acc_H.data.se3ActionInverse(w_X_h);
+	const se3::Motion& acc_B = acc_H.data.se3ActionInverse(getCoMSE3_H().data);
+	foot_acc_W[name].data =
+			com_acc.data + acc_B.se3Action(getCoMSE3().data);
+	foot_acc[name].data = acc_B;
+	foot_acc_H[name] = acc_H;
 }
 
 
 void ReducedBodyState::setFootAcceleration_H(const dwl::MotionMap& acc_H)
 {
-	for (MotionIterator acc_it = acc_H.begin();
-			acc_it != acc_H.end(); acc_it++) {
-		setFootAcceleration_H(acc_it);
+	for (MotionIterator it = acc_H.begin();
+			it != acc_H.end(); ++it) {
+		setFootAcceleration_H(it);
 	}
 }
 

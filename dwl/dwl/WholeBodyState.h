@@ -95,7 +95,7 @@ class WholeBodyState
 		 * @brief Gets the base SE3 of the horizontal frame
 		 * @return Base SE3 of the horizontal frame
 		 */
-		const dwl::SE3& getBaseSE3_H();
+		const dwl::SE3& getBaseSE3_H() const;
 
 		/** @brief Gets the base velocity expressed in the world frame
 		 * @return Base velocity expressed in the world frame
@@ -105,12 +105,12 @@ class WholeBodyState
 		/** @brief Gets the base velocity of the base frame
 		 * @return Base velocity of the horizontal frame
 		 */
-		const dwl::Motion& getBaseVelocity_B();
+		const dwl::Motion& getBaseVelocity_B() const;
 
 		/** @brief Gets the base velocity expressed in the horizontal frame
 		 * @return Base velocity expressed in the horizontal frame
 		 */
-		const dwl::Motion& getBaseVelocity_H();
+		const dwl::Motion& getBaseVelocity_H() const;
 
 		/** @brief Gets the base RPY velocity expressed in the world frame
 		 * @return Base RPY velocity expressed in the world frame
@@ -125,12 +125,12 @@ class WholeBodyState
 		/** @brief Gets the base acceleration expressed in the base frame
 		 * @return Base acceleration expressed in the base frame
 		 */
-		const dwl::Motion& getBaseAcceleration_B();
+		const dwl::Motion& getBaseAcceleration_B() const;
 
 		/** @brief Gets the base acceleration expressed in the horizontal frame
 		 * @return Base acceleration expressed in the horizontal frame
 		 */
-		const dwl::Motion& getBaseAcceleration_H();
+		const dwl::Motion& getBaseAcceleration_H() const;
 
 		/** @brief Gets the base RPY acceleration expressed in the world frame
 		 * @return Base RPY acceleration expressed in the world frame
@@ -140,7 +140,7 @@ class WholeBodyState
 		/** @brief Gets the base wrench expressed in the world frame
 		 * @return Base wrench expressed in the world frame
 		 */
-		const dwl::Force& getBaseWrench_W();
+		const dwl::Force& getBaseWrench_W() const;
 
 
 		// Joint state getter functions
@@ -196,27 +196,15 @@ class WholeBodyState
 
 		// Contact state getter functions
 		/** @brief Gets the contact SE3 expressed the world frame
-		 * @param[in] it Contact SE3 iterator
-		 * @return Contact SE3 expressed in the world frame
-		 */
-		const dwl::SE3& getContactSE3_W(SE3Iterator it);
-
-		/** @brief Gets the contact SE3 expressed the world frame
 		 * @param[in] Contact name
 		 * @return Contact SE3 expressed in the world frame
 		 */
-		const dwl::SE3& getContactSE3_W(const std::string& name);
+		const dwl::SE3& getContactSE3_W(const std::string& name) const;
 
 		/** @brief Gets all contact positions expressed the world frame
 		 * @return All contact positions expressed in the world frame
 		 */
-		dwl::SE3Map getContactSE3_W();
-
-		/** @brief Gets the contact SE3 expressed the base frame
-		 * @param[in] it Contact SE3 iterator
-		 * @return Contact SE3 expressed in the base frame
-		 */
-		const dwl::SE3& getContactSE3_B(SE3Iterator it) const;
+		const dwl::SE3Map& getContactSE3_W() const;
 
 		/** @brief Gets the contact SE3 expressed the base frame
 		 * @param[in] Contact name
@@ -230,44 +218,26 @@ class WholeBodyState
 		const dwl::SE3Map& getContactSE3_B() const;
 
 		/** @brief Gets the contact position expressed the horizontal frame
-		 * @param[in] it Contact SE3 iterator
-		 * @return The contact position expressed in the horizontal frame
-		 */
-		const dwl::SE3& getContactSE3_H(SE3Iterator it);
-
-		/** @brief Gets the contact position expressed the horizontal frame
 		 * @param[in] name Contact name
 		 * @return Contact SE3 expressed in the horizontal frame
 		 */
-		const dwl::SE3& getContactSE3_H(const std::string& name);
+		const dwl::SE3& getContactSE3_H(const std::string& name) const;
 
 		/** @brief Gets all contact positions expressed the horizontal frame
 		 * @return All contact SE3s expressed in the horizontal frame
 		 */
-		dwl::SE3Map getContactSE3_H();
-
-		/** @brief Gets the contact velocity expressed the world frame
-		 * @param[in] it Contact velocity iterator
-		 * @return Contact velocity expressed in the world frame
-		 */
-		const dwl::Motion& getContactVelocity_W(MotionIterator it);
+		const dwl::SE3Map& getContactSE3_H() const;
 
 		/** @brief Gets the contact velocity expressed the world frame
 		 * @param[in] name Contact name
 		 * @return Contact velocity expressed in the world frame
 		 */
-		const dwl::Motion& getContactVelocity_W(const std::string& name);
+		const dwl::Motion& getContactVelocity_W(const std::string& name) const;
 
 		/** @brief Gets all contact velocities expressed the world frame
 		 * @return All contact velocities expressed in the world frame
 		 */
-		dwl::MotionMap getContactVelocity_W();
-
-		/** @brief Gets the contact velocity expressed the base frame
-		 * @param[in] it Contact velocity iterator
-		 * @return Contact velocity expressed in the base frame
-		 */
-		const dwl::Motion& getContactVelocity_B(MotionIterator it) const;
+		const dwl::MotionMap& getContactVelocity_W() const;
 
 		/** @brief Gets the contact velocity expressed the base frame
 		 * @param[in] name Contact name
@@ -281,44 +251,26 @@ class WholeBodyState
 		const dwl::MotionMap& getContactVelocity_B() const;
 
 		/** @brief Gets the contact velocity expressed the horizontal frame
-		 * @param[in] it Contact velocity iterator
-		 * @return Contact velocity expressed in the horizontal frame
-		 */
-		const dwl::Motion& getContactVelocity_H(MotionIterator it);
-
-		/** @brief Gets the contact velocity expressed the horizontal frame
 		 * @param[in] name Contact name
 		 * @return Contact velocity expressed in the horizontal frame
 		 */
-		const dwl::Motion& getContactVelocity_H(const std::string& name);
+		const dwl::Motion& getContactVelocity_H(const std::string& name) const;
 
 		/** @brief Gets all contact velocity expressed the horizontal frame
 		 * @return All contact velocity expressed in the horizontal frame
 		 */
-		dwl::MotionMap getContactVelocity_H();
-
-		/** @brief Gets the contact acceleration expressed the world frame
-		 * @param[in] it Contact acceleration iterator
-		 * @return Contact acceleration expressed in the world frame
-		 */
-		const dwl::Motion& getContactAcceleration_W(MotionIterator it);
+		const dwl::MotionMap& getContactVelocity_H() const;
 
 		/** @brief Gets the contact acceleration expressed the world frame
 		 * @param[in] name Contact name
 		 * @return Contact acceleration expressed in the world frame
 		 */
-		const dwl::Motion& getContactAcceleration_W(const std::string& name);
+		const dwl::Motion& getContactAcceleration_W(const std::string& name) const;
 
 		/** @brief Gets all contact accelerations expressed the world frame
 		 * @return All contact accelerations expressed in the world frame
 		 */
-		dwl::MotionMap getContactAcceleration_W();
-
-		/** @brief Gets the contact acceleration expressed the base frame
-		 * @param[in] it The contact acceleration iterator
-		 * @return Contact acceleration expressed in the base frame
-		 */
-		const dwl::Motion& getContactAcceleration_B(MotionIterator it) const;
+		const dwl::MotionMap& getContactAcceleration_W() const;
 
 		/** @brief Gets the contact acceleration expressed the base frame
 		 * @param[in] name Contact name
@@ -332,21 +284,15 @@ class WholeBodyState
 		const dwl::MotionMap& getContactAcceleration_B() const;
 
 		/** @brief Gets the contact acceleration expressed the horizontal frame
-		 * @param[in] it Contact acceleration iterator
-		 * @return Contact acceleration expressed in the horizontal frame
-		 */
-		const dwl::Motion& getContactAcceleration_H(MotionIterator it);
-
-		/** @brief Gets the contact acceleration expressed the horizontal frame
 		 * @param[in] name Contact name
 		 * @return Contact acceleration expressed in the horizontal frame
 		 */
-		const dwl::Motion& getContactAcceleration_H(const std::string& name);
+		const dwl::Motion& getContactAcceleration_H(const std::string& name) const;
 
 		/** @brief Gets the contact acceleration expressed the horizontal frame
 		 * @return All contact accelerations expressed in the horizontal frame
 		 */
-		dwl::MotionMap getContactAcceleration_H();
+		const dwl::MotionMap& getContactAcceleration_H() const;
 
 		/** @brief Gets the contact wrench expressed the base frame
 		 * @param[in] name Contact name
@@ -667,8 +613,14 @@ class WholeBodyState
 
 	private:
 		/** @brief Internal data to avoid dynamic memory allocation **/
-		dwl::SE3 se3_;
-		dwl::Motion motion_;
+		se3::SE3 w_R_b;
+		se3::SE3 w_R_h;
+		dwl::SE3 base_pos_H;
+		dwl::Motion base_vel_B, base_vel_H;
+		dwl::Motion base_acc_B, base_acc_H;
+		dwl::SE3Map contact_pos_W, contact_pos_H;
+		dwl::MotionMap contact_vel_W, contact_vel_H;
+		dwl::MotionMap contact_acc_W, contact_acc_H;
 		Eigen::Vector3d vec3_;
 
 		/** @brief Number of joints */
