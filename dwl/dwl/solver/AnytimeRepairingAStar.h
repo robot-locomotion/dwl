@@ -2,6 +2,7 @@
 #define DWL__SOLVER__ANYTIME_REPAIRING_ASTAR__H
 
 #include <dwl/solver/SearchTreeSolver.h>
+#include <set>
 
 
 namespace dwl

@@ -1,4 +1,5 @@
 #include <dwl/solver/AStar.h>
+#include <set>
 
 
 namespace dwl

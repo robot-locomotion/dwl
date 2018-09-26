@@ -1,4 +1,5 @@
 #include <dwl/solver/Dijkstrap.h>
+#include <set>
 
 
 namespace dwl

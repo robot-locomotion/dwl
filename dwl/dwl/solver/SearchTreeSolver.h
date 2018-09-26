@@ -1,7 +1,6 @@
 #ifndef DWL__SOLVER__SEARCH_TREE_SOLVER__H
 #define DWL__SOLVER__SEARCH_TREE_SOLVER__H
 
-#include <dwl/robot/Robot.h>
 #include <dwl/model/AdjacencyModel.h>
 #include <dwl/utils/utils.h>
 
@@ -31,14 +30,6 @@ class SearchTreeSolver
 		 * @return True if was initialized
 		 */
 		virtual bool init() = 0;
-
-		/**
-		 * @brief Defines the environment information
-		 * @param Robot* Encapsulated all the robot information
-		 * @param TerrainMap* Encapsulates all the terrain information
-		 */
-		void reset(robot::Robot* robot,
-				   environment::TerrainMap* environment);
 
 		/**
 		 * @brief Sets the adjacency model that is used for graph searching solvers

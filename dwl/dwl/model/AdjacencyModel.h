@@ -1,9 +1,6 @@
 #ifndef DWL__MODEL__ADJACENCY_MODEL__H
 #define DWL__MODEL__ADJACENCY_MODEL__H
 
-#include <dwl/environment/TerrainMap.h>
-#include <dwl/environment/Feature.h>
-#include <dwl/robot/Robot.h>
 #include <dwl/utils/utils.h>
 
 
@@ -14,9 +11,12 @@ namespace model
 {
 
 /**
- * @class AdjacencyModel
- * @brief Abstract class for building an adjacency map which necessary for
- * making the tree exploration with search-tree solver
+ * @brief The AdjacencyModel class
+ * It models an adjacency map needed for search-tree solvers of dwl. This class
+ * allows us to comput the adjacency map, get the successors, compute the
+ * heuristic cost, evaluated obstacles and when the target is reached.
+ * @author Carlos Mastalli
+ * @copyright BSD 3-Clause License
  */
 class AdjacencyModel
 {
@@ -26,15 +26,6 @@ class AdjacencyModel
 
 		/** @brief Destructor function */
 		virtual ~AdjacencyModel();
-
-		/**
-		 * @brief Defines the settings of all components within AdjacencyModel class
-		 * @param robot::Robot* The robot defines all the properties of the robot
-		 * @param environment::TerrainMap* Pointer to object that describes the
-		 * terrain environment
-		 */
-		void reset(robot::Robot* robot,
-				   environment::TerrainMap* environment);
 
 		/**
 		 * @brief Abstract method that computes the whole adjacency map, which
@@ -56,33 +47,12 @@ class AdjacencyModel
 								   Vertex state_vertex) = 0;
 
 		/**
-		 * @brief Gets the closest start and goal vertex if it is not belong to
-		 * the terrain information
-		 * @param Vertex& The closest vertex to the start
-		 * @param Vertex& The closest vertex to the goal
-		 * @param Vertex Start vertex
-		 * @param Vertex Goal vertex
-		 */
-		void getTheClosestStartAndGoalVertex(Vertex& closest_source,
-											 Vertex& closest_target,
-											 Vertex source,
-											 Vertex target);
-
-		/**
-		 * @brief Gets the closest vertex to a certain vertex
-		 * @param Vertex& The closest vertex
-		 * @param Vertex Current vertex
-		 */
-		void getTheClosestVertex(Vertex& closest_vertex,
-								 Vertex vertex);
-
-		/**
 		 * @brief Estimates the heuristic cost from a source to a target vertex
 		 * @param Vertex Source vertex
 		 * @param Vertex Target vertex
 		 */
 		virtual double heuristicCost(Vertex source,
-									 Vertex target);
+									 Vertex target) = 0;
 
 		/**
 		 * @brief Indicates if it is reached the goal
@@ -90,8 +60,8 @@ class AdjacencyModel
 		 * @param Vertex Current vertex
 		 * @return True if it is reached the goal and false otherwise
 		 */
-		bool isReachedGoal(Vertex target,
-						   Vertex current);
+		bool virtual isReachedGoal(Vertex target,
+								   Vertex current) = 0;
 
 		/**
 		 * @brief Indicates if the free of obstacle
@@ -102,13 +72,7 @@ class AdjacencyModel
 		 */
 		virtual bool isFreeOfObstacle(Vertex state_vertex,
 									  TypeOfState state_representation,
-									  bool body = false);
-
-		/**
-		 * @brief Adds a feature for computing the associated body cost
-		 * @param environment::Feature* The pointer of the feature to add it
-		 */
-		void addFeature(environment::Feature* feature);
+									  bool body = false) = 0;
 
 		/**
 		 * @brief Indicates if it is a lattice representation of the environment
@@ -127,23 +91,8 @@ class AdjacencyModel
 		/** @brief Name of the adjacency model */
 		std::string name_;
 
-		/** @brief Pointer to robot properties */
-		robot::Robot* robot_;
-
-		/** @brief Pointer of the TerrainMap object which describes the terrain */
-		environment::TerrainMap* terrain_;
-
-		/** @brief Vector of pointers to the Feature class */
-		std::vector<environment::Feature*> features_;
-
 		/** @brief Indicates if it is a lattice-based graph */
 		bool is_lattice_;
-
-		/** @brief Indicates if it was added a feature */
-		bool is_added_feature_;
-
-		/** @brief Uncertainty factor which is applied in unperceived environment */
-		double uncertainty_factor_; // For unknown (non-perceive) areas
 };
 
 } //@namespace model
