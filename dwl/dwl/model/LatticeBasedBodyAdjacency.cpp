@@ -7,8 +7,9 @@ namespace dwl
 namespace model
 {
 
-LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : is_stance_adjacency_(true),
-		number_top_cost_(10)
+LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : robot_(NULL),
+		terrain_(NULL), is_stance_adjacency_(true),	number_top_cost_(10),
+		uncertainty_factor_(1.15)
 {
 	name_ = "Lattice-based Body";
 	is_lattice_ = true;
@@ -18,6 +19,22 @@ LatticeBasedBodyAdjacency::LatticeBasedBodyAdjacency() : is_stance_adjacency_(tr
 LatticeBasedBodyAdjacency::~LatticeBasedBodyAdjacency()
 {
 
+}
+
+
+void LatticeBasedBodyAdjacency::reset(robot::Robot* robot,
+						   	   	   	  environment::TerrainMap* environment)
+{
+	printf(BLUE "Setting the robot information in the %s adjacency model \n"
+			COLOR_RESET, name_.c_str());
+	robot_ = robot;
+
+	printf(BLUE "Setting the environment information in the %s adjacency model"
+			" \n" COLOR_RESET, name_.c_str());
+	terrain_ = environment;
+
+	for (int i = 0; i < (int) features_.size(); i++)
+		features_[i]->reset(robot);
 }
 
 

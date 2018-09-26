@@ -2,6 +2,9 @@
 #define DWL__MODEL__GRID_BASED_BODY_ADJACENCY__H
 
 #include <dwl/model/AdjacencyModel.h>
+#include <dwl/robot/Robot.h>
+#include <dwl/environment/TerrainMap.h>
+#include <dwl/environment/Feature.h>
 
 
 namespace dwl
@@ -25,6 +28,14 @@ class GridBasedBodyAdjacency : public AdjacencyModel
 		~GridBasedBodyAdjacency();
 
 		/**
+		 * @brief Defines the environment information
+		 * @param Robot* Encapsulated all the robot information
+		 * @param TerrainMap* Encapsulates all the terrain information
+		 */
+		void reset(robot::Robot* robot,
+				   environment::TerrainMap* environment);
+
+		/**
 		 * @brief Computes the whole adjacency map
 		 * @param AdjacencyMap& Adjacency map
 		 * @param Vertex Source vertex
@@ -45,6 +56,19 @@ class GridBasedBodyAdjacency : public AdjacencyModel
 
 	private:
 		/**
+		  * @brief Gets the closest start and goal vertex if it is not belong to
+		  * the terrain information
+		  * @param Vertex& The closest vertex to the start
+		  * @param Vertex& The closest vertex to the goal
+		  * @param Vertex Start vertex
+		  * @param Vertex Goal vertex
+		  */
+		void getTheClosestStartAndGoalVertex(Vertex& closest_source,
+											 Vertex& closest_target,
+											 Vertex source,
+											 Vertex target);
+
+		/**
 		 * @brief Searches the neighbors of a current vertex
 		 * @param std::vector<Vertex>& The set of states neighbors
 		 * @param Vertex Current state vertex
@@ -61,6 +85,16 @@ class GridBasedBodyAdjacency : public AdjacencyModel
 
 		/** @brief Asks if it is requested a stance adjacency */
 		bool isStanceAdjacency();
+
+
+		/** @brief Pointer to robot properties */
+		robot::Robot* robot_;
+
+		/** @brief Pointer of the TerrainMap object which describes the terrain */
+		environment::TerrainMap* terrain_;
+
+		/** @brief Vector of pointers to the Feature class */
+		std::vector<environment::Feature*> features_;
 
 		/** @brief Indicates it was requested a stance or terrain adjacency */
 		bool is_stance_adjacency_;

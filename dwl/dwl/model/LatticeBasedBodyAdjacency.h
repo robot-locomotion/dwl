@@ -2,6 +2,10 @@
 #define DWL__MODEL__LATTICE_BASED_BODY_ADJACENCY__H
 
 #include <dwl/model/AdjacencyModel.h>
+#include <dwl/robot/Robot.h>
+#include <dwl/environment/TerrainMap.h>
+#include <dwl/environment/Feature.h>
+
 
 
 namespace dwl
@@ -23,6 +27,15 @@ class LatticeBasedBodyAdjacency : public AdjacencyModel
 
 		/** @brief Destructor function */
 		~LatticeBasedBodyAdjacency();
+
+		/**
+		 * @brief Defines the settings of all components within AdjacencyModel class
+		 * @param robot::Robot* The robot defines all the properties of the robot
+		 * @param environment::TerrainMap* Pointer to object that describes the
+		 * terrain environment
+		 */
+		void reset(robot::Robot* robot,
+				   environment::TerrainMap* environment);
 
 		/**
 		 * @brief Gets the successors of the current vertex
@@ -66,6 +79,15 @@ class LatticeBasedBodyAdjacency : public AdjacencyModel
 		 */
 		bool isStanceAdjacency();
 
+		/** @brief Pointer to robot properties */
+		robot::Robot* robot_;
+
+		/** @brief Pointer of the TerrainMap object which describes the terrain */
+		environment::TerrainMap* terrain_;
+
+		/** @brief Vector of pointers to the Feature class */
+		std::vector<environment::Feature*> features_;
+
 		/** @brief Current action of the body */
 		Eigen::Vector3d current_action_;
 
@@ -77,6 +99,9 @@ class LatticeBasedBodyAdjacency : public AdjacencyModel
 
 		/** @brief Number of top cost for computing the stance cost */
 		int number_top_cost_;
+
+		/** @brief Uncertainty factor which is applied in unperceived environment */
+		double uncertainty_factor_; // For unknown (non-perceive) areas
 };
 
 } //@namespace model

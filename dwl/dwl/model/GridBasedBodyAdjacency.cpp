@@ -7,8 +7,10 @@ namespace dwl
 namespace model
 {
 
-GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true),
-		neighboring_definition_(3), number_top_cost_(5), uncertainty_factor_(1.15)
+GridBasedBodyAdjacency::GridBasedBodyAdjacency() : robot_(NULL),
+		terrain_(NULL), is_stance_adjacency_(true),
+		neighboring_definition_(3), number_top_cost_(5),
+		uncertainty_factor_(1.15)
 {
 	name_ = "Grid-based Body";
 	is_lattice_ = false;
@@ -18,6 +20,22 @@ GridBasedBodyAdjacency::GridBasedBodyAdjacency() : is_stance_adjacency_(true),
 GridBasedBodyAdjacency::~GridBasedBodyAdjacency()
 {
 
+}
+
+
+void GridBasedBodyAdjacency::reset(robot::Robot* robot,
+						   environment::TerrainMap* environment)
+{
+	printf(BLUE "Setting the robot information in the %s adjacency model \n"
+			COLOR_RESET, name_.c_str());
+	robot_ = robot;
+
+	printf(BLUE "Setting the environment information in the %s adjacency model"
+			" \n" COLOR_RESET, name_.c_str());
+	terrain_ = environment;
+
+	for (int i = 0; i < (int) features_.size(); i++)
+		features_[i]->reset(robot);
 }
 
 
@@ -121,6 +139,113 @@ void GridBasedBodyAdjacency::getSuccessors(std::list<Edge>& successors,
 	} else
 		printf(RED "Could not computed the successors because there is not"
 				" terrain information \n" COLOR_RESET);
+}
+
+
+void GridBasedBodyAdjacency::getTheClosestStartAndGoalVertex(Vertex& closest_source,
+															 Vertex& closest_target,
+															 Vertex source,
+															 Vertex target)
+{
+	// Checking if the start and goal vertex are part of the terrain information
+	bool is_there_start_vertex, is_there_goal_vertex = false;
+	std::vector<Vertex> vertex_map;
+	if (terrain_->isTerrainInformation()) {
+		TerrainDataMap terrain_map = terrain_->getTerrainDataMap();
+		for (TerrainDataMap::iterator vertex_iter = terrain_map.begin();
+				vertex_iter != terrain_map.end(); vertex_iter++) {
+			Vertex current_vertex = vertex_iter->first;
+			if (source == current_vertex) {
+				is_there_start_vertex = true;
+				closest_source = current_vertex;
+			}
+			if (target == current_vertex) {
+				is_there_goal_vertex = true;
+				closest_target = current_vertex;
+			}
+
+			if ((is_there_start_vertex) && (is_there_goal_vertex))
+				return;
+
+			vertex_map.push_back(vertex_iter->first);
+		}
+	} else {
+		printf(RED "Could not get the closest start and goal vertex because"
+				" there is not terrain information \n" COLOR_RESET);
+		return;
+	}
+
+	// Start and goal state
+	Eigen::Vector3d start_state, goal_state;
+	terrain_->getTerrainSpaceModel().vertexToState(start_state, source);
+	terrain_->getTerrainSpaceModel().vertexToState(goal_state, target);
+
+	double closest_source_distant = std::numeric_limits<double>::max();
+	double closest_target_distant = std::numeric_limits<double>::max();
+	Vertex start_closest_vertex = 0, goal_closest_vertex = 0;
+	if ((!is_there_start_vertex) && (!is_there_goal_vertex)) {
+		Eigen::Vector3d current_state;
+		for (unsigned int i = 0; i < vertex_map.size(); i++) {
+			// Calculating the vertex position
+			terrain_->getTerrainSpaceModel().vertexToState(current_state, vertex_map[i]);
+
+			// Calculating the distant to the vertex from start and goal positions
+			double start_distant = (start_state.head(2) - current_state.head(2)).norm();
+			double goal_distant = (goal_state.head(2) - current_state.head(2)).norm();
+
+			// Recording the closest vertex from the start position
+			if (start_distant < closest_source_distant) {
+				start_closest_vertex = vertex_map[i];
+				closest_source_distant = start_distant;
+			}
+
+			// Recording the closest vertex from the goal position
+			if (goal_distant < closest_target_distant) {
+				goal_closest_vertex = vertex_map[i];
+				closest_target_distant = goal_distant;
+			}
+		}
+
+		// Adding the goal to the adjacency map
+		closest_source = start_closest_vertex;
+		closest_target = goal_closest_vertex;
+	} else if (!is_there_start_vertex) {
+		Eigen::Vector3d current_state;
+		for (unsigned int i = 0; i < vertex_map.size(); i++) {
+			// Calculating the vertex position
+			terrain_->getTerrainSpaceModel().vertexToState(current_state, vertex_map[i]);
+
+			// Calculating the distant to the vertex from start position
+			double start_distant = (start_state.head(2) - current_state.head(2)).norm();
+
+			// Recording the closest vertex from the start position
+			if (start_distant < closest_source_distant) {
+				start_closest_vertex = vertex_map[i];
+				closest_source_distant = start_distant;
+			}
+		}
+
+		// Adding the start to the adjacency map
+		closest_source = start_closest_vertex;
+	} else if (!is_there_goal_vertex) {
+		Eigen::Vector3d current_state;
+		for (unsigned int i = 0; i < vertex_map.size(); i++) {
+			// Calculating the vertex position
+			terrain_->getTerrainSpaceModel().vertexToState(current_state, vertex_map[i]);
+
+			// Calculating the distant to the vertex from goal position
+			double goal_distant = (goal_state.head(2) - current_state.head(2)).norm();
+
+			// Recording the closest vertex from the goal position
+			if (goal_distant < closest_target_distant) {
+				goal_closest_vertex = vertex_map[i];
+				closest_target_distant = goal_distant;
+			}
+		}
+
+		// Adding the goal to the adjacency map
+		closest_target = goal_closest_vertex;
+	}
 }
 
 
