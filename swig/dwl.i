@@ -40,7 +40,6 @@
 // Eigen matrices into Numpy arrays.
 %include <eigen.i>
 
-
 %template(Vector2dList) std::vector<Eigen::Vector2d>;
 %template(Vector3dList) std::vector<Eigen::Vector3d>;
 %template(Vector4dList) std::vector<Eigen::Vector4d>;
@@ -59,6 +58,7 @@
 %eigen_typemaps(Eigen::Vector3d)
 %eigen_typemaps(Eigen::Vector4d)
 %eigen_typemaps(Eigen::Vector6d)
+%eigen_typemaps(Eigen::Vector7d)
 %eigen_typemaps(Eigen::VectorXd)
 %eigen_typemaps(Eigen::Matrix3d)
 %eigen_typemaps(Eigen::Matrix4d)
@@ -75,10 +75,20 @@
 %template(doubleList) std::vector<double>;
 %template(stringList) std::vector<std::string>;
 %template(uintMap) std::map<std::string,unsigned int>;
-%template(JointLimitsMap) std::map<std::string,urdf::JointLimits>;
 %template(SE3Map) std::map<std::string,dwl::SE3>;
 %template(MotionMap) std::map<std::string,dwl::Motion>;
 %template(ForceMap) std::map<std::string,dwl::Force>;
+
+
+// Renaming RBD methods to get rid of the ambiguity
+%rename(linearPart_Q)
+		linearPart(Eigen::Vector7d&);
+%rename(linearPart_V)
+		linearPart(Eigen::Vector6d&);
+%rename(angularPart_Q)
+		angularPart(Eigen::Vector7d&);
+%rename(angularPart_V)
+		angularPart(Eigen::Vector6d&);
 
 
 // Renaming orientation methods to get rid of the ambiguity
@@ -107,39 +117,6 @@
 		SE3(const Eigen::Vector3d&, const Eigen::Vector4d&);
 
 
-// Renaming few functions of the ReducedBodyState class to get rid of the ambiguity
-%rename(setFootPositionDict_W) setFootPosition_W(const rbd::BodyVectorXd&);
-%rename(setFootPositionDict_B) setFootPosition_B(const rbd::BodyVectorXd&);
-%rename(setFootPositionDict_H) setFootPosition_H(const rbd::BodyVectorXd&);
-%rename(setFootVelocityDict_W) setFootVelocity_W(const rbd::BodyVectorXd&);
-%rename(setFootVelocityDict_B) setFootVelocity_B(const rbd::BodyVectorXd&);
-%rename(setFootVelocityDict_H) setFootVelocity_H(const rbd::BodyVectorXd&);
-%rename(setFootAccelerationDict_W) setFootAcceleration_W(const rbd::BodyVectorXd&);
-%rename(setFootAccelerationDict_B) setFootAcceleration_B(const rbd::BodyVectorXd&);
-%rename(setFootAccelerationDict_H) setFootAcceleration_H(const rbd::BodyVectorXd&);
-
-
-// Renaming some functions that generate ambiguity in the WholeBodyDynamic class
-%rename(computeInverseDynamics_withoutFex)
-		computeInverseDynamics(rbd::Vector6d&,
-							   Eigen::VectorXd&,
-							   const rbd::Vector6d&,
-							   const Eigen::VectorXd&,
-							   const rbd::Vector6d&,
-							   const Eigen::VectorXd&,
-							   const rbd::Vector6d&,
-							   const Eigen::VectorXd&);
-%rename(computeFloatingBaseInverseDynamics_withoutFex)
-		computeFloatingBaseInverseDynamics(rbd::Vector6d&,
-										   Eigen::VectorXd&,
-										   const rbd::Vector6d&,
-										   const Eigen::VectorXd&,
-										   const rbd::Vector6d&,
-										   const Eigen::VectorXd&,
-										   const Eigen::VectorXd&);
-
-%rename(urdf_Joint) urdf::Joint;
-%rename(urdf_Pose) urdf::Pose;
 %include <dwl/utils/RigidBodyDynamics.h>
 %include <dwl/utils/LieGroup.h>
 %include <dwl/ReducedBodyState.h>
