@@ -250,21 +250,30 @@ class HS071(dwl.OptimizationModel):
 
 
 if __name__ == '__main__':
+  # Path of this file
+  fpath = str(os.path.dirname(os.path.abspath(__file__)))
+  
+  # Optimization problem
   op = HS071()
 #   op = HS071_adolc()
-#  cmaes = dwl.cmaesSO()
-#  cmaes.setFromConfigFile("../../config/cmaes_config.yaml")
-#  op = op.__disown__()
-#  cmaes.setOptimizationModel(op)
-#  cmaes.init()
-#  cmaes.compute()
-#  print cmaes.getSolution().transpose()
-#  del cmaes
 
 
+  # Solving it with CMA-ES
+  cmaes = dwl.cmaesSO()
+  cmaes.setFromConfigFile(fpath + "/../../config/cmaes_config.yaml")
+  op = op.__disown__()
+  cmaes.setOptimizationModel(op)
+  cmaes.init()
+  startcputime = time.clock()
+  cmaes.compute()
+  cpu_duration = (time.clock() - startcputime) * 1000;
+  print("Computation time: ", cpu_duration, "(milisecs, CPU time)")
+  print cmaes.getSolution().transpose()
+#   del cmaes
 
+
+  # Solving it with Ipopt
   ipopt = dwl.IpoptNLP()
-  fpath = str(os.path.dirname(os.path.abspath(__file__)))
   ipopt.setFromConfigFile(fpath + "/../../config/ipopt_config.yaml")
   op = op.__disown__()
   ipopt.setOptimizationModel(op)
@@ -274,5 +283,5 @@ if __name__ == '__main__':
   cpu_duration = (time.clock() - startcputime) * 1000;
   print("Computation time: ", cpu_duration, "(milisecs, CPU time)")
   print ipopt.getSolution().transpose()
-#  del ipopt
+#   del ipopt
 
