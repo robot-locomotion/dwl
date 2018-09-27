@@ -37,7 +37,7 @@ DWL has the following required dependencies:
 * [CMake](http://www.cmake.org) (version 2.8.3 or higher)
 * [Eigen](http://eigen.tuxfamily.org) (version 3.2.0 or higher)
 * [Yaml-cpp](https://code.google.com/p/yaml-cpp/) (version 0.5.2 or higher)
-* [RBDL](http://rbdl.bitbucket.org/) (version 2.4.0 or higher)
+* [Pinocchio](https://github.com/stack-of-tasks/pinocchio) (version 1.3.0 or higher)
 * [SWIG](http://www.swig.org/) (version 3.0.12 or higher)
 * [urdfdom_header](https://github.com/ros/urdfdom_headers) (version 0.2.3 or higher)
 * [console_bridge](https://github.com/ros/console_bridge) (version 0.2.7 or higher)
