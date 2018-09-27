@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
     for (unsigned int j = 0; j < fbs.getJointDoF(); ++j) {
         std::string name = fbs.getJointName(j);
         BOOST_CHECK( fbs.getJointId(name) == j );
-        BOOST_CHECK( fbs.getJointNames()[j] == name );
+        BOOST_CHECK( fbs.getJointList()[j] == name );
         BOOST_CHECK( fbs.existJoint(name) == true );
         BOOST_CHECK( fbs.existJoint(name + "n$#1!") == false );
     }

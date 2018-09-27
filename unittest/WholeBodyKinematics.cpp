@@ -25,10 +25,11 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
 
 
     // Checking the CoM position and velocity
-    Eigen::Vector3d x, xd;
-    wkin.computeCoMRate(x, xd,
+    Eigen::Vector3d x, xd, xdd;
+    wkin.computeCoMRate(x, xd, xdd,
 						base_pos, joint_pos,
-						base_vel, joint_vel);
+						base_vel, joint_vel,
+						base_acc, joint_acc);
     BOOST_CHECK( x.isApprox(Eigen::Vector3d(-0.000278458, 0., -0.0460617), 1e-3) );
     BOOST_CHECK( xd.isApprox(Eigen::Vector3d(1., 0., 0.)) );
 
@@ -36,7 +37,7 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
     // Checking the forward kinematics for the LF foot
     dwl::SE3Map pos_W =
         wkin.computePosition(base_pos, joint_pos,
-                             fbs.getEndEffectorNames());
+                             fbs.getEndEffectorList());
     dwl::SE3 lf_pos(Eigen::Vector3d(0.370773, 0.324067, -0.57751),
     				Eigen::Vector4d(0.0928958, -0.364443, -0.0365662, 0.925859));
     BOOST_CHECK( pos_W.find("lf_foot")->second.getTranslation().isApprox(lf_pos.getTranslation(), 1e-3) );
@@ -47,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
     dwl::MotionMap vel_W =
         wkin.computeVelocity(base_pos, joint_pos,
                              base_vel, joint_vel,
-                             fbs.getEndEffectorNames());
+                             fbs.getEndEffectorList());
     dwl::Motion lf_vel(Eigen::Vector3d(1., 0., 0.), Eigen::Vector3d(0., 0., 0.));
     BOOST_CHECK( vel_W.find("lf_foot")->second.getLinear().isApprox(lf_vel.getLinear(), 1e-12) );
     BOOST_CHECK( vel_W.find("lf_foot")->second.getAngular().isApprox(lf_vel.getAngular(), 1e-12) );
@@ -58,7 +59,7 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
         wkin.computeAcceleration(base_pos, joint_pos,
                                  base_vel, joint_vel,
                                  base_acc, joint_acc,
-                                 fbs.getEndEffectorNames());
+                                 fbs.getEndEffectorList());
     dwl::Motion lf_acc(Eigen::Vector3d(-0.94828, 0., 0.206736), Eigen::Vector3d(0., 1., 0.));
     BOOST_CHECK( acc_W.find("lf_foot")->second.getLinear().isApprox(lf_acc.getLinear(), 1e-3) );
     BOOST_CHECK( acc_W.find("lf_foot")->second.getAngular().isApprox(lf_acc.getAngular(), 1e-3) );
@@ -77,7 +78,7 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
     dwl::MotionMap vel_B =
         wkin.computeVelocity(base_pos, joint_pos,
                              dwl::Motion(), joint_vel,
-                             fbs.getEndEffectorNames());
+                             fbs.getEndEffectorList());
 	wkin.computeJointVelocity(new_joint_vel, joint_pos, vel_B);
     BOOST_CHECK( new_joint_vel.isApprox(joint_vel, 1e-12) );
 
@@ -89,7 +90,7 @@ BOOST_AUTO_TEST_CASE(test_hyq) // specify a test case for hyq properties
         wkin.computeAcceleration(base_pos, joint_pos,
                                  dwl::Motion(), joint_vel,
                                  dwl::Motion(), joint_acc,
-                                 fbs.getEndEffectorNames());
+                                 fbs.getEndEffectorList());
 	wkin.computeJointAcceleration(new_joint_acc, joint_pos, joint_vel, acc_B);
     BOOST_CHECK( new_joint_acc.isApprox(joint_acc, 1e-12) );
 std::cout << joint_acc.transpose() << std::endl;
