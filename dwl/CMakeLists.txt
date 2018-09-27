@@ -11,6 +11,7 @@ pkg_check_modules(IPOPT ipopt>=3.12.4)
 pkg_check_modules(LIBCMAES libcmaes>=0.9.5)
 find_package(octomap)
 
+
 # Setting the thirdparties directories and libraries
 set(DEPENDENCIES_INCLUDE_DIRS ${PINOCCHIO_INCLUDE_DIRS}
 							   CACHE INTERNAL "")
@@ -63,7 +64,7 @@ if (qpoases_FOUND)
 	list(APPEND DEPENDENCIES_INCLUDE_DIRS  ${QPOASES_INCLUDE_DIRS})
 	list(APPEND DEPENDENCIES_LIBRARY_DIRS  ${QPOASES_LIBRARY_DIR})
 	list(APPEND DEPENDENCIES_LIBRARIES  ${QPOASES_LIBRARIES})
-    
+
 	include_directories(${QPOASES_INCLUDE_DIRS})
 	set(${PROJECT_NAME}_SOURCES  ${${PROJECT_NAME}_SOURCES}
 								 dwl/solver/qpOASES.cpp)
