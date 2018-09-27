@@ -37,7 +37,7 @@ void PreviewLocomotion::reset(model::FloatingBaseSystem& fbs,
 	state_tf_.reset(fbs, wkin, wdyn);
 
 	// Getting the gravity magnitude from the rigid-body dynamic model
-	gravity_ = fbs_->getRBDModel().gravity.norm();
+	gravity_ = fbs_->getGravityAcceleration();
 
 	// Getting the total mass of the system
 	mass_ = fbs_->getTotalMass();
@@ -46,7 +46,7 @@ void PreviewLocomotion::reset(model::FloatingBaseSystem& fbs,
 	num_feet_ = fbs_->getNumberOfEndEffectors(model::FOOT);
 
 	// Getting the feet names
-	feet_names_ = fbs_->getEndEffectorNames(model::FOOT);
+	feet_names_ = fbs_->getEndEffectorList(model::FOOT);
 
 	// Getting the default joint position
 	Eigen::VectorXd q0 = fbs_->getDefaultPosture();
@@ -55,11 +55,7 @@ void PreviewLocomotion::reset(model::FloatingBaseSystem& fbs,
 //	Eigen::Vector3d com_pos_B = fbs_.getSystemCoM(rbd::Vector6d::Zero(), q0);
 
 	// Computing the stance posture using the default position
-	wkin_->computeForwardKinematics(stance_posture_H_,
-									rbd::Vector6d::Zero(),
-									q0,
-									feet_names_,
-									rbd::Linear);
+	stance_posture_H_ = wkin_->computePosition(dwl::SE3(), q0, feet_names_);
 
 	// Converting to the CoM frame //TODO remove for testing
 //	for (rbd::BodyVectorXd::iterator feet_it = stance_posture_C_.begin();
@@ -318,7 +314,7 @@ void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 			time = params.duration;
 		else
 			time = sample_time_ * (k + 1);
-		current_state.time = state.time + time;
+		current_state.setTime(state.time + time);
 
 		// Computing the response of the Linear Controlled SLIP
 		// dynamics
@@ -339,7 +335,7 @@ void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 		std::string name = feet_names_[f];
 		if (params.phase.isSwingFoot(name)) {
 			Eigen::Vector3d stance_H =
-					stance_posture_H_.find(name)->second;
+					stance_posture_H_.find(name)->second.getTranslation();
 
 			// Getting the footshift control parameter
 			Eigen::Vector2d footshift_2d =
@@ -352,7 +348,8 @@ void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 			// Note that the footshift is always expressed in the
 			// horizontal frame
 			Eigen::Vector3d foothold =
-					trajectory.back().com_pos + stance_H + footshift_H;
+					trajectory.back().getCoMSE3().getTranslation() +
+					stance_H + footshift_H;
 
 			if (terrain_.isTerrainInformation()) {
 				// Adding the terrain height given the terrain
@@ -360,11 +357,13 @@ void PreviewLocomotion::stancePreview(ReducedBodyTrajectory& trajectory,
 				Eigen::Vector2d foothold_2d = foothold.head<2>();
 				foothold(rbd::Z) = terrain_.getTerrainHeight(foothold_2d);
 			} else {
-				foothold(rbd::Z) = actual_state_.com_pos(rbd::Z) -
-					cart_table_.getPendulumHeight();
+				foothold(rbd::Z) =
+						actual_state_.getCoMSE3().getTranslation()(rbd::Z) -
+						cart_table_.getPendulumHeight();
 			}
 
-			trajectory.back().support_region[name] = foothold;
+			trajectory.back().setSupportRegion(name,
+					dwl::SE3(foothold, (Eigen::Matrix3d) Eigen::Matrix3d::Identity()));
 		}
 	}
 }
@@ -410,13 +409,16 @@ void PreviewLocomotion::flightPreview(ReducedBodyTrajectory& trajectory,
 
 		// Computing the current time of the preview trajectory
 		ReducedBodyState current_state;
-		current_state.time = state.time + time;
+		current_state.setTime(state.time + time);
 
 		// Computing the CoM motion according to the projectile EoM //TODO these are in the H frame
-		current_state.com_pos = state.com_pos + state.com_vel * time +
+		current_state.com_pos.data.translation() =
+				state.getCoMSE3().getTranslation() +
+				state.getCoMVelocity_W().getLinear() * time +
 				0.5 * gravity_vec * time * time;
-		current_state.com_vel = state.com_vel + gravity_vec * time;
-		current_state.com_acc = gravity_vec;
+		current_state.com_vel.data.linear() =
+				state.getCoMVelocity_W().getLinear() + gravity_vec * time;
+		current_state.com_acc.data.linear() = gravity_vec;
 
 		// Generating the swing trajectory
 		if (full)
@@ -441,10 +443,11 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 								state.time + params.duration);
 
 	// Getting the swing shift per foot
-	rbd::BodyVector3d swing_shift_B;
+	Eigen::Vector3dMap swing_shift_B;
 	for (unsigned int j = 0; j < params.phase.feet.size(); ++j) {
 		std::string name = params.phase.feet[j];
-		Eigen::Vector3d stance_H = stance_posture_H_.find(name)->second;
+		Eigen::Vector3d stance_H =
+				stance_posture_H_.find(name)->second.getTranslation();
 
 		// Getting the footshift control parameter
 		Eigen::Vector2d footshift_2d = params.phase.getFootShift(name);
@@ -455,7 +458,8 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 		// Computing the foothold position w.r.t. the world. Note that the
 		// footshift is always expressed in the horizontal frame
 		Eigen::Vector3d foothold =
-				terminal_state.com_pos + stance_H + footshift_H;
+				terminal_state.getCoMSE3().getTranslation() +
+				stance_H + footshift_H;
 
 		// Computing the footshift in z from the height map. In case of no
 		// having the terrain height map, it assumes flat terrain conditions.
@@ -464,8 +468,9 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 		if (terrain_.isTerrainInformation()) {
 			// Getting the terminal CoM position in the horizontal frame
 			Eigen::Vector3d terminal_com_pos_H =
-					frame_tf_.fromWorldToHorizontalFrame(terminal_state.getCoMPosition(),
-														 terminal_state.getRPY());
+					frame_tf_.fromWorldToHorizontalFrame(
+							terminal_state.getCoMSE3().getTranslation(),
+							terminal_state.getCoMSE3().getRPY());
 
 			// Adding the terrain height given the terrain height-map
 			Eigen::Vector2d foothold_2d = foothold.head<2>();
@@ -475,16 +480,19 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 			// Computing the nominal CoM height that considers terrain elevations
 			Eigen::Vector3d height(0., 0., cart_table_.getPendulumHeight());
 			Eigen::Vector3d nominal_com_pos =
-					height + (terminal_state.com_pos - actual_state_.com_pos);
+					height + (terminal_state.getCoMSE3().getTranslation() -
+							actual_state_.getCoMSE3().getTranslation());
 			double nominal_com_height =
-					frame_tf_.fromWorldToHorizontalFrame(nominal_com_pos,
-														 terminal_state.getRPY())(rbd::Z);
+					frame_tf_.fromWorldToHorizontalFrame(
+							nominal_com_pos,
+							terminal_state.getCoMSE3().getRPY())(rbd::Z);
 			footshift_H(rbd::Z) = -(nominal_com_height + stance_H(rbd::Z));
 		}
 
 		swing_shift_B[name] =
-				frame_tf_.fromHorizontalToBaseFrame(footshift_H,
-													terminal_state.getRPY());
+				frame_tf_.fromHorizontalToBaseFrame(
+						footshift_H,
+						terminal_state.getCoMSE3().getRPY());
 	}
 
 	// Adding the swing pattern expressed in the CoM frame
@@ -492,22 +500,26 @@ void PreviewLocomotion::initSwing(const ReducedBodyState& state,
 
 	// Generating the actual state for every feet
 	feet_spline_generator_.clear();
-	for (rbd::BodyVector3d::const_iterator foot_it = state.foot_pos.begin();
-			foot_it != state.foot_pos.end(); ++foot_it) {
-		std::string name = foot_it->first;
+	for (dwl::SE3Map::const_iterator it = state.getFootSE3_B().begin();
+			it != state.getFootSE3_B().end(); ++it) {
+		std::string name = it->first;
 
 		// Checking the feet that swing
-		rbd::BodyVector3d::const_iterator swing_it = swing_params_.feet_shift.find(name);
+		Eigen::Vector3dMap::const_iterator swing_it =
+				swing_params_.feet_shift.find(name);
 		if (swing_it != swing_params_.feet_shift.end()) {
 			// Getting the actual position of the contact w.r.t the CoM frame
-			Eigen::Vector3d actual_pos_B = state.getFootPosition_B(foot_it);
+			Eigen::Vector3d actual_pos_B =
+					state.getFootSE3_B(name).getTranslation();
 
 			// Getting the target position of the contact w.r.t the CoM frame
 			Eigen::Vector3d footshift_B = (Eigen::Vector3d) swing_it->second;
-			Eigen::Vector3d stance_pos_H = stance_posture_H_.find(name)->second.head<3>();
+			Eigen::Vector3d stance_pos_H =
+					stance_posture_H_.find(name)->second.getTranslation();
 			Eigen::Vector3d stance_pos_B =
-					frame_tf_.fromHorizontalToBaseFrame(stance_pos_H,
-														terminal_state.getRPY());
+					frame_tf_.fromHorizontalToBaseFrame(
+							stance_pos_H,
+							terminal_state.getCoMSE3().getRPY());
 			Eigen::Vector3d target_pos_B = stance_pos_B + footshift_B;
 
 			// Initializing the foot pattern generator
@@ -528,12 +540,13 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 {
 	// Generating the actual state for every feet
 	Eigen::Vector3d foot_pos_B, foot_vel_B, foot_acc_B;
-	for (rbd::BodyVector3d::const_iterator foot_it = phase_state_.foot_pos.begin();
-			foot_it != phase_state_.foot_pos.end(); ++foot_it) {
-		std::string name = foot_it->first;
+	for (dwl::SE3Map::const_iterator it = phase_state_.getFootSE3_B().begin();
+			it != phase_state_.getFootSE3_B().end(); ++it) {
+		std::string name = it->first;
 
 		// Checking the feet that swing
-		rbd::BodyVector3d::const_iterator swing_it = swing_params_.feet_shift.find(name);
+		Eigen::Vector3dMap::const_iterator swing_it =
+				swing_params_.feet_shift.find(name);
 		if (swing_it != swing_params_.feet_shift.end()) {
 			// Generating the swing positions, velocities and accelerations
 			// expressed in the CoM frame
@@ -542,29 +555,52 @@ void PreviewLocomotion::generateSwing(ReducedBodyState& state,
 															foot_acc_B,
 															time);
 
+			// Getting the foot information in the base frame
+			const dwl::SE3& bXf = state.getFootSE3_B(name);
+			const dwl::Motion& bVf = state.getFootVelocity_B(name);
+			const dwl::Motion& bAf = state.getFootAcceleration_B(name);
+
 			// Adding the swing state to the trajectory
-			state.setFootPosition_B(name, foot_pos_B);
-			state.setFootVelocity_B(name, foot_vel_B);
-			state.setFootAcceleration_B(name, foot_acc_B);
+			state.setFootSE3_B(name, dwl::SE3(foot_pos_B, bXf.getRotation()));
+			state.setFootVelocity_B(name,
+					dwl::Motion(foot_vel_B, bVf.getAngular()));
+			state.setFootAcceleration_B(name,
+					dwl::Motion(foot_acc_B, bVf.getAngular()));
 		} else {
 			// There is not swing trajectory to generated (foot on ground).
 			// Nevertheless, we have to updated their positions w.r.t the CoM frame
 			// Getting the actual position of the foot expressed in the horizontal
 			// frame
-			Eigen::Vector3d actual_pos_H = phase_state_.getFootPosition_H(foot_it);
+			Eigen::Vector3d actual_pos_H =
+					phase_state_.getFootSE3_H(name).getTranslation();
 
 			// Getting the CoM position of the specific time
-			Eigen::Vector3d com_pos = state.com_pos;
-			Eigen::Vector3d com_vel = state.com_vel;
-			Eigen::Vector3d com_acc = state.com_acc;
+			const Eigen::Vector3d& com_pos =
+					state.getCoMSE3().getTranslation();
+			const Eigen::Vector3d& com_vel =
+					state.getCoMVelocity_W().getLinear();
+			const Eigen::Vector3d& com_acc =
+					state.getCoMAcceleration_W().getLinear();
 
 			// Adding the foot states w.r.t. the CoM frame
-			Eigen::Vector3d com_disp_W = com_pos - phase_state_.com_pos;
+			Eigen::Vector3d com_disp_W =
+					com_pos - phase_state_.getCoMSE3().getTranslation();
 			Eigen::Vector3d com_disp_H =
-					frame_tf_.fromWorldToHorizontalFrame(com_disp_W, state.getRPY());
-			state.setFootPosition_H(name, actual_pos_H - com_disp_H);
-			state.setFootVelocity_H(name, -com_vel);
-			state.setFootAcceleration_H(name, -com_acc);
+					frame_tf_.fromWorldToHorizontalFrame(
+							com_disp_W,
+							state.getCoMSE3().getRPY());
+
+			// Getting the foot information in the base frame
+			const dwl::SE3& hXf = state.getFootSE3_H(name);
+			const dwl::Motion& hVf = state.getFootVelocity_H(name);
+			const dwl::Motion& hAf = state.getFootAcceleration_H(name);
+
+			state.setFootSE3_H(name,
+					dwl::SE3(actual_pos_H - com_disp_H, hXf.getRotation()));
+			state.setFootVelocity_H(name,
+					dwl::Motion(-com_vel, hVf.getAngular()));
+			state.setFootAcceleration_H(name,
+					dwl::Motion(-com_acc, hVf.getAngular()));
 		}
 	}
 }

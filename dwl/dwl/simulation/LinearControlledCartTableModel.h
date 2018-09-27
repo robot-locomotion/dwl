@@ -3,6 +3,7 @@
 
 #include <dwl/ReducedBodyState.h>
 #include <dwl/utils/RigidBodyDynamics.h>
+#include <dwl/utils/FrameTF.h>
 #include <dwl/utils/Macros.h>
 
 

@@ -8,6 +8,7 @@
 #include <dwl/model/FloatingBaseSystem.h>
 #include <dwl/environment/TerrainMap.h>
 #include <dwl/utils/YamlWrapper.h>
+#include <dwl/utils/EigenExtra.h>
 
 
 namespace dwl
@@ -19,12 +20,12 @@ namespace simulation
 enum TypeOfPhases {STANCE, FLIGHT};
 struct PreviewPhase
 {
-	PreviewPhase() : type(STANCE), feet(rbd::BodySelector()), step_(false) {}
+	PreviewPhase() : type(STANCE), feet(dwl::model::ElementList()), step_(false) {}
 	PreviewPhase(const enum TypeOfPhases& _type,
-				 const rbd::BodySelector& _feet = rbd::BodySelector()) :
+				 const dwl::model::ElementList& _feet = dwl::model::ElementList()) :
 					 type(_type), feet(_feet), step_(false) {
 		// Setting the swing feet of this phase
-		for (unsigned int f = 0; f < feet.size(); f++)
+		for (unsigned int f = 0; f < feet.size(); ++f)
 			swing_feet[feet[f]] = true;
 
 		// Checking if the phase makes a step
@@ -62,7 +63,7 @@ struct PreviewPhase
 	}
 
 	Eigen::Vector2d getFootShift(const std::string& name) const {
-		rbd::BodyVectorXd::const_iterator it = feet_shift.find(name);
+		Eigen::Vector2dMap::const_iterator it = feet_shift.find(name);
 		if (it != feet_shift.end())
 			return it->second;
 		else
@@ -70,9 +71,9 @@ struct PreviewPhase
 	}
 
 	TypeOfPhases type;
-	rbd::BodySelector feet;
+	dwl::model::ElementList feet;
 	std::map<std::string,bool> swing_feet;
-	rbd::BodyVectorXd feet_shift;
+	Eigen::Vector2dMap feet_shift;
 	bool step_;
 };
 
@@ -119,7 +120,7 @@ struct PreviewSchedule
 		actual_phase_ = initial_phase;
 	}
 
-	void init(const rbd::BodyVector3d& support) {
+	void init(const SE3Map& support) {
 		for (unsigned int p = 0; p < getNumberPhases(); ++p) {
 			std::vector<std::string> swings = getSwingFeet(p);
 			unsigned int num_swings = getNumberOfSwingFeet(p);
@@ -150,7 +151,7 @@ struct PreviewSchedule
 		schedule.push_back(phase);
 	}
 
-	void setFeet(const rbd::BodySelector& _feet) {
+	void setFeet(const dwl::model::ElementList& _feet) {
 		feet = _feet;
 	}
 
@@ -187,7 +188,7 @@ struct PreviewSchedule
 	}
 
 	std::vector<PreviewPhase> schedule;
-	rbd::BodySelector feet;
+	dwl::model::ElementList feet;
 	unsigned int actual_phase_;
 	unsigned int next_phase_;
 };
@@ -195,13 +196,13 @@ struct PreviewSchedule
 
 struct SwingParams
 {
-	SwingParams() : duration(0.), feet_shift(rbd::BodyVector3d()) {}
+	SwingParams() : duration(0.), feet_shift(Eigen::Vector3dMap()) {}
 	SwingParams(const double& _duration,
-				const rbd::BodyVector3d& _feet_shift) : duration(_duration),
+				const Eigen::Vector3dMap& _feet_shift) : duration(_duration),
 						feet_shift(_feet_shift) {}
 
 	double duration;
-	rbd::BodyVector3d feet_shift;
+	Eigen::Vector3dMap feet_shift;
 };
 
 
@@ -236,15 +237,16 @@ struct PreviewState
 		// Frame transformer
 		math::FrameTF tf;
 
-		Eigen::Vector3d com_disp_W = state.com_pos - state.cop;
+		Eigen::Vector3d com_disp_W =
+				state.getCoMSE3().getTranslation() - state.getCoPPosition_W();
 		Eigen::Vector3d com_disp_H =
-				tf.fromWorldToHorizontalFrame(com_disp_W, state.getRPY());
+				tf.fromWorldToHorizontalFrame(com_disp_W, state.com_pos.getRPY());
 
 		height = com_disp_H(rbd::Z);
 		com_pos = (Eigen::Vector2d) com_disp_H.head<2>();
-		com_vel = (Eigen::Vector2d) state.getCoMVelocity_H().head<2>();
-		for (rbd::BodyVector3d::const_iterator it = state.support_region.begin();
-				it != state.support_region.end(); it++)
+		com_vel = (Eigen::Vector2d) state.getCoMVelocity_H().getLinear().head<2>();
+		for (SE3Map::const_iterator it = state.support_region.begin();
+				it != state.support_region.end(); ++it)
 			support[it->first] = true;
 	}
 
@@ -489,7 +491,7 @@ class PreviewLocomotion
 		unsigned int num_feet_;
 
 		/** @brief Feet names */
-		rbd::BodySelector feet_names_;
+		dwl::model::ElementList feet_names_;
 
 		/** @brief Cart-table model */
 		LinearControlledCartTableModel cart_table_;
@@ -498,7 +500,7 @@ class PreviewLocomotion
 		double step_height_;
 
 		/** @ brief Stance posture position w.r.t. the horizontal frame */
-		rbd::BodyVectorXd stance_posture_H_;
+		SE3Map stance_posture_H_;
 };
 
 } //@namespace simulation
