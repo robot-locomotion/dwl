@@ -88,7 +88,7 @@ if [[ $1 == 'default' ]]; then
 
 	# Installing all the dwl dependencies
 	bash $CURRENT_DIR/install/install_eigen.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
-	bash $CURRENT_DIR/install/install_rbdl.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
+	bash $CURRENT_DIR/install/install_pinocchio.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
 	bash $CURRENT_DIR/install/install_yamlcpp.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
 	bash $CURRENT_DIR/install/install_swig.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
 	bash $CURRENT_DIR/install/install_ipopt.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
@@ -132,18 +132,18 @@ else
 
 
 	##---------------------------------------------------------------##
-	##----------------------- Installing RBDL -----------------------##
+	##-------------------- Installing Pinocchio ---------------------##
 	##---------------------------------------------------------------##
 	echo ""
-	echo -e "${COLOR_BOLD}Installing RBDL ...${COLOR_RESET}"
-	if [ -d "$INSTALL_DEPS_PREFIX/include/rbdl" ] || [ -d "$COMMON_INSTALL_PREFIX/include/rbdl" ]; then
-		echo -e -n "${COLOR_QUES}Do you want to re-install RBDL 2.4.0? [y/N]: ${COLOR_RESET}"
-		read ANSWER_RBDL
-		if [ "$ANSWER_RBDL" == "Y" ] || [ "$ANSWER_RBDL" == "y" ]; then
-			bash $CURRENT_DIR/install/install_rbdl.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
+	echo -e "${COLOR_BOLD}Installing Pinocchio ...${COLOR_RESET}"
+	if [ -d "$INSTALL_DEPS_PREFIX/include/pinocchio" ] || [ -d "$COMMON_INSTALL_PREFIX/include/pinocchio" ]; then
+		echo -e -n "${COLOR_QUES}Do you want to re-install Pinocchio 1.3.0? [y/N]: ${COLOR_RESET}"
+		read ANSWER_PINOCCHIO
+		if [ "$ANSWER_PINOCCHIO" == "Y" ] || [ "$ANSWER_PINOCCHIO" == "y" ]; then
+			bash $CURRENT_DIR/install/install_pinocchio.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
 	    fi
 	else
-		bash $CURRENT_DIR/install/install_rbdl.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
+		bash $CURRENT_DIR/install/install_pinocchio.sh $CURRENT_OS $INSTALL_DEPS_PREFIX False
 	fi
 
 

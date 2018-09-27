@@ -124,14 +124,12 @@ else
 fi
 
 if [ "$CURRENT_OS" == "OSX" ]; then
-	curl -L "https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip" > v2.4.0.zip
-	unzip v2.4.0.zip
-	rm v2.4.0.zip
-	mv rbdl-*/ rbdl
-	cd rbdl
+	curl -L "https://github.com/stack-of-tasks/pinocchio/releases/download/v1.3.0/pinocchio-1.3.0.tar.gz" | tar xz
+	mv pinocchio-*/ pinocchio
+	cd pinocchio
 	mkdir -p build
 	cd build
-	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX $VERBOSITY ../
+	cmake -DCMAKE_BUILD_TYPE=Release q-DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX $VERBOSITY ../
 	make -j
 	if [[ $OWNER == 'root' ]]; then
 		sudo make -j install
@@ -141,15 +139,14 @@ if [ "$CURRENT_OS" == "OSX" ]; then
 elif [ "$CURRENT_OS" == "UBUNTU" ]; then
 	sudo apt-get install -qqy liburdfdom-headers-dev liburdfdom-dev
 
-	# Getting RBDL 2.4.0
-	wget https://bitbucket.org/rbdl/rbdl/get/v2.4.0.zip
-	unzip v2.4.0.zip
-	rm v2.4.0.zip
-	mv rbdl-rbdl-* rbdl
-	cd rbdl
+	# Getting Pinocchio 1.3.0
+	wget https://github.com/stack-of-tasks/pinocchio/releases/download/v1.3.0/pinocchio-1.3.0.tar.gz
+	mkdir pinocchio && tar zxf pinocchio-1.3.0.tar.gz -C pinocchio --strip-components 1
+	rm pinocchio-1.3.0.tar.gz
+	cd pinocchio
 	mkdir -p build
 	cd build
-	cmake -D RBDL_BUILD_ADDON_URDFREADER:bool=ON -D CMAKE_INSTALL_LIBDIR:string=lib -DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX $VERBOSITY ../
+	cmake -DCMAKE_BUILD_TYPE=Release q-DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX $VERBOSITY ../
 	make -j
 	if [[ $OWNER == 'root' ]]; then
 		sudo make -j install
