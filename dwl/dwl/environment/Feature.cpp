@@ -9,8 +9,7 @@ namespace environment
 
 Feature::Feature() :
 		space_discretization_(std::numeric_limits<double>::max(),
-				std::numeric_limits<double>::max()),
-				robot_(NULL), max_cost_(1.), weight_(1.)
+				std::numeric_limits<double>::max()), max_cost_(1.), weight_(1.)
 {
 
 }
@@ -19,14 +18,6 @@ Feature::Feature() :
 Feature::~Feature()
 {
 
-}
-
-
-void Feature::reset(robot::Robot* robot)
-{
-	printf(BLUE "Setting the robot properties in the %s feature \n"
-			COLOR_RESET, name_.c_str());
-	robot_ = robot;
 }
 
 

@@ -33,11 +33,6 @@ include_directories(${YAMLCPP_INCLUDE_DIRS})
 set(${PROJECT_NAME}_SOURCES  dwl/WholeBodyState.cpp
 							 dwl/ReducedBodyState.cpp
 							 dwl/RobotStates.cpp
-							 dwl/locomotion/PlanningOfMotionSequence.cpp 
-							 dwl/locomotion/HierarchicalPlanning.cpp
-							 dwl/locomotion/MotionPlanning.cpp
-							 dwl/locomotion/ContactPlanning.cpp
-							 dwl/locomotion/WholeBodyTrajectoryOptimization.cpp
 							 dwl/solver/SearchTreeSolver.cpp	
 							 dwl/solver/OptimizationSolver.cpp
 							 dwl/solver/Dijkstrap.cpp
@@ -45,37 +40,14 @@ set(${PROJECT_NAME}_SOURCES  dwl/WholeBodyState.cpp
 							 dwl/solver/AnytimeRepairingAStar.cpp
 							 dwl/solver/QuadraticProgram.cpp
 							 dwl/solver/QuadProg++QP.cpp
+							 dwl/model/AdjacencyModel.cpp
+							 dwl/model/OptimizationModel.cpp
  							 dwl/model/FloatingBaseSystem.cpp
 							 dwl/model/WholeBodyKinematics.cpp
 							 dwl/model/WholeBodyDynamics.cpp
-							 dwl/model/AdjacencyModel.cpp
-							 dwl/model/GridBasedBodyAdjacency.cpp
-							 dwl/model/LatticeBasedBodyAdjacency.cpp
-							 dwl/model/OptimizationModel.cpp
-							 dwl/ocp/OptimalControl.cpp
-							 dwl/ocp/Constraint.cpp
-							 dwl/ocp/DynamicalSystem.cpp
-							 dwl/ocp/FullDynamicalSystem.cpp
-							 dwl/ocp/CentroidalDynamicalSystem.cpp
-							 dwl/ocp/ConstrainedDynamicalSystem.cpp
-							 dwl/ocp/ComplementaryConstraint.cpp
-							 dwl/ocp/InelasticContactModelConstraint.cpp
-							 dwl/ocp/InelasticContactVelocityConstraint.cpp
-							 dwl/ocp/SupportPolygonConstraint.cpp
-							 dwl/ocp/PointConstraint.cpp
-							 dwl/ocp/Cost.cpp
-							 dwl/ocp/TerminalStateTrackingEnergyCost.cpp
-							 dwl/ocp/IntegralStateTrackingEnergyCost.cpp
-							 dwl/ocp/IntegralControlEnergyCost.cpp
-							 dwl/simulation/PreviewLocomotion.cpp
-							 dwl/simulation/LinearControlledCartTableModel.cpp
-							 dwl/simulation/FootSplinePatternGenerator.cpp
-							 dwl/behavior/MotorPrimitives.cpp
-							 dwl/behavior/BodyMotorPrimitives.cpp
 							 dwl/environment/TerrainMap.cpp
 							 dwl/environment/SpaceDiscretization.cpp
 							 dwl/environment/Feature.cpp
-							 dwl/robot/Robot.cpp
 							 dwl/utils/Geometry.cpp
 							 dwl/utils/Algebra.cpp
 							 dwl/utils/Orientation.cpp

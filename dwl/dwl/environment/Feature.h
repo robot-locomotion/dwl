@@ -2,7 +2,6 @@
 #define DWL__ENVIRONEMT__FEATURE__H
 
 #include <dwl/environment/SpaceDiscretization.h>
-#include <dwl/robot/Robot.h>
 #include <dwl/utils/utils.h>
 
 
@@ -24,12 +23,6 @@ class Feature
 
 		/** @brief Destructor function **/
 		virtual ~Feature();
-
-		/**
-		 * @brief Sets the robot information that is used for body features
-		 * @param dwl::robot::Robot* robot Robot properties
-		 */
-		void reset(robot::Robot* robot);
 
 		/**
 		 * @brief Abstract method to compute the cost value according some
@@ -86,9 +79,6 @@ class Feature
 
 		/** @brief Object of the SpaceDiscretization class for defining the space discretization routines */
 		SpaceDiscretization space_discretization_;
-
-		/** @brief Pointer to the robot properties */
-		robot::Robot* robot_;
 
 		/** @brief Maximum cost */
 		double max_cost_;
