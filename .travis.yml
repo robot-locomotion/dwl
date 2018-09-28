@@ -4,6 +4,10 @@ python:
 sudo: required
 dist: trusty
 before_install:
+- export PATH=/opt/openrobots/bin:$PATH
+- export PKG_CONFIG_PATH=/opt/openrobots/lib/pkgconfig:$PKG_CONFIG_PATH
+- export LD_LIBRARY_PATH=/opt/openrobots/lib:$LD_LIBRARY_PATH
+- export PYTHONPATH=/opt/openrobots/lib/python2.7/site-packages:$PYTHONPATH
 - ./install_deps.sh default
 install:
 - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/openrobots -DINSTALL_DEPS_PREFIX=$HOME/openrobots -DDWL_WITH_BENCHMARK=TRUE -DDWL_WITH_PYTHON=TRUE -DDWL_WITH_SAMPLE=TRUE -DDWL_WITH_UNIT_TEST=TRUE -DCMAKE_RULE_MESSAGES:BOOL=OFF . 

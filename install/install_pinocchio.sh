@@ -137,20 +137,9 @@ if [ "$CURRENT_OS" == "OSX" ]; then
 		make -j install
 	fi
 elif [ "$CURRENT_OS" == "UBUNTU" ]; then
-	sudo apt-get install -qqy liburdfdom-headers-dev liburdfdom-dev
-
-	# Getting Pinocchio 1.3.0
-	wget https://github.com/stack-of-tasks/pinocchio/releases/download/v1.3.0/pinocchio-1.3.0.tar.gz
-	mkdir pinocchio && tar zxf pinocchio-1.3.0.tar.gz -C pinocchio --strip-components 1
-	rm pinocchio-1.3.0.tar.gz
-	cd pinocchio
-	mkdir -p build
-	cd build
-	cmake -DCMAKE_BUILD_TYPE=Release q-DCMAKE_INSTALL_PREFIX=$INSTALL_DEPS_PREFIX $VERBOSITY ../
-	make -j
-	if [[ $OWNER == 'root' ]]; then
-		sudo make -j install
-	else
-		make -j install
-	fi
+	RELEASE_NAME=$(lsb_release -cs)
+	sudo sh -c "echo 'deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $RELEASE_NAME robotpkg' >> /etc/apt/sources.list.d/robotpkg.list"
+	curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
+	sudo apt-get update
+	sudo apt install robotpkg-py27-pinocchio
 fi
